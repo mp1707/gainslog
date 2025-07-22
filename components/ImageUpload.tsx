@@ -35,36 +35,44 @@
 
     const uploadImage = async () => {
         if (!image) return;
-
+      
         try {
-        setUploading(true);
-        setError(null);
-
-        // Convert image uri to blob
-        const response = await fetch(image);
-        const blob = await response.blob();
-
-        // Generate a unique filename
-        const filename = `public/image-${Date.now()}.jpg`;
-
-        // Upload to Supabase Storage
-        const { data, error: uploadError } = await supabase.storage
+          setUploading(true);
+          setError(null);
+      
+          // Create a new FormData object
+          const formData = new FormData();
+      
+          // The filename for Supabase Storage
+          const filename = `public/image-${Date.now()}.jpg`;
+      
+          // Append the file to FormData.
+          // The object format { uri, name, type } is crucial for React Native.
+          formData.append("file", {
+            uri: image,
+            name: filename, // The name of the file
+            type: "image/jpeg", // The mime type
+          } as any); // Use 'as any' to avoid TypeScript type errors for the file object
+      
+          // Upload FormData to Supabase Storage
+          // The 'filename' is the path in your bucket, and 'formData' is the body.
+          const { data, error: uploadError } = await supabase.storage
             .from("food-images")
-            .upload(filename, blob);
-
-        if (uploadError) {
+            .upload(filename, formData);
+      
+          if (uploadError) {
             throw uploadError;
-        }
-
-        // Clear the selected image after successful upload
-        setImage(null);
+          }
+      
+          // Clear the selected image after successful upload
+          setImage(null);
         } catch (err) {
-        setError("Failed to upload image");
-        console.error("Error uploading image:", err);
+          setError("Failed to upload image");
+          console.error("Error uploading image:", err);
         } finally {
-        setUploading(false);
+          setUploading(false);
         }
-    };
+      };
 
     return (
         <View style={styles.container}>
