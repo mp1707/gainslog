@@ -15,7 +15,9 @@ import { supabase } from "./lib/supabase";
 
 interface FoodLog {
   id: string;
-  title: string;
+  userDescription?: string;
+  generatedTitle: string;
+  estimationConfidence: number;
   calories: number;
   protein: number;
   carbs: number;
@@ -25,25 +27,37 @@ interface FoodLog {
 const mockFoodLogs: FoodLog[] = [
   {
     id: "1",
-    title: "Chicken with rice",
+    generatedTitle: "Chicken with rice",
     calories: 100,
+    estimationConfidence: 85,
     protein: 10,
     carbs: 20,
     fat: 30,
   },
   {
     id: "2",
-    title: "Salad with nuts",
+    generatedTitle: "Salad with nuts",
     calories: 100,
+    estimationConfidence: 45,
     protein: 10,
     carbs: 20,
     fat: 30,
   },
+  {
+    id: "3",
+    generatedTitle: "Pizza slice",
+    calories: 320,
+    estimationConfidence: 25,
+    protein: 15,
+    carbs: 35,
+    fat: 18,
+  },
 ];
 
 const mockAddedFoodLog = {
-  title: "New log entry!",
+  generatedTitle: "New log entry!",
   calories: 100,
+  estimationConfidence: 80,
   protein: 10,
   carbs: 20,
   fat: 30,
@@ -58,10 +72,11 @@ export default function App() {
       setIsUploading(true);
 
       // Request camera permissions first
-      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-      
-      if (permissionResult.status !== 'granted') {
-        throw new Error('Camera permission not granted');
+      const permissionResult =
+        await ImagePicker.requestCameraPermissionsAsync();
+
+      if (permissionResult.status !== "granted") {
+        throw new Error("Camera permission not granted");
       }
 
       const result = await ImagePicker.launchCameraAsync({
@@ -99,7 +114,7 @@ export default function App() {
         ...mockAddedFoodLog,
       };
 
-      setFoodLogs(prev => [newLog, ...prev]);
+      setFoodLogs((prev) => [newLog, ...prev]);
     } catch (error) {
       console.error("Error adding food log:", error);
     } finally {
@@ -110,15 +125,30 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
-      
+
       <View style={styles.header}>
         <Text style={styles.title}>Food Logs</Text>
       </View>
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+      >
         {foodLogs.map((log) => (
           <View key={log.id} style={styles.logCard}>
-            <Text style={styles.logTitle}>{log.title}</Text>
+            <View style={styles.titleRow}>
+              <Text style={styles.logTitle}>
+                {log.userDescription || log.generatedTitle}
+              </Text>
+              <Text style={[
+                styles.confidenceText,
+                log.estimationConfidence <= 30 && styles.confidenceLow,
+                log.estimationConfidence >= 31 && log.estimationConfidence <= 70 && styles.confidenceMedium,
+                log.estimationConfidence >= 71 && styles.confidenceHigh,
+              ]}>
+                {log.estimationConfidence}%
+              </Text>
+            </View>
             <View style={styles.macroRow}>
               <View style={styles.macroItem}>
                 <Text style={styles.macroLabel}>P:</Text>
@@ -194,12 +224,39 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "#f3f4f6",
   },
+  titleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 12,
+  },
   logTitle: {
     fontSize: 18,
     fontWeight: "600",
     color: "#111827",
-    marginBottom: 12,
     letterSpacing: -0.2,
+    flex: 1,
+    marginRight: 12,
+  },
+  confidenceText: {
+    fontSize: 14,
+    fontWeight: "600",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  confidenceLow: {
+    backgroundColor: "#fee2e2",
+    color: "#dc2626",
+  },
+  confidenceMedium: {
+    backgroundColor: "#fef3c7",
+    color: "#d97706",
+  },
+  confidenceHigh: {
+    backgroundColor: "#dcfce7",
+    color: "#16a34a",
   },
   macroRow: {
     flexDirection: "row",
