@@ -71,33 +71,67 @@ export default function App() {
   const [foodLogs, setFoodLogs] = useState<FoodLog[]>(mockFoodLogs);
   const [isUploading, setIsUploading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalMode, setModalMode] = useState<'edit' | 'create'>('edit');
   const [selectedLog, setSelectedLog] = useState<FoodLog | null>(null);
   const [tempTitle, setTempTitle] = useState("");
   const [tempDescription, setTempDescription] = useState("");
 
   const handleAddInfo = (log: FoodLog) => {
+    setModalMode('edit');
     setSelectedLog(log);
     setTempTitle(log.userTitle || log.generatedTitle);
     setTempDescription(log.userDescription || "");
     setIsModalVisible(true);
   };
 
-  const handleSaveInfo = () => {
-    if (!selectedLog) return;
+  const handleCreateManualLog = () => {
+    setModalMode('create');
+    setSelectedLog(null);
+    setTempTitle("");
+    setTempDescription("");
+    setIsModalVisible(true);
+  };
 
-    setFoodLogs((prevLogs) =>
-      prevLogs.map((log) =>
-        log.id === selectedLog.id
-          ? {
-              ...log,
-              userTitle: tempTitle.trim(),
-              userDescription: tempDescription.trim(),
-              // Simulate increased confidence when user adds info
-              estimationConfidence: Math.min(log.estimationConfidence + 15, 95),
-            }
-          : log
-      )
-    );
+  const handleSaveInfo = () => {
+    if (modalMode === 'create') {
+      // Validate required fields for create mode
+      if (!tempTitle.trim()) {
+        Alert.alert("Error", "Title is required");
+        return;
+      }
+
+      // Create new manual food log
+      const newLog: FoodLog = {
+        id: Date.now().toString(),
+        userTitle: tempTitle.trim(),
+        userDescription: tempDescription.trim(),
+        generatedTitle: tempTitle.trim(),
+        estimationConfidence: 95, // High confidence for manual entries
+        calories: mockAddedFoodLog.calories,
+        protein: mockAddedFoodLog.protein,
+        carbs: mockAddedFoodLog.carbs,
+        fat: mockAddedFoodLog.fat,
+      };
+
+      setFoodLogs((prev) => [newLog, ...prev]);
+    } else {
+      // Edit mode
+      if (!selectedLog) return;
+
+      setFoodLogs((prevLogs) =>
+        prevLogs.map((log) =>
+          log.id === selectedLog.id
+            ? {
+                ...log,
+                userTitle: tempTitle.trim(),
+                userDescription: tempDescription.trim(),
+                // Simulate increased confidence when user adds info
+                estimationConfidence: Math.min(log.estimationConfidence + 15, 95),
+              }
+            : log
+        )
+      );
+    }
 
     setIsModalVisible(false);
     setSelectedLog(null);
@@ -234,6 +268,13 @@ export default function App() {
       </ScrollView>
 
       <TouchableOpacity
+        style={styles.manualEntryButton}
+        onPress={handleCreateManualLog}
+      >
+        <Text style={styles.manualEntryButtonText}>✎</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
         style={[styles.addButton, isUploading && styles.addButtonDisabled]}
         onPress={handleAddFoodLog}
         disabled={isUploading}
@@ -241,7 +282,7 @@ export default function App() {
         {isUploading ? (
           <ActivityIndicator color="#ffffff" size="small" />
         ) : (
-          <Text style={styles.addButtonText}>+</Text>
+          <Text style={styles.addButtonText}>📷</Text>
         )}
       </TouchableOpacity>
 
@@ -256,7 +297,9 @@ export default function App() {
             <TouchableOpacity onPress={handleCancelInfo}>
               <Text style={styles.modalCancelButton}>Cancel</Text>
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>Add Info</Text>
+            <Text style={styles.modalTitle}>
+              {modalMode === 'create' ? 'Add Food Log' : 'Add Info'}
+            </Text>
             <TouchableOpacity onPress={handleSaveInfo}>
               <Text style={styles.modalSaveButton}>Save</Text>
             </TouchableOpacity>
@@ -399,6 +442,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#059669",
+  },
+  manualEntryButton: {
+    position: "absolute",
+    bottom: 102,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#34D399",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#34D399",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  manualEntryButtonText: {
+    fontSize: 24,
+    fontWeight: "400",
+    color: "#ffffff",
+    lineHeight: 24,
   },
   addButton: {
     position: "absolute",
