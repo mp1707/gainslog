@@ -8,6 +8,9 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ActivityIndicator,
+  Modal,
+  TextInput,
+  Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
@@ -15,6 +18,7 @@ import { supabase } from "./lib/supabase";
 
 interface FoodLog {
   id: string;
+  userTitle?: string;
   userDescription?: string;
   generatedTitle: string;
   estimationConfidence: number;
@@ -66,6 +70,47 @@ const mockAddedFoodLog = {
 export default function App() {
   const [foodLogs, setFoodLogs] = useState<FoodLog[]>(mockFoodLogs);
   const [isUploading, setIsUploading] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedLog, setSelectedLog] = useState<FoodLog | null>(null);
+  const [tempTitle, setTempTitle] = useState("");
+  const [tempDescription, setTempDescription] = useState("");
+
+  const handleAddInfo = (log: FoodLog) => {
+    setSelectedLog(log);
+    setTempTitle(log.userTitle || log.generatedTitle);
+    setTempDescription(log.userDescription || "");
+    setIsModalVisible(true);
+  };
+
+  const handleSaveInfo = () => {
+    if (!selectedLog) return;
+
+    setFoodLogs((prevLogs) =>
+      prevLogs.map((log) =>
+        log.id === selectedLog.id
+          ? {
+              ...log,
+              userTitle: tempTitle.trim(),
+              userDescription: tempDescription.trim(),
+              // Simulate increased confidence when user adds info
+              estimationConfidence: Math.min(log.estimationConfidence + 15, 95),
+            }
+          : log
+      )
+    );
+
+    setIsModalVisible(false);
+    setSelectedLog(null);
+    setTempTitle("");
+    setTempDescription("");
+  };
+
+  const handleCancelInfo = () => {
+    setIsModalVisible(false);
+    setSelectedLog(null);
+    setTempTitle("");
+    setTempDescription("");
+  };
 
   const handleAddFoodLog = async () => {
     try {
@@ -137,17 +182,34 @@ export default function App() {
         {foodLogs.map((log) => (
           <View key={log.id} style={styles.logCard}>
             <View style={styles.titleRow}>
-              <Text style={styles.logTitle}>
-                {log.userDescription || log.generatedTitle}
-              </Text>
-              <Text style={[
-                styles.confidenceText,
-                log.estimationConfidence <= 30 && styles.confidenceLow,
-                log.estimationConfidence >= 31 && log.estimationConfidence <= 70 && styles.confidenceMedium,
-                log.estimationConfidence >= 71 && styles.confidenceHigh,
-              ]}>
-                {log.estimationConfidence}%
-              </Text>
+              <View style={styles.titleContent}>
+                <Text style={styles.logTitle}>
+                  {log.userTitle || log.generatedTitle}
+                </Text>
+                {log.userDescription && (
+                  <Text style={styles.logDescription}>{log.userDescription}</Text>
+                )}
+              </View>
+              <View style={styles.rightSection}>
+                <Text
+                  style={[
+                    styles.confidenceText,
+                    log.estimationConfidence <= 30 && styles.confidenceLow,
+                    log.estimationConfidence >= 31 &&
+                      log.estimationConfidence <= 70 &&
+                      styles.confidenceMedium,
+                    log.estimationConfidence >= 71 && styles.confidenceHigh,
+                  ]}
+                >
+                  {log.estimationConfidence}%
+                </Text>
+                <TouchableOpacity
+                  style={styles.addInfoButton}
+                  onPress={() => handleAddInfo(log)}
+                >
+                  <Text style={styles.addInfoButtonText}>Add Info</Text>
+                </TouchableOpacity>
+              </View>
             </View>
             <View style={styles.macroRow}>
               <View style={styles.macroItem}>
@@ -182,6 +244,51 @@ export default function App() {
           <Text style={styles.addButtonText}>+</Text>
         )}
       </TouchableOpacity>
+
+      <Modal
+        visible={isModalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={handleCancelInfo}
+      >
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={handleCancelInfo}>
+              <Text style={styles.modalCancelButton}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Add Info</Text>
+            <TouchableOpacity onPress={handleSaveInfo}>
+              <Text style={styles.modalSaveButton}>Save</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <ScrollView style={styles.modalContent}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Title</Text>
+              <TextInput
+                style={styles.textInput}
+                value={tempTitle}
+                onChangeText={setTempTitle}
+                placeholder="Enter food title"
+                multiline={false}
+              />
+            </View>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Description (Optional)</Text>
+              <TextInput
+                style={[styles.textInput, styles.textInputMultiline]}
+                value={tempDescription}
+                onChangeText={setTempDescription}
+                placeholder="Add details about preparation, ingredients, portion size, etc."
+                multiline={true}
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -230,13 +337,26 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginBottom: 12,
   },
+  titleContent: {
+    flex: 1,
+    marginRight: 12,
+  },
   logTitle: {
     fontSize: 18,
     fontWeight: "600",
     color: "#111827",
     letterSpacing: -0.2,
-    flex: 1,
-    marginRight: 12,
+    marginBottom: 4,
+  },
+  logDescription: {
+    fontSize: 14,
+    color: "#6b7280",
+    lineHeight: 18,
+    fontStyle: "italic",
+  },
+  rightSection: {
+    alignItems: "flex-end",
+    gap: 6,
   },
   confidenceText: {
     fontSize: 14,
@@ -305,5 +425,72 @@ const styles = StyleSheet.create({
     fontWeight: "300",
     color: "#ffffff",
     lineHeight: 28,
+  },
+  addInfoButton: {
+    backgroundColor: "#f3f4f6",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "#e5e7eb",
+  },
+  addInfoButtonText: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#6b7280",
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "#f8f9fa",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: "#ffffff",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#e5e7eb",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#111827",
+  },
+  modalCancelButton: {
+    fontSize: 16,
+    color: "#6b7280",
+  },
+  modalSaveButton: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#007AFF",
+  },
+  modalContent: {
+    flex: 1,
+    padding: 20,
+  },
+  inputGroup: {
+    marginBottom: 24,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 8,
+  },
+  textInput: {
+    backgroundColor: "#ffffff",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: "#111827",
+  },
+  textInputMultiline: {
+    height: 100,
   },
 });
