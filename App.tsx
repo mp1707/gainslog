@@ -16,67 +16,47 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 import { useAudioRecorder, RecordingPresets, AudioModule } from "expo-audio";
-import { supabase } from "./lib/supabase";
+import { supabase, estimateFoodAI } from "./lib/supabase";
+import { 
+  FoodLog,
+  getFoodLogs,
+  saveFoodLog,
+  updateFoodLog,
+  generateFoodLogId 
+} from "./lib/storage";
 
-interface FoodLog {
-  id: string;
-  userTitle?: string;
-  userDescription?: string;
-  generatedTitle: string;
-  estimationConfidence: number;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-}
+// FoodLog interface is now imported from ./lib/storage
 
-const mockFoodLogs: FoodLog[] = [
-  {
-    id: "1",
-    generatedTitle: "Chicken with rice",
-    calories: 100,
-    estimationConfidence: 85,
-    protein: 10,
-    carbs: 20,
-    fat: 30,
-  },
-  {
-    id: "2",
-    generatedTitle: "Salad with nuts",
-    calories: 100,
-    estimationConfidence: 45,
-    protein: 10,
-    carbs: 20,
-    fat: 30,
-  },
-  {
-    id: "3",
-    generatedTitle: "Pizza slice",
-    calories: 320,
-    estimationConfidence: 25,
-    protein: 15,
-    carbs: 35,
-    fat: 18,
-  },
-];
-
-const mockAddedFoodLog = {
-  generatedTitle: "New log entry!",
-  calories: 100,
-  estimationConfidence: 80,
-  protein: 10,
-  carbs: 20,
-  fat: 30,
-};
+// Mock data removed - now using AsyncStorage and real AI estimation
 
 export default function App() {
-  const [foodLogs, setFoodLogs] = useState<FoodLog[]>(mockFoodLogs);
+  const [foodLogs, setFoodLogs] = useState<FoodLog[]>([]);
+  const [isLoadingLogs, setIsLoadingLogs] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMode, setModalMode] = useState<"edit" | "create">("edit");
   const [selectedLog, setSelectedLog] = useState<FoodLog | null>(null);
   const [tempTitle, setTempTitle] = useState("");
   const [tempDescription, setTempDescription] = useState("");
+  const [isEstimating, setIsEstimating] = useState(false);
+  const [pendingLogId, setPendingLogId] = useState<string | null>(null);
+
+  // Load food logs from AsyncStorage on app start
+  useEffect(() => {
+    const loadFoodLogs = async () => {
+      try {
+        const logs = await getFoodLogs();
+        setFoodLogs(logs);
+      } catch (error) {
+        console.error('Error loading food logs:', error);
+        Alert.alert('Error', 'Failed to load food logs from storage');
+      } finally {
+        setIsLoadingLogs(false);
+      }
+    };
+
+    loadFoodLogs();
+  }, []);
 
   // Audio recording setup with expo-audio
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
@@ -102,7 +82,7 @@ export default function App() {
     setIsModalVisible(true);
   };
 
-  const handleSaveInfo = () => {
+  const handleSaveInfo = async () => {
     if (modalMode === "create") {
       // Validate required fields for create mode
       if (!tempTitle.trim()) {
@@ -110,46 +90,109 @@ export default function App() {
         return;
       }
 
-      // Create new manual food log
-      const newLog: FoodLog = {
-        id: Date.now().toString(),
+      setIsEstimating(true);
+      const newLogId = generateFoodLogId();
+      setPendingLogId(newLogId);
+
+      // Create skeleton log entry with loading state
+      const skeletonLog: FoodLog = {
+        id: newLogId,
         userTitle: tempTitle.trim(),
         userDescription: tempDescription.trim(),
-        generatedTitle: tempTitle.trim(),
-        estimationConfidence: 95, // High confidence for manual entries
-        calories: mockAddedFoodLog.calories,
-        protein: mockAddedFoodLog.protein,
-        carbs: mockAddedFoodLog.carbs,
-        fat: mockAddedFoodLog.fat,
+        generatedTitle: "Estimating nutrition...",
+        estimationConfidence: 0,
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+        createdAt: new Date().toISOString(),
       };
 
-      setFoodLogs((prev) => [newLog, ...prev]);
+      // Add skeleton to UI immediately
+      setFoodLogs((prev) => [skeletonLog, ...prev]);
+      
+      // Close modal
+      setIsModalVisible(false);
+      setSelectedLog(null);
+      setTempTitle("");
+      setTempDescription("");
+
+      try {
+        // Call AI estimation API
+        const estimation = await estimateFoodAI({
+          title: tempTitle.trim(),
+          description: tempDescription.trim() || undefined,
+        });
+
+        // Create complete food log with AI data
+        const completeLog: FoodLog = {
+          ...skeletonLog,
+          generatedTitle: estimation.generatedTitle,
+          estimationConfidence: estimation.estimationConfidence,
+          calories: estimation.calories,
+          protein: estimation.protein,
+          carbs: estimation.carbs,
+          fat: estimation.fat,
+        };
+
+        // Save to storage
+        await saveFoodLog(completeLog);
+
+        // Update UI with real data
+        setFoodLogs((prevLogs) =>
+          prevLogs.map((log) =>
+            log.id === newLogId ? completeLog : log
+          )
+        );
+
+      } catch (error) {
+        console.error('Error estimating food:', error);
+        
+        // Remove skeleton log on error
+        setFoodLogs((prevLogs) =>
+          prevLogs.filter((log) => log.id !== newLogId)
+        );
+        
+        // Show user-friendly error message
+        Alert.alert(
+          'Oops!', 
+          'Something went wrong.'
+        );
+      } finally {
+        setIsEstimating(false);
+        setPendingLogId(null);
+      }
+
     } else {
       // Edit mode
       if (!selectedLog) return;
 
-      setFoodLogs((prevLogs) =>
-        prevLogs.map((log) =>
-          log.id === selectedLog.id
-            ? {
-                ...log,
-                userTitle: tempTitle.trim(),
-                userDescription: tempDescription.trim(),
-                // Simulate increased confidence when user adds info
-                estimationConfidence: Math.min(
-                  log.estimationConfidence + 15,
-                  95
-                ),
-              }
-            : log
-        )
-      );
-    }
+      const updatedLog: FoodLog = {
+        ...selectedLog,
+        userTitle: tempTitle.trim(),
+        userDescription: tempDescription.trim(),
+        // Increase confidence when user adds more info
+        estimationConfidence: Math.min(selectedLog.estimationConfidence + 10, 95),
+      };
 
-    setIsModalVisible(false);
-    setSelectedLog(null);
-    setTempTitle("");
-    setTempDescription("");
+      try {
+        await updateFoodLog(updatedLog);
+        
+        setFoodLogs((prevLogs) =>
+          prevLogs.map((log) =>
+            log.id === selectedLog.id ? updatedLog : log
+          )
+        );
+      } catch (error) {
+        console.error('Error updating food log:', error);
+        Alert.alert('Error', 'Failed to update food log');
+      }
+
+      setIsModalVisible(false);
+      setSelectedLog(null);
+      setTempTitle("");
+      setTempDescription("");
+    }
   };
 
   const handleCancelInfo = () => {
@@ -241,22 +284,30 @@ export default function App() {
     try {
       setIsProcessingAudio(true);
 
-      // Simulate processing delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Create mock food log from audio
+      // Note: Audio processing with OpenAI would go here
+      // For now, create a placeholder log that suggests manual entry
       const newLog: FoodLog = {
-        id: Date.now().toString(),
-        ...mockAddedFoodLog,
-        generatedTitle: "Audio-based food entry",
-        estimationConfidence: 75,
+        id: generateFoodLogId(),
+        generatedTitle: "Audio recording - please add details",
+        estimationConfidence: 20,
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+        createdAt: new Date().toISOString(),
       };
 
+      await saveFoodLog(newLog);
       setFoodLogs((prev) => [newLog, ...prev]);
 
       // Reset audio recording state
       setHasRecorded(false);
       setRecordingDuration(0);
+      
+      Alert.alert(
+        "Audio Recorded", 
+        "Please tap 'Add Info' to add food details for better nutrition estimates."
+      );
     } catch (error) {
       console.error("Error processing audio:", error);
       Alert.alert("Error", "Failed to process audio recording");
@@ -330,11 +381,23 @@ export default function App() {
       }
 
       const newLog: FoodLog = {
-        id: Date.now().toString(),
-        ...mockAddedFoodLog,
+        id: generateFoodLogId(),
+        generatedTitle: "Photo taken - please add details",
+        estimationConfidence: 30,
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+        createdAt: new Date().toISOString(),
       };
 
+      await saveFoodLog(newLog);
       setFoodLogs((prev) => [newLog, ...prev]);
+      
+      Alert.alert(
+        "Photo Uploaded", 
+        "Please tap 'Add Info' to add food details for nutrition estimates."
+      );
     } catch (error) {
       console.error("Error adding food log:", error);
     } finally {
@@ -354,11 +417,32 @@ export default function App() {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
       >
-        {foodLogs.map((log) => (
+        {isLoadingLogs ? (
+          // Loading skeleton
+          <View>
+            {[1, 2, 3].map((i) => (
+              <View key={i} style={[styles.logCard, styles.skeletonCard]}>
+                <View style={styles.skeletonTitle} />
+                <View style={styles.skeletonMacros}>
+                  <View style={styles.skeletonMacro} />
+                  <View style={styles.skeletonMacro} />
+                  <View style={styles.skeletonMacro} />
+                  <View style={styles.skeletonMacro} />
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : (
+          foodLogs.map((log) => (
           <View key={log.id} style={styles.logCard}>
             <View style={styles.titleRow}>
               <View style={styles.titleContent}>
-                <Text style={styles.logTitle}>
+                <Text 
+                  style={[
+                    styles.logTitle,
+                    log.estimationConfidence === 0 && styles.loadingTitle
+                  ]}
+                >
                   {log.userTitle || log.generatedTitle}
                 </Text>
                 {log.userDescription && (
@@ -368,18 +452,24 @@ export default function App() {
                 )}
               </View>
               <View style={styles.rightSection}>
-                <Text
-                  style={[
-                    styles.confidenceText,
-                    log.estimationConfidence <= 30 && styles.confidenceLow,
-                    log.estimationConfidence >= 31 &&
-                      log.estimationConfidence <= 70 &&
-                      styles.confidenceMedium,
-                    log.estimationConfidence >= 71 && styles.confidenceHigh,
-                  ]}
-                >
-                  {log.estimationConfidence}%
-                </Text>
+                {log.estimationConfidence === 0 ? (
+                  <View style={[styles.confidenceText, styles.confidenceLoading]}>
+                    <ActivityIndicator size="small" color="#6b7280" />
+                  </View>
+                ) : (
+                  <Text
+                    style={[
+                      styles.confidenceText,
+                      log.estimationConfidence <= 30 && styles.confidenceLow,
+                      log.estimationConfidence >= 31 &&
+                        log.estimationConfidence <= 70 &&
+                        styles.confidenceMedium,
+                      log.estimationConfidence >= 71 && styles.confidenceHigh,
+                    ]}
+                  >
+                    {log.estimationConfidence}%
+                  </Text>
+                )}
                 <TouchableOpacity
                   style={styles.addInfoButton}
                   onPress={() => handleAddInfo(log)}
@@ -407,7 +497,8 @@ export default function App() {
               </View>
             </View>
           </View>
-        ))}
+        ))
+        )}
       </ScrollView>
 
       <TouchableOpacity
@@ -646,6 +737,38 @@ const styles = StyleSheet.create({
   confidenceHigh: {
     backgroundColor: "#dcfce7",
     color: "#16a34a",
+  },
+  confidenceLoading: {
+    backgroundColor: "#f3f4f6",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingTitle: {
+    color: "#9ca3af",
+    fontStyle: "italic",
+  },
+  skeletonCard: {
+    opacity: 0.6,
+  },
+  skeletonTitle: {
+    height: 20,
+    backgroundColor: "#e5e7eb",
+    borderRadius: 4,
+    marginBottom: 12,
+    width: "70%",
+  },
+  skeletonMacros: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingTop: 8,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "#f3f4f6",
+  },
+  skeletonMacro: {
+    height: 16,
+    backgroundColor: "#e5e7eb",
+    borderRadius: 4,
+    width: "20%",
   },
   macroRow: {
     flexDirection: "row",
