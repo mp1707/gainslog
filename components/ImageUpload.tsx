@@ -119,8 +119,15 @@ const styles = StyleSheet.create({
 });
 
 const handleImagePicking = async (): Promise<string | null> => {
+  // Request media library permissions first
+  const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  
+  if (permissionResult.status !== 'granted') {
+    throw new Error('Media library permission not granted');
+  }
+
   const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    mediaTypes: ["images"],
     allowsEditing: true,
     quality: 1,
   });
