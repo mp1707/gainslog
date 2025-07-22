@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -11,9 +11,11 @@ import {
   Modal,
   TextInput,
   Alert,
+  Animated,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
+import { useAudioRecorder, RecordingPresets, AudioModule } from "expo-audio";
 import { supabase } from "./lib/supabase";
 
 interface FoodLog {
@@ -71,13 +73,21 @@ export default function App() {
   const [foodLogs, setFoodLogs] = useState<FoodLog[]>(mockFoodLogs);
   const [isUploading, setIsUploading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [modalMode, setModalMode] = useState<'edit' | 'create'>('edit');
+  const [modalMode, setModalMode] = useState<"edit" | "create">("edit");
   const [selectedLog, setSelectedLog] = useState<FoodLog | null>(null);
   const [tempTitle, setTempTitle] = useState("");
   const [tempDescription, setTempDescription] = useState("");
 
+  // Audio recording setup with expo-audio
+  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const [hasRecorded, setHasRecorded] = useState(false);
+  const [isProcessingAudio, setIsProcessingAudio] = useState(false);
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const [pulseAnimation] = useState(new Animated.Value(1));
+  const [showRecordingModal, setShowRecordingModal] = useState(false);
+
   const handleAddInfo = (log: FoodLog) => {
-    setModalMode('edit');
+    setModalMode("edit");
     setSelectedLog(log);
     setTempTitle(log.userTitle || log.generatedTitle);
     setTempDescription(log.userDescription || "");
@@ -85,7 +95,7 @@ export default function App() {
   };
 
   const handleCreateManualLog = () => {
-    setModalMode('create');
+    setModalMode("create");
     setSelectedLog(null);
     setTempTitle("");
     setTempDescription("");
@@ -93,7 +103,7 @@ export default function App() {
   };
 
   const handleSaveInfo = () => {
-    if (modalMode === 'create') {
+    if (modalMode === "create") {
       // Validate required fields for create mode
       if (!tempTitle.trim()) {
         Alert.alert("Error", "Title is required");
@@ -126,7 +136,10 @@ export default function App() {
                 userTitle: tempTitle.trim(),
                 userDescription: tempDescription.trim(),
                 // Simulate increased confidence when user adds info
-                estimationConfidence: Math.min(log.estimationConfidence + 15, 95),
+                estimationConfidence: Math.min(
+                  log.estimationConfidence + 15,
+                  95
+                ),
               }
             : log
         )
@@ -144,6 +157,134 @@ export default function App() {
     setSelectedLog(null);
     setTempTitle("");
     setTempDescription("");
+  };
+
+  // Audio recording functions
+  useEffect(() => {
+    const requestAudioPermissions = async () => {
+      const status = await AudioModule.requestRecordingPermissionsAsync();
+      if (!status.granted) {
+        Alert.alert(
+          "Permission Required",
+          "Microphone access is needed to record audio"
+        );
+      }
+    };
+    requestAudioPermissions();
+  }, []);
+
+  useEffect(() => {
+    if (showRecordingModal) {
+      // Start pulse animation when recording
+      const pulseAnimationLoop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnimation, {
+            toValue: 1.2,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnimation, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      pulseAnimationLoop.start();
+
+      return () => {
+        pulseAnimationLoop.stop();
+      };
+    } else {
+      pulseAnimation.setValue(1);
+    }
+  }, [showRecordingModal]);
+
+  const startAudioRecording = async () => {
+    try {
+      console.log("Starting audio recording...");
+      setRecordingDuration(0);
+      setHasRecorded(false);
+      setShowRecordingModal(true);
+      await audioRecorder.prepareToRecordAsync();
+      audioRecorder.record();
+      console.log("Recording started, isRecording:", audioRecorder.isRecording);
+      console.log("Modal should be visible now");
+    } catch (error) {
+      console.error("Failed to start recording:", error);
+      setShowRecordingModal(false);
+      // @ts-ignore
+      Alert.alert("Error", "Failed to start recording: " + error.message);
+    }
+  };
+
+  const stopAudioRecording = async () => {
+    try {
+      console.log("Stopping audio recording...");
+      setShowRecordingModal(false);
+      if (audioRecorder.isRecording) {
+        await audioRecorder.stop();
+        setHasRecorded(true);
+        console.log("Recording stopped successfully");
+      } else {
+        console.warn("Attempted to stop recording when not recording");
+        setHasRecorded(true); // Still show the send/cancel options
+      }
+    } catch (error) {
+      console.error("Failed to stop recording:", error);
+      // @ts-ignore
+      Alert.alert("Error", "Failed to stop recording: " + error.message);
+    }
+  };
+
+  const sendAudioRecording = async () => {
+    try {
+      setIsProcessingAudio(true);
+
+      // Simulate processing delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // Create mock food log from audio
+      const newLog: FoodLog = {
+        id: Date.now().toString(),
+        ...mockAddedFoodLog,
+        generatedTitle: "Audio-based food entry",
+        estimationConfidence: 75,
+      };
+
+      setFoodLogs((prev) => [newLog, ...prev]);
+
+      // Reset audio recording state
+      setHasRecorded(false);
+      setRecordingDuration(0);
+    } catch (error) {
+      console.error("Error processing audio:", error);
+      Alert.alert("Error", "Failed to process audio recording");
+    } finally {
+      setIsProcessingAudio(false);
+    }
+  };
+
+  const cancelAudioRecording = () => {
+    setHasRecorded(false);
+    setRecordingDuration(0);
+    setShowRecordingModal(false);
+  };
+
+  // Safety function to reset recording state if stuck
+  const resetRecordingState = async () => {
+    try {
+      if (audioRecorder.isRecording) {
+        await audioRecorder.stop();
+      }
+      setHasRecorded(false);
+      setRecordingDuration(0);
+      setIsProcessingAudio(false);
+      setShowRecordingModal(false);
+      console.log("Recording state reset");
+    } catch (error) {
+      console.error("Error resetting recording state:", error);
+    }
   };
 
   const handleAddFoodLog = async () => {
@@ -221,7 +362,9 @@ export default function App() {
                   {log.userTitle || log.generatedTitle}
                 </Text>
                 {log.userDescription && (
-                  <Text style={styles.logDescription}>{log.userDescription}</Text>
+                  <Text style={styles.logDescription}>
+                    {log.userDescription}
+                  </Text>
                 )}
               </View>
               <View style={styles.rightSection}>
@@ -274,6 +417,57 @@ export default function App() {
         <Text style={styles.manualEntryButtonText}>✎</Text>
       </TouchableOpacity>
 
+      {/* Audio Recording Button */}
+      {!hasRecorded && !isProcessingAudio && !showRecordingModal && (
+        <TouchableOpacity
+          style={styles.audioButton}
+          onPress={startAudioRecording}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.audioButtonText}>🎤</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* Audio Recording Actions */}
+      {hasRecorded && !isProcessingAudio && (
+        <View style={styles.audioActionsContainer}>
+          <TouchableOpacity
+            style={styles.audioActionButton}
+            onPress={cancelAudioRecording}
+          >
+            <Text style={styles.audioActionButtonText}>✕</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.audioActionButton, styles.sendButton]}
+            onPress={sendAudioRecording}
+          >
+            <Text style={styles.sendButtonText}>Send</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Emergency Reset - show if stuck in any recording state */}
+      {(showRecordingModal || hasRecorded) && (
+        <View style={styles.emergencyResetContainer}>
+          <TouchableOpacity
+            style={styles.emergencyResetButton}
+            onPress={resetRecordingState}
+          >
+            <Text style={styles.emergencyResetText}>Reset</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Audio Processing State */}
+      {isProcessingAudio && (
+        <View style={styles.audioButton}>
+          <View style={styles.audioButtonTouchable}>
+            <ActivityIndicator color="#ffffff" size="small" />
+            <Text style={styles.processingText}>Processing...</Text>
+          </View>
+        </View>
+      )}
+
       <TouchableOpacity
         style={[styles.addButton, isUploading && styles.addButtonDisabled]}
         onPress={handleAddFoodLog}
@@ -285,6 +479,38 @@ export default function App() {
           <Text style={styles.addButtonText}>📷</Text>
         )}
       </TouchableOpacity>
+
+      {/* Recording Modal */}
+      <Modal
+        visible={showRecordingModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={stopAudioRecording}
+        supportedOrientations={["portrait"]}
+        statusBarTranslucent={true}
+      >
+        <View style={styles.recordingModalOverlay}>
+          <View style={styles.recordingModalContent}>
+            <Animated.View
+              style={[
+                styles.recordingDot,
+                { transform: [{ scale: pulseAnimation }] },
+              ]}
+            />
+            <Text style={styles.recordingModalTitle}>Recording...</Text>
+            <Text style={styles.recordingModalTimer}>00:00</Text>
+
+            <TouchableOpacity
+              style={styles.recordingStopButton}
+              onPress={stopAudioRecording}
+            >
+              <Text style={styles.recordingStopButtonText}>⏹</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.recordingModalHint}>Tap to stop recording</Text>
+          </View>
+        </View>
+      </Modal>
 
       <Modal
         visible={isModalVisible}
@@ -298,13 +524,13 @@ export default function App() {
               <Text style={styles.modalCancelButton}>Cancel</Text>
             </TouchableOpacity>
             <Text style={styles.modalTitle}>
-              {modalMode === 'create' ? 'Add Food Log' : 'Add Info'}
+              {modalMode === "create" ? "Add Food Log" : "Add Info"}
             </Text>
             <TouchableOpacity onPress={handleSaveInfo}>
               <Text style={styles.modalSaveButton}>Save</Text>
             </TouchableOpacity>
           </View>
-          
+
           <ScrollView style={styles.modalContent}>
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Title</Text>
@@ -316,7 +542,7 @@ export default function App() {
                 multiline={false}
               />
             </View>
-            
+
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Description (Optional)</Text>
               <TextInput
@@ -557,5 +783,194 @@ const styles = StyleSheet.create({
   },
   textInputMultiline: {
     height: 100,
+  },
+  // Audio recording styles
+  audioButton: {
+    position: "absolute",
+    bottom: 170,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#FF6B6B",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#FF6B6B",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  audioButtonRecording: {
+    backgroundColor: "#FF4444",
+    shadowColor: "#FF4444",
+  },
+  audioButtonTouchable: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 28,
+  },
+  audioButtonText: {
+    fontSize: 24,
+    fontWeight: "400",
+    color: "#ffffff",
+    lineHeight: 24,
+  },
+  recordingIndicator: {
+    position: "absolute",
+    bottom: -35,
+    left: -10,
+    right: -10,
+    alignItems: "center",
+  },
+  recordingText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#FF6B6B",
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  audioActionsContainer: {
+    position: "absolute",
+    bottom: 170,
+    right: 24,
+    flexDirection: "row",
+    gap: 12,
+  },
+  audioActionButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#6b7280",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#6b7280",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  audioActionButtonText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#ffffff",
+  },
+  sendButton: {
+    backgroundColor: "#22c55e",
+    shadowColor: "#22c55e",
+    paddingHorizontal: 4,
+  },
+  sendButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#ffffff",
+  },
+  processingText: {
+    fontSize: 10,
+    fontWeight: "500",
+    color: "#ffffff",
+    marginTop: 2,
+  },
+  // Recording modal styles
+  recordingModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  recordingModalContent: {
+    backgroundColor: "#ffffff",
+    borderRadius: 24,
+    paddingHorizontal: 40,
+    paddingVertical: 32,
+    alignItems: "center",
+    marginHorizontal: 32,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 12,
+  },
+  recordingDot: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "#FF4444",
+    marginBottom: 16,
+  },
+  recordingModalTitle: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 8,
+    letterSpacing: -0.5,
+  },
+  recordingModalTimer: {
+    fontSize: 32,
+    fontWeight: "300",
+    color: "#6b7280",
+    marginBottom: 24,
+    fontFamily: "monospace",
+  },
+  recordingModalButtons: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: 16,
+  },
+  recordingStopButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "#FF4444",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#FF4444",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  recordingStopButtonText: {
+    fontSize: 28,
+    color: "#ffffff",
+  },
+  recordingModalHint: {
+    fontSize: 14,
+    color: "#6b7280",
+    fontWeight: "400",
+    textAlign: "center",
+  },
+  // Emergency reset styles
+  emergencyResetContainer: {
+    position: "absolute",
+    top: 100,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+  },
+  emergencyResetButton: {
+    backgroundColor: "#dc2626",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    shadowColor: "#dc2626",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  emergencyResetText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#ffffff",
   },
 });
