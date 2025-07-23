@@ -1,17 +1,22 @@
 import { Stack } from 'expo-router';
-import { GlobalFoodLogActionsProvider } from '../src/features/food-logging';
-import React from 'react';
+import { useFoodLogStore } from '../src/stores/useFoodLogStore';
+import React, { useEffect } from 'react';
 
 export default function RootLayout() {
+  const { loadFoodLogs } = useFoodLogStore();
+
+  // Initialize the store on app startup
+  useEffect(() => {
+    loadFoodLogs();
+  }, [loadFoodLogs]);
+
   return (
-    <GlobalFoodLogActionsProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="(tabs)" />
-      </Stack>
-    </GlobalFoodLogActionsProvider>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="(tabs)" />
+    </Stack>
   );
 }

@@ -1,29 +1,37 @@
 import React, { useEffect } from 'react';
-import { useFoodLogActions } from '../providers/FoodLogActionsProvider';
-import { useGlobalFoodLogActions } from '../providers/GlobalFoodLogActionsProvider';
+import { useFoodLogStore } from '../../../stores/useFoodLogStore';
 import { useImageCapture } from '../../image-capture';
 import { AudioRecordingButton } from '../../audio-recording';
 
-export function ActionTriggerHandler() {
-  const localActions = useFoodLogActions();
-  const globalActions = useGlobalFoodLogActions();
+export interface ActionTriggerHandlerProps {
+  onManualLog: () => void;
+  onImageCaptured: (log: any) => void;
+  onAudioRecorded: (log: any) => void;
+}
+
+export function ActionTriggerHandler({
+  onManualLog,
+  onImageCaptured,
+  onAudioRecorded,
+}: ActionTriggerHandlerProps) {
+  const { triggerAction, clearTrigger } = useFoodLogStore();
   const { captureImage } = useImageCapture();
 
   useEffect(() => {
-    if (globalActions.triggerAction === 'manual') {
-      localActions.handleManualLog();
-      globalActions.setTriggerAction(null);
-    } else if (globalActions.triggerAction === 'image') {
+    if (triggerAction === 'manual') {
+      onManualLog();
+      clearTrigger();
+    } else if (triggerAction === 'image') {
       handleImageCapture();
-      globalActions.setTriggerAction(null);
+      clearTrigger();
     }
-  }, [globalActions.triggerAction, localActions, globalActions]);
+  }, [triggerAction, onManualLog, clearTrigger]);
 
   const handleImageCapture = async () => {
     try {
       const log = await captureImage();
       if (log) {
-        localActions.handleImageCaptured(log);
+        onImageCaptured(log);
       }
     } catch (error) {
       console.error('Image capture failed:', error);
@@ -32,12 +40,12 @@ export function ActionTriggerHandler() {
 
   // Render the audio recording button when triggered
   // This is needed because the audio recording requires modal state management
-  if (globalActions.triggerAction === 'audio') {
+  if (triggerAction === 'audio') {
     return (
       <AudioRecordingButton
         onAudioRecorded={(log) => {
-          localActions.handleAudioRecorded(log);
-          globalActions.setTriggerAction(null);
+          onAudioRecorded(log);
+          clearTrigger();
         }}
       />
     );

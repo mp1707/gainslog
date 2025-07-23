@@ -1,7 +1,7 @@
 import React from 'react';
 import { FoodLogScreen } from '../FoodLogScreen';
 import { FoodLogModal } from '../FoodLogModal';
-import { useFoodLogs } from '../../hooks/useFoodLogs';
+import { useFoodLogStore } from '../../../../stores/useFoodLogStore';
 import { useFoodLogModal } from '../../hooks/useFoodLogModal';
 import { useNutritionEstimation } from '../../hooks/useNutritionEstimation';
 import { FoodLog } from '../../../../types';
@@ -31,7 +31,7 @@ export function FoodLogContainer({ onAudioRecorded }: FoodLogContainerProps): {
     deleteFoodLogById,
     updateFoodLogInState,
     addFoodLogToState 
-  } = useFoodLogs();
+  } = useFoodLogStore();
 
   const {
     isModalVisible,

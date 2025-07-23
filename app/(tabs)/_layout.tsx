@@ -4,7 +4,7 @@ import { Tabs } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { colors } from '../../src/theme';
 import { StyleSheet } from 'react-native';
-import { useGlobalFoodLogActions } from '../../src/features/food-logging';
+import { useFoodLogStore } from '../../src/stores/useFoodLogStore';
 
 interface CreateActionModalProps {
   visible: boolean;
@@ -57,7 +57,7 @@ function CreateActionModal({
 function CustomTabBar({ state, descriptors, navigation }: any) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   
-  const globalActions = useGlobalFoodLogActions();
+  const { triggerManualLog, triggerImageCapture, triggerAudioRecord } = useFoodLogStore();
 
   const handleCreatePress = () => {
     setShowCreateModal(true);
@@ -71,21 +71,21 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
     setShowCreateModal(false);
     // Navigate to Today tab first, then trigger action
     navigation.navigate('index');
-    globalActions.triggerManualLog();
+    triggerManualLog();
   };
 
   const handleSelectPicture = () => {
     setShowCreateModal(false);
     // Navigate to Today tab first, then trigger action
     navigation.navigate('index');
-    globalActions.triggerImageCapture();
+    triggerImageCapture();
   };
 
   const handleSelectAudio = () => {
     setShowCreateModal(false);
     // Navigate to Today tab first, then trigger action
     navigation.navigate('index');
-    globalActions.triggerAudioRecord();
+    triggerAudioRecord();
   };
 
   return (

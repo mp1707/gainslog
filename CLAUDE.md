@@ -77,6 +77,7 @@ Note: No linting or testing commands are configured. TypeScript compilation is h
 - **Backend**: Supabase (Edge Functions + File Storage)
 - **AI**: OpenAI GPT-4o-mini for nutrition estimation
 - **Language**: TypeScript with strict mode enabled
+- **State Management**: Zustand for global state management
 - **Storage**: AsyncStorage for local data persistence
 - **Media**: expo-image-picker, expo-image-manipulator, expo-audio
 
@@ -105,10 +106,11 @@ The codebase follows a modern hybrid approach combining:
 ```
 /
 ├── src/
+│   ├── stores/                 # Zustand global state stores
+│   │   └── useFoodLogStore.ts  # Main food logging state management
 │   ├── app/                    # Application-wide logic
-│   │   ├── providers/          # Context & state wrappers
-│   │   ├── navigation/         # Root navigation stacks
-│   │   └── store/              # Global store configuration
+│   │   ├── providers/          # Context & state wrappers (minimal)
+│   │   └── navigation/         # Root navigation stacks
 │   ├── shared/                 # Truly global components and utilities
 │   │   └── ui/
 │   │       ├── atoms/          # Smallest UI units (Button, TextInput)
@@ -146,11 +148,19 @@ The codebase follows a modern hybrid approach combining:
 
 ## Key Components
 
+### src/stores/useFoodLogStore.ts (Global State Management)
+
+- **Unified state**: Combines food logs data and action triggers in single store
+- **AsyncStorage integration**: Automatic persistence with local storage operations
+- **Action triggers**: Global action coordination (manual/image/audio) without context drilling
+- **Type safety**: Full TypeScript support with proper interfaces
+- **Performance**: Minimal re-renders with granular state selection
+
 ### src/App.tsx (Application Entry Point)
 
-- **Provider orchestration**: Wraps root with context providers (store, theme, navigation)
-- **Navigation setup**: Configures React Navigation with root stack
-- **Global state initialization**: Sets up Zustand store and other global state
+- **Minimal setup**: Clean entry point with navigation configuration
+- **Store initialization**: Loads food logs data on app startup via root layout
+- **No provider complexity**: Simplified architecture without context providers
 - **Clean separation**: No longer contains business logic, purely architectural
 
 ### src/features/food-logging/ (Core Feature Module)
@@ -426,6 +436,11 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 
 ### Architecture Decisions
 
+- **Zustand State Management**: Migrated from React Context to Zustand for simplified global state
+  - **Rationale**: Context providers created complex prop drilling and unnecessary re-renders
+  - **Benefits**: Single source of truth, better performance, simpler testing, no provider nesting
+  - **Implementation**: Unified store combining food logs data + action triggers in `useFoodLogStore`
+  - **Migration**: Replaced `useFoodLogs` hook + multiple providers with single Zustand store
 - **Hybrid Feature-Based + Atomic Design**: Modular architecture with feature slices and atomic UI components
 - **Context Window Optimization**: Small, focused files (≤200 lines) for better AI collaboration
 - **Co-location Strategy**: Implementation and styles kept together in feature directories
@@ -437,6 +452,8 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 
 ### Performance Considerations
 
+- **Zustand performance**: Minimal re-renders with granular state selection and no context propagation
+- **Unified state management**: Single store reduces complexity and improves debugging
 - **Modular loading**: Feature-based architecture enables code splitting and lazy loading
 - **Atomic composition**: Reusable components reduce bundle duplication
 - **Context window efficiency**: Small files (≤200 lines) improve development performance with AI tools
@@ -468,5 +485,5 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 10. **Offline Mode**: Enhanced offline functionality and sync
 11. **Export Features**: CSV/JSON export of nutrition data
 12. **Meal Planning**: Recipe creation and meal planning features
-13. **State Management**: Consider Context API or Zustand for complex state (architecture now supports this)
+13. ✅ **State Management**: ~~Consider Context API or Zustand for complex state~~ - **COMPLETED** (Migrated to Zustand for simplified global state management)
 14. **Design System**: Expand atomic design with more complex organisms and templates

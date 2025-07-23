@@ -16,6 +16,7 @@
     "expo-haptics": "^14.1.4",
     "expo-image-manipulator": "~13.1.7",
     "expo-image-picker": "~16.1.4",
+    "expo-linking": "~7.1.7",
     "expo-router": "^5.1.4",
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
@@ -23,8 +24,8 @@
     "react-native-gesture-handler": "^2.27.2",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "^5.5.2",
-    "expo-linking": "~7.1.7",
-    "react-native-screens": "~4.11.1"
+    "react-native-screens": "~4.11.1",
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

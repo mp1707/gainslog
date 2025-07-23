@@ -2,14 +2,13 @@ import React from 'react';
 import { AppProvider } from '../../src/app-providers';
 import { 
   FoodLogContainer,
-  FoodLogActionsProvider,
   ActionTriggerHandler,
-  useFoodLogs
 } from '../../src/features/food-logging';
+import { useFoodLogStore } from '../../src/stores/useFoodLogStore';
 import { FoodLog } from '../../src/types';
 
 export default function TodayTab() {
-  const { addFoodLog } = useFoodLogs();
+  const { addFoodLog } = useFoodLogStore();
 
   const handleAudioRecorded = async (log: FoodLog) => {
     await addFoodLog(log);
@@ -21,14 +20,12 @@ export default function TodayTab() {
 
   return (
     <AppProvider>
-        <FoodLogActionsProvider
+      <ActionTriggerHandler 
         onManualLog={handlers.handleManualLog}
         onImageCaptured={handlers.handleImageCaptured}
         onAudioRecorded={handleAudioRecorded}
-      >
-        <ActionTriggerHandler />
-        {foodLogContainer}
-      </FoodLogActionsProvider>
+      />
+      {foodLogContainer}
     </AppProvider>
   );
 }
