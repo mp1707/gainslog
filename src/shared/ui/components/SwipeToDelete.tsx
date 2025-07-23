@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import { View, Text, Alert, Dimensions, Pressable } from "react-native";
 import * as Haptics from "expo-haptics";
-import { PanGestureHandler } from "react-native-gesture-handler";
+import { PanGestureHandler, State } from "react-native-gesture-handler";
 import Animated, {
   useAnimatedGestureHandler,
   useAnimatedStyle,
@@ -11,6 +11,7 @@ import Animated, {
   interpolate,
   Extrapolate,
 } from "react-native-reanimated";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 interface SwipeToDeleteProps {
   children: ReactNode;
@@ -24,6 +25,9 @@ const DELETE_THRESHOLD = SCREEN_WIDTH * 0.3; // 30% of screen width
 const DELETE_COMPLETE_THRESHOLD = SCREEN_WIDTH * 0.7; // 70% of screen width
 const DELETE_BUTTON_WIDTH = 80;
 
+// Threshold for determining if gesture is horizontal vs vertical
+const DIRECTION_THRESHOLD = 30;
+
 export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
   children,
   onDelete,
@@ -33,6 +37,9 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
   const translateX = useSharedValue(0);
   const opacity = useSharedValue(1);
   const height = useSharedValue(1);
+  const gestureDirection = useSharedValue<
+    "unknown" | "horizontal" | "vertical"
+  >("unknown");
 
   const handleDelete = () => {
     if (confirmDelete) {
@@ -76,15 +83,40 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
 
   const gestureHandler = useAnimatedGestureHandler({
     onStart: () => {
-      runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
+      gestureDirection.value = "unknown";
     },
     onActive: (event) => {
-      // Only allow swiping to the left (negative values)
-      if (event.translationX < 0) {
-        translateX.value = event.translationX;
+      const { translationX, translationY } = event;
+
+      // Determine gesture direction on first significant movement
+      if (gestureDirection.value === "unknown") {
+        const absX = Math.abs(translationX);
+        const absY = Math.abs(translationY);
+
+        if (absX > DIRECTION_THRESHOLD || absY > DIRECTION_THRESHOLD) {
+          if (absX > absY) {
+            gestureDirection.value = "horizontal";
+            runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
+          } else {
+            gestureDirection.value = "vertical";
+          }
+        }
+      }
+
+      // Only handle horizontal swipes for deletion
+      if (gestureDirection.value === "horizontal") {
+        // Only allow swiping to the left (negative values)
+        if (translationX < 0) {
+          translateX.value = translationX;
+        }
       }
     },
     onEnd: (event) => {
+      // Only process end event for horizontal gestures
+      if (gestureDirection.value !== "horizontal") {
+        return;
+      }
+
       const { translationX, velocityX } = event;
 
       // If swiped far enough or with enough velocity, trigger delete
@@ -102,6 +134,14 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
         // Snap back to original position
         translateX.value = withSpring(0);
       }
+
+      // Reset direction for next gesture
+      gestureDirection.value = "unknown";
+    },
+    onFail: () => {
+      // Reset direction and position on gesture failure
+      gestureDirection.value = "unknown";
+      translateX.value = withSpring(0);
     },
   });
 
@@ -206,14 +246,18 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
                   fontWeight: "bold",
                 }}
               >
-                🗑️
+                <FontAwesome name="trash" size={24} color="white" />
               </Text>
             </Animated.View>
           </Pressable>
         </Animated.View>
 
         {/* Swipeable Content */}
-        <PanGestureHandler onGestureEvent={gestureHandler}>
+        <PanGestureHandler
+          onGestureEvent={gestureHandler}
+          activeOffsetX={[-10, 10]}
+          failOffsetY={[-5, 5]}
+        >
           <Animated.View style={animatedStyle}>{children}</Animated.View>
         </PanGestureHandler>
       </View>

@@ -2,6 +2,7 @@ import React from 'react';
 import { TextInput as RNTextInput } from 'react-native';
 import { TextInputProps } from '@/types';
 import { styles } from './TextInput.styles';
+import { colors } from '@/theme/colors';
 
 export const TextInput: React.FC<TextInputProps> = ({
   value,
@@ -14,6 +15,7 @@ export const TextInput: React.FC<TextInputProps> = ({
   return (
     <RNTextInput
       style={[styles.base, multiline && styles.multiline]}
+      placeholderTextColor={colors.text.tertiary}
       value={value}
       onChangeText={onChangeText}
       placeholder={placeholder}

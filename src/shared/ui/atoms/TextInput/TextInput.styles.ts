@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: spacing.padding.input,
     paddingVertical: spacing.padding.input,
     fontSize: typography.sizes.lg,
-    color: colors.text.primary,
+    color: colors.text.tertiary,
     minHeight: spacing.input.default,
   },
 
