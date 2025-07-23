@@ -23,8 +23,11 @@ import {
   getFoodLogs,
   saveFoodLog,
   updateFoodLog,
+  deleteFoodLog,
   generateFoodLogId 
 } from "./lib/storage";
+import { SwipeToDelete } from "./components/SwipeToDelete";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const mergeNutritionData = (
   userCalories: string,
@@ -153,7 +156,7 @@ export default function App() {
     setIsModalVisible(true);
   };
 
-  const handleCreateManualLog = () => {
+  const handleManualLog = () => {
     setModalMode("create");
     setSelectedLog(null);
     setTempTitle("");
@@ -165,17 +168,51 @@ export default function App() {
     setIsModalVisible(true);
   };
 
+  const handleDeleteLog = async (logId: string) => {
+    try {
+      await deleteFoodLog(logId);
+      // Update the local state to remove the deleted log
+      setFoodLogs(prevLogs => prevLogs.filter(log => log.id !== logId));
+    } catch (error) {
+      console.error('Error deleting food log:', error);
+      Alert.alert('Error', 'Failed to delete food log. Please try again.');
+    }
+  };
+
   const handleSaveInfo = async () => {
     if (modalMode === "create") {
-      // Validate required fields for create mode
-      if (!tempTitle.trim()) {
+      // Validate required fields for create mode - title is optional for image logs
+      const isImageLog = selectedLog?.imageUrl;
+      if (!isImageLog && !tempTitle.trim()) {
         Alert.alert("Error", "Title is required");
         return;
       }
 
       setIsEstimating(true);
-      const newLogId = generateFoodLogId();
-      setPendingLogId(newLogId);
+      
+      let logToProcess: FoodLog;
+      let logId: string;
+      
+      if (selectedLog) {
+        // We're processing an existing log (image log)
+        logId = selectedLog.id;
+        logToProcess = selectedLog;
+        setPendingLogId(null); // We don't need pending state for existing logs
+      } else {
+        // We're creating a completely new log (manual entry)
+        logId = generateFoodLogId();
+        setPendingLogId(logId);
+        logToProcess = {
+          id: logId,
+          generatedTitle: "Estimating nutrition...",
+          estimationConfidence: 0,
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fat: 0,
+          createdAt: new Date().toISOString(),
+        };
+      }
 
       // Get nutrition data from user input and determine if AI estimation is needed
       const nutritionData = mergeNutritionData(tempCalories, tempProtein, tempCarbs, tempFat);
@@ -188,12 +225,12 @@ export default function App() {
         return;
       }
 
-      // Create skeleton log entry with loading state or final data
-      const skeletonLog: FoodLog = {
-        id: newLogId,
-        userTitle: tempTitle.trim(),
-        userDescription: tempDescription.trim(),
-        generatedTitle: nutritionData.needsAiEstimation ? "Estimating nutrition..." : tempTitle.trim(),
+      // Create updated log entry with loading state or final data
+      const updatedLog: FoodLog = {
+        ...logToProcess,
+        userTitle: tempTitle.trim() || undefined,
+        userDescription: tempDescription.trim() || undefined,
+        generatedTitle: nutritionData.needsAiEstimation ? "Estimating nutrition..." : (tempTitle.trim() || logToProcess.generatedTitle),
         estimationConfidence: nutritionData.needsAiEstimation ? 0 : 100,
         calories: nutritionData.calories,
         protein: nutritionData.protein,
@@ -203,11 +240,16 @@ export default function App() {
         userProtein: nutritionData.userProtein,
         userCarbs: nutritionData.userCarbs,
         userFat: nutritionData.userFat,
-        createdAt: new Date().toISOString(),
       };
 
-      // Add skeleton to UI immediately
-      setFoodLogs((prev) => [skeletonLog, ...prev]);
+      // Update UI immediately
+      if (selectedLog) {
+        // Update existing log in the list
+        setFoodLogs((prev) => prev.map(log => log.id === logId ? updatedLog : log));
+      } else {
+        // Add new log to the list
+        setFoodLogs((prev) => [updatedLog, ...prev]);
+      }
       
       // Close modal and clear state
       setIsModalVisible(false);
@@ -220,20 +262,20 @@ export default function App() {
       setTempFat("");
 
       try {
-        let completeLog = skeletonLog;
+        let completeLog = updatedLog;
 
         if (nutritionData.needsAiEstimation) {
           // Call appropriate AI estimation API based on whether we have an image
           let estimation;
-          if (skeletonLog.imageUrl) {
+          if (updatedLog.imageUrl) {
             // Use image-based estimation
             estimation = await estimateNutritionImageBased({
-              imageUrl: skeletonLog.imageUrl,
+              imageUrl: updatedLog.imageUrl,
               title: tempTitle.trim() || undefined,
               description: tempDescription.trim() || undefined,
             });
           } else {
-            // Use text-based estimation
+            // Use text-based estimation - title is required for text-based estimation
             estimation = await estimateNutritionTextBased({
               title: tempTitle.trim(),
               description: tempDescription.trim() || undefined,
@@ -250,8 +292,9 @@ export default function App() {
           );
 
           completeLog = {
-            ...skeletonLog,
-            generatedTitle: estimation.generatedTitle,
+            ...updatedLog,
+            // Use user title if provided, otherwise use AI-generated title
+            generatedTitle: tempTitle.trim() || estimation.generatedTitle,
             estimationConfidence: estimation.estimationConfidence,
             calories: mergedNutrition.calories,
             protein: mergedNutrition.protein,
@@ -270,17 +313,25 @@ export default function App() {
         // Update UI with final data
         setFoodLogs((prevLogs) =>
           prevLogs.map((log) =>
-            log.id === newLogId ? completeLog : log
+            log.id === logId ? completeLog : log
           )
         );
 
       } catch (error) {
         console.error('Error estimating food:', error);
         
-        // Remove skeleton log on error
-        setFoodLogs((prevLogs) =>
-          prevLogs.filter((log) => log.id !== newLogId)
-        );
+        // Handle error based on whether it's a new or existing log
+        if (selectedLog) {
+          // Revert to original log state for existing logs
+          setFoodLogs((prevLogs) =>
+            prevLogs.map((log) => log.id === logId ? selectedLog : log)
+          );
+        } else {
+          // Remove new log on error
+          setFoodLogs((prevLogs) =>
+            prevLogs.filter((log) => log.id !== logId)
+          );
+        }
         
         // Show user-friendly error message
         Alert.alert(
@@ -293,33 +344,39 @@ export default function App() {
       }
 
     } else {
-      // Edit mode - always trigger AI re-estimation with updated info
+      // Edit mode - trigger AI re-estimation only when beneficial
       if (!selectedLog) return;
 
-      setIsEstimating(true);
-      
       // Get nutrition data from user input
       const nutritionData = mergeNutritionData(tempCalories, tempProtein, tempCarbs, tempFat);
 
       // Validate nutrition input
       if (!nutritionData.isValid) {
         Alert.alert("Validation Error", nutritionData.validationErrors.join("\n"));
-        setIsEstimating(false);
         return;
+      }
+
+      // Check if re-estimation is needed - always re-estimate if new context is provided
+      const hasNewContext = (tempTitle.trim() !== (selectedLog.userTitle || "")) || 
+                            (tempDescription.trim() !== (selectedLog.userDescription || ""));
+      const needsReEstimation = hasNewContext || (nutritionData.needsAiEstimation && selectedLog.estimationConfidence < 50);
+
+      if (needsReEstimation) {
+        setIsEstimating(true);
       }
 
       // Create updated log with loading state or final data
       const updatedLog: FoodLog = {
         ...selectedLog,
-        userTitle: tempTitle.trim(),
-        userDescription: tempDescription.trim(),
+        userTitle: tempTitle.trim() || undefined,
+        userDescription: tempDescription.trim() || undefined,
         userCalories: nutritionData.userCalories,
         userProtein: nutritionData.userProtein,
         userCarbs: nutritionData.userCarbs,
         userFat: nutritionData.userFat,
-        // Set loading state for AI estimation
-        generatedTitle: nutritionData.needsAiEstimation ? "Re-estimating nutrition..." : tempTitle.trim(),
-        estimationConfidence: nutritionData.needsAiEstimation ? 0 : 100,
+        // Set loading state only if we're doing re-estimation
+        generatedTitle: needsReEstimation ? "Re-estimating nutrition..." : (tempTitle.trim() || selectedLog.generatedTitle),
+        estimationConfidence: needsReEstimation ? 0 : (nutritionData.needsAiEstimation ? selectedLog.estimationConfidence : 100),
         calories: nutritionData.calories,
         protein: nutritionData.protein,
         carbs: nutritionData.carbs,
@@ -346,7 +403,7 @@ export default function App() {
       try {
         let finalLog = updatedLog;
 
-        if (nutritionData.needsAiEstimation) {
+        if (needsReEstimation) {
           // Call appropriate AI estimation API based on whether we have an image
           let estimation;
           if (selectedLog.imageUrl) {
@@ -359,7 +416,7 @@ export default function App() {
           } else {
             // Use text-based estimation
             estimation = await estimateNutritionTextBased({
-              title: tempTitle.trim(),
+              title: tempTitle.trim() || selectedLog.generatedTitle,
               description: tempDescription.trim() || undefined,
             });
           }
@@ -375,7 +432,7 @@ export default function App() {
 
           finalLog = {
             ...updatedLog,
-            generatedTitle: estimation.generatedTitle,
+            generatedTitle: tempTitle.trim() || estimation.generatedTitle,
             estimationConfidence: estimation.estimationConfidence,
             calories: mergedNutrition.calories,
             protein: mergedNutrition.protein,
@@ -400,14 +457,40 @@ export default function App() {
 
       } catch (error) {
         console.error('Error updating food log:', error);
-        Alert.alert('Error', 'Failed to update food log. Please try again.');
         
-        // Revert to original log on error
-        setFoodLogs((prevLogs) =>
-          prevLogs.map((log) =>
-            log.id === selectedLog.id ? selectedLog : log
-          )
-        );
+        // Better error handling with more specific messages
+        if (error instanceof Error && error.message === 'AI_ESTIMATION_FAILED') {
+          Alert.alert(
+            'AI Estimation Failed', 
+            'Unable to re-estimate nutrition. Your manual changes have been saved.'
+          );
+          // Save the log without AI estimation
+          try {
+            await updateFoodLog(updatedLog);
+            setFoodLogs((prevLogs) =>
+              prevLogs.map((log) =>
+                log.id === selectedLog.id ? updatedLog : log
+              )
+            );
+          } catch (saveError) {
+            console.error('Failed to save manual changes:', saveError);
+            Alert.alert('Error', 'Failed to save changes. Please try again.');
+            // Revert to original log on save error
+            setFoodLogs((prevLogs) =>
+              prevLogs.map((log) =>
+                log.id === selectedLog.id ? selectedLog : log
+              )
+            );
+          }
+        } else {
+          Alert.alert('Error', 'Failed to update food log. Please try again.');
+          // Revert to original log on other errors
+          setFoodLogs((prevLogs) =>
+            prevLogs.map((log) =>
+              log.id === selectedLog.id ? selectedLog : log
+            )
+          );
+        }
       } finally {
         setIsEstimating(false);
       }
@@ -561,7 +644,7 @@ export default function App() {
     }
   };
 
-  const handleAddFoodLog = async () => {
+  const handleImageLog = async () => {
     try {
       setIsUploading(true);
 
@@ -610,8 +693,8 @@ export default function App() {
 
       const newLog: FoodLog = {
         id: generateFoodLogId(),
-        generatedTitle: "Photo taken - please add details",
-        estimationConfidence: 30,
+        generatedTitle: "Processing image...",
+        estimationConfidence: 0,
         calories: 0,
         protein: 0,
         carbs: 0,
@@ -623,10 +706,16 @@ export default function App() {
       await saveFoodLog(newLog);
       setFoodLogs((prev) => [newLog, ...prev]);
       
-      Alert.alert(
-        "Photo Uploaded", 
-        "Please tap 'Add Info' to add food details for nutrition estimates."
-      );
+      // Automatically open modal for user to add optional info
+      setModalMode("create");
+      setSelectedLog(newLog);
+      setTempTitle("");
+      setTempDescription("");
+      setTempCalories("");
+      setTempProtein("");
+      setTempCarbs("");
+      setTempFat("");
+      setIsModalVisible(true);
     } catch (error) {
       console.error("Error adding food log:", error);
     } finally {
@@ -635,7 +724,8 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
       <View style={styles.header}>
@@ -663,76 +753,82 @@ export default function App() {
           </View>
         ) : (
           foodLogs.map((log) => (
-          <View key={log.id} style={styles.logCard}>
-            <View style={styles.titleRow}>
-              <View style={styles.titleContent}>
-                <Text 
-                  style={[
-                    styles.logTitle,
-                    log.estimationConfidence === 0 && styles.loadingTitle
-                  ]}
-                >
-                  {log.imageUrl && '📷 '}{log.userTitle || log.generatedTitle}
-                </Text>
-                {log.userDescription && (
-                  <Text style={styles.logDescription}>
-                    {log.userDescription}
-                  </Text>
-                )}
-              </View>
-              <View style={styles.rightSection}>
-                {log.estimationConfidence === 0 ? (
-                  <View style={[styles.confidenceText, styles.confidenceLoading]}>
-                    <ActivityIndicator size="small" color="#6b7280" />
+            <SwipeToDelete
+              key={log.id}
+              itemId={log.id}
+              onDelete={() => handleDeleteLog(log.id)}
+            >
+              <View style={styles.logCard}>
+                <View style={styles.titleRow}>
+                  <View style={styles.titleContent}>
+                    <Text 
+                      style={[
+                        styles.logTitle,
+                        log.estimationConfidence === 0 && styles.loadingTitle
+                      ]}
+                    >
+                      {log.imageUrl && '📷 '}{log.userTitle || log.generatedTitle}
+                    </Text>
+                    {log.userDescription && (
+                      <Text style={styles.logDescription}>
+                        {log.userDescription}
+                      </Text>
+                    )}
                   </View>
-                ) : (
-                  <Text
-                    style={[
-                      styles.confidenceText,
-                      log.estimationConfidence <= 30 && styles.confidenceLow,
-                      log.estimationConfidence >= 31 &&
-                        log.estimationConfidence <= 70 &&
-                        styles.confidenceMedium,
-                      log.estimationConfidence >= 71 && styles.confidenceHigh,
-                    ]}
-                  >
-                    {log.estimationConfidence}%
-                  </Text>
-                )}
-                <TouchableOpacity
-                  style={styles.addInfoButton}
-                  onPress={() => handleAddInfo(log)}
-                >
-                  <Text style={styles.addInfoButtonText}>Add Info</Text>
-                </TouchableOpacity>
+                  <View style={styles.rightSection}>
+                    {log.estimationConfidence === 0 ? (
+                      <View style={[styles.confidenceText, styles.confidenceLoading]}>
+                        <ActivityIndicator size="small" color="#6b7280" />
+                      </View>
+                    ) : (
+                      <Text
+                        style={[
+                          styles.confidenceText,
+                          log.estimationConfidence <= 30 && styles.confidenceLow,
+                          log.estimationConfidence >= 31 &&
+                            log.estimationConfidence <= 70 &&
+                            styles.confidenceMedium,
+                          log.estimationConfidence >= 71 && styles.confidenceHigh,
+                        ]}
+                      >
+                        {log.estimationConfidence}%
+                      </Text>
+                    )}
+                    <TouchableOpacity
+                      style={styles.addInfoButton}
+                      onPress={() => handleAddInfo(log)}
+                    >
+                      <Text style={styles.addInfoButtonText}>Add Info</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                <View style={styles.macroRow}>
+                  <View style={styles.macroItem}>
+                    <Text style={styles.macroLabel}>P:</Text>
+                    <Text style={styles.macroValue}>{log.protein}</Text>
+                  </View>
+                  <View style={styles.macroItem}>
+                    <Text style={styles.macroLabel}>C:</Text>
+                    <Text style={styles.macroValue}>{log.carbs}</Text>
+                  </View>
+                  <View style={styles.macroItem}>
+                    <Text style={styles.macroLabel}>F:</Text>
+                    <Text style={styles.macroValue}>{log.fat}</Text>
+                  </View>
+                  <View style={styles.macroItem}>
+                    <Text style={styles.macroLabel}>Cal:</Text>
+                    <Text style={styles.macroValue}>{log.calories}</Text>
+                  </View>
+                </View>
               </View>
-            </View>
-            <View style={styles.macroRow}>
-              <View style={styles.macroItem}>
-                <Text style={styles.macroLabel}>P:</Text>
-                <Text style={styles.macroValue}>{log.protein}</Text>
-              </View>
-              <View style={styles.macroItem}>
-                <Text style={styles.macroLabel}>C:</Text>
-                <Text style={styles.macroValue}>{log.carbs}</Text>
-              </View>
-              <View style={styles.macroItem}>
-                <Text style={styles.macroLabel}>F:</Text>
-                <Text style={styles.macroValue}>{log.fat}</Text>
-              </View>
-              <View style={styles.macroItem}>
-                <Text style={styles.macroLabel}>Cal:</Text>
-                <Text style={styles.macroValue}>{log.calories}</Text>
-              </View>
-            </View>
-          </View>
-        ))
+            </SwipeToDelete>
+          ))
         )}
       </ScrollView>
 
       <TouchableOpacity
         style={styles.manualEntryButton}
-        onPress={handleCreateManualLog}
+        onPress={handleManualLog}
       >
         <Text style={styles.manualEntryButtonText}>✎</Text>
       </TouchableOpacity>
@@ -790,7 +886,7 @@ export default function App() {
 
       <TouchableOpacity
         style={[styles.addButton, isUploading && styles.addButtonDisabled]}
-        onPress={handleAddFoodLog}
+        onPress={handleImageLog}
         disabled={isUploading}
       >
         {isUploading ? (
@@ -863,12 +959,14 @@ export default function App() {
             )}
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Title</Text>
+              <Text style={styles.inputLabel}>
+                Title{selectedLog?.imageUrl ? " (Optional)" : ""}
+              </Text>
               <TextInput
                 style={styles.textInput}
                 value={tempTitle}
                 onChangeText={setTempTitle}
-                placeholder="Enter food title"
+                placeholder={selectedLog?.imageUrl ? "Enter food title (AI will generate if empty)" : "Enter food title"}
                 multiline={false}
               />
             </View>
@@ -942,6 +1040,7 @@ export default function App() {
         </SafeAreaView>
       </Modal>
     </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
 
@@ -974,7 +1073,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     borderRadius: 16,
     padding: 20,
-    marginBottom: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
