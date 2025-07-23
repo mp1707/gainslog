@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: typography.sizes.md,
+    fontSize: typography.sizes.sm,
     color: colors.text.secondary,
     marginBottom: spacing.xl,
     lineHeight: 22,
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   cardText: {
-    fontSize: typography.sizes.md,
+    fontSize: typography.sizes.sm,
     color: colors.text.secondary,
     lineHeight: 20,
   },

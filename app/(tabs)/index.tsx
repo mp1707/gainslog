@@ -21,7 +21,7 @@ export default function TodayTab() {
 
   return (
     <AppProvider>
-      <FoodLogActionsProvider
+        <FoodLogActionsProvider
         onManualLog={handlers.handleManualLog}
         onImageCaptured={handlers.handleImageCaptured}
         onAudioRecorded={handleAudioRecorded}
