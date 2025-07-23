@@ -33,6 +33,7 @@ export const colors = {
     success: '#16a34a',
     warning: '#d97706',
     error: '#dc2626',
+    danger: '#FF3B30',
   },
 
   // Confidence indicator colors

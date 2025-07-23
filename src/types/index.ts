@@ -80,3 +80,28 @@ export interface ConfidenceBadgeProps {
   confidence: number;
   isLoading?: boolean;
 }
+
+// Daily nutrition targets interface
+export interface DailyTargets {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+// Daily progress data interface
+export interface DailyProgress {
+  current: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+  targets: DailyTargets;
+  percentages: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+}

@@ -8,22 +8,78 @@ export const styles = StyleSheet.create({
   },
 
   header: {
-    paddingHorizontal: spacing.padding.large,
-    paddingVertical: spacing.xl,
+    paddingVertical: spacing.md,
+    paddingRight: spacing.xl,
     backgroundColor: colors.background.secondary,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border.medium,
   },
 
-  title: {
-    ...typography.styles.title,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing.sm,
   },
 
-  // Date Picker styles
-  datePicker: {
-    alignSelf: "flex-start",
+  // Progress bars styles
+  progressContainer: {
+    flex: 1,
+    flexShrink: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: spacing.sm,
+    gap: spacing.sm,
+  },
+
+  labelsColumn: {
+    flexDirection: "column",
+    justifyContent: "space-between",
+    gap: 4,
+  },
+
+  barsColumn: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "space-between",
+    gap: 6,
+    paddingBlock: 4,
+  },
+
+  valuesColumn: {
+    flexDirection: "column",
+    justifyContent: "space-between",
+    gap: 4,
+  },
+
+  progressLabel: {
+    fontSize: 10,
+    fontWeight: "600",
+    color: colors.text.secondary,
+    minWidth: 50,
+    textAlign: "right",
+  },
+
+  progressBar: {
+    backgroundColor: colors.border.light,
+    borderRadius: 2,
+    height: 6,
+    flex: 1,
+  },
+
+  progressFill: {
+    height: "100%",
+    backgroundColor: colors.brand.primary,
+    borderRadius: 2,
+    minWidth: 1,
+  },
+
+  progressValue: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: colors.text.primary,
+    textAlign: "right",
+    minWidth: 85,
   },
 
   scrollView: {

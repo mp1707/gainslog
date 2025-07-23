@@ -1,11 +1,13 @@
 import { create } from 'zustand';
 import { Alert } from 'react-native';
-import { FoodLog } from '../types';
+import { FoodLog, DailyTargets, DailyProgress } from '../types';
 import { 
   getFoodLogs, 
   saveFoodLog, 
   updateFoodLog, 
-  deleteFoodLog 
+  deleteFoodLog,
+  getDailyTargets,
+  saveDailyTargets
 } from '@/lib/storage';
 
 type ActionType = 'manual' | 'image' | null;
@@ -20,6 +22,10 @@ interface FoodLogStore {
   
   // Action trigger state  
   triggerAction: ActionType;
+  
+  // Nutrition targets state
+  dailyTargets: DailyTargets;
+  isLoadingTargets: boolean;
   
   // Data actions
   loadFoodLogs: () => Promise<void>;
@@ -41,6 +47,13 @@ interface FoodLogStore {
   // Date actions
   setSelectedDate: (date: string) => void;
   getFilteredFoodLogs: () => FoodLog[];
+  
+  // Nutrition targets actions
+  loadDailyTargets: () => Promise<void>;
+  updateDailyTargets: (targets: DailyTargets) => Promise<void>;
+  
+  // Progress calculations
+  getDailyProgress: () => DailyProgress;
 }
 
 // Helper function to get today's date in ISO format (YYYY-MM-DD) in local timezone
@@ -66,6 +79,13 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   isLoadingLogs: true,
   selectedDate: getTodayDateString(),
   triggerAction: null,
+  dailyTargets: {
+    calories: 2000,
+    protein: 150,
+    carbs: 250,
+    fat: 65,
+  },
+  isLoadingTargets: true,
   
   // Data actions
   loadFoodLogs: async () => {
@@ -184,6 +204,59 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   getFilteredFoodLogs: () => {
     const { foodLogs, selectedDate } = get();
     return foodLogs.filter(log => log.date === selectedDate);
+  },
+  
+  // Nutrition targets actions
+  loadDailyTargets: async () => {
+    set({ isLoadingTargets: true });
+    try {
+      const targets = await getDailyTargets();
+      set({ dailyTargets: targets });
+    } catch (error) {
+      console.error('Error loading daily targets:', error);
+      Alert.alert('Error', 'Failed to load daily targets');
+    } finally {
+      set({ isLoadingTargets: false });
+    }
+  },
+  
+  updateDailyTargets: async (targets: DailyTargets) => {
+    try {
+      await saveDailyTargets(targets);
+      set({ dailyTargets: targets });
+    } catch (error) {
+      console.error('Error updating daily targets:', error);
+      throw error;
+    }
+  },
+  
+  // Progress calculations
+  getDailyProgress: (): DailyProgress => {
+    const { dailyTargets } = get();
+    const filteredLogs = get().getFilteredFoodLogs();
+    
+    const current = filteredLogs.reduce(
+      (totals, log) => ({
+        calories: totals.calories + log.calories,
+        protein: totals.protein + log.protein,
+        carbs: totals.carbs + log.carbs,
+        fat: totals.fat + log.fat,
+      }),
+      { calories: 0, protein: 0, carbs: 0, fat: 0 }
+    );
+    
+    const percentages = {
+      calories: dailyTargets.calories > 0 ? Math.round((current.calories / dailyTargets.calories) * 100) : 0,
+      protein: dailyTargets.protein > 0 ? Math.round((current.protein / dailyTargets.protein) * 100) : 0,
+      carbs: dailyTargets.carbs > 0 ? Math.round((current.carbs / dailyTargets.carbs) * 100) : 0,
+      fat: dailyTargets.fat > 0 ? Math.round((current.fat / dailyTargets.fat) * 100) : 0,
+    };
+    
+    return {
+      current,
+      targets: dailyTargets,
+      percentages,
+    };
   },
 }));
 

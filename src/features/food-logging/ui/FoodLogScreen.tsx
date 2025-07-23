@@ -1,5 +1,11 @@
 import React from "react";
-import { View, Text, ScrollView, TouchableOpacity, Platform } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
 import { SafeAreaView } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -20,21 +26,23 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   onDeleteLog,
   onAddInfo,
 }) => {
-  const { 
-    triggerManualLog, 
-    triggerImageCapture, 
-    selectedDate, 
-    setSelectedDate, 
-    getFilteredFoodLogs 
+  const {
+    triggerManualLog,
+    triggerImageCapture,
+    selectedDate,
+    setSelectedDate,
+    getFilteredFoodLogs,
+    getDailyProgress,
   } = useFoodLogStore();
-  
+
   const filteredFoodLogs = getFilteredFoodLogs();
+  const dailyProgress = getDailyProgress();
 
   // Helper function to convert Date to local date string (YYYY-MM-DD)
   const dateToLocalDateString = (date: Date): string => {
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
@@ -60,17 +68,67 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Food Logs</Text>
-        
-        {/* Native Date Picker */}
-        <DateTimePicker
-          value={new Date(selectedDate)}
-          mode="date"
-          display={Platform.OS === 'ios' ? 'compact' : 'default'}
-          onChange={handleDateChange}
-          maximumDate={new Date()}
-          style={styles.datePicker}
-        />
+        <View style={styles.headerContent}>
+          {/* Date Picker */}
+          <DateTimePicker
+            value={new Date(selectedDate)}
+            mode="date"
+            display={Platform.OS === "ios" ? "compact" : "default"}
+            onChange={handleDateChange}
+            maximumDate={new Date()}
+          />
+
+          {/* Progress Bars */}
+          <View style={styles.progressContainer}>
+            {/* Labels Column */}
+            <View style={styles.labelsColumn}>
+              <Text style={styles.progressLabel}>Protein</Text>
+              <Text style={styles.progressLabel}>Calories</Text>
+            </View>
+
+            {/* Bars Column */}
+            <View style={styles.barsColumn}>
+              <View style={styles.progressBar}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    {
+                      width: `${Math.min(
+                        100,
+                        dailyProgress.percentages.protein
+                      )}%`,
+                    },
+                  ]}
+                />
+              </View>
+              <View style={styles.progressBar}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    {
+                      width: `${Math.min(
+                        100,
+                        dailyProgress.percentages.calories
+                      )}%`,
+                    },
+                  ]}
+                />
+              </View>
+            </View>
+
+            {/* Values Column */}
+            <View style={styles.valuesColumn}>
+              <Text style={styles.progressValue} numberOfLines={1}>
+                {Math.round(dailyProgress.current.protein)}/
+                {dailyProgress.targets.protein}g
+              </Text>
+              <Text style={styles.progressValue} numberOfLines={1}>
+                {Math.round(dailyProgress.current.calories)}/
+                {dailyProgress.targets.calories}
+              </Text>
+            </View>
+          </View>
+        </View>
       </View>
 
       <ScrollView

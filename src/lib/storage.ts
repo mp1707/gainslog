@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { FoodLog } from '../types';
+import { FoodLog, DailyTargets } from '../types';
 
 const FOOD_LOGS_KEY = 'food_logs';
+const DAILY_TARGETS_KEY = 'daily_targets';
 
 /**
  * Save a food log to AsyncStorage
@@ -90,4 +91,40 @@ export const clearAllFoodLogs = async (): Promise<void> => {
  */
 export const generateFoodLogId = (): string => {
   return `food_log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+};
+
+// Default daily targets based on common nutritional guidelines
+const DEFAULT_TARGETS: DailyTargets = {
+  calories: 2000,
+  protein: 150,
+  carbs: 250,
+  fat: 65,
+};
+
+/**
+ * Save daily nutrition targets to AsyncStorage
+ */
+export const saveDailyTargets = async (targets: DailyTargets): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(DAILY_TARGETS_KEY, JSON.stringify(targets));
+  } catch (error) {
+    console.error('Error saving daily targets:', error);
+    throw new Error('Failed to save daily targets');
+  }
+};
+
+/**
+ * Get daily nutrition targets from AsyncStorage
+ */
+export const getDailyTargets = async (): Promise<DailyTargets> => {
+  try {
+    const targetsJson = await AsyncStorage.getItem(DAILY_TARGETS_KEY);
+    if (!targetsJson) {
+      return DEFAULT_TARGETS;
+    }
+    return JSON.parse(targetsJson) as DailyTargets;
+  } catch (error) {
+    console.error('Error getting daily targets:', error);
+    return DEFAULT_TARGETS;
+  }
 };

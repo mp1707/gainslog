@@ -3,12 +3,13 @@ import { useFoodLogStore } from '../src/stores/useFoodLogStore';
 import React, { useEffect } from 'react';
 
 export default function RootLayout() {
-  const { loadFoodLogs } = useFoodLogStore();
+  const { loadFoodLogs, loadDailyTargets } = useFoodLogStore();
 
   // Initialize the store on app startup
   useEffect(() => {
     loadFoodLogs();
-  }, [loadFoodLogs]);
+    loadDailyTargets();
+  }, [loadFoodLogs, loadDailyTargets]);
 
   return (
     <Stack
