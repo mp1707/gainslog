@@ -20,7 +20,7 @@ export interface FoodLogContainerHandlers {
  * Manages the interaction between screen, modal, and business logic
  */
 export function FoodLogContainer({ onAudioRecorded }: FoodLogContainerProps): {
-  component: JSX.Element;
+  component: React.JSX.Element;
   handlers: FoodLogContainerHandlers;
 } {
   const { 
