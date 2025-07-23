@@ -1,10 +1,12 @@
-import React from 'react';
-import { View, Text, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native';
-import { SwipeToDelete, SkeletonCard } from '@/shared/ui';
-import { FoodLogCard } from './FoodLogCard';
-import { FoodLog } from '../../../types';
-import { styles } from './FoodLogScreen.styles';
+import React from "react";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { SafeAreaView } from "react-native";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { SwipeToDelete, SkeletonCard } from "@/shared/ui";
+import { FoodLogCard } from "./FoodLogCard";
+import { FoodLog } from "../../../types";
+import { styles } from "./FoodLogScreen.styles";
+import { useFoodLogStore } from "../../../stores/useFoodLogStore";
 
 interface FoodLogScreenProps {
   foodLogs: FoodLog[];
@@ -19,9 +21,18 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   onDeleteLog,
   onAddInfo,
 }) => {
+  const { triggerManualLog, triggerImageCapture } = useFoodLogStore();
 
   const handleDeleteLog = async (logId: string) => {
     await onDeleteLog(logId);
+  };
+
+  const handleTextLog = () => {
+    triggerManualLog();
+  };
+
+  const handleImageLog = () => {
+    triggerImageCapture();
   };
 
   return (
@@ -47,14 +58,30 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
               itemId={log.id}
               onDelete={() => handleDeleteLog(log.id)}
             >
-              <FoodLogCard 
-                foodLog={log}
-                onAddInfo={onAddInfo}
-              />
+              <FoodLogCard foodLog={log} onAddInfo={onAddInfo} />
             </SwipeToDelete>
           ))
         )}
       </ScrollView>
+
+      {/* Floating Action Buttons */}
+      <View style={styles.fabContainer}>
+        <TouchableOpacity
+          style={styles.fabButton}
+          onPress={handleTextLog}
+          activeOpacity={0.8}
+        >
+          <FontAwesome name="pencil" size={20} color="white" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.fabButton, styles.fabButtonSecondary]}
+          onPress={handleImageLog}
+          activeOpacity={0.8}
+        >
+          <FontAwesome name="camera" size={20} color="white" />
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
