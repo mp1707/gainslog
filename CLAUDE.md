@@ -16,53 +16,119 @@ npm run web        # Web browser
 
 Note: No linting or testing commands are configured. TypeScript compilation is handled by Expo with strict mode enabled.
 
-## Architecture Overview
+## Project Overview
 
-This is a React Native/Expo food logging application that allows users to:
-- View food logs with nutritional information (calories, protein, carbs, fat)
-- Take photos of food and upload them to Supabase storage
-- Store mock food log data (real database integration not yet implemented)
+**GainsLog** is a React Native/Expo food logging application that enables users to track nutrition through multiple input methods:
+- **Photo Capture**: Take pictures of food with camera integration
+- **Audio Recording**: Voice-to-text food logging (UI implemented, processing pending)
+- **Manual Entry**: Text-based food description and editing
+- **AI Nutrition Estimation**: OpenAI-powered nutritional analysis
+- **Local Storage**: All data stored locally on device using AsyncStorage
+
+## Architecture
 
 ### Tech Stack
 - **Frontend**: React Native (0.79.5) with Expo (~53.0.20)
-- **Backend**: Supabase (database + file storage)
-- **Language**: TypeScript with strict mode
-- **Image Processing**: expo-image-picker + expo-image-manipulator
-- **Storage**: AsyncStorage for Supabase session persistence
+- **Backend**: Supabase (Edge Functions + File Storage)
+- **AI**: OpenAI GPT-4o-mini for nutrition estimation
+- **Language**: TypeScript with strict mode enabled
+- **Storage**: AsyncStorage for local data persistence
+- **Media**: expo-image-picker, expo-image-manipulator, expo-audio
+
+### Repository Structure
+```
+/
+├── App.tsx                 # Main application component (1,100+ lines)
+├── lib/
+│   ├── supabase.ts        # Supabase client & AI estimation functions
+│   └── storage.ts         # AsyncStorage CRUD operations
+├── components/
+│   └── ImageUpload.tsx    # Reusable image upload component
+├── assets/                # App icons and splash screens
+├── .env                   # Supabase environment variables
+└── CLAUDE.md             # This documentation
+```
 
 ## Key Components
 
 ### App.tsx (Main Component)
-- Renders the main food log interface
-- Handles camera capture and image upload workflow
-- Manages food logs state (currently using mock data)
-- Implements the floating add button that triggers camera
+- **Single-file architecture**: Manages entire application state and UI
+- **Multi-modal input**: Camera, audio recording, and manual text entry
+- **Real-time updates**: Skeleton loading states and optimistic UI updates
+- **Modal management**: Food log editing and creation interfaces
+- **State management**: React hooks for local state (no external state library)
 
-### ImageUpload.tsx (Reusable Component)
-- Handles image selection from photo library
-- Processes and uploads images to Supabase storage
-- Located in `/components/ImageUpload.tsx`
+### lib/supabase.ts (Backend Integration)
+- **Supabase client**: Configured with AsyncStorage session persistence
+- **AI estimation**: `estimateFoodAI()` function for OpenAI-based nutrition analysis
+- **Anonymous access**: Uses anon key for unauthenticated API calls
+- **Error handling**: Proper error boundaries with user-friendly messages
+
+### lib/storage.ts (Data Management)
+- **Local-first approach**: All data persisted via AsyncStorage
+- **CRUD operations**: Create, read, update food logs
+- **JSON serialization**: Structured data storage and retrieval
+- **Unique IDs**: Timestamp-based identifier generation
 
 ## Supabase Integration
 
 ### Configuration
-- Client configured in `/lib/supabase.ts`
-- Uses environment variables from `.env`:
+- **Client setup**: `/lib/supabase.ts` with environment variables
+- **Required env vars**:
   - `EXPO_PUBLIC_SUPABASE_URL`
   - `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 
-### Storage Setup
-- Images are uploaded to `food-images` bucket
-- Files are resized to max 1000px width and compressed (0.8 quality)
-- Filename format: `public/food-image-${timestamp}.jpg` or `public/image-${timestamp}.jpg`
+### Edge Functions (Deployed)
+1. **ai-nutrition-estimate**: OpenAI-powered nutrition analysis
+   - Input: `{ title: string, description?: string }`
+   - Output: Nutrition data with confidence scoring
+   - Model: GPT-4o-mini with structured JSON output
+   - Authentication: Anonymous access with Bearer token
+
+2. **estimate-food-public**: Rule-based fallback estimation
+   - Fallback function with keyword-based nutrition estimates
+   - Used for basic estimation when AI is unavailable
+
+### File Storage
+- **Bucket**: `food-images` for photo uploads
+- **Processing**: Images resized to 1000px width, 80% JPEG compression
+- **Naming**: `public/food-image-${timestamp}.jpg` format
+- **Upload workflow**: FormData → Supabase Storage → URL return
+
+### Authentication Strategy
+- **Anonymous access**: No user registration required
+- **Local storage only**: All food logs stored on device
+- **API access**: Uses anon key for Edge Function calls
+- **Privacy-first**: No user data sent to external services except AI estimation
 
 ## Data Models
 
 ### FoodLog Interface
 ```typescript
 interface FoodLog {
-  id: string;
+  id: string;                    // Unique timestamp-based ID
+  userTitle?: string;            // User-provided title (optional)
+  userDescription?: string;      // User-provided description (optional)
+  generatedTitle: string;        // AI-generated title
+  estimationConfidence: number;  // AI confidence score (0-100)
+  calories: number;             // Nutritional data
+  protein: number;
+  carbs: number;
+  fat: number;
+  createdAt: string;            // ISO timestamp
+}
+```
+
+### API Interfaces
+```typescript
+interface FoodEstimateRequest {
   title: string;
+  description?: string;
+}
+
+interface FoodEstimateResponse {
+  generatedTitle: string;
+  estimationConfidence: number;
   calories: number;
   protein: number;
   carbs: number;
@@ -70,24 +136,110 @@ interface FoodLog {
 }
 ```
 
-## Image Processing Workflow
+## Application Flow
 
-1. **Camera Capture**: Request camera permissions → launch camera
-2. **Image Manipulation**: Resize to 1000px width, compress to 80% JPEG quality
-3. **Upload**: Create FormData and upload to Supabase `food-images` bucket
-4. **State Update**: Add new food log entry to state
+### Photo Capture Workflow
+1. **Permission Request**: Camera and media library access
+2. **Image Capture**: expo-image-picker with camera interface
+3. **Image Processing**: Resize and compress via expo-image-manipulator
+4. **Supabase Upload**: FormData upload to food-images bucket
+5. **Skeleton Creation**: Immediate UI feedback with loading state
+6. **AI Estimation**: Call to ai-nutrition-estimate Edge Function
+7. **Data Persistence**: Save complete FoodLog to AsyncStorage
+8. **UI Update**: Replace skeleton with real nutrition data
+
+### Manual Entry Workflow
+1. **Modal Interface**: Title and description input fields
+2. **Validation**: Ensure title is provided
+3. **AI Estimation**: Direct call to nutrition estimation API
+4. **Error Handling**: "Oops! Something went wrong." on failure
+5. **Data Storage**: Save to AsyncStorage on success
+6. **State Update**: Add to food logs array with real-time UI update
+
+### Audio Recording Workflow (UI Complete)
+1. **Recording Modal**: Animated interface with start/stop controls
+2. **Permission Handling**: Microphone access request
+3. **Audio Capture**: High-quality recording via expo-audio
+4. **Placeholder Creation**: Creates skeleton food log
+5. **Processing**: Currently creates placeholder (processing not implemented)
+
+## Image Processing Pipeline
+
+1. **Source Selection**: Camera capture or photo library selection
+2. **Permission Management**: Runtime permission requests
+3. **Image Manipulation**: 
+   - Resize: Maximum 1000px width (maintains aspect ratio)
+   - Compression: 80% JPEG quality for optimal file size
+   - Format: Always converts to JPEG
+4. **Upload Process**:
+   - FormData creation with proper headers
+   - Supabase Storage API integration
+   - Error handling for upload failures
+5. **URL Management**: Store returned public URLs for future reference
+
+## Error Handling Strategy
+
+### User-Facing Errors
+- **AI Estimation Failure**: "Oops! Something went wrong."
+- **Network Issues**: Generic error messaging
+- **Permission Denied**: System-level permission dialogs
+
+### Developer Debugging
+- **Console Logging**: Detailed error information for development
+- **Function Logs**: Supabase Edge Function logging for API debugging
+- **Network Errors**: HTTP status codes and response text logging
 
 ## Environment Setup
 
-Ensure `.env` file contains required Supabase credentials:
-```
-EXPO_PUBLIC_SUPABASE_URL=your-supabase-url
+### Required Environment Variables
+```bash
+EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 ```
 
+### Supabase Project Setup
+1. **Storage Bucket**: Create `food-images` bucket with public access
+2. **Edge Functions**: Deploy `ai-nutrition-estimate` function
+3. **Environment Variables**: Configure `OPENAI_API_KEY` in Supabase dashboard
+4. **Anonymous Access**: Ensure anon role has function execution permissions
+
 ## Development Notes
 
-- Mock data is currently used for food logs - database integration not yet implemented
-- The app uses camera permissions for photo capture and media library permissions for photo selection
-- Image uploads are working but food log data persistence to Supabase database needs implementation
-- The app is configured for both iOS and Android with Expo's new architecture enabled
+### Current Implementation Status
+- ✅ **Photo capture and upload**: Fully implemented
+- ✅ **Manual food entry**: Complete with AI estimation
+- ✅ **Local data persistence**: AsyncStorage CRUD operations
+- ✅ **AI nutrition estimation**: OpenAI integration via Edge Functions
+- ✅ **Image processing**: Resize, compress, and upload pipeline
+- 🚧 **Audio recording**: UI complete, processing not implemented
+- ❌ **Database integration**: All data stored locally only
+- ❌ **User accounts**: Anonymous-only access
+
+### Architecture Decisions
+- **Single-file component**: App.tsx contains entire application logic
+- **Local-first storage**: AsyncStorage over Supabase database
+- **Anonymous access**: No user authentication required
+- **AI-powered estimation**: OpenAI for accurate nutrition data
+- **Edge Function architecture**: Serverless nutrition estimation
+
+### Performance Considerations
+- **Image compression**: Automatic optimization for mobile networks
+- **Optimistic updates**: Immediate UI feedback with skeleton states
+- **Local storage**: Fast data access without network dependency
+- **Minimal API calls**: Only for AI estimation, everything else local
+
+### Security Notes
+- **API keys**: Stored in environment variables
+- **Anonymous access**: No user data collection
+- **Local storage**: All personal data remains on device
+- **Edge Functions**: Secure serverless execution environment
+
+## Future Enhancement Areas
+
+1. **Component Architecture**: Decompose large App.tsx into smaller components
+2. **State Management**: Consider Context API or state management library
+3. **Audio Processing**: Implement speech-to-text for audio recordings
+4. **Testing**: Add unit and integration tests
+5. **Database Integration**: Optional cloud sync with user consent
+6. **Offline Mode**: Enhanced offline functionality and sync
+7. **Export Features**: CSV/JSON export of nutrition data

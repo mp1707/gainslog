@@ -27,10 +27,6 @@ export interface FoodEstimateResponse {
   fat: number;
 }
 
-
-/**
- * AI-powered nutrition estimation (OpenAI only, no fallback)
- */
 export const estimateFoodAI = async (request: FoodEstimateRequest): Promise<FoodEstimateResponse> => {
   const anonKey = '***REMOVED***';
   
