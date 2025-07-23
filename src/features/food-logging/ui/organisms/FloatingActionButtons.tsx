@@ -1,8 +1,10 @@
 import React from 'react';
+import { View } from 'react-native';
 import { ImageCaptureButton } from '../../../image-capture';
 import { AudioRecordingButton } from '../../../audio-recording';
 import { ManualEntryButton } from '../../../../shared/ui';
 import { FoodLog } from '../../../../types';
+import { styles } from './FloatingActionButtons.styles';
 
 export interface FloatingActionButtonsProps {
   onManualLog: () => void;
@@ -20,10 +22,10 @@ export function FloatingActionButtons({
   onAudioRecorded,
 }: FloatingActionButtonsProps) {
   return (
-    <>
+    <View style={styles.container}>
       <ManualEntryButton onPress={onManualLog} />
       <AudioRecordingButton onAudioRecorded={onAudioRecorded} />
       <ImageCaptureButton onImageCaptured={onImageCaptured} />
-    </>
+    </View>
   );
 }

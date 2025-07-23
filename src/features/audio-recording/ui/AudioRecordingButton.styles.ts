@@ -3,15 +3,10 @@ import { colors, typography, spacing } from '../../../theme';
 
 export const styles = StyleSheet.create({
   recordButton: {
-    position: 'absolute',
-    bottom: spacing['6xl'] + spacing['4xl'] + spacing.xl + spacing.xs,
-    right: spacing.padding.large,
+    // No positioning - handled by parent container
   },
 
   actionsContainer: {
-    position: 'absolute',
-    bottom: spacing['6xl'] + spacing['4xl'] + spacing.xl + spacing.xs,
-    right: spacing.padding.large,
     flexDirection: 'row',
     gap: spacing.margin.large,
   },
@@ -49,9 +44,6 @@ export const styles = StyleSheet.create({
   },
 
   processingButton: {
-    position: 'absolute',
-    bottom: spacing['6xl'] + spacing['4xl'] + spacing.xl + spacing.xs,
-    right: spacing.padding.large,
     width: spacing.button.medium.width,
     height: spacing.button.medium.height,
     borderRadius: spacing.button.medium.radius,
