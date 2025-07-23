@@ -8,7 +8,7 @@ import {
   deleteFoodLog 
 } from '@/lib/storage';
 
-type ActionType = 'manual' | 'image' | 'audio' | null;
+type ActionType = 'manual' | 'image' | null;
 
 interface FoodLogStore {
   // Data state
@@ -32,7 +32,6 @@ interface FoodLogStore {
   // Action triggers
   triggerManualLog: () => void;
   triggerImageCapture: () => void;
-  triggerAudioRecord: () => void;
   setTriggerAction: (action: ActionType) => void;
   clearTrigger: () => void;
 }
@@ -144,7 +143,6 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   // Action triggers
   triggerManualLog: () => set({ triggerAction: 'manual' }),
   triggerImageCapture: () => set({ triggerAction: 'image' }),
-  triggerAudioRecord: () => set({ triggerAction: 'audio' }),
   setTriggerAction: (action: ActionType) => set({ triggerAction: action }),
   clearTrigger: () => set({ triggerAction: null }),
 }));

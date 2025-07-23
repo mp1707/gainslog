@@ -1,14 +1,10 @@
-import React from 'react';
-import { FoodLogScreen } from '../FoodLogScreen';
-import { FoodLogModal } from '../FoodLogModal';
-import { useFoodLogStore } from '../../../../stores/useFoodLogStore';
-import { useFoodLogModal } from '../../hooks/useFoodLogModal';
-import { useNutritionEstimation } from '../../hooks/useNutritionEstimation';
-import { FoodLog } from '../../../../types';
-
-export interface FoodLogContainerProps {
-  onAudioRecorded: (log: FoodLog) => void;
-}
+import React from "react";
+import { FoodLogScreen } from "../FoodLogScreen";
+import { FoodLogModal } from "../FoodLogModal";
+import { useFoodLogStore } from "../../../../stores/useFoodLogStore";
+import { useFoodLogModal } from "../../hooks/useFoodLogModal";
+import { useNutritionEstimation } from "../../hooks/useNutritionEstimation";
+import { FoodLog } from "../../../../types";
 
 export interface FoodLogContainerHandlers {
   handleManualLog: () => void;
@@ -19,18 +15,18 @@ export interface FoodLogContainerHandlers {
  * Container component for food logging functionality
  * Manages the interaction between screen, modal, and business logic
  */
-export function FoodLogContainer({ onAudioRecorded }: FoodLogContainerProps): {
+export function FoodLogContainer(): {
   component: React.JSX.Element;
   handlers: FoodLogContainerHandlers;
 } {
-  const { 
-    foodLogs, 
-    isLoadingLogs, 
-    addFoodLog, 
-    updateFoodLogById, 
+  const {
+    foodLogs,
+    isLoadingLogs,
+    addFoodLog,
+    updateFoodLogById,
     deleteFoodLogById,
     updateFoodLogInState,
-    addFoodLogToState 
+    addFoodLogToState,
   } = useFoodLogStore();
 
   const {
@@ -46,7 +42,7 @@ export function FoodLogContainer({ onAudioRecorded }: FoodLogContainerProps): {
   const { processLogWithEstimation } = useNutritionEstimation();
 
   const handleModalSave = async (log: FoodLog) => {
-    if (modalMode === 'create') {
+    if (modalMode === "create") {
       if (selectedLog) {
         // Image capture case: Add skeleton and process in background
         await processLogWithEstimation(

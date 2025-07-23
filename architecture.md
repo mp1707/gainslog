@@ -30,7 +30,7 @@ Your app uses a **Context-based architecture** with multiple providers that migh
 
 ### 2. GlobalFoodLogActionsProvider
 **Purpose**: Coordinate actions across different screens  
-**What it manages**: Global trigger state (`'manual' | 'image' | 'audio' | null`)  
+**What it manages**: Global trigger state (`'manual' | 'image'| null`)  
 **Why needed**: Your floating action buttons need to trigger actions in any screen
 
 **The Problem It Solves**:
@@ -40,7 +40,7 @@ Your app uses a **Context-based architecture** with multiple providers that migh
 
 ### 3. FoodLogActionsProvider
 **Purpose**: Handle specific food logging actions within a screen  
-**What it manages**: Actual execution of manual/image/audio logging  
+**What it manages**: Actual execution of manual/image logging  
 **Why needed**: Each screen needs its own action handlers
 
 ## The Communication Chain

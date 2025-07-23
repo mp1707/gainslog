@@ -11,7 +11,6 @@ interface CreateActionModalProps {
   onClose: () => void;
   onSelectText: () => void;
   onSelectPicture: () => void;
-  onSelectAudio: () => void;
 }
 
 function CreateActionModal({ 
@@ -19,7 +18,6 @@ function CreateActionModal({
   onClose, 
   onSelectText, 
   onSelectPicture, 
-  onSelectAudio 
 }: CreateActionModalProps) {
   return (
     <Modal
@@ -44,10 +42,6 @@ function CreateActionModal({
             <Text style={styles.actionText}>Picture</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.actionItem} onPress={onSelectAudio}>
-            <FontAwesome name="microphone" size={24} color={colors.text.primary} />
-            <Text style={styles.actionText}>Audio</Text>
-          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     </Modal>
@@ -57,7 +51,7 @@ function CreateActionModal({
 function CustomTabBar({ state, descriptors, navigation }: any) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   
-  const { triggerManualLog, triggerImageCapture, triggerAudioRecord } = useFoodLogStore();
+  const { triggerManualLog, triggerImageCapture } = useFoodLogStore();
 
   const handleCreatePress = () => {
     setShowCreateModal(true);
@@ -79,13 +73,6 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
     // Navigate to Today tab first, then trigger action
     navigation.navigate('index');
     triggerImageCapture();
-  };
-
-  const handleSelectAudio = () => {
-    setShowCreateModal(false);
-    // Navigate to Today tab first, then trigger action
-    navigation.navigate('index');
-    triggerAudioRecord();
   };
 
   return (
@@ -170,7 +157,6 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         onClose={handleCloseModal}
         onSelectText={handleSelectText}
         onSelectPicture={handleSelectPicture}
-        onSelectAudio={handleSelectAudio}
       />
     </>
   );

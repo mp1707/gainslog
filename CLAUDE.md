@@ -63,7 +63,7 @@ Note: No linting or testing commands are configured. TypeScript compilation is h
 **GainsLog** is a React Native/Expo food logging application that enables users to track nutrition through multiple input methods:
 
 - **Photo Capture**: Take pictures of food with camera integration
-- **Audio Recording**: Voice-to-text food logging (UI implemented, processing pending)
+- **Audio Recording**: Voice-to-text food logging (feature pending)
 - **Manual Entry**: Enhanced text-based food description with optional manual nutrition input
 - **Hybrid AI/Manual Nutrition**: Smart combination of user input and AI estimation
 - **AI Nutrition Estimation**: OpenAI-powered nutritional analysis when needed
@@ -321,14 +321,6 @@ interface FoodEstimateResponse {
 4. **Data Merging**: Combines new AI estimation with preserved user nutrition inputs
 5. **Confidence Improvement**: Designed to improve low-confidence entries with additional details
 6. **Real-time Feedback**: Loading states show "Re-estimating nutrition..." during processing
-
-### Audio Recording Workflow (UI Complete)
-
-1. **Recording Modal**: Animated interface with start/stop controls
-2. **Permission Handling**: Microphone access request
-3. **Audio Capture**: High-quality recording via expo-audio
-4. **Placeholder Creation**: Creates skeleton food log
-5. **Processing**: Currently creates placeholder (processing not implemented)
 
 ## Nutrition Input System
 

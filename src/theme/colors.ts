@@ -55,13 +55,6 @@ export const colors = {
     },
   },
 
-  // Audio recording colors
-  audio: {
-    primary: '#FF6B6B',
-    recording: '#FF4444',
-    send: '#22c55e',
-  },
-
   // Skeleton loading colors
   skeleton: '#e5e7eb',
 
