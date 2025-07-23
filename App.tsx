@@ -12,11 +12,12 @@ import {
   TextInput,
   Alert,
   Animated,
+  Image,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 import { useAudioRecorder, RecordingPresets, AudioModule } from "expo-audio";
-import { supabase, estimateFoodAI } from "./lib/supabase";
+import { supabase, estimateNutritionTextBased, estimateNutritionImageBased } from "./lib/supabase";
 import { 
   FoodLog,
   getFoodLogs,
@@ -222,11 +223,22 @@ export default function App() {
         let completeLog = skeletonLog;
 
         if (nutritionData.needsAiEstimation) {
-          // Call AI estimation API only if needed
-          const estimation = await estimateFoodAI({
-            title: tempTitle.trim(),
-            description: tempDescription.trim() || undefined,
-          });
+          // Call appropriate AI estimation API based on whether we have an image
+          let estimation;
+          if (skeletonLog.imageUrl) {
+            // Use image-based estimation
+            estimation = await estimateNutritionImageBased({
+              imageUrl: skeletonLog.imageUrl,
+              title: tempTitle.trim() || undefined,
+              description: tempDescription.trim() || undefined,
+            });
+          } else {
+            // Use text-based estimation
+            estimation = await estimateNutritionTextBased({
+              title: tempTitle.trim(),
+              description: tempDescription.trim() || undefined,
+            });
+          }
 
           // Merge AI data with user input (user input takes precedence)
           const mergedNutrition = mergeNutritionData(
@@ -335,11 +347,22 @@ export default function App() {
         let finalLog = updatedLog;
 
         if (nutritionData.needsAiEstimation) {
-          // Call AI estimation API with updated title and description
-          const estimation = await estimateFoodAI({
-            title: tempTitle.trim(),
-            description: tempDescription.trim() || undefined,
-          });
+          // Call appropriate AI estimation API based on whether we have an image
+          let estimation;
+          if (selectedLog.imageUrl) {
+            // Use image-based estimation with updated context
+            estimation = await estimateNutritionImageBased({
+              imageUrl: selectedLog.imageUrl,
+              title: tempTitle.trim() || undefined,
+              description: tempDescription.trim() || undefined,
+            });
+          } else {
+            // Use text-based estimation
+            estimation = await estimateNutritionTextBased({
+              title: tempTitle.trim(),
+              description: tempDescription.trim() || undefined,
+            });
+          }
 
           // Merge AI data with user input (user input takes precedence)
           const mergedNutrition = mergeNutritionData(
@@ -580,6 +603,11 @@ export default function App() {
         throw uploadError;
       }
 
+      // Get the public URL for the uploaded image
+      const { data: publicUrlData } = supabase.storage
+        .from("food-images")
+        .getPublicUrl(filename);
+
       const newLog: FoodLog = {
         id: generateFoodLogId(),
         generatedTitle: "Photo taken - please add details",
@@ -588,6 +616,7 @@ export default function App() {
         protein: 0,
         carbs: 0,
         fat: 0,
+        imageUrl: publicUrlData.publicUrl,
         createdAt: new Date().toISOString(),
       };
 
@@ -643,7 +672,7 @@ export default function App() {
                     log.estimationConfidence === 0 && styles.loadingTitle
                   ]}
                 >
-                  {log.userTitle || log.generatedTitle}
+                  {log.imageUrl && '📷 '}{log.userTitle || log.generatedTitle}
                 </Text>
                 {log.userDescription && (
                   <Text style={styles.logDescription}>
@@ -823,6 +852,16 @@ export default function App() {
           </View>
 
           <ScrollView style={styles.modalContent}>
+            {selectedLog?.imageUrl && (
+              <View style={styles.imageContainer}>
+                <Image 
+                  source={{ uri: selectedLog.imageUrl }} 
+                  style={styles.foodImage}
+                  resizeMode="cover"
+                />
+              </View>
+            )}
+
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Title</Text>
               <TextInput
@@ -1389,5 +1428,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#ffffff",
+  },
+  // Image display styles
+  imageContainer: {
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  foodImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 12,
+    backgroundColor: "#f3f4f6",
   },
 });

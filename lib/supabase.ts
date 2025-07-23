@@ -18,6 +18,12 @@ export interface FoodEstimateRequest {
   description?: string;
 }
 
+export interface ImageEstimateRequest {
+  imageUrl: string;
+  title?: string;
+  description?: string;
+}
+
 export interface FoodEstimateResponse {
   generatedTitle: string;
   estimationConfidence: number;
@@ -27,7 +33,7 @@ export interface FoodEstimateResponse {
   fat: number;
 }
 
-export const estimateFoodAI = async (request: FoodEstimateRequest): Promise<FoodEstimateResponse> => {
+export const estimateNutritionTextBased = async (request: FoodEstimateRequest): Promise<FoodEstimateResponse> => {
   const anonKey = '***REMOVED***';
   
   const response = await fetch('https://cjsbuqvntoimmawozpko.supabase.co/functions/v1/text-based-estimation', {
@@ -50,6 +56,35 @@ export const estimateFoodAI = async (request: FoodEstimateRequest): Promise<Food
   
   if (data.error) {
     console.error('AI estimation error:', data.error);
+    throw new Error('AI_ESTIMATION_FAILED');
+  }
+
+  return data as FoodEstimateResponse;
+};
+
+export const estimateNutritionImageBased = async (request: ImageEstimateRequest): Promise<FoodEstimateResponse> => {
+  const anonKey = '***REMOVED***';
+  
+  const response = await fetch('https://cjsbuqvntoimmawozpko.supabase.co/functions/v1/image-based-estimation', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${anonKey}`,
+      'apikey': anonKey,
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Image-based estimation HTTP error:', response.status, errorText);
+    throw new Error('AI_ESTIMATION_FAILED');
+  }
+
+  const data = await response.json();
+  
+  if (data.error) {
+    console.error('Image-based estimation error:', data.error);
     throw new Error('AI_ESTIMATION_FAILED');
   }
 

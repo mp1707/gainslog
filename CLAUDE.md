@@ -113,7 +113,13 @@ Note: No linting or testing commands are configured. TypeScript compilation is h
    - Model: GPT-4o-mini with structured JSON output
    - Authentication: Anonymous access with Bearer token
 
-2. **estimate-food-public**: Rule-based fallback estimation
+2. **image-based-estimation**: OpenAI Vision-powered image analysis
+   - Input: `{ imageUrl: string, title?: string, description?: string }`
+   - Output: Nutrition data with confidence scoring based on visual clarity
+   - Model: GPT-4o Vision API with structured JSON output
+   - Authentication: Anonymous access with Bearer token
+
+3. **estimate-food-public**: Rule-based fallback estimation
    - Fallback function with keyword-based nutrition estimates
    - Used for basic estimation when AI is unavailable
 
@@ -147,6 +153,7 @@ interface FoodLog {
   userProtein?: number;
   userCarbs?: number;
   userFat?: number;
+  imageUrl?: string;            // Supabase Storage URL for captured images
   createdAt: string;            // ISO timestamp
 }
 ```
@@ -155,6 +162,12 @@ interface FoodLog {
 ```typescript
 interface FoodEstimateRequest {
   title: string;
+  description?: string;
+}
+
+interface ImageEstimateRequest {
+  imageUrl: string;
+  title?: string;
   description?: string;
 }
 
@@ -175,10 +188,15 @@ interface FoodEstimateResponse {
 2. **Image Capture**: expo-image-picker with camera interface
 3. **Image Processing**: Resize and compress via expo-image-manipulator
 4. **Supabase Upload**: FormData upload to food-images bucket
-5. **Skeleton Creation**: Immediate UI feedback with loading state
-6. **AI Estimation**: Call to ai-nutrition-estimate Edge Function
-7. **Data Persistence**: Save complete FoodLog to AsyncStorage
-8. **UI Update**: Replace skeleton with real nutrition data
+5. **URL Generation**: Get public URL from Supabase Storage
+6. **Skeleton Creation**: Immediate UI feedback with loading state (includes imageUrl)
+7. **User Enhancement**: Modal opens for optional title, description, and nutrition input
+8. **Smart AI Decision**: 
+   - If user provides all nutrition → Skip AI, use user values (100% confidence)
+   - If partial nutrition → Call image-based estimation, merge with user input
+   - If no nutrition → Traditional image-based AI estimation with OpenAI Vision
+9. **Data Persistence**: Save complete FoodLog with imageUrl to AsyncStorage
+10. **UI Update**: Replace skeleton with real nutrition data and 📷 indicator
 
 ### Enhanced Manual Entry Workflow
 1. **Modal Interface**: Title, description, and optional nutrition input fields (calories, protein, carbs, fat)
@@ -284,13 +302,17 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 ## Development Notes
 
 ### Current Implementation Status
-- ✅ **Photo capture and upload**: Fully implemented
-- ✅ **Enhanced manual food entry**: Complete with hybrid AI/manual nutrition input
+- ✅ **Photo capture and upload**: Fully implemented with imageUrl storage
+- ✅ **Image-based nutrition estimation**: OpenAI Vision API integration via Edge Function
+- ✅ **Enhanced manual food entry**: Complete with hybrid AI/manual nutrition input  
 - ✅ **Smart nutrition merging**: User input takes precedence over AI estimation
-- ✅ **Re-estimation feature**: Add Info button triggers AI re-calculation
+- ✅ **Intelligent estimation routing**: Image-based vs text-based AI selection
+- ✅ **Re-estimation feature**: Add Info button triggers appropriate AI re-calculation
+- ✅ **Visual indicators**: 📷 emoji for entries with images
+- ✅ **Image display**: Full images shown in details modal
 - ✅ **Input validation**: Comprehensive nutrition field validation
 - ✅ **Local data persistence**: AsyncStorage CRUD operations with user nutrition storage
-- ✅ **AI nutrition estimation**: OpenAI integration via Edge Functions (conditional)
+- ✅ **AI nutrition estimation**: Dual OpenAI integration (Vision + Text) via Edge Functions
 - ✅ **Image processing**: Resize, compress, and upload pipeline
 - 🚧 **Audio recording**: UI complete, processing not implemented
 - ❌ **Database integration**: All data stored locally only

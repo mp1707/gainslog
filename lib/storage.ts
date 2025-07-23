@@ -14,6 +14,7 @@ export interface FoodLog {
   userProtein?: number;
   userCarbs?: number;
   userFat?: number;
+  imageUrl?: string;
   createdAt: string;
 }
 
