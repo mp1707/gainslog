@@ -1,6 +1,37 @@
 {
+  // Updated to fix "@/" import path resolution
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
-  }
+    "strict": true,
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/app-providers/*": ["src/app-providers/*"],
+      "@/app-providers": ["src/app-providers/index"],
+      "@/features/*": ["src/features/*"],
+      "@/features": ["src/features/index"],
+      "@/shared/*": ["src/shared/*"],
+      "@/shared": ["src/shared/index"],
+      "@/theme/*": ["src/theme/*"],
+      "@/theme": ["src/theme/index"],
+      "@/types/*": ["src/types/*"],
+      "@/types": ["src/types/index"],
+      "@/lib/*": ["src/lib/*"],
+      "@/lib": ["src/lib/index"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "App.tsx",
+    "index.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build"
+  ]
 }

@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { createClient } from '@supabase/supabase-js'
+import { FoodEstimateRequest, ImageEstimateRequest, FoodEstimateResponse } from '../types';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
@@ -12,26 +13,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: false,
   },
 })
-
-export interface FoodEstimateRequest {
-  title: string;
-  description?: string;
-}
-
-export interface ImageEstimateRequest {
-  imageUrl: string;
-  title?: string;
-  description?: string;
-}
-
-export interface FoodEstimateResponse {
-  generatedTitle: string;
-  estimationConfidence: number;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-}
 
 export const estimateNutritionTextBased = async (request: FoodEstimateRequest): Promise<FoodEstimateResponse> => {
   const anonKey = '***REMOVED***';

@@ -1,0 +1,1 @@
+export { ImageCaptureButton } from './ImageCaptureButton';

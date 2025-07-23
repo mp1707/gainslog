@@ -1,0 +1,1 @@
+export { SwipeToDelete } from './SwipeToDelete';

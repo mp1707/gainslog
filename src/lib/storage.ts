@@ -1,22 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-export interface FoodLog {
-  id: string;
-  userTitle?: string;
-  userDescription?: string;
-  generatedTitle: string;
-  estimationConfidence: number;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  userCalories?: number;
-  userProtein?: number;
-  userCarbs?: number;
-  userFat?: number;
-  imageUrl?: string;
-  createdAt: string;
-}
+import { FoodLog } from '../types';
 
 const FOOD_LOGS_KEY = 'food_logs';
 
@@ -26,8 +9,18 @@ const FOOD_LOGS_KEY = 'food_logs';
 export const saveFoodLog = async (foodLog: FoodLog): Promise<void> => {
   try {
     const existingLogs = await getFoodLogs();
-    const updatedLogs = [foodLog, ...existingLogs];
-    await AsyncStorage.setItem(FOOD_LOGS_KEY, JSON.stringify(updatedLogs));
+    
+    // Check if log with same ID already exists
+    const existingLogIndex = existingLogs.findIndex(log => log.id === foodLog.id);
+    if (existingLogIndex !== -1) {
+      // Replace existing log instead of adding duplicate
+      existingLogs[existingLogIndex] = foodLog;
+      await AsyncStorage.setItem(FOOD_LOGS_KEY, JSON.stringify(existingLogs));
+    } else {
+      // Add new log to the beginning
+      const updatedLogs = [foodLog, ...existingLogs];
+      await AsyncStorage.setItem(FOOD_LOGS_KEY, JSON.stringify(updatedLogs));
+    }
   } catch (error) {
     console.error('Error saving food log:', error);
     throw new Error('Failed to save food log');
