@@ -4,7 +4,16 @@ import { StatusBar } from 'expo-status-bar';
 import { FormField, NutritionGrid } from '@/shared/ui';
 import { FoodLog, ModalMode } from '../../../types';
 import { mergeNutritionData } from '../utils';
+import { useFoodLogStore } from '../../../stores/useFoodLogStore';
 import { styles } from './FoodLogModal.styles';
+
+// Helper function to convert Date to local date string (YYYY-MM-DD)
+const dateToLocalDateString = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 interface FoodLogModalProps {
   visible: boolean;
@@ -21,6 +30,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   onClose,
   onSave,
 }) => {
+  const { selectedDate } = useFoodLogStore();
   const [tempTitle, setTempTitle] = useState('');
   const [tempDescription, setTempDescription] = useState('');
   const [tempCalories, setTempCalories] = useState('');
@@ -83,7 +93,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
         needsAiEstimation: nutritionData.needsAiEstimation,
       };
     } else {
-      // Creating completely new log (manual entry)
+      // Creating completely new log (manual entry) using selected date
       const newId = `food_log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       finalLog = {
         id: newId,
@@ -100,6 +110,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
         userCarbs: nutritionData.userCarbs,
         userFat: nutritionData.userFat,
         createdAt: new Date().toISOString(),
+        date: selectedDate,
         needsAiEstimation: nutritionData.needsAiEstimation,
       };
     }

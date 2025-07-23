@@ -15,6 +15,9 @@ interface FoodLogStore {
   foodLogs: FoodLog[];
   isLoadingLogs: boolean;
   
+  // Date filtering state
+  selectedDate: string; // ISO date string (YYYY-MM-DD)
+  
   // Action trigger state  
   triggerAction: ActionType;
   
@@ -34,12 +37,34 @@ interface FoodLogStore {
   triggerImageCapture: () => void;
   setTriggerAction: (action: ActionType) => void;
   clearTrigger: () => void;
+  
+  // Date actions
+  setSelectedDate: (date: string) => void;
+  getFilteredFoodLogs: () => FoodLog[];
 }
+
+// Helper function to get today's date in ISO format (YYYY-MM-DD) in local timezone
+const getTodayDateString = (): string => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+// Helper function to convert Date to local date string (YYYY-MM-DD)
+const dateToLocalDateString = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   // Initial state
   foodLogs: [],
   isLoadingLogs: true,
+  selectedDate: getTodayDateString(),
   triggerAction: null,
   
   // Data actions
@@ -47,7 +72,14 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
     set({ isLoadingLogs: true });
     try {
       const logs = await getFoodLogs();
-      set({ foodLogs: logs });
+      
+      // Ensure backward compatibility by adding date field to logs that don't have it
+      const migratedLogs = logs.map(log => ({
+        ...log,
+        date: log.date || dateToLocalDateString(new Date(log.createdAt))
+      }));
+      
+      set({ foodLogs: migratedLogs });
     } catch (error) {
       console.error('Error loading food logs:', error);
       Alert.alert('Error', 'Failed to load food logs from storage');
@@ -145,6 +177,14 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   triggerImageCapture: () => set({ triggerAction: 'image' }),
   setTriggerAction: (action: ActionType) => set({ triggerAction: action }),
   clearTrigger: () => set({ triggerAction: null }),
+  
+  // Date actions
+  setSelectedDate: (date: string) => set({ selectedDate: date }),
+  
+  getFilteredFoodLogs: () => {
+    const { foodLogs, selectedDate } = get();
+    return foodLogs.filter(log => log.date === selectedDate);
+  },
 }));
 
 // Export ActionType for components that need it

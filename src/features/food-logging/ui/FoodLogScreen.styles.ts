@@ -18,6 +18,12 @@ export const styles = StyleSheet.create({
   title: {
     ...typography.styles.title,
     color: colors.text.primary,
+    marginBottom: spacing.md,
+  },
+
+  // Date Picker styles
+  datePicker: {
+    alignSelf: "flex-start",
   },
 
   scrollView: {

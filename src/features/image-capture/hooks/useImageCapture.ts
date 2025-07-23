@@ -5,9 +5,19 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import { supabase } from '@/lib/supabase';
 import { FoodLog } from '../../../types';
 import { generateFoodLogId } from '../../../lib/storage';
+import { useFoodLogStore } from '../../../stores/useFoodLogStore';
+
+// Helper function to convert Date to local date string (YYYY-MM-DD)
+const dateToLocalDateString = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 export const useImageCapture = () => {
   const [isUploading, setIsUploading] = useState(false);
+  const { selectedDate } = useFoodLogStore();
 
   const captureImage = async (): Promise<FoodLog | null> => {
     try {
@@ -57,7 +67,7 @@ export const useImageCapture = () => {
         .from('food-images')
         .getPublicUrl(filename);
 
-      // Create food log with image
+      // Create food log with image using selected date
       const newLog: FoodLog = {
         id: generateFoodLogId(),
         generatedTitle: '',
@@ -68,6 +78,7 @@ export const useImageCapture = () => {
         fat: 0,
         imageUrl: publicUrlData.publicUrl,
         createdAt: new Date().toISOString(),
+        date: selectedDate,
       };
 
       return newLog;

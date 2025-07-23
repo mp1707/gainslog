@@ -57,7 +57,6 @@ export default function TodayTab() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <FoodLogScreen
-        foodLogs={foodLogs}
         isLoadingLogs={isLoadingLogs}
         onDeleteLog={deleteFoodLogById}
         onAddInfo={modal.handleAddInfo}

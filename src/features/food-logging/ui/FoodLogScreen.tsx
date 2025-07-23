@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Platform } from "react-native";
 import { SafeAreaView } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { SwipeToDelete, SkeletonCard } from "@/shared/ui";
 import { FoodLogCard } from "./FoodLogCard";
 import { FoodLog } from "../../../types";
@@ -9,19 +10,40 @@ import { styles } from "./FoodLogScreen.styles";
 import { useFoodLogStore } from "../../../stores/useFoodLogStore";
 
 interface FoodLogScreenProps {
-  foodLogs: FoodLog[];
   isLoadingLogs: boolean;
   onDeleteLog: (logId: string) => Promise<void>;
   onAddInfo: (log: FoodLog) => void;
 }
 
 export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
-  foodLogs,
   isLoadingLogs,
   onDeleteLog,
   onAddInfo,
 }) => {
-  const { triggerManualLog, triggerImageCapture } = useFoodLogStore();
+  const { 
+    triggerManualLog, 
+    triggerImageCapture, 
+    selectedDate, 
+    setSelectedDate, 
+    getFilteredFoodLogs 
+  } = useFoodLogStore();
+  
+  const filteredFoodLogs = getFilteredFoodLogs();
+
+  // Helper function to convert Date to local date string (YYYY-MM-DD)
+  const dateToLocalDateString = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    if (selectedDate) {
+      const dateString = dateToLocalDateString(selectedDate);
+      setSelectedDate(dateString);
+    }
+  };
 
   const handleDeleteLog = async (logId: string) => {
     await onDeleteLog(logId);
@@ -39,6 +61,16 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Food Logs</Text>
+        
+        {/* Native Date Picker */}
+        <DateTimePicker
+          value={new Date(selectedDate)}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'compact' : 'default'}
+          onChange={handleDateChange}
+          maximumDate={new Date()}
+          style={styles.datePicker}
+        />
       </View>
 
       <ScrollView
@@ -52,7 +84,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
             ))}
           </View>
         ) : (
-          foodLogs.map((log) => (
+          filteredFoodLogs.map((log) => (
             <SwipeToDelete
               key={log.id}
               itemId={log.id}

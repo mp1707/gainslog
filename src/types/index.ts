@@ -15,6 +15,7 @@ export interface FoodLog {
   userFat?: number;
   imageUrl?: string;
   createdAt: string;
+  date: string; // ISO date string (YYYY-MM-DD)
   needsAiEstimation?: boolean;
 }
 
