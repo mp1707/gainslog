@@ -55,3 +55,4 @@ export const estimateFoodAI = async (request: FoodEstimateRequest): Promise<Food
 
   return data as FoodEstimateResponse;
 };
+

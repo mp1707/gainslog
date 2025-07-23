@@ -2,6 +2,33 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Documentation Maintenance
+
+**IMPORTANT**: Always update this CLAUDE.md file when making significant changes to the codebase. Focus on:
+
+### What to Document
+- **Architecture changes**: New components, data models, or system patterns
+- **Core functionality**: New features, workflows, or user interactions
+- **API changes**: Modified interfaces, new endpoints, or integration updates
+- **Development setup**: New dependencies, environment variables, or build processes
+- **Data structure changes**: Updated interfaces, storage patterns, or validation rules
+
+### What NOT to Document
+- Minor bug fixes or styling adjustments
+- Temporary debugging code or console logs
+- Individual function implementations (unless they're core utilities)
+- Detailed code snippets (prefer high-level descriptions)
+- Version-specific dependency details
+
+### Keep Documentation Concise
+- Use bullet points and structured lists
+- Focus on "what" and "why", not detailed "how"
+- Update existing sections rather than adding redundant information
+- Remove obsolete information when features are replaced
+- Prioritize information that helps understand the codebase architecture
+
+**Remember**: This documentation is consumed as context tokens. Keep it focused on essential information that helps understand and work with the codebase effectively.
+
 ## Development Commands
 
 ```bash
@@ -21,8 +48,9 @@ Note: No linting or testing commands are configured. TypeScript compilation is h
 **GainsLog** is a React Native/Expo food logging application that enables users to track nutrition through multiple input methods:
 - **Photo Capture**: Take pictures of food with camera integration
 - **Audio Recording**: Voice-to-text food logging (UI implemented, processing pending)
-- **Manual Entry**: Text-based food description and editing
-- **AI Nutrition Estimation**: OpenAI-powered nutritional analysis
+- **Manual Entry**: Enhanced text-based food description with optional manual nutrition input
+- **Hybrid AI/Manual Nutrition**: Smart combination of user input and AI estimation
+- **AI Nutrition Estimation**: OpenAI-powered nutritional analysis when needed
 - **Local Storage**: All data stored locally on device using AsyncStorage
 
 ## Architecture
@@ -111,10 +139,14 @@ interface FoodLog {
   userDescription?: string;      // User-provided description (optional)
   generatedTitle: string;        // AI-generated title
   estimationConfidence: number;  // AI confidence score (0-100)
-  calories: number;             // Nutritional data
+  calories: number;             // Final nutritional data (user input takes precedence)
   protein: number;
   carbs: number;
   fat: number;
+  userCalories?: number;        // User-provided nutrition values (optional)
+  userProtein?: number;
+  userCarbs?: number;
+  userFat?: number;
   createdAt: string;            // ISO timestamp
 }
 ```
@@ -148,13 +180,25 @@ interface FoodEstimateResponse {
 7. **Data Persistence**: Save complete FoodLog to AsyncStorage
 8. **UI Update**: Replace skeleton with real nutrition data
 
-### Manual Entry Workflow
-1. **Modal Interface**: Title and description input fields
-2. **Validation**: Ensure title is provided
-3. **AI Estimation**: Direct call to nutrition estimation API
-4. **Error Handling**: "Oops! Something went wrong." on failure
-5. **Data Storage**: Save to AsyncStorage on success
-6. **State Update**: Add to food logs array with real-time UI update
+### Enhanced Manual Entry Workflow
+1. **Modal Interface**: Title, description, and optional nutrition input fields (calories, protein, carbs, fat)
+2. **Input Validation**: Title required, nutrition fields validated for numeric values and ranges
+3. **Smart AI Decision**: 
+   - If all nutrition fields provided → Skip AI estimation, use user values (100% confidence)
+   - If partial nutrition data → Call AI estimation, merge with user input (user input takes precedence)
+   - If no nutrition data → Traditional AI estimation
+4. **Data Merging**: `mergeNutritionData()` utility combines user input with AI estimation intelligently
+5. **Error Handling**: Comprehensive validation errors and API failure handling
+6. **Data Storage**: Save complete FoodLog with both user and AI data to AsyncStorage
+7. **State Update**: Real-time UI updates with loading states
+
+### Edit Mode Re-estimation (Add Info Button)
+1. **Info Modal**: Pre-populated with existing user data (title, description, nutrition values)
+2. **User Updates**: Modify title, description, or nutrition values as needed
+3. **Forced Re-estimation**: Always triggers AI estimation with updated information
+4. **Data Merging**: Combines new AI estimation with preserved user nutrition inputs
+5. **Confidence Improvement**: Designed to improve low-confidence entries with additional details
+6. **Real-time Feedback**: Loading states show "Re-estimating nutrition..." during processing
 
 ### Audio Recording Workflow (UI Complete)
 1. **Recording Modal**: Animated interface with start/stop controls
@@ -162,6 +206,40 @@ interface FoodEstimateResponse {
 3. **Audio Capture**: High-quality recording via expo-audio
 4. **Placeholder Creation**: Creates skeleton food log
 5. **Processing**: Currently creates placeholder (processing not implemented)
+
+## Nutrition Input System
+
+### Smart Hybrid Approach
+The application uses an intelligent hybrid system that combines user input with AI estimation:
+
+1. **User Input Priority**: Manual nutrition values always take precedence over AI estimations
+2. **Conditional AI Usage**: AI estimation is only called when nutrition data is incomplete
+3. **Data Validation**: Comprehensive input validation ensures data quality
+4. **Transparent Storage**: Separate storage of user vs AI values for full transparency
+
+### Nutrition Data Merging Logic
+```typescript
+// mergeNutritionData() utility function handles:
+- Input validation (numeric, non-negative, reasonable limits)
+- Smart AI decision making (skip AI if all values provided)
+- Data precedence (user input overrides AI estimation)
+- Error collection and reporting
+- Confidence scoring based on data source
+```
+
+### Input Validation Rules
+- **Numeric Format**: Must be valid decimal numbers
+- **Non-negative**: All nutrition values must be ≥ 0
+- **Reasonable Limits**: Maximum 10,000 for any single value
+- **Optional Fields**: Empty fields are valid and trigger AI estimation
+- **Error Reporting**: Clear validation messages for user feedback
+
+### UI/UX Features
+- **2x2 Grid Layout**: Clean organization of nutrition input fields
+- **Contextual Hints**: "Leave fields empty to have AI estimate missing values"
+- **Numeric Keyboards**: Optimized input experience on mobile
+- **Loading States**: Clear feedback during AI processing
+- **Error Handling**: User-friendly validation and API error messages
 
 ## Image Processing Pipeline
 
@@ -207,9 +285,12 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 
 ### Current Implementation Status
 - ✅ **Photo capture and upload**: Fully implemented
-- ✅ **Manual food entry**: Complete with AI estimation
-- ✅ **Local data persistence**: AsyncStorage CRUD operations
-- ✅ **AI nutrition estimation**: OpenAI integration via Edge Functions
+- ✅ **Enhanced manual food entry**: Complete with hybrid AI/manual nutrition input
+- ✅ **Smart nutrition merging**: User input takes precedence over AI estimation
+- ✅ **Re-estimation feature**: Add Info button triggers AI re-calculation
+- ✅ **Input validation**: Comprehensive nutrition field validation
+- ✅ **Local data persistence**: AsyncStorage CRUD operations with user nutrition storage
+- ✅ **AI nutrition estimation**: OpenAI integration via Edge Functions (conditional)
 - ✅ **Image processing**: Resize, compress, and upload pipeline
 - 🚧 **Audio recording**: UI complete, processing not implemented
 - ❌ **Database integration**: All data stored locally only
@@ -226,7 +307,9 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 - **Image compression**: Automatic optimization for mobile networks
 - **Optimistic updates**: Immediate UI feedback with skeleton states
 - **Local storage**: Fast data access without network dependency
-- **Minimal API calls**: Only for AI estimation, everything else local
+- **Conditional AI calls**: AI estimation only called when nutrition data is incomplete
+- **Smart caching**: User nutrition inputs preserved across re-estimations
+- **Efficient validation**: Client-side validation prevents unnecessary API calls
 
 ### Security Notes
 - **API keys**: Stored in environment variables
@@ -237,9 +320,14 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 ## Future Enhancement Areas
 
 1. **Component Architecture**: Decompose large App.tsx into smaller components
-2. **State Management**: Consider Context API or state management library
+2. **State Management**: Consider Context API or state management library  
 3. **Audio Processing**: Implement speech-to-text for audio recordings
-4. **Testing**: Add unit and integration tests
-5. **Database Integration**: Optional cloud sync with user consent
-6. **Offline Mode**: Enhanced offline functionality and sync
-7. **Export Features**: CSV/JSON export of nutrition data
+4. **Nutrition Database**: Integration with food databases (USDA, etc.) for precise nutrition data
+5. **Barcode Scanning**: Add product scanning for packaged foods
+6. **Nutrition Goals**: Daily/weekly nutrition targets and progress tracking
+7. **Data Visualization**: Charts and graphs for nutrition trends
+8. **Testing**: Add unit and integration tests
+9. **Database Integration**: Optional cloud sync with user consent
+10. **Offline Mode**: Enhanced offline functionality and sync
+11. **Export Features**: CSV/JSON export of nutrition data
+12. **Meal Planning**: Recipe creation and meal planning features

@@ -10,6 +10,10 @@ export interface FoodLog {
   protein: number;
   carbs: number;
   fat: number;
+  userCalories?: number;
+  userProtein?: number;
+  userCarbs?: number;
+  userFat?: number;
   createdAt: string;
 }
 

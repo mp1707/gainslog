@@ -25,9 +25,79 @@ import {
   generateFoodLogId 
 } from "./lib/storage";
 
-// FoodLog interface is now imported from ./lib/storage
+const mergeNutritionData = (
+  userCalories: string,
+  userProtein: string,
+  userCarbs: string,
+  userFat: string,
+  aiData?: { calories: number; protein: number; carbs: number; fat: number }
+) => {
+  const parseUserValue = (value: string, fieldName: string): { value: number | undefined; error: string | null } => {
+    if (!value.trim()) {
+      return { value: undefined, error: null };
+    }
 
-// Mock data removed - now using AsyncStorage and real AI estimation
+    const parsed = parseFloat(value.trim());
+    
+    if (isNaN(parsed)) {
+      return { value: undefined, error: `${fieldName} must be a valid number` };
+    }
+    
+    if (parsed < 0) {
+      return { value: undefined, error: `${fieldName} cannot be negative` };
+    }
+    
+    if (parsed > 10000) {
+      return { value: undefined, error: `${fieldName} value seems too high (max 10,000)` };
+    }
+
+    return { value: parsed, error: null };
+  };
+
+  const caloriesResult = parseUserValue(userCalories, "Calories");
+  const proteinResult = parseUserValue(userProtein, "Protein");
+  const carbsResult = parseUserValue(userCarbs, "Carbs");
+  const fatResult = parseUserValue(userFat, "Fat");
+
+  // Collect all validation errors
+  const errors = [
+    caloriesResult.error,
+    proteinResult.error,
+    carbsResult.error,
+    fatResult.error,
+  ].filter(Boolean);
+
+  const userValues = {
+    calories: caloriesResult.value,
+    protein: proteinResult.value,
+    carbs: carbsResult.value,
+    fat: fatResult.value,
+  };
+
+  // Check if user provided all nutrition values
+  const hasAllUserValues = userValues.calories !== undefined && 
+                           userValues.protein !== undefined && 
+                           userValues.carbs !== undefined && 
+                           userValues.fat !== undefined;
+
+  return {
+    // Final nutrition values (user input takes precedence)
+    calories: userValues.calories ?? aiData?.calories ?? 0,
+    protein: userValues.protein ?? aiData?.protein ?? 0,
+    carbs: userValues.carbs ?? aiData?.carbs ?? 0,
+    fat: userValues.fat ?? aiData?.fat ?? 0,
+    // Store user-provided values separately
+    userCalories: userValues.calories,
+    userProtein: userValues.protein,
+    userCarbs: userValues.carbs,
+    userFat: userValues.fat,
+    // Whether AI estimation is needed
+    needsAiEstimation: !hasAllUserValues,
+    // Validation results
+    validationErrors: errors,
+    isValid: errors.length === 0,
+  };
+};
 
 export default function App() {
   const [foodLogs, setFoodLogs] = useState<FoodLog[]>([]);
@@ -38,6 +108,10 @@ export default function App() {
   const [selectedLog, setSelectedLog] = useState<FoodLog | null>(null);
   const [tempTitle, setTempTitle] = useState("");
   const [tempDescription, setTempDescription] = useState("");
+  const [tempCalories, setTempCalories] = useState("");
+  const [tempProtein, setTempProtein] = useState("");
+  const [tempCarbs, setTempCarbs] = useState("");
+  const [tempFat, setTempFat] = useState("");
   const [isEstimating, setIsEstimating] = useState(false);
   const [pendingLogId, setPendingLogId] = useState<string | null>(null);
 
@@ -71,6 +145,10 @@ export default function App() {
     setSelectedLog(log);
     setTempTitle(log.userTitle || log.generatedTitle);
     setTempDescription(log.userDescription || "");
+    setTempCalories(log.userCalories?.toString() || "");
+    setTempProtein(log.userProtein?.toString() || "");
+    setTempCarbs(log.userCarbs?.toString() || "");
+    setTempFat(log.userFat?.toString() || "");
     setIsModalVisible(true);
   };
 
@@ -79,6 +157,10 @@ export default function App() {
     setSelectedLog(null);
     setTempTitle("");
     setTempDescription("");
+    setTempCalories("");
+    setTempProtein("");
+    setTempCarbs("");
+    setTempFat("");
     setIsModalVisible(true);
   };
 
@@ -94,51 +176,86 @@ export default function App() {
       const newLogId = generateFoodLogId();
       setPendingLogId(newLogId);
 
-      // Create skeleton log entry with loading state
+      // Get nutrition data from user input and determine if AI estimation is needed
+      const nutritionData = mergeNutritionData(tempCalories, tempProtein, tempCarbs, tempFat);
+
+      // Validate nutrition input
+      if (!nutritionData.isValid) {
+        Alert.alert("Validation Error", nutritionData.validationErrors.join("\n"));
+        setIsEstimating(false);
+        setPendingLogId(null);
+        return;
+      }
+
+      // Create skeleton log entry with loading state or final data
       const skeletonLog: FoodLog = {
         id: newLogId,
         userTitle: tempTitle.trim(),
         userDescription: tempDescription.trim(),
-        generatedTitle: "Estimating nutrition...",
-        estimationConfidence: 0,
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-        fat: 0,
+        generatedTitle: nutritionData.needsAiEstimation ? "Estimating nutrition..." : tempTitle.trim(),
+        estimationConfidence: nutritionData.needsAiEstimation ? 0 : 100,
+        calories: nutritionData.calories,
+        protein: nutritionData.protein,
+        carbs: nutritionData.carbs,
+        fat: nutritionData.fat,
+        userCalories: nutritionData.userCalories,
+        userProtein: nutritionData.userProtein,
+        userCarbs: nutritionData.userCarbs,
+        userFat: nutritionData.userFat,
         createdAt: new Date().toISOString(),
       };
 
       // Add skeleton to UI immediately
       setFoodLogs((prev) => [skeletonLog, ...prev]);
       
-      // Close modal
+      // Close modal and clear state
       setIsModalVisible(false);
       setSelectedLog(null);
       setTempTitle("");
       setTempDescription("");
+      setTempCalories("");
+      setTempProtein("");
+      setTempCarbs("");
+      setTempFat("");
 
       try {
-        // Call AI estimation API
-        const estimation = await estimateFoodAI({
-          title: tempTitle.trim(),
-          description: tempDescription.trim() || undefined,
-        });
+        let completeLog = skeletonLog;
 
-        // Create complete food log with AI data
-        const completeLog: FoodLog = {
-          ...skeletonLog,
-          generatedTitle: estimation.generatedTitle,
-          estimationConfidence: estimation.estimationConfidence,
-          calories: estimation.calories,
-          protein: estimation.protein,
-          carbs: estimation.carbs,
-          fat: estimation.fat,
-        };
+        if (nutritionData.needsAiEstimation) {
+          // Call AI estimation API only if needed
+          const estimation = await estimateFoodAI({
+            title: tempTitle.trim(),
+            description: tempDescription.trim() || undefined,
+          });
+
+          // Merge AI data with user input (user input takes precedence)
+          const mergedNutrition = mergeNutritionData(
+            tempCalories, 
+            tempProtein, 
+            tempCarbs, 
+            tempFat, 
+            estimation
+          );
+
+          completeLog = {
+            ...skeletonLog,
+            generatedTitle: estimation.generatedTitle,
+            estimationConfidence: estimation.estimationConfidence,
+            calories: mergedNutrition.calories,
+            protein: mergedNutrition.protein,
+            carbs: mergedNutrition.carbs,
+            fat: mergedNutrition.fat,
+            userCalories: mergedNutrition.userCalories,
+            userProtein: mergedNutrition.userProtein,
+            userCarbs: mergedNutrition.userCarbs,
+            userFat: mergedNutrition.userFat,
+          };
+        }
 
         // Save to storage
         await saveFoodLog(completeLog);
 
-        // Update UI with real data
+        // Update UI with final data
         setFoodLogs((prevLogs) =>
           prevLogs.map((log) =>
             log.id === newLogId ? completeLog : log
@@ -164,34 +281,113 @@ export default function App() {
       }
 
     } else {
-      // Edit mode
+      // Edit mode - always trigger AI re-estimation with updated info
       if (!selectedLog) return;
 
+      setIsEstimating(true);
+      
+      // Get nutrition data from user input
+      const nutritionData = mergeNutritionData(tempCalories, tempProtein, tempCarbs, tempFat);
+
+      // Validate nutrition input
+      if (!nutritionData.isValid) {
+        Alert.alert("Validation Error", nutritionData.validationErrors.join("\n"));
+        setIsEstimating(false);
+        return;
+      }
+
+      // Create updated log with loading state or final data
       const updatedLog: FoodLog = {
         ...selectedLog,
         userTitle: tempTitle.trim(),
         userDescription: tempDescription.trim(),
-        // Increase confidence when user adds more info
-        estimationConfidence: Math.min(selectedLog.estimationConfidence + 10, 95),
+        userCalories: nutritionData.userCalories,
+        userProtein: nutritionData.userProtein,
+        userCarbs: nutritionData.userCarbs,
+        userFat: nutritionData.userFat,
+        // Set loading state for AI estimation
+        generatedTitle: nutritionData.needsAiEstimation ? "Re-estimating nutrition..." : tempTitle.trim(),
+        estimationConfidence: nutritionData.needsAiEstimation ? 0 : 100,
+        calories: nutritionData.calories,
+        protein: nutritionData.protein,
+        carbs: nutritionData.carbs,
+        fat: nutritionData.fat,
       };
 
-      try {
-        await updateFoodLog(updatedLog);
-        
-        setFoodLogs((prevLogs) =>
-          prevLogs.map((log) =>
-            log.id === selectedLog.id ? updatedLog : log
-          )
-        );
-      } catch (error) {
-        console.error('Error updating food log:', error);
-        Alert.alert('Error', 'Failed to update food log');
-      }
+      // Update UI immediately with loading state
+      setFoodLogs((prevLogs) =>
+        prevLogs.map((log) =>
+          log.id === selectedLog.id ? updatedLog : log
+        )
+      );
 
+      // Close modal and clear state
       setIsModalVisible(false);
       setSelectedLog(null);
       setTempTitle("");
       setTempDescription("");
+      setTempCalories("");
+      setTempProtein("");
+      setTempCarbs("");
+      setTempFat("");
+
+      try {
+        let finalLog = updatedLog;
+
+        if (nutritionData.needsAiEstimation) {
+          // Call AI estimation API with updated title and description
+          const estimation = await estimateFoodAI({
+            title: tempTitle.trim(),
+            description: tempDescription.trim() || undefined,
+          });
+
+          // Merge AI data with user input (user input takes precedence)
+          const mergedNutrition = mergeNutritionData(
+            tempCalories, 
+            tempProtein, 
+            tempCarbs, 
+            tempFat, 
+            estimation
+          );
+
+          finalLog = {
+            ...updatedLog,
+            generatedTitle: estimation.generatedTitle,
+            estimationConfidence: estimation.estimationConfidence,
+            calories: mergedNutrition.calories,
+            protein: mergedNutrition.protein,
+            carbs: mergedNutrition.carbs,
+            fat: mergedNutrition.fat,
+            userCalories: mergedNutrition.userCalories,
+            userProtein: mergedNutrition.userProtein,
+            userCarbs: mergedNutrition.userCarbs,
+            userFat: mergedNutrition.userFat,
+          };
+        }
+
+        // Save updated log to storage
+        await updateFoodLog(finalLog);
+        
+        // Update UI with final data
+        setFoodLogs((prevLogs) =>
+          prevLogs.map((log) =>
+            log.id === selectedLog.id ? finalLog : log
+          )
+        );
+
+      } catch (error) {
+        console.error('Error updating food log:', error);
+        Alert.alert('Error', 'Failed to update food log. Please try again.');
+        
+        // Revert to original log on error
+        setFoodLogs((prevLogs) =>
+          prevLogs.map((log) =>
+            log.id === selectedLog.id ? selectedLog : log
+          )
+        );
+      } finally {
+        setIsEstimating(false);
+      }
     }
   };
 
@@ -200,6 +396,10 @@ export default function App() {
     setSelectedLog(null);
     setTempTitle("");
     setTempDescription("");
+    setTempCalories("");
+    setTempProtein("");
+    setTempCarbs("");
+    setTempFat("");
   };
 
   // Audio recording functions
@@ -646,6 +846,59 @@ export default function App() {
                 textAlignVertical="top"
               />
             </View>
+
+            <View style={styles.nutritionSection}>
+              <Text style={styles.nutritionSectionTitle}>Nutrition (Optional)</Text>
+              <Text style={styles.nutritionSectionSubtitle}>
+                Leave fields empty to have AI estimate missing values
+              </Text>
+              
+              <View style={styles.nutritionGrid}>
+                <View style={styles.nutritionInputGroup}>
+                  <Text style={styles.nutritionInputLabel}>Calories</Text>
+                  <TextInput
+                    style={styles.nutritionInput}
+                    value={tempCalories}
+                    onChangeText={setTempCalories}
+                    placeholder="0"
+                    keyboardType="numeric"
+                  />
+                </View>
+                
+                <View style={styles.nutritionInputGroup}>
+                  <Text style={styles.nutritionInputLabel}>Protein (g)</Text>
+                  <TextInput
+                    style={styles.nutritionInput}
+                    value={tempProtein}
+                    onChangeText={setTempProtein}
+                    placeholder="0"
+                    keyboardType="numeric"
+                  />
+                </View>
+                
+                <View style={styles.nutritionInputGroup}>
+                  <Text style={styles.nutritionInputLabel}>Carbs (g)</Text>
+                  <TextInput
+                    style={styles.nutritionInput}
+                    value={tempCarbs}
+                    onChangeText={setTempCarbs}
+                    placeholder="0"
+                    keyboardType="numeric"
+                  />
+                </View>
+                
+                <View style={styles.nutritionInputGroup}>
+                  <Text style={styles.nutritionInputLabel}>Fat (g)</Text>
+                  <TextInput
+                    style={styles.nutritionInput}
+                    value={tempFat}
+                    onChangeText={setTempFat}
+                    placeholder="0"
+                    keyboardType="numeric"
+                  />
+                </View>
+              </View>
+            </View>
           </ScrollView>
         </SafeAreaView>
       </Modal>
@@ -906,6 +1159,47 @@ const styles = StyleSheet.create({
   },
   textInputMultiline: {
     height: 100,
+  },
+  nutritionSection: {
+    marginBottom: 24,
+  },
+  nutritionSectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 4,
+  },
+  nutritionSectionSubtitle: {
+    fontSize: 14,
+    color: "#6b7280",
+    marginBottom: 16,
+    lineHeight: 18,
+  },
+  nutritionGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  nutritionInputGroup: {
+    width: "48%",
+    marginBottom: 16,
+  },
+  nutritionInputLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#374151",
+    marginBottom: 6,
+  },
+  nutritionInput: {
+    backgroundColor: "#ffffff",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 16,
+    color: "#111827",
+    textAlign: "center",
   },
   // Audio recording styles
   audioButton: {
