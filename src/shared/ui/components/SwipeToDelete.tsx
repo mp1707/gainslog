@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import { View, Text, Alert, Dimensions, Pressable } from "react-native";
 import * as Haptics from "expo-haptics";
-import { PanGestureHandler, State } from "react-native-gesture-handler";
+import { PanGestureHandler } from "react-native-gesture-handler";
 import Animated, {
   useAnimatedGestureHandler,
   useAnimatedStyle,

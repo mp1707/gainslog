@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Badge, MacroRow } from '@/shared/ui';
 import { FoodLog } from '../../../types';
 import { styles } from './FoodLogCard.styles';
-
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 interface FoodLogCardProps {
   foodLog: FoodLog;
   onAddInfo: (log: FoodLog) => void;
@@ -23,7 +23,7 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
               foodLog.estimationConfidence === 0 && styles.loadingTitle
             ]}
           >
-            {foodLog.imageUrl && '📷 '}{foodLog.userTitle || foodLog.generatedTitle}
+            {foodLog.imageUrl && <FontAwesome name="camera" size={16} color="black" />}{" "}{foodLog.userTitle || foodLog.generatedTitle}
           </Text>
           {foodLog.userDescription && (
             <Text style={styles.description}>

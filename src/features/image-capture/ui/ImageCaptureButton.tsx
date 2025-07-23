@@ -1,9 +1,10 @@
-import React from 'react';
-import { View } from 'react-native';
-import { Button, LoadingSpinner } from '@/shared/ui';
-import { useImageCapture } from '../hooks';
-import { FoodLog } from '../../../types';
-import { styles } from './ImageCaptureButton.styles';
+import React from "react";
+import { View } from "react-native";
+import { Button, LoadingSpinner } from "@/shared/ui";
+import { useImageCapture } from "../hooks";
+import { FoodLog } from "../../../types";
+import { styles } from "./ImageCaptureButton.styles";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 interface ImageCaptureButtonProps {
   onImageCaptured: (log: FoodLog) => void;
@@ -32,7 +33,7 @@ export const ImageCaptureButton: React.FC<ImageCaptureButtonProps> = ({
         {isUploading ? (
           <LoadingSpinner color="#ffffff" size="small" />
         ) : (
-          '📷'
+          <FontAwesome name="camera" size={24} color="white" />
         )}
       </Button>
     </View>

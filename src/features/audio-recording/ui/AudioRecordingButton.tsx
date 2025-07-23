@@ -5,6 +5,7 @@ import { useAudioRecording } from '../hooks';
 import { RecordingModal } from './RecordingModal';
 import { FoodLog } from '../../../types';
 import { styles } from './AudioRecordingButton.styles';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 interface AudioRecordingButtonProps {
   onAudioRecorded: (log: FoodLog) => void;
@@ -42,7 +43,7 @@ export const AudioRecordingButton: React.FC<AudioRecordingButtonProps> = ({
             variant="danger"
             size="medium"
           >
-            🎤
+            <FontAwesome name="microphone" size={24} color="white" />
           </Button>
         </View>
         <RecordingModal

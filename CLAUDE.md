@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **IMPORTANT**: Always update this CLAUDE.md file when making significant changes to the codebase. Focus on:
 
 ### What to Document
+
 - **Architecture changes**: New components, data models, or system patterns
 - **Core functionality**: New features, workflows, or user interactions
 - **API changes**: Modified interfaces, new endpoints, or integration updates
@@ -14,6 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Data structure changes**: Updated interfaces, storage patterns, or validation rules
 
 ### What NOT to Document
+
 - Minor bug fixes or styling adjustments
 - Temporary debugging code or console logs
 - Individual function implementations (unless they're core utilities)
@@ -21,6 +23,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Version-specific dependency details
 
 ### Keep Documentation Concise
+
 - Use bullet points and structured lists
 - Focus on "what" and "why", not detailed "how"
 - Update existing sections rather than adding redundant information
@@ -49,7 +52,7 @@ npm start
 
 # Start for specific platforms
 npm run android    # Android emulator
-npm run ios        # iOS simulator  
+npm run ios        # iOS simulator
 npm run web        # Web browser
 ```
 
@@ -58,6 +61,7 @@ Note: No linting or testing commands are configured. TypeScript compilation is h
 ## Project Overview
 
 **GainsLog** is a React Native/Expo food logging application that enables users to track nutrition through multiple input methods:
+
 - **Photo Capture**: Take pictures of food with camera integration
 - **Audio Recording**: Voice-to-text food logging (UI implemented, processing pending)
 - **Manual Entry**: Enhanced text-based food description with optional manual nutrition input
@@ -68,6 +72,7 @@ Note: No linting or testing commands are configured. TypeScript compilation is h
 ## Architecture
 
 ### Tech Stack
+
 - **Frontend**: React Native (0.79.5) with Expo (~53.0.20)
 - **Backend**: Supabase (Edge Functions + File Storage)
 - **AI**: OpenAI GPT-4o-mini for nutrition estimation
@@ -76,6 +81,7 @@ Note: No linting or testing commands are configured. TypeScript compilation is h
 - **Media**: expo-image-picker, expo-image-manipulator, expo-audio
 
 ### Architecture Pattern: Hybrid Feature-Based + Atomic Design
+
 The codebase follows a modern hybrid approach combining:
 
 - **Feature-Based Architecture**: Domain-specific logic grouped in feature slices
@@ -95,6 +101,7 @@ The codebase follows a modern hybrid approach combining:
 8. **Cohesion over DRY**: Prefer clarity and context over avoiding minimal duplication
 
 ### Repository Structure
+
 ```
 /
 ├── src/
@@ -140,12 +147,14 @@ The codebase follows a modern hybrid approach combining:
 ## Key Components
 
 ### src/App.tsx (Application Entry Point)
+
 - **Provider orchestration**: Wraps root with context providers (store, theme, navigation)
 - **Navigation setup**: Configures React Navigation with root stack
 - **Global state initialization**: Sets up Zustand store and other global state
 - **Clean separation**: No longer contains business logic, purely architectural
 
 ### src/features/food-logging/ (Core Feature Module)
+
 - **Feature encapsulation**: All food logging logic contained within feature boundary
 - **Public API**: Exports components, hooks, and types via `index.ts` barrel
 - **UI components**: Screen components and feature-specific UI elements in `ui/` directory
@@ -153,18 +162,21 @@ The codebase follows a modern hybrid approach combining:
 - **Type definitions**: Feature-specific TypeScript interfaces in `types.ts`
 
 ### src/shared/ui/ (Atomic Design System)
+
 - **Atoms**: Basic building blocks (Button, TextInput, LoadingSpinner)
 - **Molecules**: Composed components (FormField, NutritionGrid, FoodLogCard)
 - **Co-located styles**: Each component has paired `.styles.ts` file using StyleSheet.create
 - **Reusable across features**: Truly global UI components used throughout the app
 
 ### src/lib/ (Core Utilities)
+
 - **supabase.ts**: Supabase client configuration and AI estimation functions
 - **storage.ts**: AsyncStorage CRUD operations and data persistence
 - **utils.ts**: Pure utility functions and helpers
 - **Type-safe**: All utilities properly typed with TypeScript
 
 ### src/theme/ (Design System)
+
 - **Design tokens**: Colors, typography, spacing, and other design constants
 - **Centralized theming**: Single source of truth for visual design
 - **Export structure**: Easy import and consumption across components
@@ -172,19 +184,23 @@ The codebase follows a modern hybrid approach combining:
 ## Supabase Integration
 
 ### Configuration
+
 - **Client setup**: `/lib/supabase.ts` with environment variables
 - **Required env vars**:
   - `EXPO_PUBLIC_SUPABASE_URL`
   - `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 
 ### Edge Functions (Deployed)
+
 1. **ai-nutrition-estimate**: OpenAI-powered nutrition analysis
+
    - Input: `{ title: string, description?: string }`
    - Output: Nutrition data with confidence scoring
    - Model: GPT-4o-mini with structured JSON output
    - Authentication: Anonymous access with Bearer token
 
 2. **image-based-estimation**: OpenAI Vision-powered image analysis
+
    - Input: `{ imageUrl: string, title?: string, description?: string }`
    - Output: Nutrition data with confidence scoring based on visual clarity
    - Model: GPT-4o Vision API with structured JSON output
@@ -195,12 +211,14 @@ The codebase follows a modern hybrid approach combining:
    - Used for basic estimation when AI is unavailable
 
 ### File Storage
+
 - **Bucket**: `food-images` for photo uploads
 - **Processing**: Images resized to 1000px width, 80% JPEG compression
 - **Naming**: `public/food-image-${timestamp}.jpg` format
 - **Upload workflow**: FormData → Supabase Storage → URL return
 
 ### Authentication Strategy
+
 - **Anonymous access**: No user registration required
 - **Local storage only**: All food logs stored on device
 - **API access**: Uses anon key for Edge Function calls
@@ -209,27 +227,29 @@ The codebase follows a modern hybrid approach combining:
 ## Data Models
 
 ### FoodLog Interface
+
 ```typescript
 interface FoodLog {
-  id: string;                    // Unique timestamp-based ID
-  userTitle?: string;            // User-provided title (optional)
-  userDescription?: string;      // User-provided description (optional)
-  generatedTitle: string;        // AI-generated title
-  estimationConfidence: number;  // AI confidence score (0-100)
-  calories: number;             // Final nutritional data (user input takes precedence)
+  id: string; // Unique timestamp-based ID
+  userTitle?: string; // User-provided title (optional)
+  userDescription?: string; // User-provided description (optional)
+  generatedTitle: string; // AI-generated title
+  estimationConfidence: number; // AI confidence score (0-100)
+  calories: number; // Final nutritional data (user input takes precedence)
   protein: number;
   carbs: number;
   fat: number;
-  userCalories?: number;        // User-provided nutrition values (optional)
+  userCalories?: number; // User-provided nutrition values (optional)
   userProtein?: number;
   userCarbs?: number;
   userFat?: number;
-  imageUrl?: string;            // Supabase Storage URL for captured images
-  createdAt: string;            // ISO timestamp
+  imageUrl?: string; // Supabase Storage URL for captured images
+  createdAt: string; // ISO timestamp
 }
 ```
 
 ### API Interfaces
+
 ```typescript
 interface FoodEstimateRequest {
   title: string;
@@ -255,6 +275,7 @@ interface FoodEstimateResponse {
 ## Application Flow
 
 ### Photo Capture Workflow
+
 1. **Permission Request**: Camera and media library access
 2. **Image Capture**: expo-image-picker with camera interface
 3. **Image Processing**: Resize and compress via expo-image-manipulator
@@ -262,7 +283,7 @@ interface FoodEstimateResponse {
 5. **URL Generation**: Get public URL from Supabase Storage
 6. **Skeleton Creation**: Immediate UI feedback with loading state (includes imageUrl)
 7. **User Enhancement**: Modal opens for optional title, description, and nutrition input
-8. **Smart AI Decision**: 
+8. **Smart AI Decision**:
    - If user provides all nutrition → Skip AI, use user values (100% confidence)
    - If partial nutrition → Call image-based estimation, merge with user input
    - If no nutrition → Traditional image-based AI estimation with OpenAI Vision
@@ -270,9 +291,10 @@ interface FoodEstimateResponse {
 10. **UI Update**: Replace skeleton with real nutrition data and 📷 indicator
 
 ### Enhanced Manual Entry Workflow
+
 1. **Modal Interface**: Title, description, and optional nutrition input fields (calories, protein, carbs, fat)
 2. **Input Validation**: Title required, nutrition fields validated for numeric values and ranges
-3. **Smart AI Decision**: 
+3. **Smart AI Decision**:
    - If all nutrition fields provided → Skip AI estimation, use user values (100% confidence)
    - If partial nutrition data → Call AI estimation, merge with user input (user input takes precedence)
    - If no nutrition data → Traditional AI estimation
@@ -282,6 +304,7 @@ interface FoodEstimateResponse {
 7. **State Update**: Real-time UI updates with loading states
 
 ### Edit Mode Re-estimation (Add Info Button)
+
 1. **Info Modal**: Pre-populated with existing user data (title, description, nutrition values)
 2. **User Updates**: Modify title, description, or nutrition values as needed
 3. **Forced Re-estimation**: Always triggers AI estimation with updated information
@@ -290,6 +313,7 @@ interface FoodEstimateResponse {
 6. **Real-time Feedback**: Loading states show "Re-estimating nutrition..." during processing
 
 ### Audio Recording Workflow (UI Complete)
+
 1. **Recording Modal**: Animated interface with start/stop controls
 2. **Permission Handling**: Microphone access request
 3. **Audio Capture**: High-quality recording via expo-audio
@@ -299,6 +323,7 @@ interface FoodEstimateResponse {
 ## Nutrition Input System
 
 ### Smart Hybrid Approach
+
 The application uses an intelligent hybrid system that combines user input with AI estimation:
 
 1. **User Input Priority**: Manual nutrition values always take precedence over AI estimations
@@ -307,6 +332,7 @@ The application uses an intelligent hybrid system that combines user input with 
 4. **Transparent Storage**: Separate storage of user vs AI values for full transparency
 
 ### Nutrition Data Merging Logic
+
 ```typescript
 // mergeNutritionData() utility function handles:
 - Input validation (numeric, non-negative, reasonable limits)
@@ -317,6 +343,7 @@ The application uses an intelligent hybrid system that combines user input with 
 ```
 
 ### Input Validation Rules
+
 - **Numeric Format**: Must be valid decimal numbers
 - **Non-negative**: All nutrition values must be ≥ 0
 - **Reasonable Limits**: Maximum 10,000 for any single value
@@ -324,17 +351,20 @@ The application uses an intelligent hybrid system that combines user input with 
 - **Error Reporting**: Clear validation messages for user feedback
 
 ### UI/UX Features
+
 - **2x2 Grid Layout**: Clean organization of nutrition input fields
 - **Contextual Hints**: "Leave fields empty to have AI estimate missing values"
 - **Numeric Keyboards**: Optimized input experience on mobile
 - **Loading States**: Clear feedback during AI processing
 - **Error Handling**: User-friendly validation and API error messages
+- **Icons**: Use @expo/vector-icons/FontAwesome for Icons
+- **Animation**: Use react-native-reanimated for Animations
 
 ## Image Processing Pipeline
 
 1. **Source Selection**: Camera capture or photo library selection
 2. **Permission Management**: Runtime permission requests
-3. **Image Manipulation**: 
+3. **Image Manipulation**:
    - Resize: Maximum 1000px width (maintains aspect ratio)
    - Compression: 80% JPEG quality for optimal file size
    - Format: Always converts to JPEG
@@ -347,11 +377,13 @@ The application uses an intelligent hybrid system that combines user input with 
 ## Error Handling Strategy
 
 ### User-Facing Errors
+
 - **AI Estimation Failure**: "Oops! Something went wrong."
 - **Network Issues**: Generic error messaging
 - **Permission Denied**: System-level permission dialogs
 
 ### Developer Debugging
+
 - **Console Logging**: Detailed error information for development
 - **Function Logs**: Supabase Edge Function logging for API debugging
 - **Network Errors**: HTTP status codes and response text logging
@@ -359,12 +391,14 @@ The application uses an intelligent hybrid system that combines user input with 
 ## Environment Setup
 
 ### Required Environment Variables
+
 ```bash
 EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 ```
 
 ### Supabase Project Setup
+
 1. **Storage Bucket**: Create `food-images` bucket with public access
 2. **Edge Functions**: Deploy `ai-nutrition-estimate` function
 3. **Environment Variables**: Configure `OPENAI_API_KEY` in Supabase dashboard
@@ -373,9 +407,10 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 ## Development Notes
 
 ### Current Implementation Status
+
 - ✅ **Photo capture and upload**: Fully implemented with imageUrl storage
 - ✅ **Image-based nutrition estimation**: OpenAI Vision API integration via Edge Function
-- ✅ **Enhanced manual food entry**: Complete with hybrid AI/manual nutrition input  
+- ✅ **Enhanced manual food entry**: Complete with hybrid AI/manual nutrition input
 - ✅ **Smart nutrition merging**: User input takes precedence over AI estimation
 - ✅ **Intelligent estimation routing**: Image-based vs text-based AI selection
 - ✅ **Re-estimation feature**: Add Info button triggers appropriate AI re-calculation
@@ -390,6 +425,7 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 - ❌ **User accounts**: Anonymous-only access
 
 ### Architecture Decisions
+
 - **Hybrid Feature-Based + Atomic Design**: Modular architecture with feature slices and atomic UI components
 - **Context Window Optimization**: Small, focused files (≤200 lines) for better AI collaboration
 - **Co-location Strategy**: Implementation and styles kept together in feature directories
@@ -400,6 +436,7 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 - **Edge Function architecture**: Serverless nutrition estimation
 
 ### Performance Considerations
+
 - **Modular loading**: Feature-based architecture enables code splitting and lazy loading
 - **Atomic composition**: Reusable components reduce bundle duplication
 - **Context window efficiency**: Small files (≤200 lines) improve development performance with AI tools
@@ -411,6 +448,7 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 - **Efficient validation**: Client-side validation prevents unnecessary API calls
 
 ### Security Notes
+
 - **API keys**: Stored in environment variables
 - **Anonymous access**: No user data collection
 - **Local storage**: All personal data remains on device
