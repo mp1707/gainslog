@@ -4,7 +4,6 @@ import { StatusBar } from 'expo-status-bar';
 import { FormField, NutritionGrid } from '@/shared/ui';
 import { FoodLog, ModalMode } from '../../../types';
 import { mergeNutritionData } from '../utils';
-import { estimateNutritionTextBased, estimateNutritionImageBased } from '@/lib/supabase';
 import { styles } from './FoodLogModal.styles';
 
 interface FoodLogModalProps {
@@ -28,7 +27,6 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   const [tempProtein, setTempProtein] = useState('');
   const [tempCarbs, setTempCarbs] = useState('');
   const [tempFat, setTempFat] = useState('');
-  const [isEstimating, setIsEstimating] = useState(false);
 
   // Reset form when modal opens
   useEffect(() => {
@@ -49,7 +47,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
     }
   }, [visible, selectedLog, mode]);
 
-  const handleSave = async () => {
+  const handleSave = () => {
     // Validate required fields for create mode - title is optional for image logs
     const isImageLog = selectedLog?.imageUrl;
     if (mode === 'create' && !isImageLog && !tempTitle.trim()) {
@@ -57,107 +55,58 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
       return;
     }
 
-    setIsEstimating(true);
+    // Get nutrition data from user input and determine if AI estimation is needed
+    const nutritionData = mergeNutritionData(tempCalories, tempProtein, tempCarbs, tempFat);
 
-    try {
-      // Get nutrition data from user input and determine if AI estimation is needed
-      const nutritionData = mergeNutritionData(tempCalories, tempProtein, tempCarbs, tempFat);
-
-      // Validate nutrition input
-      if (!nutritionData.isValid) {
-        Alert.alert('Validation Error', nutritionData.validationErrors.join('\n'));
-        setIsEstimating(false);
-        return;
-      }
-
-      let finalLog: FoodLog;
-
-      if (mode === 'create' && selectedLog) {
-        // Processing existing log (image log)
-        finalLog = {
-          ...selectedLog,
-          userTitle: tempTitle.trim() || undefined,
-          userDescription: tempDescription.trim() || undefined,
-          calories: nutritionData.calories,
-          protein: nutritionData.protein,
-          carbs: nutritionData.carbs,
-          fat: nutritionData.fat,
-          userCalories: nutritionData.userCalories,
-          userProtein: nutritionData.userProtein,
-          userCarbs: nutritionData.userCarbs,
-          userFat: nutritionData.userFat,
-        };
-      } else {
-        // Creating completely new log (manual entry)
-        const newId = `food_log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        finalLog = {
-          id: newId,
-          generatedTitle: tempTitle.trim() || 'Manual entry',
-          estimationConfidence: nutritionData.needsAiEstimation ? 0 : 100,
-          calories: nutritionData.calories,
-          protein: nutritionData.protein,
-          carbs: nutritionData.carbs,
-          fat: nutritionData.fat,
-          userTitle: tempTitle.trim() || undefined,
-          userDescription: tempDescription.trim() || undefined,
-          userCalories: nutritionData.userCalories,
-          userProtein: nutritionData.userProtein,
-          userCarbs: nutritionData.userCarbs,
-          userFat: nutritionData.userFat,
-          createdAt: new Date().toISOString(),
-        };
-      }
-
-      // Call AI estimation if needed
-      if (nutritionData.needsAiEstimation) {
-        let estimation;
-        if (finalLog.imageUrl) {
-          // Use image-based estimation
-          estimation = await estimateNutritionImageBased({
-            imageUrl: finalLog.imageUrl,
-            title: tempTitle.trim() || undefined,
-            description: tempDescription.trim() || undefined,
-          });
-        } else {
-          // Use text-based estimation
-          estimation = await estimateNutritionTextBased({
-            title: tempTitle.trim(),
-            description: tempDescription.trim() || undefined,
-          });
-        }
-
-        // Merge AI data with user input (user input takes precedence)
-        const mergedNutrition = mergeNutritionData(
-          tempCalories, 
-          tempProtein, 
-          tempCarbs, 
-          tempFat, 
-          estimation
-        );
-
-        finalLog = {
-          ...finalLog,
-          generatedTitle: tempTitle.trim() || estimation.generatedTitle,
-          estimationConfidence: estimation.estimationConfidence,
-          calories: mergedNutrition.calories,
-          protein: mergedNutrition.protein,
-          carbs: mergedNutrition.carbs,
-          fat: mergedNutrition.fat,
-          userCalories: mergedNutrition.userCalories,
-          userProtein: mergedNutrition.userProtein,
-          userCarbs: mergedNutrition.userCarbs,
-          userFat: mergedNutrition.userFat,
-        };
-      }
-
-      onSave(finalLog);
-      onClose();
-    } catch (error) {
-      console.error('Error saving food log:', error);
-      Alert.alert('Error', 'Failed to save food log. Please try again.');
-    } finally {
-      setIsEstimating(false);
+    // Validate nutrition input
+    if (!nutritionData.isValid) {
+      Alert.alert('Validation Error', nutritionData.validationErrors.join('\n'));
+      return;
     }
+
+    let finalLog: FoodLog;
+
+    if (mode === 'create' && selectedLog) {
+      // Processing existing log (image log) - return log with user input for AI processing
+      finalLog = {
+        ...selectedLog,
+        userTitle: tempTitle.trim() || undefined,
+        userDescription: tempDescription.trim() || undefined,
+        calories: nutritionData.calories,
+        protein: nutritionData.protein,
+        carbs: nutritionData.carbs,
+        fat: nutritionData.fat,
+        userCalories: nutritionData.userCalories,
+        userProtein: nutritionData.userProtein,
+        userCarbs: nutritionData.userCarbs,
+        userFat: nutritionData.userFat,
+        needsAiEstimation: nutritionData.needsAiEstimation,
+      };
+    } else {
+      // Creating completely new log (manual entry)
+      const newId = `food_log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      finalLog = {
+        id: newId,
+        generatedTitle: tempTitle.trim() || 'Manual entry',
+        estimationConfidence: nutritionData.needsAiEstimation ? 0 : 100,
+        calories: nutritionData.calories,
+        protein: nutritionData.protein,
+        carbs: nutritionData.carbs,
+        fat: nutritionData.fat,
+        userTitle: tempTitle.trim() || undefined,
+        userDescription: tempDescription.trim() || undefined,
+        userCalories: nutritionData.userCalories,
+        userProtein: nutritionData.userProtein,
+        userCarbs: nutritionData.userCarbs,
+        userFat: nutritionData.userFat,
+        createdAt: new Date().toISOString(),
+        needsAiEstimation: nutritionData.needsAiEstimation,
+      };
+    }
+
+    // Close modal immediately and let parent handle AI processing
+    onSave(finalLog);
+    onClose();
   };
 
   return (
@@ -177,9 +126,9 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
           <Text style={styles.title}>
             {mode === 'create' ? 'Add Food Log' : 'Add Info'}
           </Text>
-          <TouchableOpacity onPress={handleSave} disabled={isEstimating}>
-            <Text style={[styles.saveButton, isEstimating && styles.saveButtonDisabled]}>
-              {isEstimating ? 'Saving...' : 'Save'}
+          <TouchableOpacity onPress={handleSave}>
+            <Text style={styles.saveButton}>
+              Save
             </Text>
           </TouchableOpacity>
         </View>

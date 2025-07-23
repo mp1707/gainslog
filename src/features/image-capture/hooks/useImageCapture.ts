@@ -60,7 +60,7 @@ export const useImageCapture = () => {
       // Create food log with image
       const newLog: FoodLog = {
         id: generateFoodLogId(),
-        generatedTitle: 'Processing image...',
+        generatedTitle: '',
         estimationConfidence: 0,
         calories: 0,
         protein: 0,

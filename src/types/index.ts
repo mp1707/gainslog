@@ -15,6 +15,7 @@ export interface FoodLog {
   userFat?: number;
   imageUrl?: string;
   createdAt: string;
+  needsAiEstimation?: boolean;
 }
 
 // Modal modes for food log modal
