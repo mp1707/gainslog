@@ -15,14 +15,13 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 })
 
 export const estimateNutritionTextBased = async (request: FoodEstimateRequest): Promise<FoodEstimateResponse> => {
-  const anonKey = '***REMOVED***';
   
   const response = await fetch('https://cjsbuqvntoimmawozpko.supabase.co/functions/v1/text-based-estimation', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${anonKey}`,
-      'apikey': anonKey,
+      'Authorization': `Bearer ${supabaseAnonKey}`,
+      'apikey': supabaseAnonKey,
     },
     body: JSON.stringify(request),
   });
@@ -44,14 +43,13 @@ export const estimateNutritionTextBased = async (request: FoodEstimateRequest): 
 };
 
 export const estimateNutritionImageBased = async (request: ImageEstimateRequest): Promise<FoodEstimateResponse> => {
-  const anonKey = '***REMOVED***';
   
   const response = await fetch('https://cjsbuqvntoimmawozpko.supabase.co/functions/v1/image-based-estimation', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${anonKey}`,
-      'apikey': anonKey,
+      'Authorization': `Bearer ${supabaseAnonKey}`,
+      'apikey': supabaseAnonKey,
     },
     body: JSON.stringify(request),
   });
