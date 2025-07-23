@@ -29,6 +29,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Remember**: This documentation is consumed as context tokens. Keep it focused on essential information that helps understand and work with the codebase effectively.
 
+## Detailed Implementation Guide
+
+For comprehensive refactoring guidelines, component creation patterns, and step-by-step implementation protocols, see **`refactoring/CLAUDE.md`**. This detailed guide contains:
+
+- **Refactoring Protocol**: Phase-by-phase breakdown of architecture transformation
+- **Prompting Guidelines**: How to interact with AI tools for optimal results
+- **Component Creation**: Atomic design implementation with StyleSheet.create
+- **Feature Slicing**: Best practices for feature-based organization
+- **Golden Rules**: Strict conventions for consistent codebase quality
+
+**When to Reference**: Consult `refactoring/CLAUDE.md` when creating new features, refactoring existing code, or implementing new UI components.
+
 ## Development Commands
 
 ```bash
@@ -63,40 +75,99 @@ Note: No linting or testing commands are configured. TypeScript compilation is h
 - **Storage**: AsyncStorage for local data persistence
 - **Media**: expo-image-picker, expo-image-manipulator, expo-audio
 
+### Architecture Pattern: Hybrid Feature-Based + Atomic Design
+The codebase follows a modern hybrid approach combining:
+
+- **Feature-Based Architecture**: Domain-specific logic grouped in feature slices
+- **Atomic Design**: UI components organized by complexity (atoms → molecules → organisms)
+- **Context Window Optimization**: Small, focused files (≤200 lines) for better AI collaboration
+- **Co-location**: Implementation and styles kept together in feature directories
+
+### Core Architecture Principles
+
+1. **Context as Signal**: Break code into small, single-responsibility files (≤200 lines) with descriptive names that serve as meta-prompts
+2. **Public APIs**: Each feature exports its interface via barrel files (`index.ts`) - import exclusively from these entry points
+3. **Atomic Layering**: Progressive composition from atoms → molecules → organisms → templates → pages
+4. **StyleSheet.create**: Classic React Native styling in dedicated `.styles.ts` files co-located with components
+5. **Feature Boundaries**: Domain-specific logic grouped in feature slices under `src/features/<feature>/`
+6. **Global vs Local**: Distinguish between truly global resources (`src/shared/`, `src/theme/`) and feature-specific code
+7. **Co-location**: Keep implementation and styles together within feature directories for better context
+8. **Cohesion over DRY**: Prefer clarity and context over avoiding minimal duplication
+
 ### Repository Structure
 ```
 /
-├── App.tsx                 # Main application component (1,100+ lines)
-├── lib/
-│   ├── supabase.ts        # Supabase client & AI estimation functions
-│   └── storage.ts         # AsyncStorage CRUD operations
-├── components/
-│   └── ImageUpload.tsx    # Reusable image upload component
-├── assets/                # App icons and splash screens
-├── .env                   # Supabase environment variables
-└── CLAUDE.md             # This documentation
+├── src/
+│   ├── app/                    # Application-wide logic
+│   │   ├── providers/          # Context & state wrappers
+│   │   ├── navigation/         # Root navigation stacks
+│   │   └── store/              # Global store configuration
+│   ├── shared/                 # Truly global components and utilities
+│   │   └── ui/
+│   │       ├── atoms/          # Smallest UI units (Button, TextInput)
+│   │       │   ├── Button/
+│   │       │   │   ├── Button.tsx
+│   │       │   │   ├── Button.styles.ts
+│   │       │   │   └── index.ts
+│   │       └── molecules/      # Composed atoms (FormField, SearchForm)
+│   │           └── FormField/
+│   │               ├── FormField.tsx
+│   │               ├── FormField.styles.ts
+│   │               └── index.ts
+│   ├── features/               # Feature-based modules
+│   │   └── food-logging/       # Food logging feature
+│   │       ├── ui/            # Feature-specific UI components
+│   │       ├── api.ts         # Feature API calls
+│   │       ├── hooks.ts       # Feature custom hooks
+│   │       ├── types.ts       # Feature-specific types
+│   │       └── index.ts       # Public API barrel
+│   ├── theme/                  # Design tokens
+│   │   ├── colors.ts
+│   │   ├── typography.ts
+│   │   └── spacing.ts
+│   ├── types/                  # Globally shared TypeScript types
+│   ├── lib/                    # Pure utility functions
+│   │   ├── supabase.ts        # Supabase client & AI estimation
+│   │   └── storage.ts         # AsyncStorage operations
+│   └── App.tsx                 # Entry point with providers & navigation
+├── assets/                     # App icons and splash screens
+├── refactoring/
+│   └── CLAUDE.md              # Detailed refactoring guidelines (see reference below)
+├── .env                        # Supabase environment variables
+└── CLAUDE.md                   # This documentation
 ```
 
 ## Key Components
 
-### App.tsx (Main Component)
-- **Single-file architecture**: Manages entire application state and UI
-- **Multi-modal input**: Camera, audio recording, and manual text entry
-- **Real-time updates**: Skeleton loading states and optimistic UI updates
-- **Modal management**: Food log editing and creation interfaces
-- **State management**: React hooks for local state (no external state library)
+### src/App.tsx (Application Entry Point)
+- **Provider orchestration**: Wraps root with context providers (store, theme, navigation)
+- **Navigation setup**: Configures React Navigation with root stack
+- **Global state initialization**: Sets up Zustand store and other global state
+- **Clean separation**: No longer contains business logic, purely architectural
 
-### lib/supabase.ts (Backend Integration)
-- **Supabase client**: Configured with AsyncStorage session persistence
-- **AI estimation**: `estimateFoodAI()` function for OpenAI-based nutrition analysis
-- **Anonymous access**: Uses anon key for unauthenticated API calls
-- **Error handling**: Proper error boundaries with user-friendly messages
+### src/features/food-logging/ (Core Feature Module)
+- **Feature encapsulation**: All food logging logic contained within feature boundary
+- **Public API**: Exports components, hooks, and types via `index.ts` barrel
+- **UI components**: Screen components and feature-specific UI elements in `ui/` directory
+- **Business logic**: Custom hooks in `hooks.ts`, API calls in `api.ts`
+- **Type definitions**: Feature-specific TypeScript interfaces in `types.ts`
 
-### lib/storage.ts (Data Management)
-- **Local-first approach**: All data persisted via AsyncStorage
-- **CRUD operations**: Create, read, update food logs
-- **JSON serialization**: Structured data storage and retrieval
-- **Unique IDs**: Timestamp-based identifier generation
+### src/shared/ui/ (Atomic Design System)
+- **Atoms**: Basic building blocks (Button, TextInput, LoadingSpinner)
+- **Molecules**: Composed components (FormField, NutritionGrid, FoodLogCard)
+- **Co-located styles**: Each component has paired `.styles.ts` file using StyleSheet.create
+- **Reusable across features**: Truly global UI components used throughout the app
+
+### src/lib/ (Core Utilities)
+- **supabase.ts**: Supabase client configuration and AI estimation functions
+- **storage.ts**: AsyncStorage CRUD operations and data persistence
+- **utils.ts**: Pure utility functions and helpers
+- **Type-safe**: All utilities properly typed with TypeScript
+
+### src/theme/ (Design System)
+- **Design tokens**: Colors, typography, spacing, and other design constants
+- **Centralized theming**: Single source of truth for visual design
+- **Export structure**: Easy import and consumption across components
 
 ## Supabase Integration
 
@@ -319,13 +390,19 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 - ❌ **User accounts**: Anonymous-only access
 
 ### Architecture Decisions
-- **Single-file component**: App.tsx contains entire application logic
-- **Local-first storage**: AsyncStorage over Supabase database
+- **Hybrid Feature-Based + Atomic Design**: Modular architecture with feature slices and atomic UI components
+- **Context Window Optimization**: Small, focused files (≤200 lines) for better AI collaboration
+- **Co-location Strategy**: Implementation and styles kept together in feature directories
+- **Public API Pattern**: Each feature exports via barrel files for clean imports
+- **Local-first storage**: AsyncStorage over Supabase database for privacy
 - **Anonymous access**: No user authentication required
 - **AI-powered estimation**: OpenAI for accurate nutrition data
 - **Edge Function architecture**: Serverless nutrition estimation
 
 ### Performance Considerations
+- **Modular loading**: Feature-based architecture enables code splitting and lazy loading
+- **Atomic composition**: Reusable components reduce bundle duplication
+- **Context window efficiency**: Small files (≤200 lines) improve development performance with AI tools
 - **Image compression**: Automatic optimization for mobile networks
 - **Optimistic updates**: Immediate UI feedback with skeleton states
 - **Local storage**: Fast data access without network dependency
@@ -341,15 +418,17 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 
 ## Future Enhancement Areas
 
-1. **Component Architecture**: Decompose large App.tsx into smaller components
-2. **State Management**: Consider Context API or state management library  
+1. ✅ **Component Architecture**: ~~Decompose large App.tsx into smaller components~~ - **COMPLETED** (Refactored to hybrid feature-based + atomic design)
+2. ✅ **Modular Structure**: ~~Break code into focused files~~ - **COMPLETED** (Files now ≤200 lines with clear separation of concerns)
 3. **Audio Processing**: Implement speech-to-text for audio recordings
 4. **Nutrition Database**: Integration with food databases (USDA, etc.) for precise nutrition data
 5. **Barcode Scanning**: Add product scanning for packaged foods
 6. **Nutrition Goals**: Daily/weekly nutrition targets and progress tracking
 7. **Data Visualization**: Charts and graphs for nutrition trends
-8. **Testing**: Add unit and integration tests
+8. **Testing**: Add unit and integration tests for atomic components and features
 9. **Database Integration**: Optional cloud sync with user consent
 10. **Offline Mode**: Enhanced offline functionality and sync
 11. **Export Features**: CSV/JSON export of nutrition data
 12. **Meal Planning**: Recipe creation and meal planning features
+13. **State Management**: Consider Context API or Zustand for complex state (architecture now supports this)
+14. **Design System**: Expand atomic design with more complex organisms and templates
