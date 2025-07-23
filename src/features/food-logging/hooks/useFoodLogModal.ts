@@ -1,0 +1,63 @@
+import { useState } from 'react';
+import { FoodLog, ModalMode } from '../../../types';
+
+export interface UseFoodLogModalReturn {
+  isModalVisible: boolean;
+  modalMode: ModalMode;
+  selectedLog: FoodLog | null;
+  handleAddInfo: (log: FoodLog) => void;
+  handleManualLog: () => void;
+  handleImageCaptured: (log: FoodLog) => void;
+  handleModalClose: () => void;
+  setSelectedLog: (log: FoodLog | null) => void;
+  setModalMode: (mode: ModalMode) => void;
+  setIsModalVisible: (visible: boolean) => void;
+}
+
+/**
+ * Custom hook for managing food log modal state and handlers
+ * Extracts modal-related logic from App.tsx for better separation of concerns
+ */
+export function useFoodLogModal(): UseFoodLogModalReturn {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalMode, setModalMode] = useState<ModalMode>('edit');
+  const [selectedLog, setSelectedLog] = useState<FoodLog | null>(null);
+
+  const handleAddInfo = (log: FoodLog) => {
+    setModalMode('edit');
+    setSelectedLog(log);
+    setIsModalVisible(true);
+  };
+
+  const handleManualLog = () => {
+    setModalMode('create');
+    setSelectedLog(null);
+    setIsModalVisible(true);
+  };
+
+  const handleImageCaptured = (log: FoodLog) => {
+    // Don't add to state yet - just open modal for user input
+    // The skeleton will be added after modal closes
+    setModalMode('create');
+    setSelectedLog(log);
+    setIsModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setSelectedLog(null);
+  };
+
+  return {
+    isModalVisible,
+    modalMode,
+    selectedLog,
+    handleAddInfo,
+    handleManualLog,
+    handleImageCaptured,
+    handleModalClose,
+    setSelectedLog,
+    setModalMode,
+    setIsModalVisible,
+  };
+}
