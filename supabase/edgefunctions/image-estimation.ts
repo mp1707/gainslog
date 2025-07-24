@@ -2,7 +2,18 @@
 // @ts-nocheck
 
 // Image-based nutrition estimation using OpenAI Vision API (New API Key System)
-import { OpenAI } from 'https://deno.land/x/openai@v4.52.7/mod.ts';
+import { OpenAI } from "https://deno.land/x/openai@v4.52.7/mod.ts";
+
+// Fallback response for non-food images or API failures
+const INVALID_IMAGE_RESPONSE = {
+  generatedTitle: "Invalid Image",
+  estimationConfidence: 0,
+  calories: 0,
+  protein: 0,
+  carbs: 0,
+  fat: 0,
+};
+
 // Enhanced system prompt for image analysis
 const SYSTEM_PROMPT = `You are a meticulous nutrition expert specializing in food image analysis. Your primary task is to analyze a food image and return a single, valid JSON object with your nutritional estimation.
 
@@ -44,7 +55,21 @@ You MUST return a JSON object with this exact structure:
 * **Context Integration:** If title/description is provided, use it to clarify ambiguous items in the image, but prioritize visual evidence.
 * **Conservative Estimation:** When in doubt about portions, err on the side of reasonable typical serving sizes.
 
-### Example Scenarios
+### Example 
+
+#### Non-Food Image Example:
+* **Image Content:** Photo of a cat
+* **Required Response:**
+    \`\`\`json
+    {
+      "generatedTitle": "Invalid Image",
+      "estimationConfidence": 0,
+      "calories": 0,
+      "protein": 0,
+      "carbs": 0,
+      "fat": 0
+    }
+    \`\`\`
 
 #### High Confidence Example:
 * **Image Content:** Clear photo of a plated meal with distinct portions - 150g grilled chicken breast, 1 cup of white rice, mixed vegetables
@@ -93,109 +118,123 @@ You MUST return a JSON object with this exact structure:
       "fat": 12
     }
     \`\`\`
+
+    REMEMBER: Always check if the image contains food FIRST. If not, return the Invalid Image response immediately.
 `;
 // Initialize the OpenAI client
 const openai = new OpenAI();
 // Simple API key validation function
 function validateApiKey(request) {
-  const authHeader = request.headers.get('authorization');
-  const apiKeyHeader = request.headers.get('apikey');
+  const authHeader = request.headers.get("authorization");
+  const apiKeyHeader = request.headers.get("apikey");
   // Check for either Bearer token or apikey header
-  if (authHeader?.startsWith('Bearer ') || apiKeyHeader) {
+  if (authHeader?.startsWith("Bearer ") || apiKeyHeader) {
     return true; // Basic validation - in production, you'd validate against actual keys
   }
   return false;
 }
-Deno.serve(async (req)=>{
+Deno.serve(async (req) => {
   const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   };
   // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
-      headers: corsHeaders
+      headers: corsHeaders,
     });
   }
   // Ensure the request method is POST
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({
-      error: 'Only POST method allowed'
-    }), {
-      status: 405,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json'
+  if (req.method !== "POST") {
+    return new Response(
+      JSON.stringify({
+        error: "Only POST method allowed",
+      }),
+      {
+        status: 405,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
       }
-    });
+    );
   }
   // Validate API key (simple check for new API key system)
   if (!validateApiKey(req)) {
-    return new Response(JSON.stringify({
-      error: 'Invalid API key'
-    }), {
-      status: 401,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json'
+    return new Response(
+      JSON.stringify({
+        error: "Invalid API key",
+      }),
+      {
+        status: 401,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
       }
-    });
+    );
   }
   try {
     const { imageUrl, title, description } = await req.json();
     // Validate input
     if (!imageUrl?.trim()) {
-      return new Response(JSON.stringify({
-        error: 'Image URL is required'
-      }), {
-        status: 400,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json'
+      return new Response(
+        JSON.stringify({
+          error: "Image URL is required",
+        }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
     }
     // Construct the user prompt with optional context
-    let userPrompt = 'Analyze this food image and estimate its nutritional content.';
+    let userPrompt =
+      "Analyze this food image and estimate its nutritional content.";
     if (title?.trim() || description?.trim()) {
-      userPrompt += ' Additional context:';
+      userPrompt += " Additional context:";
       if (title?.trim()) userPrompt += ` Title: ${title.trim()}.`;
-      if (description?.trim()) userPrompt += ` Description: ${description.trim()}.`;
+      if (description?.trim())
+        userPrompt += ` Description: ${description.trim()}.`;
     }
     // Create the messages array with the image
     const messages = [
       {
-        role: 'system',
-        content: SYSTEM_PROMPT
+        role: "system",
+        content: SYSTEM_PROMPT,
       },
       {
-        role: 'user',
+        role: "user",
         content: [
           {
-            type: 'text',
-            text: userPrompt
+            type: "text",
+            text: userPrompt,
           },
           {
-            type: 'image_url',
+            type: "image_url",
             image_url: {
               url: imageUrl,
-              detail: 'high'
-            }
-          }
-        ]
-      }
+              detail: "high",
+            },
+          },
+        ],
+      },
     ];
     // Fetch the completion from OpenAI Vision API
     const chatCompletion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: "gpt-4o",
       messages: messages,
       response_format: {
-        type: 'json_object'
+        type: "json_object",
       },
       temperature: 0.2,
-      max_tokens: 1000
+      max_tokens: 1000,
     });
     const messageContent = chatCompletion.choices[0].message.content;
     if (!messageContent) {
@@ -206,43 +245,30 @@ Deno.serve(async (req)=>{
     // Sanitize and structure the final result
     const result = {
       generatedTitle: nutrition.generatedTitle || `Food Image Analysis`,
-      estimationConfidence: Math.max(1, Math.min(100, Math.round(nutrition.estimationConfidence || 60))),
+      estimationConfidence: Math.max(
+        1,
+        Math.min(100, Math.round(nutrition.estimationConfidence || 60))
+      ),
       calories: Math.max(0, Math.round(nutrition.calories || 0)),
       protein: Math.max(0, Math.round(nutrition.protein || 0)),
       carbs: Math.max(0, Math.round(nutrition.carbs || 0)),
-      fat: Math.max(0, Math.round(nutrition.fat || 0))
+      fat: Math.max(0, Math.round(nutrition.fat || 0)),
     };
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: {
         ...corsHeaders,
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      },
     });
   } catch (error) {
-    console.error('Error:', error);
-    // Determine the error type for a more specific response
-    let errorMessage = 'Internal server error';
-    let statusCode = 500;
-    if (error instanceof SyntaxError) {
-      errorMessage = 'AI returned invalid JSON';
-      statusCode = 502;
-    } else if (error.message?.includes('image')) {
-      errorMessage = 'Failed to process image';
-      statusCode = 422;
-    } else if (error.message?.includes('rate limit') || error.message?.includes('quota')) {
-      errorMessage = 'Rate limit exceeded';
-      statusCode = 429;
-    }
-    return new Response(JSON.stringify({
-      error: errorMessage,
-      details: error.message
-    }), {
-      status: statusCode,
+    console.warn("Error validating AI response, using fallback:", error);
+    return new Response(JSON.stringify(INVALID_IMAGE_RESPONSE), {
+      status: 200,
       headers: {
         ...corsHeaders,
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      },
     });
   }
 });

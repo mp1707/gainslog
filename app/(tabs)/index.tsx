@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { FoodLogScreen, FoodLogModal } from "../../src/features/food-logging";
-import { useFoodLogModal } from "../../src/features/food-logging/hooks/useFoodLogModal";
+import { useFoodLogModal, useUpdateFoodLog } from "../../src/features/food-logging/hooks";
 import { useCreateFoodLog } from "../../src/features/food-logging/hooks/useCreateFoodLog";
 import { useImageCapture } from "../../src/features/image-capture/hooks/useImageCapture";
 import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
@@ -19,6 +19,7 @@ export default function TodayTab() {
   /* UI hooks */
   const modal = useFoodLogModal();
   const { create } = useCreateFoodLog();
+  const { update } = useUpdateFoodLog();
   const { captureImage } = useImageCapture();
 
   // Load logs on mount
@@ -48,9 +49,13 @@ export default function TodayTab() {
   /* Modal save handler */
   const handleSave = useCallback(
     async (log) => {
-      await create(log);
+      if (modal.modalMode === 'edit') {
+        await update(log);
+      } else {
+        await create(log);
+      }
     },
-    [create]
+    [create, update, modal.modalMode]
   );
 
   return (

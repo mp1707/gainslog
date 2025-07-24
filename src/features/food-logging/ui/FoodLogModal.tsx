@@ -77,7 +77,25 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
 
     let finalLog: FoodLog;
 
-    if (mode === 'create' && selectedLog) {
+    if (mode === 'edit' && selectedLog) {
+      // Updating existing log - preserve original ID and metadata
+      finalLog = {
+        ...selectedLog,
+        userTitle: tempTitle.trim() || undefined,
+        userDescription: tempDescription.trim() || undefined,
+        calories: nutritionData.calories,
+        protein: nutritionData.protein,
+        carbs: nutritionData.carbs,
+        fat: nutritionData.fat,
+        userCalories: nutritionData.userCalories,
+        userProtein: nutritionData.userProtein,
+        userCarbs: nutritionData.userCarbs,
+        userFat: nutritionData.userFat,
+        needsAiEstimation: nutritionData.needsAiEstimation,
+        // Reset confidence to trigger re-estimation
+        estimationConfidence: nutritionData.needsAiEstimation ? 0 : 100,
+      };
+    } else if (mode === 'create' && selectedLog) {
       // Processing existing log (image log) - return log with user input for AI processing
       finalLog = {
         ...selectedLog,
