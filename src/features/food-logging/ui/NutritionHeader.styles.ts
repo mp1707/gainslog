@@ -1,10 +1,10 @@
 import { StyleSheet } from "react-native";
-import { colors, spacing } from "../../../../theme";
+import { colors, spacing } from "../../../theme";
 
 export const styles = StyleSheet.create({
   container: {
     paddingVertical: spacing.md,
-    paddingRight: spacing.xl,
+    paddingHorizontal: spacing.lg,
     backgroundColor: colors.background.secondary,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border.medium,
@@ -19,6 +19,7 @@ export const styles = StyleSheet.create({
 
   datePickerContainer: {
     flexShrink: 0,
+    marginLeft: -5,
   },
 
   nutritionGrid: {
@@ -26,7 +27,6 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: spacing.md,
-    marginLeft: spacing.sm,
   },
 
   nutritionItem: {
@@ -71,6 +71,8 @@ export const styles = StyleSheet.create({
 });
 
 // Helper function to get progress bar colors
-export const getProgressColor = (type: "protein" | "carbs" | "fat" | "calories") => {
+export const getProgressColor = (
+  type: "protein" | "carbs" | "fat" | "calories"
+) => {
   return colors.nutrition[type];
 };

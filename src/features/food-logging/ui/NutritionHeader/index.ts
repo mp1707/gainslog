@@ -1,1 +1,0 @@
-export { NutritionHeader } from "./NutritionHeader";

@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Platform } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useFoodLogStore } from "../../../../stores/useFoodLogStore";
+import { useFoodLogStore } from "../../../stores/useFoodLogStore";
 import { styles, getProgressColor } from "./NutritionHeader.styles";
 
 export const NutritionHeader: React.FC = () => {
@@ -61,17 +61,6 @@ export const NutritionHeader: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        {/* Date Picker */}
-        <View style={styles.datePickerContainer}>
-          <DateTimePicker
-            value={new Date(selectedDate)}
-            mode="date"
-            display={Platform.OS === "ios" ? "compact" : "default"}
-            onChange={handleDateChange}
-            maximumDate={new Date()}
-          />
-        </View>
-
         {/* Nutrition Grid */}
         <View style={styles.nutritionGrid}>
           {nutritionStats.map((stat, index) => (
@@ -94,6 +83,17 @@ export const NutritionHeader: React.FC = () => {
               </View>
             </View>
           ))}
+        </View>
+
+        {/* Date Picker */}
+        <View style={styles.datePickerContainer}>
+          <DateTimePicker
+            value={new Date(selectedDate)}
+            mode="date"
+            display={Platform.OS === "ios" ? "compact" : "default"}
+            onChange={handleDateChange}
+            maximumDate={new Date()}
+          />
         </View>
       </View>
     </View>
