@@ -38,11 +38,15 @@ export const colors = {
 
   // Confidence indicator colors
   confidence: {
-    low: {
+    uncertain: {
       background: "#fee2e2",
       text: "#dc2626",
     },
-    medium: {
+    partial: {
+      background: "#fed7aa",
+      text: "#ea580c",
+    },
+    good: {
       background: "#fef3c7",
       text: "#d97706",
     },

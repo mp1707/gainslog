@@ -17,12 +17,16 @@ export const styles = StyleSheet.create({
   },
 
   // Confidence levels
-  low: {
-    backgroundColor: colors.confidence.low.background,
+  uncertain: {
+    backgroundColor: colors.confidence.uncertain.background,
   },
 
-  medium: {
-    backgroundColor: colors.confidence.medium.background,
+  partial: {
+    backgroundColor: colors.confidence.partial.background,
+  },
+
+  good: {
+    backgroundColor: colors.confidence.good.background,
   },
 
   high: {
@@ -36,12 +40,16 @@ export const styles = StyleSheet.create({
   },
 
   // Text colors
-  lowText: {
-    color: colors.confidence.low.text,
+  uncertainText: {
+    color: colors.confidence.uncertain.text,
   },
 
-  mediumText: {
-    color: colors.confidence.medium.text,
+  partialText: {
+    color: colors.confidence.partial.text,
+  },
+
+  goodText: {
+    color: colors.confidence.good.text,
   },
 
   highText: {

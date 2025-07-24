@@ -16,22 +16,19 @@ export const Badge: React.FC<ConfidenceBadgeProps> = ({
     );
   }
 
-  const getConfidenceStyle = () => {
-    if (confidence <= 30) return styles.low;
-    if (confidence <= 70) return styles.medium;
-    return styles.high;
+  const getConfidenceInfo = () => {
+    if (confidence <= 25) return { style: styles.uncertain, textStyle: styles.uncertainText, label: 'Uncertain' };
+    if (confidence <= 50) return { style: styles.partial, textStyle: styles.partialText, label: 'Low Accuracy' };
+    if (confidence <= 75) return { style: styles.good, textStyle: styles.goodText, label: 'Medium Accuracy' };
+    return { style: styles.high, textStyle: styles.highText, label: 'High Accuracy' };
   };
 
-  const getTextStyle = () => {
-    if (confidence <= 30) return styles.lowText;
-    if (confidence <= 70) return styles.mediumText;
-    return styles.highText;
-  };
+  const confidenceInfo = getConfidenceInfo();
 
   return (
-    <View style={[styles.base, getConfidenceStyle()]}>
-      <Text style={[styles.text, getTextStyle()]}>
-        {confidence}%
+    <View style={[styles.base, confidenceInfo.style]}>
+      <Text style={[styles.text, confidenceInfo.textStyle]}>
+        {confidenceInfo.label}
       </Text>
     </View>
   );
