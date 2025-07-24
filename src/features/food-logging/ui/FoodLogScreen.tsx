@@ -5,6 +5,10 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Animated, { 
+  Layout,
+  FadeInUp,
+} from "react-native-reanimated";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { SwipeToDelete, SkeletonCard } from "@/shared/ui";
 import { FoodLogCard } from "./FoodLogCard";
@@ -53,20 +57,31 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         contentContainerStyle={styles.scrollContent}
       >
         {isLoadingLogs ? (
-          <View>
+          <Animated.View>
             {[1, 2, 3].map((i) => (
-              <SkeletonCard key={i} />
+              <Animated.View
+                key={i}
+                entering={FadeInUp.delay(i * 80).springify().damping(18).stiffness(150)}
+                layout={Layout.springify().damping(18).stiffness(150).mass(1)}
+              >
+                <SkeletonCard />
+              </Animated.View>
             ))}
-          </View>
+          </Animated.View>
         ) : (
-          filteredFoodLogs.map((log) => (
-            <SwipeToDelete
+          filteredFoodLogs.map((log, index) => (
+            <Animated.View
               key={log.id}
-              itemId={log.id}
-              onDelete={() => handleDeleteLog(log.id)}
+              entering={FadeInUp.delay(index * 80).springify().damping(18).stiffness(150)}
+              layout={Layout.springify().damping(18).stiffness(150).mass(1)}
             >
-              <FoodLogCard foodLog={log} onAddInfo={onAddInfo} />
-            </SwipeToDelete>
+              <SwipeToDelete
+                itemId={log.id}
+                onDelete={() => handleDeleteLog(log.id)}
+              >
+                <FoodLogCard foodLog={log} onAddInfo={onAddInfo} />
+              </SwipeToDelete>
+            </Animated.View>
           ))
         )}
       </ScrollView>

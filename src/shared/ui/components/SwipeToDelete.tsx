@@ -7,9 +7,12 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
   runOnJS,
   interpolate,
   Extrapolate,
+  FadeOutLeft,
+  Layout,
 } from "react-native-reanimated";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 
@@ -37,9 +40,33 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
   const translateX = useSharedValue(0);
   const opacity = useSharedValue(1);
   const height = useSharedValue(1);
+  const isDeleting = useSharedValue(false);
   const gestureDirection = useSharedValue<
     "unknown" | "horizontal" | "vertical"
   >("unknown");
+
+  const executeDelete = () => {
+    isDeleting.value = true;
+    
+    // First slide out to the left with a natural easing
+    translateX.value = withTiming(
+      -SCREEN_WIDTH * 1.2, // Slide slightly further for full exit effect
+      { 
+        duration: 250, // Faster slide for more responsive feel
+      },
+      () => {
+        // Then collapse height and fade out quickly
+        opacity.value = withTiming(0, { duration: 150 });
+        height.value = withTiming(
+          0,
+          { duration: 200 }, // Quick collapse
+          () => {
+            runOnJS(onDelete)();
+          }
+        );
+      }
+    );
+  };
 
   const handleDelete = () => {
     if (confirmDelete) {
@@ -58,26 +85,13 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
           {
             text: "Delete",
             style: "destructive",
-            onPress: () => {
-              // Animate out with height collapse and then delete
-              opacity.value = withSpring(0, { damping: 20, stiffness: 200 });
-              height.value = withSpring(
-                0,
-                { damping: 20, stiffness: 200 },
-                () => {
-                  runOnJS(onDelete)();
-                }
-              );
-            },
+            onPress: executeDelete,
           },
         ]
       );
     } else {
       // Direct delete without confirmation
-      opacity.value = withSpring(0, { damping: 20, stiffness: 200 });
-      height.value = withSpring(0, { damping: 20, stiffness: 200 }, () => {
-        runOnJS(onDelete)();
-      });
+      executeDelete();
     }
   };
 
@@ -86,6 +100,9 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
       gestureDirection.value = "unknown";
     },
     onActive: (event) => {
+      // Don't allow gestures during delete animation
+      if (isDeleting.value) return;
+      
       const { translationX, translationY } = event;
 
       // Determine gesture direction on first significant movement
@@ -112,6 +129,9 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
       }
     },
     onEnd: (event) => {
+      // Don't process gestures during delete animation
+      if (isDeleting.value) return;
+      
       // Only process end event for horizontal gestures
       if (gestureDirection.value !== "horizontal") {
         return;
@@ -160,6 +180,14 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
   });
 
   const deleteButtonContainerStyle = useAnimatedStyle(() => {
+    // Hide delete button immediately when delete animation starts
+    if (isDeleting.value) {
+      return {
+        opacity: 0,
+        width: 0,
+      };
+    }
+
     const buttonOpacity = interpolate(
       Math.abs(translateX.value),
       [0, DELETE_THRESHOLD / 3, DELETE_THRESHOLD / 2],
@@ -190,6 +218,8 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
 
   return (
     <Animated.View
+      layout={Layout.springify().damping(18).stiffness(150).mass(1)}
+      exiting={FadeOutLeft.duration(250)}
       style={[
         {
           marginBottom: 12,
