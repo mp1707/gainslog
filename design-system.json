@@ -1,192 +1,302 @@
 {
-  "designSystemName": "RetroPixel",
-  "description": "A design system based on a retro, pixel-art aesthetic with sharp corners, pixel fonts, and a dark theme. It utilizes gradients for highlights and specific color-coded states.",
-  "colorPalette": {
+  "designSystem": {
+    "name": "Dark Glass UI",
+    "version": "1.0.0",
+    "description": "A dark-themed design system featuring glassmorphic panels, vibrant accent colors, and soft visual effects."
+  },
+  "palette": {
     "background": {
-      "primary": "#1D1C1C",
-      "component": "#2A2A2A"
-    },
-    "text": {
-      "primary": "#D8D8D8",
-      "accent": "#E5B000"
-    },
-    "border": {
-      "primary": "#414141",
-      "secondary": "#606060"
-    },
-    "accent": {
-      "primary": "#E5B000"
-    },
-    "semantic": {
-      "info": {
-        "border": "#00A7A7",
-        "background": "#3C4A4A",
-        "gradient": "linear-gradient(45deg, #00A7A7 0%, #006868 100%)"
-      },
-      "success": {
-        "border": "#74A700",
-        "background": "#3C4A3C",
-        "gradient": "linear-gradient(45deg, #74A700 0%, #486800 100%)"
-      },
-      "warning": {
-        "border": "#E5B000",
-        "background": "#4A3C4B",
-        "gradient": "linear-gradient(45deg, #E5B000 0%, #7F6000 100%)"
+      "primary": {
+        "value": "#1A1B20",
+        "description": "Primary dark background for the entire application canvas."
       }
     },
-    "decorativeGradients": {
-      "yellowGreen": "linear-gradient(135deg, #C6EF3E 0%, #79D45E 100%)",
-      "orangeRed": "linear-gradient(135deg, #F89B2B 0%, #E65A5A 100%)",
-      "bluePurple": "linear-gradient(135deg, #3F88C5 0%, #A77AC7 100%)",
-      "lightBluePurple": "linear-gradient(135deg, #5BC0EB 0%, #C792EA 100%)"
+    "text": {
+      "primary": {
+        "value": "#F2F2F7",
+        "description": "For main headings, labels, and primary button text."
+      },
+      "secondary": {
+        "value": "#8D8D92",
+        "description": "For body copy, descriptions, and placeholder text."
+      },
+      "disabled": {
+        "value": "rgba(141, 141, 146, 0.5)",
+        "description": "For text labels in a disabled or inactive state."
+      }
     },
-    "progressBar": {
-      "background": "#3D2D41",
-      "fill": "#7B4783",
-      "border": "#AB62B7"
+    "accent": {
+      "primary": {
+        "value": "#0B84FE",
+        "description": "Main accent color for primary actions, links, and selected states."
+      },
+      "destructive": {
+        "value": "#FF453A",
+        "description": "For destructive actions like 'Delete'."
+      },
+      "positive": {
+        "value": "#31D158",
+        "description": "For positive states, such as the 'on' state of a toggle."
+      }
+    },
+    "ui": {
+      "panel": {
+        "value": "rgba(58, 59, 64, 0.75)",
+        "description": "Base background for cards and panels. Requires a backdrop-filter for the glass effect."
+      },
+      "panelBorder": {
+        "value": "rgba(138, 138, 142, 0.2)",
+        "description": "Subtle border for glass panels to simulate a highlighted edge."
+      },
+      "interactive": {
+        "value": "#545458",
+        "description": "Background for secondary buttons and selected segmented controls."
+      },
+      "interactiveSubtle": {
+        "value": "#2D2D30",
+        "description": "Background for tertiary elements like icon-only button containers."
+      },
+      "divider": {
+        "value": "#48484A",
+        "description": "Color for horizontal rule separators."
+      }
+    }
+  },
+  "semantic": {
+    "good": {
+      "background": {
+        "value": "#31D158",
+        "description": "Background color for 'good' or success states. Reuses the 'positive' accent color for consistency."
+      },
+      "text": {
+        "value": "#1A8236",
+        "description": "Dark green text for use on the 'good' background color."
+      }
+    },
+    "medium": {
+      "background": {
+        "value": "#FFCC00",
+        "description": "Background color for 'medium' or warning states."
+      },
+      "text": {
+        "value": "#A88600",
+        "description": "Dark yellow text for use on the 'medium' background color."
+      }
+    },
+    "bad": {
+      "background": {
+        "value": "#FF9500",
+        "description": "Background color for 'bad' or error states."
+      },
+      "text": {
+        "value": "#A65E00",
+        "description": "Dark orange text for use on the 'bad' background color."
+      }
+    },
+    "worst": {
+      "background": {
+        "value": "#FF453A",
+        "description": "Background color for 'worst' or critical failure states. Reuses the 'destructive' accent color."
+      },
+      "text": {
+        "value": "#A3180F",
+        "description": "Dark red text for use on the 'worst' background color."
+      }
     }
   },
   "typography": {
-    "fontFamily": "'PixelFont', 'Press Start 2P', monospace",
-    "baseSize": "16px",
+    "fontFamily": {
+      "value": "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      "description": "Prioritize the native system font for a consistent look and feel."
+    },
     "styles": {
-      "cardTitle": {
-        "font-size": "1em",
-        "font-weight": "normal",
-        "text-transform": "uppercase",
-        "color": "#D8D8D8"
+      "heading": {
+        "fontSize": "18pt",
+        "fontWeight": "700",
+        "color": "{palette.text.primary.value}"
       },
-      "cardDetail": {
-        "font-size": "0.9em",
-        "font-weight": "normal",
-        "text-transform": "uppercase",
-        "color": "#D8D8D8"
+      "body": {
+        "fontSize": "14pt",
+        "fontWeight": "400",
+        "color": "{palette.text.secondary.value}"
       },
-      "buttonText": {
-        "font-size": "1em",
-        "font-weight": "normal",
-        "text-transform": "uppercase",
-        "color": "#E5B000"
+      "label": {
+        "fontSize": "16pt",
+        "fontWeight": "400",
+        "color": "{palette.text.primary.value}"
+      },
+      "button": {
+        "fontSize": "16pt",
+        "fontWeight": "600",
+        "color": "{palette.text.primary.value}"
+      }
+    }
+  },
+  "effects": {
+    "shadows": {
+      "panel": {
+        "value": "0 12px 24px rgba(0, 0, 0, 0.3)",
+        "description": "Soft, deep shadow to lift panels off the background."
+      },
+      "thumb": {
+        "value": "0 2px 6px rgba(0, 0, 0, 0.25)",
+        "description": "Subtle shadow for interactive elements like slider and switch thumbs."
+      },
+      "pressed": {
+        "value": "inset 0px 2px 4px rgba(0, 0, 0, 0.25)",
+        "description": "Inner shadow used for pressed or selected states to create a feeling of depth."
+      }
+    },
+    "gradients": {
+      "sliderFill": {
+        "value": "linear-gradient(90deg, #0B84FE 0%, #63B1FF 100%)",
+        "description": "Gradient for the filled portion of a slider track."
       }
     }
   },
   "elementStyling": {
-    "page": {
-      "background": {
-        "type": "solid",
-        "color": "#1D1C1C",
-        "description": "Main background for all screens."
-      }
-    },
     "cards": {
       "container": {
-        "background": "#2A2A2A",
-        "border": "2px solid #414141",
-        "borderRadius": "0px",
-        "shadow": "none",
-        "padding": "16px"
-      },
-      "title": {
-        "style": "cardTitle",
-        "color": "#D8D8D8"
+        "background": "{palette.ui.panel.value}",
+        "backdropFilter": "blur(20px)",
+        "border": "1px solid {palette.ui.panelBorder.value}",
+        "borderRadius": "16px",
+        "boxShadow": "{effects.shadows.panel.value}"
       },
       "content": {
-        "style": "cardDetail",
-        "color": "#D8D8D8"
+        "headingColor": "{palette.text.primary.value}",
+        "bodyColor": "{palette.text.secondary.value}"
+      },
+      "dividers": {
+        "color": "{palette.ui.divider.value}",
+        "height": "1px"
       }
     },
     "buttons": {
+      "shared": {
+        "borderRadius": "10px",
+        "padding": "14px 20px",
+        "font": "{typography.styles.button}"
+      },
       "primary": {
-        "context": "Main call-to-action, e.g., 'Food Log'",
-        "default": {
-          "background": "#2A2A2A",
-          "border": "2px solid #E5B000",
-          "text": "#E5B000",
-          "icon": "#E5B000",
-          "borderRadius": "0px"
-        },
-        "hover": {
-          "background": "#E5B000",
-          "border": "2px solid #E5B000",
-          "text": "#2A2A2A",
-          "icon": "#2A2A2A"
+        "context": "Primary call-to-action, e.g., 'Continue', 'Play'",
+        "background": "{palette.accent.primary.value}",
+        "textColor": "{palette.text.primary.value}",
+        "active": {
+          "background": "color-mix(in srgb, {palette.accent.primary.value} 85%, black)"
+        }
+      },
+      "destructive": {
+        "context": "Destructive action, e.g., 'Delete'",
+        "background": "{palette.accent.destructive.value}",
+        "textColor": "{palette.text.primary.value}",
+        "active": {
+          "background": "color-mix(in srgb, {palette.accent.destructive.value} 85%, black)"
         }
       },
       "secondary": {
-        "context": "Icon-only buttons, e.g., 'Settings', 'History'",
-        "default": {
-          "background": "#2A2A2A",
-          "border": "2px solid #606060",
-          "icon": "#606060",
-          "borderRadius": "0px"
+        "context": "Secondary action, e.g., 'Cancel', 'Allow'",
+        "background": "{palette.ui.interactive.value}",
+        "textColor": "{palette.text.primary.value}",
+        "active": {
+          "background": "color-mix(in srgb, {palette.ui.interactive.value} 85%, black)"
+        }
+      },
+      "iconOnly": {
+        "context": "Tertiary actions in a row, e.g., 'Reply', 'Flag'",
+        "container": {
+          "background": "{palette.ui.interactiveSubtle.value}",
+          "borderRadius": "9999px",
+          "size": "36px"
         },
-        "hover": {
-          "background": "#606060",
-          "border": "2px solid #606060",
-          "icon": "#2A2A2A"
+        "icon": {
+          "fill": "{palette.accent.primary.value}",
+          "size": "18px"
+        },
+        "iconDestructive": {
+          "fill": "{palette.accent.destructive.value}"
         }
       }
     },
-    "gauges": {
-      "progressBar": {
-        "context": "Global status bars, e.g., daily calorie total",
-        "container": {
-          "background": "#3D2D41",
-          "border": "2px solid #AB62B7",
-          "height": "20px",
-          "borderRadius": "0px"
+    "toggles": {
+      "track": {
+        "height": "31px",
+        "width": "51px",
+        "borderRadius": "9999px",
+        "off": {
+          "background": "{palette.ui.interactiveSubtle.value}"
         },
-        "fill": {
-          "background": "#7B4783"
+        "on": {
+          "background": "{palette.accent.positive.value}"
         }
       },
-      "percentageGauge": {
-        "context": "Semantic gauges inside cards",
-        "container": {
-          "background": "Varies by semantic color (e.g., success.background)",
-          "border": "2px solid (Varies by semantic color, e.g., success.border)",
-          "borderRadius": "0px",
-          "padding": "4px 8px"
-        },
-        "text": {
-          "background": "(Varies by semantic color's gradient, e.g., success.gradient)",
-          "background-clip": "text",
-          "-webkit-background-clip": "text",
-          "color": "transparent",
-          "font-size": "1.2em"
-        }
+      "thumb": {
+        "size": "27px",
+        "background": "#FFFFFF",
+        "borderRadius": "50%",
+        "boxShadow": "{effects.shadows.thumb.value}",
+        "position": "inset 2px"
       }
     },
-    "icons": {
-      "decorative": {
-        "context": "Hero/branding icons as seen in the first image.",
-        "style": "pixel-art",
-        "fill": {
-          "type": "gradient",
-          "value": "One of the decorativeGradients"
-        },
-        "background": "none",
-        "border": "none"
+    "sliders": {
+      "track": {
+        "height": "8px",
+        "borderRadius": "4px",
+        "background": "{palette.ui.interactiveSubtle.value}"
       },
-      "ui": {
-        "context": "Icons used within UI components like buttons.",
-        "style": "pixel-art",
-        "fill": {
-          "type": "solid",
-          "value": "Inherits color from parent component (e.g., button.secondary.icon)"
-        },
-        "background": "none",
-        "border": "none"
+      "fill": {
+        "background": "{effects.gradients.sliderFill.value}"
+      },
+      "thumb": {
+        "size": "28px",
+        "background": "#FFFFFF",
+        "borderRadius": "50%",
+        "boxShadow": "{effects.shadows.thumb.value}"
+      }
+    },
+    "segmentedControls": {
+      "container": {
+        "background": "{palette.ui.interactiveSubtle.value}",
+        "borderRadius": "10px",
+        "padding": "2px"
+      },
+      "segment": {
+        "textColor": "{palette.text.secondary.value}",
+        "borderRadius": "8px"
+      },
+      "selected": {
+        "background": "{palette.ui.interactive.value}",
+        "textColor": "{palette.text.primary.value}",
+        "boxShadow": "{effects.shadows.pressed.value}"
+      }
+    },
+    "keyboard": {
+      "key": {
+        "background": "#6D6E73",
+        "textColor": "{palette.text.primary.value}",
+        "borderRadius": "6px",
+        "boxShadow": "0 1px 1px #222328",
+        "pressed": {
+          "background": "#48494D",
+          "boxShadow": "{effects.shadows.pressed.value}"
+        }
+      },
+      "specialKey": {
+        "background": "#48494D",
+        "textColor": "{palette.text.primary.value}"
       }
     }
   },
-  "rules": {
-    "doNot": [
-      "DO NOT use border-radius on any element. All corners must be sharp.",
-      "DO NOT apply shadows to any element. The design is flat.",
-      "DO NOT apply decorative gradients to UI icon fills. UI icons must be solid-colored.",
-      "DO NOT use card background colors on button backgrounds.",
-      "DO NOT use anti-aliasing on fonts or icons; a crisp, pixelated look is required."
+  "misapplicationRules": {
+    "title": "Style Application Constraints (DO NOT rules)",
+    "rules": [
+      "DO NOT apply panel shadows ('effects.shadows.panel') to small components like buttons or icons.",
+      "DO NOT apply gradients to button backgrounds or icon fills; gradients are reserved for specific uses like slider fills.",
+      "DO NOT use accent colors (primary, destructive) for large background areas; they are for interactive elements only.",
+      "DO NOT apply the panel border ('palette.ui.panelBorder') to any element other than the main card/panel containers.",
+      "DO NOT use secondary text color ('palette.text.secondary') for interactive elements like button labels; it's for non-interactive descriptions.",
+      "DO NOT place icons inside primary/secondary/destructive buttons. Those buttons use text labels only.",
+      "DO NOT use the pressed inner shadow effect ('effects.shadows.pressed') on default-state elements; it is exclusively for active/selected states."
     ]
   }
 }
