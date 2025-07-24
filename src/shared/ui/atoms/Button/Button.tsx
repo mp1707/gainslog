@@ -6,18 +6,23 @@ import { styles } from './Button.styles';
 export const Button: React.FC<ButtonProps> = ({
   onPress,
   disabled = false,
-  variant = 'primary',
+  shape = 'round',
+  color = 'primary',
   size = 'medium',
   children,
 }) => {
   const isLoading = children && React.isValidElement(children) && children.type === ActivityIndicator;
 
+  // Combine shape and size for style key
+  const shapeSize = `${shape}${size.charAt(0).toUpperCase() + size.slice(1)}`;
+
   return (
     <TouchableOpacity
       style={[
         styles.base,
-        styles[variant],
-        styles[size],
+        styles[shape],
+        styles[color],
+        styles[shapeSize],
         disabled && styles.disabled,
       ]}
       onPress={onPress}
@@ -27,7 +32,10 @@ export const Button: React.FC<ButtonProps> = ({
       {isLoading ? (
         children
       ) : (
-        <Text style={[styles.text, styles[`${variant}Text`], styles[`${size}Text`]]}>
+        <Text style={[
+          styles.text, 
+          styles[`${shapeSize}Text`]
+        ]}>
           {children}
         </Text>
       )}

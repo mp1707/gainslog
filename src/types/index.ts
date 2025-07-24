@@ -62,7 +62,8 @@ export interface FoodEstimateResponse {
 export interface ButtonProps {
   onPress: () => void;
   disabled?: boolean;
-  variant?: 'primary' | 'secondary' | 'danger';
+  shape?: 'round' | 'square';
+  color?: 'primary' | 'secondary' | 'tertiary';
   size?: 'small' | 'medium' | 'large';
   children: React.ReactNode;
 }

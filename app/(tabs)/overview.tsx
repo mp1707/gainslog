@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, typography, spacing } from '../../src/theme';
 
 export default function OverviewTab() {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Overview</Text>
       <Text style={styles.subtitle}>
         Coming soon: Your nutrition insights and trends will appear here.
@@ -24,7 +25,7 @@ export default function OverviewTab() {
         <Text style={styles.cardTitle}>Favorite Foods</Text>
         <Text style={styles.cardText}>See your most logged foods</Text>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -33,7 +34,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background.primary,
     padding: spacing.lg,
-    paddingTop: spacing.xl * 2,
   },
   title: {
     fontSize: typography.sizes.xl,

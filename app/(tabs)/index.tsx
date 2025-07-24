@@ -9,7 +9,6 @@ import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 export default function TodayTab() {
   // Global store for logs & trigger state
   const {
-    foodLogs,
     isLoadingLogs,
     deleteFoodLogById,
     triggerAction,

@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text } from 'react-native';
-import { TextInput } from '../../atoms/TextInput';
-import { styles } from './TargetInput.styles';
+import React from "react";
+import { View, Text } from "react-native";
+import { TextInput } from "../../atoms/TextInput";
+import { styles } from "./TargetInput.styles";
 
 interface TargetInputProps {
   label: string;
@@ -16,7 +16,7 @@ export function TargetInput({
   value,
   onChangeText,
   unit,
-  placeholder
+  placeholder,
 }: TargetInputProps) {
   return (
     <View style={styles.container}>

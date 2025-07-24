@@ -13,7 +13,8 @@ export const ManualEntryButton: React.FC<ManualEntryButtonProps> = ({ onPress })
     <View style={styles.button}>
       <Button
         onPress={onPress}
-        variant="secondary"
+        shape="round"
+        color="secondary"
         size="medium"
       >
         <FontAwesome name="pencil" size={24} color="white" />

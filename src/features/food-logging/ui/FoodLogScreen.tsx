@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
-import { SafeAreaView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { SwipeToDelete, SkeletonCard } from "@/shared/ui";

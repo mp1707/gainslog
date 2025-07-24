@@ -14,6 +14,11 @@ export const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    maxWidth: 200,
+  },
+  input: {
+    flex: 1,
+    minWidth: 80,
   },
   unit: {
     fontSize: 16,

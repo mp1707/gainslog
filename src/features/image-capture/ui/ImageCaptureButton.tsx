@@ -27,7 +27,8 @@ export const ImageCaptureButton: React.FC<ImageCaptureButtonProps> = ({
       <Button
         onPress={handleCapture}
         disabled={isUploading}
-        variant="primary"
+        shape="round"
+        color="primary"
         size="medium"
       >
         {isUploading ? (

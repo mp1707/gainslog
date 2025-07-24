@@ -5,14 +5,23 @@ export const styles = StyleSheet.create({
   base: {
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: spacing.radius.xl,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
   },
 
-  // Variants
+  // Shape styles
+  round: {
+    // Specific dimensions handled by size combinations
+  },
+
+  square: {
+    width: '100%',
+    borderRadius: spacing.radius.lg,
+  },
+
+  // Color styles
   primary: {
     backgroundColor: colors.brand.primary,
     shadowColor: colors.brand.primary,
@@ -23,28 +32,41 @@ export const styles = StyleSheet.create({
     shadowColor: colors.brand.secondary,
   },
 
-  danger: {
+  tertiary: {
     backgroundColor: colors.brand.danger,
     shadowColor: colors.brand.danger,
   },
 
-  // Sizes
-  small: {
+  // Round size combinations
+  roundSmall: {
     width: spacing.button.small.width,
     height: spacing.button.small.height,
     borderRadius: spacing.button.small.radius,
   },
 
-  medium: {
+  roundMedium: {
     width: spacing.button.medium.width,
     height: spacing.button.medium.height,
     borderRadius: spacing.button.medium.radius,
   },
 
-  large: {
+  roundLarge: {
     width: spacing.button.large.width,
     height: spacing.button.large.height,
     borderRadius: spacing.button.large.radius,
+  },
+
+  // Square size combinations
+  squareSmall: {
+    height: 40,
+  },
+
+  squareMedium: {
+    height: 48,
+  },
+
+  squareLarge: {
+    height: 56,
   },
 
   // States
@@ -59,33 +81,38 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  primaryText: {
-    color: colors.text.white,
-  },
-
-  secondaryText: {
-    color: colors.text.white,
-  },
-
-  dangerText: {
-    color: colors.text.white,
-  },
-
-  smallText: {
+  // Round text styles
+  roundSmallText: {
     fontSize: typography.sizes.lg,
     fontWeight: typography.weights.normal,
     lineHeight: spacing.button.small.height,
   },
 
-  mediumText: {
+  roundMediumText: {
     fontSize: typography.sizes['3xl'],
     fontWeight: typography.weights.light,
     lineHeight: spacing.button.medium.height,
   },
 
-  largeText: {
+  roundLargeText: {
     fontSize: typography.sizes['3xl'],
     fontWeight: typography.weights.normal,
     lineHeight: spacing.button.large.height,
+  },
+
+  // Square text styles
+  squareSmallText: {
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.semibold,
+  },
+
+  squareMediumText: {
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.semibold,
+  },
+
+  squareLargeText: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.semibold,
   },
 });
