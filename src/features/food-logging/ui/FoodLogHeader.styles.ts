@@ -1,91 +1,108 @@
 import { StyleSheet } from "react-native";
-import { colors, spacing } from "../../../theme";
+import { colors, spacing, typography, shadows } from "../../../theme";
 
 export const styles = StyleSheet.create({
+  // Date navigation
   dateNavigationContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: spacing.lg,
+    gap: spacing.layout.elementGap,
+    marginBottom: spacing.layout.componentGap,
   },
 
   navigationArrow: {
-    padding: spacing.sm,
-    borderRadius: 8,
-    backgroundColor: colors.background.primary,
+    padding: spacing.scale[2],
+    borderRadius: spacing.radii.md,
+    backgroundColor: colors.surface.primary,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border.light,
+    borderColor: colors.border.primary,
+    ...shadows.elevation[1],
   },
 
   navigationArrowDisabled: {
-    backgroundColor: colors.background.secondary,
-    borderColor: colors.border.light,
+    backgroundColor: colors.surface.depressed,
+    borderColor: colors.border.secondary,
     opacity: 0.5,
   },
 
   datePickerContainer: {
     flexShrink: 0,
-    marginLeft: -5,
   },
 
+  // Progress section
+  progressSection: {
+    marginBottom: spacing.layout.componentGap,
+  },
+
+  progressSectionTitle: {
+    ...typography.textStyles.title3,
+    color: colors.text.primary,
+    fontFamily: typography.fontFamilies.system,
+    marginBottom: spacing.layout.elementGap,
+  },
+
+  // Nutrition grid layout
   nutritionGrid: {
     flexDirection: "column",
-    gap: spacing.md,
+    gap: spacing.layout.elementGap,
     width: "100%",
   },
 
   nutritionRow: {
     flexDirection: "row",
-    alignItems: "center", // ensure vertical centering
-    gap: spacing.lg,
+    alignItems: "center",
+    gap: spacing.layout.elementGap,
   },
 
   nutritionItem: {
     flex: 1,
     alignItems: "center",
-    gap: 2,
+    gap: spacing.scale[1],
   },
 
   nutritionLabelContainer: {
     flexDirection: "row",
     alignSelf: "flex-start",
-    gap: spacing.xs,
+    gap: spacing.scale[1],
+    alignItems: "center",
   },
 
   nutritionLabel: {
-    width: 70, // fixed width so all bars line-up
-    fontSize: 14,
-    fontWeight: "600",
+    width: 70, // fixed width for alignment
+    ...typography.textStyles.callout,
     color: colors.text.primary,
+    fontFamily: typography.fontFamilies.system,
     textAlign: "right",
     textTransform: "capitalize",
   },
 
+  // Legacy progress bars
   progressBarContainer: {
     width: "100%",
     height: 4,
-    backgroundColor: colors.border.light,
-    borderRadius: 2,
+    backgroundColor: colors.surface.secondary,
+    borderRadius: spacing.radii.xs,
     overflow: "hidden",
   },
 
   progressBar: {
     height: "100%",
-    borderRadius: 6,
+    borderRadius: spacing.radii.sm,
     minWidth: 1,
   },
 
   nutritionValue: {
-    fontSize: 10,
-    fontWeight: "600",
+    ...typography.textStyles.footnote,
     color: colors.text.secondary,
+    fontFamily: typography.fontFamilies.system,
     textAlign: "center",
   },
 
-  // New list-based layout styles
+  // Enhanced progress bars
   nutritionList: {
     flexDirection: "column",
-    gap: spacing.md,
+    gap: spacing.layout.elementGap,
     width: "100%",
   },
 
@@ -95,27 +112,32 @@ export const styles = StyleSheet.create({
 
   progressBackground: {
     width: "100%",
-    height: 20, // increased height so stats fit inside the bar
-    backgroundColor: colors.border.light,
-    borderRadius: 6,
+    height: 24, // Increased for better touch targets
+    backgroundColor: colors.surface.secondary,
+    borderRadius: spacing.radii.sm,
     overflow: "hidden",
-    position: "relative", // allow absolute positioning of overlay text
+    position: "relative",
+    justifyContent: "center",
   },
 
-  // overlay text shown inside the progress bar background
   progressText: {
     position: "absolute",
-    right: spacing.sm,
-    top: "15%",
-    fontSize: 12,
-    fontWeight: "600",
+    right: spacing.scale[2],
+    ...typography.textStyles.subheadline,
     color: colors.text.primary,
+    fontFamily: typography.fontFamilies.system,
   },
 });
 
-// Helper function to get progress bar colors
+// Helper function to get progress bar colors using updated nutrition colors
 export const getProgressColor = (
   type: "protein" | "carbs" | "fat" | "calories"
 ) => {
-  return colors.nutrition[type];
+  const colorMap = {
+    protein: colors.nutrition.protein.primary,
+    carbs: colors.nutrition.carbohydrates.primary,
+    fat: colors.nutrition.fat.primary,
+    calories: colors.nutrition.calories.primary,
+  };
+  return colorMap[type];
 };

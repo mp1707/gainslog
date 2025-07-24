@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     backgroundColor: colors.background.secondary,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border.medium,
+    borderBottomColor: colors.border.primary,
   },
 
   content: {

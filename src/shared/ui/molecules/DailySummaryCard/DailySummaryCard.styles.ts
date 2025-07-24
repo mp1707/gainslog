@@ -8,11 +8,11 @@ export const styles = StyleSheet.create({
     padding: spacing.lg,
     marginBottom: spacing.md,
     borderWidth: 1,
-    borderColor: colors.border.light,
+    borderColor: colors.border.primary,
   },
   dateText: {
-    fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.bold,
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
     marginBottom: spacing.md,
   },
@@ -29,15 +29,15 @@ export const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   label: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.weights.medium,
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.medium,
   },
   value: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.weights.semibold,
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.semibold,
   },
-  metColor: {
-    color: colors.status.success,
+  metColor: { 
+    color: colors.functional.success.foreground,
   },
   notMetColor: {
     color: colors.text.secondary,

@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
   },
   pageSubtitle: {
-    fontSize: typography.sizes.base,
+    fontSize: typography.fontSizes.base,
     color: colors.text.secondary,
     lineHeight: typography.lineHeights.normal,
   },
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     padding: spacing.padding.card,
     marginBottom: spacing.md,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border.light,
+    borderColor: colors.border.primary,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -151,8 +151,8 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   nutritionHeadline: {
-    fontSize: typography.sizes.xl,
-    fontWeight: typography.weights.semibold,
+    fontSize: typography.fontSizes.xl,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.text.primary,
     marginBottom: spacing.lg,
     letterSpacing: typography.letterSpacing.normal,
@@ -164,13 +164,13 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   settingLabel: {
-    fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.medium,
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.medium,
     color: colors.text.primary,
     flex: 1,
   },
   loadingText: {
-    fontSize: typography.sizes.lg,
+    fontSize: typography.fontSizes.lg,
     color: colors.text.secondary,
   },
 });

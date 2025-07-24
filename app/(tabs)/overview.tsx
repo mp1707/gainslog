@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
   },
   emptyText: {
-    fontSize: typography.sizes.base,
+    fontSize: typography.fontSizes.base,
     color: colors.text.secondary,
     textAlign: 'center',
     marginTop: spacing.xl,

@@ -1,118 +1,151 @@
 import { StyleSheet } from 'react-native';
-import { colors, typography, spacing } from '@/theme';
+import { colors, typography, spacing, shadows, accessibility } from '@/theme';
 
 export const styles = StyleSheet.create({
+  // Base button styles
   base: {
     justifyContent: 'center',
     alignItems: 'center',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    ...shadows.presets.button,
+    // Accessibility
+    minHeight: accessibility.touchTargets.minimum,
   },
 
-  // Shape styles
-  round: {
-    // Specific dimensions handled by size combinations
-  },
-
-  square: {
-    width: '100%',
-    borderRadius: spacing.radius.lg,
-  },
-
-  // Color styles
+  // Variant styles - Primary
   primary: {
-    backgroundColor: colors.brand.primary,
-    shadowColor: colors.brand.primary,
+    backgroundColor: colors.interactive.primary.default,
+    shadowColor: colors.interactive.primary.default,
   },
 
+  primaryPressed: {
+    backgroundColor: colors.interactive.primary.pressed,
+  },
+
+  // Variant styles - Secondary
   secondary: {
-    backgroundColor: colors.brand.secondary,
-    shadowColor: colors.brand.secondary,
+    backgroundColor: colors.interactive.secondary.default,
+    shadowColor: colors.interactive.secondary.default,
   },
 
+  secondaryPressed: {
+    backgroundColor: colors.interactive.secondary.pressed,
+  },
+
+  // Variant styles - Tertiary (outline style)
   tertiary: {
-    backgroundColor: colors.brand.danger,
-    shadowColor: colors.brand.danger,
+    backgroundColor: colors.surface.primary,
+    borderWidth: 1,
+    borderColor: colors.border.primary,
+    ...shadows.elevation[0], // No shadow for tertiary
   },
 
-  // Round size combinations
+  tertiaryPressed: {
+    backgroundColor: colors.surface.secondary,
+  },
+
+  // Variant styles - Destructive
+  destructive: {
+    backgroundColor: colors.interactive.destructive.default,
+    shadowColor: colors.interactive.destructive.default,
+  },
+
+  destructivePressed: {
+    backgroundColor: colors.interactive.destructive.pressed,
+  },
+
+  // Shape styles - Round (circular buttons)
   roundSmall: {
     width: spacing.button.small.width,
     height: spacing.button.small.height,
-    borderRadius: spacing.button.small.radius,
+    borderRadius: spacing.radii.button.small,
   },
 
   roundMedium: {
     width: spacing.button.medium.width,
     height: spacing.button.medium.height,
-    borderRadius: spacing.button.medium.radius,
+    borderRadius: spacing.radii.button.medium,
   },
 
   roundLarge: {
     width: spacing.button.large.width,
     height: spacing.button.large.height,
-    borderRadius: spacing.button.large.radius,
+    borderRadius: spacing.radii.button.large,
   },
 
-  // Square size combinations
+  // Shape styles - Square (full-width buttons)
   squareSmall: {
+    width: '100%',
     height: 40,
+    paddingHorizontal: spacing.component.button.paddingHorizontal,
+    borderRadius: spacing.radii.button.square,
   },
 
   squareMedium: {
+    width: '100%',
     height: 48,
+    paddingHorizontal: spacing.component.button.paddingHorizontal,
+    borderRadius: spacing.radii.button.square,
   },
 
   squareLarge: {
+    width: '100%',
     height: 56,
+    paddingHorizontal: spacing.component.button.paddingHorizontal,
+    borderRadius: spacing.radii.button.square,
   },
 
-  // States
+  // Disabled state
   disabled: {
-    backgroundColor: colors.text.tertiary,
-    shadowColor: colors.text.tertiary,
+    backgroundColor: colors.interactive.primary.disabled,
+    shadowColor: colors.interactive.primary.disabled,
+    ...shadows.elevation[0], // Remove shadow when disabled
   },
 
-  // Text styles
+  // Text styles - Base
   text: {
-    color: colors.text.white,
+    color: colors.text.onColor,
     textAlign: 'center',
+    fontFamily: typography.fontFamilies.system,
   },
 
-  // Round text styles
+  // Text styles for tertiary variant
+  tertiaryText: {
+    color: colors.text.primary,
+  },
+
+  // Text styles for disabled state
+  disabledText: {
+    color: colors.text.quaternary,
+  },
+
+  // Round text styles (for icon-only buttons)
   roundSmallText: {
-    fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.normal,
+    ...typography.textStyles.footnote,
     lineHeight: spacing.button.small.height,
   },
 
   roundMediumText: {
-    fontSize: typography.sizes['3xl'],
-    fontWeight: typography.weights.light,
+    fontSize: typography.fontSizes['3xl'],
+    fontWeight: typography.fontWeights.light,
     lineHeight: spacing.button.medium.height,
   },
 
   roundLargeText: {
-    fontSize: typography.sizes['3xl'],
-    fontWeight: typography.weights.normal,
+    fontSize: typography.fontSizes['3xl'],
+    fontWeight: typography.fontWeights.regular,
     lineHeight: spacing.button.large.height,
   },
 
-  // Square text styles
+  // Square text styles (for text buttons)
   squareSmallText: {
-    fontSize: typography.sizes.base,
-    fontWeight: typography.weights.semibold,
+    ...typography.buttonTextStyles.small,
   },
 
   squareMediumText: {
-    fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.semibold,
+    ...typography.buttonTextStyles.medium,
   },
 
   squareLargeText: {
-    fontSize: typography.sizes.xl,
-    fontWeight: typography.weights.semibold,
+    ...typography.buttonTextStyles.large,
   },
 });

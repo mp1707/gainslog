@@ -33,42 +33,58 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
       
       <View style={styles.grid}>
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Calories</Text>
+          <Text style={[styles.label, styles.caloriesLabel]}>
+            Calories
+          </Text>
           <TextInput
             value={calories}
             onChangeText={onCaloriesChange}
             placeholder="0"
             keyboardType="numeric"
+            accessibilityLabel="Calories input"
+            accessibilityHint="Enter calories or leave empty for AI estimation"
           />
         </View>
         
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Protein (g)</Text>
+          <Text style={[styles.label, styles.proteinLabel]}>
+            Protein (g)
+          </Text>
           <TextInput
             value={protein}
             onChangeText={onProteinChange}
             placeholder="0"
             keyboardType="numeric"
+            accessibilityLabel="Protein input in grams"
+            accessibilityHint="Enter protein or leave empty for AI estimation"
           />
         </View>
         
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Carbs (g)</Text>
+          <Text style={[styles.label, styles.carbsLabel]}>
+            Carbs (g)
+          </Text>
           <TextInput
             value={carbs}
             onChangeText={onCarbsChange}
             placeholder="0"
             keyboardType="numeric"
+            accessibilityLabel="Carbohydrates input in grams"
+            accessibilityHint="Enter carbohydrates or leave empty for AI estimation"
           />
         </View>
         
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Fat (g)</Text>
+          <Text style={[styles.label, styles.fatLabel]}>
+            Fat (g)
+          </Text>
           <TextInput
             value={fat}
             onChangeText={onFatChange}
             placeholder="0"
             keyboardType="numeric"
+            accessibilityLabel="Fat input in grams"
+            accessibilityHint="Enter fat or leave empty for AI estimation"
           />
         </View>
       </View>

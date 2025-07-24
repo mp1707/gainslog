@@ -4,7 +4,9 @@ import * as Haptics from 'expo-haptics';
 import { Badge, MacroRow } from '@/shared/ui';
 import { FoodLog } from '../../../types';
 import { styles } from './FoodLogCard.styles';
+import { icons } from '../../../theme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+
 interface FoodLogCardProps {
   foodLog: FoodLog;
   onAddInfo: (log: FoodLog) => void;
@@ -23,6 +25,10 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
     <Pressable 
       style={styles.card} 
       onPress={handleCardPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Food log: ${foodLog.userTitle || foodLog.generatedTitle}`}
+      accessibilityHint="Tap to edit or add more information"
+      android_ripple={{ color: 'rgba(0, 122, 255, 0.1)' }}
     >
       <View style={styles.titleRow}>
         <View style={styles.titleContent}>
@@ -32,7 +38,16 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
               foodLog.estimationConfidence === 0 && styles.loadingTitle
             ]}
           >
-            {foodLog.imageUrl && <FontAwesome name="camera" size={16} color="black" />}{" "}{foodLog.userTitle || foodLog.generatedTitle}
+            {foodLog.imageUrl && (
+              <FontAwesome 
+                name={icons.semantic.actions.camera} 
+                size={icons.sizes.sm} 
+                color={styles.title.color}
+                style={styles.cameraIcon}
+              />
+            )}
+            {foodLog.imageUrl && " "}
+            {foodLog.userTitle || foodLog.generatedTitle}
           </Text>
           {foodLog.userDescription && (
             <Text style={styles.description}>

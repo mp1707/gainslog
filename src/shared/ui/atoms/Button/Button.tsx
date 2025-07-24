@@ -1,5 +1,5 @@
-import React from 'react';
-import { TouchableOpacity, Text, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, Text, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
 import { ButtonProps } from '@/types';
 import { styles } from './Button.styles';
 
@@ -7,38 +7,82 @@ export const Button: React.FC<ButtonProps> = ({
   onPress,
   disabled = false,
   shape = 'round',
-  color = 'primary',
+  variant = 'primary',
   size = 'medium',
   children,
+  style,
+  accessibilityLabel,
+  accessibilityHint,
 }) => {
+  const [isPressed, setIsPressed] = useState(false);
   const isLoading = children && React.isValidElement(children) && children.type === ActivityIndicator;
 
   // Combine shape and size for style key
   const shapeSize = `${shape}${size.charAt(0).toUpperCase() + size.slice(1)}`;
 
+  // Get base styles
+  const baseStyles: ViewStyle[] = [
+    styles.base,
+    styles[variant as keyof typeof styles] as ViewStyle,
+    styles[shapeSize as keyof typeof styles] as ViewStyle,
+  ];
+
+  // Add pressed state styles
+  if (isPressed && !disabled) {
+    const pressedStyleKey = `${variant}Pressed` as keyof typeof styles;
+    if (styles[pressedStyleKey]) {
+      baseStyles.push(styles[pressedStyleKey] as ViewStyle);
+    }
+  }
+
+  // Add disabled styles
+  if (disabled) {
+    baseStyles.push(styles.disabled);
+  }
+
+  // Add custom styles
+  if (style) {
+    baseStyles.push(style as ViewStyle);
+  }
+
+  // Get text styles
+  const textStyles: TextStyle[] = [styles.text];
+  
+  // Add variant-specific text styles
+  if (variant === 'tertiary') {
+    textStyles.push(styles.tertiaryText);
+  }
+  
+  // Add disabled text styles
+  if (disabled) {
+    textStyles.push(styles.disabledText);
+  }
+  
+  // Add size-specific text styles
+  const textStyleKey = `${shapeSize}Text` as keyof typeof styles;
+  if (styles[textStyleKey]) {
+    textStyles.push(styles[textStyleKey]);
+  }
+
   return (
-    <TouchableOpacity
-      style={[
-        styles.base,
-        styles[shape as keyof typeof styles],
-        styles[color as keyof typeof styles],
-        styles[shapeSize as keyof typeof styles],
-        disabled ? styles.disabled : undefined,
-      ]}
+    <Pressable
+      style={baseStyles}
       onPress={onPress}
+      onPressIn={() => setIsPressed(true)}
+      onPressOut={() => setIsPressed(false)}
       disabled={disabled}
-      activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || (typeof children === 'string' ? children : undefined)}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{ disabled }}
     >
       {isLoading ? (
         children
       ) : (
-        <Text style={[
-          styles.text, 
-          styles[`${shapeSize}Text` as keyof typeof styles]
-        ]}>
+        <Text style={textStyles}>
           {children}
         </Text>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 };

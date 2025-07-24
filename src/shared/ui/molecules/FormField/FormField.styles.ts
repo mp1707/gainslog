@@ -3,19 +3,19 @@ import { colors, typography, spacing } from '@/theme';
 
 export const styles = StyleSheet.create({
   container: {
-    marginBottom: spacing.margin.input,
+    marginBottom: 24,
   },
 
   label: {
-    fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.semibold,
+    fontSize: 16,
+    fontWeight: '600',
     color: colors.text.primary,
-    marginBottom: spacing.margin.small,
+    marginBottom: 4,
   },
 
   error: {
-    fontSize: typography.sizes.sm,
-    color: colors.status.error,
-    marginTop: spacing.margin.small,
+    fontSize: 12,
+    color: colors.functional?.error?.foreground || '#dc2626',
+    marginTop: 4,
   },
 });

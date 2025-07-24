@@ -1,10 +1,25 @@
-import { TextStyle } from 'react-native';
+import { TextStyle, Platform } from 'react-native';
 
 export const typography = {
-  // Font sizes
-  sizes: {
+  // Platform-specific font families
+  fontFamilies: {
+    system: Platform.select({
+      ios: 'San Francisco',
+      android: 'Roboto',
+      default: 'System',
+    }),
+    
+    monospace: Platform.select({
+      ios: 'SF Mono',
+      android: 'Roboto Mono',
+      default: 'monospace',
+    }),
+  },
+
+  // Font size scale based on iOS typography guidelines
+  fontSizes: {
     xs: 10,
-    sm: 12,
+    sm: 12, 
     base: 14,
     lg: 16,
     xl: 18,
@@ -12,32 +27,135 @@ export const typography = {
     '3xl': 28,
     '4xl': 32,
     '5xl': 34,
+    '6xl': 48,
   },
 
-  // Font weights
-  weights: {
+  // Font weight scale matching SF Pro weights
+  fontWeights: {
+    ultralight: '100' as TextStyle['fontWeight'],
+    thin: '200' as TextStyle['fontWeight'], 
     light: '300' as TextStyle['fontWeight'],
-    normal: '400' as TextStyle['fontWeight'],
+    regular: '400' as TextStyle['fontWeight'],
     medium: '500' as TextStyle['fontWeight'],
     semibold: '600' as TextStyle['fontWeight'],
     bold: '700' as TextStyle['fontWeight'],
+    heavy: '800' as TextStyle['fontWeight'],
+    black: '900' as TextStyle['fontWeight'],
   },
 
-  // Line heights
+  // Line height ratios for optimal readability
   lineHeights: {
-    tight: 18,
-    normal: 24,
-    relaxed: 28,
+    tight: 1.2,
+    snug: 1.3,
+    normal: 1.4, 
+    relaxed: 1.5,
+    loose: 1.6,
   },
 
-  // Letter spacing
+  // Letter spacing values for different text contexts
   letterSpacing: {
+    tighter: -0.8,
     tight: -0.5,
     normal: -0.2,
     wide: 0,
+    wider: 0.3,
   },
 
-  // Common text styles
+  // iOS-inspired text style definitions
+  textStyles: {
+    largeTitle: {
+      fontSize: 34,
+      fontWeight: '700' as TextStyle['fontWeight'],
+      lineHeight: 40,
+      letterSpacing: -0.5,
+    },
+    
+    title1: {
+      fontSize: 28,
+      fontWeight: '600' as TextStyle['fontWeight'], 
+      lineHeight: 34,
+      letterSpacing: -0.4,
+    },
+    
+    title2: {
+      fontSize: 24,
+      fontWeight: '600' as TextStyle['fontWeight'],
+      lineHeight: 30,
+      letterSpacing: -0.3,
+    },
+    
+    title3: {
+      fontSize: 18,
+      fontWeight: '600' as TextStyle['fontWeight'], 
+      lineHeight: 24,
+      letterSpacing: -0.2,
+    },
+    
+    headline: {
+      fontSize: 16,
+      fontWeight: '600' as TextStyle['fontWeight'],
+      lineHeight: 22,
+      letterSpacing: -0.1,
+    },
+    
+    body: {
+      fontSize: 14,
+      fontWeight: '400' as TextStyle['fontWeight'],
+      lineHeight: 18,
+      letterSpacing: -0.1,
+    },
+    
+    callout: {
+      fontSize: 14,
+      fontWeight: '500' as TextStyle['fontWeight'], 
+      lineHeight: 18,
+      letterSpacing: -0.1,
+    },
+    
+    subheadline: {
+      fontSize: 12,
+      fontWeight: '500' as TextStyle['fontWeight'],
+      lineHeight: 16,
+      letterSpacing: 0,
+    },
+    
+    footnote: {
+      fontSize: 10,
+      fontWeight: '400' as TextStyle['fontWeight'],
+      lineHeight: 14, 
+      letterSpacing: 0,
+    },
+    
+    caption: {
+      fontSize: 10,
+      fontWeight: '500' as TextStyle['fontWeight'],
+      lineHeight: 12,
+      letterSpacing: 0.2,
+    }
+  },
+
+  // Button-specific text styles
+  buttonTextStyles: {
+    large: {
+      fontSize: 16,
+      fontWeight: '600' as TextStyle['fontWeight'],
+      lineHeight: 24,
+    },
+    
+    medium: {
+      fontSize: 14,
+      fontWeight: '600' as TextStyle['fontWeight'], 
+      lineHeight: 20,
+    },
+    
+    small: {
+      fontSize: 12,
+      fontWeight: '500' as TextStyle['fontWeight'],
+      lineHeight: 16,
+    }
+  },
+
+  // Legacy styles for backward compatibility
   styles: {
     title: {
       fontSize: 34,
@@ -95,7 +213,11 @@ export const typography = {
     recordingTimer: {
       fontSize: 32,
       fontWeight: '300' as TextStyle['fontWeight'],
-      fontFamily: 'monospace',
+      fontFamily: Platform.select({
+        ios: 'SF Mono',
+        android: 'Roboto Mono',
+        default: 'monospace',
+      }),
     },
   },
 } as const;

@@ -9,22 +9,34 @@ interface MacroRowProps {
 
 export const MacroRow: React.FC<MacroRowProps> = ({ foodLog }) => {
   return (
-    <View style={styles.container}>
+    <View 
+      style={styles.container}
+      accessibilityRole="text"
+      accessibilityLabel={`Nutrition: ${foodLog.protein}g protein, ${foodLog.carbs}g carbs, ${foodLog.fat}g fat, ${foodLog.calories} calories`}
+    >
       <View style={styles.macroItem}>
         <Text style={styles.label}>P:</Text>
-        <Text style={styles.value}>{foodLog.protein}</Text>
+        <Text style={[styles.value, styles.proteinValue]}>
+          {foodLog.protein}g
+        </Text>
       </View>
       <View style={styles.macroItem}>
         <Text style={styles.label}>C:</Text>
-        <Text style={styles.value}>{foodLog.carbs}</Text>
+        <Text style={[styles.value, styles.carbsValue]}>
+          {foodLog.carbs}g
+        </Text>
       </View>
       <View style={styles.macroItem}>
         <Text style={styles.label}>F:</Text>
-        <Text style={styles.value}>{foodLog.fat}</Text>
+        <Text style={[styles.value, styles.fatValue]}>
+          {foodLog.fat}g
+        </Text>
       </View>
       <View style={styles.macroItem}>
         <Text style={styles.label}>Cal:</Text>
-        <Text style={styles.value}>{foodLog.calories}</Text>
+        <Text style={[styles.value, styles.caloriesValue]}>
+          {foodLog.calories}
+        </Text>
       </View>
     </View>
   );

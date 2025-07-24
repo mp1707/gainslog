@@ -14,7 +14,7 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: colors.background.secondary,
     borderWidth: 1,
-    borderColor: colors.border.light,
+    borderColor: colors.border.primary,
   },
   disabledButton: {
     opacity: 0.4,
@@ -26,8 +26,8 @@ export const styles = StyleSheet.create({
     color: colors.text.secondary,
   },
   monthText: {
-    fontSize: typography.sizes.lg,
-    fontWeight: typography.weights.semibold,
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.text.primary,
     marginHorizontal: spacing.xl,
     textAlign: 'center',

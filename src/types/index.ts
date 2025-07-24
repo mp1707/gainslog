@@ -63,9 +63,12 @@ export interface ButtonProps {
   onPress: () => void;
   disabled?: boolean;
   shape?: 'round' | 'square';
-  color?: 'primary' | 'secondary' | 'tertiary';
+  variant?: 'primary' | 'secondary' | 'tertiary' | 'destructive';
   size?: 'small' | 'medium' | 'large';
   children: React.ReactNode;
+  style?: any; // ViewStyle but avoiding import
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
 export interface TextInputProps {
@@ -75,6 +78,13 @@ export interface TextInputProps {
   multiline?: boolean;
   keyboardType?: 'default' | 'numeric';
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  error?: boolean;
+  disabled?: boolean;
+  style?: any; // ViewStyle but avoiding import
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+  onFocus?: (e: any) => void;
+  onBlur?: (e: any) => void;
 }
 
 export interface ConfidenceBadgeProps {
