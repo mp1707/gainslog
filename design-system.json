@@ -1,164 +1,192 @@
 {
-    "designSystemName": "RetroPixel Dark",
-    "description": "A dark-themed design system inspired by classic 8-bit and pixel art user interfaces. It features a dark background, pixelated textures, sharp edges, and vibrant gradients for key interactive elements.",
-    "globalStyles": {
-      "palette": {
-        "background": {
-          "primary": "#181818",
-          "container": "#2B2B2B"
-        },
-        "text": {
-          "primary": "#E0E0E0",
-          "secondary": "#999999"
-        },
-        "border": {
-          "primary": "#999999",
-          "secondary": "#444444"
-        },
-        "gradients": {
-          "primary_warm": "linear-gradient(135deg, #FADE28 0%, #F28D38 50%, #E7562F 100%)",
-          "secondary_cool": "linear-gradient(135deg, #A24CF1 0%, #5B86F9 100%)",
-          "accent_vibrant": "linear-gradient(135deg, #7CF64A 0%, #4FF8D8 100%)"
-        },
-        "utility": {
-          "disabled_fill": "#4D4D4D",
-          "disabled_text": "#707070"
-        }
+  "designSystemName": "RetroPixel",
+  "description": "A design system based on a retro, pixel-art aesthetic with sharp corners, pixel fonts, and a dark theme. It utilizes gradients for highlights and specific color-coded states.",
+  "colorPalette": {
+    "background": {
+      "primary": "#1D1C1C",
+      "component": "#2A2A2A"
+    },
+    "text": {
+      "primary": "#D8D8D8",
+      "accent": "#E5B000"
+    },
+    "border": {
+      "primary": "#414141",
+      "secondary": "#606060"
+    },
+    "accent": {
+      "primary": "#E5B000"
+    },
+    "semantic": {
+      "info": {
+        "border": "#00A7A7",
+        "background": "#3C4A4A",
+        "gradient": "linear-gradient(45deg, #00A7A7 0%, #006868 100%)"
       },
-      "typography": {
-        "fontFamily": "'Silkscreen', 'PixelOperator', 'monospace'",
-        "baseSize": "16px",
-        "rendering": {
-          "font-smoothing": "none",
-          "-webkit-font-smoothing": "none",
-          "text-rendering": "optimizeSpeed"
-        },
-        "headings": {
-          "color": "#E0E0E0"
-        },
-        "body": {
-          "color": "#E0E0E0"
-        },
-        "labels": {
-          "color": "#999999"
-        }
+      "success": {
+        "border": "#74A700",
+        "background": "#3C4A3C",
+        "gradient": "linear-gradient(45deg, #74A700 0%, #486800 100%)"
       },
-      "effects": {
+      "warning": {
+        "border": "#E5B000",
+        "background": "#4A3C4B",
+        "gradient": "linear-gradient(45deg, #E5B000 0%, #7F6000 100%)"
+      }
+    },
+    "decorativeGradients": {
+      "yellowGreen": "linear-gradient(135deg, #C6EF3E 0%, #79D45E 100%)",
+      "orangeRed": "linear-gradient(135deg, #F89B2B 0%, #E65A5A 100%)",
+      "bluePurple": "linear-gradient(135deg, #3F88C5 0%, #A77AC7 100%)",
+      "lightBluePurple": "linear-gradient(135deg, #5BC0EB 0%, #C792EA 100%)"
+    },
+    "progressBar": {
+      "background": "#3D2D41",
+      "fill": "#7B4783",
+      "border": "#AB62B7"
+    }
+  },
+  "typography": {
+    "fontFamily": "'PixelFont', 'Press Start 2P', monospace",
+    "baseSize": "16px",
+    "styles": {
+      "cardTitle": {
+        "font-size": "1em",
+        "font-weight": "normal",
+        "text-transform": "uppercase",
+        "color": "#D8D8D8"
+      },
+      "cardDetail": {
+        "font-size": "0.9em",
+        "font-weight": "normal",
+        "text-transform": "uppercase",
+        "color": "#D8D8D8"
+      },
+      "buttonText": {
+        "font-size": "1em",
+        "font-weight": "normal",
+        "text-transform": "uppercase",
+        "color": "#E5B000"
+      }
+    }
+  },
+  "elementStyling": {
+    "page": {
+      "background": {
+        "type": "solid",
+        "color": "#1D1C1C",
+        "description": "Main background for all screens."
+      }
+    },
+    "cards": {
+      "container": {
+        "background": "#2A2A2A",
+        "border": "2px solid #414141",
         "borderRadius": "0px",
         "shadow": "none",
-        "texture": {
-          "containerFill": "repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(0,0,0,0.3) 3px, rgba(0,0,0,0.3) 4px)",
-          "sliderFill": "repeating-linear-gradient(0deg, #E0E0E0, #E0E0E0 1px, transparent 1px, transparent 2px), repeating-linear-gradient(90deg, #E0E0E0, #E0E0E0 1px, transparent 1px, transparent 2px)"
-        }
+        "padding": "16px"
+      },
+      "title": {
+        "style": "cardTitle",
+        "color": "#D8D8D8"
+      },
+      "content": {
+        "style": "cardDetail",
+        "color": "#D8D8D8"
       }
     },
-    "elementStyling": {
-      "containers": {
+    "buttons": {
+      "primary": {
+        "context": "Main call-to-action, e.g., 'Food Log'",
         "default": {
-          "background-color": "#2B2B2B",
-          "background-image": "var(--effects-texture-containerFill)",
-          "border": "1px solid #999999",
-          "padding": "8px"
+          "background": "#2A2A2A",
+          "border": "2px solid #E5B000",
+          "text": "#E5B000",
+          "icon": "#E5B000",
+          "borderRadius": "0px"
         },
-        "nested": {
-          "background-color": "#181818",
-          "border": "1px solid #444444"
+        "hover": {
+          "background": "#E5B000",
+          "border": "2px solid #E5B000",
+          "text": "#2A2A2A",
+          "icon": "#2A2A2A"
         }
       },
-      "buttons": {
-        "context": "Interactive elements for primary and secondary actions.",
-        "primary": {
-          "background": "transparent",
-          "border": "1px solid #999999",
-          "text_color": "#E0E0E0",
-          "icon_fill_gradient": "var(--palette-gradients-primary_warm)",
-          "hover": {
-            "background": "#333333",
-            "border_color": "#E0E0E0"
-          },
-          "active": {
-            "background": "#181818",
-            "border_style": "inset"
-          }
+      "secondary": {
+        "context": "Icon-only buttons, e.g., 'Settings', 'History'",
+        "default": {
+          "background": "#2A2A2A",
+          "border": "2px solid #606060",
+          "icon": "#606060",
+          "borderRadius": "0px"
         },
-        "secondary": {
-          "background": "transparent",
-          "border": "1px solid #444444",
-          "text_color": "#999999",
-          "icon_fill_color": "#999999",
-          "hover": {
-            "background": "#2B2B2B",
-            "border_color": "#999999",
-            "text_color": "#E0E0E0",
-            "icon_fill_color": "#E0E0E0"
-          },
-          "active": {
-            "background": "#181818",
-            "border_style": "inset"
-          }
-        },
-        "disabled": {
-          "background": "#2B2B2B",
-          "border": "1px solid #4D4D4D",
-          "text_color": "#707070",
-          "icon_fill_color": "#4D4D4D"
-        }
-      },
-      "icons": {
-        "context": "Pixel art icons. Color indicates function: gradients for featured/interactive, solid for standard.",
-        "featured": {
-          "fill": "var(--palette-gradients-primary_warm)",
-          "background": "none"
-        },
-        "standard": {
-          "fill": "#E0E0E0",
-          "background": "none"
-        },
-        "secondary": {
-          "fill": "#999999",
-          "background": "none"
-        },
-        "disabled": {
-          "fill": "#4D4D4D",
-          "background": "none"
-        }
-      },
-      "inputs": {
-        "slider": {
-          "track": {
-            "background-color": "#2B2B2B",
-            "background-image": "var(--effects-texture-containerFill)",
-            "border": "1px solid #999999"
-          },
-          "fill": {
-            "background-color": "#444444",
-            "background-image": "var(--effects-texture-sliderFill)"
-          },
-          "thumb": {
-            "background-color": "#999999",
-            "border": "1px solid #E0E0E0"
-          }
-        },
-        "textInput": {
-          "background": "#181818",
-          "border": "1px solid #999999",
-          "text_color": "#E0E0E0",
-          "placeholder_color": "#707070",
-          "focus": {
-            "border_color": "#E0E0E0",
-            "outline": "none"
-          }
+        "hover": {
+          "background": "#606060",
+          "border": "2px solid #606060",
+          "icon": "#2A2A2A"
         }
       }
     },
-    "rules": {
-      "doNot": [
-        "DO NOT apply rounded corners to any element. All corners must be sharp (0px radius).",
-        "DO NOT use traditional box-shadows. Depth is created with borders and layering.",
-        "DO NOT apply gradients to container backgrounds, text, or secondary elements. Gradients are reserved for primary/featured icon fills.",
-        "DO NOT use anti-aliasing on fonts or pixel art icons. Maintain crisp, aliased edges.",
-        "DO NOT apply smooth transitions or animations on hover/active states. State changes should be instant.",
-        "DO NOT use colors outside the defined palette to ensure consistency."
-      ]
+    "gauges": {
+      "progressBar": {
+        "context": "Global status bars, e.g., daily calorie total",
+        "container": {
+          "background": "#3D2D41",
+          "border": "2px solid #AB62B7",
+          "height": "20px",
+          "borderRadius": "0px"
+        },
+        "fill": {
+          "background": "#7B4783"
+        }
+      },
+      "percentageGauge": {
+        "context": "Semantic gauges inside cards",
+        "container": {
+          "background": "Varies by semantic color (e.g., success.background)",
+          "border": "2px solid (Varies by semantic color, e.g., success.border)",
+          "borderRadius": "0px",
+          "padding": "4px 8px"
+        },
+        "text": {
+          "background": "(Varies by semantic color's gradient, e.g., success.gradient)",
+          "background-clip": "text",
+          "-webkit-background-clip": "text",
+          "color": "transparent",
+          "font-size": "1.2em"
+        }
+      }
+    },
+    "icons": {
+      "decorative": {
+        "context": "Hero/branding icons as seen in the first image.",
+        "style": "pixel-art",
+        "fill": {
+          "type": "gradient",
+          "value": "One of the decorativeGradients"
+        },
+        "background": "none",
+        "border": "none"
+      },
+      "ui": {
+        "context": "Icons used within UI components like buttons.",
+        "style": "pixel-art",
+        "fill": {
+          "type": "solid",
+          "value": "Inherits color from parent component (e.g., button.secondary.icon)"
+        },
+        "background": "none",
+        "border": "none"
+      }
     }
+  },
+  "rules": {
+    "doNot": [
+      "DO NOT use border-radius on any element. All corners must be sharp.",
+      "DO NOT apply shadows to any element. The design is flat.",
+      "DO NOT apply decorative gradients to UI icon fills. UI icons must be solid-colored.",
+      "DO NOT use card background colors on button backgrounds.",
+      "DO NOT use anti-aliasing on fonts or icons; a crisp, pixelated look is required."
+    ]
   }
+}
