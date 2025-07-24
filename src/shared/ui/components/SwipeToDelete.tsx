@@ -23,7 +23,7 @@ interface SwipeToDeleteProps {
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const DELETE_THRESHOLD = SCREEN_WIDTH * 0.3; // 30% of screen width
 const DELETE_COMPLETE_THRESHOLD = SCREEN_WIDTH * 0.7; // 70% of screen width
-const DELETE_BUTTON_WIDTH = 80;
+const DELETE_BUTTON_WIDTH = 60;
 
 // Threshold for determining if gesture is horizontal vs vertical
 const DIRECTION_THRESHOLD = 30;
@@ -167,19 +167,7 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
       Extrapolate.CLAMP
     );
 
-    // Dynamic width that grows as user swipes
-    const width = interpolate(
-      Math.abs(translateX.value),
-      [
-        0,
-        20,
-        DELETE_THRESHOLD / 2,
-        DELETE_THRESHOLD,
-        DELETE_COMPLETE_THRESHOLD,
-      ],
-      [0, 40, 70, DELETE_BUTTON_WIDTH, DELETE_BUTTON_WIDTH + 30],
-      Extrapolate.CLAMP
-    );
+    const width = Math.max(Math.abs(translateX.value * 1.1), DELETE_BUTTON_WIDTH + 20);
 
     return {
       opacity: buttonOpacity,
@@ -212,16 +200,6 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
       ]}
     >
       <View style={{ position: "relative" }}>
-        <View
-          style={{
-            position: "absolute",
-            left: "20%",
-            top: 0,
-            bottom: 0,
-            right: "10%",
-            backgroundColor: "#FF3B30",
-          }}
-        />
         {/* Delete Button Background */}
         <Animated.View
           style={[
@@ -237,7 +215,7 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
             deleteButtonContainerStyle,
           ]}
         >
-          <Pressable onPress={handleDelete} style={{ padding: 10 }}>
+          <Pressable onPress={handleDelete} style={{ padding: 5 }}>
             <Animated.View style={deleteButtonStyle}>
               <Text
                 style={{

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Badge, MacroRow } from '@/shared/ui';
 import { FoodLog } from '../../../types';
@@ -20,10 +20,9 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
   };
 
   return (
-    <TouchableOpacity 
+    <Pressable 
       style={styles.card} 
       onPress={handleCardPress}
-      activeOpacity={0.6}
     >
       <View style={styles.titleRow}>
         <View style={styles.titleContent}>
@@ -49,6 +48,6 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
         </View>
       </View>
       <MacroRow foodLog={foodLog} />
-    </TouchableOpacity>
+    </Pressable>
   );
 };
