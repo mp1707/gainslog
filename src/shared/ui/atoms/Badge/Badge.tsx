@@ -25,19 +25,19 @@ export const Badge: React.FC<ConfidenceBadgeProps> = ({
     if (confidence >= 80) return { 
       style: styles.high, 
       textStyle: styles.highText, 
-      label: 'High Confidence',
+      label: 'High Accuracy',
       range: '80-100%'
     };
     if (confidence >= 60) return { 
       style: styles.good, 
       textStyle: styles.goodText, 
-      label: 'Good',
+      label: 'Medium Accuracy',
       range: '60-79%'
     };
     if (confidence >= 40) return { 
       style: styles.partial, 
       textStyle: styles.partialText, 
-      label: 'Partial',
+      label: 'Low Accuracy',
       range: '40-59%'
     };
     return { 
