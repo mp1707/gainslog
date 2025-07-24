@@ -61,6 +61,14 @@ export const colors = {
 
   // Macro display colors
   macro: '#059669',
+
+  // Nutrition progress bar colors
+  nutrition: {
+    protein: '#16a34a',    // Green
+    carbs: '#007AFF',      // Blue
+    fat: '#d97706',        // Orange
+    calories: '#9333ea',   // Purple
+  },
 } as const;
 
 export type Colors = typeof colors;
