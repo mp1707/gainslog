@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { Badge, MacroRow } from '@/shared/ui';
 import { FoodLog } from '../../../types';
 import { styles } from './FoodLogCard.styles';
@@ -13,8 +14,17 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
   foodLog,
   onAddInfo,
 }) => {
+  const handleCardPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onAddInfo(foodLog);
+  };
+
   return (
-    <View style={styles.card}>
+    <TouchableOpacity 
+      style={styles.card} 
+      onPress={handleCardPress}
+      activeOpacity={0.6}
+    >
       <View style={styles.titleRow}>
         <View style={styles.titleContent}>
           <Text 
@@ -36,15 +46,9 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
             confidence={foodLog.estimationConfidence} 
             isLoading={foodLog.estimationConfidence === 0} 
           />
-          <TouchableOpacity
-            style={styles.addInfoButton}
-            onPress={() => onAddInfo(foodLog)}
-          >
-            <Text style={styles.addInfoButtonText}>Add Info</Text>
-          </TouchableOpacity>
         </View>
       </View>
       <MacroRow foodLog={foodLog} />
-    </View>
+    </TouchableOpacity>
   );
 };

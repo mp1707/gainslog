@@ -52,18 +52,4 @@ export const styles = StyleSheet.create({
     gap: spacing.sm,
   },
 
-  addInfoButton: {
-    backgroundColor: colors.border.light,
-    paddingHorizontal: spacing.padding.small,
-    paddingVertical: spacing.xs,
-    borderRadius: spacing.radius.sm,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border.medium,
-  },
-
-  addInfoButtonText: {
-    fontSize: typography.sizes.sm,
-    fontWeight: typography.weights.medium,
-    color: colors.text.secondary,
-  },
 });
