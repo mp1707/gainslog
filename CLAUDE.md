@@ -32,6 +32,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Remember**: This documentation is consumed as context tokens. Keep it focused on essential information that helps understand and work with the codebase effectively.
 
+## Development Philosophy
+
+### Expo and React Native Best Practices
+
+- **Simplicity First**: Always choose the easiest to understand solution that creates less complexity
+- **Native Solutions**: Prefer Expo SDK modules over third-party libraries when available
+- **Platform-Aware**: Write code that works across iOS, Android, and web when possible
+- **Performance-Focused**: Consider mobile device limitations (memory, CPU, battery)
+- **Clean Code**: Always delete unused code after refactoring - no dead code allowed
+- **Expo-Centric**: Leverage Expo's managed workflow and development tools
+
+### Core Principles
+
+1. **KISS (Keep It Simple, Stupid)**: Avoid over-engineering solutions
+2. **Clean Refactoring**: Remove unused imports, components, and functions immediately
+3. **Mobile-First**: Design for mobile constraints and capabilities
+4. **Expo Integration**: Use Expo tools and services when they provide value
+5. **Readable Code**: Write code that any developer can understand quickly
+
 ## Detailed Implementation Guide
 
 For comprehensive refactoring guidelines, component creation patterns, and step-by-step implementation protocols, see **`refactoring/CLAUDE.md`**. This detailed guide contains:
@@ -55,6 +74,27 @@ npm run android    # Android emulator
 npm run ios        # iOS simulator
 npm run web        # Web browser
 ```
+
+### Expo Development Workflow
+
+#### Debugging and Testing
+- **Expo DevTools**: Access via `d` in terminal or `expo:// URLs` for remote debugging
+- **React Native Debugger**: Use standalone app for advanced debugging
+- **Flipper Integration**: Connect Flipper for network inspection and performance monitoring
+- **Expo Go Testing**: Test on physical devices instantly with QR code scanning
+- **Development Builds**: Create custom development builds for testing native modules
+
+#### Platform-Specific Development
+```bash
+# Create platform-specific code when needed
+# ios/android folders for native customization
+# Use Platform.select() for runtime platform detection
+```
+
+#### Performance Monitoring
+- **Bundle Analysis**: `npx expo bundle --platform ios --dev false --minify false`
+- **Memory Profiling**: Use Expo DevTools performance tab
+- **Network Monitoring**: Enable network inspector in development builds
 
 Note: No linting or testing commands are configured. TypeScript compilation is handled by Expo with strict mode enabled.
 
@@ -100,6 +140,50 @@ The codebase follows a modern hybrid approach combining:
 6. **Global vs Local**: Distinguish between truly global resources (`src/shared/`, `src/theme/`) and feature-specific code
 7. **Co-location**: Keep implementation and styles together within feature directories for better context
 8. **Cohesion over DRY**: Prefer clarity and context over avoiding minimal duplication
+
+### Mobile-Specific Patterns
+
+#### Expo SDK Integration
+- **Expo Modules**: Always check if Expo provides a module before adding third-party dependencies
+- **Expo Constants**: Use `expo-constants` for environment variables and device info
+- **Expo Updates**: Leverage OTA updates for non-native code changes
+- **Expo Dev Tools**: Use Expo Go, development builds, and debugging tools
+
+#### React Native Best Practices
+- **Platform Detection**: Use `Platform.OS` for platform-specific logic
+- **Safe Area**: Always handle safe areas with `react-native-safe-area-context`
+- **Performance**: Use `FlatList` for large lists, avoid unnecessary re-renders
+- **Memory Management**: Properly clean up listeners, timers, and subscriptions
+- **Navigation**: Use React Navigation for screen management and deep linking
+
+#### Component Patterns
+```typescript
+// ✅ Good - Expo/React Native component structure
+import { StyleSheet, Platform } from 'react-native';
+import { View, Text } from 'react-native';
+
+export function MyComponent({ data }: MyComponentProps) {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>{data.title}</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+    ...Platform.select({
+      ios: { shadowOffset: { width: 0, height: 2 } },
+      android: { elevation: 4 },
+    }),
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+});
+```
 
 ### Repository Structure
 
@@ -362,6 +446,108 @@ The application uses an intelligent hybrid system that combines user input with 
 - **Icons**: Use @expo/vector-icons/FontAwesome for Icons
 - **Animation**: Use react-native-reanimated for Animations
 
+### React Native Technical Standards
+
+#### Component Guidelines
+```typescript
+// ✅ Good - React Native component standards
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
+
+interface ButtonProps {
+  title: string;
+  onPress: () => void;
+  disabled?: boolean;
+  variant?: 'primary' | 'secondary';
+}
+
+export function Button({ title, onPress, disabled = false, variant = 'primary' }: ButtonProps) {
+  return (
+    <TouchableOpacity
+      style={[styles.button, styles[variant], disabled && styles.disabled]}
+      onPress={onPress}
+      disabled={disabled}
+      activeOpacity={0.7}
+    >
+      <Text style={[styles.text, styles[`${variant}Text`]]}>{title}</Text>
+    </TouchableOpacity>
+  );
+}
+
+const styles = StyleSheet.create({
+  button: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primary: {
+    backgroundColor: '#007AFF',
+  },
+  secondary: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#007AFF',
+  },
+  disabled: {
+    opacity: 0.5,
+  },
+  text: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  primaryText: {
+    color: 'white',
+  },
+  secondaryText: {
+    color: '#007AFF',
+  },
+});
+```
+
+#### Accessibility Standards (WCAG 2.2 AA for Mobile)
+- **Accessibility Labels**: Always provide `accessibilityLabel` for interactive elements
+- **Accessibility Roles**: Use appropriate `accessibilityRole` (button, text, etc.)
+- **Minimum Touch Targets**: Ensure touch targets are at least 44x44 points
+- **Color Contrast**: Maintain 4.5:1 contrast ratio for text
+- **Screen Reader Support**: Test with VoiceOver (iOS) and TalkBack (Android)
+
+```typescript
+// ✅ Good - Accessible component
+<TouchableOpacity
+  style={styles.button}
+  onPress={handlePress}
+  accessibilityRole="button"
+  accessibilityLabel="Add food item to your log"
+  accessibilityHint="Opens the food logging form"
+>
+  <Text style={styles.buttonText}>Add Food</Text>
+</TouchableOpacity>
+```
+
+#### Form and Input Standards
+- **Keyboard Types**: Use appropriate `keyboardType` for inputs
+- **Auto-complete**: Implement `textContentType` for better UX
+- **Validation**: Show real-time validation feedback
+- **Focus Management**: Handle keyboard and focus states properly
+
+```typescript
+// ✅ Good - Accessible form input
+<TextInput
+  style={styles.input}
+  value={value}
+  onChangeText={setValue}
+  placeholder="Enter food name"
+  keyboardType="default"
+  textContentType="none"
+  autoCapitalize="words"
+  accessibilityLabel="Food name input"
+  accessibilityHint="Enter the name of the food you want to log"
+/>
+```
+
 ## Image Processing Pipeline
 
 1. **Source Selection**: Camera capture or photo library selection
@@ -444,11 +630,29 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 
 ### Performance Considerations
 
+#### General Performance
 - **Zustand performance**: Minimal re-renders with granular state selection and no context propagation
 - **Unified state management**: Single store reduces complexity and improves debugging
 - **Modular loading**: Feature-based architecture enables code splitting and lazy loading
 - **Atomic composition**: Reusable components reduce bundle duplication
 - **Context window efficiency**: Small files (≤200 lines) improve development performance with AI tools
+
+#### Mobile-Specific Optimizations
+- **Memory Management**: Always clean up event listeners, timers, and subscriptions in `useEffect` cleanup
+- **List Performance**: Use `FlatList` with `getItemLayout` for large datasets, implement `keyExtractor`
+- **Image Optimization**: Compress images before storage, use appropriate resizeMode
+- **Bundle Size**: Monitor bundle size with Expo CLI, avoid large dependencies
+- **Platform Optimization**: Use `Platform.select()` to load platform-specific code only when needed
+- **Async Operations**: Use proper loading states and error boundaries for network calls
+- **Navigation Performance**: Implement lazy loading for screens not immediately needed
+
+#### Development Performance
+- **Fast Refresh**: Structure components to work well with React Native's Fast Refresh
+- **Expo Dev Tools**: Use Expo DevTools for debugging and performance monitoring
+- **TypeScript**: Strict typing prevents runtime errors and improves development speed
+- **ESLint/Prettier**: Consistent code formatting reduces cognitive load
+
+#### App Performance
 - **Image compression**: Automatic optimization for mobile networks
 - **Optimistic updates**: Immediate UI feedback with skeleton states
 - **Local storage**: Fast data access without network dependency

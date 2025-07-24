@@ -60,6 +60,7 @@ interface FoodLogStore {
   // Nutrition targets actions
   loadDailyTargets: () => Promise<void>;
   updateDailyTargets: (targets: DailyTargets) => Promise<void>;
+  updateDailyTargetsDebounced: (targets: DailyTargets) => void;
   
   // Progress calculations
   getDailyProgress: () => DailyProgress;
@@ -89,6 +90,10 @@ const getCurrentMonthString = (): string => {
   const month = String(today.getMonth() + 1).padStart(2, '0');
   return `${year}-${month}`;
 };
+
+// Debounce helper for auto-saving targets
+let debounceTimer: NodeJS.Timeout | null = null;
+const DEBOUNCE_DELAY = 800; // 800ms delay
 
 export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   // Initial state
@@ -288,6 +293,26 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
       console.error('Error updating daily targets:', error);
       throw error;
     }
+  },
+
+  updateDailyTargetsDebounced: (targets: DailyTargets) => {
+    // Update state immediately for responsive UI
+    set({ dailyTargets: targets });
+    
+    // Clear existing timer
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+    
+    // Set new timer to save after delay
+    debounceTimer = setTimeout(async () => {
+      try {
+        await saveDailyTargets(targets);
+      } catch (error) {
+        console.error('Error auto-saving daily targets:', error);
+        // Could add subtle error handling here if needed
+      }
+    }, DEBOUNCE_DELAY);
   },
   
   // Progress calculations

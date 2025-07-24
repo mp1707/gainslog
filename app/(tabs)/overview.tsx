@@ -34,7 +34,7 @@ export default function OverviewTab() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Overview</Text>
+      
       
       <MonthPicker 
         selectedMonth={selectedMonth}
@@ -67,19 +67,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background.primary,
   },
-  title: {
-    fontSize: typography.sizes.xl,
-    fontWeight: typography.weights.bold,
-    color: colors.text.primary,
-    textAlign: 'center',
-    paddingTop: spacing.sm,
-  },
   scrollView: {
     flex: 1,
     paddingHorizontal: spacing.lg,
   },
   emptyText: {
-    fontSize: typography.sizes.md,
+    fontSize: typography.sizes.base,
     color: colors.text.secondary,
     textAlign: 'center',
     marginTop: spacing.xl,
