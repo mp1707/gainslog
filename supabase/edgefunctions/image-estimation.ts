@@ -59,6 +59,7 @@ You MUST return a JSON object with this exact structure:
 
 #### Non-Food Image Example:
 * **Image Content:** Photo of a cat
+* **Your Internal Reasoning:** This is not a food image. I can't estimate the nutritional content of a cat. Always return the Invalid Image response immediately. Also the confidence should be 0.
 * **Required Response:**
     \`\`\`json
     {
@@ -247,7 +248,7 @@ Deno.serve(async (req) => {
       generatedTitle: nutrition.generatedTitle || `Food Image Analysis`,
       estimationConfidence: Math.max(
         1,
-        Math.min(100, Math.round(nutrition.estimationConfidence || 60))
+        Math.min(100, Math.round(nutrition.estimationConfidence || 0))
       ),
       calories: Math.max(0, Math.round(nutrition.calories || 0)),
       protein: Math.max(0, Math.round(nutrition.protein || 0)),
