@@ -2,7 +2,6 @@ import { StyleSheet } from "react-native";
 import { colors, spacing } from "../../../theme";
 
 export const styles = StyleSheet.create({
-
   dateNavigationContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -37,7 +36,7 @@ export const styles = StyleSheet.create({
 
   nutritionRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    alignItems: "center", // ensure vertical centering
     gap: spacing.lg,
   },
 
@@ -54,10 +53,12 @@ export const styles = StyleSheet.create({
   },
 
   nutritionLabel: {
-    fontSize: 10,
+    width: 70, // fixed width so all bars line-up
+    fontSize: 14,
     fontWeight: "600",
-    color: colors.text.secondary,
-    textAlign: "center",
+    color: colors.text.primary,
+    textAlign: "right",
+    textTransform: "capitalize",
   },
 
   progressBarContainer: {
@@ -70,7 +71,7 @@ export const styles = StyleSheet.create({
 
   progressBar: {
     height: "100%",
-    borderRadius: 2,
+    borderRadius: 6,
     minWidth: 1,
   },
 
@@ -79,6 +80,36 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
     color: colors.text.secondary,
     textAlign: "center",
+  },
+
+  // New list-based layout styles
+  nutritionList: {
+    flexDirection: "column",
+    gap: spacing.md,
+    width: "100%",
+  },
+
+  progressContainer: {
+    flex: 1,
+  },
+
+  progressBackground: {
+    width: "100%",
+    height: 20, // increased height so stats fit inside the bar
+    backgroundColor: colors.border.light,
+    borderRadius: 6,
+    overflow: "hidden",
+    position: "relative", // allow absolute positioning of overlay text
+  },
+
+  // overlay text shown inside the progress bar background
+  progressText: {
+    position: "absolute",
+    right: spacing.sm,
+    top: "15%",
+    fontSize: 12,
+    fontWeight: "600",
+    color: colors.text.primary,
   },
 });
 

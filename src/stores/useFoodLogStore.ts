@@ -1,51 +1,58 @@
-import { create } from 'zustand';
-import { Alert } from 'react-native';
-import { router } from 'expo-router';
-import { FoodLog, DailyTargets, DailyProgress } from '../types';
-import { 
-  getFoodLogs, 
-  saveFoodLog, 
-  updateFoodLog, 
+import { create } from "zustand";
+import { Alert } from "react-native";
+import { router } from "expo-router";
+import { FoodLog, DailyTargets, DailyProgress } from "../types";
+
+// Import storage helpers for nutrition visibility
+import {
+  getVisibleNutritionKeys,
+  saveVisibleNutritionKeys,
+  DEFAULT_VISIBLE_NUTRITION_KEYS,
+} from "@/lib/storage";
+import {
+  getFoodLogs,
+  saveFoodLog,
+  updateFoodLog,
   deleteFoodLog,
   getDailyTargets,
-  saveDailyTargets
-} from '@/lib/storage';
+  saveDailyTargets,
+} from "@/lib/storage";
 
-type ActionType = 'manual' | 'image' | null;
+type ActionType = "manual" | "image" | null;
 
 interface FoodLogStore {
   // Data state
   foodLogs: FoodLog[];
   isLoadingLogs: boolean;
-  
+
   // Date filtering state
   selectedDate: string; // ISO date string (YYYY-MM-DD)
   selectedMonth: string; // ISO month string (YYYY-MM)
-  
-  // Action trigger state  
+
+  // Action trigger state
   triggerAction: ActionType;
-  
+
   // Nutrition targets state
   dailyTargets: DailyTargets;
   isLoadingTargets: boolean;
-  
+
   // Data actions
   loadFoodLogs: () => Promise<void>;
   addFoodLog: (log: FoodLog) => Promise<void>;
   updateFoodLogById: (log: FoodLog) => Promise<void>;
   deleteFoodLogById: (logId: string) => Promise<void>;
-  
+
   // State-only updates (for optimistic UI updates)
   updateFoodLogInState: (log: FoodLog) => void;
   addFoodLogToState: (log: FoodLog) => void;
   removeFoodLogFromState: (logId: string) => void;
-  
+
   // Action triggers
   triggerManualLog: () => void;
   triggerImageCapture: () => void;
   setTriggerAction: (action: ActionType) => void;
   clearTrigger: () => void;
-  
+
   // Date actions
   setSelectedDate: (date: string) => void;
   setSelectedMonth: (month: string) => void;
@@ -56,30 +63,41 @@ interface FoodLogStore {
     totals: { calories: number; protein: number; carbs: number; fat: number };
   }>;
   navigateToTodayWithDate: (date: string) => void;
-  
+
   // Nutrition targets actions
   loadDailyTargets: () => Promise<void>;
   updateDailyTargets: (targets: DailyTargets) => Promise<void>;
   updateDailyTargetsDebounced: (targets: DailyTargets) => void;
-  
+
   // Progress calculations
   getDailyProgress: () => DailyProgress;
+
+  // Nutrition visibility state
+  visibleNutritionKeys: Array<"calories" | "protein" | "carbs" | "fat">;
+  isLoadingVisibleNutrition: boolean;
+  loadVisibleNutritionKeys: () => Promise<void>;
+  updateVisibleNutritionKeys: (
+    keys: Array<"calories" | "protein" | "carbs" | "fat">
+  ) => Promise<void>;
+  toggleVisibleNutritionKey: (
+    key: "calories" | "protein" | "carbs" | "fat"
+  ) => Promise<void>;
 }
 
 // Helper function to get today's date in ISO format (YYYY-MM-DD) in local timezone
 const getTodayDateString = (): string => {
   const today = new Date();
   const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
 
 // Helper function to convert Date to local date string (YYYY-MM-DD)
 const dateToLocalDateString = (date: Date): string => {
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
 
@@ -87,7 +105,7 @@ const dateToLocalDateString = (date: Date): string => {
 const getCurrentMonthString = (): string => {
   const today = new Date();
   const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, "0");
   return `${year}-${month}`;
 };
 
@@ -109,23 +127,26 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
     fat: 65,
   },
   isLoadingTargets: true,
-  
+  // Nutrition visibility initial state
+  visibleNutritionKeys: DEFAULT_VISIBLE_NUTRITION_KEYS,
+  isLoadingVisibleNutrition: true,
+
   // Data actions
   loadFoodLogs: async () => {
     set({ isLoadingLogs: true });
     try {
       const logs = await getFoodLogs();
-      
+
       // Ensure backward compatibility by adding date field to logs that don't have it
-      const migratedLogs = logs.map(log => ({
+      const migratedLogs = logs.map((log) => ({
         ...log,
-        date: log.date || dateToLocalDateString(new Date(log.createdAt))
+        date: log.date || dateToLocalDateString(new Date(log.createdAt)),
       }));
-      
+
       set({ foodLogs: migratedLogs });
     } catch (error) {
-      console.error('Error loading food logs:', error);
-      Alert.alert('Error', 'Failed to load food logs from storage');
+      console.error("Error loading food logs:", error);
+      Alert.alert("Error", "Failed to load food logs from storage");
     } finally {
       set({ isLoadingLogs: false });
     }
@@ -135,10 +156,10 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
     try {
       await saveFoodLog(log);
       const { foodLogs } = get();
-      
+
       // Check if log already exists in state
-      const existingIndex = foodLogs.findIndex(item => item.id === log.id);
-      
+      const existingIndex = foodLogs.findIndex((item) => item.id === log.id);
+
       if (existingIndex !== -1) {
         // Replace existing log
         const updated = [...foodLogs];
@@ -149,7 +170,7 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
         set({ foodLogs: [log, ...foodLogs] });
       }
     } catch (error) {
-      console.error('Error adding food log:', error);
+      console.error("Error adding food log:", error);
       throw error;
     }
   },
@@ -158,12 +179,12 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
     try {
       await updateFoodLog(log);
       const { foodLogs } = get();
-      
-      set({ 
-        foodLogs: foodLogs.map(item => item.id === log.id ? log : item)
+
+      set({
+        foodLogs: foodLogs.map((item) => (item.id === log.id ? log : item)),
       });
     } catch (error) {
-      console.error('Error updating food log:', error);
+      console.error("Error updating food log:", error);
       throw error;
     }
   },
@@ -172,13 +193,13 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
     try {
       await deleteFoodLog(logId);
       const { foodLogs } = get();
-      
-      set({ 
-        foodLogs: foodLogs.filter(log => log.id !== logId)
+
+      set({
+        foodLogs: foodLogs.filter((log) => log.id !== logId),
       });
     } catch (error) {
-      console.error('Error deleting food log:', error);
-      Alert.alert('Error', 'Failed to delete food log. Please try again.');
+      console.error("Error deleting food log:", error);
+      Alert.alert("Error", "Failed to delete food log. Please try again.");
       throw error;
     }
   },
@@ -186,17 +207,17 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   // State-only updates (for optimistic UI updates)
   updateFoodLogInState: (log: FoodLog) => {
     const { foodLogs } = get();
-    set({ 
-      foodLogs: foodLogs.map(item => item.id === log.id ? log : item)
+    set({
+      foodLogs: foodLogs.map((item) => (item.id === log.id ? log : item)),
     });
   },
 
   addFoodLogToState: (log: FoodLog) => {
     const { foodLogs } = get();
-    
+
     // Check if log already exists in state
-    const existingIndex = foodLogs.findIndex(item => item.id === log.id);
-    
+    const existingIndex = foodLogs.findIndex((item) => item.id === log.id);
+
     if (existingIndex !== -1) {
       // Replace existing log
       const updated = [...foodLogs];
@@ -210,34 +231,34 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
 
   removeFoodLogFromState: (logId: string) => {
     const { foodLogs } = get();
-    set({ 
-      foodLogs: foodLogs.filter(log => log.id !== logId)
+    set({
+      foodLogs: foodLogs.filter((log) => log.id !== logId),
     });
   },
 
   // Action triggers
-  triggerManualLog: () => set({ triggerAction: 'manual' }),
-  triggerImageCapture: () => set({ triggerAction: 'image' }),
+  triggerManualLog: () => set({ triggerAction: "manual" }),
+  triggerImageCapture: () => set({ triggerAction: "image" }),
   setTriggerAction: (action: ActionType) => set({ triggerAction: action }),
   clearTrigger: () => set({ triggerAction: null }),
-  
+
   // Date actions
   setSelectedDate: (date: string) => set({ selectedDate: date }),
   setSelectedMonth: (month: string) => set({ selectedMonth: month }),
-  
+
   getFilteredFoodLogs: () => {
     const { foodLogs, selectedDate } = get();
-    return foodLogs.filter(log => log.date === selectedDate);
+    return foodLogs.filter((log) => log.date === selectedDate);
   },
-  
+
   getMonthlyFoodLogs: () => {
     const { foodLogs, selectedMonth } = get();
-    return foodLogs.filter(log => log.date.startsWith(selectedMonth));
+    return foodLogs.filter((log) => log.date.startsWith(selectedMonth));
   },
-  
+
   getDailyTotalsForMonth: () => {
     const monthlyLogs = get().getMonthlyFoodLogs();
-    
+
     // Group logs by date
     const logsByDate = monthlyLogs.reduce((acc, log) => {
       const date = log.date;
@@ -247,7 +268,7 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
       acc[date].push(log);
       return acc;
     }, {} as Record<string, FoodLog[]>);
-    
+
     // Calculate totals for each date
     const dailyTotals = Object.entries(logsByDate).map(([date, logs]) => ({
       date,
@@ -261,16 +282,16 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
         { calories: 0, protein: 0, carbs: 0, fat: 0 }
       ),
     }));
-    
+
     // Sort by date descending (most recent first)
     return dailyTotals.sort((a, b) => b.date.localeCompare(a.date));
   },
-  
+
   navigateToTodayWithDate: (date: string) => {
     set({ selectedDate: date });
-    router.push('/(tabs)/');
+    router.push("/(tabs)/");
   },
-  
+
   // Nutrition targets actions
   loadDailyTargets: async () => {
     set({ isLoadingTargets: true });
@@ -278,19 +299,19 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
       const targets = await getDailyTargets();
       set({ dailyTargets: targets });
     } catch (error) {
-      console.error('Error loading daily targets:', error);
-      Alert.alert('Error', 'Failed to load daily targets');
+      console.error("Error loading daily targets:", error);
+      Alert.alert("Error", "Failed to load daily targets");
     } finally {
       set({ isLoadingTargets: false });
     }
   },
-  
+
   updateDailyTargets: async (targets: DailyTargets) => {
     try {
       await saveDailyTargets(targets);
       set({ dailyTargets: targets });
     } catch (error) {
-      console.error('Error updating daily targets:', error);
+      console.error("Error updating daily targets:", error);
       throw error;
     }
   },
@@ -298,28 +319,28 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   updateDailyTargetsDebounced: (targets: DailyTargets) => {
     // Update state immediately for responsive UI
     set({ dailyTargets: targets });
-    
+
     // Clear existing timer
     if (debounceTimer) {
       clearTimeout(debounceTimer);
     }
-    
+
     // Set new timer to save after delay
     debounceTimer = setTimeout(async () => {
       try {
         await saveDailyTargets(targets);
       } catch (error) {
-        console.error('Error auto-saving daily targets:', error);
+        console.error("Error auto-saving daily targets:", error);
         // Could add subtle error handling here if needed
       }
     }, DEBOUNCE_DELAY);
   },
-  
+
   // Progress calculations
   getDailyProgress: (): DailyProgress => {
     const { dailyTargets } = get();
     const filteredLogs = get().getFilteredFoodLogs();
-    
+
     const current = filteredLogs.reduce(
       (totals, log) => ({
         calories: totals.calories + log.calories,
@@ -329,21 +350,83 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
       }),
       { calories: 0, protein: 0, carbs: 0, fat: 0 }
     );
-    
+
     const percentages = {
-      calories: dailyTargets.calories > 0 ? Math.round((current.calories / dailyTargets.calories) * 100) : 0,
-      protein: dailyTargets.protein > 0 ? Math.round((current.protein / dailyTargets.protein) * 100) : 0,
-      carbs: dailyTargets.carbs > 0 ? Math.round((current.carbs / dailyTargets.carbs) * 100) : 0,
-      fat: dailyTargets.fat > 0 ? Math.round((current.fat / dailyTargets.fat) * 100) : 0,
+      calories:
+        dailyTargets.calories > 0
+          ? Math.round((current.calories / dailyTargets.calories) * 100)
+          : 0,
+      protein:
+        dailyTargets.protein > 0
+          ? Math.round((current.protein / dailyTargets.protein) * 100)
+          : 0,
+      carbs:
+        dailyTargets.carbs > 0
+          ? Math.round((current.carbs / dailyTargets.carbs) * 100)
+          : 0,
+      fat:
+        dailyTargets.fat > 0
+          ? Math.round((current.fat / dailyTargets.fat) * 100)
+          : 0,
     };
-    
+
     return {
       current,
       targets: dailyTargets,
       percentages,
     };
   },
+
+  // Nutrition visibility actions
+  loadVisibleNutritionKeys: async () => {
+    set({ isLoadingVisibleNutrition: true });
+    try {
+      const keys = await getVisibleNutritionKeys();
+      set({ visibleNutritionKeys: keys });
+    } catch (error) {
+      console.error("Error loading visible nutrition keys:", error);
+    } finally {
+      set({ isLoadingVisibleNutrition: false });
+    }
+  },
+
+  updateVisibleNutritionKeys: async (
+    keys: Array<"calories" | "protein" | "carbs" | "fat">
+  ) => {
+    try {
+      await saveVisibleNutritionKeys(keys);
+      set({ visibleNutritionKeys: keys });
+    } catch (error) {
+      console.error("Error updating visible nutrition keys:", error);
+      throw error;
+    }
+  },
+
+  toggleVisibleNutritionKey: async (
+    key: "calories" | "protein" | "carbs" | "fat"
+  ) => {
+    const { visibleNutritionKeys, updateVisibleNutritionKeys } = get();
+    const isCurrentlyVisible = visibleNutritionKeys.includes(key);
+    const updatedKeys = isCurrentlyVisible
+      ? visibleNutritionKeys.filter((k) => k !== key)
+      : [...visibleNutritionKeys, key];
+    await updateVisibleNutritionKeys(updatedKeys);
+  },
 }));
+
+// After store creation, automatically load visible nutrition keys once
+(async () => {
+  try {
+    const keys = await getVisibleNutritionKeys();
+    useFoodLogStore.setState({
+      visibleNutritionKeys: keys,
+      isLoadingVisibleNutrition: false,
+    });
+  } catch (error) {
+    console.error("Error initializing visible nutrition keys:", error);
+    useFoodLogStore.setState({ isLoadingVisibleNutrition: false });
+  }
+})();
 
 // Export ActionType for components that need it
 export type { ActionType };

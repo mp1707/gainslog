@@ -1,8 +1,15 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { FoodLog, DailyTargets } from '../types';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FoodLog, DailyTargets } from "../types";
 
-const FOOD_LOGS_KEY = 'food_logs';
-const DAILY_TARGETS_KEY = 'daily_targets';
+const FOOD_LOGS_KEY = "food_logs";
+const DAILY_TARGETS_KEY = "daily_targets";
+
+const VISIBLE_NUTRITION_KEYS_KEY = "visible_nutrition_keys";
+
+// Default visible nutrition keys
+export const DEFAULT_VISIBLE_NUTRITION_KEYS: Array<
+  "calories" | "protein" | "carbs" | "fat"
+> = ["protein", "carbs", "fat", "calories"];
 
 /**
  * Save a food log to AsyncStorage
@@ -10,9 +17,11 @@ const DAILY_TARGETS_KEY = 'daily_targets';
 export const saveFoodLog = async (foodLog: FoodLog): Promise<void> => {
   try {
     const existingLogs = await getFoodLogs();
-    
+
     // Check if log with same ID already exists
-    const existingLogIndex = existingLogs.findIndex(log => log.id === foodLog.id);
+    const existingLogIndex = existingLogs.findIndex(
+      (log) => log.id === foodLog.id
+    );
     if (existingLogIndex !== -1) {
       // Replace existing log instead of adding duplicate
       existingLogs[existingLogIndex] = foodLog;
@@ -23,8 +32,8 @@ export const saveFoodLog = async (foodLog: FoodLog): Promise<void> => {
       await AsyncStorage.setItem(FOOD_LOGS_KEY, JSON.stringify(updatedLogs));
     }
   } catch (error) {
-    console.error('Error saving food log:', error);
-    throw new Error('Failed to save food log');
+    console.error("Error saving food log:", error);
+    throw new Error("Failed to save food log");
   }
 };
 
@@ -39,7 +48,7 @@ export const getFoodLogs = async (): Promise<FoodLog[]> => {
     }
     return JSON.parse(logsJson) as FoodLog[];
   } catch (error) {
-    console.error('Error getting food logs:', error);
+    console.error("Error getting food logs:", error);
     return [];
   }
 };
@@ -50,13 +59,13 @@ export const getFoodLogs = async (): Promise<FoodLog[]> => {
 export const updateFoodLog = async (updatedLog: FoodLog): Promise<void> => {
   try {
     const existingLogs = await getFoodLogs();
-    const updatedLogs = existingLogs.map(log => 
+    const updatedLogs = existingLogs.map((log) =>
       log.id === updatedLog.id ? updatedLog : log
     );
     await AsyncStorage.setItem(FOOD_LOGS_KEY, JSON.stringify(updatedLogs));
   } catch (error) {
-    console.error('Error updating food log:', error);
-    throw new Error('Failed to update food log');
+    console.error("Error updating food log:", error);
+    throw new Error("Failed to update food log");
   }
 };
 
@@ -66,11 +75,11 @@ export const updateFoodLog = async (updatedLog: FoodLog): Promise<void> => {
 export const deleteFoodLog = async (id: string): Promise<void> => {
   try {
     const existingLogs = await getFoodLogs();
-    const filteredLogs = existingLogs.filter(log => log.id !== id);
+    const filteredLogs = existingLogs.filter((log) => log.id !== id);
     await AsyncStorage.setItem(FOOD_LOGS_KEY, JSON.stringify(filteredLogs));
   } catch (error) {
-    console.error('Error deleting food log:', error);
-    throw new Error('Failed to delete food log');
+    console.error("Error deleting food log:", error);
+    throw new Error("Failed to delete food log");
   }
 };
 
@@ -81,8 +90,8 @@ export const clearAllFoodLogs = async (): Promise<void> => {
   try {
     await AsyncStorage.removeItem(FOOD_LOGS_KEY);
   } catch (error) {
-    console.error('Error clearing food logs:', error);
-    throw new Error('Failed to clear food logs');
+    console.error("Error clearing food logs:", error);
+    throw new Error("Failed to clear food logs");
   }
 };
 
@@ -104,12 +113,14 @@ const DEFAULT_TARGETS: DailyTargets = {
 /**
  * Save daily nutrition targets to AsyncStorage
  */
-export const saveDailyTargets = async (targets: DailyTargets): Promise<void> => {
+export const saveDailyTargets = async (
+  targets: DailyTargets
+): Promise<void> => {
   try {
     await AsyncStorage.setItem(DAILY_TARGETS_KEY, JSON.stringify(targets));
   } catch (error) {
-    console.error('Error saving daily targets:', error);
-    throw new Error('Failed to save daily targets');
+    console.error("Error saving daily targets:", error);
+    throw new Error("Failed to save daily targets");
   }
 };
 
@@ -124,7 +135,44 @@ export const getDailyTargets = async (): Promise<DailyTargets> => {
     }
     return JSON.parse(targetsJson) as DailyTargets;
   } catch (error) {
-    console.error('Error getting daily targets:', error);
+    console.error("Error getting daily targets:", error);
     return DEFAULT_TARGETS;
+  }
+};
+
+/**
+ * Save visible nutrition keys to AsyncStorage
+ */
+export const saveVisibleNutritionKeys = async (
+  keys: Array<"calories" | "protein" | "carbs" | "fat">
+): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(
+      VISIBLE_NUTRITION_KEYS_KEY,
+      JSON.stringify(keys)
+    );
+  } catch (error) {
+    console.error("Error saving visible nutrition keys:", error);
+    throw new Error("Failed to save visible nutrition keys");
+  }
+};
+
+/**
+ * Get visible nutrition keys from AsyncStorage
+ */
+export const getVisibleNutritionKeys = async (): Promise<
+  Array<"calories" | "protein" | "carbs" | "fat">
+> => {
+  try {
+    const keysJson = await AsyncStorage.getItem(VISIBLE_NUTRITION_KEYS_KEY);
+    if (!keysJson) {
+      return DEFAULT_VISIBLE_NUTRITION_KEYS;
+    }
+    return JSON.parse(keysJson) as Array<
+      "calories" | "protein" | "carbs" | "fat"
+    >;
+  } catch (error) {
+    console.error("Error getting visible nutrition keys:", error);
+    return DEFAULT_VISIBLE_NUTRITION_KEYS;
   }
 };
