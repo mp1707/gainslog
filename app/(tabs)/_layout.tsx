@@ -19,9 +19,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Today",
+          title: "Food Log",
           tabBarIcon: ({ color }) => (
-            <FontAwesome name="calendar-check-o" size={24} color={color} />
+            <FontAwesome name="cutlery" size={24} color={color} />
           ),
         }}
       />
@@ -30,7 +30,7 @@ export default function TabLayout() {
         options={{
           title: "Overview",
           tabBarIcon: ({ color }) => (
-            <FontAwesome name="bar-chart" size={24} color={color} />
+            <FontAwesome name="calendar" size={24} color={color} />
           ),
         }}
       />
