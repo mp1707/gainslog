@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { Alert } from 'react-native';
+import { router } from 'expo-router';
 import { FoodLog, DailyTargets, DailyProgress } from '../types';
 import { 
   getFoodLogs, 
@@ -19,6 +20,7 @@ interface FoodLogStore {
   
   // Date filtering state
   selectedDate: string; // ISO date string (YYYY-MM-DD)
+  selectedMonth: string; // ISO month string (YYYY-MM)
   
   // Action trigger state  
   triggerAction: ActionType;
@@ -46,7 +48,14 @@ interface FoodLogStore {
   
   // Date actions
   setSelectedDate: (date: string) => void;
+  setSelectedMonth: (month: string) => void;
   getFilteredFoodLogs: () => FoodLog[];
+  getMonthlyFoodLogs: () => FoodLog[];
+  getDailyTotalsForMonth: () => Array<{
+    date: string;
+    totals: { calories: number; protein: number; carbs: number; fat: number };
+  }>;
+  navigateToTodayWithDate: (date: string) => void;
   
   // Nutrition targets actions
   loadDailyTargets: () => Promise<void>;
@@ -73,11 +82,20 @@ const dateToLocalDateString = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
+// Helper function to get current month in ISO format (YYYY-MM)
+const getCurrentMonthString = (): string => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  return `${year}-${month}`;
+};
+
 export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   // Initial state
   foodLogs: [],
   isLoadingLogs: true,
   selectedDate: getTodayDateString(),
+  selectedMonth: getCurrentMonthString(),
   triggerAction: null,
   dailyTargets: {
     calories: 2000,
@@ -200,10 +218,52 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   
   // Date actions
   setSelectedDate: (date: string) => set({ selectedDate: date }),
+  setSelectedMonth: (month: string) => set({ selectedMonth: month }),
   
   getFilteredFoodLogs: () => {
     const { foodLogs, selectedDate } = get();
     return foodLogs.filter(log => log.date === selectedDate);
+  },
+  
+  getMonthlyFoodLogs: () => {
+    const { foodLogs, selectedMonth } = get();
+    return foodLogs.filter(log => log.date.startsWith(selectedMonth));
+  },
+  
+  getDailyTotalsForMonth: () => {
+    const monthlyLogs = get().getMonthlyFoodLogs();
+    
+    // Group logs by date
+    const logsByDate = monthlyLogs.reduce((acc, log) => {
+      const date = log.date;
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(log);
+      return acc;
+    }, {} as Record<string, FoodLog[]>);
+    
+    // Calculate totals for each date
+    const dailyTotals = Object.entries(logsByDate).map(([date, logs]) => ({
+      date,
+      totals: logs.reduce(
+        (totals, log) => ({
+          calories: totals.calories + log.calories,
+          protein: totals.protein + log.protein,
+          carbs: totals.carbs + log.carbs,
+          fat: totals.fat + log.fat,
+        }),
+        { calories: 0, protein: 0, carbs: 0, fat: 0 }
+      ),
+    }));
+    
+    // Sort by date descending (most recent first)
+    return dailyTotals.sort((a, b) => b.date.localeCompare(a.date));
+  },
+  
+  navigateToTodayWithDate: (date: string) => {
+    set({ selectedDate: date });
+    router.push('/(tabs)/');
   },
   
   // Nutrition targets actions

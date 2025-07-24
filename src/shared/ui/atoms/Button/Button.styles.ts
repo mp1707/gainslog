@@ -102,7 +102,7 @@ export const styles = StyleSheet.create({
 
   // Square text styles
   squareSmallText: {
-    fontSize: typography.sizes.md,
+    fontSize: typography.sizes.base,
     fontWeight: typography.weights.semibold,
   },
 
