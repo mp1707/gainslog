@@ -8,7 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { SwipeToDelete, SkeletonCard } from "@/shared/ui";
 import { FoodLogCard } from "./FoodLogCard";
-import { NutritionHeader } from "./NutritionHeader";
+import { FoodLogHeader } from "./FoodLogHeader";
 import { FoodLog } from "../../../types";
 import { styles } from "./FoodLogScreen.styles";
 import { useFoodLogStore } from "../../../stores/useFoodLogStore";
@@ -46,7 +46,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.container}>
-      <NutritionHeader />
+      <FoodLogHeader />
 
       <ScrollView
         style={styles.scrollView}

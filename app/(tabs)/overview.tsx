@@ -5,6 +5,7 @@ import { colors, typography, spacing } from '../../src/theme';
 import { useFoodLogStore } from '../../src/stores/useFoodLogStore';
 import { DailySummaryCard } from '../../src/shared/ui/molecules/DailySummaryCard';
 import { MonthPicker } from '../../src/shared/ui/molecules/MonthPicker';
+import { PageHeader } from '../../src/shared/ui/molecules/PageHeader';
 
 export default function OverviewTab() {
   const {
@@ -34,12 +35,12 @@ export default function OverviewTab() {
 
   return (
     <SafeAreaView style={styles.container}>
-      
-      
-      <MonthPicker 
-        selectedMonth={selectedMonth}
-        onMonthChange={handleMonthChange}
-      />
+      <PageHeader>
+        <MonthPicker 
+          selectedMonth={selectedMonth}
+          onMonthChange={handleMonthChange}
+        />
+      </PageHeader>
       
       {dailyTotals.length === 0 ? (
         <Text style={styles.emptyText}>

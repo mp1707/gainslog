@@ -2,18 +2,6 @@ import { StyleSheet } from "react-native";
 import { colors, spacing } from "../../../theme";
 
 export const styles = StyleSheet.create({
-  container: {
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    backgroundColor: colors.background.secondary,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border.medium,
-  },
-
-  content: {
-    flexDirection: "column",
-    gap: spacing.md,
-  },
 
   dateNavigationContainer: {
     flexDirection: "row",
@@ -31,8 +19,8 @@ export const styles = StyleSheet.create({
   },
 
   navigationArrowDisabled: {
-    backgroundColor: colors.background.disabled || colors.background.secondary,
-    borderColor: colors.border.disabled || colors.border.light,
+    backgroundColor: colors.background.secondary,
+    borderColor: colors.border.light,
     opacity: 0.5,
   },
 
@@ -42,10 +30,15 @@ export const styles = StyleSheet.create({
   },
 
   nutritionGrid: {
+    flexDirection: "column",
+    gap: spacing.md,
+    width: "100%",
+  },
+
+  nutritionRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: spacing.sm,
-    width: "100%",
+    gap: spacing.lg,
   },
 
   nutritionItem: {

@@ -3,9 +3,10 @@ import { View, Text, Platform, TouchableOpacity } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFoodLogStore } from "../../../stores/useFoodLogStore";
-import { styles, getProgressColor } from "./NutritionHeader.styles";
+import { PageHeader } from "../../../shared/ui/molecules/PageHeader";
+import { styles, getProgressColor } from "./FoodLogHeader.styles";
 
-export const NutritionHeader: React.FC = () => {
+export const FoodLogHeader: React.FC = () => {
   const { selectedDate, setSelectedDate, getDailyProgress } = useFoodLogStore();
   const dailyProgress = getDailyProgress();
 
@@ -81,10 +82,9 @@ export const NutritionHeader: React.FC = () => {
   ];
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        {/* Date Navigation Section */}
-        <View style={styles.dateNavigationContainer}>
+    <PageHeader>
+      {/* Date Navigation Section */}
+      <View style={styles.dateNavigationContainer}>
           <TouchableOpacity 
             onPress={navigateToPreviousDay}
             style={styles.navigationArrow}
@@ -117,28 +117,54 @@ export const NutritionHeader: React.FC = () => {
 
         {/* Nutrition Grid */}
         <View style={styles.nutritionGrid}>
-          {nutritionStats.map((stat, index) => (
-            <View key={stat.label} style={styles.nutritionItem}>
-              <View style={styles.nutritionLabelContainer}>
-                <Text style={styles.nutritionLabel}>{stat.label}</Text>
-                <Text style={styles.nutritionValue} numberOfLines={1}>
-                  {stat.current}/{stat.target}
-                  {stat.unit}
-                </Text>
+          {/* First Row: Protein and Carbs */}
+          <View style={styles.nutritionRow}>
+            {nutritionStats.slice(0, 2).map((stat) => (
+              <View key={stat.label} style={styles.nutritionItem}>
+                <View style={styles.nutritionLabelContainer}>
+                  <Text style={styles.nutritionLabel}>{stat.label}</Text>
+                  <Text style={styles.nutritionValue} numberOfLines={1}>
+                    {stat.current}/{stat.target}
+                    {stat.unit}
+                  </Text>
+                </View>
+                <View style={styles.progressBarContainer}>
+                  <View
+                    style={[
+                      styles.progressBar,
+                      { backgroundColor: getProgressColor(stat.color) },
+                      { width: `${stat.percentage}%` },
+                    ]}
+                  />
+                </View>
               </View>
-              <View style={styles.progressBarContainer}>
-                <View
-                  style={[
-                    styles.progressBar,
-                    { backgroundColor: getProgressColor(stat.color) },
-                    { width: `${stat.percentage}%` },
-                  ]}
-                />
+            ))}
+          </View>
+          
+          {/* Second Row: Fat and Calories */}
+          <View style={styles.nutritionRow}>
+            {nutritionStats.slice(2, 4).map((stat) => (
+              <View key={stat.label} style={styles.nutritionItem}>
+                <View style={styles.nutritionLabelContainer}>
+                  <Text style={styles.nutritionLabel}>{stat.label}</Text>
+                  <Text style={styles.nutritionValue} numberOfLines={1}>
+                    {stat.current}/{stat.target}
+                    {stat.unit}
+                  </Text>
+                </View>
+                <View style={styles.progressBarContainer}>
+                  <View
+                    style={[
+                      styles.progressBar,
+                      { backgroundColor: getProgressColor(stat.color) },
+                      { width: `${stat.percentage}%` },
+                    ]}
+                  />
+                </View>
               </View>
-            </View>
-          ))}
+            ))}
+          </View>
         </View>
-      </View>
-    </View>
+    </PageHeader>
   );
 };
