@@ -76,7 +76,6 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
               layout={Layout.springify().damping(18).stiffness(150).mass(1)}
             >
               <SwipeToDelete
-                itemId={log.id}
                 onDelete={() => handleDeleteLog(log.id)}
               >
                 <FoodLogCard foodLog={log} onAddInfo={onAddInfo} />

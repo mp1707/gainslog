@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
-import { ScrollView, Text, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, typography, spacing } from '../../src/theme';
-import { useFoodLogStore } from '../../src/stores/useFoodLogStore';
-import { DailySummaryCard } from '../../src/shared/ui/molecules/DailySummaryCard';
-import { MonthPicker } from '../../src/shared/ui/molecules/MonthPicker';
-import { PageHeader } from '../../src/shared/ui/molecules/PageHeader';
+import React, { useEffect } from "react";
+import { ScrollView, Text, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { colors, typography, spacing } from "../../src/theme";
+import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
+import { DailySummaryCard } from "../../src/shared/ui/molecules/DailySummaryCard";
+import { MonthPicker } from "../../src/shared/ui/molecules/MonthPicker";
+import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
 
 export default function OverviewTab() {
   const {
@@ -36,19 +36,17 @@ export default function OverviewTab() {
   return (
     <SafeAreaView style={styles.container}>
       <PageHeader>
-        <MonthPicker 
+        <MonthPicker
           selectedMonth={selectedMonth}
           onMonthChange={handleMonthChange}
         />
       </PageHeader>
-      
+
       {dailyTotals.length === 0 ? (
-        <Text style={styles.emptyText}>
-          No food logs found for this month.
-        </Text>
+        <Text style={styles.emptyText}>No food logs found for this month.</Text>
       ) : (
-        <ScrollView 
-          style={styles.scrollView} 
+        <ScrollView
+          style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
@@ -78,11 +76,12 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: spacing.md,
     paddingTop: spacing.md,
+    gap: spacing.component.list.sectionGap,
   },
   emptyText: {
     fontSize: typography.fontSizes.base,
     color: colors.text.secondary,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: spacing.xl,
     paddingHorizontal: spacing.lg,
     lineHeight: 22,

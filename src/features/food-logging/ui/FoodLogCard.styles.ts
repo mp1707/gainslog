@@ -1,21 +1,27 @@
-import { StyleSheet } from 'react-native';
-import { colors, typography, spacing, shadows } from '../../../theme';
+import { StyleSheet } from "react-native";
+import { colors, typography, spacing, shadows } from "../../../theme";
 
 export const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface.primary,
     borderRadius: spacing.radii.card,
     padding: spacing.component.card.padding,
-    ...shadows.presets.card,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border.primary,
-    marginVertical: spacing.component.card.margin / 2, // Half margin for stacked cards
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
 
   titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: spacing.layout.elementGap,
   },
 
@@ -33,18 +39,18 @@ export const styles = StyleSheet.create({
 
   loadingTitle: {
     color: colors.text.tertiary,
-    fontStyle: 'italic',
+    fontStyle: "italic",
   },
 
   description: {
     ...typography.textStyles.body,
     color: colors.text.secondary,
-    fontStyle: 'italic',
+    fontStyle: "italic",
     fontFamily: typography.fontFamilies.system,
   },
 
   rightSection: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
     gap: spacing.scale[2],
   },
 

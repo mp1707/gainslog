@@ -6,9 +6,16 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.background.secondary,
     borderRadius: 12,
     padding: spacing.lg,
-    marginBottom: spacing.md,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border.primary,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   dateText: {
     fontSize: typography.fontSizes.lg,

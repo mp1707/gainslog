@@ -60,7 +60,7 @@ export const spacing = {
     
     list: {
       itemGap: 12,
-      sectionGap: 24,
+      sectionGap: 8,
       padding: 16,
     }
   },

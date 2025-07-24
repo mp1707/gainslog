@@ -19,7 +19,6 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 interface SwipeToDeleteProps {
   children: ReactNode;
   onDelete: () => void;
-  itemId: string;
   confirmDelete?: boolean;
 }
 
@@ -34,7 +33,6 @@ const DIRECTION_THRESHOLD = 30;
 export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
   children,
   onDelete,
-  itemId,
   confirmDelete = true,
 }) => {
   const translateX = useSharedValue(0);
@@ -47,11 +45,11 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
 
   const executeDelete = () => {
     isDeleting.value = true;
-    
+
     // First slide out to the left with a natural easing
     translateX.value = withTiming(
       -SCREEN_WIDTH * 1.2, // Slide slightly further for full exit effect
-      { 
+      {
         duration: 250, // Faster slide for more responsive feel
       },
       () => {
@@ -102,7 +100,7 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
     onActive: (event) => {
       // Don't allow gestures during delete animation
       if (isDeleting.value) return;
-      
+
       const { translationX, translationY } = event;
 
       // Determine gesture direction on first significant movement
@@ -131,7 +129,7 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
     onEnd: (event) => {
       // Don't process gestures during delete animation
       if (isDeleting.value) return;
-      
+
       // Only process end event for horizontal gestures
       if (gestureDirection.value !== "horizontal") {
         return;
@@ -169,7 +167,7 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
     return {
       opacity: opacity.value,
       transform: [{ scaleY: height.value }],
-      overflow: "hidden",
+      // overflow: "hidden",
     };
   });
 
@@ -195,7 +193,10 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
       Extrapolate.CLAMP
     );
 
-    const width = Math.max(Math.abs(translateX.value * 1.1), DELETE_BUTTON_WIDTH + 20);
+    const width = Math.max(
+      Math.abs(translateX.value * 1.1),
+      DELETE_BUTTON_WIDTH + 20
+    );
 
     return {
       opacity: buttonOpacity,
@@ -220,15 +221,12 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
     <Animated.View
       layout={Layout.springify().damping(18).stiffness(150).mass(1)}
       exiting={FadeOutLeft.duration(250)}
-      style={{
-        marginBottom: 12,
-      }}
     >
       <Animated.View
         style={[
           {
             borderRadius: 16,
-            overflow: "hidden",
+            // overflow: "hidden",
           },
           containerStyle,
         ]}
@@ -241,6 +239,8 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
                 position: "absolute",
                 right: 0,
                 top: 0,
+                borderTopRightRadius: 16,
+                borderBottomRightRadius: 16,
                 bottom: 0,
                 backgroundColor: "#FF3B30", // iOS red
                 justifyContent: "center",
