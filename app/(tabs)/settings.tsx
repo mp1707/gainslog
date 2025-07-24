@@ -2,9 +2,10 @@ import React, { useEffect } from "react";
 import { View, Text, ScrollView, Switch } from "react-native";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors } from "../../src/theme";
+import { colors, spacing, typography } from "../../src/theme";
 import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
-import { NutritionSlider } from "../../src/shared/ui/atoms/NutritionSlider";
+import { Stepper } from "../../src/shared/ui/atoms/Stepper";
+import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
 
 export default function SettingsTab() {
   const {
@@ -22,7 +23,7 @@ export default function SettingsTab() {
     loadVisibleNutritionKeys();
   }, []);
 
-  const handleSliderChange = (
+  const handleTargetChange = (
     key: keyof typeof dailyTargets,
     value: number
   ) => {
@@ -33,18 +34,51 @@ export default function SettingsTab() {
     updateDailyTargetsDebounced(newTargets);
   };
 
-  const renderNutritionRow = (
-    key: keyof typeof dailyTargets,
-    sliderComponent: React.ReactNode
-  ) => {
-    const switchValue = visibleNutritionKeys.includes(key as any);
+  const nutritionConfigs: Array<{
+    key: keyof typeof dailyTargets;
+    label: string;
+    unit: string;
+    min: number;
+    max: number;
+    step: number;
+  }> = [
+    {
+      key: "calories",
+      label: "Calories",
+      unit: "kcal",
+      min: 1000,
+      max: 5000,
+      step: 50,
+    },
+    { key: "protein", label: "Protein", unit: "g", min: 50, max: 300, step: 5 },
+    { key: "carbs", label: "Carbs", unit: "g", min: 50, max: 500, step: 5 },
+    { key: "fat", label: "Fat", unit: "g", min: 20, max: 150, step: 5 },
+  ];
+
+  const renderNutritionCard = (config: (typeof nutritionConfigs)[number]) => {
+    const switchValue = visibleNutritionKeys.includes(config.key as any);
     return (
-      <View style={styles.nutritionRow}>
-        <View style={styles.sliderWrapper}>{sliderComponent}</View>
-        <Switch
-          value={switchValue}
-          onValueChange={() => toggleVisibleNutritionKey(key as any)}
-        />
+      <View style={styles.nutritionCard} key={config.key}>
+        <Text style={styles.nutritionHeadline}>{config.label}</Text>
+        
+        <View style={styles.settingRow}>
+          <Text style={styles.settingLabel}>Daily Target</Text>
+          <Stepper
+            value={dailyTargets[config.key]}
+            min={config.min}
+            max={config.max}
+            step={config.step}
+            onChange={(value) => handleTargetChange(config.key, value)}
+          />
+        </View>
+
+        <View style={styles.settingRow}>
+          <Text style={styles.settingLabel}>Show Progress Bar</Text>
+          <Switch
+            value={switchValue}
+            onValueChange={() => toggleVisibleNutritionKey(config.key as any)}
+          />
+        </View>
       </View>
     );
   };
@@ -59,71 +93,16 @@ export default function SettingsTab() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <PageHeader>
+        <Text style={styles.pageTitle}>Settings</Text>
+        <Text style={styles.pageSubtitle}>Customize your nutrition tracking preferences</Text>
+      </PageHeader>
+      
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <View style={styles.content}>
-          <Text style={styles.sectionTitle}>Daily Nutrition Targets</Text>
-          <Text style={styles.subtitle}>
-            Adjust your daily nutrition goals with the sliders below
-          </Text>
-
-          <View style={styles.slidersSection}>
-            {renderNutritionRow(
-              "calories",
-              <NutritionSlider
-                label="Calories"
-                unit="kcal"
-                value={dailyTargets.calories}
-                minimumValue={1000}
-                maximumValue={5000}
-                step={50}
-                onValueChange={(value) => handleSliderChange("calories", value)}
-              />
-            )}
-
-            {renderNutritionRow(
-              "protein",
-              <NutritionSlider
-                label="Protein"
-                unit="g"
-                value={dailyTargets.protein}
-                minimumValue={50}
-                maximumValue={300}
-                step={5}
-                onValueChange={(value) => handleSliderChange("protein", value)}
-              />
-            )}
-
-            {renderNutritionRow(
-              "carbs",
-              <NutritionSlider
-                label="Carbs"
-                unit="g"
-                value={dailyTargets.carbs}
-                minimumValue={50}
-                maximumValue={500}
-                step={5}
-                onValueChange={(value) => handleSliderChange("carbs", value)}
-              />
-            )}
-
-            {renderNutritionRow(
-              "fat",
-              <NutritionSlider
-                label="Fat"
-                unit="g"
-                value={dailyTargets.fat}
-                minimumValue={20}
-                maximumValue={150}
-                step={5}
-                onValueChange={(value) => handleSliderChange("fat", value)}
-              />
-            )}
-          </View>
-        </View>
+        {nutritionConfigs.map(renderNutritionCard)}
       </ScrollView>
     </SafeAreaView>
   );
@@ -140,58 +119,54 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    backgroundColor: "#F2F2F7",
+    paddingHorizontal: spacing.xl,
   },
-  scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 40,
+  pageTitle: {
+    ...typography.styles.title,
+    color: colors.text.primary,
   },
-  content: {
-    backgroundColor: "#FFFFFF",
-    marginHorizontal: 16,
-    marginTop: 8,
-    borderRadius: 12,
-    paddingHorizontal: 24,
-    paddingVertical: 24,
+  pageSubtitle: {
+    fontSize: typography.sizes.base,
+    color: colors.text.secondary,
+    lineHeight: typography.lineHeights.normal,
+  },
+  nutritionCard: {
+    backgroundColor: colors.background.secondary,
+    borderRadius: spacing.radius.xl,
+    padding: spacing.padding.card,
+    marginBottom: spacing.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border.light,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 1,
     },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.05,
     shadowRadius: 2,
-    elevation: 2,
+    elevation: 1,
   },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: "600",
-    color: "#1C1C1E",
-    marginBottom: 8,
-    letterSpacing: -0.4,
+  nutritionHeadline: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.semibold,
+    color: colors.text.primary,
+    marginBottom: spacing.lg,
+    letterSpacing: typography.letterSpacing.normal,
   },
-  subtitle: {
-    fontSize: 15,
-    fontWeight: "400",
-    color: "#8E8E93",
-    marginBottom: 32,
-    lineHeight: 20,
-  },
-  slidersSection: {
-    flex: 1,
-  },
-
-  nutritionRow: {
+  settingRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 24,
+    justifyContent: "space-between",
+    paddingVertical: spacing.md,
   },
-
-  sliderWrapper: {
+  settingLabel: {
+    fontSize: typography.sizes.lg,
+    fontWeight: typography.weights.medium,
+    color: colors.text.primary,
     flex: 1,
-    marginRight: 12,
   },
   loadingText: {
-    fontSize: 16,
+    fontSize: typography.sizes.lg,
     color: colors.text.secondary,
   },
 });
