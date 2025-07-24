@@ -220,55 +220,60 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
     <Animated.View
       layout={Layout.springify().damping(18).stiffness(150).mass(1)}
       exiting={FadeOutLeft.duration(250)}
-      style={[
-        {
-          marginBottom: 12,
-          borderRadius: 16,
-          overflow: "hidden",
-        },
-        containerStyle,
-      ]}
+      style={{
+        marginBottom: 12,
+      }}
     >
-      <View style={{ position: "relative" }}>
-        {/* Delete Button Background */}
-        <Animated.View
-          style={[
-            {
-              position: "absolute",
-              right: 0,
-              top: 0,
-              bottom: 0,
-              backgroundColor: "#FF3B30", // iOS red
-              justifyContent: "center",
-              alignItems: "center",
-            },
-            deleteButtonContainerStyle,
-          ]}
-        >
-          <Pressable onPress={handleDelete} style={{ padding: 5 }}>
-            <Animated.View style={deleteButtonStyle}>
-              <Text
-                style={{
-                  color: "white",
-                  fontSize: 28,
-                  fontWeight: "bold",
-                }}
-              >
-                <FontAwesome name="trash" size={24} color="white" />
-              </Text>
-            </Animated.View>
-          </Pressable>
-        </Animated.View>
+      <Animated.View
+        style={[
+          {
+            borderRadius: 16,
+            overflow: "hidden",
+          },
+          containerStyle,
+        ]}
+      >
+        <View style={{ position: "relative" }}>
+          {/* Delete Button Background */}
+          <Animated.View
+            style={[
+              {
+                position: "absolute",
+                right: 0,
+                top: 0,
+                bottom: 0,
+                backgroundColor: "#FF3B30", // iOS red
+                justifyContent: "center",
+                alignItems: "center",
+              },
+              deleteButtonContainerStyle,
+            ]}
+          >
+            <Pressable onPress={handleDelete} style={{ padding: 5 }}>
+              <Animated.View style={deleteButtonStyle}>
+                <Text
+                  style={{
+                    color: "white",
+                    fontSize: 28,
+                    fontWeight: "bold",
+                  }}
+                >
+                  <FontAwesome name="trash" size={24} color="white" />
+                </Text>
+              </Animated.View>
+            </Pressable>
+          </Animated.View>
 
-        {/* Swipeable Content */}
-        <PanGestureHandler
-          onGestureEvent={gestureHandler}
-          activeOffsetX={[-10, 10]}
-          failOffsetY={[-5, 5]}
-        >
-          <Animated.View style={animatedStyle}>{children}</Animated.View>
-        </PanGestureHandler>
-      </View>
+          {/* Swipeable Content */}
+          <PanGestureHandler
+            onGestureEvent={gestureHandler}
+            activeOffsetX={[-10, 10]}
+            failOffsetY={[-5, 5]}
+          >
+            <Animated.View style={animatedStyle}>{children}</Animated.View>
+          </PanGestureHandler>
+        </View>
+      </Animated.View>
     </Animated.View>
   );
 };
