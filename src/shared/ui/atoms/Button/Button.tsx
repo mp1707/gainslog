@@ -20,10 +20,10 @@ export const Button: React.FC<ButtonProps> = ({
     <TouchableOpacity
       style={[
         styles.base,
-        styles[shape],
-        styles[color],
-        styles[shapeSize],
-        disabled && styles.disabled,
+        styles[shape as keyof typeof styles],
+        styles[color as keyof typeof styles],
+        styles[shapeSize as keyof typeof styles],
+        disabled ? styles.disabled : undefined,
       ]}
       onPress={onPress}
       disabled={disabled}
@@ -34,7 +34,7 @@ export const Button: React.FC<ButtonProps> = ({
       ) : (
         <Text style={[
           styles.text, 
-          styles[`${shapeSize}Text`]
+          styles[`${shapeSize}Text` as keyof typeof styles]
         ]}>
           {children}
         </Text>
