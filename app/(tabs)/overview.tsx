@@ -47,7 +47,11 @@ export default function OverviewTab() {
           No food logs found for this month.
         </Text>
       ) : (
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          style={styles.scrollView} 
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
           {dailyTotals.map(({ date, totals }) => (
             <DailySummaryCard
               key={date}
@@ -70,7 +74,10 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    paddingHorizontal: spacing.lg,
+  },
+  scrollContent: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
   },
   emptyText: {
     fontSize: typography.sizes.base,

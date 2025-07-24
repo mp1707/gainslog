@@ -100,6 +100,7 @@ export default function SettingsTab() {
       
       <ScrollView
         style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {nutritionConfigs.map(renderNutritionCard)}
@@ -119,7 +120,10 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    paddingHorizontal: spacing.xl,
+  },
+  scrollContent: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
   },
   pageTitle: {
     ...typography.styles.title,

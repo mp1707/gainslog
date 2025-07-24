@@ -7,14 +7,13 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.background.primary,
   },
 
-
   scrollView: {
     flex: 1,
+    paddingTop: spacing.md,
   },
 
   scrollContent: {
-    padding: spacing.padding.container,
-    paddingBottom: 100, // Space for floating buttons
+    paddingHorizontal: spacing.md,
   },
 
   // Floating Action Button styles
