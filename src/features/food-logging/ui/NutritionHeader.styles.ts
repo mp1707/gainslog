@@ -11,10 +11,29 @@ export const styles = StyleSheet.create({
   },
 
   content: {
+    flexDirection: "column",
+    gap: spacing.md,
+  },
+
+  dateNavigationContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    gap: spacing.md,
+    justifyContent: "center",
+    gap: spacing.lg,
+  },
+
+  navigationArrow: {
+    padding: spacing.sm,
+    borderRadius: 8,
+    backgroundColor: colors.background.primary,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border.light,
+  },
+
+  navigationArrowDisabled: {
+    backgroundColor: colors.background.disabled || colors.background.secondary,
+    borderColor: colors.border.disabled || colors.border.light,
+    opacity: 0.5,
   },
 
   datePickerContainer: {
@@ -23,14 +42,14 @@ export const styles = StyleSheet.create({
   },
 
   nutritionGrid: {
-    flex: 1,
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.md,
+    justifyContent: "space-between",
+    gap: spacing.sm,
+    width: "100%",
   },
 
   nutritionItem: {
-    width: "48%",
+    flex: 1,
     alignItems: "center",
     gap: 2,
   },

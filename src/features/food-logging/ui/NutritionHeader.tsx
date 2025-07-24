@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, Platform } from "react-native";
+import { View, Text, Platform, TouchableOpacity } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFoodLogStore } from "../../../stores/useFoodLogStore";
 import { styles, getProgressColor } from "./NutritionHeader.styles";
@@ -21,6 +22,27 @@ export const NutritionHeader: React.FC = () => {
       const dateString = dateToLocalDateString(selectedDate);
       setSelectedDate(dateString);
     }
+  };
+
+  const navigateToPreviousDay = () => {
+    const currentDate = new Date(selectedDate);
+    currentDate.setDate(currentDate.getDate() - 1);
+    const dateString = dateToLocalDateString(currentDate);
+    setSelectedDate(dateString);
+  };
+
+  const navigateToNextDay = () => {
+    const currentDate = new Date(selectedDate);
+    currentDate.setDate(currentDate.getDate() + 1);
+    const dateString = dateToLocalDateString(currentDate);
+    setSelectedDate(dateString);
+  };
+
+  // Check if the selected date is today to disable next button
+  const isToday = () => {
+    const today = new Date();
+    const todayString = dateToLocalDateString(today);
+    return selectedDate === todayString;
   };
 
   const nutritionStats = [
@@ -61,6 +83,38 @@ export const NutritionHeader: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
+        {/* Date Navigation Section */}
+        <View style={styles.dateNavigationContainer}>
+          <TouchableOpacity 
+            onPress={navigateToPreviousDay}
+            style={styles.navigationArrow}
+          >
+            <FontAwesome name="chevron-left" size={16} color="#666" />
+          </TouchableOpacity>
+          
+          <View style={styles.datePickerContainer}>
+            <DateTimePicker
+              value={new Date(selectedDate)}
+              mode="date"
+              display={Platform.OS === "ios" ? "compact" : "default"}
+              onChange={handleDateChange}
+              maximumDate={new Date()}
+            />
+          </View>
+          
+          <TouchableOpacity 
+            onPress={navigateToNextDay}
+            style={[styles.navigationArrow, isToday() && styles.navigationArrowDisabled]}
+            disabled={isToday()}
+          >
+            <FontAwesome 
+              name="chevron-right" 
+              size={16} 
+              color={isToday() ? "#ccc" : "#666"} 
+            />
+          </TouchableOpacity>
+        </View>
+
         {/* Nutrition Grid */}
         <View style={styles.nutritionGrid}>
           {nutritionStats.map((stat, index) => (
@@ -83,17 +137,6 @@ export const NutritionHeader: React.FC = () => {
               </View>
             </View>
           ))}
-        </View>
-
-        {/* Date Picker */}
-        <View style={styles.datePickerContainer}>
-          <DateTimePicker
-            value={new Date(selectedDate)}
-            mode="date"
-            display={Platform.OS === "ios" ? "compact" : "default"}
-            onChange={handleDateChange}
-            maximumDate={new Date()}
-          />
         </View>
       </View>
     </View>
