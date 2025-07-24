@@ -1,0 +1,977 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GainsLog Design System",
+  "description": "Comprehensive design system following Apple's design philosophy for the GainsLog React Native food logging application",
+  "version": "1.0.0",
+  "designPhilosophy": {
+    "principles": [
+      "Clarity: Make content the priority with clear visual hierarchy",
+      "Deference: UI helps users understand and interact with content without competing",
+      "Depth: Visual layers and realistic motion convey hierarchy and vitality"
+    ],
+    "approach": "Mobile-first, accessibility-focused, semantic design tokens"
+  },
+
+  "colors": {
+    "$description": "Semantic color system with WCAG 2.2 AA compliance and dark mode support",
+    
+    "semantic": {
+      "background": {
+        "primary": "#f8f9fa",
+        "secondary": "#ffffff", 
+        "tertiary": "#f3f4f6",
+        "overlay": "rgba(0, 0, 0, 0.7)",
+        "glass": "rgba(255, 255, 255, 0.85)",
+        "$description": "Background colors for different hierarchy levels"
+      },
+      
+      "surface": {
+        "primary": "#ffffff",
+        "secondary": "#f8f9fa",
+        "elevated": "#ffffff",
+        "depressed": "#f3f4f6",
+        "$description": "Surface colors for cards, modals, and elevated content"
+      },
+
+      "text": {
+        "primary": "#111827",
+        "secondary": "#6b7280", 
+        "tertiary": "#9ca3af",
+        "quaternary": "#d1d5db",
+        "inverse": "#ffffff",
+        "onColor": "#ffffff",
+        "$description": "Text colors with proper contrast ratios"
+      },
+
+      "border": {
+        "primary": "#e5e7eb",
+        "secondary": "#f3f4f6", 
+        "focus": "#007AFF",
+        "error": "#dc2626",
+        "divider": "#f3f4f6",
+        "$description": "Border colors for different interaction states"
+      }
+    },
+
+    "brand": {
+      "primary": {
+        "50": "#eff6ff",
+        "100": "#dbeafe", 
+        "200": "#bfdbfe",
+        "300": "#93c5fd",
+        "400": "#60a5fa",
+        "500": "#007AFF",
+        "600": "#0056cc",
+        "700": "#0041a3",
+        "800": "#003785",
+        "900": "#002c6b",
+        "$default": "#007AFF",
+        "$description": "Primary brand color - iOS Blue with tonal variations"
+      },
+      
+      "secondary": {
+        "50": "#ecfdf5",
+        "100": "#d1fae5",
+        "200": "#a7f3d0", 
+        "300": "#6ee7b7",
+        "400": "#34d399",
+        "500": "#10b981",
+        "600": "#059669",
+        "700": "#047857",
+        "800": "#065f46",
+        "900": "#064e3b",
+        "$default": "#34d399",
+        "$description": "Secondary brand color - Success Green"
+      },
+      
+      "accent": {
+        "50": "#fef2f2",
+        "100": "#fee2e2",
+        "200": "#fecaca",
+        "300": "#fca5a5", 
+        "400": "#f87171",
+        "500": "#FF3B30",
+        "600": "#dc2626",
+        "700": "#b91c1c",
+        "800": "#991b1b",
+        "900": "#7f1d1d",
+        "$default": "#FF3B30",
+        "$description": "Accent color - iOS Red for destructive actions"
+      }
+    },
+
+    "functional": {
+      "success": {
+        "background": "#dcfce7",
+        "foreground": "#16a34a",
+        "border": "#bbf7d0",
+        "$description": "Success state indicators"
+      },
+      
+      "warning": {
+        "background": "#fef3c7", 
+        "foreground": "#d97706",
+        "border": "#fed7aa",
+        "$description": "Warning state indicators"
+      },
+      
+      "error": {
+        "background": "#fee2e2",
+        "foreground": "#dc2626", 
+        "border": "#fecaca",
+        "$description": "Error state indicators"
+      },
+      
+      "info": {
+        "background": "#dbeafe",
+        "foreground": "#2563eb",
+        "border": "#bfdbfe", 
+        "$description": "Informational state indicators"
+      }
+    },
+
+    "nutrition": {
+      "protein": {
+        "primary": "#34d399",
+        "background": "#dcfce7",
+        "light": "#a7f3d0",
+        "$description": "Protein macro color - Bright green"
+      },
+      
+      "carbohydrates": {
+        "primary": "#60a5fa", 
+        "background": "#dbeafe",
+        "light": "#bfdbfe",
+        "$description": "Carbohydrates macro color - Bright blue"
+      },
+      
+      "fat": {
+        "primary": "#f59e0b",
+        "background": "#fef3c7",
+        "light": "#fed7aa", 
+        "$description": "Fat macro color - Bright amber"
+      },
+      
+      "calories": {
+        "primary": "#c084fc",
+        "background": "#f3e8ff", 
+        "light": "#ddd6fe",
+        "$description": "Calories color - Bright purple"
+      }
+    },
+
+    "confidence": {
+      "high": {
+        "background": "#dcfce7",
+        "foreground": "#16a34a",
+        "indicator": "#22c55e",
+        "$range": "80-100%",
+        "$description": "High confidence AI estimation"
+      },
+      
+      "good": {
+        "background": "#fef3c7",
+        "foreground": "#d97706", 
+        "indicator": "#f59e0b",
+        "$range": "60-79%",
+        "$description": "Good confidence AI estimation"
+      },
+      
+      "partial": {
+        "background": "#fed7aa",
+        "foreground": "#ea580c",
+        "indicator": "#f97316", 
+        "$range": "40-59%",
+        "$description": "Partial confidence AI estimation"
+      },
+      
+      "uncertain": {
+        "background": "#fee2e2",
+        "foreground": "#dc2626",
+        "indicator": "#ef4444",
+        "$range": "0-39%", 
+        "$description": "Uncertain confidence AI estimation"
+      },
+      
+      "loading": {
+        "background": "#f3f4f6",
+        "foreground": "#6b7280",
+        "indicator": "#9ca3af",
+        "$description": "Loading state for AI estimation"
+      }
+    },
+
+    "interactive": {
+      "primary": {
+        "default": "#007AFF",
+        "hover": "#0056cc", 
+        "pressed": "#0041a3",
+        "disabled": "#9ca3af",
+        "$description": "Primary interactive element states"
+      },
+      
+      "secondary": {
+        "default": "#34d399",
+        "hover": "#10b981",
+        "pressed": "#059669", 
+        "disabled": "#9ca3af",
+        "$description": "Secondary interactive element states"
+      },
+      
+      "destructive": {
+        "default": "#FF3B30",
+        "hover": "#dc2626",
+        "pressed": "#b91c1c",
+        "disabled": "#9ca3af",
+        "$description": "Destructive action states"
+      }
+    },
+
+    "skeleton": {
+      "base": "#e5e7eb",
+      "highlight": "#f3f4f6",
+      "animated": "#f9fafb",
+      "$description": "Loading skeleton colors with subtle animation"
+    }
+  },
+
+  "typography": {
+    "$description": "Typography system inspired by San Francisco with clear hierarchy",
+    
+    "fontFamilies": {
+      "system": {
+        "ios": "San Francisco",
+        "android": "Roboto", 
+        "fallback": "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        "$description": "Platform-specific system fonts with fallbacks"
+      },
+      
+      "monospace": {
+        "ios": "SF Mono",
+        "android": "Roboto Mono",
+        "fallback": "Menlo, Monaco, 'Courier New', monospace", 
+        "$description": "Monospace fonts for code and numeric data"
+      }
+    },
+
+    "fontSizes": {
+      "xs": 10,
+      "sm": 12, 
+      "base": 14,
+      "lg": 16,
+      "xl": 18,
+      "2xl": 24,
+      "3xl": 28,
+      "4xl": 32,
+      "5xl": 34,
+      "6xl": 48,
+      "$description": "Font size scale based on iOS typography guidelines"
+    },
+
+    "fontWeights": {
+      "ultralight": "100",
+      "thin": "200", 
+      "light": "300",
+      "regular": "400",
+      "medium": "500",
+      "semibold": "600",
+      "bold": "700",
+      "heavy": "800",
+      "black": "900",
+      "$description": "Font weight scale matching SF Pro weights"
+    },
+
+    "lineHeights": {
+      "tight": 1.2,
+      "snug": 1.3,
+      "normal": 1.4, 
+      "relaxed": 1.5,
+      "loose": 1.6,
+      "$description": "Line height ratios for optimal readability"
+    },
+
+    "letterSpacing": {
+      "tighter": -0.8,
+      "tight": -0.5,
+      "normal": -0.2,
+      "wide": 0,
+      "wider": 0.3,
+      "$description": "Letter spacing values for different text contexts"
+    },
+
+    "textStyles": {
+      "largeTitle": {
+        "fontSize": 34,
+        "fontWeight": "700",
+        "lineHeight": 40,
+        "letterSpacing": -0.5,
+        "$usage": "Main screen titles and headers"
+      },
+      
+      "title1": {
+        "fontSize": 28,
+        "fontWeight": "600", 
+        "lineHeight": 34,
+        "letterSpacing": -0.4,
+        "$usage": "Section headers and modal titles"
+      },
+      
+      "title2": {
+        "fontSize": 24,
+        "fontWeight": "600",
+        "lineHeight": 30,
+        "letterSpacing": -0.3,
+        "$usage": "Subsection headers"
+      },
+      
+      "title3": {
+        "fontSize": 18,
+        "fontWeight": "600", 
+        "lineHeight": 24,
+        "letterSpacing": -0.2,
+        "$usage": "Card titles and food log titles"
+      },
+      
+      "headline": {
+        "fontSize": 16,
+        "fontWeight": "600",
+        "lineHeight": 22,
+        "letterSpacing": -0.1,
+        "$usage": "Form labels and important text"
+      },
+      
+      "body": {
+        "fontSize": 14,
+        "fontWeight": "400",
+        "lineHeight": 18,
+        "letterSpacing": -0.1,
+        "$usage": "Primary body text and descriptions"
+      },
+      
+      "callout": {
+        "fontSize": 14,
+        "fontWeight": "500", 
+        "lineHeight": 18,
+        "letterSpacing": -0.1,
+        "$usage": "Nutrition labels and macro labels"
+      },
+      
+      "subheadline": {
+        "fontSize": 12,
+        "fontWeight": "500",
+        "lineHeight": 16,
+        "letterSpacing": 0,
+        "$usage": "Secondary information and metadata"
+      },
+      
+      "footnote": {
+        "fontSize": 10,
+        "fontWeight": "400",
+        "lineHeight": 14, 
+        "letterSpacing": 0,
+        "$usage": "Timestamps and fine print"
+      },
+      
+      "caption": {
+        "fontSize": 10,
+        "fontWeight": "500",
+        "lineHeight": 12,
+        "letterSpacing": 0.2,
+        "$usage": "Labels and captions"
+      }
+    },
+
+    "buttonTextStyles": {
+      "large": {
+        "fontSize": 16,
+        "fontWeight": "600",
+        "lineHeight": 24,
+        "$usage": "Large primary buttons"
+      },
+      
+      "medium": {
+        "fontSize": 14,
+        "fontWeight": "600", 
+        "lineHeight": 20,
+        "$usage": "Standard buttons"
+      },
+      
+      "small": {
+        "fontSize": 12,
+        "fontWeight": "500",
+        "lineHeight": 16,
+        "$usage": "Compact and secondary buttons"
+      }
+    }
+  },
+
+  "spacing": {
+    "$description": "8pt grid system with golden ratio proportions",
+    
+    "scale": {
+      "0": 0,
+      "1": 4,
+      "2": 8, 
+      "3": 12,
+      "4": 16,
+      "5": 20,
+      "6": 24,
+      "8": 32,
+      "10": 40,
+      "12": 48,
+      "16": 64,
+      "20": 80,
+      "24": 96,
+      "$description": "Base 8pt spacing scale"
+    },
+
+    "golden": {
+      "ratio": 1.618,
+      "derived": {
+        "xs": 6,
+        "sm": 10,
+        "md": 16,
+        "lg": 26,
+        "xl": 42,
+        "2xl": 68
+      },
+      "$description": "Golden ratio derived spacing for natural proportions"
+    },
+
+    "component": {
+      "container": {
+        "padding": 16,
+        "margin": 0,
+        "$description": "Main container spacing"
+      },
+      
+      "card": {
+        "padding": 20,
+        "margin": 12,
+        "gap": 16,
+        "$description": "Card component spacing"
+      },
+      
+      "modal": {
+        "padding": 20,
+        "margin": 0,
+        "gap": 24,
+        "$description": "Modal component spacing"
+      },
+      
+      "button": {
+        "paddingHorizontal": 16,
+        "paddingVertical": 12,
+        "gap": 8,
+        "$description": "Button component spacing"
+      },
+      
+      "input": {
+        "padding": 12,
+        "margin": 12,
+        "gap": 8,
+        "$description": "Input field spacing"
+      },
+      
+      "list": {
+        "itemGap": 12,
+        "sectionGap": 24,
+        "padding": 16,
+        "$description": "List component spacing"
+      }
+    },
+
+    "layout": {
+      "screenPadding": 16,
+      "sectionGap": 32,
+      "componentGap": 24,
+      "elementGap": 16,
+      "microGap": 8,
+      "$description": "Layout-level spacing definitions"
+    }
+  },
+
+  "radii": {
+    "$description": "Border radius system for consistent rounded corners",
+    
+    "scale": {
+      "none": 0,
+      "xs": 4,
+      "sm": 6,
+      "md": 8,
+      "lg": 12,
+      "xl": 16,
+      "2xl": 20,
+      "3xl": 24,
+      "full": 9999,
+      "$description": "Border radius scale"
+    },
+
+    "component": {
+      "button": {
+        "small": 24,
+        "medium": 28, 
+        "large": 32,
+        "square": 8,
+        "$description": "Button-specific radius values"
+      },
+      
+      "card": 16,
+      "modal": 20,
+      "input": 8,
+      "badge": 12,
+      "image": 8,
+      "$description": "Component-specific radius values"
+    }
+  },
+
+  "shadows": {
+    "$description": "iOS-style elevation and depth system",
+    
+    "elevation": {
+      "0": {
+        "shadowOffset": { "width": 0, "height": 0 },
+        "shadowOpacity": 0,
+        "shadowRadius": 0,
+        "elevation": 0,
+        "$description": "No shadow - flat surface"
+      },
+      
+      "1": {
+        "shadowOffset": { "width": 0, "height": 1 },
+        "shadowOpacity": 0.05,
+        "shadowRadius": 2,
+        "elevation": 1,
+        "$description": "Subtle elevation - cards on background"
+      },
+      
+      "2": {
+        "shadowOffset": { "width": 0, "height": 2 },
+        "shadowOpacity": 0.1,
+        "shadowRadius": 4,
+        "elevation": 2,
+        "$description": "Light elevation - floating elements"
+      },
+      
+      "3": {
+        "shadowOffset": { "width": 0, "height": 4 },
+        "shadowOpacity": 0.15,
+        "shadowRadius": 8,
+        "elevation": 4,
+        "$description": "Medium elevation - buttons and prominent cards"
+      },
+      
+      "4": {
+        "shadowOffset": { "width": 0, "height": 8 },
+        "shadowOpacity": 0.2,
+        "shadowRadius": 16,
+        "elevation": 8,
+        "$description": "High elevation - modals and overlays"
+      },
+      
+      "5": {
+        "shadowOffset": { "width": 0, "height": 12 },
+        "shadowOpacity": 0.25,
+        "shadowRadius": 24,
+        "elevation": 12,
+        "$description": "Maximum elevation - alerts and popovers"
+      }
+    },
+
+    "presets": {
+      "card": {
+        "shadowOffset": { "width": 0, "height": 2 },
+        "shadowOpacity": 0.1,
+        "shadowRadius": 4,
+        "elevation": 2,
+        "shadowColor": "#000000"
+      },
+      
+      "button": {
+        "shadowOffset": { "width": 0, "height": 4 },
+        "shadowOpacity": 0.3,
+        "shadowRadius": 8,
+        "elevation": 8,
+        "shadowColor": "inherit"
+      },
+      
+      "modal": {
+        "shadowOffset": { "width": 0, "height": 8 },
+        "shadowOpacity": 0.2,
+        "shadowRadius": 16,
+        "elevation": 8,
+        "shadowColor": "#000000"
+      }
+    }
+  },
+
+  "animations": {
+    "$description": "Physics-based animation system using react-native-reanimated",
+    
+    "durations": {
+      "immediate": 0,
+      "fast": 150,
+      "normal": 250,
+      "slow": 350,
+      "slower": 500,
+      "$description": "Standard animation durations in milliseconds"
+    },
+
+    "easings": {
+      "linear": [0.0, 0.0, 1.0, 1.0],
+      "easeIn": [0.42, 0.0, 1.0, 1.0],
+      "easeOut": [0.0, 0.0, 0.58, 1.0],
+      "easeInOut": [0.42, 0.0, 0.58, 1.0],
+      "appleEase": [0.25, 0.1, 0.25, 1.0],
+      "$description": "Cubic bezier easing curves"
+    },
+
+    "springs": {
+      "gentle": {
+        "damping": 25,
+        "stiffness": 120,
+        "mass": 1,
+        "$description": "Gentle spring for subtle animations"
+      },
+      
+      "bouncy": {
+        "damping": 18,
+        "stiffness": 150,
+        "mass": 1,
+        "$description": "Bouncy spring for interactive elements"
+      },
+      
+      "snappy": {
+        "damping": 30,
+        "stiffness": 400,
+        "mass": 1,
+        "$description": "Snappy spring for quick interactions"
+      },
+      
+      "layout": {
+        "damping": 20,
+        "stiffness": 180,
+        "mass": 1,
+        "$description": "Layout spring for size and position changes"
+      }
+    },
+
+    "presets": {
+      "fadeIn": {
+        "type": "timing",
+        "duration": 250,
+        "easing": "easeOut",
+        "properties": ["opacity"]
+      },
+      
+      "slideIn": {
+        "type": "spring",
+        "config": "bouncy", 
+        "properties": ["translateX", "translateY"]
+      },
+      
+      "scale": {
+        "type": "spring",
+        "config": "snappy",
+        "properties": ["scaleX", "scaleY"]
+      },
+      
+      "buttonPress": {
+        "type": "spring",
+        "config": "gentle",
+        "scaleDown": 0.95,
+        "duration": 150
+      },
+      
+      "swipeDelete": {
+        "slideOut": {
+          "type": "timing",
+          "duration": 250,
+          "easing": "easeIn"
+        },
+        "collapse": {
+          "type": "timing", 
+          "duration": 200,
+          "easing": "easeOut"
+        }
+      }
+    }
+  },
+
+  "icons": {
+    "$description": "Icon system specifications using @expo/vector-icons/FontAwesome",
+    
+    "sizes": {
+      "xs": 12,
+      "sm": 16,
+      "md": 20,
+      "lg": 24,
+      "xl": 32,
+      "2xl": 48,
+      "$description": "Standard icon sizes"
+    },
+
+    "library": {
+      "primary": "@expo/vector-icons/FontAwesome",
+      "alternatives": ["@expo/vector-icons/Ionicons", "@expo/vector-icons/MaterialIcons"],
+      "$description": "Icon library preferences"
+    },
+
+    "semantic": {
+      "actions": {
+        "camera": "camera",
+        "microphone": "microphone", 
+        "edit": "pencil",
+        "delete": "trash",
+        "save": "check",
+        "cancel": "times",
+        "add": "plus",
+        "remove": "minus",
+        "settings": "cog",
+        "info": "info-circle"
+      },
+      
+      "navigation": {
+        "back": "chevron-left",
+        "forward": "chevron-right",
+        "up": "chevron-up",
+        "down": "chevron-down",
+        "menu": "bars",
+        "close": "times"
+      },
+      
+      "content": {
+        "food": "cutlery",
+        "nutrition": "pie-chart",
+        "calendar": "calendar",
+        "user": "user",
+        "search": "search",
+        "filter": "filter"
+      },
+      
+      "feedback": {
+        "success": "check-circle",
+        "warning": "exclamation-triangle",
+        "error": "exclamation-circle", 
+        "info": "info-circle",
+        "loading": "spinner"
+      }
+    },
+
+    "usage": {
+      "buttonIcons": {
+        "size": "md",
+        "color": "inherit",
+        "$description": "Icons within buttons inherit button color"
+      },
+      
+      "navigationIcons": {
+        "size": "lg", 
+        "color": "text.primary",
+        "$description": "Navigation icons use primary text color"
+      },
+      
+      "statusIcons": {
+        "size": "sm",
+        "color": "semantic",
+        "$description": "Status icons use semantic colors"
+      }
+    }
+  },
+
+  "components": {
+    "$description": "Component-specific design specifications",
+    
+    "button": {
+      "variants": {
+        "primary": {
+          "backgroundColor": "brand.primary",
+          "textColor": "text.inverse",
+          "shadow": "presets.button",
+          "borderRadius": "component.button"
+        },
+        
+        "secondary": {
+          "backgroundColor": "brand.secondary",
+          "textColor": "text.inverse", 
+          "shadow": "presets.button",
+          "borderRadius": "component.button"
+        },
+        
+        "tertiary": {
+          "backgroundColor": "surface.primary",
+          "textColor": "text.primary",
+          "border": "border.primary",
+          "borderRadius": "component.button"
+        }
+      },
+      
+      "sizes": {
+        "small": {
+          "height": 40,
+          "paddingHorizontal": 12,
+          "fontSize": "buttonTextStyles.small"
+        },
+        
+        "medium": {
+          "height": 48,
+          "paddingHorizontal": 16,
+          "fontSize": "buttonTextStyles.medium"
+        },
+        
+        "large": {
+          "height": 56,
+          "paddingHorizontal": 20,
+          "fontSize": "buttonTextStyles.large"
+        }
+      },
+      
+      "states": {
+        "disabled": {
+          "backgroundColor": "text.tertiary",
+          "textColor": "text.quaternary",
+          "shadow": "elevation.0"
+        }
+      }
+    },
+
+    "card": {
+      "base": {
+        "backgroundColor": "surface.primary",
+        "borderRadius": "component.card",
+        "padding": "component.card.padding",
+        "margin": "component.card.margin",
+        "shadow": "presets.card"
+      },
+      
+      "variants": {
+        "elevated": {
+          "backgroundColor": "surface.elevated",
+          "shadow": "elevation.3"
+        },
+        
+        "outlined": {
+          "backgroundColor": "surface.primary",
+          "border": "border.primary",
+          "shadow": "elevation.0"
+        }
+      }
+    },
+
+    "input": {
+      "base": {
+        "backgroundColor": "surface.primary",
+        "borderColor": "border.primary",
+        "borderRadius": "component.input",
+        "padding": "component.input.padding",
+        "fontSize": "textStyles.body",
+        "color": "text.primary"
+      },
+      
+      "states": {
+        "focused": {
+          "borderColor": "brand.primary",
+          "shadow": "elevation.1"
+        },
+        
+        "error": {
+          "borderColor": "functional.error.foreground",
+          "backgroundColor": "functional.error.background"
+        },
+        
+        "disabled": {
+          "backgroundColor": "surface.depressed",
+          "color": "text.tertiary"
+        }
+      }
+    },
+
+    "modal": {
+      "base": {
+        "backgroundColor": "surface.primary",
+        "borderRadius": "component.modal",
+        "padding": "component.modal.padding",
+        "shadow": "presets.modal"
+      },
+      
+      "overlay": {
+        "backgroundColor": "background.overlay"
+      }
+    }
+  },
+
+  "accessibility": {
+    "$description": "Accessibility specifications for WCAG 2.2 AA compliance",
+    
+    "contrast": {
+      "minimumRatio": 4.5,
+      "largeTextRatio": 3.0,
+      "$description": "Minimum contrast ratios for text readability"
+    },
+    
+    "touchTargets": {
+      "minimum": 44,
+      "recommended": 48,
+      "$description": "Minimum touch target sizes in points"
+    },
+    
+    "focus": {
+      "indicatorColor": "brand.primary",
+      "indicatorWidth": 2,
+      "borderRadius": 4,
+      "$description": "Focus indicator specifications"
+    },
+    
+    "animation": {
+      "respectReducedMotion": true,
+      "alternativeDuration": 0,
+      "$description": "Honor prefers-reduced-motion settings"
+    }
+  },
+
+  "breakpoints": {
+    "$description": "Responsive breakpoints for different screen sizes",
+    
+    "mobile": {
+      "small": 320,
+      "medium": 375,
+      "large": 414
+    },
+    
+    "tablet": {
+      "small": 768,
+      "large": 1024
+    },
+    
+    "desktop": {
+      "small": 1280,
+      "large": 1920
+    }
+  },
+
+  "implementation": {
+    "$description": "Implementation guidelines for React Native",
+    
+    "usage": {
+      "importing": "Import design tokens from this JSON file into your theme system",
+      "typeScript": "Generate TypeScript interfaces from this schema",
+      "styleSheet": "Use with StyleSheet.create() for React Native styling",
+      "reanimated": "Animation presets work with react-native-reanimated v3"
+    },
+    
+    "examples": {
+      "colorUsage": "colors.brand.primary.$default",
+      "spacingUsage": "spacing.component.card.padding", 
+      "typographyUsage": "typography.textStyles.title1",
+      "shadowUsage": "shadows.presets.card",
+      "animationUsage": "animations.presets.fadeIn"
+    },
+    
+    "compatibility": {
+      "reactNative": ">=0.70.0",
+      "expo": ">=47.0.0",
+      "reanimated": ">=3.0.0",
+      "platforms": ["iOS", "Android", "Web"]
+    }
+  }
+}
