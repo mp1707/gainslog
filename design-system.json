@@ -1,0 +1,164 @@
+{
+    "designSystemName": "RetroPixel Dark",
+    "description": "A dark-themed design system inspired by classic 8-bit and pixel art user interfaces. It features a dark background, pixelated textures, sharp edges, and vibrant gradients for key interactive elements.",
+    "globalStyles": {
+      "palette": {
+        "background": {
+          "primary": "#181818",
+          "container": "#2B2B2B"
+        },
+        "text": {
+          "primary": "#E0E0E0",
+          "secondary": "#999999"
+        },
+        "border": {
+          "primary": "#999999",
+          "secondary": "#444444"
+        },
+        "gradients": {
+          "primary_warm": "linear-gradient(135deg, #FADE28 0%, #F28D38 50%, #E7562F 100%)",
+          "secondary_cool": "linear-gradient(135deg, #A24CF1 0%, #5B86F9 100%)",
+          "accent_vibrant": "linear-gradient(135deg, #7CF64A 0%, #4FF8D8 100%)"
+        },
+        "utility": {
+          "disabled_fill": "#4D4D4D",
+          "disabled_text": "#707070"
+        }
+      },
+      "typography": {
+        "fontFamily": "'Silkscreen', 'PixelOperator', 'monospace'",
+        "baseSize": "16px",
+        "rendering": {
+          "font-smoothing": "none",
+          "-webkit-font-smoothing": "none",
+          "text-rendering": "optimizeSpeed"
+        },
+        "headings": {
+          "color": "#E0E0E0"
+        },
+        "body": {
+          "color": "#E0E0E0"
+        },
+        "labels": {
+          "color": "#999999"
+        }
+      },
+      "effects": {
+        "borderRadius": "0px",
+        "shadow": "none",
+        "texture": {
+          "containerFill": "repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(0,0,0,0.3) 3px, rgba(0,0,0,0.3) 4px)",
+          "sliderFill": "repeating-linear-gradient(0deg, #E0E0E0, #E0E0E0 1px, transparent 1px, transparent 2px), repeating-linear-gradient(90deg, #E0E0E0, #E0E0E0 1px, transparent 1px, transparent 2px)"
+        }
+      }
+    },
+    "elementStyling": {
+      "containers": {
+        "default": {
+          "background-color": "#2B2B2B",
+          "background-image": "var(--effects-texture-containerFill)",
+          "border": "1px solid #999999",
+          "padding": "8px"
+        },
+        "nested": {
+          "background-color": "#181818",
+          "border": "1px solid #444444"
+        }
+      },
+      "buttons": {
+        "context": "Interactive elements for primary and secondary actions.",
+        "primary": {
+          "background": "transparent",
+          "border": "1px solid #999999",
+          "text_color": "#E0E0E0",
+          "icon_fill_gradient": "var(--palette-gradients-primary_warm)",
+          "hover": {
+            "background": "#333333",
+            "border_color": "#E0E0E0"
+          },
+          "active": {
+            "background": "#181818",
+            "border_style": "inset"
+          }
+        },
+        "secondary": {
+          "background": "transparent",
+          "border": "1px solid #444444",
+          "text_color": "#999999",
+          "icon_fill_color": "#999999",
+          "hover": {
+            "background": "#2B2B2B",
+            "border_color": "#999999",
+            "text_color": "#E0E0E0",
+            "icon_fill_color": "#E0E0E0"
+          },
+          "active": {
+            "background": "#181818",
+            "border_style": "inset"
+          }
+        },
+        "disabled": {
+          "background": "#2B2B2B",
+          "border": "1px solid #4D4D4D",
+          "text_color": "#707070",
+          "icon_fill_color": "#4D4D4D"
+        }
+      },
+      "icons": {
+        "context": "Pixel art icons. Color indicates function: gradients for featured/interactive, solid for standard.",
+        "featured": {
+          "fill": "var(--palette-gradients-primary_warm)",
+          "background": "none"
+        },
+        "standard": {
+          "fill": "#E0E0E0",
+          "background": "none"
+        },
+        "secondary": {
+          "fill": "#999999",
+          "background": "none"
+        },
+        "disabled": {
+          "fill": "#4D4D4D",
+          "background": "none"
+        }
+      },
+      "inputs": {
+        "slider": {
+          "track": {
+            "background-color": "#2B2B2B",
+            "background-image": "var(--effects-texture-containerFill)",
+            "border": "1px solid #999999"
+          },
+          "fill": {
+            "background-color": "#444444",
+            "background-image": "var(--effects-texture-sliderFill)"
+          },
+          "thumb": {
+            "background-color": "#999999",
+            "border": "1px solid #E0E0E0"
+          }
+        },
+        "textInput": {
+          "background": "#181818",
+          "border": "1px solid #999999",
+          "text_color": "#E0E0E0",
+          "placeholder_color": "#707070",
+          "focus": {
+            "border_color": "#E0E0E0",
+            "outline": "none"
+          }
+        }
+      }
+    },
+    "rules": {
+      "doNot": [
+        "DO NOT apply rounded corners to any element. All corners must be sharp (0px radius).",
+        "DO NOT use traditional box-shadows. Depth is created with borders and layering.",
+        "DO NOT apply gradients to container backgrounds, text, or secondary elements. Gradients are reserved for primary/featured icon fills.",
+        "DO NOT use anti-aliasing on fonts or pixel art icons. Maintain crisp, aliased edges.",
+        "DO NOT apply smooth transitions or animations on hover/active states. State changes should be instant.",
+        "DO NOT use colors outside the defined palette to ensure consistency."
+      ]
+    }
+  }
