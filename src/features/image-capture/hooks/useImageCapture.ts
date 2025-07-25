@@ -7,19 +7,29 @@ import { FoodLog } from '../../../types';
 import { generateFoodLogId } from '../../../lib/storage';
 import { useFoodLogStore } from '../../../stores/useFoodLogStore';
 
-// Helper function to convert Date to local date string (YYYY-MM-DD)
-const dateToLocalDateString = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
+
 
 export const useImageCapture = () => {
   const [isUploading, setIsUploading] = useState(false);
-  const { selectedDate } = useFoodLogStore();
+  const { selectedDate, updateFoodLogInState, addFoodLogToState } = useFoodLogStore();
 
-  const processAndUploadImage = async (imageUri: string): Promise<FoodLog | null> => {
+  const createPartialLog = (localImageUri: string): FoodLog => {
+    return {
+      id: generateFoodLogId(),
+      generatedTitle: '',
+      estimationConfidence: 0,
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+      localImageUri,
+      isUploading: true,
+      createdAt: new Date().toISOString(),
+      date: selectedDate,
+    };
+  };
+
+  const uploadImageInBackground = async (log: FoodLog, imageUri: string) => {
     try {
       // Process and resize image
       const resizedImageUri = await ImageManipulator.manipulateAsync(
@@ -50,25 +60,28 @@ export const useImageCapture = () => {
         .from('food-images')
         .getPublicUrl(filename);
 
-      // Create food log with image using selected date
-      const newLog: FoodLog = {
-        id: generateFoodLogId(),
-        generatedTitle: '',
-        estimationConfidence: 0,
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-        fat: 0,
+      // Update the log with uploaded image URL
+      const updatedLog: FoodLog = {
+        ...log,
         imageUrl: publicUrlData.publicUrl,
-        createdAt: new Date().toISOString(),
-        date: selectedDate,
+        isUploading: false,
+        localImageUri: undefined, // Clear local URI after successful upload
       };
 
-      return newLog;
+      // Update the log in the store
+      updateFoodLogInState(updatedLog);
     } catch (error) {
       console.error('Error processing and uploading image:', error);
-      Alert.alert('Error', 'Failed to process and upload image');
-      return null;
+      
+      // Update log to show upload failed
+      const failedLog: FoodLog = {
+        ...log,
+        isUploading: false,
+        // Keep local URI so user can retry
+      };
+      
+      updateFoodLogInState(failedLog);
+      Alert.alert('Upload Failed', 'Failed to upload image. You can still save this entry with the local image.');
     }
   };
 
@@ -90,7 +103,16 @@ export const useImageCapture = () => {
 
       if (result.canceled) return null;
 
-      return await processAndUploadImage(result.assets[0].uri);
+      // Create partial log immediately
+      const partialLog = createPartialLog(result.assets[0].uri);
+      
+      // Add to store state immediately so modal can track it
+      addFoodLogToState(partialLog);
+      
+      // Start background upload
+      uploadImageInBackground(partialLog, result.assets[0].uri);
+      
+      return partialLog;
     } catch (error) {
       console.error('Error launching camera:', error);
       Alert.alert('Error', 'Failed to access camera');
@@ -116,7 +138,16 @@ export const useImageCapture = () => {
 
       if (result.canceled) return null;
 
-      return await processAndUploadImage(result.assets[0].uri);
+      // Create partial log immediately
+      const partialLog = createPartialLog(result.assets[0].uri);
+      
+      // Add to store state immediately so modal can track it
+      addFoodLogToState(partialLog);
+      
+      // Start background upload
+      uploadImageInBackground(partialLog, result.assets[0].uri);
+      
+      return partialLog;
     } catch (error) {
       console.error('Error launching image library:', error);
       Alert.alert('Error', 'Failed to access photo library');
@@ -133,18 +164,14 @@ export const useImageCapture = () => {
           {
             text: 'Take Photo',
             onPress: async () => {
-              setIsUploading(true);
               const result = await launchCamera();
-              setIsUploading(false);
               resolve(result);
             },
           },
           {
             text: 'Choose from Library',
             onPress: async () => {
-              setIsUploading(true);
               const result = await launchImageLibrary();
-              setIsUploading(false);
               resolve(result);
             },
           },

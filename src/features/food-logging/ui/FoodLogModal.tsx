@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { FormField, NutritionGrid } from '@/shared/ui';
+import { FormField, NutritionGrid, ImageSkeleton } from '@/shared/ui';
 import { FoodLog, ModalMode } from '../../../types';
 import { mergeNutritionData } from '../utils';
 import { useFoodLogStore } from '../../../stores/useFoodLogStore';
@@ -31,7 +31,10 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   onClose,
   onSave,
 }) => {
-  const { selectedDate } = useFoodLogStore();
+  const { selectedDate, foodLogs } = useFoodLogStore();
+  
+  // Get the live log from store to reflect upload progress
+  const currentLog = selectedLog ? foodLogs.find(log => log.id === selectedLog.id) || selectedLog : selectedLog;
   const [tempTitle, setTempTitle] = useState('');
   const [tempDescription, setTempDescription] = useState('');
   const [tempCalories, setTempCalories] = useState('');
@@ -41,13 +44,13 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
 
   // Reset form when modal opens
   useEffect(() => {
-    if (visible && selectedLog) {
-      setTempTitle(selectedLog.userTitle || selectedLog.generatedTitle || '');
-      setTempDescription(selectedLog.userDescription || '');
-      setTempCalories(selectedLog.userCalories?.toString() || '');
-      setTempProtein(selectedLog.userProtein?.toString() || '');
-      setTempCarbs(selectedLog.userCarbs?.toString() || '');
-      setTempFat(selectedLog.userFat?.toString() || '');
+    if (visible && currentLog) {
+      setTempTitle(currentLog.userTitle || currentLog.generatedTitle || '');
+      setTempDescription(currentLog.userDescription || '');
+      setTempCalories(currentLog.userCalories?.toString() || '');
+      setTempProtein(currentLog.userProtein?.toString() || '');
+      setTempCarbs(currentLog.userCarbs?.toString() || '');
+      setTempFat(currentLog.userFat?.toString() || '');
     } else if (visible && mode === 'create') {
       setTempTitle('');
       setTempDescription('');
@@ -56,11 +59,11 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
       setTempCarbs('');
       setTempFat('');
     }
-  }, [visible, selectedLog, mode]);
+  }, [visible, currentLog, mode]);
 
   const handleSave = () => {
     // Validate required fields for create mode - title is optional for image logs
-    const isImageLog = selectedLog?.imageUrl;
+    const isImageLog = currentLog?.imageUrl || currentLog?.localImageUri;
     if (mode === 'create' && !isImageLog && !tempTitle.trim()) {
       Alert.alert('Error', 'Title is required');
       return;
@@ -77,10 +80,10 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
 
     let finalLog: FoodLog;
 
-    if (mode === 'edit' && selectedLog) {
+    if (mode === 'edit' && currentLog) {
       // Updating existing log - preserve original ID and metadata
       finalLog = {
-        ...selectedLog,
+        ...currentLog,
         userTitle: tempTitle.trim() || undefined,
         userDescription: tempDescription.trim() || undefined,
         calories: nutritionData.calories,
@@ -95,10 +98,10 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
         // Reset confidence to trigger re-estimation
         estimationConfidence: nutritionData.needsAiEstimation ? 0 : 100,
       };
-    } else if (mode === 'create' && selectedLog) {
+    } else if (mode === 'create' && currentLog) {
       // Processing existing log (image log) - return log with user input for AI processing
       finalLog = {
-        ...selectedLog,
+        ...currentLog,
         userTitle: tempTitle.trim() || undefined,
         userDescription: tempDescription.trim() || undefined,
         calories: nutritionData.calories,
@@ -156,29 +159,43 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
           <Text style={styles.title}>
             {mode === 'create' ? 'Add Food Log' : 'Add Info'}
           </Text>
-          <TouchableOpacity onPress={handleSave}>
-            <Text style={styles.saveButton}>
-              Save
+          <TouchableOpacity 
+            onPress={handleSave}
+            disabled={currentLog?.isUploading}
+          >
+            <Text style={[
+              styles.saveButton,
+              currentLog?.isUploading && styles.saveButtonDisabled
+            ]}>
+              {currentLog?.isUploading ? 'Uploading...' : 'Save'}
             </Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView style={styles.content}>
-          {selectedLog?.imageUrl && (
+          {(currentLog?.imageUrl || currentLog?.localImageUri) && (
             <View style={styles.imageContainer}>
-              <Image 
-                source={{ uri: selectedLog.imageUrl }} 
-                style={styles.foodImage}
-                resizeMode="cover"
-              />
+              {currentLog.isUploading ? (
+                <ImageSkeleton 
+                  width="100%" 
+                  height={200}
+                  style={styles.foodImage}
+                />
+              ) : (
+                <Image 
+                  source={{ uri: currentLog.imageUrl || currentLog.localImageUri }} 
+                  style={styles.foodImage}
+                  resizeMode="cover"
+                />
+              )}
             </View>
           )}
 
           <FormField
-            label={`Title${selectedLog?.imageUrl ? ' (Optional)' : ''}`}
+            label={`Title${(currentLog?.imageUrl || currentLog?.localImageUri) ? ' (Optional)' : ''}`}
             value={tempTitle}
             onChangeText={setTempTitle}
-            placeholder={selectedLog?.imageUrl ? 'Enter food title (AI will generate if empty)' : 'Enter food title'}
+            placeholder={(currentLog?.imageUrl || currentLog?.localImageUri) ? 'Enter food title (AI will generate if empty)' : 'Enter food title'}
           />
 
           <FormField

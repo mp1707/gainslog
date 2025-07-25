@@ -14,6 +14,8 @@ export interface FoodLog {
   userCarbs?: number;
   userFat?: number;
   imageUrl?: string;
+  localImageUri?: string; // Local image URI before upload
+  isUploading?: boolean; // Track upload state
   createdAt: string;
   date: string; // ISO date string (YYYY-MM-DD)
   needsAiEstimation?: boolean;
