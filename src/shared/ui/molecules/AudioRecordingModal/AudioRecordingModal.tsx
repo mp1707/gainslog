@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Modal, View, Text, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { useAudioRecorder, RecordingPresets } from 'expo-audio';
-import { Audio } from 'expo-av';
+import { useAudioRecorder, RecordingPresets, AudioModule, setAudioModeAsync } from 'expo-audio';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Animated, { 
   useSharedValue, 
@@ -88,8 +87,8 @@ export function AudioRecordingModal({
 
   const startRecording = async () => {
     try {
-      // Request permissions using expo-av
-      const permission = await Audio.requestPermissionsAsync();
+      // Request permissions using expo-audio
+      const permission = await AudioModule.requestRecordingPermissionsAsync();
       
       if (!permission.granted) {
         Alert.alert(
@@ -101,9 +100,9 @@ export function AudioRecordingModal({
       }
 
       // Set audio mode for recording
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
+      await setAudioModeAsync({
+        allowsRecording: true,
+        playsInSilentMode: true,
       });
 
       await audioRecorder.prepareToRecordAsync();
