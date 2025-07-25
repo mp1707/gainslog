@@ -1,6 +1,7 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { FoodLogScreen, FoodLogModal } from "../../src/features/food-logging";
+import { AudioRecordingModal } from "../../src/shared/ui";
 import { useFoodLogModal, useUpdateFoodLog } from "../../src/features/food-logging/hooks";
 import { useCreateFoodLog } from "../../src/features/food-logging/hooks/useCreateFoodLog";
 import { useImageCapture } from "../../src/features/image-capture/hooks/useImageCapture";
@@ -15,6 +16,9 @@ export default function TodayTab() {
     clearTrigger,
     loadFoodLogs,
   } = useFoodLogStore();
+
+  // Audio recording modal state
+  const [isAudioModalVisible, setIsAudioModalVisible] = useState(false);
 
   /* UI hooks */
   const modal = useFoodLogModal();
@@ -45,8 +49,7 @@ export default function TodayTab() {
           modal.handleImageCaptured(log);
         }
       } else if (triggerAction === "audio") {
-        // Audio functionality not implemented yet - just show modal for manual entry
-        modal.handleManualLog();
+        setIsAudioModalVisible(true);
       }
       clearTrigger();
     };
@@ -66,6 +69,18 @@ export default function TodayTab() {
     [create, update, modal.modalMode]
   );
 
+  /* Audio recording handlers */
+  const handleAudioModalClose = useCallback(() => {
+    setIsAudioModalVisible(false);
+  }, []);
+
+  const handleAudioSend = useCallback(async (audioUri: string) => {
+    // For now, this is mocked - just close the modal
+    // In the future, this could process the audio file or save it
+    console.log('Audio recording URI:', audioUri);
+    setIsAudioModalVisible(false);
+  }, []);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <FoodLogScreen
@@ -80,6 +95,12 @@ export default function TodayTab() {
         selectedLog={modal.selectedLog}
         onClose={modal.handleModalClose}
         onSave={handleSave}
+      />
+
+      <AudioRecordingModal
+        visible={isAudioModalVisible}
+        onClose={handleAudioModalClose}
+        onSend={handleAudioSend}
       />
     </GestureHandlerRootView>
   );

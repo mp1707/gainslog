@@ -6,3 +6,4 @@ export { ImageSkeleton } from "./ImageSkeleton";
 export { Badge } from "./Badge";
 export { ManualEntryButton } from "./ManualEntryButton";
 export { Stepper } from "./Stepper";
+export { AudioPlayer } from "./AudioPlayer";
