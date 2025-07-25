@@ -1,44 +1,33 @@
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
-  container: {
+  backdrop: {
     flex: 1,
-    backgroundColor: '#ffffff',
-  },
-
-  header: {
-    flexDirection: 'row',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    paddingHorizontal: 20,
   },
 
-  cancelButton: {
-    fontSize: 16,
-    fontWeight: '400',
-    color: '#007AFF',
-    letterSpacing: -0.1,
-  },
-
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
-    letterSpacing: -0.2,
-  },
-
-  headerSpacer: {
-    width: 50, // Balance the cancel button
+  container: {
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    width: 320,
+    maxWidth: '90%',
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    // iOS Shadow
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    shadowColor: '#000000',
+    // Android Shadow  
+    elevation: 10,
   },
 
   content: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 24,
   },
 
   controlsContainer: {
@@ -46,55 +35,33 @@ export const styles = StyleSheet.create({
     width: '100%',
   },
 
-  recordButton: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#007AFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-    // iOS Shadow
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    shadowColor: '#007AFF',
-    // Android Shadow
-    elevation: 8,
-  },
 
   recordingButton: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     backgroundColor: '#FF3B30',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
     // iOS Shadow
-    shadowOffset: { width: 0, height: 8 },
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.25,
-    shadowRadius: 16,
+    shadowRadius: 12,
     shadowColor: '#FF3B30',
     // Android Shadow
-    elevation: 8,
+    elevation: 6,
   },
 
   stopButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
+    width: 50,
+    height: 50,
+    borderRadius: 6,
     backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
   },
 
-  instructionText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#6b7280',
-    letterSpacing: -0.1,
-  },
 
   recordingInfo: {
     alignItems: 'center',
@@ -122,7 +89,7 @@ export const styles = StyleSheet.create({
   },
 
   timerText: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '600',
     color: '#111827',
     letterSpacing: -0.5,
@@ -132,18 +99,18 @@ export const styles = StyleSheet.create({
 
   actionButtons: {
     flexDirection: 'row',
-    marginTop: 32,
-    gap: 16,
+    marginTop: 24,
+    gap: 12,
   },
 
   deleteButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     backgroundColor: '#fee2e2',
-    borderRadius: 28,
-    gap: 8,
+    borderRadius: 24,
+    gap: 6,
   },
 
   deleteButtonText: {
@@ -156,18 +123,18 @@ export const styles = StyleSheet.create({
   sendButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     backgroundColor: '#007AFF',
-    borderRadius: 28,
-    gap: 8,
+    borderRadius: 24,
+    gap: 6,
     // iOS Shadow
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
-    shadowRadius: 8,
+    shadowRadius: 6,
     shadowColor: '#007AFF',
     // Android Shadow
-    elevation: 4,
+    elevation: 3,
   },
 
   sendButtonText: {

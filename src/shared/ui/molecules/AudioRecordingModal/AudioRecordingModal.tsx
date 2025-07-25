@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, View, Text, TouchableOpacity, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Modal, View, Text, TouchableOpacity, Alert, Pressable } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useAudioRecorder, RecordingPresets, AudioModule, setAudioModeAsync } from 'expo-audio';
+import * as FileSystem from 'expo-file-system';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Animated, { 
   useSharedValue, 
@@ -14,7 +14,7 @@ import Animated, {
 import { AudioPlayer } from '../../atoms/AudioPlayer';
 import { styles } from './AudioRecordingModal.styles';
 
-type RecordingState = 'idle' | 'recording' | 'recorded' | 'playing';
+type RecordingState = 'preparing' | 'recording' | 'recorded' | 'playing';
 
 interface AudioRecordingModalProps {
   visible: boolean;
@@ -28,7 +28,7 @@ export function AudioRecordingModal({
   onSend 
 }: AudioRecordingModalProps) {
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
-  const [recordingState, setRecordingState] = useState<RecordingState>('idle');
+  const [recordingState, setRecordingState] = useState<RecordingState>('preparing');
   const [recordingTime, setRecordingTime] = useState(0);
   const [recordedUri, setRecordedUri] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -36,29 +36,34 @@ export function AudioRecordingModal({
   const recordingTimer = useRef<NodeJS.Timeout | null>(null);
   const pulseAnimation = useSharedValue(1);
 
-  // Cleanup on modal close
+  // Auto-start recording when modal opens and cleanup on close
   useEffect(() => {
-    if (!visible) {
-      handleReset();
+    if (visible) {
+      startRecording();
+    } else {
+      handleResourceCleanup();
     }
   }, [visible]);
 
-  // Recording timer
+  // Recording timer - only start when actually recording
   useEffect(() => {
+    // Clear any existing timer first
+    if (recordingTimer.current) {
+      clearInterval(recordingTimer.current);
+      recordingTimer.current = null;
+    }
+    
+    // Only start timer when actually recording (not preparing)
     if (recordingState === 'recording') {
       recordingTimer.current = setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
-    } else {
-      if (recordingTimer.current) {
-        clearInterval(recordingTimer.current);
-        recordingTimer.current = null;
-      }
     }
 
     return () => {
       if (recordingTimer.current) {
         clearInterval(recordingTimer.current);
+        recordingTimer.current = null;
       }
     };
   }, [recordingState]);
@@ -87,6 +92,9 @@ export function AudioRecordingModal({
 
   const startRecording = async () => {
     try {
+      setRecordingState('preparing');
+      setRecordingTime(0);
+      
       // Request permissions using expo-audio
       const permission = await AudioModule.requestRecordingPermissionsAsync();
       
@@ -106,12 +114,14 @@ export function AudioRecordingModal({
       });
 
       await audioRecorder.prepareToRecordAsync();
-      audioRecorder.record();
+      await audioRecorder.record();
+      
+      // Only set recording state after everything is ready
       setRecordingState('recording');
-      setRecordingTime(0);
     } catch (error) {
       console.error('Error starting recording:', error);
       Alert.alert('Error', 'Failed to start recording. Please try again.');
+      setRecordingState('preparing');
     }
   };
 
@@ -134,27 +144,55 @@ export function AudioRecordingModal({
     }
   };
 
-  const handleReset = () => {
-    setRecordingState('idle');
-    setRecordingTime(0);
-    setRecordedUri(null);
-    setIsPlaying(false);
-    
-    if (recordingTimer.current) {
-      clearInterval(recordingTimer.current);
-      recordingTimer.current = null;
+  const handleResourceCleanup = async () => {
+    try {
+      // Stop any active recording
+      if (recordingState === 'recording') {
+        await audioRecorder.stop();
+      }
+      
+      // Delete recorded file if it exists
+      if (recordedUri) {
+        try {
+          const fileInfo = await FileSystem.getInfoAsync(recordedUri);
+          if (fileInfo.exists) {
+            await FileSystem.deleteAsync(recordedUri);
+          }
+        } catch (deleteError) {
+          console.warn('Failed to delete audio file:', deleteError);
+        }
+      }
+      
+      // Clear timer
+      if (recordingTimer.current) {
+        clearInterval(recordingTimer.current);
+        recordingTimer.current = null;
+      }
+      
+      // Stop pulse animation
+      pulseAnimation.value = 1;
+    } catch (error) {
+      console.error('Error during cleanup:', error);
     }
   };
 
-  const handleDelete = () => {
-    Alert.alert(
-      'Delete Recording',
-      'Are you sure you want to delete this recording?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: handleReset }
-      ]
-    );
+  const handleCompleteCleanup = async () => {
+    await handleResourceCleanup();
+    
+    // Reset all state
+    setRecordingState('preparing');
+    setRecordingTime(0);
+    setRecordedUri(null);
+    setIsPlaying(false);
+  };
+
+  const handleReset = () => {
+    handleCompleteCleanup();
+  };
+
+  const handleDelete = async () => {
+    await handleResourceCleanup();
+    onClose();
   };
 
   const handleSend = () => {
@@ -172,19 +210,13 @@ export function AudioRecordingModal({
 
   const renderRecordingControls = () => {
     switch (recordingState) {
-      case 'idle':
+      case 'preparing':
         return (
           <View style={styles.controlsContainer}>
-            <TouchableOpacity
-              style={styles.recordButton}
-              onPress={startRecording}
-              activeOpacity={0.8}
-              accessibilityRole="button"
-              accessibilityLabel="Start recording"
-            >
+            <View style={styles.recordingButton}>
               <FontAwesome name="microphone" size={32} color="white" />
-            </TouchableOpacity>
-            <Text style={styles.instructionText}>Tap to start recording</Text>
+            </View>
+            <Text style={styles.recordingText}>Preparing...</Text>
           </View>
         );
 
@@ -259,25 +291,27 @@ export function AudioRecordingModal({
   return (
     <Modal
       visible={visible}
-      animationType="slide"
-      presentationStyle="pageSheet"
-      onRequestClose={onClose}
+      animationType="fade"
+      transparent={true}
+      onRequestClose={async () => {
+        await handleResourceCleanup();
+        onClose();
+      }}
     >
-      <SafeAreaView style={styles.container}>
-        <StatusBar style="dark" />
-        
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose}>
-            <Text style={styles.cancelButton}>Cancel</Text>
-          </TouchableOpacity>
-          <Text style={styles.title}>Record Audio</Text>
-          <View style={styles.headerSpacer} />
-        </View>
-
-        <View style={styles.content}>
-          {renderRecordingControls()}
-        </View>
-      </SafeAreaView>
+      <StatusBar style="light" />
+      <Pressable 
+        style={styles.backdrop}
+        onPress={async () => {
+          await handleResourceCleanup();
+          onClose();
+        }}
+      >
+        <Pressable style={styles.container} onPress={(e) => e.stopPropagation()}>
+          <View style={styles.content}>
+            {renderRecordingControls()}
+          </View>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }
