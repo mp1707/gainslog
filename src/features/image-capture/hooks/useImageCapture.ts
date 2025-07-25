@@ -19,28 +19,11 @@ export const useImageCapture = () => {
   const [isUploading, setIsUploading] = useState(false);
   const { selectedDate } = useFoodLogStore();
 
-  const captureImage = async (): Promise<FoodLog | null> => {
+  const processAndUploadImage = async (imageUri: string): Promise<FoodLog | null> => {
     try {
-      setIsUploading(true);
-
-      // Request camera permissions first
-      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-
-      if (permissionResult.status !== 'granted') {
-        throw new Error('Camera permission not granted');
-      }
-
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ['images'],
-        allowsEditing: true,
-        quality: 1,
-      });
-
-      if (result.canceled) return null;
-
       // Process and resize image
       const resizedImageUri = await ImageManipulator.manipulateAsync(
-        result.assets[0].uri,
+        imageUri,
         [{ resize: { width: 1000 } }],
         { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
       );
@@ -83,16 +66,106 @@ export const useImageCapture = () => {
 
       return newLog;
     } catch (error) {
-      console.error('Error capturing image:', error);
-      Alert.alert('Error', 'Failed to capture and upload image');
+      console.error('Error processing and uploading image:', error);
+      Alert.alert('Error', 'Failed to process and upload image');
       return null;
-    } finally {
-      setIsUploading(false);
     }
   };
+
+  const launchCamera = async (): Promise<FoodLog | null> => {
+    try {
+      // Request camera permissions
+      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+      if (permissionResult.status !== 'granted') {
+        Alert.alert('Permission Required', 'Camera access is required to take photos');
+        return null;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      if (result.canceled) return null;
+
+      return await processAndUploadImage(result.assets[0].uri);
+    } catch (error) {
+      console.error('Error launching camera:', error);
+      Alert.alert('Error', 'Failed to access camera');
+      return null;
+    }
+  };
+
+  const launchImageLibrary = async (): Promise<FoodLog | null> => {
+    try {
+      // Request media library permissions
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (permissionResult.status !== 'granted') {
+        Alert.alert('Permission Required', 'Photo library access is required to select images');
+        return null;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      if (result.canceled) return null;
+
+      return await processAndUploadImage(result.assets[0].uri);
+    } catch (error) {
+      console.error('Error launching image library:', error);
+      Alert.alert('Error', 'Failed to access photo library');
+      return null;
+    }
+  };
+
+  const showImagePicker = async (): Promise<FoodLog | null> => {
+    return new Promise((resolve) => {
+      Alert.alert(
+        'Select Image Source',
+        'Choose how you want to add an image',
+        [
+          {
+            text: 'Take Photo',
+            onPress: async () => {
+              setIsUploading(true);
+              const result = await launchCamera();
+              setIsUploading(false);
+              resolve(result);
+            },
+          },
+          {
+            text: 'Choose from Library',
+            onPress: async () => {
+              setIsUploading(true);
+              const result = await launchImageLibrary();
+              setIsUploading(false);
+              resolve(result);
+            },
+          },
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => resolve(null),
+          },
+        ]
+      );
+    });
+  };
+
+  // Keep the old method name for backward compatibility
+  const captureImage = showImagePicker;
 
   return {
     isUploading,
     captureImage,
+    showImagePicker,
+    launchCamera,
+    launchImageLibrary,
   };
 };
