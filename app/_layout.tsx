@@ -6,7 +6,6 @@ import ToastManager from 'toastify-react-native';
 export default function RootLayout() {
   const { loadFoodLogs, loadDailyTargets } = useFoodLogStore();
 
-  // Initialize the store on app startup
   useEffect(() => {
     loadFoodLogs();
     loadDailyTargets();
