@@ -143,7 +143,7 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
         (Math.abs(translationX) > DELETE_THRESHOLD && Math.abs(velocityX) > 500)
       ) {
         runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Heavy);
-        runOnJS(handleDelete)();
+        runOnJS(executeDelete)();
       } else if (Math.abs(translationX) > DELETE_THRESHOLD) {
         // Show delete button but don't auto-delete
         runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
