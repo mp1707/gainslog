@@ -59,9 +59,11 @@ export const styles = StyleSheet.create({
     position: "absolute",
     bottom: spacing.scale[8],
     right: spacing.scale[5],
-    flexDirection: "column",
+    flexDirection: "row",
     alignItems: "center",
     gap: spacing.layout.microGap,
+    flexWrap: "wrap",
+    maxWidth: spacing.scale[32] * 2 + spacing.layout.microGap,
   },
 
   fabButton: {
@@ -78,6 +80,16 @@ export const styles = StyleSheet.create({
   fabButtonSecondary: {
     backgroundColor: colors.interactive.secondary.default,
     shadowColor: colors.interactive.secondary.default,
+  },
+
+  fabButtonTertiary: {
+    backgroundColor: "#8B5CF6", // Purple color for library
+    shadowColor: "#8B5CF6",
+  },
+
+  fabButtonQuaternary: {
+    backgroundColor: "#EF4444", // Red color for audio
+    shadowColor: "#EF4444",
   },
 
   // Loading state

@@ -18,7 +18,7 @@ import {
   saveDailyTargets,
 } from "@/lib/storage";
 
-type ActionType = "manual" | "image" | null;
+type ActionType = "manual" | "camera" | "library" | "audio" | null;
 
 interface FoodLogStore {
   // Data state
@@ -49,7 +49,9 @@ interface FoodLogStore {
 
   // Action triggers
   triggerManualLog: () => void;
-  triggerImageCapture: () => void;
+  triggerCameraCapture: () => void;
+  triggerLibraryCapture: () => void;
+  triggerAudioCapture: () => void;
   setTriggerAction: (action: ActionType) => void;
   clearTrigger: () => void;
 
@@ -238,7 +240,9 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
 
   // Action triggers
   triggerManualLog: () => set({ triggerAction: "manual" }),
-  triggerImageCapture: () => set({ triggerAction: "image" }),
+  triggerCameraCapture: () => set({ triggerAction: "camera" }),
+  triggerLibraryCapture: () => set({ triggerAction: "library" }),
+  triggerAudioCapture: () => set({ triggerAction: "audio" }),
   setTriggerAction: (action: ActionType) => set({ triggerAction: action }),
   clearTrigger: () => set({ triggerAction: null }),
 

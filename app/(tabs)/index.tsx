@@ -20,7 +20,7 @@ export default function TodayTab() {
   const modal = useFoodLogModal();
   const { create } = useCreateFoodLog();
   const { update } = useUpdateFoodLog();
-  const { captureImage } = useImageCapture();
+  const { launchCamera, launchImageLibrary } = useImageCapture();
 
   // Load logs on mount
   useEffect(() => {
@@ -34,11 +34,19 @@ export default function TodayTab() {
     const handle = async () => {
       if (triggerAction === "manual") {
         modal.handleManualLog();
-      } else if (triggerAction === "image") {
-        const log = await captureImage();
+      } else if (triggerAction === "camera") {
+        const log = await launchCamera();
         if (log) {
           modal.handleImageCaptured(log);
         }
+      } else if (triggerAction === "library") {
+        const log = await launchImageLibrary();
+        if (log) {
+          modal.handleImageCaptured(log);
+        }
+      } else if (triggerAction === "audio") {
+        // Audio functionality not implemented yet - just show modal for manual entry
+        modal.handleManualLog();
       }
       clearTrigger();
     };

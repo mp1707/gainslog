@@ -155,43 +155,9 @@ export const useImageCapture = () => {
     }
   };
 
-  const showImagePicker = async (): Promise<FoodLog | null> => {
-    return new Promise((resolve) => {
-      Alert.alert(
-        'Select Image Source',
-        'Choose how you want to add an image',
-        [
-          {
-            text: 'Take Photo',
-            onPress: async () => {
-              const result = await launchCamera();
-              resolve(result);
-            },
-          },
-          {
-            text: 'Choose from Library',
-            onPress: async () => {
-              const result = await launchImageLibrary();
-              resolve(result);
-            },
-          },
-          {
-            text: 'Cancel',
-            style: 'cancel',
-            onPress: () => resolve(null),
-          },
-        ]
-      );
-    });
-  };
-
-  // Keep the old method name for backward compatibility
-  const captureImage = showImagePicker;
 
   return {
     isUploading,
-    captureImage,
-    showImagePicker,
     launchCamera,
     launchImageLibrary,
   };

@@ -30,7 +30,9 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
 }) => {
   const {
     triggerManualLog,
-    triggerImageCapture,
+    triggerCameraCapture,
+    triggerLibraryCapture,
+    triggerAudioCapture,
     getFilteredFoodLogs,
   } = useFoodLogStore();
 
@@ -40,12 +42,20 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
     await onDeleteLog(logId);
   };
 
-  const handleTextLog = () => {
+  const handleManualLog = () => {
     triggerManualLog();
   };
 
-  const handleImageLog = () => {
-    triggerImageCapture();
+  const handleCameraLog = () => {
+    triggerCameraCapture();
+  };
+
+  const handleLibraryLog = () => {
+    triggerLibraryCapture();
+  };
+
+  const handleAudioLog = () => {
+    triggerAudioCapture();
   };
 
   return (
@@ -89,7 +99,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
       <View style={styles.fabContainer}>
         <TouchableOpacity
           style={styles.fabButton}
-          onPress={handleTextLog}
+          onPress={handleManualLog}
           activeOpacity={0.8}
         >
           <FontAwesome name="pencil" size={20} color="white" />
@@ -97,10 +107,26 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
 
         <TouchableOpacity
           style={[styles.fabButton, styles.fabButtonSecondary]}
-          onPress={handleImageLog}
+          onPress={handleCameraLog}
           activeOpacity={0.8}
         >
           <FontAwesome name="camera" size={20} color="white" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.fabButton, styles.fabButtonTertiary]}
+          onPress={handleLibraryLog}
+          activeOpacity={0.8}
+        >
+          <FontAwesome name="image" size={20} color="white" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.fabButton, styles.fabButtonQuaternary]}
+          onPress={handleAudioLog}
+          activeOpacity={0.8}
+        >
+          <FontAwesome name="microphone" size={20} color="white" />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
