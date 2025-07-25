@@ -4,7 +4,7 @@ import { TextInput } from '@/shared/ui/atoms';
 import { TextInputProps } from '@/types';
 import { styles } from './FormField.styles';
 
-interface FormFieldProps extends TextInputProps {
+interface FormFieldProps extends Omit<TextInputProps, 'error'> {
   label: string;
   required?: boolean;
   error?: string;
@@ -21,7 +21,10 @@ export const FormField: React.FC<FormFieldProps> = ({
       <Text style={styles.label}>
         {label}{required && ' *'}
       </Text>
-      <TextInput {...textInputProps} />
+      <TextInput 
+        {...textInputProps} 
+        error={!!error}
+      />
       {error && (
         <Text style={styles.error}>
           {error}

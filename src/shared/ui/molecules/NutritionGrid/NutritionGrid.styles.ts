@@ -3,39 +3,40 @@ import { colors, typography, spacing } from '@/theme';
 
 export const styles = StyleSheet.create({
   section: {
-    marginBottom: 32,
+    marginBottom: spacing.layout.sectionGap,
   },
 
   title: {
-    fontSize: 18,
-    fontWeight: '600',
+    ...typography.textStyles.headline,
     color: colors.text.primary,
-    marginBottom: 4,
+    fontFamily: typography.fontFamilies.system,
+    marginBottom: spacing.scale[1],
   },
 
   subtitle: {
-    fontSize: 14,
+    ...typography.textStyles.body,
     color: colors.text.secondary,
-    marginBottom: 16,
+    fontFamily: typography.fontFamilies.system,
+    marginBottom: spacing.layout.elementGap,
   },
 
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: 8,
+    gap: spacing.layout.microGap,
   },
 
   inputGroup: {
     width: '48%',
-    marginBottom: 16,
+    marginBottom: spacing.layout.elementGap,
   },
 
   label: {
-    fontSize: 14,
-    fontWeight: '500',
+    ...typography.textStyles.callout,
     color: colors.text.primary,
-    marginBottom: 8,
+    fontFamily: typography.fontFamilies.system,
+    marginBottom: spacing.scale[2],
   },
 
   // Nutrition-specific label colors

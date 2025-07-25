@@ -21,8 +21,8 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.component.modal.padding,
+    paddingVertical: spacing.layout.elementGap,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border.divider,
   },
@@ -53,47 +53,47 @@ export const styles = StyleSheet.create({
   // Modal content
   content: {
     flex: 1,
-    padding: 16,
+    padding: spacing.component.modal.padding,
   },
 
   scrollContent: {
-    gap: 16,
+    gap: spacing.component.modal.gap,
   },
 
   // Form sections
   section: {
-    marginBottom: 20,
+    marginBottom: spacing.layout.componentGap,
   },
 
   sectionTitle: {
     ...typography.textStyles.headline,
     color: colors.text.primary,
     fontFamily: typography.fontFamilies.system,
-    marginBottom: 8,
+    marginBottom: spacing.layout.microGap,
   },
 
   // Image display
   imageContainer: {
-    marginBottom: 20,
+    marginBottom: spacing.layout.componentGap,
     alignItems: 'center',
   },
 
   foodImage: {
     width: '100%',
     height: 200,
-    borderRadius: 8,
+    borderRadius: spacing.radii.image,
     backgroundColor: colors.surface.secondary,
   },
 
   // Input fields
   inputField: {
-    marginBottom: 8,
+    marginBottom: spacing.layout.microGap,
   },
 
   inputLabel: {
     ...typography.textStyles.callout,
     color: colors.text.primary,
     fontFamily: typography.fontFamilies.system,
-    marginBottom: 4,
+    marginBottom: spacing.scale[1],
   },
 });

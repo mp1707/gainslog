@@ -7,25 +7,28 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.surface.primary,
     borderWidth: 1,
     borderColor: colors.border.primary,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    fontSize: 16,
-    fontWeight: '400',
+    borderRadius: spacing.radii.input,
+    paddingHorizontal: spacing.component.input.padding,
+    paddingVertical: spacing.component.input.padding,
+    fontSize: typography.textStyles.body.fontSize,
+    fontWeight: typography.textStyles.body.fontWeight,
+    lineHeight: typography.textStyles.body.lineHeight,
     color: colors.text.primary,
-    minHeight: 44,
+    fontFamily: typography.fontFamilies.system,
+    minHeight: accessibility.touchTargets.minimum,
   },
 
   // Focus state
   focused: {
     borderColor: colors.border.focus,
     borderWidth: 2,
+    ...shadows.elevation[1],
   },
 
   // Error state
   error: {
     borderColor: colors.border.error,
-    backgroundColor: colors.functional?.error?.background || '#fef2f2',
+    backgroundColor: colors.functional.error.background,
     borderWidth: 1,
   },
 
@@ -38,9 +41,9 @@ export const styles = StyleSheet.create({
 
   // Multiline variant
   multiline: {
-    height: 100,
+    height: spacing.input.multiline,
     textAlignVertical: 'top',
-    paddingTop: 12,
+    paddingTop: spacing.component.input.padding,
   },
 
   // Placeholder text color (handled via placeholderTextColor prop)
