@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { useNutritionEstimation } from "./useNutritionEstimation";
 import { FoodLog } from "@/types";
 import { useFoodLogStore } from "src/stores/useFoodLogStore";
+import { showInvalidImageToast } from "@/lib/toast";
 
 /**
  * Business-logic hook that turns a (possibly partial) FoodLog coming from the modal
@@ -10,7 +11,7 @@ import { useFoodLogStore } from "src/stores/useFoodLogStore";
  * It transparently handles optimistic skeleton addition and AI nutrition estimation.
  */
 export const useCreateFoodLog = () => {
-  const { addFoodLogToState, updateFoodLogInState, addFoodLog } =
+  const { addFoodLogToState, updateFoodLogInState, addFoodLog, removeFoodLogFromState } =
     useFoodLogStore();
 
   const { processLogWithEstimation } = useNutritionEstimation();
@@ -25,6 +26,11 @@ export const useCreateFoodLog = () => {
         async (finalLog) => {
           updateFoodLogInState(finalLog);
           await addFoodLog(finalLog);
+        },
+        // Invalid image → remove skeleton and show toast
+        (logId) => {
+          removeFoodLogFromState(logId);
+          showInvalidImageToast();
         }
       );
     },
@@ -32,6 +38,7 @@ export const useCreateFoodLog = () => {
       addFoodLogToState,
       updateFoodLogInState,
       addFoodLog,
+      removeFoodLogFromState,
       processLogWithEstimation,
     ]
   );

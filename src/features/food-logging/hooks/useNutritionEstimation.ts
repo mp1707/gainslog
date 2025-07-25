@@ -6,7 +6,8 @@ export interface UseNutritionEstimationReturn {
   processLogWithEstimation: (
     log: FoodLog,
     onSkeletonUpdate: (log: FoodLog) => void,
-    onFinalUpdate: (log: FoodLog) => void
+    onFinalUpdate: (log: FoodLog) => void,
+    onInvalidImage?: (logId: string) => void
   ) => Promise<void>;
 }
 
@@ -18,7 +19,8 @@ export function useNutritionEstimation(): UseNutritionEstimationReturn {
   const processLogWithEstimation = async (
     log: FoodLog,
     onSkeletonUpdate: (log: FoodLog) => void,
-    onFinalUpdate: (log: FoodLog) => void
+    onFinalUpdate: (log: FoodLog) => void,
+    onInvalidImage?: (logId: string) => void
   ) => {
     if (!log.needsAiEstimation) {
       // No AI needed, just process the log
@@ -51,6 +53,13 @@ export function useNutritionEstimation(): UseNutritionEstimationReturn {
           title: log.userTitle || log.generatedTitle,
           description: log.userDescription || undefined,
         });
+      }
+            
+      // Check if the AI returned an invalid image response
+      if (estimation.generatedTitle === 'Invalid Image' && onInvalidImage) {
+        // Handle invalid image by removing skeleton and showing toast
+        onInvalidImage(log.id);
+        return;
       }
 
       // Merge AI data with user input (user input takes precedence)
