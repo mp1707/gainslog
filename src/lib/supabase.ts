@@ -15,6 +15,10 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 })
 
 export const estimateNutritionTextBased = async (request: FoodEstimateRequest): Promise<FoodEstimateResponse> => {
+  // Ensure we have at least title or description
+  if (!request.title && !request.description) {
+    throw new Error('Either title or description must be provided');
+  }
   
   const response = await fetch('https://cjsbuqvntoimmawozpko.supabase.co/functions/v1/text-estimation', {
     method: 'POST',

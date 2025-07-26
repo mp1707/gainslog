@@ -46,7 +46,15 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
                 style={styles.cameraIcon}
               />
             )}
-            {foodLog.imageUrl && " "}
+            {foodLog.isAudioTranscript && (
+              <FontAwesome 
+                name="microphone" 
+                size={icons.sizes.sm} 
+                color={styles.title.color}
+                style={styles.cameraIcon}
+              />
+            )}
+            {(foodLog.imageUrl || foodLog.isAudioTranscript) && " "}
             {foodLog.userTitle || foodLog.generatedTitle}
           </Text>
           {foodLog.userDescription && (

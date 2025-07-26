@@ -16,6 +16,7 @@ export interface FoodLog {
   imageUrl?: string;
   localImageUri?: string; // Local image URI before upload
   isUploading?: boolean; // Track upload state
+  isAudioTranscript?: boolean; // Indicates this log was created from audio transcription
   createdAt: string;
   date: string; // ISO date string (YYYY-MM-DD)
   needsAiEstimation?: boolean;
@@ -41,7 +42,7 @@ export interface NutritionMergeResult {
 
 // API request/response types (from lib/supabase.ts)
 export interface FoodEstimateRequest {
-  title: string;
+  title?: string;
   description?: string;
 }
 
