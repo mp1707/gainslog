@@ -7,6 +7,12 @@ import { PageHeader } from "../../../shared/ui/molecules/PageHeader";
 import { AppText } from "../../../components/AppText";
 import { useTheme } from "../../../providers/ThemeProvider";
 import { createStyles, getProgressColor } from "./FoodLogHeader.styles";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
 
 // Define nutrient metadata for easy mapping
 const NUTRIENT_META = {
@@ -15,6 +21,65 @@ const NUTRIENT_META = {
   fat: { label: "Fat:", unit: "g" },
   calories: { label: "Cal:", unit: "" },
 } as const;
+
+// Local type for nutrition statistics
+type NutritionStat = {
+  key: "protein" | "carbs" | "fat" | "calories";
+  label: string;
+  current: number;
+  target: number;
+  unit: string;
+  percentage: number;
+  color: "protein" | "carbs" | "fat" | "calories";
+};
+
+// Animated progress row component – encapsulates animation logic per row
+const NutritionProgressRow: React.FC<{
+  stat: NutritionStat;
+  styles: ReturnType<typeof createStyles>;
+}> = ({ stat, styles }) => {
+  // Shared value to drive width animations
+  const progress = useSharedValue(stat.percentage);
+
+  // Animate to new percentage whenever it updates
+  useEffect(() => {
+    progress.value = withTiming(stat.percentage, {
+      duration: 500,
+      easing: Easing.bezier(0.25, 1, 0.5, 1),
+    });
+  }, [stat.percentage]);
+
+  // Animated style that converts the shared value into a percentage width
+  const animatedStyle = useAnimatedStyle(() => ({
+    width: `${progress.value}%`,
+  }));
+
+  return (
+    <View style={styles.nutritionRow}>
+      {/* Label aligned right */}
+      <AppText role="Subhead" style={styles.nutritionLabel}>
+        {stat.label}
+      </AppText>
+
+      {/* Progress bar with animated fill */}
+      <View style={styles.progressContainer}>
+        <View style={styles.progressBackground}>
+          <Animated.View
+            style={[
+              styles.progressBar,
+              { backgroundColor: getProgressColor(stat.color) },
+              animatedStyle,
+            ]}
+          />
+          <AppText role="Caption" style={styles.progressText} numberOfLines={1}>
+            {stat.current}/{stat.target}
+            {stat.unit}
+          </AppText>
+        </View>
+      </View>
+    </View>
+  );
+};
 
 export const FoodLogHeader: React.FC = () => {
   const {
@@ -103,7 +168,11 @@ export const FoodLogHeader: React.FC = () => {
           onPress={navigateToPreviousDay}
           style={styles.navigationArrow}
         >
-          <CaretLeftIcon size={16} color={colors.secondaryText} weight="regular" />
+          <CaretLeftIcon
+            size={16}
+            color={colors.secondaryText}
+            weight="regular"
+          />
         </TouchableOpacity>
 
         <View style={styles.datePickerContainer}>
@@ -140,29 +209,7 @@ export const FoodLogHeader: React.FC = () => {
       {/* Nutrition List */}
       <View style={styles.nutritionList}>
         {nutritionStats.map((stat) => (
-          <View key={stat.label} style={styles.nutritionRow}>
-            {/* Label aligned right */}
-            <AppText role="Subhead" style={styles.nutritionLabel}>{stat.label}</AppText>
-
-            {/* Progress bar with overlayed value */}
-            <View style={styles.progressContainer}>
-              <View style={styles.progressBackground}>
-                <View
-                  style={[
-                    styles.progressBar,
-                    {
-                      backgroundColor: getProgressColor(stat.color),
-                      width: `${stat.percentage}%`,
-                    },
-                  ]}
-                />
-                <AppText role="Caption" style={styles.progressText} numberOfLines={1}>
-                  {stat.current}/{stat.target}
-                  {stat.unit}
-                </AppText>
-              </View>
-            </View>
-          </View>
+          <NutritionProgressRow key={stat.key} stat={stat} styles={styles} />
         ))}
       </View>
     </PageHeader>
