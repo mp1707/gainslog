@@ -24,7 +24,7 @@ export const FoodLogHeader: React.FC = () => {
     visibleNutritionKeys,
     loadVisibleNutritionKeys,
   } = useFoodLogStore();
-  const { colors } = useTheme();
+  const { colors, colorScheme } = useTheme();
   const styles = createStyles(colors);
   const dailyProgress = getDailyProgress();
 
@@ -113,6 +113,11 @@ export const FoodLogHeader: React.FC = () => {
             display={Platform.OS === "ios" ? "compact" : "default"}
             onChange={handleDateChange}
             maximumDate={new Date()}
+            {...(Platform.OS === "ios" && {
+              themeVariant: colorScheme,
+              textColor: colors.primaryText,
+              accentColor: colors.accent,
+            })}
           />
         </View>
 
