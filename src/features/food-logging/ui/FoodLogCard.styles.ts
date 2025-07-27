@@ -2,8 +2,23 @@ import { StyleSheet } from "react-native";
 import { theme } from "../../../theme";
 
 export const createStyles = (colors: any) => StyleSheet.create({
+  cardContainer: {
+    position: 'relative',
+  },
+
   card: {
     // Card uses no additional styles since the Card component handles styling
+  },
+
+  flashOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: theme.components.cards.cornerRadius,
+    zIndex: 1,
+    pointerEvents: 'none',
   },
 
   titleRow: {
@@ -45,6 +60,18 @@ export const createStyles = (colors: any) => StyleSheet.create({
   // Camera icon styling
   cameraIcon: {
     marginRight: theme.spacing.xs,
+  },
+
+  // Skeleton-specific styles
+  macroRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+
+  macroItem: {
+    alignItems: "center",
+    flex: 1,
   },
 });
 
