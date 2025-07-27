@@ -1,6 +1,7 @@
 import { estimateNutritionTextBased, estimateNutritionImageBased } from '../../../lib/supabase';
 import { mergeNutritionData } from '../utils';
 import { FoodLog } from '../../../types';
+import * as Haptics from 'expo-haptics';
 
 export interface UseNutritionEstimationReturn {
   processLogWithEstimation: (
@@ -86,6 +87,9 @@ export function useNutritionEstimation(): UseNutritionEstimationReturn {
         needsAiEstimation: undefined,
       };
 
+      // Provide haptic feedback when estimation completes successfully
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      
       onFinalUpdate(finalLog);
     } catch (error) {
       console.error('Error with AI estimation:', error);
