@@ -14,6 +14,7 @@ export const spacing = {
     16: 64,
     20: 80,
     24: 96,
+    32: 128,
   },
 
   // Golden ratio derived spacing for natural proportions

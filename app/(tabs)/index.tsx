@@ -74,12 +74,6 @@ export default function TodayTab() {
     setIsAudioModalVisible(false);
   }, []);
 
-  const handleAudioSend = useCallback(async (audioUri: string) => {
-    // For now, this is mocked - just close the modal
-    // In the future, this could process the audio file or save it
-    console.log('Audio recording URI:', audioUri);
-    setIsAudioModalVisible(false);
-  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -100,7 +94,6 @@ export default function TodayTab() {
       <AudioRecordingModal
         visible={isAudioModalVisible}
         onClose={handleAudioModalClose}
-        onSend={handleAudioSend}
       />
     </GestureHandlerRootView>
   );

@@ -12,6 +12,7 @@ import Animated, {
   withSequence
 } from 'react-native-reanimated';
 import { AudioPlayer } from '../../atoms/AudioPlayer';
+import { useAudioProcessing } from '@/features/food-logging/hooks/useAudioProcessing';
 import { styles } from './AudioRecordingModal.styles';
 
 type RecordingState = 'preparing' | 'recording' | 'recorded' | 'playing';
@@ -19,13 +20,11 @@ type RecordingState = 'preparing' | 'recording' | 'recorded' | 'playing';
 interface AudioRecordingModalProps {
   visible: boolean;
   onClose: () => void;
-  onSend?: (audioUri: string) => void;
 }
 
 export function AudioRecordingModal({ 
   visible, 
-  onClose, 
-  onSend 
+  onClose
 }: AudioRecordingModalProps) {
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const [recordingState, setRecordingState] = useState<RecordingState>('preparing');
@@ -35,6 +34,15 @@ export function AudioRecordingModal({
   
   const recordingTimer = useRef<NodeJS.Timeout | null>(null);
   const pulseAnimation = useSharedValue(1);
+  
+  // Speech recognition hook
+  const {
+    isRecognizing,
+    transcript,
+    startRealTimeRecognition,
+    stopRealTimeRecognition,
+    processTranscript
+  } = useAudioProcessing();
 
   // Auto-start recording when modal opens and cleanup on close
   useEffect(() => {
@@ -116,6 +124,9 @@ export function AudioRecordingModal({
       await audioRecorder.prepareToRecordAsync();
       await audioRecorder.record();
       
+      // Start speech recognition alongside audio recording
+      await startRealTimeRecognition();
+      
       // Only set recording state after everything is ready
       setRecordingState('recording');
     } catch (error) {
@@ -128,6 +139,10 @@ export function AudioRecordingModal({
   const stopRecording = async () => {
     try {
       await audioRecorder.stop();
+      
+      // Stop speech recognition and get final transcript
+      const finalTranscript = await stopRealTimeRecognition();
+      
       const uri = audioRecorder.uri;
       
       if (uri) {
@@ -195,11 +210,23 @@ export function AudioRecordingModal({
     onClose();
   };
 
-  const handleSend = () => {
-    if (recordedUri && onSend) {
-      onSend(recordedUri);
+  const handleSend = async () => {
+    if (transcript && transcript.trim().length > 0) {
+      try {
+        // Process the transcript and create food log
+        await processTranscript(transcript);
+        onClose();
+      } catch (error) {
+        console.error('Error processing transcript:', error);
+        Alert.alert('Error', 'Failed to process the recording. Please try again.');
+      }
+    } else {
+      Alert.alert(
+        'No Speech Detected',
+        'Could not detect any speech in the recording. Please try again.',
+        [{ text: 'OK' }]
+      );
     }
-    onClose();
   };
 
   const formatTime = (timeInSeconds: number): string => {
@@ -241,6 +268,12 @@ export function AudioRecordingModal({
                 <Text style={styles.recordingText}>Recording</Text>
               </View>
               <Text style={styles.timerText}>{formatTime(recordingTime)}</Text>
+              {transcript && (
+                <View style={styles.transcriptContainer}>
+                  <Text style={styles.transcriptLabel}>Transcript:</Text>
+                  <Text style={styles.transcriptText}>{transcript}</Text>
+                </View>
+              )}
             </View>
           </View>
         );
@@ -257,6 +290,13 @@ export function AudioRecordingModal({
               />
             )}
             
+            {transcript && (
+              <View style={styles.transcriptContainer}>
+                <Text style={styles.transcriptLabel}>Transcript:</Text>
+                <Text style={styles.transcriptText}>{transcript}</Text>
+              </View>
+            )}
+            
             <View style={styles.actionButtons}>
               <TouchableOpacity
                 style={styles.deleteButton}
@@ -270,11 +310,15 @@ export function AudioRecordingModal({
               </TouchableOpacity>
               
               <TouchableOpacity
-                style={styles.sendButton}
+                style={[
+                  styles.sendButton,
+                  (!transcript || transcript.trim().length === 0) && styles.sendButtonDisabled
+                ]}
                 onPress={handleSend}
                 activeOpacity={0.7}
                 accessibilityRole="button"
                 accessibilityLabel="Send recording"
+                disabled={!transcript || transcript.trim().length === 0}
               >
                 <FontAwesome name="send" size={20} color="white" />
                 <Text style={styles.sendButtonText}>Send</Text>

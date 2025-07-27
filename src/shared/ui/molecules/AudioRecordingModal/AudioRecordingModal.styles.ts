@@ -143,4 +143,34 @@ export const styles = StyleSheet.create({
     color: '#ffffff',
     letterSpacing: -0.1,
   },
+
+  sendButtonDisabled: {
+    backgroundColor: '#9CA3AF',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+
+  transcriptContainer: {
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    width: '100%',
+  },
+
+  transcriptLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6B7280',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+
+  transcriptText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#111827',
+    fontStyle: 'italic',
+  },
 });
