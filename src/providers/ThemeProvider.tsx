@@ -1,6 +1,17 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Appearance, StatusBar } from 'react-native';
-import { theme, ColorScheme } from '../theme';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useRef,
+} from "react";
+import { Appearance, StatusBar } from "react-native";
+import { theme, ColorScheme } from "../theme";
+import {
+  saveColorSchemePreference,
+  getColorSchemePreference,
+} from "../lib/storage";
 
 type Colors = typeof theme.colors.light | typeof theme.colors.dark;
 
@@ -19,31 +30,53 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [colorScheme, setColorScheme] = useState<ColorScheme>(
-    Appearance.getColorScheme() || 'light'
-  );
+  const [colorScheme, setColorSchemeState] = useState<ColorScheme>("light");
+  // Track whether user manually selected a theme
+  const manualPreferenceRef = useRef(false);
 
-  // Listen for system appearance changes
+  // Load saved preference or fallback to system on mount
   useEffect(() => {
-    const subscription = Appearance.addChangeListener(({ colorScheme: newColorScheme }) => {
-      setColorScheme(newColorScheme || 'light');
-    });
+    (async () => {
+      const saved = await getColorSchemePreference();
+      if (saved) {
+        setColorSchemeState(saved);
+        manualPreferenceRef.current = true;
+      } else {
+        setColorSchemeState(Appearance.getColorScheme() || "light");
+      }
+    })();
+  }, []);
 
+  // Listen for system appearance changes (only when no manual preference)
+  useEffect(() => {
+    const subscription = Appearance.addChangeListener(
+      ({ colorScheme: newScheme }) => {
+        if (!manualPreferenceRef.current) {
+          setColorSchemeState(newScheme || "light");
+        }
+      }
+    );
     return () => subscription?.remove();
   }, []);
 
   // Update status bar style based on color scheme
   useEffect(() => {
     StatusBar.setBarStyle(
-      colorScheme === 'dark' ? 'light-content' : 'dark-content',
+      colorScheme === "dark" ? "light-content" : "dark-content",
       true
     );
   }, [colorScheme]);
 
   const colors = theme.getColors(colorScheme);
 
+  const setColorScheme = (scheme: ColorScheme) => {
+    manualPreferenceRef.current = true;
+    setColorSchemeState(scheme);
+    saveColorSchemePreference(scheme);
+  };
+
   const toggleColorScheme = () => {
-    setColorScheme(prev => prev === 'light' ? 'dark' : 'light');
+    setColorScheme(colorScheme === "light" ? "dark" : "light");
   };
 
   const value: ThemeContextType = {
@@ -55,16 +88,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   };
 
   return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 };
 
 export const useTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context;
 };

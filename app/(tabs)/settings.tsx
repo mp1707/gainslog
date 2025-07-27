@@ -1,8 +1,7 @@
-import React, { useEffect } from "react";
-import { View, Text, ScrollView, Switch } from "react-native";
-import { StyleSheet } from "react-native";
+import React, { useEffect, useMemo } from "react";
+import { View, Text, ScrollView, Switch, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { theme } from "../../src/theme";
+import { useTheme } from "../../src/providers/ThemeProvider";
 import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 import { Stepper } from "../../src/shared/ui/atoms/Stepper";
 import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
@@ -17,6 +16,17 @@ export default function SettingsTab() {
     toggleVisibleNutritionKey,
     loadVisibleNutritionKeys,
   } = useFoodLogStore();
+
+  const {
+    colors,
+    theme: themeObj,
+    colorScheme,
+    toggleColorScheme,
+  } = useTheme();
+  const styles = useMemo(
+    () => createStyles(colors, themeObj, colorScheme),
+    [colors, themeObj, colorScheme]
+  );
 
   useEffect(() => {
     loadDailyTargets();
@@ -50,9 +60,9 @@ export default function SettingsTab() {
       max: 5000,
       step: 50,
     },
-    { key: "protein", label: "Protein", unit: "g", min: 50, max: 300, step: 5 },
+    { key: "protein", label: "Protein", unit: "g", min: 50, max: 500, step: 5 },
     { key: "carbs", label: "Carbs", unit: "g", min: 50, max: 500, step: 5 },
-    { key: "fat", label: "Fat", unit: "g", min: 20, max: 150, step: 5 },
+    { key: "fat", label: "Fat", unit: "g", min: 20, max: 500, step: 5 },
   ];
 
   const renderNutritionCard = (config: (typeof nutritionConfigs)[number]) => {
@@ -60,7 +70,7 @@ export default function SettingsTab() {
     return (
       <View style={styles.nutritionCard} key={config.key}>
         <Text style={styles.nutritionHeadline}>{config.label}</Text>
-        
+
         <View style={styles.settingRow}>
           <Text style={styles.settingLabel}>Daily Target</Text>
           <Stepper
@@ -83,6 +93,23 @@ export default function SettingsTab() {
     );
   };
 
+  const renderAppearanceCard = () => {
+    return (
+      <View style={styles.nutritionCard}>
+        <Text style={styles.nutritionHeadline}>Appearance</Text>
+
+        <View style={styles.settingRow}>
+          <Text style={styles.settingLabel}>Dark Mode</Text>
+          <Switch
+            value={colorScheme === "dark"}
+            onValueChange={toggleColorScheme}
+            accessibilityLabel="Toggle theme"
+          />
+        </View>
+      </View>
+    );
+  };
+
   if (isLoadingTargets) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
@@ -95,82 +122,92 @@ export default function SettingsTab() {
     <SafeAreaView style={styles.container}>
       <PageHeader>
         <Text style={styles.pageTitle}>Settings</Text>
-        <Text style={styles.pageSubtitle}>Customize your nutrition tracking preferences</Text>
+        <Text style={styles.pageSubtitle}>
+          Customize your nutrition tracking preferences
+        </Text>
       </PageHeader>
-      
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {renderAppearanceCard()}
         {nutritionConfigs.map(renderNutritionCard)}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const colors = theme.getColors();
-const { typography, spacing, components } = theme;
+// Dynamic styles factory
+const createStyles = (
+  colors: ReturnType<typeof useTheme>["colors"],
+  themeObj: typeof import("../../src/theme").theme,
+  scheme: import("../../src/theme").ColorScheme
+) => {
+  const componentStyles = themeObj.getComponentStyles(scheme);
+  const { typography, spacing } = themeObj;
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.primaryBackground,
-  },
-  centered: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.md,
-  },
-  pageTitle: {
-    fontSize: typography.Title2.fontSize,
-    fontFamily: typography.Title2.fontFamily,
-    fontWeight: typography.Title2.fontWeight,
-    color: colors.primaryText,
-  },
-  pageSubtitle: {
-    fontSize: typography.Body.fontSize,
-    fontFamily: typography.Body.fontFamily,
-    color: colors.secondaryText,
-    lineHeight: 22,
-  },
-  nutritionCard: {
-    borderRadius: components.cards.cornerRadius,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    ...components.cards.lightMode, // Apply card shadow styles
-  },
-  nutritionHeadline: {
-    fontSize: typography.Headline.fontSize,
-    fontFamily: typography.Headline.fontFamily,
-    fontWeight: typography.Headline.fontWeight,
-    color: colors.primaryText,
-    marginBottom: spacing.lg,
-  },
-  settingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: spacing.md,
-  },
-  settingLabel: {
-    fontSize: typography.Body.fontSize,
-    fontFamily: typography.Body.fontFamily,
-    fontWeight: typography.Headline.fontWeight,
-    color: colors.primaryText,
-    flex: 1,
-  },
-  loadingText: {
-    fontSize: typography.Body.fontSize,
-    fontFamily: typography.Body.fontFamily,
-    color: colors.secondaryText,
-  },
-});
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.primaryBackground,
+    },
+    centered: {
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingHorizontal: spacing.md,
+      paddingTop: spacing.md,
+    },
+    pageTitle: {
+      fontSize: typography.Title2.fontSize,
+      fontFamily: typography.Title2.fontFamily,
+      fontWeight: typography.Title2.fontWeight,
+      color: colors.primaryText,
+    },
+    pageSubtitle: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      color: colors.secondaryText,
+      lineHeight: 22,
+    },
+    nutritionCard: {
+      borderRadius: themeObj.components.cards.cornerRadius,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+      ...componentStyles.cards,
+    },
+    nutritionHeadline: {
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
+      fontWeight: typography.Headline.fontWeight,
+      color: colors.primaryText,
+      marginBottom: spacing.lg,
+    },
+    settingRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingVertical: spacing.md,
+    },
+    settingLabel: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      fontWeight: typography.Headline.fontWeight,
+      color: colors.primaryText,
+      flex: 1,
+    },
+    loadingText: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      color: colors.secondaryText,
+    },
+  });
+};

@@ -5,6 +5,7 @@ const FOOD_LOGS_KEY = "food_logs";
 const DAILY_TARGETS_KEY = "daily_targets";
 
 const VISIBLE_NUTRITION_KEYS_KEY = "visible_nutrition_keys";
+const COLOR_SCHEME_KEY = "color_scheme";
 
 // Default visible nutrition keys
 export const DEFAULT_VISIBLE_NUTRITION_KEYS: Array<
@@ -174,5 +175,31 @@ export const getVisibleNutritionKeys = async (): Promise<
   } catch (error) {
     console.error("Error getting visible nutrition keys:", error);
     return DEFAULT_VISIBLE_NUTRITION_KEYS;
+  }
+};
+
+export const saveColorSchemePreference = async (
+  scheme: import("../theme").ColorScheme
+): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(COLOR_SCHEME_KEY, scheme);
+  } catch (error) {
+    console.error("Error saving color scheme preference:", error);
+    throw new Error("Failed to save color scheme preference");
+  }
+};
+
+export const getColorSchemePreference = async (): Promise<
+  import("../theme").ColorScheme | null
+> => {
+  try {
+    const stored = await AsyncStorage.getItem(COLOR_SCHEME_KEY);
+    if (stored === "light" || stored === "dark") {
+      return stored as import("../theme").ColorScheme;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error getting color scheme preference:", error);
+    return null;
   }
 };
