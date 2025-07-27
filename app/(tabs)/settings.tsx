@@ -96,8 +96,6 @@ export default function SettingsTab() {
   const renderAppearanceCard = () => {
     return (
       <View style={styles.nutritionCard}>
-        <Text style={styles.nutritionHeadline}>Appearance</Text>
-
         <View style={styles.settingRow}>
           <Text style={styles.settingLabel}>Dark Mode</Text>
           <Switch
@@ -120,20 +118,20 @@ export default function SettingsTab() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <PageHeader>
-        <Text style={styles.pageTitle}>Settings</Text>
-        <Text style={styles.pageSubtitle}>
-          Customize your nutrition tracking preferences
-        </Text>
-      </PageHeader>
-
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {renderAppearanceCard()}
-        {nutritionConfigs.map(renderNutritionCard)}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Appearance</Text>
+          {renderAppearanceCard()}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Nutrition Tracking</Text>
+          {nutritionConfigs.map(renderNutritionCard)}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -161,8 +159,9 @@ const createStyles = (
       flex: 1,
     },
     scrollContent: {
-      paddingHorizontal: spacing.md,
-      paddingTop: spacing.md,
+      paddingHorizontal: themeObj.spacing.pageMargins.horizontal,
+      paddingTop: spacing.lg,
+      paddingBottom: spacing.xl,
     },
     pageTitle: {
       fontSize: typography.Title2.fontSize,
@@ -176,12 +175,20 @@ const createStyles = (
       color: colors.secondaryText,
       lineHeight: 22,
     },
+    section: {
+      marginBottom: spacing.xl,
+    },
+    sectionTitle: {
+      fontSize: typography.Title2.fontSize,
+      fontFamily: typography.Title2.fontFamily,
+      fontWeight: typography.Title2.fontWeight,
+      color: colors.primaryText,
+      marginBottom: spacing.md,
+    },
     nutritionCard: {
       borderRadius: themeObj.components.cards.cornerRadius,
       padding: spacing.md,
       marginBottom: spacing.md,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border,
       ...componentStyles.cards,
     },
     nutritionHeadline: {
@@ -200,7 +207,7 @@ const createStyles = (
     settingLabel: {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
-      fontWeight: typography.Headline.fontWeight,
+      fontWeight: typography.Body.fontWeight,
       color: colors.primaryText,
       flex: 1,
     },
