@@ -1,13 +1,17 @@
 import { StyleSheet } from 'react-native';
+import { theme } from '../../../../theme';
+
+const colors = theme.getColors();
+const { spacing } = theme;
 
 export const styles = StyleSheet.create({
   container: {
     overflow: 'hidden',
-    borderRadius: 8, // component.image from design system
+    borderRadius: spacing.sm,
   },
   skeleton: {
     flex: 1,
-    backgroundColor: '#e5e7eb', // skeleton.base from design system
+    backgroundColor: colors.disabledBackground,
     position: 'relative',
   },
   shimmer: {
@@ -16,7 +20,7 @@ export const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#f3f4f6', // skeleton.highlight from design system
+    backgroundColor: colors.border,
     opacity: 0.8,
     width: '50%',
   },

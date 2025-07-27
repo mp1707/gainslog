@@ -1,5 +1,8 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '../../../../theme';
+import { theme } from '../../../../theme';
+
+const colors = theme.getColors();
+const { typography, spacing } = theme;
 
 export const styles = StyleSheet.create({
   container: {
@@ -21,19 +24,22 @@ export const styles = StyleSheet.create({
     height: '100%',
   },
   progressText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text.primary,
+    fontSize: typography.Headline.fontSize,
+    fontWeight: typography.Title2.fontWeight,
+    fontFamily: typography.Headline.fontFamily,
+    color: colors.primaryText,
   },
   labelText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: colors.text.secondary,
+    fontSize: typography.Caption.fontSize,
+    fontWeight: typography.Subhead.fontWeight,
+    fontFamily: typography.Caption.fontFamily,
+    color: colors.secondaryText,
     marginTop: 2,
   },
   valuesText: {
     fontSize: 10,
-    color: colors.text.secondary,
+    fontFamily: typography.Caption.fontFamily,
+    color: colors.secondaryText,
     marginTop: 1,
   },
 });

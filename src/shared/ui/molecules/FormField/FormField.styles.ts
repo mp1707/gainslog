@@ -1,21 +1,27 @@
 import { StyleSheet } from 'react-native';
-import { colors, typography, spacing } from '@/theme';
+import { theme } from '../../../../theme';
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: any) => StyleSheet.create({
   container: {
-    marginBottom: spacing.margin.input,
+    marginBottom: theme.spacing.md,
   },
 
   label: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.semibold,
-    color: colors.text.primary,
-    marginBottom: spacing.margin.small,
+    fontSize: theme.typography.Headline.fontSize,
+    fontWeight: theme.typography.Headline.fontWeight,
+    fontFamily: theme.typography.Headline.fontFamily,
+    color: colors.primaryText,
+    marginBottom: theme.spacing.sm,
   },
 
   error: {
-    fontSize: typography.fontSizes.sm,
-    color: colors.functional.error.foreground,
-    marginTop: spacing.margin.small,
+    fontSize: theme.typography.Caption.fontSize,
+    fontWeight: theme.typography.Caption.fontWeight,
+    fontFamily: theme.typography.Caption.fontFamily,
+    color: '#ef4444', // Standard error color
+    marginTop: theme.spacing.sm,
   },
 });
+
+// Legacy export for compatibility
+export const styles = createStyles(theme.getColors());

@@ -1,12 +1,16 @@
 import React from "react";
 import { View } from "react-native";
-import { styles } from "./PageHeader.styles";
+import { useTheme } from "../../../../providers/ThemeProvider";
+import { createStyles } from "./PageHeader.styles";
 
 interface PageHeaderProps {
   children: React.ReactNode;
 }
 
 export function PageHeader({ children }: PageHeaderProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+  
   return (
     <View style={styles.container}>
       <View style={styles.content}>

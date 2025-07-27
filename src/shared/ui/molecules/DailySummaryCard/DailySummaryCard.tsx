@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { DailyTargets } from '../../../../types';
-import { styles } from './DailySummaryCard.styles';
+import { useTheme } from '../../../../providers/ThemeProvider';
+import { createStyles } from './DailySummaryCard.styles';
 
 interface DailySummaryCardProps {
   date: string;
@@ -16,6 +17,9 @@ interface DailySummaryCardProps {
 }
 
 export function DailySummaryCard({ date, totals, targets, onPress }: DailySummaryCardProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   // Format date for display
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString + 'T00:00:00');

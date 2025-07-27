@@ -1,13 +1,17 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import { ConfidenceBadgeProps } from '../../../../types';
 import { LoadingSpinner } from '../LoadingSpinner';
-import { styles } from './Badge.styles';
+import { AppText } from '../../../../components/AppText';
+import { useTheme } from '../../../../providers/ThemeProvider';
+import { createStyles } from './Badge.styles';
 
 export const Badge: React.FC<ConfidenceBadgeProps> = ({ 
   confidence, 
   isLoading = false 
 }) => {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   if (isLoading) {
     return (
       <View 
@@ -57,9 +61,9 @@ export const Badge: React.FC<ConfidenceBadgeProps> = ({
       accessibilityLabel={`AI confidence ${confidenceInfo.label}: ${confidence}%`}
       accessibilityHint={`Confidence range ${confidenceInfo.range}`}
     >
-      <Text style={[styles.text, confidenceInfo.textStyle]}>
+      <AppText role="Caption" style={[styles.text, confidenceInfo.textStyle]}>
         {confidenceInfo.label}
-      </Text>
+      </AppText>
     </View>
   );
 };

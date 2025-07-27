@@ -1,9 +1,11 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Skeleton } from '@/shared/ui/atoms';
-import { styles } from './SkeletonCard.styles';
+import { useStyles } from './SkeletonCard.styles';
 
 export const SkeletonCard: React.FC = () => {
+  const styles = useStyles();
+  
   return (
     <View style={styles.card}>
       <Skeleton width="70%" height={20} style={styles.title} />

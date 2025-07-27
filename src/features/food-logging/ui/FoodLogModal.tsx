@@ -6,7 +6,7 @@ import { FormField, NutritionGrid, ImageSkeleton } from '@/shared/ui';
 import { FoodLog, ModalMode } from '../../../types';
 import { mergeNutritionData } from '../utils';
 import { useFoodLogStore } from '../../../stores/useFoodLogStore';
-import { styles } from './FoodLogModal.styles';
+import { useStyles } from './FoodLogModal.styles';
 
 // Helper function to convert Date to local date string (YYYY-MM-DD)
 const dateToLocalDateString = (date: Date): string => {
@@ -31,6 +31,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   onClose,
   onSave,
 }) => {
+  const styles = useStyles();
   const { selectedDate, foodLogs } = useFoodLogStore();
   
   // Get the live log from store to reflect upload progress

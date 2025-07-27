@@ -1,10 +1,12 @@
 import React, { useEffect } from "react";
-import { View, Text, Platform, TouchableOpacity } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
+import { View, Platform, TouchableOpacity } from "react-native";
+import { CaretLeft, CaretRight } from "phosphor-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFoodLogStore } from "../../../stores/useFoodLogStore";
 import { PageHeader } from "../../../shared/ui/molecules/PageHeader";
-import { styles, getProgressColor } from "./FoodLogHeader.styles";
+import { AppText } from "../../../components/AppText";
+import { useTheme } from "../../../providers/ThemeProvider";
+import { createStyles, getProgressColor } from "./FoodLogHeader.styles";
 
 // Define nutrient metadata for easy mapping
 const NUTRIENT_META = {
@@ -22,6 +24,8 @@ export const FoodLogHeader: React.FC = () => {
     visibleNutritionKeys,
     loadVisibleNutritionKeys,
   } = useFoodLogStore();
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const dailyProgress = getDailyProgress();
 
   // Ensure visibility preferences are loaded (no-op if already loaded)
@@ -99,7 +103,7 @@ export const FoodLogHeader: React.FC = () => {
           onPress={navigateToPreviousDay}
           style={styles.navigationArrow}
         >
-          <FontAwesome name="chevron-left" size={16} color="#666" />
+          <CaretLeft size={16} color={colors.secondaryText} weight="regular" />
         </TouchableOpacity>
 
         <View style={styles.datePickerContainer}>
@@ -120,10 +124,10 @@ export const FoodLogHeader: React.FC = () => {
           ]}
           disabled={isToday()}
         >
-          <FontAwesome
-            name="chevron-right"
+          <CaretRight
             size={16}
-            color={isToday() ? "#ccc" : "#666"}
+            color={isToday() ? colors.disabledText : colors.secondaryText}
+            weight="regular"
           />
         </TouchableOpacity>
       </View>
@@ -133,7 +137,7 @@ export const FoodLogHeader: React.FC = () => {
         {nutritionStats.map((stat) => (
           <View key={stat.label} style={styles.nutritionRow}>
             {/* Label aligned right */}
-            <Text style={styles.nutritionLabel}>{stat.label}</Text>
+            <AppText role="Subhead" style={styles.nutritionLabel}>{stat.label}</AppText>
 
             {/* Progress bar with overlayed value */}
             <View style={styles.progressContainer}>
@@ -147,10 +151,10 @@ export const FoodLogHeader: React.FC = () => {
                     },
                   ]}
                 />
-                <Text style={styles.progressText} numberOfLines={1}>
+                <AppText role="Caption" style={styles.progressText} numberOfLines={1}>
                   {stat.current}/{stat.target}
                   {stat.unit}
-                </Text>
+                </AppText>
               </View>
             </View>
           </View>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { styles } from './ProgressRing.styles';
-import { colors } from '../../../../theme';
+import { useTheme } from '../../../../providers/ThemeProvider';
 
 interface ProgressRingProps {
   progress: number; // 0-100
@@ -20,19 +20,18 @@ export function ProgressRing({
   unit,
   label,
   size = 100,
-  color = colors.brand.primary
+  color
 }: ProgressRingProps) {
+  const { colors } = useTheme();
   const clampedProgress = Math.max(0, Math.min(100, progress));
   
-  // Get color based on progress
+  // Get color based on progress (simplified to use accent color)
   const getProgressColor = (progress: number) => {
-    if (progress >= 100) return colors.status.success;
-    if (progress >= 75) return colors.brand.primary;
-    if (progress >= 50) return colors.status.warning || '#FF9500';
-    return colors.status.danger;
+    // Using consistent accent color as per new design system
+    return colors.accent;
   };
 
-  const progressColor = getProgressColor(clampedProgress);
+  const progressColor = color || getProgressColor(clampedProgress);
 
   return (
     <View style={styles.container}>
@@ -43,9 +42,9 @@ export function ProgressRing({
             width: size,
             height: size,
             borderRadius: size / 2,
-            backgroundColor: colors.background.secondary,
+            backgroundColor: colors.secondaryBackground,
             borderWidth: 3,
-            borderColor: colors.border.light,
+            borderColor: colors.border,
             alignItems: 'center',
             justifyContent: 'center',
           }

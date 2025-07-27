@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { View, Text, ScrollView, Switch } from "react-native";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors, spacing, typography } from "../../src/theme";
+import { theme } from "../../src/theme";
 import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 import { Stepper } from "../../src/shared/ui/atoms/Stepper";
 import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
@@ -109,10 +109,13 @@ export default function SettingsTab() {
   );
 }
 
+const colors = theme.getColors();
+const { typography, spacing, components } = theme;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.primary,
+    backgroundColor: colors.primaryBackground,
   },
   centered: {
     justifyContent: "center",
@@ -126,36 +129,31 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
   },
   pageTitle: {
-    ...typography.styles.title,
-    color: colors.text.primary,
+    fontSize: typography.Title2.fontSize,
+    fontFamily: typography.Title2.fontFamily,
+    fontWeight: typography.Title2.fontWeight,
+    color: colors.primaryText,
   },
   pageSubtitle: {
-    fontSize: typography.fontSizes.base,
-    color: colors.text.secondary,
-    lineHeight: typography.lineHeights.normal,
+    fontSize: typography.Body.fontSize,
+    fontFamily: typography.Body.fontFamily,
+    color: colors.secondaryText,
+    lineHeight: 22,
   },
   nutritionCard: {
-    backgroundColor: colors.background.secondary,
-    borderRadius: spacing.radius.xl,
-    padding: spacing.padding.card,
+    borderRadius: components.cards.cornerRadius,
+    padding: spacing.md,
     marginBottom: spacing.md,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border.primary,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    borderColor: colors.border,
+    ...components.cards.lightMode, // Apply card shadow styles
   },
   nutritionHeadline: {
-    fontSize: typography.fontSizes.xl,
-    fontWeight: typography.fontWeights.semibold,
-    color: colors.text.primary,
+    fontSize: typography.Headline.fontSize,
+    fontFamily: typography.Headline.fontFamily,
+    fontWeight: typography.Headline.fontWeight,
+    color: colors.primaryText,
     marginBottom: spacing.lg,
-    letterSpacing: typography.letterSpacing.normal,
   },
   settingRow: {
     flexDirection: "row",
@@ -164,13 +162,15 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   settingLabel: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.medium,
-    color: colors.text.primary,
+    fontSize: typography.Body.fontSize,
+    fontFamily: typography.Body.fontFamily,
+    fontWeight: typography.Headline.fontWeight,
+    color: colors.primaryText,
     flex: 1,
   },
   loadingText: {
-    fontSize: typography.fontSizes.lg,
-    color: colors.text.secondary,
+    fontSize: typography.Body.fontSize,
+    fontFamily: typography.Body.fontFamily,
+    color: colors.secondaryText,
   },
 });

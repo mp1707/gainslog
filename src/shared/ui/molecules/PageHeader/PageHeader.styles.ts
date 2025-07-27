@@ -1,17 +1,20 @@
 import { StyleSheet } from "react-native";
-import { colors, spacing } from "../../../../theme";
+import { theme } from "../../../../theme";
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: any) => StyleSheet.create({
   container: {
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    backgroundColor: colors.background.secondary,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.pageMargins.horizontal,
+    backgroundColor: colors.secondaryBackground,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border.primary,
+    borderBottomColor: colors.border,
   },
 
   content: {
     flexDirection: "column",
-    gap: spacing.md,
+    gap: theme.spacing.md,
   },
 });
+
+// Legacy export for compatibility
+export const styles = createStyles(theme.getColors());

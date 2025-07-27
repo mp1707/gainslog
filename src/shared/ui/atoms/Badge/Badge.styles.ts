@@ -1,11 +1,11 @@
 import { StyleSheet } from 'react-native';
-import { colors, typography, spacing } from '../../../../theme';
+import { theme } from '../../../../theme';
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: any) => StyleSheet.create({
   base: {
-    paddingHorizontal: spacing.component.input.padding,
-    paddingVertical: spacing.scale[1],
-    borderRadius: spacing.radii.badge,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.spacing.sm,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
@@ -13,51 +13,53 @@ export const styles = StyleSheet.create({
   },
 
   text: {
-    ...typography.textStyles.caption,
-    fontFamily: typography.fontFamilies.system,
+    // Text styling is handled by AppText component
   },
 
-  // Confidence levels with updated design system colors
+  // Confidence levels using simplified color scheme
   high: {
-    backgroundColor: colors.confidence.high.background,
+    backgroundColor: 'rgba(16, 185, 129, 0.1)', // Green background
   },
 
   good: {
-    backgroundColor: colors.confidence.good.background,
+    backgroundColor: 'rgba(245, 158, 11, 0.1)', // Amber background  
   },
 
   partial: {
-    backgroundColor: colors.confidence.partial.background,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)', // Red background
   },
 
   uncertain: {
-    backgroundColor: colors.confidence.uncertain.background,
+    backgroundColor: colors.disabledBackground,
   },
 
   loading: {
-    backgroundColor: colors.confidence.loading.background,
+    backgroundColor: colors.disabledBackground,
     justifyContent: 'center',
     alignItems: 'center',
   },
 
-  // Text colors with updated design system
+  // Text colors
   highText: {
-    color: colors.confidence.high.foreground,
+    color: '#10b981', // Green text
   },
 
   goodText: {
-    color: colors.confidence.good.foreground,
+    color: '#f59e0b', // Amber text
   },
 
   partialText: {
-    color: colors.confidence.partial.foreground,
+    color: '#ef4444', // Red text
   },
 
   uncertainText: {
-    color: colors.confidence.uncertain.foreground,
+    color: colors.secondaryText,
   },
 
   loadingText: {
-    color: colors.confidence.loading.foreground,
+    color: colors.secondaryText,
   },
 });
+
+// Legacy export for compatibility
+export const styles = createStyles(theme.getColors());

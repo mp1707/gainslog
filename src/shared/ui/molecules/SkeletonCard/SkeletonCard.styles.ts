@@ -1,31 +1,26 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing } from '@/theme';
+import { useThemedStyles } from '../../../../providers/ThemeProvider';
 
-export const styles = StyleSheet.create({
+export const useStyles = () => useThemedStyles((colors, theme) => StyleSheet.create({
   card: {
-    backgroundColor: colors.background.secondary,
-    borderRadius: spacing.radius['2xl'],
-    padding: spacing.padding.card,
-    marginBottom: spacing.margin.card,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    borderRadius: theme.components.cards.cornerRadius,
+    padding: theme.spacing.md,
+    marginBottom: theme.spacing.md,
+    ...theme.components.cards.lightMode,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border.light,
+    borderColor: colors.border,
     opacity: 0.6,
   },
 
   title: {
-    marginBottom: spacing.margin.large,
+    marginBottom: theme.spacing.lg,
   },
 
   macros: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingTop: spacing.padding.small,
+    paddingTop: theme.spacing.sm,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border.light,
+    borderTopColor: colors.border,
   },
-});
+}));

@@ -1,5 +1,8 @@
 import { StyleSheet } from 'react-native';
-import { colors, typography, spacing } from '../../../../theme';
+import { theme } from '../../../../theme';
+
+const colors = theme.getColors();
+const { typography, spacing } = theme;
 
 export const styles = StyleSheet.create({
   container: {
@@ -12,23 +15,24 @@ export const styles = StyleSheet.create({
   button: {
     padding: spacing.sm,
     borderRadius: 8,
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.secondaryBackground,
     borderWidth: 1,
-    borderColor: colors.border.primary,
+    borderColor: colors.border,
   },
   disabledButton: {
     opacity: 0.4,
   },
   buttonText: {
-    color: colors.text.primary,
+    color: colors.primaryText,
   },
   disabledButtonText: {
-    color: colors.text.secondary,
+    color: colors.secondaryText,
   },
   monthText: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.semibold,
-    color: colors.text.primary,
+    fontSize: typography.Title2.fontSize,
+    fontWeight: typography.Headline.fontWeight,
+    fontFamily: typography.Headline.fontFamily,
+    color: colors.primaryText,
     marginHorizontal: spacing.xl,
     textAlign: 'center',
     minWidth: 150,

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { ScrollView, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors, typography, spacing } from "../../src/theme";
+import { theme } from "../../src/theme";
 import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 import { DailySummaryCard } from "../../src/shared/ui/molecules/DailySummaryCard";
 import { MonthPicker } from "../../src/shared/ui/molecules/MonthPicker";
@@ -65,10 +65,13 @@ export default function OverviewTab() {
   );
 }
 
+const colors = theme.getColors();
+const { typography, spacing } = theme;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.primary,
+    backgroundColor: colors.primaryBackground,
   },
   scrollView: {
     flex: 1,
@@ -76,11 +79,12 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: spacing.md,
     paddingTop: spacing.md,
-    gap: spacing.component.list.sectionGap,
+    gap: spacing.md,
   },
   emptyText: {
-    fontSize: typography.fontSizes.base,
-    color: colors.text.secondary,
+    fontSize: typography.Body.fontSize,
+    fontFamily: typography.Body.fontFamily,
+    color: colors.secondaryText,
     textAlign: "center",
     marginTop: spacing.xl,
     paddingHorizontal: spacing.lg,

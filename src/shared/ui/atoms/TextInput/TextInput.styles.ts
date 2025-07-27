@@ -1,53 +1,55 @@
 import { StyleSheet } from 'react-native';
-import { colors, typography, spacing, shadows, accessibility } from '@/theme';
+import { theme } from '../../../../theme';
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: any) => StyleSheet.create({
   // Base input styles
   base: {
-    backgroundColor: colors.surface.primary,
+    backgroundColor: colors.secondaryBackground,
     borderWidth: 1,
-    borderColor: colors.border.primary,
-    borderRadius: spacing.radii.input,
-    paddingHorizontal: spacing.component.input.padding,
-    paddingVertical: spacing.component.input.padding,
-    fontSize: typography.textStyles.body.fontSize,
-    fontWeight: typography.textStyles.body.fontWeight,
-    lineHeight: typography.textStyles.body.lineHeight,
-    color: colors.text.primary,
-    fontFamily: typography.fontFamilies.system,
-    minHeight: accessibility.touchTargets.minimum,
+    borderColor: colors.border,
+    borderRadius: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    fontSize: theme.typography.Body.fontSize,
+    fontWeight: theme.typography.Body.fontWeight,
+    color: colors.primaryText,
+    fontFamily: theme.typography.Body.fontFamily,
+    minHeight: 44, // Minimum touch target
   },
 
   // Focus state
   focused: {
-    borderColor: colors.border.focus,
+    borderColor: colors.accent,
     borderWidth: 2,
-    ...shadows.elevation[1],
+    shadowColor: 'rgba(0, 0, 0, 0.1)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 4,
+    elevation: 2,
   },
 
   // Error state
   error: {
-    borderColor: colors.border.error,
-    backgroundColor: colors.functional.error.background,
+    borderColor: '#ef4444',
+    backgroundColor: 'rgba(239, 68, 68, 0.05)',
     borderWidth: 1,
   },
 
   // Disabled state
   disabled: {
-    backgroundColor: colors.surface.depressed,
-    color: colors.text.tertiary,
-    borderColor: colors.border.secondary,
+    backgroundColor: colors.disabledBackground,
+    color: colors.disabledText,
+    borderColor: colors.border,
+    opacity: 0.6,
   },
 
   // Multiline variant
   multiline: {
-    height: spacing.input.multiline,
+    height: 100,
     textAlignVertical: 'top',
-    paddingTop: spacing.component.input.padding,
-  },
-
-  // Placeholder text color (handled via placeholderTextColor prop)
-  placeholder: {
-    color: colors.text.tertiary,
+    paddingTop: theme.spacing.sm,
   },
 });
+
+// Legacy export for compatibility
+export const styles = createStyles(theme.getColors());

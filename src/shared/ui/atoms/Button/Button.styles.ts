@@ -1,151 +1,166 @@
 import { StyleSheet } from 'react-native';
-import { colors, typography, spacing, shadows, accessibility } from '@/theme';
+import { theme } from '../../../../theme';
+
+const colors = theme.getColors();
+const { typography, spacing, components } = theme;
 
 export const styles = StyleSheet.create({
   // Base button styles
   base: {
     justifyContent: 'center',
     alignItems: 'center',
-    ...shadows.presets.button,
-    // Accessibility
-    minHeight: accessibility.touchTargets.minimum,
+    minHeight: 44, // Standard minimum touch target
   },
 
   // Variant styles - Primary
   primary: {
-    backgroundColor: colors.interactive.primary.default,
-    shadowColor: colors.interactive.primary.default,
+    backgroundColor: components.buttons.primary.default.backgroundColor,
+    borderRadius: components.buttons.cornerRadius,
   },
 
   primaryPressed: {
-    backgroundColor: colors.interactive.primary.pressed,
+    backgroundColor: components.buttons.primary.active.backgroundColor,
   },
 
   // Variant styles - Secondary
   secondary: {
-    backgroundColor: colors.interactive.secondary.default,
-    shadowColor: colors.interactive.secondary.default,
+    backgroundColor: components.buttons.secondary.default.backgroundColor,
+    borderWidth: components.buttons.secondary.default.borderWidth,
+    borderColor: components.buttons.secondary.default.borderColor,
+    borderRadius: components.buttons.cornerRadius,
   },
 
   secondaryPressed: {
-    backgroundColor: colors.interactive.secondary.pressed,
+    backgroundColor: components.buttons.secondary.active.backgroundColor,
   },
 
   // Variant styles - Tertiary (outline style)
   tertiary: {
-    backgroundColor: colors.surface.primary,
+    backgroundColor: colors.secondaryBackground,
     borderWidth: 1,
-    borderColor: colors.border.primary,
-    ...shadows.elevation[0], // No shadow for tertiary
+    borderColor: colors.border,
+    borderRadius: components.buttons.cornerRadius,
   },
 
   tertiaryPressed: {
-    backgroundColor: colors.surface.secondary,
+    backgroundColor: colors.primaryBackground,
   },
 
-  // Variant styles - Destructive
+  // Variant styles - Destructive (using accent as destructive for now)
   destructive: {
-    backgroundColor: colors.interactive.destructive.default,
-    shadowColor: colors.interactive.destructive.default,
+    backgroundColor: colors.accent,
+    borderRadius: components.buttons.cornerRadius,
   },
 
   destructivePressed: {
-    backgroundColor: colors.interactive.destructive.pressed,
+    backgroundColor: colors.accent, // Could be darker variant
   },
 
   // Shape styles - Round (circular buttons)
   roundSmall: {
-    width: spacing.button.small.width,
-    height: spacing.button.small.height,
-    borderRadius: spacing.radii.button.small,
+    width: spacing.xl,
+    height: spacing.xl,
+    borderRadius: spacing.md,
   },
 
   roundMedium: {
-    width: spacing.button.medium.width,
-    height: spacing.button.medium.height,
-    borderRadius: spacing.radii.button.medium,
+    width: spacing.xxl,
+    height: spacing.xxl,
+    borderRadius: spacing.lg,
   },
 
   roundLarge: {
-    width: spacing.button.large.width,
-    height: spacing.button.large.height,
-    borderRadius: spacing.radii.button.large,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
   },
 
   // Shape styles - Square (full-width buttons)
   squareSmall: {
     width: '100%',
-    height: 40,
-    paddingHorizontal: spacing.component.button.paddingHorizontal,
-    borderRadius: spacing.radii.button.square,
+    height: spacing.xl,
+    paddingHorizontal: spacing.md,
+    borderRadius: components.buttons.cornerRadius,
   },
 
   squareMedium: {
     width: '100%',
-    height: 48,
-    paddingHorizontal: spacing.component.button.paddingHorizontal,
-    borderRadius: spacing.radii.button.square,
+    height: spacing.xxl,
+    paddingHorizontal: spacing.md,
+    borderRadius: components.buttons.cornerRadius,
   },
 
   squareLarge: {
     width: '100%',
     height: 56,
-    paddingHorizontal: spacing.component.button.paddingHorizontal,
-    borderRadius: spacing.radii.button.square,
+    paddingHorizontal: spacing.md,
+    borderRadius: components.buttons.cornerRadius,
   },
 
   // Disabled state
   disabled: {
-    backgroundColor: colors.interactive.primary.disabled,
-    shadowColor: colors.interactive.primary.disabled,
-    ...shadows.elevation[0], // Remove shadow when disabled
+    backgroundColor: components.buttons.primary.disabled.backgroundColor,
   },
 
   // Text styles - Base
   text: {
-    color: colors.text.onColor,
+    color: components.buttons.primary.default.textColor,
     textAlign: 'center',
-    fontFamily: typography.fontFamilies.system,
+    fontFamily: typography.Button.fontFamily,
+    fontSize: typography.Button.fontSize,
+    fontWeight: typography.Button.fontWeight,
+  },
+
+  // Text styles for secondary variant
+  secondaryText: {
+    color: components.buttons.secondary.default.textColor,
   },
 
   // Text styles for tertiary variant
   tertiaryText: {
-    color: colors.text.primary,
+    color: colors.primaryText,
   },
 
   // Text styles for disabled state
   disabledText: {
-    color: colors.text.quaternary,
+    color: components.buttons.primary.disabled.textColor,
   },
 
   // Round text styles (for icon-only buttons)
   roundSmallText: {
-    ...typography.textStyles.footnote,
-    lineHeight: spacing.button.small.height,
+    fontFamily: typography.Caption.fontFamily,
+    fontSize: typography.Caption.fontSize,
+    fontWeight: typography.Caption.fontWeight,
   },
 
   roundMediumText: {
-    fontSize: typography.fontSizes['3xl'],
-    fontWeight: typography.fontWeights.light,
-    lineHeight: spacing.button.medium.height,
+    fontFamily: typography.Subhead.fontFamily,
+    fontSize: typography.Subhead.fontSize,
+    fontWeight: typography.Subhead.fontWeight,
   },
 
   roundLargeText: {
-    fontSize: typography.fontSizes['3xl'],
-    fontWeight: typography.fontWeights.regular,
-    lineHeight: spacing.button.large.height,
+    fontFamily: typography.Body.fontFamily,
+    fontSize: typography.Body.fontSize,
+    fontWeight: typography.Body.fontWeight,
   },
 
   // Square text styles (for text buttons)
   squareSmallText: {
-    ...typography.buttonTextStyles.small,
+    fontFamily: typography.Button.fontFamily,
+    fontSize: typography.Caption.fontSize,
+    fontWeight: typography.Button.fontWeight,
   },
 
   squareMediumText: {
-    ...typography.buttonTextStyles.medium,
+    fontFamily: typography.Button.fontFamily,
+    fontSize: typography.Button.fontSize,
+    fontWeight: typography.Button.fontWeight,
   },
 
   squareLargeText: {
-    ...typography.buttonTextStyles.large,
+    fontFamily: typography.Button.fontFamily,
+    fontSize: typography.Headline.fontSize,
+    fontWeight: typography.Button.fontWeight,
   },
 });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { styles } from './ProgressBar.styles';
-import { colors } from '../../../../theme';
+import { useTheme } from '../../../../providers/ThemeProvider';
 
 interface ProgressBarProps {
   progress: number; // 0-100
@@ -19,9 +19,12 @@ export function ProgressBar({
   target,
   unit,
   label,
-  color = colors.brand.primary,
-  backgroundColor = colors.border.light
+  color,
+  backgroundColor
 }: ProgressBarProps) {
+  const { colors } = useTheme();
+  const finalColor = color || colors.accent;
+  const finalBackgroundColor = backgroundColor || colors.border;
   const clampedProgress = Math.max(0, Math.min(100, progress));
 
   return (
@@ -33,13 +36,13 @@ export function ProgressBar({
         </Text>
       </View>
       
-      <View style={[styles.track, { backgroundColor }]}>
+      <View style={[styles.track, { backgroundColor: finalBackgroundColor }]}>
         <View 
           style={[
             styles.fill,
             {
               width: `${clampedProgress}%`,
-              backgroundColor: color,
+              backgroundColor: finalColor,
             }
           ]}
         />

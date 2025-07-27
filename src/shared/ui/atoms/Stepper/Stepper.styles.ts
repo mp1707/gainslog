@@ -1,45 +1,51 @@
-import { StyleSheet } from "react-native";
-import { colors, spacing } from "../../../../theme";
+import { StyleSheet } from 'react-native';
+import { theme } from '../../../../theme';
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: any) => StyleSheet.create({
   container: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderRadius: spacing.radius.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: theme.components.cards.cornerRadius,
     borderWidth: 1,
-    borderColor: colors.border.light,
-    overflow: "hidden",
+    borderColor: colors.border,
+    overflow: 'hidden',
   },
   button: {
     width: 36,
     height: 36,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.background.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.primaryBackground,
   },
   buttonText: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: colors.brand.primary,
+    fontSize: theme.typography.Headline.fontSize,
+    fontWeight: theme.typography.Headline.fontWeight,
+    fontFamily: theme.typography.Headline.fontFamily,
+    color: colors.accent,
   },
   valueBox: {
     minWidth: 56,
-    paddingHorizontal: spacing.sm,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.background.secondary,
+    paddingHorizontal: theme.spacing.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.secondaryBackground,
   },
   valueText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: colors.text.primary,
+    fontSize: theme.typography.Body.fontSize,
+    fontWeight: theme.typography.Body.fontWeight,
+    fontFamily: theme.typography.Body.fontFamily,
+    color: colors.primaryText,
   },
   valueInput: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: colors.text.primary,
-    textAlign: "center",
+    fontSize: theme.typography.Body.fontSize,
+    fontWeight: theme.typography.Body.fontWeight,
+    fontFamily: theme.typography.Body.fontFamily,
+    color: colors.primaryText,
+    textAlign: 'center',
     padding: 0,
     margin: 0,
   },
 });
+
+// Legacy export for compatibility
+export const styles = createStyles(theme.getColors());

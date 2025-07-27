@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, TouchableOpacity, Text, TextInput } from "react-native";
-import { styles } from "./Stepper.styles";
+import { useTheme } from "../../../../providers/ThemeProvider";
+import { createStyles } from "./Stepper.styles";
 
 interface StepperProps {
   value: number;
@@ -20,6 +21,8 @@ export const Stepper: React.FC<StepperProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(String(value));
   const inputRef = useRef<TextInput>(null);
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
 
   // Sync internal input state when external value changes
   useEffect(() => {

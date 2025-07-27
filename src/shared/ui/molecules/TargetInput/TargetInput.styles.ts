@@ -1,15 +1,19 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '../../../../theme';
+import { theme } from '../../../../theme';
+
+const colors = theme.getColors();
+const { typography, spacing } = theme;
 
 export const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
+    marginBottom: spacing.lg,
   },
   label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text.primary,
-    marginBottom: 8,
+    fontSize: typography.Body.fontSize,
+    fontWeight: typography.Headline.fontWeight,
+    fontFamily: typography.Body.fontFamily,
+    color: colors.primaryText,
+    marginBottom: spacing.sm,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -21,9 +25,10 @@ export const styles = StyleSheet.create({
     minWidth: 80,
   },
   unit: {
-    fontSize: 16,
-    color: colors.text.secondary,
-    marginLeft: 12,
-    fontWeight: '500',
+    fontSize: typography.Body.fontSize,
+    fontWeight: typography.Subhead.fontWeight,
+    fontFamily: typography.Body.fontFamily,
+    color: colors.secondaryText,
+    marginLeft: spacing.sm,
   },
 });

@@ -1,58 +1,64 @@
 import { StyleSheet } from 'react-native';
-import { colors, typography, spacing } from '@/theme';
+import { theme } from '../../../../theme';
+
+const colors = theme.getColors();
+const { typography, spacing } = theme;
 
 export const styles = StyleSheet.create({
   section: {
-    marginBottom: spacing.layout.sectionGap,
+    marginBottom: spacing.lg,
   },
 
   title: {
-    ...typography.textStyles.headline,
-    color: colors.text.primary,
-    fontFamily: typography.fontFamilies.system,
-    marginBottom: spacing.scale[1],
+    fontFamily: typography.Headline.fontFamily,
+    fontSize: typography.Headline.fontSize,
+    fontWeight: typography.Headline.fontWeight,
+    color: colors.primaryText,
+    marginBottom: spacing.sm,
   },
 
   subtitle: {
-    ...typography.textStyles.body,
-    color: colors.text.secondary,
-    fontFamily: typography.fontFamilies.system,
-    marginBottom: spacing.layout.elementGap,
+    fontFamily: typography.Body.fontFamily,
+    fontSize: typography.Body.fontSize,
+    fontWeight: typography.Body.fontWeight,
+    color: colors.secondaryText,
+    marginBottom: spacing.md,
   },
 
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: spacing.layout.microGap,
+    gap: spacing.xs,
   },
 
   inputGroup: {
     width: '48%',
-    marginBottom: spacing.layout.elementGap,
+    marginBottom: spacing.md,
   },
 
   label: {
-    ...typography.textStyles.callout,
-    color: colors.text.primary,
-    fontFamily: typography.fontFamilies.system,
-    marginBottom: spacing.scale[2],
+    fontFamily: typography.Subhead.fontFamily,
+    fontSize: typography.Subhead.fontSize,
+    fontWeight: typography.Subhead.fontWeight,
+    color: colors.primaryText,
+    marginBottom: spacing.sm,
   },
 
-  // Nutrition-specific label colors
+  // Nutrition-specific label colors (using accent color for all)
   caloriesLabel: {
-    color: colors.nutrition.calories.primary,
+    color: colors.accent,
   },
 
   proteinLabel: {
-    color: colors.nutrition.protein.primary,
+    color: colors.accent,
   },
 
   carbsLabel: {
-    color: colors.nutrition.carbohydrates.primary,
+    color: colors.accent,
   },
 
   fatLabel: {
-    color: colors.nutrition.fat.primary,
+    color: colors.accent,
   },
 });

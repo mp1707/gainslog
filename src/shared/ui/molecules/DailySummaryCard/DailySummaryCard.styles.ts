@@ -1,27 +1,20 @@
 import { StyleSheet } from 'react-native';
-import { colors, typography, spacing } from '../../../../theme';
+import { theme } from '../../../../theme';
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: any) => StyleSheet.create({
   container: {
-    backgroundColor: colors.background.secondary,
-    borderRadius: 12,
-    padding: spacing.lg,
+    borderRadius: theme.components.cards.cornerRadius,
+    padding: theme.spacing.lg,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border.primary,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    borderColor: colors.border,
+    ...theme.components.cards.lightMode, // Apply card shadow styles
   },
   dateText: {
-    fontSize: typography.fontSizes.lg,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.text.primary,
-    marginBottom: spacing.md,
+    fontSize: theme.typography.Title2.fontSize,
+    fontWeight: theme.typography.Title2.fontWeight,
+    fontFamily: theme.typography.Title2.fontFamily,
+    color: colors.primaryText,
+    marginBottom: theme.spacing.md,
   },
   nutritionGrid: {
     flexDirection: 'row',
@@ -33,20 +26,25 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.xs,
+    marginBottom: theme.spacing.xs,
   },
   label: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.medium,
+    fontSize: theme.typography.Subhead.fontSize,
+    fontWeight: theme.typography.Subhead.fontWeight,
+    fontFamily: theme.typography.Subhead.fontFamily,
   },
   value: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.semibold,
+    fontSize: theme.typography.Subhead.fontSize,
+    fontWeight: theme.typography.Headline.fontWeight,
+    fontFamily: theme.typography.Headline.fontFamily,
   },
   metColor: { 
-    color: colors.functional.success.foreground,
+    color: colors.accent,
   },
   notMetColor: {
-    color: colors.text.secondary,
+    color: colors.secondaryText,
   },
 });
+
+// Legacy export for compatibility
+export const styles = createStyles(theme.getColors());

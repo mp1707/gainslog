@@ -9,13 +9,14 @@ import Animated, {
   Layout,
   FadeInUp,
 } from "react-native-reanimated";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Pencil, Camera, Image, Microphone } from "phosphor-react-native";
 import { SwipeToDelete, SkeletonCard } from "@/shared/ui";
 import { FoodLogCard } from "./FoodLogCard";
 import { FoodLogHeader } from "./FoodLogHeader";
 import { FoodLog } from "../../../types";
-import { styles } from "./FoodLogScreen.styles";
+import { createStyles } from "./FoodLogScreen.styles";
 import { useFoodLogStore } from "../../../stores/useFoodLogStore";
+import { useTheme } from "../../../providers/ThemeProvider";
 
 interface FoodLogScreenProps {
   isLoadingLogs: boolean;
@@ -35,7 +36,9 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
     triggerAudioCapture,
     getFilteredFoodLogs,
   } = useFoodLogStore();
-
+  
+  const { theme, colors } = useTheme();
+  const styles = createStyles(colors);
   const filteredFoodLogs = getFilteredFoodLogs();
 
   const handleDeleteLog = async (logId: string) => {
@@ -102,7 +105,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
           onPress={handleManualLog}
           activeOpacity={0.8}
         >
-          <FontAwesome name="pencil" size={20} color="white" />
+          <Pencil size={theme.components.aiActionTargets.iconSize} color={theme.components.aiActionTargets.iconColor} weight="regular" />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -110,7 +113,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
           onPress={handleCameraLog}
           activeOpacity={0.8}
         >
-          <FontAwesome name="camera" size={20} color="white" />
+          <Camera size={theme.components.aiActionTargets.iconSize} color={theme.components.aiActionTargets.iconColor} weight="regular" />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -118,7 +121,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
           onPress={handleLibraryLog}
           activeOpacity={0.8}
         >
-          <FontAwesome name="image" size={20} color="white" />
+          <Image size={theme.components.aiActionTargets.iconSize} color={theme.components.aiActionTargets.iconColor} weight="regular" />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -126,7 +129,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
           onPress={handleAudioLog}
           activeOpacity={0.8}
         >
-          <FontAwesome name="microphone" size={20} color="white" />
+          <Microphone size={theme.components.aiActionTargets.iconSize} color={theme.components.aiActionTargets.iconColor} weight="regular" />
         </TouchableOpacity>
       </View>
     </SafeAreaView>

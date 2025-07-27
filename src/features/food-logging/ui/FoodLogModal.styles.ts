@@ -1,11 +1,11 @@
 import { StyleSheet } from 'react-native';
-import { colors, typography, spacing, shadows } from '@/theme';
+import { useThemedStyles } from '../../../providers/ThemeProvider';
 
-export const styles = StyleSheet.create({
+export const useStyles = () => useThemedStyles((colors, theme) => StyleSheet.create({
   // Modal overlay
   overlay: {
     flex: 1,
-    backgroundColor: colors.background.overlay,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
   // Modal container - for page sheet presentation
   container: {
     flex: 1,
-    backgroundColor: colors.surface.primary,
+    backgroundColor: colors.primaryBackground,
   },
 
   // Modal header
@@ -21,79 +21,81 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.component.modal.padding,
-    paddingVertical: spacing.layout.elementGap,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border.divider,
+    borderBottomColor: colors.border,
   },
 
   title: {
-    ...typography.textStyles.title1,
-    color: colors.text.primary,
-    fontFamily: typography.fontFamilies.system,
+    fontSize: theme.typography.Title2.fontSize,
+    fontFamily: theme.typography.Title2.fontFamily,
+    fontWeight: theme.typography.Title2.fontWeight,
+    color: colors.primaryText,
   },
 
   // Header buttons
   cancelButton: {
-    ...typography.textStyles.headline,
-    color: colors.text.secondary,
-    fontFamily: typography.fontFamilies.system,
+    fontSize: theme.typography.Headline.fontSize,
+    fontFamily: theme.typography.Headline.fontFamily,
+    color: colors.secondaryText,
   },
 
   saveButton: {
-    ...typography.textStyles.headline,
-    color: colors.interactive.primary.default,
-    fontFamily: typography.fontFamilies.system,
+    fontSize: theme.typography.Headline.fontSize,
+    fontFamily: theme.typography.Headline.fontFamily,
+    color: colors.accent,
   },
 
   saveButtonDisabled: {
-    color: colors.interactive.primary.disabled,
+    color: colors.disabledText,
   },
 
   // Modal content
   content: {
     flex: 1,
-    padding: spacing.component.modal.padding,
+    padding: theme.spacing.md,
   },
 
   scrollContent: {
-    gap: spacing.component.modal.gap,
+    gap: theme.spacing.md,
   },
 
   // Form sections
   section: {
-    marginBottom: spacing.layout.componentGap,
+    marginBottom: theme.spacing.lg,
   },
 
   sectionTitle: {
-    ...typography.textStyles.headline,
-    color: colors.text.primary,
-    fontFamily: typography.fontFamilies.system,
-    marginBottom: spacing.layout.microGap,
+    fontSize: theme.typography.Headline.fontSize,
+    fontFamily: theme.typography.Headline.fontFamily,
+    fontWeight: theme.typography.Headline.fontWeight,
+    color: colors.primaryText,
+    marginBottom: theme.spacing.sm,
   },
 
   // Image display
   imageContainer: {
-    marginBottom: spacing.layout.componentGap,
+    marginBottom: theme.spacing.lg,
     alignItems: 'center',
   },
 
   foodImage: {
     width: '100%',
     height: 200,
-    borderRadius: spacing.radii.image,
-    backgroundColor: colors.surface.secondary,
+    borderRadius: theme.spacing.sm,
+    backgroundColor: colors.secondaryBackground,
   },
 
   // Input fields
   inputField: {
-    marginBottom: spacing.layout.microGap,
+    marginBottom: theme.spacing.sm,
   },
 
   inputLabel: {
-    ...typography.textStyles.callout,
-    color: colors.text.primary,
-    fontFamily: typography.fontFamilies.system,
-    marginBottom: spacing.scale[1],
+    fontSize: theme.typography.Body.fontSize,
+    fontFamily: theme.typography.Body.fontFamily,
+    color: colors.primaryText,
+    marginBottom: theme.spacing.xs,
   },
-});
+}));

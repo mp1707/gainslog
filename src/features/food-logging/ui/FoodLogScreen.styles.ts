@@ -1,21 +1,21 @@
 import { StyleSheet } from "react-native";
-import { colors, typography, spacing, shadows } from "../../../theme";
+import { theme } from "../../../theme";
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.primary,
+    backgroundColor: colors.primaryBackground,
   },
 
   scrollView: {
     flex: 1,
-    paddingTop: spacing.layout.microGap,
+    paddingTop: theme.spacing.sm,
   },
 
   scrollContent: {
-    paddingHorizontal: spacing.layout.screenPadding,
-    paddingBottom: spacing.scale[24], // Extra bottom padding for FAB
-    gap: spacing.component.list.sectionGap,
+    paddingHorizontal: theme.spacing.pageMargins.horizontal,
+    paddingBottom: 100, // Extra bottom padding for FAB
+    gap: theme.spacing.md,
   },
 
   // Empty state
@@ -23,73 +23,45 @@ export const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: spacing.layout.screenPadding,
-  },
-
-  emptyTitle: {
-    ...typography.textStyles.title2,
-    color: colors.text.secondary,
-    fontFamily: typography.fontFamilies.system,
-    textAlign: 'center',
-    marginBottom: spacing.layout.microGap,
-  },
-
-  emptySubtitle: {
-    ...typography.textStyles.body,
-    color: colors.text.tertiary,
-    fontFamily: typography.fontFamilies.system,
-    textAlign: 'center',
-  },
-
-  // Section headers
-  sectionHeader: {
-    ...typography.textStyles.title2,
-    color: colors.text.primary,
-    fontFamily: typography.fontFamilies.system,
-    marginBottom: spacing.layout.elementGap,
-  },
-
-  // Food log list
-  logsList: {
-    gap: spacing.component.list.itemGap,
+    paddingHorizontal: theme.spacing.pageMargins.horizontal,
   },
 
   // Floating Action Button styles
   fabContainer: {
     position: "absolute",
-    bottom: spacing.scale[8],
-    right: spacing.scale[5],
+    bottom: theme.spacing.lg,
+    right: theme.spacing.pageMargins.horizontal,
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.layout.microGap,
+    gap: theme.spacing.sm,
     flexWrap: "wrap",
-    maxWidth: spacing.scale[32] * 2 + spacing.layout.microGap,
+    maxWidth: (theme.components.aiActionTargets.minWidth * 2) + theme.spacing.sm,
   },
 
   fabButton: {
-    backgroundColor: colors.interactive.primary.default,
-    width: spacing.button.medium.width,
-    height: spacing.button.medium.height,
-    borderRadius: spacing.button.medium.radius,
+    backgroundColor: colors.accent,
+    width: theme.components.aiActionTargets.minWidth,
+    height: theme.components.aiActionTargets.height,
+    borderRadius: theme.components.buttons.cornerRadius,
     alignItems: "center",
     justifyContent: "center",
-    ...shadows.presets.button,
-    shadowColor: colors.interactive.primary.default,
+    shadowColor: 'rgba(0, 0, 0, 0.15)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    elevation: 6,
   },
 
   fabButtonSecondary: {
-    backgroundColor: colors.interactive.secondary.default,
-    shadowColor: colors.interactive.secondary.default,
+    backgroundColor: colors.accent,
   },
 
   fabButtonTertiary: {
-    backgroundColor: "#8B5CF6", // Purple color for library
-    shadowColor: "#8B5CF6",
+    backgroundColor: colors.accent,
   },
 
   fabButtonQuaternary: {
-    backgroundColor: "#EF4444", // Red color for audio
-    shadowColor: "#EF4444",
+    backgroundColor: colors.accent,
   },
 
   // Loading state
@@ -99,3 +71,6 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+// Legacy export for compatibility - will be replaced when components are updated
+export const styles = createStyles(theme.getColors());

@@ -1,46 +1,29 @@
 import { StyleSheet } from 'react-native';
-import { colors, typography, spacing } from '@/theme';
+import { theme } from '../../../../theme';
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingTop: spacing.scale[2],
+    paddingTop: theme.spacing.sm,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border.divider,
+    borderTopColor: colors.border,
   },
 
   macroItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.scale[1],
+    gap: theme.spacing.xs,
   },
 
   label: {
-    ...typography.textStyles.subheadline,
-    color: colors.text.secondary,
-    fontFamily: typography.fontFamilies.system,
+    // Styling handled by AppText component
   },
 
   value: {
-    ...typography.textStyles.callout,
-    fontFamily: typography.fontFamilies.system,
-  },
-
-  // Nutrition-specific value colors
-  caloriesValue: {
-    color: colors.nutrition.calories.primary,
-  },
-
-  proteinValue: {
-    color: colors.nutrition.protein.primary,
-  },
-
-  carbsValue: {
-    color: colors.nutrition.carbohydrates.primary,
-  },
-
-  fatValue: {
-    color: colors.nutrition.fat.primary,
+    // Styling handled by AppText component  
   },
 });
+
+// Legacy export for compatibility
+export const styles = createStyles(theme.getColors());

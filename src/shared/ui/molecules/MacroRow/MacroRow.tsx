@@ -1,13 +1,18 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import { FoodLog } from '@/types';
-import { styles } from './MacroRow.styles';
+import { AppText } from '../../../../components/AppText';
+import { useTheme } from '../../../../providers/ThemeProvider';
+import { createStyles } from './MacroRow.styles';
 
 interface MacroRowProps {
   foodLog: FoodLog;
 }
 
 export const MacroRow: React.FC<MacroRowProps> = ({ foodLog }) => {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+  
   return (
     <View 
       style={styles.container}
@@ -15,28 +20,28 @@ export const MacroRow: React.FC<MacroRowProps> = ({ foodLog }) => {
       accessibilityLabel={`Nutrition: ${foodLog.protein}g protein, ${foodLog.carbs}g carbs, ${foodLog.fat}g fat, ${foodLog.calories} calories`}
     >
       <View style={styles.macroItem}>
-        <Text style={styles.label}>P:</Text>
-        <Text style={[styles.value, styles.proteinValue]}>
+        <AppText role="Caption" color="secondary" style={styles.label}>P:</AppText>
+        <AppText role="Caption" color="primary" style={styles.value}>
           {foodLog.protein}g
-        </Text>
+        </AppText>
       </View>
       <View style={styles.macroItem}>
-        <Text style={styles.label}>C:</Text>
-        <Text style={[styles.value, styles.carbsValue]}>
+        <AppText role="Caption" color="secondary" style={styles.label}>C:</AppText>
+        <AppText role="Caption" color="primary" style={styles.value}>
           {foodLog.carbs}g
-        </Text>
+        </AppText>
       </View>
       <View style={styles.macroItem}>
-        <Text style={styles.label}>F:</Text>
-        <Text style={[styles.value, styles.fatValue]}>
+        <AppText role="Caption" color="secondary" style={styles.label}>F:</AppText>
+        <AppText role="Caption" color="primary" style={styles.value}>
           {foodLog.fat}g
-        </Text>
+        </AppText>
       </View>
       <View style={styles.macroItem}>
-        <Text style={styles.label}>Cal:</Text>
-        <Text style={[styles.value, styles.caloriesValue]}>
+        <AppText role="Caption" color="secondary" style={styles.label}>Cal:</AppText>
+        <AppText role="Caption" color="primary" style={styles.value}>
           {foodLog.calories}
-        </Text>
+        </AppText>
       </View>
     </View>
   );

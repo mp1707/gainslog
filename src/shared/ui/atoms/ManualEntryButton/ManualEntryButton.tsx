@@ -1,8 +1,8 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Button } from '../Button';
+import { Button } from '../../../../components/Button';
 import { styles } from './ManualEntryButton.styles';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Pencil } from 'phosphor-react-native';
 
 interface ManualEntryButtonProps {
   onPress: () => void;
@@ -13,11 +13,10 @@ export const ManualEntryButton: React.FC<ManualEntryButtonProps> = ({ onPress })
     <View style={styles.button}>
       <Button
         onPress={onPress}
-        shape="round"
-        color="secondary"
+        variant="secondary"
         size="medium"
       >
-        <FontAwesome name="pencil" size={24} color="white" />
+        Add Food
       </Button>
     </View>
   );

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { TextInput as RNTextInput, ViewStyle } from 'react-native';
 import { TextInputProps } from '@/types';
-import { styles } from './TextInput.styles';
-import { colors } from '@/theme/colors';
+import { useTheme } from '../../../../providers/ThemeProvider';
+import { createStyles } from './TextInput.styles';
 
 export const TextInput: React.FC<TextInputProps> = ({
   value,
@@ -20,6 +20,8 @@ export const TextInput: React.FC<TextInputProps> = ({
   onBlur,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
 
   // Get base styles
   const baseStyles: ViewStyle[] = [styles.base];
@@ -62,7 +64,7 @@ export const TextInput: React.FC<TextInputProps> = ({
   return (
     <RNTextInput
       style={baseStyles}
-      placeholderTextColor={colors.text.tertiary}
+      placeholderTextColor={colors.secondaryText}
       value={value}
       onChangeText={onChangeText}
       onFocus={handleFocus}

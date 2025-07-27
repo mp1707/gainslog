@@ -1,61 +1,52 @@
 import { StyleSheet } from "react-native";
-import { colors, typography, spacing, shadows } from "../../../theme";
+import { theme } from "../../../theme";
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: any) => StyleSheet.create({
   card: {
-    backgroundColor: colors.surface.primary,
-    borderRadius: spacing.radii.card,
-    padding: spacing.component.card.padding,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border.primary,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    // Card uses no additional styles since the Card component handles styling
   },
 
   titleRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: spacing.layout.elementGap,
+    marginBottom: theme.spacing.md,
   },
 
   titleContent: {
     flex: 1,
-    marginRight: spacing.layout.elementGap,
+    marginRight: theme.spacing.md,
+  },
+
+  titleWithIcon: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: theme.spacing.xs,
   },
 
   title: {
-    ...typography.textStyles.title3,
-    color: colors.text.primary,
-    fontFamily: typography.fontFamilies.system,
-    marginBottom: spacing.scale[1],
+    flex: 1,
   },
 
   loadingTitle: {
-    color: colors.text.tertiary,
+    color: colors.disabledText,
     fontStyle: "italic",
   },
 
   description: {
-    ...typography.textStyles.body,
-    color: colors.text.secondary,
     fontStyle: "italic",
-    fontFamily: typography.fontFamilies.system,
   },
 
   rightSection: {
     alignItems: "flex-end",
-    gap: spacing.scale[2],
+    gap: theme.spacing.sm,
   },
 
   // Camera icon styling
   cameraIcon: {
-    marginRight: spacing.scale[1],
+    marginRight: theme.spacing.xs,
   },
 });
+
+// Legacy export for compatibility
+export const styles = createStyles(theme.getColors());
