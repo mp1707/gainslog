@@ -83,7 +83,10 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
           {
             text: "Delete",
             style: "destructive",
-            onPress: executeDelete,
+            onPress: () => {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+              executeDelete();
+            },
           },
         ]
       );
