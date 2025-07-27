@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { View, TouchableOpacity } from "react-native";
+import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
 import { useTheme } from "../../../../providers/ThemeProvider";
+import { AppText } from "../../../../components/AppText";
 import { createStyles } from "./MonthPicker.styles";
 
 interface MonthPickerProps {
@@ -55,25 +56,26 @@ export function MonthPicker({
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        style={styles.button}
+        style={styles.navigationArrow}
         onPress={goToPreviousMonth}
         activeOpacity={0.7}
       >
-        <FontAwesome name="chevron-left" size={16} color={colors.primaryText} />
+        <CaretLeftIcon size={16} color={colors.secondaryText} weight="regular" />
       </TouchableOpacity>
-
-      <Text style={styles.monthText}>{formatMonth(currentDate)}</Text>
+      <View style={styles.monthTextContainer}>
+        <AppText role="Body" style={styles.monthText}>{formatMonth(currentDate)}</AppText>
+      </View>
 
       <TouchableOpacity
-        style={[styles.button, isAtCurrentMonth && styles.disabledButton]}
+        style={[styles.navigationArrow, isAtCurrentMonth && styles.navigationArrowDisabled]}
         onPress={goToNextMonth}
         disabled={isAtCurrentMonth}
         activeOpacity={0.7}
       >
-        <FontAwesome
-          name="chevron-right"
+        <CaretRightIcon
           size={16}
-          color={isAtCurrentMonth ? colors.secondaryText : colors.primaryText}
+          color={isAtCurrentMonth ? colors.disabledText : colors.secondaryText}
+          weight="regular"
         />
       </TouchableOpacity>
     </View>

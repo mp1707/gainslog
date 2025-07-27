@@ -15,7 +15,7 @@ const lightColors = {
   white: '#FFFFFF',
   disabledBackground: 'rgba(17, 17, 17, 0.1)',
   disabledText: 'rgba(17, 17, 17, 0.4)',
-} as const;
+} as const; 
 
 const darkColors = {
   accent: '#FF7A5A',

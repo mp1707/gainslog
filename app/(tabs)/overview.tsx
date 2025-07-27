@@ -12,7 +12,6 @@ export default function OverviewTab() {
     selectedMonth,
     setSelectedMonth,
     dailyTargets,
-    isLoadingTargets,
     loadDailyTargets,
     getDailyTotalsForMonth,
     navigateToTodayWithDate,

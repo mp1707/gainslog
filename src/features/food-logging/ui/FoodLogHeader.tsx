@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { View, Platform, TouchableOpacity } from "react-native";
-import { CaretLeft, CaretRight } from "phosphor-react-native";
+import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFoodLogStore } from "../../../stores/useFoodLogStore";
 import { PageHeader } from "../../../shared/ui/molecules/PageHeader";
@@ -103,7 +103,7 @@ export const FoodLogHeader: React.FC = () => {
           onPress={navigateToPreviousDay}
           style={styles.navigationArrow}
         >
-          <CaretLeft size={16} color={colors.secondaryText} weight="regular" />
+          <CaretLeftIcon size={16} color={colors.secondaryText} weight="regular" />
         </TouchableOpacity>
 
         <View style={styles.datePickerContainer}>
@@ -129,7 +129,7 @@ export const FoodLogHeader: React.FC = () => {
           ]}
           disabled={isToday()}
         >
-          <CaretRight
+          <CaretRightIcon
             size={16}
             color={isToday() ? colors.disabledText : colors.secondaryText}
             weight="regular"

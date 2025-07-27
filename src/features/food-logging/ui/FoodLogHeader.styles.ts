@@ -32,6 +32,7 @@ export const createStyles = (colors: any) => StyleSheet.create({
 
   datePickerContainer: {
     flexShrink: 0,
+    marginLeft: -10,
   },
 
   // Nutrition list layout
