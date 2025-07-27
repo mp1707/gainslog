@@ -71,13 +71,18 @@ export function AudioPlayer({
   const iconSize = size === 'small' ? 16 : size === 'large' ? 32 : 24;
   const containerStyle = [
     styles.container,
-    styles[`container${size.charAt(0).toUpperCase() + size.slice(1)}`]
+    size === 'small' ? styles.containerSmall :
+    size === 'large' ? styles.containerLarge : styles.containerMedium
   ];
 
   return (
     <View style={containerStyle}>
       <TouchableOpacity
-        style={[styles.playButton, styles[`playButton${size.charAt(0).toUpperCase() + size.slice(1)}`]]}
+        style={[
+          styles.playButton, 
+          size === 'small' ? styles.playButtonSmall :
+          size === 'large' ? styles.playButtonLarge : styles.playButtonMedium
+        ]}
         onPress={handlePlayPause}
         activeOpacity={0.7}
         accessibilityRole="button"
