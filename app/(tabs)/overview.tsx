@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { ScrollView, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { theme } from "../../src/theme";
+import { useTheme } from "../../src/providers/ThemeProvider";
 import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 import { DailySummaryCard } from "../../src/shared/ui/molecules/DailySummaryCard";
 import { MonthPicker } from "../../src/shared/ui/molecules/MonthPicker";
@@ -32,6 +32,9 @@ export default function OverviewTab() {
   const handleDayPress = (date: string) => {
     navigateToTodayWithDate(date);
   };
+
+  const { colors, theme } = useTheme();
+  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -65,29 +68,31 @@ export default function OverviewTab() {
   );
 }
 
-const colors = theme.getColors();
-const { typography, spacing } = theme;
+// Dynamic styles creator
+function createStyles(colors: any, themeObj: any) {
+  const { typography, spacing } = themeObj;
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.primaryBackground,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.md,
-    gap: spacing.md,
-  },
-  emptyText: {
-    fontSize: typography.Body.fontSize,
-    fontFamily: typography.Body.fontFamily,
-    color: colors.secondaryText,
-    textAlign: "center",
-    marginTop: spacing.xl,
-    paddingHorizontal: spacing.lg,
-    lineHeight: 22,
-  },
-});
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.primaryBackground,
+    },
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingHorizontal: spacing.md,
+      paddingTop: spacing.md,
+      gap: spacing.md,
+    },
+    emptyText: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      color: colors.secondaryText,
+      textAlign: "center",
+      marginTop: spacing.xl,
+      paddingHorizontal: spacing.lg,
+      lineHeight: 22,
+    },
+  });
+}

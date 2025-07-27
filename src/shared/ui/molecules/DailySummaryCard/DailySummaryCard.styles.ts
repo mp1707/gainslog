@@ -1,50 +1,58 @@
-import { StyleSheet } from 'react-native';
-import { theme } from '../../../../theme';
+import { StyleSheet } from "react-native";
+import { ColorScheme, theme as defaultTheme } from "../../../../theme";
 
-export const createStyles = (colors: any) => StyleSheet.create({
-  container: {
-    borderRadius: theme.components.cards.cornerRadius,
-    padding: theme.spacing.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    ...theme.components.cards.lightMode, // Apply card shadow styles
-  },
-  dateText: {
-    fontSize: theme.typography.Title2.fontSize,
-    fontWeight: theme.typography.Title2.fontWeight,
-    fontFamily: theme.typography.Title2.fontFamily,
-    color: colors.primaryText,
-    marginBottom: theme.spacing.md,
-  },
-  nutritionGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  nutritionItem: {
-    width: '48%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing.xs,
-  },
-  label: {
-    fontSize: theme.typography.Subhead.fontSize,
-    fontWeight: theme.typography.Subhead.fontWeight,
-    fontFamily: theme.typography.Subhead.fontFamily,
-  },
-  value: {
-    fontSize: theme.typography.Subhead.fontSize,
-    fontWeight: theme.typography.Headline.fontWeight,
-    fontFamily: theme.typography.Headline.fontFamily,
-  },
-  metColor: { 
-    color: colors.accent,
-  },
-  notMetColor: {
-    color: colors.secondaryText,
-  },
-});
+export const createStyles = (
+  colors: any,
+  themeObj: typeof defaultTheme = defaultTheme,
+  scheme: ColorScheme = "light"
+) => {
+  const componentStyles = themeObj.getComponentStyles(scheme);
 
-// Legacy export for compatibility
-export const styles = createStyles(theme.getColors());
+  return StyleSheet.create({
+    container: {
+      borderRadius: themeObj.components.cards.cornerRadius,
+      padding: themeObj.spacing.lg,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+      ...componentStyles.cards, // Apply scheme-aware card styles
+    },
+    dateText: {
+      fontSize: themeObj.typography.Title2.fontSize,
+      fontWeight: themeObj.typography.Title2.fontWeight,
+      fontFamily: themeObj.typography.Title2.fontFamily,
+      color: colors.primaryText,
+      marginBottom: themeObj.spacing.md,
+    },
+    nutritionGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "space-between",
+    },
+    nutritionItem: {
+      width: "48%",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: themeObj.spacing.xs,
+    },
+    label: {
+      fontSize: themeObj.typography.Subhead.fontSize,
+      fontWeight: themeObj.typography.Subhead.fontWeight,
+      fontFamily: themeObj.typography.Subhead.fontFamily,
+    },
+    value: {
+      fontSize: themeObj.typography.Subhead.fontSize,
+      fontWeight: themeObj.typography.Headline.fontWeight,
+      fontFamily: themeObj.typography.Headline.fontFamily,
+    },
+    metColor: {
+      color: colors.accent,
+    },
+    notMetColor: {
+      color: colors.secondaryText,
+    },
+  });
+};
+
+// Legacy export for compatibility (static scheme)
+export const styles = createStyles(defaultTheme.getColors());

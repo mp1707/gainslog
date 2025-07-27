@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { DailyTargets } from '../../../../types';
-import { useTheme } from '../../../../providers/ThemeProvider';
-import { createStyles } from './DailySummaryCard.styles';
+import React, { useMemo } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { DailyTargets } from "../../../../types";
+import { useTheme } from "../../../../providers/ThemeProvider";
+import { createStyles } from "./DailySummaryCard.styles";
 
 interface DailySummaryCardProps {
   date: string;
@@ -16,27 +16,41 @@ interface DailySummaryCardProps {
   onPress: () => void;
 }
 
-export function DailySummaryCard({ date, totals, targets, onPress }: DailySummaryCardProps) {
-  const { colors } = useTheme();
-  const styles = createStyles(colors);
+export function DailySummaryCard({
+  date,
+  totals,
+  targets,
+  onPress,
+}: DailySummaryCardProps) {
+  const { colors, theme, colorScheme } = useTheme();
+  const styles = useMemo(
+    () => createStyles(colors, theme, colorScheme),
+    [colors, theme, colorScheme]
+  );
 
   // Format date for display
   const formatDate = (dateString: string): string => {
-    const date = new Date(dateString + 'T00:00:00');
+    const date = new Date(dateString + "T00:00:00");
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     const dateStr = date.toDateString();
     const todayStr = today.toDateString();
     const yesterdayStr = yesterday.toDateString();
-    
+
     if (dateStr === todayStr) {
-      return `${date.getDate()}. ${date.toLocaleDateString('en-US', { month: 'short' })} ${date.getFullYear()}`;
+      return `${date.getDate()}. ${date.toLocaleDateString("en-US", {
+        month: "short",
+      })} ${date.getFullYear()}`;
     } else if (dateStr === yesterdayStr) {
-      return `${date.getDate()}. ${date.toLocaleDateString('en-US', { month: 'short' })} ${date.getFullYear()}`;
+      return `${date.getDate()}. ${date.toLocaleDateString("en-US", {
+        month: "short",
+      })} ${date.getFullYear()}`;
     } else {
-      return `${date.getDate()}. ${date.toLocaleDateString('en-US', { month: 'short' })} ${date.getFullYear()}`;
+      return `${date.getDate()}. ${date.toLocaleDateString("en-US", {
+        month: "short",
+      })} ${date.getFullYear()}`;
     }
   };
 
@@ -47,42 +61,118 @@ export function DailySummaryCard({ date, totals, targets, onPress }: DailySummar
   const isFatMet = totals.fat >= targets.fat;
 
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.7}>
+    <TouchableOpacity
+      style={styles.container}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
       <Text style={styles.dateText}>{formatDate(date)}</Text>
-      
+
       <View style={styles.nutritionGrid}>
         <View style={styles.nutritionItem}>
-          <Text style={[styles.label, { color: isProteinMet ? styles.metColor.color : styles.notMetColor.color }]}>
+          <Text
+            style={[
+              styles.label,
+              {
+                color: isProteinMet
+                  ? styles.metColor.color
+                  : styles.notMetColor.color,
+              },
+            ]}
+          >
             Protein:
           </Text>
-          <Text style={[styles.value, { color: isProteinMet ? styles.metColor.color : styles.notMetColor.color }]}>
+          <Text
+            style={[
+              styles.value,
+              {
+                color: isProteinMet
+                  ? styles.metColor.color
+                  : styles.notMetColor.color,
+              },
+            ]}
+          >
             {Math.round(totals.protein)}
           </Text>
         </View>
-        
+
         <View style={styles.nutritionItem}>
-          <Text style={[styles.label, { color: isFatMet ? styles.metColor.color : styles.notMetColor.color }]}>
+          <Text
+            style={[
+              styles.label,
+              {
+                color: isFatMet
+                  ? styles.metColor.color
+                  : styles.notMetColor.color,
+              },
+            ]}
+          >
             Fat:
           </Text>
-          <Text style={[styles.value, { color: isFatMet ? styles.metColor.color : styles.notMetColor.color }]}>
+          <Text
+            style={[
+              styles.value,
+              {
+                color: isFatMet
+                  ? styles.metColor.color
+                  : styles.notMetColor.color,
+              },
+            ]}
+          >
             {Math.round(totals.fat)}
           </Text>
         </View>
-        
+
         <View style={styles.nutritionItem}>
-          <Text style={[styles.label, { color: isCarbsMet ? styles.metColor.color : styles.notMetColor.color }]}>
+          <Text
+            style={[
+              styles.label,
+              {
+                color: isCarbsMet
+                  ? styles.metColor.color
+                  : styles.notMetColor.color,
+              },
+            ]}
+          >
             Carbs:
           </Text>
-          <Text style={[styles.value, { color: isCarbsMet ? styles.metColor.color : styles.notMetColor.color }]}>
+          <Text
+            style={[
+              styles.value,
+              {
+                color: isCarbsMet
+                  ? styles.metColor.color
+                  : styles.notMetColor.color,
+              },
+            ]}
+          >
             {Math.round(totals.carbs)}
           </Text>
         </View>
-        
+
         <View style={styles.nutritionItem}>
-          <Text style={[styles.label, { color: isCaloriesMet ? styles.metColor.color : styles.notMetColor.color }]}>
+          <Text
+            style={[
+              styles.label,
+              {
+                color: isCaloriesMet
+                  ? styles.metColor.color
+                  : styles.notMetColor.color,
+              },
+            ]}
+          >
             Calories:
           </Text>
-          <Text style={[styles.value, { color: isCaloriesMet ? styles.metColor.color : styles.notMetColor.color }]}>
+          <Text
+            style={[
+              styles.value,
+              {
+                color: isCaloriesMet
+                  ? styles.metColor.color
+                  : styles.notMetColor.color,
+              },
+            ]}
+          >
             {Math.round(totals.calories)}
           </Text>
         </View>
