@@ -6,7 +6,9 @@ import Animated, {
   withSpring,
   withTiming,
   interpolate,
+  withDelay,
 } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 import { PlusIcon, PencilIcon, CameraIcon, ImageIcon, MicrophoneIcon } from 'phosphor-react-native';
 import { useTheme } from '../../../../providers/ThemeProvider';
 import { createStyles } from './ExpandableFAB.styles';
@@ -72,43 +74,51 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
     const newIsExpanded = !isExpanded;
     setIsExpanded(newIsExpanded);
 
-    // Animate expansion/collapse
+    // Haptic feedback for state change
+    Haptics.selectionAsync();
+
+    // Animate expansion/collapse with improved spring physics
     expandAnimation.value = withSpring(newIsExpanded ? 1 : 0, {
-      damping: 18,
-      stiffness: 150,
-      mass: 1,
+      damping: 20,
+      stiffness: 200,
+      mass: 0.8,
     });
 
-    // Animate icon rotation
+    // Animate icon rotation with more satisfying spring
     rotationAnimation.value = withSpring(newIsExpanded ? 1 : 0, {
-      damping: 18,
-      stiffness: 150,
+      damping: 16,
+      stiffness: 180,
+      mass: 0.7,
     });
 
-    // Animate backdrop
+    // Animate backdrop with slightly faster timing
     backdropAnimation.value = withTiming(newIsExpanded ? 1 : 0, {
-      duration: 300,
+      duration: 250,
     });
   };
 
   const handleActionPress = (action: () => void) => {
+    // Light haptic feedback for action button press
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
     // Close FAB first, then execute action
     setIsExpanded(false);
     expandAnimation.value = withSpring(0, {
-      damping: 18,
-      stiffness: 150,
-      mass: 1,
+      damping: 20,
+      stiffness: 200,
+      mass: 0.8,
     });
     rotationAnimation.value = withSpring(0, {
-      damping: 18,
-      stiffness: 150,
+      damping: 16,
+      stiffness: 180,
+      mass: 0.7,
     });
     backdropAnimation.value = withTiming(0, {
-      duration: 300,
+      duration: 250,
     });
     
     // Execute the action after a short delay for smooth animation
-    setTimeout(action, 150);
+    setTimeout(action, 120);
   };
 
   // Main FAB animated styles
@@ -120,24 +130,43 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
     };
   });
 
-  // Action button animated styles (simplified for stability)
+  // Action button animated styles with true expanding effect
   const getActionButtonAnimatedStyle = (index: number) => {
     return useAnimatedStyle(() => {
+      // Compact spacing for thumb reach - 50px between buttons
+      const buttonSpacing = 70;
+      const buttonOffset = (index + 1) * buttonSpacing;
+      
+      // Scale animation - buttons start invisible and scale up
       const scale = interpolate(
         expandAnimation.value,
-        [0, 1],
-        [0, 1],
+        [0, 0.2, 1],
+        [0, 0.3, 1],
         'clamp'
       );
+      
+      // Opacity with staggered appearance for smooth cascade
+      const delayFactor = index * 0.15; // Stagger each button
       const opacity = interpolate(
         expandAnimation.value,
+        [delayFactor, delayFactor + 0.3, 1],
+        [0, 0, 1],
+        'clamp'
+      );
+      
+      // True slide from FAB center (0,0) to final position
+      const translateY = interpolate(
+        expandAnimation.value,
         [0, 1],
-        [0, 1],
+        [0, -buttonOffset], // Slide from center to final position
         'clamp'
       );
       
       return {
-        transform: [{ scale }],
+        transform: [
+          { translateY },
+          { scale }
+        ],
         opacity,
       };
     });
@@ -185,8 +214,12 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
       {/* Main FAB */}
       <TouchableOpacity
         style={styles.mainFab}
-        onPress={toggleFAB}
-        activeOpacity={0.8}
+        onPress={() => {
+          // Medium haptic feedback for main FAB press
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          toggleFAB();
+        }}
+        activeOpacity={0.7}
         accessibilityRole="button"
         accessibilityLabel={isExpanded ? "Close food logging options" : "Open food logging options"}
         accessibilityHint={isExpanded ? "Closes the food logging menu" : "Shows food logging options"}

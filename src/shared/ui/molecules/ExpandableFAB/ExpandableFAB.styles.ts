@@ -1,18 +1,18 @@
-import { StyleSheet } from 'react-native';
-import { theme } from '../../../../theme';
+import { StyleSheet } from "react-native";
+import { theme } from "../../../../theme";
 
-export const createStyles = (colors: any) => 
+export const createStyles = (colors: any) =>
   StyleSheet.create({
     container: {
-      position: 'absolute',
+      position: "absolute",
       bottom: theme.spacing.lg,
       right: theme.spacing.pageMargins.horizontal,
-      alignItems: 'center',
+      alignItems: "center",
       zIndex: 1000,
     },
 
     backdrop: {
-      position: 'absolute',
+      position: "absolute",
       top: -1000,
       left: -1000,
       right: -1000,
@@ -26,14 +26,20 @@ export const createStyles = (colors: any) =>
     },
 
     actionButtonsContainer: {
-      position: 'absolute',
-      bottom: theme.components.aiActionTargets.height + theme.spacing.md,
-      alignItems: 'center',
+      position: "absolute",
+      bottom: 0, // Position at FAB level
+      right: 0, // Align with FAB
+      alignItems: "center",
+      justifyContent: "center",
+      width: theme.components.aiActionTargets.height,
+      height: theme.components.aiActionTargets.height,
+      zIndex: 999,
     },
 
     actionButtonWrapper: {
-      alignItems: 'center',
-      marginBottom: theme.spacing.sm,
+      position: "absolute",
+      alignItems: "center",
+      justifyContent: "center",
     },
 
     actionButton: {
@@ -41,14 +47,14 @@ export const createStyles = (colors: any) =>
       width: theme.components.aiActionTargets.height,
       height: theme.components.aiActionTargets.height,
       borderRadius: theme.components.aiActionTargets.height / 2, // Circular
-      alignItems: 'center',
-      justifyContent: 'center',
-      // Light mode shadow (matches design system)
-      shadowColor: 'rgba(0, 0, 0, 0.15)',
-      shadowOffset: { width: 0, height: 4 },
+      alignItems: "center",
+      justifyContent: "center",
+      // Enhanced shadow for more depth
+      shadowColor: "rgba(0, 0, 0, 0.25)",
+      shadowOffset: { width: 0, height: 6 },
       shadowOpacity: 1,
-      shadowRadius: 8,
-      elevation: 6,
+      shadowRadius: 12,
+      elevation: 8,
     },
 
     mainFab: {
@@ -56,13 +62,14 @@ export const createStyles = (colors: any) =>
       width: theme.components.aiActionTargets.height,
       height: theme.components.aiActionTargets.height,
       borderRadius: theme.components.aiActionTargets.height / 2, // Circular
-      alignItems: 'center',
-      justifyContent: 'center',
-      // Light mode shadow (matches design system)
-      shadowColor: 'rgba(0, 0, 0, 0.15)',
-      shadowOffset: { width: 0, height: 4 },
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 1001, // Ensure main FAB stays on top
+      // Enhanced shadow for premium feel
+      shadowColor: "rgba(0, 0, 0, 0.3)",
+      shadowOffset: { width: 0, height: 8 },
       shadowOpacity: 1,
-      shadowRadius: 8,
-      elevation: 6,
+      shadowRadius: 16,
+      elevation: 10,
     },
   });
