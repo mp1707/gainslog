@@ -12,7 +12,8 @@ import Animated, {
   withSequence
 } from 'react-native-reanimated';
 import { AudioPlayer } from '../../atoms/AudioPlayer';
-import { styles } from './AudioRecordingModal.styles';
+import { createStyles } from './AudioRecordingModal.styles';
+import { useTheme } from '../../../../providers/ThemeProvider';
 
 type RecordingState = 'preparing' | 'recording' | 'recorded' | 'playing';
 
@@ -27,6 +28,8 @@ export function AudioRecordingModal({
   onClose, 
   onSend 
 }: AudioRecordingModalProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const [recordingState, setRecordingState] = useState<RecordingState>('preparing');
   const [recordingTime, setRecordingTime] = useState(0);
@@ -265,7 +268,7 @@ export function AudioRecordingModal({
                 accessibilityRole="button"
                 accessibilityLabel="Delete recording"
               >
-                <FontAwesome name="trash" size={20} color="#FF3B30" />
+                <FontAwesome name="trash" size={20} color={colors.secondaryText} />
                 <Text style={styles.deleteButtonText}>Delete</Text>
               </TouchableOpacity>
               

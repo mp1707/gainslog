@@ -1,28 +1,27 @@
 import { StyleSheet } from 'react-native';
+import type { Colors } from '../../../../theme';
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: Colors) => StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
   },
 
   container: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.secondaryBackground,
     borderRadius: 20,
     width: 320,
     maxWidth: '90%',
     paddingVertical: 24,
     paddingHorizontal: 20,
-    // iOS Shadow
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    shadowColor: '#000000',
-    // Android Shadow  
-    elevation: 10,
+    shadowColor: 'rgba(0, 0, 0, 0.15)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 12,
+    elevation: 6,
   },
 
   content: {
@@ -35,21 +34,18 @@ export const styles = StyleSheet.create({
     width: '100%',
   },
 
-
   recordingButton: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#FF3B30',
+    backgroundColor: colors.accent,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
-    // iOS Shadow
+    shadowColor: colors.accent,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.25,
     shadowRadius: 12,
-    shadowColor: '#FF3B30',
-    // Android Shadow
     elevation: 6,
   },
 
@@ -57,11 +53,10 @@ export const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 6,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.white,
     justifyContent: 'center',
     alignItems: 'center',
   },
-
 
   recordingInfo: {
     alignItems: 'center',
@@ -77,30 +72,30 @@ export const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#FF3B30',
+    backgroundColor: colors.accent,
     marginRight: 8,
   },
 
   recordingText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#FF3B30',
+    fontFamily: 'Nunito-Regular',
+    fontSize: 17,
+    fontWeight: '400',
+    color: colors.accent,
     letterSpacing: -0.1,
   },
 
   timerText: {
+    fontFamily: 'Nunito-Bold',
     fontSize: 28,
-    fontWeight: '600',
-    color: '#111827',
+    fontWeight: '700',
+    color: colors.primaryText,
     letterSpacing: -0.5,
-    fontFamily: 'SF Mono',
-    fontVariant: ['tabular-nums'],
   },
 
   actionButtons: {
     flexDirection: 'row',
     marginTop: 24,
-    gap: 12,
+    gap: 8,
   },
 
   deleteButton: {
@@ -108,15 +103,16 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 16,
-    backgroundColor: '#fee2e2',
+    backgroundColor: colors.disabledBackground,
     borderRadius: 24,
     gap: 6,
   },
 
   deleteButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FF3B30',
+    fontFamily: 'Nunito-Regular',
+    fontSize: 17,
+    fontWeight: '400',
+    color: colors.secondaryText,
     letterSpacing: -0.1,
   },
 
@@ -125,22 +121,21 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 20,
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.accent,
     borderRadius: 24,
     gap: 6,
-    // iOS Shadow
+    shadowColor: colors.accent,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
     shadowRadius: 6,
-    shadowColor: '#007AFF',
-    // Android Shadow
     elevation: 3,
   },
 
   sendButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
+    fontFamily: 'Nunito-Regular',
+    fontSize: 17,
+    fontWeight: '400',
+    color: colors.white,
     letterSpacing: -0.1,
   },
 });

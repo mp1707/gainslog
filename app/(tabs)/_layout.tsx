@@ -1,11 +1,11 @@
 import { Tabs } from "expo-router";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { theme } from "../../src/theme";
+import { useTheme } from "../../src/providers/ThemeProvider";
 import React from "react";
 
-const colors = theme.getColors();
-
 export default function TabLayout() {
+  const { colors } = useTheme();
+  
   return (
     <Tabs
       screenOptions={{

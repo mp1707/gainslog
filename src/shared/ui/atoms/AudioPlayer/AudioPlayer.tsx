@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useAudioPlayer } from 'expo-audio';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { styles } from './AudioPlayer.styles';
+import { createStyles } from './AudioPlayer.styles';
+import { useTheme } from '../../../../providers/ThemeProvider';
 
 interface AudioPlayerProps {
   audioUri: string;
@@ -17,6 +18,8 @@ export function AudioPlayer({
   showProgress = true,
   size = 'medium'
 }: AudioPlayerProps) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const player = useAudioPlayer(audioUri);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -83,7 +86,7 @@ export function AudioPlayer({
         <FontAwesome
           name={player.playing ? 'pause' : 'play'}
           size={iconSize}
-          color="white"
+          color={colors.white}
         />
       </TouchableOpacity>
 

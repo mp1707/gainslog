@@ -1,10 +1,11 @@
 import { StyleSheet } from 'react-native';
+import type { Colors } from '../../../../theme';
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: Colors) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: colors.secondaryBackground,
     borderRadius: 12,
     padding: 12,
   },
@@ -25,19 +26,17 @@ export const styles = StyleSheet.create({
   },
 
   playButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.accent,
     borderRadius: 24,
     width: 48,
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
-    // iOS Shadow
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
-    shadowColor: '#007AFF',
-    // Android Shadow
+    shadowColor: colors.accent,
     elevation: 4,
   },
 
@@ -69,7 +68,7 @@ export const styles = StyleSheet.create({
 
   progressBar: {
     height: 4,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: colors.border,
     borderRadius: 2,
     marginBottom: 8,
     position: 'relative',
@@ -77,7 +76,7 @@ export const styles = StyleSheet.create({
 
   progressFill: {
     height: '100%',
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.accent,
     borderRadius: 2,
   },
 
@@ -86,15 +85,13 @@ export const styles = StyleSheet.create({
     top: -6,
     width: 16,
     height: 16,
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.accent,
     borderRadius: 8,
     marginLeft: -8,
-    // iOS Shadow
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
-    shadowColor: '#000000',
-    // Android Shadow
+    shadowColor: 'rgba(0, 0, 0, 0.3)',
     elevation: 3,
   },
 
@@ -104,9 +101,10 @@ export const styles = StyleSheet.create({
   },
 
   timeText: {
+    fontFamily: 'Nunito-Regular',
     fontSize: 12,
-    fontWeight: '500',
-    color: '#6b7280',
+    fontWeight: '400',
+    color: colors.secondaryText,
     letterSpacing: 0,
   },
 });
