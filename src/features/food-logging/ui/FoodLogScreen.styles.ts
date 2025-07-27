@@ -14,7 +14,7 @@ export const createStyles = (colors: any) => StyleSheet.create({
 
   scrollContent: {
     paddingHorizontal: theme.spacing.pageMargins.horizontal,
-    paddingBottom: 100, // Extra bottom padding for FAB
+    paddingBottom: 100, // Extra bottom padding for ExpandableFAB
     gap: theme.spacing.md,
   },
 
@@ -26,43 +26,6 @@ export const createStyles = (colors: any) => StyleSheet.create({
     paddingHorizontal: theme.spacing.pageMargins.horizontal,
   },
 
-  // Floating Action Button styles
-  fabContainer: {
-    position: "absolute",
-    bottom: theme.spacing.lg,
-    right: theme.spacing.pageMargins.horizontal,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: theme.spacing.sm,
-    flexWrap: "wrap",
-    maxWidth: (theme.components.aiActionTargets.minWidth * 2) + theme.spacing.sm,
-  },
-
-  fabButton: {
-    backgroundColor: colors.accent,
-    width: theme.components.aiActionTargets.minWidth,
-    height: theme.components.aiActionTargets.height,
-    borderRadius: theme.components.buttons.cornerRadius,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: 'rgba(0, 0, 0, 0.15)',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-
-  fabButtonSecondary: {
-    backgroundColor: colors.accent,
-  },
-
-  fabButtonTertiary: {
-    backgroundColor: colors.accent,
-  },
-
-  fabButtonQuaternary: {
-    backgroundColor: colors.accent,
-  },
 
   // Loading state
   loadingContainer: {

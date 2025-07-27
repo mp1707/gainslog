@@ -2,15 +2,13 @@ import React from "react";
 import {
   View,
   ScrollView,
-  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, { 
   Layout,
   FadeInUp,
 } from "react-native-reanimated";
-import { Pencil, Camera, Image, Microphone } from "phosphor-react-native";
-import { SwipeToDelete, SkeletonCard } from "@/shared/ui";
+import { SwipeToDelete, SkeletonCard, ExpandableFAB } from "@/shared/ui";
 import { FoodLogCard } from "./FoodLogCard";
 import { FoodLogHeader } from "./FoodLogHeader";
 import { FoodLog } from "../../../types";
@@ -98,40 +96,13 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         )}
       </ScrollView>
 
-      {/* Floating Action Buttons */}
-      <View style={styles.fabContainer}>
-        <TouchableOpacity
-          style={styles.fabButton}
-          onPress={handleManualLog}
-          activeOpacity={0.8}
-        >
-          <Pencil size={theme.components.aiActionTargets.iconSize} color={theme.components.aiActionTargets.iconColor} weight="regular" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.fabButton, styles.fabButtonSecondary]}
-          onPress={handleCameraLog}
-          activeOpacity={0.8}
-        >
-          <Camera size={theme.components.aiActionTargets.iconSize} color={theme.components.aiActionTargets.iconColor} weight="regular" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.fabButton, styles.fabButtonTertiary]}
-          onPress={handleLibraryLog}
-          activeOpacity={0.8}
-        >
-          <Image size={theme.components.aiActionTargets.iconSize} color={theme.components.aiActionTargets.iconColor} weight="regular" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.fabButton, styles.fabButtonQuaternary]}
-          onPress={handleAudioLog}
-          activeOpacity={0.8}
-        >
-          <Microphone size={theme.components.aiActionTargets.iconSize} color={theme.components.aiActionTargets.iconColor} weight="regular" />
-        </TouchableOpacity>
-      </View>
+      {/* Expandable Floating Action Button */}
+      <ExpandableFAB
+        onManualLog={handleManualLog}
+        onCameraLog={handleCameraLog}
+        onLibraryLog={handleLibraryLog}
+        onAudioLog={handleAudioLog}
+      />
     </SafeAreaView>
   );
 };
