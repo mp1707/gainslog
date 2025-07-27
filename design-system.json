@@ -1,7 +1,7 @@
 {
   "designSystemProfile": {
     "name": "Focused Motivation",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "A design system focused on clarity, simplicity, and motivational feedback for an AI-powered food tracking app. The core principle is a minimalist UI punctuated by energetic, rewarding feedback.",
     "global": {
       "spacingUnit": 8,
@@ -91,14 +91,14 @@
       ]
     },
     "iconography": {
-      "system": "Apple SF Symbols (or equivalent clean, line-based icon set)",
+      "system": "Phosphor Icons",
+      "implementation": "Use the 'phosphor-react-native' library.",
       "defaultState": {
-        "style": "line-based",
-        "weight": "Regular or SemiBold to match text",
+        "weight": "Regular",
         "colorContext": "primaryText or secondaryText depending on context"
       },
       "activeState": {
-        "style": "filled",
+        "weight": "Fill",
         "colorContext": "accent",
         "useCase": "Used for selected tabs or primary interactive icons."
       },
@@ -217,7 +217,7 @@
       },
       "aiActionTargets": {
         "description": "The large, clear tap targets for Camera, Voice, and Text input.",
-        "style": "Inherits from Primary Button styling but with a larger size and potentially an icon.",
+        "style": "Inherits from Primary Button styling but with a larger size and an icon.",
         "size": {
           "height": 56,
           "minWidth": 120
