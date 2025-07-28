@@ -1,5 +1,13 @@
 import React, { useMemo } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, Pressable } from "react-native";
+import * as Haptics from 'expo-haptics';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withTiming, 
+  withSpring,
+  Easing 
+} from 'react-native-reanimated';
 import { DailyTargets } from "../../../../types";
 import { useTheme } from "../../../../providers/ThemeProvider";
 import { createStyles } from "./DailySummaryCard.styles";
@@ -60,15 +68,57 @@ export function DailySummaryCard({
   const isCarbsMet = totals.carbs >= targets.carbs;
   const isFatMet = totals.fat >= targets.fat;
 
-  return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-      <Text style={styles.dateText}>{formatDate(date)}</Text>
+  // Press animation shared values
+  const pressScale = useSharedValue(1);
+  const pressBackgroundOpacity = useSharedValue(0);
 
-      <View style={styles.nutritionGrid}>
+  // Press animation handlers
+  const handlePressIn = () => {
+    // Press down animation - scale down and show background tint
+    pressScale.value = withTiming(0.96, { duration: 150, easing: Easing.out(Easing.quad) });
+    pressBackgroundOpacity.value = withTiming(0.04, { duration: 150, easing: Easing.out(Easing.quad) });
+  };
+
+  const handlePressOut = () => {
+    // Release animation - spring back and fade background
+    pressScale.value = withSpring(1.0, { damping: 22, stiffness: 300 });
+    pressBackgroundOpacity.value = withTiming(0, { duration: 350, easing: Easing.bezier(0.25, 1, 0.5, 1) });
+  };
+
+  const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress();
+  };
+
+  // Animated styles
+  const containerAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pressScale.value }],
+  }));
+
+  const backgroundAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: pressBackgroundOpacity.value,
+    backgroundColor: colors.primaryText,
+  }));
+
+  return (
+    <Pressable
+      onPress={handlePress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      accessibilityRole="button"
+      accessibilityLabel={`Daily summary for ${formatDate(date)}`}
+      accessibilityHint="Tap to view detailed nutrition information for this day"
+    >
+      <Animated.View style={[styles.container, containerAnimatedStyle]}>
+        {/* Background tint overlay */}
+        <Animated.View 
+          style={[styles.backgroundOverlay, backgroundAnimatedStyle]}
+          pointerEvents="none"
+        />
+        
+        <Text style={styles.dateText}>{formatDate(date)}</Text>
+
+        <View style={styles.nutritionGrid}>
         <View style={styles.nutritionItem}>
           <Text
             style={[
@@ -177,6 +227,7 @@ export function DailySummaryCard({
           </Text>
         </View>
       </View>
-    </TouchableOpacity>
+      </Animated.View>
+    </Pressable>
   );
 }

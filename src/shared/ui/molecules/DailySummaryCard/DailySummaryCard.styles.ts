@@ -51,6 +51,14 @@ export const createStyles = (
     notMetColor: {
       color: colors.secondaryText,
     },
+    backgroundOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      borderRadius: themeObj.components.cards.cornerRadius,
+    },
   });
 };
 

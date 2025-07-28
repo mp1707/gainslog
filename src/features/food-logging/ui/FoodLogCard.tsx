@@ -38,6 +38,10 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
   const cardScale = useSharedValue(1);
   const prevConfidence = useRef(foodLog.estimationConfidence);
   
+  // Press animation shared values
+  const pressScale = useSharedValue(1);
+  const pressFlashOpacity = useSharedValue(0);
+  
   // Get color based on confidence level (matching Badge component logic)
   const getConfidenceColor = (confidence: number): string => {
     if (confidence >= 80) return '#10b981'; // Green
@@ -81,7 +85,13 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
   }));
   
   const cardAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: cardScale.value }],
+    transform: [{ scale: cardScale.value * pressScale.value }],
+  }));
+  
+  // Press animation styles
+  const pressFlashAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: pressFlashOpacity.value,
+    backgroundColor: colors.primaryText,
   }));
   
   const handleCardPress = () => {
@@ -89,9 +99,23 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
     onAddInfo(foodLog);
   };
 
+  const handlePressIn = () => {
+    // Press down animation - scale down and flash
+    pressScale.value = withTiming(0.97, { duration: 150, easing: Easing.out(Easing.quad) });
+    pressFlashOpacity.value = withTiming(0.08, { duration: 150, easing: Easing.out(Easing.quad) });
+  };
+
+  const handlePressOut = () => {
+    // Release animation - spring back and fade flash
+    pressScale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+    pressFlashOpacity.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.quad) });
+  };
+
   return (
     <Pressable 
       onPress={handleCardPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
       accessibilityRole="button"
       accessibilityLabel={`Food log: ${foodLog.userTitle || foodLog.generatedTitle}`}
       accessibilityHint="Tap to edit or add more information"
@@ -140,6 +164,12 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
             {/* Flash overlay for success animation */}
             <Animated.View 
               style={[styles.flashOverlay, flashAnimatedStyle]}
+              pointerEvents="none"
+            />
+            
+            {/* Press flash overlay for press feedback */}
+            <Animated.View 
+              style={[styles.flashOverlay, pressFlashAnimatedStyle]}
               pointerEvents="none"
             />
           </>
