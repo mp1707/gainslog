@@ -2,8 +2,9 @@ import React from "react";
 import {
   View,
   ScrollView,
+  Platform,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { 
   Layout,
   FadeInUp,
@@ -36,7 +37,25 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   } = useFoodLogStore();
   
   const { theme, colors } = useTheme();
-  const styles = createStyles(colors);
+  const insets = useSafeAreaInsets();
+  
+  // Calculate platform-specific tab bar height for Expo Router
+  const getTabBarHeight = () => {
+    if (Platform.OS === 'ios') {
+      // iOS tab bar: 49px standard height + bottom safe area
+      return 49 + insets.bottom;
+    } else {
+      // Android tab bar: 56px standard height
+      return 56;
+    }
+  };
+  
+  // Calculate dynamic bottom padding
+  // Tab bar height + FAB spacing + extra clearance for comfortable scrolling
+  const tabBarHeight = getTabBarHeight();
+  const dynamicBottomPadding = tabBarHeight + theme.spacing.lg + theme.spacing.md;
+  
+  const styles = createStyles(colors, dynamicBottomPadding);
   const filteredFoodLogs = getFilteredFoodLogs();
 
   const handleDeleteLog = async (logId: string) => {
@@ -60,7 +79,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <FoodLogHeader />
 
       <ScrollView
@@ -102,6 +121,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         onCameraLog={handleCameraLog}
         onLibraryLog={handleLibraryLog}
         onAudioLog={handleAudioLog}
+        bottomOffset={tabBarHeight + theme.spacing.md}
       />
     </SafeAreaView>
   );

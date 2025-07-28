@@ -1,11 +1,11 @@
 import { StyleSheet } from "react-native";
 import { theme } from "../../../../theme";
 
-export const createStyles = (colors: any) =>
+export const createStyles = (colors: any, bottomOffset?: number) =>
   StyleSheet.create({
     container: {
       position: "absolute",
-      bottom: theme.spacing.lg,
+      bottom: bottomOffset || theme.spacing.lg,
       right: theme.spacing.pageMargins.horizontal,
       alignItems: "center",
       zIndex: 1000,

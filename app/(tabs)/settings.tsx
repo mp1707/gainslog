@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from "react";
-import { View, Text, ScrollView, Switch, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, ScrollView, Switch, StyleSheet, Platform } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../src/providers/ThemeProvider";
 import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 import { Stepper } from "../../src/shared/ui/atoms/Stepper";
@@ -23,9 +23,25 @@ export default function SettingsTab() {
     colorScheme,
     toggleColorScheme,
   } = useTheme();
+  const insets = useSafeAreaInsets();
+  
+  // Calculate platform-specific tab bar height for Expo Router
+  const getTabBarHeight = () => {
+    if (Platform.OS === 'ios') {
+      // iOS tab bar: 49px standard height + bottom safe area
+      return 49 + insets.bottom;
+    } else {
+      // Android tab bar: 56px standard height
+      return 56;
+    }
+  };
+  
+  const tabBarHeight = getTabBarHeight();
+  const dynamicBottomPadding = tabBarHeight + themeObj.spacing.lg + themeObj.spacing.md;
+  
   const styles = useMemo(
-    () => createStyles(colors, themeObj, colorScheme),
-    [colors, themeObj, colorScheme]
+    () => createStyles(colors, themeObj, colorScheme, dynamicBottomPadding),
+    [colors, themeObj, colorScheme, dynamicBottomPadding]
   );
 
   useEffect(() => {
@@ -110,14 +126,14 @@ export default function SettingsTab() {
 
   if (isLoadingTargets) {
     return (
-      <SafeAreaView style={[styles.container, styles.centered]}>
+      <SafeAreaView style={[styles.container, styles.centered]} edges={['top', 'left', 'right']}>
         <Text style={styles.loadingText}>Loading settings...</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -141,7 +157,8 @@ export default function SettingsTab() {
 const createStyles = (
   colors: ReturnType<typeof useTheme>["colors"],
   themeObj: typeof import("../../src/theme").theme,
-  scheme: import("../../src/theme").ColorScheme
+  scheme: import("../../src/theme").ColorScheme,
+  bottomPadding?: number
 ) => {
   const componentStyles = themeObj.getComponentStyles(scheme);
   const { typography, spacing } = themeObj;
@@ -161,7 +178,7 @@ const createStyles = (
     scrollContent: {
       paddingHorizontal: themeObj.spacing.pageMargins.horizontal,
       paddingTop: spacing.lg,
-      paddingBottom: spacing.xl,
+      paddingBottom: bottomPadding || spacing.xl,
     },
     pageTitle: {
       fontSize: typography.Title2.fontSize,

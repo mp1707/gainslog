@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from "react";
-import { ScrollView, Text, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView, Text, StyleSheet, Platform } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../src/providers/ThemeProvider";
 import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 import { DailySummaryCard } from "../../src/shared/ui/molecules/DailySummaryCard";
@@ -33,10 +33,26 @@ export default function OverviewTab() {
   };
 
   const { colors, theme } = useTheme();
-  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const insets = useSafeAreaInsets();
+  
+  // Calculate platform-specific tab bar height for Expo Router
+  const getTabBarHeight = () => {
+    if (Platform.OS === 'ios') {
+      // iOS tab bar: 49px standard height + bottom safe area
+      return 49 + insets.bottom;
+    } else {
+      // Android tab bar: 56px standard height
+      return 56;
+    }
+  };
+  
+  const tabBarHeight = getTabBarHeight();
+  const dynamicBottomPadding = tabBarHeight + theme.spacing.lg + theme.spacing.md;
+  
+  const styles = useMemo(() => createStyles(colors, theme, dynamicBottomPadding), [colors, theme, dynamicBottomPadding]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <PageHeader>
         <MonthPicker
           selectedMonth={selectedMonth}
@@ -68,7 +84,7 @@ export default function OverviewTab() {
 }
 
 // Dynamic styles creator
-function createStyles(colors: any, themeObj: any) {
+function createStyles(colors: any, themeObj: any, bottomPadding?: number) {
   const { typography, spacing } = themeObj;
 
   return StyleSheet.create({
@@ -82,6 +98,7 @@ function createStyles(colors: any, themeObj: any) {
     scrollContent: {
       paddingHorizontal: themeObj.spacing.pageMargins.horizontal,
       paddingTop: spacing.md,
+      paddingBottom: bottomPadding || spacing.xl,
       gap: spacing.md,
     },
     emptyText: {

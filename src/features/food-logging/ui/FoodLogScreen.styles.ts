@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { theme } from "../../../theme";
 
-export const createStyles = (colors: any) => StyleSheet.create({
+export const createStyles = (colors: any, bottomPadding?: number) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.primaryBackground,
@@ -14,7 +14,7 @@ export const createStyles = (colors: any) => StyleSheet.create({
 
   scrollContent: {
     paddingHorizontal: theme.spacing.pageMargins.horizontal,
-    paddingBottom: 100, // Extra bottom padding for ExpandableFAB
+    paddingBottom: bottomPadding || 100, // Dynamic bottom padding for tab bar and FAB
     gap: theme.spacing.md,
   },
 

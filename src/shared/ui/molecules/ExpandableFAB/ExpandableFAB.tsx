@@ -18,6 +18,7 @@ interface ExpandableFABProps {
   onCameraLog: () => void;
   onLibraryLog: () => void;
   onAudioLog: () => void;
+  bottomOffset?: number;
 }
 
 interface ActionButton {
@@ -32,9 +33,10 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
   onCameraLog,
   onLibraryLog,
   onAudioLog,
+  bottomOffset,
 }) => {
   const { theme, colors } = useTheme();
-  const styles = createStyles(colors);
+  const styles = createStyles(colors, bottomOffset);
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Animation values
