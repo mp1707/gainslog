@@ -79,7 +79,7 @@ const typography = {
 const spacing = {
   unit: SPACING_UNIT,
   pageMargins: {
-    horizontal: 20,
+    horizontal: 5,
   },
   xs: SPACING_UNIT * 0.5, // 4
   sm: SPACING_UNIT, // 8

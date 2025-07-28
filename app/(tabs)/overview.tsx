@@ -80,7 +80,7 @@ function createStyles(colors: any, themeObj: any) {
       flex: 1,
     },
     scrollContent: {
-      paddingHorizontal: spacing.md,
+      paddingHorizontal: themeObj.spacing.pageMargins.horizontal,
       paddingTop: spacing.md,
       gap: spacing.md,
     },
