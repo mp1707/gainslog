@@ -1,10 +1,10 @@
-import { Stack } from 'expo-router';
-import { useFoodLogStore } from '../src/stores/useFoodLogStore';
-import { ThemeProvider } from '../src/providers/ThemeProvider';
-import React, { useEffect } from 'react';
-import ToastManager from 'toastify-react-native';
-import { useFonts } from '../src/hooks/useFonts';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { Stack } from "expo-router";
+import { useFoodLogStore } from "../src/stores/useFoodLogStore";
+import { ThemeProvider } from "../src/providers/ThemeProvider";
+import React, { useEffect } from "react";
+import ToastManager from "toastify-react-native";
+import { useFonts } from "../src/hooks/useFonts";
+import { View, Text, ActivityIndicator } from "react-native";
 
 export default function RootLayout() {
   const { loadFoodLogs, loadDailyTargets } = useFoodLogStore();
@@ -16,13 +16,29 @@ export default function RootLayout() {
   }, [loadFoodLogs, loadDailyTargets]);
 
   // Show loading screen while fonts are loading
-  if (!!fontsLoaded) {
+  if (!fontsLoaded) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F9F9F9' }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#F9F9F9",
+        }}
+      >
         <ActivityIndicator size="large" color="#FF7A5A" />
-        <Text style={{ marginTop: 16, fontSize: 16, color: '#8A8A8E' }}>Loading...</Text>
+        <Text style={{ marginTop: 16, fontSize: 16, color: "#8A8A8E" }}>
+          Loading...
+        </Text>
         {error && (
-          <Text style={{ marginTop: 8, fontSize: 14, color: '#FF6B6B', textAlign: 'center' }}>
+          <Text
+            style={{
+              marginTop: 8,
+              fontSize: 14,
+              color: "#FF6B6B",
+              textAlign: "center",
+            }}
+          >
             Font loading error: {error}
           </Text>
         )}
