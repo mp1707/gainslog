@@ -142,12 +142,12 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
 
       // If swiped far enough or with enough velocity, trigger delete
       if (
-        Math.abs(translationX) > DELETE_COMPLETE_THRESHOLD ||
-        (Math.abs(translationX) > DELETE_THRESHOLD && Math.abs(velocityX) > 500)
+        translationX < -DELETE_COMPLETE_THRESHOLD ||
+        (translationX < -DELETE_THRESHOLD && velocityX < -500)
       ) {
         runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Heavy);
         runOnJS(executeDelete)();
-      } else if (Math.abs(translationX) > DELETE_THRESHOLD) {
+      } else if (translationX < -DELETE_THRESHOLD) {
         // Show delete button but don't auto-delete
         runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
         translateX.value = withSpring(-DELETE_BUTTON_WIDTH);
