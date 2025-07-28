@@ -15,7 +15,6 @@ import { Card } from '../../../components/Card';
 import { AppText } from '../../../components/AppText';
 import { FoodLog } from '../../../types';
 import { useTheme } from '../../../providers/ThemeProvider';
-import { theme } from '../../../theme';
 import { createStyles } from './FoodLogCard.styles';
 import { FoodLogCardSkeleton } from './FoodLogCardSkeleton';
 
