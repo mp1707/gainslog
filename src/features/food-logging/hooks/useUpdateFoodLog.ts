@@ -7,6 +7,7 @@ import { useFoodLogStore } from "src/stores/useFoodLogStore";
  * Business-logic hook that updates an existing FoodLog with new information
  * and handles AI re-estimation if needed.
  *  
+ * 
  * It transparently handles optimistic UI updates and AI nutrition estimation.
  */
 export const useUpdateFoodLog = () => {
