@@ -1,12 +1,9 @@
 import { StyleSheet } from 'react-native';
-import { theme } from '../../../../theme';
+import { useThemedStyles } from '../../../../providers/ThemeProvider';
 
-const colors = theme.getColors();
-const { spacing } = theme;
-
-export const styles = StyleSheet.create({
+export const useStyles = () => useThemedStyles((colors, theme) => StyleSheet.create({
   base: {
     backgroundColor: colors.disabledBackground,
-    borderRadius: spacing.sm,
+    borderRadius: theme.spacing.sm,
   },
-});
+}));

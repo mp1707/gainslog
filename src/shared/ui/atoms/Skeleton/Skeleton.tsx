@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { styles } from './Skeleton.styles';
+import { useStyles } from './Skeleton.styles';
 
 interface SkeletonProps {
   width?: string | number;
@@ -13,6 +13,8 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   height = 20, 
   style 
 }) => {
+  const styles = useStyles();
+  
   return (
     <View 
       style={[
