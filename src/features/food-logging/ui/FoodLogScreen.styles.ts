@@ -9,7 +9,7 @@ export const createStyles = (colors: any) => StyleSheet.create({
 
   scrollView: {
     flex: 1,
-    paddingTop: theme.spacing.sm,
+    paddingTop: theme.spacing.md,
   },
 
   scrollContent: {
