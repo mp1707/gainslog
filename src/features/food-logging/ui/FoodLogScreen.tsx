@@ -1,14 +1,10 @@
 import React from "react";
+import { View, ScrollView, Platform } from "react-native";
 import {
-  View,
-  ScrollView,
-  Platform,
-} from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, { 
-  Layout,
-  FadeInUp,
-} from "react-native-reanimated";
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import Animated, { Layout, FadeInUp } from "react-native-reanimated";
 import { SwipeToDelete, SkeletonCard, ExpandableFAB } from "@/shared/ui";
 import { FoodLogCard } from "./FoodLogCard";
 import { FoodLogHeader } from "./FoodLogHeader";
@@ -35,13 +31,13 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
     triggerAudioCapture,
     getFilteredFoodLogs,
   } = useFoodLogStore();
-  
+
   const { theme, colors } = useTheme();
   const insets = useSafeAreaInsets();
-  
+
   // Calculate platform-specific tab bar height for Expo Router
   const getTabBarHeight = () => {
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === "ios") {
       // iOS tab bar: 49px standard height + bottom safe area
       return 49 + insets.bottom;
     } else {
@@ -49,12 +45,13 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
       return 56;
     }
   };
-  
+
   // Calculate dynamic bottom padding
   // Tab bar height + FAB spacing + extra clearance for comfortable scrolling
   const tabBarHeight = getTabBarHeight();
-  const dynamicBottomPadding = tabBarHeight + theme.spacing.lg + theme.spacing.md;
-  
+  const dynamicBottomPadding =
+    tabBarHeight + theme.spacing.lg + theme.spacing.md;
+
   const styles = createStyles(colors, dynamicBottomPadding);
   const filteredFoodLogs = getFilteredFoodLogs();
 
@@ -79,7 +76,10 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
+    <SafeAreaView
+      style={styles.container}
+      edges={["top", "left", "right"]}
+    >
       <FoodLogHeader />
 
       <ScrollView
@@ -91,7 +91,10 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
             {[1, 2, 3].map((i) => (
               <Animated.View
                 key={i}
-                entering={FadeInUp.delay(i * 80).springify().damping(18).stiffness(150)}
+                entering={FadeInUp.delay(i * 80)
+                  .springify()
+                  .damping(18)
+                  .stiffness(150)}
                 layout={Layout.springify().damping(18).stiffness(150).mass(1)}
               >
                 <SkeletonCard />
@@ -102,12 +105,13 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
           filteredFoodLogs.map((log, index) => (
             <Animated.View
               key={log.id}
-              entering={FadeInUp.delay(index * 80).springify().damping(18).stiffness(150)}
+              entering={FadeInUp.delay(index * 80)
+                .springify()
+                .damping(18)
+                .stiffness(150)}
               layout={Layout.springify().damping(18).stiffness(150).mass(1)}
             >
-              <SwipeToDelete
-                onDelete={() => handleDeleteLog(log.id)}
-              >
+              <SwipeToDelete onDelete={() => handleDeleteLog(log.id)}>
                 <FoodLogCard foodLog={log} onAddInfo={onAddInfo} />
               </SwipeToDelete>
             </Animated.View>
@@ -121,7 +125,6 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         onCameraLog={handleCameraLog}
         onLibraryLog={handleLibraryLog}
         onAudioLog={handleAudioLog}
-        bottomOffset={tabBarHeight + theme.spacing.md}
       />
     </SafeAreaView>
   );
