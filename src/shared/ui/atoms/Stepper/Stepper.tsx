@@ -20,6 +20,8 @@ export const Stepper: React.FC<StepperProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(String(value));
+  const [minusPressed, setMinusPressed] = useState(false);
+  const [plusPressed, setPlusPressed] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const { colors } = useTheme();
   const styles = createStyles(colors);
@@ -52,10 +54,17 @@ export const Stepper: React.FC<StepperProps> = ({
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        style={styles.button}
+        style={[
+          styles.buttonBase, 
+          styles.buttonLeft,
+          minusPressed && styles.buttonBasePressed
+        ]}
         onPress={handleMinus}
+        onPressIn={() => setMinusPressed(true)}
+        onPressOut={() => setMinusPressed(false)}
         accessibilityRole="button"
-        accessibilityLabel="Decrease value"
+        accessibilityLabel={`Decrease value by ${step}. Current value is ${value}`}
+        accessibilityHint="Double tap to decrease the value"
       >
         <Text style={styles.buttonText}>-</Text>
       </TouchableOpacity>
@@ -71,23 +80,34 @@ export const Stepper: React.FC<StepperProps> = ({
           onBlur={confirmInput}
           onSubmitEditing={confirmInput}
           autoFocus
+          accessibilityLabel={`Enter value between ${min} and ${max}`}
+          accessibilityHint={`Current value is ${inputValue}. Enter a number and press done to confirm`}
+          accessibilityRole="spinbutton"
         />
       ) : (
         <TouchableOpacity
           style={styles.valueBox}
           onPress={() => setIsEditing(true)}
           accessibilityRole="button"
-          accessibilityLabel="Edit value"
+          accessibilityLabel={`Current value is ${value}. Tap to edit`}
+          accessibilityHint="Opens text input to enter a specific value"
         >
           <Text style={styles.valueText}>{value}</Text>
         </TouchableOpacity>
       )}
 
       <TouchableOpacity
-        style={styles.button}
+        style={[
+          styles.buttonBase, 
+          styles.buttonRight,
+          plusPressed && styles.buttonBasePressed
+        ]}
         onPress={handlePlus}
+        onPressIn={() => setPlusPressed(true)}
+        onPressOut={() => setPlusPressed(false)}
         accessibilityRole="button"
-        accessibilityLabel="Increase value"
+        accessibilityLabel={`Increase value by ${step}. Current value is ${value}`}
+        accessibilityHint="Double tap to increase the value"
       >
         <Text style={styles.buttonText}>+</Text>
       </TouchableOpacity>
