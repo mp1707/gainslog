@@ -113,7 +113,7 @@ export default function SettingsTab() {
               accessibilityLabel="Open protein calculator"
               accessibilityHint="Calculate protein needs based on body weight and activity level"
             >
-              <Calculator size={20} color={colors.accent} weight="regular" />
+              <Text style={styles.calculateButtonText}>Calculate</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -123,6 +123,9 @@ export default function SettingsTab() {
           <View style={styles.calculationInfo}>
             <Text style={styles.calculationText}>
               {proteinCalculation.method.title} ({proteinCalculation.bodyWeight}kg)
+            </Text>
+            <Text style={styles.calculatedValue}>
+              Calculated: {proteinCalculation.calculatedProtein}g protein
             </Text>
             <Text style={styles.calculationSubtext}>
               {proteinCalculation.method.description}
@@ -271,8 +274,18 @@ const createStyles = (
       color: colors.primaryText,
     },
     calculateButton: {
-      padding: spacing.xs,
-      borderRadius: 8,
+      backgroundColor: colors.accent,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      borderRadius: 24,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    calculateButtonText: {
+      fontSize: typography.Subhead.fontSize,
+      fontFamily: typography.Subhead.fontFamily,
+      fontWeight: typography.Button.fontWeight,
+      color: colors.white,
     },
     calculationInfo: {
       backgroundColor: scheme === 'light' 
@@ -289,6 +302,13 @@ const createStyles = (
       fontFamily: typography.Body.fontFamily,
       fontWeight: typography.Body.fontWeight,
       color: colors.primaryText,
+      marginBottom: spacing.xs,
+    },
+    calculatedValue: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      fontWeight: typography.Headline.fontWeight, // Make it semibold to stand out
+      color: colors.accent,
       marginBottom: spacing.xs,
     },
     calculationSubtext: {
