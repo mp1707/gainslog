@@ -340,15 +340,17 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   updateDailyTargetsDebounced: (targets: DailyTargets) => {
     const currentState = get();
     
-    // Check if protein value changed manually (different from calculated value)
-    const proteinChanged = currentState.proteinCalculation && 
+    // Check if protein value was manually changed (differs from both current target and calculated value)
+    const proteinValueChanged = targets.protein !== currentState.dailyTargets.protein;
+    const proteinManuallyChanged = currentState.proteinCalculation && 
+      proteinValueChanged &&
       targets.protein !== currentState.proteinCalculation.calculatedProtein;
     
     // Update state immediately for responsive UI
     set({ 
       dailyTargets: targets,
-      // Clear protein calculation if protein was manually changed
-      proteinCalculation: proteinChanged ? null : currentState.proteinCalculation,
+      // Clear protein calculation only if protein was manually changed
+      proteinCalculation: proteinManuallyChanged ? null : currentState.proteinCalculation,
     });
 
     // Clear existing timer

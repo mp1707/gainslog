@@ -1,11 +1,21 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, ScrollView, Switch, StyleSheet, Platform, TouchableOpacity } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Calculator } from "phosphor-react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Switch,
+  StyleSheet,
+  Platform,
+  TouchableOpacity,
+} from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import { CalculatorIcon } from "phosphor-react-native";
 import { useTheme } from "../../src/providers/ThemeProvider";
 import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 import { Stepper } from "../../src/shared/ui/atoms/Stepper";
-import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
 import { ProteinCalculatorModal } from "../../src/shared/ui/molecules/ProteinCalculatorModal";
 import { ProteinCalculationMethod } from "../../src/shared/ui/atoms/ProteinCalculationCard";
 
@@ -20,10 +30,10 @@ export default function SettingsTab() {
     loadVisibleNutritionKeys,
     proteinCalculation,
     setProteinCalculation,
-    clearProteinCalculation,
   } = useFoodLogStore();
 
-  const [isProteinCalculatorVisible, setIsProteinCalculatorVisible] = useState(false);
+  const [isProteinCalculatorVisible, setIsProteinCalculatorVisible] =
+    useState(false);
 
   const {
     colors,
@@ -32,10 +42,10 @@ export default function SettingsTab() {
     toggleColorScheme,
   } = useTheme();
   const insets = useSafeAreaInsets();
-  
+
   // Calculate platform-specific tab bar height for Expo Router
   const getTabBarHeight = () => {
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === "ios") {
       // iOS tab bar: 49px standard height + bottom safe area
       return 49 + insets.bottom;
     } else {
@@ -43,10 +53,11 @@ export default function SettingsTab() {
       return 56;
     }
   };
-  
+
   const tabBarHeight = getTabBarHeight();
-  const dynamicBottomPadding = tabBarHeight + themeObj.spacing.lg + themeObj.spacing.md;
-  
+  const dynamicBottomPadding =
+    tabBarHeight + themeObj.spacing.lg + themeObj.spacing.md;
+
   const styles = useMemo(
     () => createStyles(colors, themeObj, colorScheme, dynamicBottomPadding),
     [colors, themeObj, colorScheme, dynamicBottomPadding]
@@ -78,16 +89,16 @@ export default function SettingsTab() {
 
   const getCardDescription = (key: keyof typeof dailyTargets): string => {
     switch (key) {
-      case 'calories':
-        return 'Energy from food to fuel your daily activities';
-      case 'protein':
-        return 'Essential for muscle growth and recovery';
-      case 'carbs':
-        return 'Primary energy source for your body and brain';
-      case 'fat':
-        return 'Important for hormone production and nutrient absorption';
+      case "calories":
+        return "Energy from food to fuel your daily activities";
+      case "protein":
+        return "Essential for muscle growth and recovery";
+      case "carbs":
+        return "Primary energy source for your body and brain";
+      case "fat":
+        return "Important for hormone production and nutrient absorption";
       default:
-        return '';
+        return "";
     }
   };
 
@@ -114,8 +125,8 @@ export default function SettingsTab() {
 
   const renderNutritionCard = (config: (typeof nutritionConfigs)[number]) => {
     const switchValue = visibleNutritionKeys.includes(config.key as any);
-    const isProteinCard = config.key === 'protein';
-    
+    const isProteinCard = config.key === "protein";
+
     return (
       <View style={styles.nutritionCard} key={config.key}>
         <View style={styles.cardHeader}>
@@ -136,8 +147,14 @@ export default function SettingsTab() {
               accessibilityLabel="Open protein calculator"
               accessibilityHint="Calculate protein needs based on body weight and activity level"
             >
-              <Calculator size={16} color={colors.accent} weight="regular" />
-              <Text style={styles.calculateButtonText}>Calculate Protein Needs</Text>
+              <CalculatorIcon
+                size={16}
+                color={colors.accent}
+                weight="regular"
+              />
+              <Text style={styles.calculateButtonText}>
+                Calculate Protein Needs
+              </Text>
             </TouchableOpacity>
           </View>
         )}
@@ -163,7 +180,7 @@ export default function SettingsTab() {
         )}
 
         <View style={styles.settingsGroup}>
-          <View style={styles.settingRow}>
+          <View style={styles.nutritionSettingRow}>
             <View style={styles.settingInfo}>
               <Text style={styles.settingLabel}>Daily Target</Text>
               <Text style={styles.settingSubtext}>
@@ -181,7 +198,7 @@ export default function SettingsTab() {
 
           <View style={styles.settingDivider} />
 
-          <View style={styles.settingRow}>
+          <View style={styles.nutritionSettingRow}>
             <View style={styles.settingInfo}>
               <Text style={styles.settingLabel}>Show Progress Bar</Text>
               <Text style={styles.settingSubtext}>
@@ -201,29 +218,18 @@ export default function SettingsTab() {
   const renderAppearanceCard = () => {
     return (
       <View style={styles.nutritionCard}>
-        <View style={styles.cardHeader}>
-          <View style={styles.cardTitleSection}>
-            <Text style={styles.nutritionHeadline}>Theme</Text>
-            <Text style={styles.cardDescription}>
+        <View style={styles.settingRow}>
+          <View style={styles.settingInfo}>
+            <Text style={styles.settingLabel}>Dark Mode</Text>
+            <Text style={styles.settingSubtext}>
               Choose between light and dark appearance
             </Text>
           </View>
-        </View>
-
-        <View style={styles.settingsGroup}>
-          <View style={styles.settingRow}>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Dark Mode</Text>
-              <Text style={styles.settingSubtext}>
-                Use dark theme for reduced eye strain
-              </Text>
-            </View>
-            <Switch
-              value={colorScheme === "dark"}
-              onValueChange={toggleColorScheme}
-              accessibilityLabel="Toggle theme"
-            />
-          </View>
+          <Switch
+            value={colorScheme === "dark"}
+            onValueChange={toggleColorScheme}
+            accessibilityLabel="Toggle theme"
+          />
         </View>
       </View>
     );
@@ -231,14 +237,17 @@ export default function SettingsTab() {
 
   if (isLoadingTargets) {
     return (
-      <SafeAreaView style={[styles.container, styles.centered]} edges={['top', 'left', 'right']}>
+      <SafeAreaView
+        style={[styles.container, styles.centered]}
+        edges={["top", "left", "right"]}
+      >
         <Text style={styles.loadingText}>Loading settings...</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -360,15 +369,15 @@ const createStyles = (
       marginBottom: spacing.lg,
     },
     calculateButton: {
-      backgroundColor: 'transparent',
+      backgroundColor: "transparent",
       borderWidth: 1.5,
       borderColor: colors.accent,
       paddingHorizontal: spacing.lg,
       paddingVertical: spacing.md,
       borderRadius: 12,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
       minHeight: 44,
       gap: spacing.sm,
     },
@@ -379,9 +388,10 @@ const createStyles = (
       color: colors.accent,
     },
     calculationInfo: {
-      backgroundColor: scheme === 'light' 
-        ? 'rgba(255, 122, 90, 0.05)' 
-        : 'rgba(255, 122, 90, 0.1)',
+      backgroundColor:
+        scheme === "light"
+          ? "rgba(255, 122, 90, 0.05)"
+          : "rgba(255, 122, 90, 0.1)",
       borderRadius: 12,
       padding: spacing.lg,
       marginBottom: spacing.lg,
@@ -417,14 +427,18 @@ const createStyles = (
       lineHeight: 16,
     },
     settingsGroup: {
-      backgroundColor: 'transparent',
+      backgroundColor: "transparent",
+    },
+    nutritionSettingRow: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+      paddingVertical: spacing.lg,
     },
     settingRow: {
       flexDirection: "row",
       alignItems: "flex-start",
       justifyContent: "space-between",
-      paddingVertical: spacing.lg,
-      minHeight: 60,
     },
     settingInfo: {
       flex: 1,
