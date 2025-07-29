@@ -1,9 +1,18 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
+import * as Haptics from "expo-haptics";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  Easing,
+} from "react-native-reanimated";
 import {
   ChartLineUpIcon,
   BarbellIcon,
   ShieldCheckIcon,
+  TrophyIcon,
 } from "phosphor-react-native";
 import { useTheme } from "../../../../providers/ThemeProvider";
 import { createStyles } from "./ProteinCalculationCard.styles";
@@ -66,7 +75,7 @@ const getIconForMethod = (methodId: string, color: string, size: number) => {
     case "anabolic_insurance":
       return <ShieldCheckIcon size={size} color={color} weight="regular" />;
     case "max_preservation":
-      return <ChartLineUpIcon size={size} color={color} weight="regular" />;
+      return <TrophyIcon size={size} color={color} weight="regular" />;
     default:
       return <ChartLineUpIcon size={size} color={color} weight="regular" />;
   }
@@ -88,20 +97,41 @@ export const ProteinCalculationCard: React.FC<ProteinCalculationCardProps> = ({
   const iconColor = isSelected ? colors.accent : colors.primaryText;
   const iconWeight = isSelected ? "fill" : "regular";
 
+  // Press animation shared values
+  const pressScale = useSharedValue(1);
+
+  // Press animation styles
+  const pressAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pressScale.value }],
+  }));
+
   const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onSelect(method);
+  };
+
+  const handlePressIn = () => {
+    // Press down animation - scale down
+    pressScale.value = withTiming(0.97, { duration: 150, easing: Easing.out(Easing.quad) });
+  };
+
+  const handlePressOut = () => {
+    // Release animation - spring back
+    pressScale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
   };
 
   return (
     <Pressable
-      style={[styles.container, isSelected && styles.selectedContainer]}
       onPress={handlePress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
       accessibilityRole="button"
       accessibilityLabel={`${method.title} protein calculation method`}
       accessibilityHint={`Calculate ${calculatedProtein}g protein per day based on ${method.description.toLowerCase()}`}
       accessibilityState={{ selected: isSelected }}
     >
-      <View style={styles.content}>
+      <Animated.View style={[styles.container, isSelected && styles.selectedContainer, pressAnimatedStyle]}>
+        <View style={styles.content}>
         <View style={styles.header}>
           <View style={styles.iconContainer}>
             {React.cloneElement(getIconForMethod(method.id, iconColor, 24), {
@@ -127,7 +157,8 @@ export const ProteinCalculationCard: React.FC<ProteinCalculationCardProps> = ({
           </Text>
           <Text style={styles.proteinLabel}>per day</Text>
         </View>
-      </View>
+        </View>
+      </Animated.View>
     </Pressable>
   );
 };
