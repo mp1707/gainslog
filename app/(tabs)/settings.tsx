@@ -76,6 +76,21 @@ export default function SettingsTab() {
     setProteinCalculation(method, bodyWeight, calculatedProtein);
   };
 
+  const getCardDescription = (key: keyof typeof dailyTargets): string => {
+    switch (key) {
+      case 'calories':
+        return 'Energy from food to fuel your daily activities';
+      case 'protein':
+        return 'Essential for muscle growth and recovery';
+      case 'carbs':
+        return 'Primary energy source for your body and brain';
+      case 'fat':
+        return 'Important for hormone production and nutrient absorption';
+      default:
+        return '';
+    }
+  };
+
   const nutritionConfigs: Array<{
     key: keyof typeof dailyTargets;
     label: string;
@@ -104,8 +119,16 @@ export default function SettingsTab() {
     return (
       <View style={styles.nutritionCard} key={config.key}>
         <View style={styles.cardHeader}>
-          <Text style={styles.nutritionHeadline}>{config.label}</Text>
-          {isProteinCard && (
+          <View style={styles.cardTitleSection}>
+            <Text style={styles.nutritionHeadline}>{config.label}</Text>
+            <Text style={styles.cardDescription}>
+              {getCardDescription(config.key)}
+            </Text>
+          </View>
+        </View>
+
+        {isProteinCard && (
+          <View style={styles.proteinActions}>
             <TouchableOpacity
               style={styles.calculateButton}
               onPress={() => setIsProteinCalculatorVisible(true)}
@@ -113,19 +136,25 @@ export default function SettingsTab() {
               accessibilityLabel="Open protein calculator"
               accessibilityHint="Calculate protein needs based on body weight and activity level"
             >
-              <Text style={styles.calculateButtonText}>Calculate</Text>
+              <Calculator size={16} color={colors.accent} weight="regular" />
+              <Text style={styles.calculateButtonText}>Calculate Protein Needs</Text>
             </TouchableOpacity>
-          )}
-        </View>
+          </View>
+        )}
 
         {/* Show selected calculation method for protein */}
         {isProteinCard && proteinCalculation && (
           <View style={styles.calculationInfo}>
-            <Text style={styles.calculationText}>
-              {proteinCalculation.method.title} ({proteinCalculation.bodyWeight}kg)
-            </Text>
+            <View style={styles.calculationHeader}>
+              <Text style={styles.calculationMethodTitle}>
+                {proteinCalculation.method.title}
+              </Text>
+              <Text style={styles.bodyWeightText}>
+                {proteinCalculation.bodyWeight}kg body weight
+              </Text>
+            </View>
             <Text style={styles.calculatedValue}>
-              Calculated: {proteinCalculation.calculatedProtein}g protein
+              Recommended: {proteinCalculation.calculatedProtein}g daily
             </Text>
             <Text style={styles.calculationSubtext}>
               {proteinCalculation.method.description}
@@ -133,23 +162,37 @@ export default function SettingsTab() {
           </View>
         )}
 
-        <View style={styles.settingRow}>
-          <Text style={styles.settingLabel}>Daily Target</Text>
-          <Stepper
-            value={dailyTargets[config.key]}
-            min={config.min}
-            max={config.max}
-            step={config.step}
-            onChange={(value) => handleTargetChange(config.key, value)}
-          />
-        </View>
+        <View style={styles.settingsGroup}>
+          <View style={styles.settingRow}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Daily Target</Text>
+              <Text style={styles.settingSubtext}>
+                Set your daily {config.label.toLowerCase()} goal
+              </Text>
+            </View>
+            <Stepper
+              value={dailyTargets[config.key]}
+              min={config.min}
+              max={config.max}
+              step={config.step}
+              onChange={(value) => handleTargetChange(config.key, value)}
+            />
+          </View>
 
-        <View style={styles.settingRow}>
-          <Text style={styles.settingLabel}>Show Progress Bar</Text>
-          <Switch
-            value={switchValue}
-            onValueChange={() => toggleVisibleNutritionKey(config.key as any)}
-          />
+          <View style={styles.settingDivider} />
+
+          <View style={styles.settingRow}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Show Progress Bar</Text>
+              <Text style={styles.settingSubtext}>
+                Display {config.label.toLowerCase()} progress on main screen
+              </Text>
+            </View>
+            <Switch
+              value={switchValue}
+              onValueChange={() => toggleVisibleNutritionKey(config.key as any)}
+            />
+          </View>
         </View>
       </View>
     );
@@ -158,13 +201,29 @@ export default function SettingsTab() {
   const renderAppearanceCard = () => {
     return (
       <View style={styles.nutritionCard}>
-        <View style={styles.settingRow}>
-          <Text style={styles.settingLabel}>Dark Mode</Text>
-          <Switch
-            value={colorScheme === "dark"}
-            onValueChange={toggleColorScheme}
-            accessibilityLabel="Toggle theme"
-          />
+        <View style={styles.cardHeader}>
+          <View style={styles.cardTitleSection}>
+            <Text style={styles.nutritionHeadline}>Theme</Text>
+            <Text style={styles.cardDescription}>
+              Choose between light and dark appearance
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.settingsGroup}>
+          <View style={styles.settingRow}>
+            <View style={styles.settingInfo}>
+              <Text style={styles.settingLabel}>Dark Mode</Text>
+              <Text style={styles.settingSubtext}>
+                Use dark theme for reduced eye strain
+              </Text>
+            </View>
+            <Switch
+              value={colorScheme === "dark"}
+              onValueChange={toggleColorScheme}
+              accessibilityLabel="Toggle theme"
+            />
+          </View>
         </View>
       </View>
     );
@@ -187,11 +246,17 @@ export default function SettingsTab() {
       >
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Appearance</Text>
+          <Text style={styles.sectionSubtitle}>
+            Customize the visual appearance of your app
+          </Text>
           {renderAppearanceCard()}
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Nutrition Tracking</Text>
+          <Text style={styles.sectionSubtitle}>
+            Set your daily nutrition goals and manage which metrics to track
+          </Text>
           {nutritionConfigs.map(renderNutritionCard)}
         </View>
       </ScrollView>
@@ -253,19 +318,37 @@ const createStyles = (
       fontFamily: typography.Title2.fontFamily,
       fontWeight: typography.Title2.fontWeight,
       color: colors.primaryText,
-      marginBottom: spacing.md,
+      marginBottom: spacing.xs,
+    },
+    sectionSubtitle: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      color: colors.secondaryText,
+      lineHeight: 22,
+      marginBottom: spacing.lg,
     },
     nutritionCard: {
       borderRadius: themeObj.components.cards.cornerRadius,
-      padding: spacing.md,
-      marginBottom: spacing.md,
+      padding: spacing.lg,
+      marginBottom: spacing.lg,
       ...componentStyles.cards,
     },
     cardHeader: {
       flexDirection: "row",
-      alignItems: "center",
+      alignItems: "flex-start",
       justifyContent: "space-between",
       marginBottom: spacing.lg,
+    },
+    cardTitleSection: {
+      flex: 1,
+      marginRight: spacing.md,
+    },
+    cardDescription: {
+      fontSize: typography.Subhead.fontSize,
+      fontFamily: typography.Subhead.fontFamily,
+      color: colors.secondaryText,
+      marginTop: spacing.xs,
+      lineHeight: 20,
     },
     nutritionHeadline: {
       fontSize: typography.Headline.fontSize,
@@ -273,61 +356,97 @@ const createStyles = (
       fontWeight: typography.Headline.fontWeight,
       color: colors.primaryText,
     },
+    proteinActions: {
+      marginBottom: spacing.lg,
+    },
     calculateButton: {
-      backgroundColor: colors.accent,
+      backgroundColor: 'transparent',
+      borderWidth: 1.5,
+      borderColor: colors.accent,
       paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.sm,
-      borderRadius: 24,
+      paddingVertical: spacing.md,
+      borderRadius: 12,
+      flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
+      minHeight: 44,
+      gap: spacing.sm,
     },
     calculateButtonText: {
-      fontSize: typography.Subhead.fontSize,
-      fontFamily: typography.Subhead.fontFamily,
-      fontWeight: typography.Button.fontWeight,
-      color: colors.white,
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      fontWeight: typography.Body.fontWeight,
+      color: colors.accent,
     },
     calculationInfo: {
       backgroundColor: scheme === 'light' 
         ? 'rgba(255, 122, 90, 0.05)' 
         : 'rgba(255, 122, 90, 0.1)',
-      borderRadius: 8,
-      padding: spacing.md,
+      borderRadius: 12,
+      padding: spacing.lg,
       marginBottom: spacing.lg,
-      borderLeftWidth: 3,
+      borderLeftWidth: 4,
       borderLeftColor: colors.accent,
     },
-    calculationText: {
+    calculationHeader: {
+      marginBottom: spacing.sm,
+    },
+    calculationMethodTitle: {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
-      fontWeight: typography.Body.fontWeight,
+      fontWeight: typography.Headline.fontWeight,
       color: colors.primaryText,
-      marginBottom: spacing.xs,
+      marginBottom: spacing.xs / 2,
+    },
+    bodyWeightText: {
+      fontSize: typography.Subhead.fontSize,
+      fontFamily: typography.Subhead.fontFamily,
+      color: colors.secondaryText,
     },
     calculatedValue: {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
-      fontWeight: typography.Headline.fontWeight, // Make it semibold to stand out
+      fontWeight: typography.Headline.fontWeight,
       color: colors.accent,
-      marginBottom: spacing.xs,
+      marginBottom: spacing.sm,
     },
     calculationSubtext: {
       fontSize: typography.Caption.fontSize,
       fontFamily: typography.Caption.fontFamily,
       color: colors.secondaryText,
+      lineHeight: 16,
+    },
+    settingsGroup: {
+      backgroundColor: 'transparent',
     },
     settingRow: {
       flexDirection: "row",
-      alignItems: "center",
+      alignItems: "flex-start",
       justifyContent: "space-between",
-      paddingVertical: spacing.md,
+      paddingVertical: spacing.lg,
+      minHeight: 60,
+    },
+    settingInfo: {
+      flex: 1,
+      marginRight: spacing.lg,
     },
     settingLabel: {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
       fontWeight: typography.Body.fontWeight,
       color: colors.primaryText,
-      flex: 1,
+      marginBottom: spacing.xs / 2,
+    },
+    settingSubtext: {
+      fontSize: typography.Subhead.fontSize,
+      fontFamily: typography.Subhead.fontFamily,
+      color: colors.secondaryText,
+      lineHeight: 18,
+    },
+    settingDivider: {
+      height: 1,
+      backgroundColor: colors.border,
+      marginHorizontal: -spacing.lg,
     },
     loadingText: {
       fontSize: typography.Body.fontSize,
