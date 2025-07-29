@@ -12,8 +12,6 @@ export const createStyles = (
     container: {
       borderRadius: themeObj.components.cards.cornerRadius,
       padding: themeObj.spacing.lg,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border,
       ...componentStyles.cards, // Apply scheme-aware card styles
     },
     dateText: {

@@ -1,0 +1,1 @@
+export { ProteinCalculatorModal } from './ProteinCalculatorModal';

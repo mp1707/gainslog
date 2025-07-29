@@ -150,7 +150,10 @@ const components = {
   aiActionTargets: {
     height: 56,
     minWidth: 120,
-    iconColor: lightColors.white,
+    iconColor: {
+      light: lightColors.secondaryBackground,
+      dark: darkColors.primaryBackground,
+    },
     iconSize: 24,
   },
   progressBars: {
@@ -209,6 +212,10 @@ const getComponentStyles = (scheme?: 'light' | 'dark') => {
     cards: {
       ...components.cards,
       ...(currentScheme === 'dark' ? components.cards.darkMode : components.cards.lightMode),
+    },
+    aiActionTargets: {
+      ...components.aiActionTargets,
+      iconColor: components.aiActionTargets.iconColor[currentScheme],
     },
   };
 };

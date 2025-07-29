@@ -1,10 +1,13 @@
-import React, { useEffect, useMemo } from "react";
-import { View, Text, ScrollView, Switch, StyleSheet, Platform } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { View, Text, ScrollView, Switch, StyleSheet, Platform, TouchableOpacity } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { Calculator } from "phosphor-react-native";
 import { useTheme } from "../../src/providers/ThemeProvider";
 import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 import { Stepper } from "../../src/shared/ui/atoms/Stepper";
 import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
+import { ProteinCalculatorModal } from "../../src/shared/ui/molecules/ProteinCalculatorModal";
+import { ProteinCalculationMethod } from "../../src/shared/ui/atoms/ProteinCalculationCard";
 
 export default function SettingsTab() {
   const {
@@ -15,7 +18,12 @@ export default function SettingsTab() {
     visibleNutritionKeys,
     toggleVisibleNutritionKey,
     loadVisibleNutritionKeys,
+    proteinCalculation,
+    setProteinCalculation,
+    clearProteinCalculation,
   } = useFoodLogStore();
+
+  const [isProteinCalculatorVisible, setIsProteinCalculatorVisible] = useState(false);
 
   const {
     colors,
@@ -60,6 +68,14 @@ export default function SettingsTab() {
     updateDailyTargetsDebounced(newTargets);
   };
 
+  const handleProteinCalculationSelect = (
+    method: ProteinCalculationMethod,
+    bodyWeight: number,
+    calculatedProtein: number
+  ) => {
+    setProteinCalculation(method, bodyWeight, calculatedProtein);
+  };
+
   const nutritionConfigs: Array<{
     key: keyof typeof dailyTargets;
     label: string;
@@ -83,9 +99,36 @@ export default function SettingsTab() {
 
   const renderNutritionCard = (config: (typeof nutritionConfigs)[number]) => {
     const switchValue = visibleNutritionKeys.includes(config.key as any);
+    const isProteinCard = config.key === 'protein';
+    
     return (
       <View style={styles.nutritionCard} key={config.key}>
-        <Text style={styles.nutritionHeadline}>{config.label}</Text>
+        <View style={styles.cardHeader}>
+          <Text style={styles.nutritionHeadline}>{config.label}</Text>
+          {isProteinCard && (
+            <TouchableOpacity
+              style={styles.calculateButton}
+              onPress={() => setIsProteinCalculatorVisible(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Open protein calculator"
+              accessibilityHint="Calculate protein needs based on body weight and activity level"
+            >
+              <Calculator size={20} color={colors.accent} weight="regular" />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Show selected calculation method for protein */}
+        {isProteinCard && proteinCalculation && (
+          <View style={styles.calculationInfo}>
+            <Text style={styles.calculationText}>
+              {proteinCalculation.method.title} ({proteinCalculation.bodyWeight}kg)
+            </Text>
+            <Text style={styles.calculationSubtext}>
+              {proteinCalculation.method.description}
+            </Text>
+          </View>
+        )}
 
         <View style={styles.settingRow}>
           <Text style={styles.settingLabel}>Daily Target</Text>
@@ -149,6 +192,13 @@ export default function SettingsTab() {
           {nutritionConfigs.map(renderNutritionCard)}
         </View>
       </ScrollView>
+
+      <ProteinCalculatorModal
+        visible={isProteinCalculatorVisible}
+        onClose={() => setIsProteinCalculatorVisible(false)}
+        onSelectMethod={handleProteinCalculationSelect}
+        initialBodyWeight={proteinCalculation?.bodyWeight || 70}
+      />
     </SafeAreaView>
   );
 }
@@ -208,12 +258,43 @@ const createStyles = (
       marginBottom: spacing.md,
       ...componentStyles.cards,
     },
+    cardHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: spacing.lg,
+    },
     nutritionHeadline: {
       fontSize: typography.Headline.fontSize,
       fontFamily: typography.Headline.fontFamily,
       fontWeight: typography.Headline.fontWeight,
       color: colors.primaryText,
+    },
+    calculateButton: {
+      padding: spacing.xs,
+      borderRadius: 8,
+    },
+    calculationInfo: {
+      backgroundColor: scheme === 'light' 
+        ? 'rgba(255, 122, 90, 0.05)' 
+        : 'rgba(255, 122, 90, 0.1)',
+      borderRadius: 8,
+      padding: spacing.md,
       marginBottom: spacing.lg,
+      borderLeftWidth: 3,
+      borderLeftColor: colors.accent,
+    },
+    calculationText: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      fontWeight: typography.Body.fontWeight,
+      color: colors.primaryText,
+      marginBottom: spacing.xs,
+    },
+    calculationSubtext: {
+      fontSize: typography.Caption.fontSize,
+      fontFamily: typography.Caption.fontFamily,
+      color: colors.secondaryText,
     },
     settingRow: {
       flexDirection: "row",

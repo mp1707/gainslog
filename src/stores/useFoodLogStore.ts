@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { Alert } from "react-native";
 import { router } from "expo-router";
 import { FoodLog, DailyTargets, DailyProgress } from "../types";
+import { ProteinCalculationMethod } from "../shared/ui/atoms/ProteinCalculationCard";
 
 // Import storage helpers for nutrition visibility
 import {
@@ -20,6 +21,13 @@ import {
 
 type ActionType = "manual" | "camera" | "library" | "audio" | null;
 
+interface ProteinCalculationSelection {
+  method: ProteinCalculationMethod;
+  bodyWeight: number;
+  calculatedProtein: number;
+  timestamp: number;
+}
+
 interface FoodLogStore {
   // Data state
   foodLogs: FoodLog[];
@@ -35,6 +43,9 @@ interface FoodLogStore {
   // Nutrition targets state
   dailyTargets: DailyTargets;
   isLoadingTargets: boolean;
+
+  // Protein calculation state
+  proteinCalculation: ProteinCalculationSelection | null;
 
   // Data actions
   loadFoodLogs: () => Promise<void>;
@@ -70,6 +81,10 @@ interface FoodLogStore {
   loadDailyTargets: () => Promise<void>;
   updateDailyTargets: (targets: DailyTargets) => Promise<void>;
   updateDailyTargetsDebounced: (targets: DailyTargets) => void;
+
+  // Protein calculation actions
+  setProteinCalculation: (method: ProteinCalculationMethod, bodyWeight: number, calculatedProtein: number) => void;
+  clearProteinCalculation: () => void;
 
   // Progress calculations
   getDailyProgress: () => DailyProgress;
@@ -129,6 +144,8 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
     fat: 65,
   },
   isLoadingTargets: true,
+  // Protein calculation initial state
+  proteinCalculation: null,
   // Nutrition visibility initial state
   visibleNutritionKeys: DEFAULT_VISIBLE_NUTRITION_KEYS,
   isLoadingVisibleNutrition: true,
@@ -321,8 +338,18 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   },
 
   updateDailyTargetsDebounced: (targets: DailyTargets) => {
+    const currentState = get();
+    
+    // Check if protein value changed manually (different from calculated value)
+    const proteinChanged = currentState.proteinCalculation && 
+      targets.protein !== currentState.proteinCalculation.calculatedProtein;
+    
     // Update state immediately for responsive UI
-    set({ dailyTargets: targets });
+    set({ 
+      dailyTargets: targets,
+      // Clear protein calculation if protein was manually changed
+      proteinCalculation: proteinChanged ? null : currentState.proteinCalculation,
+    });
 
     // Clear existing timer
     if (debounceTimer) {
@@ -381,6 +408,35 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
     };
   },
 
+  // Protein calculation actions
+  setProteinCalculation: (method: ProteinCalculationMethod, bodyWeight: number, calculatedProtein: number) => {
+    const proteinCalculation: ProteinCalculationSelection = {
+      method,
+      bodyWeight,
+      calculatedProtein,
+      timestamp: Date.now(),
+    };
+    
+    // Update protein target to calculated value
+    const currentTargets = get().dailyTargets;
+    const newTargets = {
+      ...currentTargets,
+      protein: calculatedProtein,
+    };
+    
+    set({ 
+      proteinCalculation,
+      dailyTargets: newTargets,
+    });
+    
+    // Save updated targets
+    get().updateDailyTargetsDebounced(newTargets);
+  },
+
+  clearProteinCalculation: () => {
+    set({ proteinCalculation: null });
+  },
+
   // Nutrition visibility actions
   loadVisibleNutritionKeys: async () => {
     set({ isLoadingVisibleNutrition: true });
@@ -432,5 +488,5 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   }
 })();
 
-// Export ActionType for components that need it
-export type { ActionType };
+// Export types for components that need them
+export type { ActionType, ProteinCalculationSelection };

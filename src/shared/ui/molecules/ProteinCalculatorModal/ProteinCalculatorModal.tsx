@@ -1,0 +1,133 @@
+import React, { useState, useEffect } from 'react';
+import { Modal, View, Text, TouchableOpacity, ScrollView, Keyboard } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import { Stepper } from '../../atoms/Stepper/Stepper';
+import { ProteinCalculationCard, CALCULATION_METHODS, ProteinCalculationMethod } from '../../atoms/ProteinCalculationCard';
+import { useStyles } from './ProteinCalculatorModal.styles';
+
+interface ProteinCalculatorModalProps {
+  visible: boolean;
+  onClose: () => void;
+  onSelectMethod: (method: ProteinCalculationMethod, bodyWeight: number, calculatedProtein: number) => void;
+  initialBodyWeight?: number;
+}
+
+export const ProteinCalculatorModal: React.FC<ProteinCalculatorModalProps> = ({
+  visible,
+  onClose,
+  onSelectMethod,
+  initialBodyWeight = 70,
+}) => {
+  const styles = useStyles();
+  
+  const [bodyWeight, setBodyWeight] = useState(initialBodyWeight);
+  const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
+
+  // Reset state when modal opens
+  useEffect(() => {
+    if (visible) {
+      setSelectedMethodId(null);
+      setBodyWeight(initialBodyWeight);
+    }
+  }, [visible, initialBodyWeight]);
+
+  const getBodyWeightNumber = (): number => {
+    return bodyWeight > 0 ? bodyWeight : 0;
+  };
+
+  const handleMethodSelect = (method: ProteinCalculationMethod) => {
+    const weightNum = getBodyWeightNumber();
+    if (weightNum > 0) {
+      const calculatedProtein = Math.round((weightNum * method.multiplier) / 5) * 5;
+      onSelectMethod(method, weightNum, calculatedProtein);
+      onClose();
+    }
+  };
+
+  const methods = Object.values(CALCULATION_METHODS);
+  const currentWeight = getBodyWeightNumber();
+
+  return (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={onClose}
+    >
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="dark" />
+        
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={onClose}>
+            <Text style={styles.cancelButton}>Cancel</Text>
+          </TouchableOpacity>
+          <Text style={styles.title}>Protein Calculator</Text>
+          <View style={styles.headerSpacer} />
+        </View>
+
+        {/* Content */}
+        <ScrollView 
+          style={styles.content}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Body Weight Input */}
+          <View style={styles.methodsSection}>
+            <Text style={styles.sectionTitle}>Body Weight (kg)</Text>
+            <Text style={styles.sectionSubtitle}>
+              Enter your body weight in kilograms to calculate your protein needs.
+            </Text>
+            <View style={styles.stepperContainer}>
+              <Stepper
+                value={bodyWeight}
+                min={1}
+                max={300}
+                step={1}
+                onChange={setBodyWeight}
+              />
+            </View>
+            {currentWeight > 0 && (
+              <Text style={styles.inputHint}>
+                {currentWeight}kg = {Math.round(currentWeight * 2.205)}lbs
+              </Text>
+            )}
+          </View>
+
+          {/* Calculation Methods */}
+          <View style={styles.methodsSection}>
+            <Text style={styles.sectionTitle}>Choose Your Activity Level</Text>
+            <Text style={styles.sectionSubtitle}>
+              Select the option that best matches your lifestyle and training routine.
+            </Text>
+            
+            {methods.map((method) => (
+              <ProteinCalculationCard
+                key={method.id}
+                method={method}
+                bodyWeight={currentWeight}
+                isSelected={selectedMethodId === method.id}
+                onSelect={(selectedMethod) => {
+                  setSelectedMethodId(selectedMethod.id);
+                  // Add a small delay to show selection before closing
+                  setTimeout(() => handleMethodSelect(selectedMethod), 150);
+                }}
+              />
+            ))}
+          </View>
+
+          {/* Footer Note */}
+          {currentWeight > 0 && (
+            <View style={styles.footer}>
+              <Text style={styles.footerNote}>
+                These recommendations are general guidelines. Consult with a nutritionist or healthcare provider for personalized advice.
+              </Text>
+            </View>
+          )}
+        </ScrollView>
+      </SafeAreaView>
+    </Modal>
+  );
+};

@@ -1,79 +1,80 @@
 import { StyleSheet } from "react-native";
 import { theme } from "../../../theme";
 
-export const createStyles = (colors: any) => StyleSheet.create({
-  cardContainer: {
-    position: 'relative',
-  },
+export const createStyles = (colors: any) =>
+  StyleSheet.create({
+    cardContainer: {
+      position: "relative",
+    },
 
-  card: {
-    // Card uses no additional styles since the Card component handles styling
-  },
+    card: {
+      // Card uses no additional styles since the Card component handles styling
+    },
 
-  flashOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    borderRadius: theme.components.cards.cornerRadius,
-    zIndex: 1,
-    pointerEvents: 'none',
-  },
+    flashOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      borderRadius: theme.components.cards.cornerRadius,
+      zIndex: 1,
+      pointerEvents: "none",
+    },
 
-  titleRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: theme.spacing.md,
-  },
+    titleRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      marginBottom: theme.spacing.md,
+    },
 
-  titleContent: {
-    flex: 1,
-    marginRight: theme.spacing.md,
-  },
+    titleContent: {
+      flex: 1,
+      marginRight: theme.spacing.md,
+    },
 
-  titleWithIcon: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: theme.spacing.xs,
-  },
+    titleWithIcon: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: theme.spacing.xs,
+    },
 
-  title: {
-    flex: 1,
-  },
+    title: {
+      flex: 1,
+    },
 
-  loadingTitle: {
-    color: colors.disabledText,
-    fontStyle: "italic",
-  },
+    loadingTitle: {
+      color: colors.disabledText,
+      fontStyle: "italic",
+    },
 
-  description: {
-    fontStyle: "italic",
-  },
+    description: {
+      fontStyle: "italic",
+    },
 
-  rightSection: {
-    alignItems: "flex-end",
-    gap: theme.spacing.sm,
-  },
+    rightSection: {
+      alignItems: "flex-end",
+      gap: theme.spacing.sm,
+    },
 
-  // Camera icon styling
-  cameraIcon: {
-    marginRight: theme.spacing.xs,
-  },
+    // Camera icon styling
+    cameraIcon: {
+      marginRight: theme.spacing.xs,
+    },
 
-  // Skeleton-specific styles
-  macroRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
+    // Skeleton-specific styles
+    macroRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+    },
 
-  macroItem: {
-    alignItems: "center",
-    flex: 1,
-  },
-});
+    macroItem: {
+      alignItems: "center",
+      flex: 1,
+    },
+  });
 
 // Legacy export for compatibility
 export const styles = createStyles(theme.getColors());

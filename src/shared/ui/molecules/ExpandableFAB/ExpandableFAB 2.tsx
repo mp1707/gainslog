@@ -5,13 +5,14 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   withTiming,
-    interpolate,
-    withDelay,
+  interpolate,
+  withDelay,
+  Easing,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { PlusIcon, PencilIcon, CameraIcon, ImageIcon, MicrophoneIcon } from 'phosphor-react-native';
+import { useTheme } from '../../../../providers/ThemeProvider';
 import { createStyles } from './ExpandableFAB.styles';
-import { useTheme } from 'src/providers/ThemeProvider';
 
 interface ExpandableFABProps {
   onManualLog: () => void;
@@ -35,8 +36,7 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
   onAudioLog,
   bottomOffset,
 }) => {
-  const { theme, colors, colorScheme } = useTheme();
-  const componentStyles = theme.getComponentStyles(colorScheme);
+  const { theme, colors } = useTheme();
   const styles = createStyles(colors, bottomOffset);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -48,25 +48,25 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
   // Action buttons configuration
   const actionButtons: ActionButton[] = [
     {
-      icon: <PencilIcon size={componentStyles.aiActionTargets.iconSize} color={componentStyles.aiActionTargets.iconColor} weight="regular" />,
+      icon: <PencilIcon size={theme.components.aiActionTargets.iconSize} color={theme.components.aiActionTargets.iconColor} weight="regular" />,
       onPress: onManualLog,
       accessibilityLabel: "Manual food entry",
       accessibilityHint: "Opens manual food logging form"
     },
     {
-      icon: <CameraIcon size={componentStyles.aiActionTargets.iconSize} color={componentStyles.aiActionTargets.iconColor} weight="regular" />,
+      icon: <CameraIcon size={theme.components.aiActionTargets.iconSize} color={theme.components.aiActionTargets.iconColor} weight="regular" />,
       onPress: onCameraLog,
       accessibilityLabel: "Take photo",
       accessibilityHint: "Opens camera to photograph food"
     },
     {
-      icon: <ImageIcon size={componentStyles.aiActionTargets.iconSize} color={componentStyles.aiActionTargets.iconColor} weight="regular" />,
+      icon: <ImageIcon size={theme.components.aiActionTargets.iconSize} color={theme.components.aiActionTargets.iconColor} weight="regular" />,
       onPress: onLibraryLog,
       accessibilityLabel: "Choose from library",
       accessibilityHint: "Opens photo library to select food image"
     },
     {
-      icon: <MicrophoneIcon size={componentStyles.aiActionTargets.iconSize} color={componentStyles.aiActionTargets.iconColor} weight="regular" />,
+      icon: <MicrophoneIcon size={theme.components.aiActionTargets.iconSize} color={theme.components.aiActionTargets.iconColor} weight="regular" />,
       onPress: onAudioLog,
       accessibilityLabel: "Record audio",
       accessibilityHint: "Opens audio recording for voice food logging"
@@ -215,14 +215,21 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
       </View>
 
       {/* Main FAB */}
-      <TouchableOpacity
+      <Pressable
         style={styles.mainFab}
         onPress={() => {
           // Medium haptic feedback for main FAB press
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
           toggleFAB();
         }}
-        activeOpacity={0.7}
+        onPressIn={() => {
+          // Press down animation - scale down
+          pressScale.value = withTiming(0.97, { duration: 150, easing: Easing.out(Easing.quad) });
+        }}
+        onPressOut={() => {
+          // Release animation - spring back
+          pressScale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+        }}
         accessibilityRole="button"
         accessibilityLabel={isExpanded ? "Close food logging options" : "Open food logging options"}
         accessibilityHint={isExpanded ? "Closes the food logging menu" : "Shows food logging options"}
@@ -230,12 +237,12 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
       >
         <Animated.View style={mainFabAnimatedStyle}>
           <PlusIcon 
-            size={componentStyles.aiActionTargets.iconSize} 
-            color={componentStyles.aiActionTargets.iconColor} 
+            size={theme.components.aiActionTargets.iconSize} 
+            color={theme.components.aiActionTargets.iconColor} 
             weight="bold" 
           />
         </Animated.View>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 };
