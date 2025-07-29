@@ -45,6 +45,7 @@ export const useStyles = () => useThemedStyles((colors, theme) => StyleSheet.cre
 
   scrollContent: {
     gap: theme.spacing.md,
+    paddingBottom: theme.spacing.xl,
   },
 
   // Input section

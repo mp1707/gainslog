@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TouchableOpacity, ScrollView, Keyboard } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Modal, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Stepper } from '../../atoms/Stepper/Stepper';
 import { ProteinCalculationCard, CALCULATION_METHODS, ProteinCalculationMethod } from '../../atoms/ProteinCalculationCard';
@@ -55,7 +54,7 @@ export const ProteinCalculatorModal: React.FC<ProteinCalculatorModalProps> = ({
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <StatusBar style="dark" />
         
         {/* Header */}
@@ -127,7 +126,7 @@ export const ProteinCalculatorModal: React.FC<ProteinCalculatorModalProps> = ({
             </View>
           )}
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </Modal>
   );
 };
