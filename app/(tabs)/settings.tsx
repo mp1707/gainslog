@@ -106,7 +106,7 @@ export default function SettingsTab() {
     const method = CALCULATION_METHODS[activityLevel];
     
     // Store the calorie calculation in the store
-    setCalorieCalculation(method, params, activityLevel);
+    setCalorieCalculation(method, params, activityLevel, calories, goalType);
     
     // Update the calorie target based on selected goal
     handleTargetChange('calories', calories);
@@ -124,6 +124,19 @@ export default function SettingsTab() {
         return "Important for hormone production and nutrient absorption";
       default:
         return "";
+    }
+  };
+
+  const getGoalTitle = (goalType: GoalType): string => {
+    switch (goalType) {
+      case 'lose':
+        return 'Lose Weight';
+      case 'maintain':
+        return 'Maintain Weight';
+      case 'gain':
+        return 'Gain Weight';
+      default:
+        return '';
     }
   };
 
@@ -211,7 +224,7 @@ export default function SettingsTab() {
           <View style={styles.calculationInfo}>
             <View style={styles.calculationHeader}>
               <Text style={styles.calculationMethodTitle}>
-                {calorieCalculation.method.title}
+                {getGoalTitle(calorieCalculation.goalType)}
               </Text>
               <Text style={styles.bodyWeightText}>
                 {calorieCalculation.params.sex === 'male' ? 'Male' : 'Female'}, {calorieCalculation.params.age} years, {calorieCalculation.params.weight}kg, {calorieCalculation.params.height}cm

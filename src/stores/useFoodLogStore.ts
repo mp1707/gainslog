@@ -5,6 +5,7 @@ import { FoodLog, DailyTargets, DailyProgress } from "../types";
 import { ProteinCalculationMethod } from "../shared/ui/atoms/ProteinCalculationCard";
 import { CalorieCalculationMethod } from "../shared/ui/atoms/CalorieCalculationCard";
 import { CalorieIntakeParams, ActivityLevel } from "../utils/calculateCalories";
+import { GoalType } from "../shared/ui/atoms/GoalSelectionCard";
 
 // Import storage helpers for nutrition visibility
 import {
@@ -34,6 +35,8 @@ interface CalorieCalculationSelection {
   method: CalorieCalculationMethod;
   params: CalorieIntakeParams;
   activityLevel: ActivityLevel;
+  calculatedCalories: number;
+  goalType: GoalType;
   timestamp: number;
 }
 
@@ -99,7 +102,7 @@ interface FoodLogStore {
   clearProteinCalculation: () => void;
 
   // Calorie calculation actions
-  setCalorieCalculation: (method: CalorieCalculationMethod, params: CalorieIntakeParams, activityLevel: ActivityLevel) => void;
+  setCalorieCalculation: (method: CalorieCalculationMethod, params: CalorieIntakeParams, activityLevel: ActivityLevel, calculatedCalories: number, goalType: GoalType) => void;
   clearCalorieCalculation: () => void;
 
   // Progress calculations
@@ -364,11 +367,19 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
       proteinValueChanged &&
       targets.protein !== currentState.proteinCalculation.calculatedProtein;
     
+    // Check if calorie value was manually changed (differs from both current target and calculated value)
+    const calorieValueChanged = targets.calories !== currentState.dailyTargets.calories;
+    const calorieManuallyChanged = currentState.calorieCalculation && 
+      calorieValueChanged &&
+      targets.calories !== currentState.calorieCalculation.calculatedCalories;
+    
     // Update state immediately for responsive UI
     set({ 
       dailyTargets: targets,
       // Clear protein calculation only if protein was manually changed
       proteinCalculation: proteinManuallyChanged ? null : currentState.proteinCalculation,
+      // Clear calorie calculation only if calorie was manually changed
+      calorieCalculation: calorieManuallyChanged ? null : currentState.calorieCalculation,
     });
 
     // Clear existing timer
@@ -458,11 +469,13 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   },
 
   // Calorie calculation actions
-  setCalorieCalculation: (method: CalorieCalculationMethod, params: CalorieIntakeParams, activityLevel: ActivityLevel) => {
+  setCalorieCalculation: (method: CalorieCalculationMethod, params: CalorieIntakeParams, activityLevel: ActivityLevel, calculatedCalories: number, goalType: GoalType) => {
     const calorieCalculation: CalorieCalculationSelection = {
       method,
       params,
       activityLevel,
+      calculatedCalories,
+      goalType,
       timestamp: Date.now(),
     };
     
