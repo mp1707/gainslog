@@ -33,6 +33,17 @@ export const useStyles = () => useThemedStyles((colors, theme) => StyleSheet.cre
     color: colors.secondaryText,
   },
 
+  titleContainer: {
+    alignItems: 'center',
+  },
+
+  stepIndicator: {
+    fontSize: theme.typography.Caption.fontSize,
+    fontFamily: theme.typography.Caption.fontFamily,
+    color: colors.secondaryText,
+    marginTop: 2,
+  },
+
   headerSpacer: {
     width: 60, // Same width as cancel button to center title
   },
@@ -110,6 +121,38 @@ export const useStyles = () => useThemedStyles((colors, theme) => StyleSheet.cre
     color: colors.secondaryText,
     marginBottom: theme.spacing.lg,
     lineHeight: 22,
+  },
+
+  // Navigation
+  navigationContainer: {
+    marginTop: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
+  },
+
+  continueButton: {
+    backgroundColor: colors.accent,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    borderRadius: 12,
+    gap: theme.spacing.sm,
+  },
+
+  continueButtonDisabled: {
+    backgroundColor: colors.secondaryText + '20',
+  },
+
+  continueButtonText: {
+    fontSize: theme.typography.Headline.fontSize,
+    fontFamily: theme.typography.Headline.fontFamily,
+    fontWeight: theme.typography.Headline.fontWeight,
+    color: colors.white,
+  },
+
+  continueButtonTextDisabled: {
+    color: colors.secondaryText,
   },
 
   // Footer

@@ -20,6 +20,7 @@ import { ProteinCalculatorModal } from "../../src/shared/ui/molecules/ProteinCal
 import { ProteinCalculationMethod } from "../../src/shared/ui/atoms/ProteinCalculationCard";
 import { CalorieCalculatorModal } from "../../src/shared/ui/molecules/CalorieCalculatorModal";
 import { CalorieCalculationMethod } from "../../src/shared/ui/atoms/CalorieCalculationCard";
+import { GoalType } from "../../src/shared/ui/atoms/GoalSelectionCard";
 import { CalorieIntakeParams, ActivityLevel } from "../../src/utils/calculateCalories";
 
 export default function SettingsTab() {
@@ -94,17 +95,21 @@ export default function SettingsTab() {
     setProteinCalculation(method, bodyWeight, calculatedProtein);
   };
 
-  const handleCalorieCalculationSelect = (
-    method: CalorieCalculationMethod,
+  const handleCalorieGoalSelect = (
+    goalType: GoalType,
+    calories: number,
     params: CalorieIntakeParams,
     activityLevel: ActivityLevel
   ) => {
+    // Create method object from activity level for store compatibility
+    const { CALCULATION_METHODS } = require("../../src/shared/ui/atoms/CalorieCalculationCard/CalorieCalculationCard");
+    const method = CALCULATION_METHODS[activityLevel];
+    
     // Store the calorie calculation in the store
     setCalorieCalculation(method, params, activityLevel);
     
-    // Also update the calorie target based on the maintain weight goal
-    const calorieGoals = require("../../src/utils/calculateCalories").calculateCalorieGoals(params, activityLevel);
-    handleTargetChange('calories', calorieGoals.maintainWeight);
+    // Update the calorie target based on selected goal
+    handleTargetChange('calories', calories);
   };
 
   const getCardDescription = (key: keyof typeof dailyTargets): string => {
@@ -342,7 +347,7 @@ export default function SettingsTab() {
       <CalorieCalculatorModal
         visible={isCalorieCalculatorVisible}
         onClose={() => setIsCalorieCalculatorVisible(false)}
-        onSelectMethod={handleCalorieCalculationSelect}
+        onSelectGoal={handleCalorieGoalSelect}
       />
     </SafeAreaView>
   );

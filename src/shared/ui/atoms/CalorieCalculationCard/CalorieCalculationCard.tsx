@@ -28,9 +28,10 @@ export interface CalorieCalculationMethod {
 
 interface CalorieCalculationCardProps {
   method: CalorieCalculationMethod;
-  calorieGoals: CalorieGoals;
+  calorieGoals?: CalorieGoals;
   isSelected: boolean;
   onSelect: (method: CalorieCalculationMethod) => void;
+  showCalorieGoals?: boolean;
 }
 
 const CALCULATION_METHODS: Record<ActivityLevel, CalorieCalculationMethod> = {
@@ -93,6 +94,7 @@ export const CalorieCalculationCard: React.FC<CalorieCalculationCardProps> = ({
   calorieGoals,
   isSelected,
   onSelect,
+  showCalorieGoals = true,
 }) => {
   const { colors, colorScheme } = useTheme();
   const styles = createStyles(colors, colorScheme);
@@ -149,41 +151,43 @@ export const CalorieCalculationCard: React.FC<CalorieCalculationCardProps> = ({
             </View>
           </View>
 
-          <View style={styles.calorieContainer}>
-            <View style={styles.calorieRow}>
-              <Text style={styles.calorieLabel}>Lose:</Text>
-              <Text
-                style={[
-                  styles.calorieValue,
-                  isSelected && styles.selectedCalorieValue,
-                ]}
-              >
-                {calorieGoals.loseWeight} kcal
-              </Text>
+          {showCalorieGoals && calorieGoals && (
+            <View style={styles.calorieContainer}>
+              <View style={styles.calorieRow}>
+                <Text style={styles.calorieLabel}>Lose:</Text>
+                <Text
+                  style={[
+                    styles.calorieValue,
+                    isSelected && styles.selectedCalorieValue,
+                  ]}
+                >
+                  {calorieGoals.loseWeight} kcal
+                </Text>
+              </View>
+              <View style={styles.calorieRow}>
+                <Text style={styles.calorieLabel}>Maintain:</Text>
+                <Text
+                  style={[
+                    styles.calorieValue,
+                    isSelected && styles.selectedCalorieValue,
+                  ]}
+                >
+                  {calorieGoals.maintainWeight} kcal
+                </Text>
+              </View>
+              <View style={styles.calorieRow}>
+                <Text style={styles.calorieLabel}>Gain:</Text>
+                <Text
+                  style={[
+                    styles.calorieValue,
+                    isSelected && styles.selectedCalorieValue,
+                  ]}
+                >
+                  {calorieGoals.gainWeight} kcal
+                </Text>
+              </View>
             </View>
-            <View style={styles.calorieRow}>
-              <Text style={styles.calorieLabel}>Maintain:</Text>
-              <Text
-                style={[
-                  styles.calorieValue,
-                  isSelected && styles.selectedCalorieValue,
-                ]}
-              >
-                {calorieGoals.maintainWeight} kcal
-              </Text>
-            </View>
-            <View style={styles.calorieRow}>
-              <Text style={styles.calorieLabel}>Gain:</Text>
-              <Text
-                style={[
-                  styles.calorieValue,
-                  isSelected && styles.selectedCalorieValue,
-                ]}
-              >
-                {calorieGoals.gainWeight} kcal
-              </Text>
-            </View>
-          </View>
+          )}
         </View>
       </Animated.View>
     </Pressable>
