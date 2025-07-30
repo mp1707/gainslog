@@ -18,6 +18,9 @@ import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 import { Stepper } from "../../src/shared/ui/atoms/Stepper";
 import { ProteinCalculatorModal } from "../../src/shared/ui/molecules/ProteinCalculatorModal";
 import { ProteinCalculationMethod } from "../../src/shared/ui/atoms/ProteinCalculationCard";
+import { CalorieCalculatorModal } from "../../src/shared/ui/molecules/CalorieCalculatorModal";
+import { CalorieCalculationMethod } from "../../src/shared/ui/atoms/CalorieCalculationCard";
+import { CalorieIntakeParams, ActivityLevel } from "../../src/utils/calculateCalories";
 
 export default function SettingsTab() {
   const {
@@ -30,9 +33,13 @@ export default function SettingsTab() {
     loadVisibleNutritionKeys,
     proteinCalculation,
     setProteinCalculation,
+    calorieCalculation,
+    setCalorieCalculation,
   } = useFoodLogStore();
 
   const [isProteinCalculatorVisible, setIsProteinCalculatorVisible] =
+    useState(false);
+  const [isCalorieCalculatorVisible, setIsCalorieCalculatorVisible] =
     useState(false);
 
   const {
@@ -87,6 +94,19 @@ export default function SettingsTab() {
     setProteinCalculation(method, bodyWeight, calculatedProtein);
   };
 
+  const handleCalorieCalculationSelect = (
+    method: CalorieCalculationMethod,
+    params: CalorieIntakeParams,
+    activityLevel: ActivityLevel
+  ) => {
+    // Store the calorie calculation in the store
+    setCalorieCalculation(method, params, activityLevel);
+    
+    // Also update the calorie target based on the maintain weight goal
+    const calorieGoals = require("../../src/utils/calculateCalories").calculateCalorieGoals(params, activityLevel);
+    handleTargetChange('calories', calorieGoals.maintainWeight);
+  };
+
   const getCardDescription = (key: keyof typeof dailyTargets): string => {
     switch (key) {
       case "calories":
@@ -126,6 +146,7 @@ export default function SettingsTab() {
   const renderNutritionCard = (config: (typeof nutritionConfigs)[number]) => {
     const switchValue = visibleNutritionKeys.includes(config.key as any);
     const isProteinCard = config.key === "protein";
+    const isCalorieCard = config.key === "calories";
 
     return (
       <View style={styles.nutritionCard} key={config.key}>
@@ -137,6 +158,27 @@ export default function SettingsTab() {
             </Text>
           </View>
         </View>
+
+        {isCalorieCard && (
+          <View style={styles.proteinActions}>
+            <TouchableOpacity
+              style={styles.calculateButton}
+              onPress={() => setIsCalorieCalculatorVisible(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Open calorie calculator"
+              accessibilityHint="Calculate calorie needs based on personal info and activity level"
+            >
+              <CalculatorIcon
+                size={16}
+                color={colors.accent}
+                weight="regular"
+              />
+              <Text style={styles.calculateButtonText}>
+                Calculate Calorie Needs
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {isProteinCard && (
           <View style={styles.proteinActions}>
@@ -156,6 +198,26 @@ export default function SettingsTab() {
                 Calculate Protein Needs
               </Text>
             </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Show selected calculation method for calories */}
+        {isCalorieCard && calorieCalculation && (
+          <View style={styles.calculationInfo}>
+            <View style={styles.calculationHeader}>
+              <Text style={styles.calculationMethodTitle}>
+                {calorieCalculation.method.title}
+              </Text>
+              <Text style={styles.bodyWeightText}>
+                {calorieCalculation.params.sex === 'male' ? 'Male' : 'Female'}, {calorieCalculation.params.age} years, {calorieCalculation.params.weight}kg, {calorieCalculation.params.height}cm
+              </Text>
+            </View>
+            <Text style={styles.calculatedValue}>
+              Activity Level: {calorieCalculation.method.label}
+            </Text>
+            <Text style={styles.calculationSubtext}>
+              {calorieCalculation.method.description}
+            </Text>
           </View>
         )}
 
@@ -275,6 +337,12 @@ export default function SettingsTab() {
         onClose={() => setIsProteinCalculatorVisible(false)}
         onSelectMethod={handleProteinCalculationSelect}
         initialBodyWeight={proteinCalculation?.bodyWeight || 70}
+      />
+
+      <CalorieCalculatorModal
+        visible={isCalorieCalculatorVisible}
+        onClose={() => setIsCalorieCalculatorVisible(false)}
+        onSelectMethod={handleCalorieCalculationSelect}
       />
     </SafeAreaView>
   );

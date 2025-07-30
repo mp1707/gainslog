@@ -3,6 +3,8 @@ import { Alert } from "react-native";
 import { router } from "expo-router";
 import { FoodLog, DailyTargets, DailyProgress } from "../types";
 import { ProteinCalculationMethod } from "../shared/ui/atoms/ProteinCalculationCard";
+import { CalorieCalculationMethod } from "../shared/ui/atoms/CalorieCalculationCard";
+import { CalorieIntakeParams, ActivityLevel } from "../utils/calculateCalories";
 
 // Import storage helpers for nutrition visibility
 import {
@@ -28,6 +30,13 @@ interface ProteinCalculationSelection {
   timestamp: number;
 }
 
+interface CalorieCalculationSelection {
+  method: CalorieCalculationMethod;
+  params: CalorieIntakeParams;
+  activityLevel: ActivityLevel;
+  timestamp: number;
+}
+
 interface FoodLogStore {
   // Data state
   foodLogs: FoodLog[];
@@ -46,6 +55,9 @@ interface FoodLogStore {
 
   // Protein calculation state
   proteinCalculation: ProteinCalculationSelection | null;
+
+  // Calorie calculation state
+  calorieCalculation: CalorieCalculationSelection | null;
 
   // Data actions
   loadFoodLogs: () => Promise<void>;
@@ -85,6 +97,10 @@ interface FoodLogStore {
   // Protein calculation actions
   setProteinCalculation: (method: ProteinCalculationMethod, bodyWeight: number, calculatedProtein: number) => void;
   clearProteinCalculation: () => void;
+
+  // Calorie calculation actions
+  setCalorieCalculation: (method: CalorieCalculationMethod, params: CalorieIntakeParams, activityLevel: ActivityLevel) => void;
+  clearCalorieCalculation: () => void;
 
   // Progress calculations
   getDailyProgress: () => DailyProgress;
@@ -146,6 +162,8 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   isLoadingTargets: true,
   // Protein calculation initial state
   proteinCalculation: null,
+  // Calorie calculation initial state
+  calorieCalculation: null,
   // Nutrition visibility initial state
   visibleNutritionKeys: DEFAULT_VISIBLE_NUTRITION_KEYS,
   isLoadingVisibleNutrition: true,
@@ -437,6 +455,22 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
 
   clearProteinCalculation: () => {
     set({ proteinCalculation: null });
+  },
+
+  // Calorie calculation actions
+  setCalorieCalculation: (method: CalorieCalculationMethod, params: CalorieIntakeParams, activityLevel: ActivityLevel) => {
+    const calorieCalculation: CalorieCalculationSelection = {
+      method,
+      params,
+      activityLevel,
+      timestamp: Date.now(),
+    };
+    
+    set({ calorieCalculation });
+  },
+
+  clearCalorieCalculation: () => {
+    set({ calorieCalculation: null });
   },
 
   // Nutrition visibility actions
