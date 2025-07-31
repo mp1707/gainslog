@@ -111,11 +111,11 @@ export const ProteinCalculatorModal: React.FC<ProteinCalculatorModalProps> = ({
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Body Weight Input */}
-          <View style={styles.methodsSection}>
-            <Text style={styles.sectionTitle}>Body Weight (kg)</Text>
+          {/* Body Weight Input Card */}
+          <View style={styles.inputSection}>
+            <Text style={styles.sectionTitle}>Body Weight</Text>
             <Text style={styles.sectionSubtitle}>
-              Enter your body weight in kilograms to calculate your protein needs.
+              Enter your body weight to calculate personalized protein recommendations
             </Text>
             <View style={styles.stepperContainer}>
               <Stepper

@@ -88,11 +88,11 @@ export const useStyles = () => useThemedStyles((colors, theme) => StyleSheet.cre
   },
 
   sectionSubtitle: {
-    fontSize: theme.typography.Body.fontSize,
-    fontFamily: theme.typography.Body.fontFamily,
+    fontSize: theme.typography.Subhead.fontSize,
+    fontFamily: theme.typography.Subhead.fontFamily,
     color: colors.secondaryText,
     marginBottom: theme.spacing.lg,
-    lineHeight: 22,
+    lineHeight: 20,
   },
 
   // Footer
