@@ -1,17 +1,37 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Modal, View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { CaretLeftIcon, CaretRightIcon } from 'phosphor-react-native';
-import { Stepper } from '../../atoms/Stepper/Stepper';
-import { CalorieCalculationCard, CALCULATION_METHODS, CalorieCalculationMethod } from '../../atoms/CalorieCalculationCard';
-import { GoalSelectionCard, GoalType } from '../../atoms/GoalSelectionCard';
-import { calculateCalorieGoals, CalorieIntakeParams, ActivityLevel, Sex } from '../../../../utils/calculateCalories';
-import { useStyles } from './CalorieCalculatorModal.styles';
+import React, { useState, useEffect, useMemo } from "react";
+import { Modal, View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
+import { Stepper } from "../../atoms/Stepper/Stepper";
+import {
+  CalorieCalculationCard,
+  CALCULATION_METHODS,
+  CalorieCalculationMethod,
+} from "../../atoms/CalorieCalculationCard";
+import { GoalSelectionCard, GoalType } from "../../atoms/GoalSelectionCard";
+import {
+  calculateCalorieGoals,
+  CalorieIntakeParams,
+  ActivityLevel,
+  Sex,
+} from "../../../../utils/calculateCalories";
+import { useStyles } from "./CalorieCalculatorModal.styles";
 
 interface CalorieCalculatorModalProps {
   visible: boolean;
   onClose: () => void;
-  onSelectGoal: (goalType: GoalType, calories: number, params: CalorieIntakeParams, activityLevel: ActivityLevel) => void;
+  onSelectGoal: (
+    goalType: GoalType,
+    calories: number,
+    params: CalorieIntakeParams,
+    activityLevel: ActivityLevel
+  ) => void;
   initialParams?: Partial<CalorieIntakeParams>;
   initialActivityLevel?: ActivityLevel;
 }
@@ -21,23 +41,59 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
   onClose,
   onSelectGoal,
   initialParams = {},
-  initialActivityLevel = 'moderate',
+  initialActivityLevel = "moderate",
 }) => {
   const styles = useStyles();
-  
+
   // Create a stable initial params object to prevent re-renders
-  const stableInitialParams = useMemo(() => ({
-    sex: 'male' as Sex,
-    age: 30,
-    weight: 70,
-    height: 170,
-    ...initialParams,
-  }), [initialParams.sex, initialParams.age, initialParams.weight, initialParams.height]);
-  
+  const stableInitialParams = useMemo(
+    () => ({
+      sex: "male" as Sex,
+      age: 30,
+      weight: 70,
+      height: 170,
+      ...initialParams,
+    }),
+    [
+      initialParams.sex,
+      initialParams.age,
+      initialParams.weight,
+      initialParams.height,
+    ]
+  );
+
   const [currentStep, setCurrentStep] = useState(0);
-  const [params, setParams] = useState<CalorieIntakeParams>(stableInitialParams);
-  const [selectedActivityLevel, setSelectedActivityLevel] = useState<ActivityLevel | null>(null);
+  const [params, setParams] =
+    useState<CalorieIntakeParams>(stableInitialParams);
+  const [selectedActivityLevel, setSelectedActivityLevel] =
+    useState<ActivityLevel | null>(null);
   const [selectedGoal, setSelectedGoal] = useState<GoalType | null>(null);
+
+  // Animation setup for sliding toggle
+  const slideAnimation = useSharedValue(params.sex === "male" ? 0 : 1);
+
+  // Update animation when sex changes
+  useEffect(() => {
+    slideAnimation.value = withTiming(params.sex === "male" ? 0 : 1, {
+      duration: 300,
+      easing: Easing.out(Easing.quad),
+    });
+  }, [params.sex]);
+
+  // Animated style for sliding indicator
+  const animatedSliderStyle = useAnimatedStyle(() => {
+    // Calculate the available sliding space accounting for padding
+    // Container has 3pt padding on each side, slider width is 50%
+    // So the slider can move from 0 to the remaining 50% width minus 3pt offset
+    const slideDistance = slideAnimation.value * 100;
+    return {
+      transform: [
+        {
+          translateX: `${slideDistance}%`,
+        },
+      ],
+    };
+  }, []);
 
   // Reset state when modal opens
   useEffect(() => {
@@ -46,6 +102,8 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
       setSelectedActivityLevel(null);
       setSelectedGoal(null);
       setParams(stableInitialParams);
+      // Reset animation to match initial params
+      slideAnimation.value = stableInitialParams.sex === "male" ? 0 : 1;
     }
   }, [visible, stableInitialParams]);
 
@@ -55,10 +113,17 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
 
   const handleGoalSelect = (goalType: GoalType) => {
     if (!selectedActivityLevel) return;
-    
+
     const calorieGoals = calculateCalorieGoals(params, selectedActivityLevel);
-    const calories = calorieGoals[goalType === 'lose' ? 'loseWeight' : goalType === 'maintain' ? 'maintainWeight' : 'gainWeight'];
-    
+    const calories =
+      calorieGoals[
+        goalType === "lose"
+          ? "loseWeight"
+          : goalType === "maintain"
+          ? "maintainWeight"
+          : "gainWeight"
+      ];
+
     onSelectGoal(goalType, calories, params, selectedActivityLevel);
     onClose();
   };
@@ -86,29 +151,37 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
     }
   };
 
-  const updateParam = <K extends keyof CalorieIntakeParams>(key: K, value: CalorieIntakeParams[K]) => {
-    setParams(prev => ({ ...prev, [key]: value }));
+  const updateParam = <K extends keyof CalorieIntakeParams>(
+    key: K,
+    value: CalorieIntakeParams[K]
+  ) => {
+    setParams((prev) => ({ ...prev, [key]: value }));
   };
 
   const toggleSex = () => {
-    setParams(prev => ({ ...prev, sex: prev.sex === 'male' ? 'female' : 'male' }));
+    setParams((prev) => ({
+      ...prev,
+      sex: prev.sex === "male" ? "female" : "male",
+    }));
   };
 
   const methods = Object.values(CALCULATION_METHODS);
 
   // Calculate calorie goals for selected activity level
-  const selectedCalorieGoals = selectedActivityLevel ? calculateCalorieGoals(params, selectedActivityLevel) : null;
+  const selectedCalorieGoals = selectedActivityLevel
+    ? calculateCalorieGoals(params, selectedActivityLevel)
+    : null;
 
   const getStepTitle = () => {
     switch (currentStep) {
       case 0:
-        return 'Personal Information';
+        return "Personal Information";
       case 1:
-        return 'Activity Level';
+        return "Activity Level";
       case 2:
-        return 'Choose Your Goal';
+        return "Choose Your Goal";
       default:
-        return 'Calorie Calculator';
+        return "Calorie Calculator";
     }
   };
 
@@ -121,10 +194,12 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
     >
       <View style={styles.container}>
         <StatusBar style="dark" />
-        
+
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={currentStep > 0 ? handlePrevStep : onClose}>
+          <TouchableOpacity
+            onPress={currentStep > 0 ? handlePrevStep : onClose}
+          >
             {currentStep > 0 ? (
               <CaretLeftIcon size={24} color={styles.cancelButton.color} />
             ) : (
@@ -133,13 +208,15 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
           </TouchableOpacity>
           <View style={styles.titleContainer}>
             <Text style={styles.title}>{getStepTitle()}</Text>
-            <Text style={styles.stepIndicator}>Step {currentStep + 1} of 3</Text>
+            <Text style={styles.stepIndicator}>
+              Step {currentStep + 1} of 3
+            </Text>
           </View>
           <View style={styles.headerSpacer} />
         </View>
 
         {/* Content */}
-        <ScrollView 
+        <ScrollView
           style={styles.content}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
@@ -152,68 +229,101 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
                 Enter your details to calculate your daily calorie needs.
               </Text>
 
-            {/* Sex Selection */}
-            <View style={styles.methodsSection}>
-              <Text style={styles.sectionTitle}>Biological Sex</Text>
-              <TouchableOpacity
-                onPress={toggleSex}
-                style={styles.sexToggle}
-                accessibilityRole="button"
-                accessibilityLabel={`Current selection: ${params.sex}. Tap to toggle.`}
-              >
-                <Text style={styles.sexToggleText}>
-                  {params.sex === 'male' ? 'Male' : 'Female'}
+              {/* Sex Selection */}
+              <View style={styles.methodsSection}>
+                <Text style={styles.sectionTitle}>Biological Sex</Text>
+                <View style={styles.sexToggleContainer}>
+                  {/* Animated sliding background */}
+                  <Animated.View
+                    style={[styles.sexToggleSlider, animatedSliderStyle]}
+                  />
+
+                  {/* Static buttons with text */}
+                  <TouchableOpacity
+                    onPress={() => updateParam("sex", "male")}
+                    style={styles.sexToggleButton}
+                    accessibilityRole="button"
+                    accessibilityLabel="Select male"
+                    accessibilityState={{ selected: params.sex === "male" }}
+                  >
+                    <Text
+                      style={[
+                        styles.sexToggleButtonText,
+                        params.sex === "male" &&
+                          styles.sexToggleButtonTextSelected,
+                      ]}
+                    >
+                      Male
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => updateParam("sex", "female")}
+                    style={styles.sexToggleButton}
+                    accessibilityRole="button"
+                    accessibilityLabel="Select female"
+                    accessibilityState={{ selected: params.sex === "female" }}
+                  >
+                    <Text
+                      style={[
+                        styles.sexToggleButtonText,
+                        params.sex === "female" &&
+                          styles.sexToggleButtonTextSelected,
+                      ]}
+                    >
+                      Female
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Age Input */}
+              <View style={styles.methodsSection}>
+                <Text style={styles.sectionTitle}>Age (years)</Text>
+                <View style={styles.stepperContainer}>
+                  <Stepper
+                    value={params.age}
+                    min={13}
+                    max={120}
+                    step={1}
+                    onChange={(value) => updateParam("age", value)}
+                  />
+                </View>
+              </View>
+
+              {/* Weight Input */}
+              <View style={styles.methodsSection}>
+                <Text style={styles.sectionTitle}>Weight (kg)</Text>
+                <View style={styles.stepperContainer}>
+                  <Stepper
+                    value={params.weight}
+                    min={30}
+                    max={300}
+                    step={1}
+                    onChange={(value) => updateParam("weight", value)}
+                  />
+                </View>
+                <Text style={styles.inputHint}>
+                  {params.weight}kg = {Math.round(params.weight * 2.205)}lbs
                 </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Age Input */}
-            <View style={styles.methodsSection}>
-              <Text style={styles.sectionTitle}>Age (years)</Text>
-              <View style={styles.stepperContainer}>
-                <Stepper
-                  value={params.age}
-                  min={13}
-                  max={120}
-                  step={1}
-                  onChange={(value) => updateParam('age', value)}
-                />
               </View>
-            </View>
 
-            {/* Weight Input */}
-            <View style={styles.methodsSection}>
-              <Text style={styles.sectionTitle}>Weight (kg)</Text>
-              <View style={styles.stepperContainer}>
-                <Stepper
-                  value={params.weight}
-                  min={30}
-                  max={300}
-                  step={1}
-                  onChange={(value) => updateParam('weight', value)}
-                />
+              {/* Height Input */}
+              <View style={styles.methodsSection}>
+                <Text style={styles.sectionTitle}>Height (cm)</Text>
+                <View style={styles.stepperContainer}>
+                  <Stepper
+                    value={params.height}
+                    min={100}
+                    max={250}
+                    step={1}
+                    onChange={(value) => updateParam("height", value)}
+                  />
+                </View>
+                <Text style={styles.inputHint}>
+                  {params.height}cm = {Math.floor(params.height / 30.48)}'
+                  {Math.round((params.height % 30.48) / 2.54)}"
+                </Text>
               </View>
-              <Text style={styles.inputHint}>
-                {params.weight}kg = {Math.round(params.weight * 2.205)}lbs
-              </Text>
-            </View>
-
-            {/* Height Input */}
-            <View style={styles.methodsSection}>
-              <Text style={styles.sectionTitle}>Height (cm)</Text>
-              <View style={styles.stepperContainer}>
-                <Stepper
-                  value={params.height}
-                  min={100}
-                  max={250}
-                  step={1}
-                  onChange={(value) => updateParam('height', value)}
-                />
-              </View>
-              <Text style={styles.inputHint}>
-                {params.height}cm = {Math.floor(params.height / 30.48)}'{Math.round((params.height % 30.48) / 2.54)}"
-              </Text>
-            </View>
             </View>
           )}
 
@@ -221,9 +331,10 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
           {currentStep === 1 && (
             <View style={styles.methodsSection}>
               <Text style={styles.sectionSubtitle}>
-                Select the option that best matches your lifestyle and exercise routine.
+                Select the option that best matches your lifestyle and exercise
+                routine.
               </Text>
-              
+
               {methods.map((method) => (
                 <CalorieCalculationCard
                   key={method.id}
@@ -242,25 +353,25 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
               <Text style={styles.sectionSubtitle}>
                 Choose your calorie goal based on what you want to achieve.
               </Text>
-              
+
               <GoalSelectionCard
                 goalType="lose"
                 calories={selectedCalorieGoals.loseWeight}
-                isSelected={selectedGoal === 'lose'}
+                isSelected={selectedGoal === "lose"}
                 onSelect={handleGoalSelect}
               />
-              
+
               <GoalSelectionCard
                 goalType="maintain"
                 calories={selectedCalorieGoals.maintainWeight}
-                isSelected={selectedGoal === 'maintain'}
+                isSelected={selectedGoal === "maintain"}
                 onSelect={handleGoalSelect}
               />
-              
+
               <GoalSelectionCard
                 goalType="gain"
                 calories={selectedCalorieGoals.gainWeight}
-                isSelected={selectedGoal === 'gain'}
+                isSelected={selectedGoal === "gain"}
                 onSelect={handleGoalSelect}
               />
             </View>
@@ -269,17 +380,26 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
           {/* Navigation Button */}
           {currentStep < 2 && (
             <View style={styles.navigationContainer}>
-              <TouchableOpacity 
-                style={[styles.continueButton, !canProceedToNextStep() && styles.continueButtonDisabled]}
+              <TouchableOpacity
+                style={[
+                  styles.continueButton,
+                  !canProceedToNextStep() && styles.continueButtonDisabled,
+                ]}
                 onPress={handleNextStep}
                 disabled={!canProceedToNextStep()}
               >
-                <Text style={[styles.continueButtonText, !canProceedToNextStep() && styles.continueButtonTextDisabled]}>
+                <Text
+                  style={[
+                    styles.continueButtonText,
+                    !canProceedToNextStep() &&
+                      styles.continueButtonTextDisabled,
+                  ]}
+                >
                   Continue
                 </Text>
-                <CaretRightIcon 
-                  size={20} 
-                  color={canProceedToNextStep() ? '#FFFFFF' : '#999999'} 
+                <CaretRightIcon
+                  size={20}
+                  color={canProceedToNextStep() ? "#FFFFFF" : "#999999"}
                 />
               </TouchableOpacity>
             </View>
@@ -288,7 +408,9 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
           {/* Footer Note */}
           <View style={styles.footer}>
             <Text style={styles.footerNote}>
-              These recommendations are general guidelines based on the Mifflin-St Jeor equation. Consult with a nutritionist or healthcare provider for personalized advice.
+              These recommendations are general guidelines based on the
+              Mifflin-St Jeor equation. Consult with a nutritionist or
+              healthcare provider for personalized advice.
             </Text>
           </View>
         </ScrollView>
