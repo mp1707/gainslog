@@ -8,6 +8,7 @@ export interface UseFoodLogModalReturn {
   handleAddInfo: (log: FoodLog) => void;
   handleManualLog: () => void;
   handleImageCaptured: (log: FoodLog) => void;
+  handleAudioTranscribed: (log: FoodLog) => void;
   handleModalClose: () => void;
   setSelectedLog: (log: FoodLog | null) => void;
   setModalMode: (mode: ModalMode) => void;
@@ -43,6 +44,13 @@ export function useFoodLogModal(): UseFoodLogModalReturn {
     setIsModalVisible(true);
   };
 
+  const handleAudioTranscribed = (log: FoodLog) => {
+    // Similar to image captured, but for audio transcription
+    setModalMode('create');
+    setSelectedLog(log);
+    setIsModalVisible(true);
+  };
+
   const handleModalClose = () => {
     setIsModalVisible(false);
     setSelectedLog(null);
@@ -55,6 +63,7 @@ export function useFoodLogModal(): UseFoodLogModalReturn {
     handleAddInfo,
     handleManualLog,
     handleImageCaptured,
+    handleAudioTranscribed,
     handleModalClose,
     setSelectedLog,
     setModalMode,

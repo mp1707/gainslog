@@ -27,28 +27,26 @@ import {
   ExpoSpeechRecognitionModule,
   useSpeechRecognitionEvent,
 } from "expo-speech-recognition";
-import { AudioPlayer } from "../../atoms/AudioPlayer";
 import { createStyles } from "./AudioRecordingModal.styles";
 import { useTheme } from "../../../../providers/ThemeProvider";
 
 type RecordingState =
   | "preparing"
   | "recording"
-  | "recorded"
-  | "playing"
-  | "transcribing"
-  | "transcribed";
+  | "transcribing";
 
 interface AudioRecordingModalProps {
   visible: boolean;
   onClose: () => void;
-  onSend?: (transcribedText: string) => void;
+  onTranscriptionStart?: () => void;
+  onTranscriptionComplete: (transcribedText: string) => void;
 }
 
 export function AudioRecordingModal({
   visible,
   onClose,
-  onSend,
+  onTranscriptionStart,
+  onTranscriptionComplete,
 }: AudioRecordingModalProps) {
   const { colors } = useTheme();
   const styles = createStyles(colors);
@@ -57,11 +55,6 @@ export function AudioRecordingModal({
     useState<RecordingState>("preparing");
   const [recordingTime, setRecordingTime] = useState(0);
   const [recordedUri, setRecordedUri] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [transcribedText, setTranscribedText] = useState<string>("");
-  const [transcriptionError, setTranscriptionError] = useState<string | null>(
-    null
-  );
 
   const recordingTimer = useRef<NodeJS.Timeout | null>(null);
   const pulseAnimation = useSharedValue(1);
@@ -78,8 +71,8 @@ export function AudioRecordingModal({
         .trim();
 
       if (transcription) {
-        setTranscribedText(transcription);
-        setRecordingState("transcribed");
+        onTranscriptionComplete(transcription);
+        handleCompleteCleanup();
         isTranscribing.current = false;
       }
     }
@@ -89,20 +82,49 @@ export function AudioRecordingModal({
     if (!isTranscribing.current) return;
 
     console.error("Speech recognition error:", event.error);
-    setTranscriptionError(
-      event.error || "Transcription failed. Please try again."
-    );
-    setRecordingState("recorded");
+    
+    // Handle specific error types
+    let errorMessage = "Transcription failed. Please try again.";
+    let errorTitle = "Transcription Error";
+    
+    if (event.error === "no-speech") {
+      errorTitle = "No Speech Detected";
+      errorMessage = "No speech was detected in your recording. Please try recording again and speak clearly into the microphone.";
+    } else if (event.error === "audio-capture") {
+      errorTitle = "Audio Recording Error";
+      errorMessage = "There was a problem with the audio recording. Please try again.";
+    } else if (event.error === "not-allowed") {
+      errorTitle = "Permission Denied";
+      errorMessage = "Speech recognition permission was denied. Please enable it in your device settings.";
+    } else if (event.error === "network") {
+      errorTitle = "Network Error";
+      errorMessage = "Network connection is required for transcription. Please check your internet connection.";
+    }
+    
+    Alert.alert(errorTitle, errorMessage);
+    handleCompleteCleanup();
+    onClose();
     isTranscribing.current = false;
   });
 
   useSpeechRecognitionEvent("end", () => {
     if (!isTranscribing.current) return;
 
-    // If we ended without getting results, it's likely an error
+    // If we ended without getting results, it's likely no speech was detected
     if (recordingState === "transcribing") {
-      setTranscriptionError("No speech detected. Please try recording again.");
-      setRecordingState("recorded");
+      Alert.alert(
+        "No Speech Detected", 
+        "The transcription ended without detecting any speech. Please try recording again and speak clearly into the microphone.",
+        [
+          { 
+            text: "Try Again", 
+            onPress: () => {
+              handleCompleteCleanup();
+              onClose();
+            }
+          }
+        ]
+      );
     }
     isTranscribing.current = false;
   });
@@ -203,15 +225,16 @@ export function AudioRecordingModal({
 
       if (uri) {
         setRecordedUri(uri);
-        setRecordingState("recorded");
+        setRecordingState("transcribing");
+        await startTranscription(uri);
       } else {
         Alert.alert("Error", "Failed to save recording. Please try again.");
-        handleReset();
+        onClose();
       }
     } catch (error) {
       console.error("Error stopping recording:", error);
       Alert.alert("Error", "Failed to stop recording. Please try again.");
-      handleReset();
+      onClose();
     }
   };
 
@@ -254,28 +277,41 @@ export function AudioRecordingModal({
     setRecordingState("preparing");
     setRecordingTime(0);
     setRecordedUri(null);
-    setIsPlaying(false);
-    setTranscribedText("");
-    setTranscriptionError(null);
     isTranscribing.current = false;
   };
 
-  const handleReset = () => {
-    handleCompleteCleanup();
-  };
-
-  const handleDelete = async () => {
-    await handleResourceCleanup();
-    onClose();
-  };
-
-  const handleSend = async () => {
-    if (!recordedUri) return;
-
+  const startTranscription = async (uri: string) => {
     try {
-      setRecordingState("transcribing");
-      setTranscriptionError(null);
       isTranscribing.current = true;
+
+      // Basic audio file validation
+      try {
+        const fileInfo = await FileSystem.getInfoAsync(uri);
+        if (!fileInfo.exists || fileInfo.size === 0) {
+          Alert.alert(
+            "Invalid Recording", 
+            "The audio recording appears to be empty or corrupted. Please try recording again."
+          );
+          onClose();
+          isTranscribing.current = false;
+          return;
+        }
+        
+        // Log for debugging
+        console.log("Audio file info:", { 
+          exists: fileInfo.exists, 
+          size: fileInfo.size, 
+          uri: uri 
+        });
+      } catch (fileError) {
+        console.warn("Could not validate audio file:", fileError);
+        // Continue anyway, as file validation might fail on some platforms
+      }
+
+      // Notify parent that transcription is starting
+      if (onTranscriptionStart) {
+        onTranscriptionStart();
+      }
 
       // Request speech recognition permissions
       const permission =
@@ -283,17 +319,16 @@ export function AudioRecordingModal({
       if (!permission.granted) {
         Alert.alert(
           "Permission Required",
-          "Please allow speech recognition access to transcribe audio.",
-          [{ text: "OK" }]
+          "Please allow speech recognition access to transcribe audio."
         );
-        setRecordingState("recorded");
+        onClose();
         return;
       }
 
       // Start transcription
       await ExpoSpeechRecognitionModule.start({
         audioSource: {
-          uri: recordedUri,
+          uri: uri,
         },
         interimResults: false,
         maxAlternatives: 1,
@@ -302,17 +337,10 @@ export function AudioRecordingModal({
       });
     } catch (error) {
       console.error("Error starting transcription:", error);
-      setTranscriptionError("Failed to start transcription. Please try again.");
-      setRecordingState("recorded");
+      Alert.alert("Transcription Error", "Failed to start transcription. Please try again.");
+      onClose();
       isTranscribing.current = false;
     }
-  };
-
-  const handleSendTranscription = () => {
-    if (transcribedText && onSend) {
-      onSend(transcribedText);
-    }
-    onClose();
   };
 
   const formatTime = (timeInSeconds: number): string => {
@@ -360,63 +388,6 @@ export function AudioRecordingModal({
           </View>
         );
 
-      case "recorded":
-      case "playing":
-        return (
-          <View style={styles.controlsContainer}>
-            {recordedUri && (
-              <AudioPlayer
-                audioUri={recordedUri}
-                onPlayStateChange={setIsPlaying}
-                size="large"
-              />
-            )}
-
-            {transcriptionError && (
-              <Text
-                style={[
-                  styles.recordingText,
-                  {
-                    color: colors.accent,
-                    textAlign: "center",
-                    marginVertical: 8,
-                  },
-                ]}
-              >
-                {transcriptionError}
-              </Text>
-            )}
-
-            <View style={styles.actionButtons}>
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={handleDelete}
-                activeOpacity={0.7}
-                accessibilityRole="button"
-                accessibilityLabel="Delete recording"
-              >
-                <FontAwesome
-                  name="trash"
-                  size={20}
-                  color={colors.secondaryText}
-                />
-                <Text style={styles.deleteButtonText}>Delete</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.sendButton}
-                onPress={handleSend}
-                activeOpacity={0.7}
-                accessibilityRole="button"
-                accessibilityLabel="Transcribe recording"
-              >
-                <FontAwesome name="microphone" size={20} color="white" />
-                <Text style={styles.sendButtonText}>Transcribe</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        );
-
       case "transcribing":
         return (
           <View style={styles.controlsContainer}>
@@ -424,63 +395,6 @@ export function AudioRecordingModal({
               <FontAwesome name="cog" size={32} color="white" />
             </View>
             <Text style={styles.recordingText}>Transcribing audio...</Text>
-          </View>
-        );
-
-      case "transcribed":
-        return (
-          <View style={styles.controlsContainer}>
-            <View
-              style={{
-                backgroundColor: colors.secondaryBackground,
-                padding: 16,
-                borderRadius: 12,
-                marginBottom: 16,
-                borderWidth: 1,
-                borderColor: colors.border,
-              }}
-            >
-              <Text style={[styles.recordingText, { marginBottom: 8 }]}>
-                Transcribed text:
-              </Text>
-              <Text
-                style={{
-                  color: colors.primaryText,
-                  fontSize: 16,
-                  lineHeight: 22,
-                }}
-              >
-                "{transcribedText}"
-              </Text>
-            </View>
-
-            <View style={styles.actionButtons}>
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={handleDelete}
-                activeOpacity={0.7}
-                accessibilityRole="button"
-                accessibilityLabel="Delete recording"
-              >
-                <FontAwesome
-                  name="trash"
-                  size={20}
-                  color={colors.secondaryText}
-                />
-                <Text style={styles.deleteButtonText}>Delete</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.sendButton}
-                onPress={handleSendTranscription}
-                activeOpacity={0.7}
-                accessibilityRole="button"
-                accessibilityLabel="Send transcription for nutrition estimation"
-              >
-                <FontAwesome name="send" size={20} color="white" />
-                <Text style={styles.sendButtonText}>Send</Text>
-              </TouchableOpacity>
-            </View>
           </View>
         );
 

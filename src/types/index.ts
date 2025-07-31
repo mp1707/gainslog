@@ -16,6 +16,7 @@ export interface FoodLog {
   imageUrl?: string;
   localImageUri?: string; // Local image URI before upload
   isUploading?: boolean; // Track upload state
+  isTranscribing?: boolean; // Track transcription state for audio logs
   createdAt: string;
   date: string; // ISO date string (YYYY-MM-DD)
   needsAiEstimation?: boolean;

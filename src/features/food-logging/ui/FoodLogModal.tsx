@@ -3,7 +3,7 @@ import { Modal, View, Text, TouchableOpacity, Image, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { FormField, NutritionGrid, ImageSkeleton } from '@/shared/ui';
+import { FormField, NutritionGrid, ImageSkeleton, DescriptionSkeleton } from '@/shared/ui';
 import { FoodLog, ModalMode } from '../../../types';
 import { mergeNutritionData } from '../utils';
 import { useFoodLogStore } from '../../../stores/useFoodLogStore';
@@ -44,10 +44,15 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   const [tempCarbs, setTempCarbs] = useState('');
   const [tempFat, setTempFat] = useState('');
 
-  // Reset form when modal opens
+  // Reset form when modal opens or when currentLog changes (e.g., transcription completes)
   useEffect(() => {
     if (visible && currentLog) {
-      setTempTitle(currentLog.userTitle || currentLog.generatedTitle || '');
+      // For audio logs being transcribed, keep title field empty for user input
+      // For other logs, use generatedTitle as fallback
+      const titleValue = currentLog.userTitle || 
+        (currentLog.isTranscribing ? '' : currentLog.generatedTitle) || '';
+      
+      setTempTitle(titleValue);
       setTempDescription(currentLog.userDescription || '');
       setTempCalories(currentLog.userCalories?.toString() || '');
       setTempProtein(currentLog.userProtein?.toString() || '');
@@ -205,13 +210,17 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
             placeholder={(currentLog?.imageUrl || currentLog?.localImageUri) ? 'Enter food title (AI will generate if empty)' : 'Enter food title'}
           />
 
-          <FormField
-            label="Description (Optional)"
-            value={tempDescription}
-            onChangeText={setTempDescription}
-            placeholder="Add details about preparation, ingredients, portion size, etc."
-            multiline={true}
-          />
+          {currentLog?.isTranscribing ? (
+            <DescriptionSkeleton label="Description (Optional)" />
+          ) : (
+            <FormField
+              label="Description (Optional)"
+              value={tempDescription}
+              onChangeText={setTempDescription}
+              placeholder="Add details about preparation, ingredients, portion size, etc."
+              multiline={true}
+            />
+          )}
 
           <NutritionGrid
             calories={tempCalories}
