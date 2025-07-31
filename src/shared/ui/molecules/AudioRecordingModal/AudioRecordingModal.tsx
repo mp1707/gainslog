@@ -1,22 +1,43 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Modal, View, Text, TouchableOpacity, Alert, Pressable } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { useAudioRecorder, RecordingPresets, AudioModule, setAudioModeAsync } from 'expo-audio';
-import * as FileSystem from 'expo-file-system';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withRepeat, 
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Modal,
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  Pressable,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import {
+  useAudioRecorder,
+  RecordingPresets,
+  AudioModule,
+  setAudioModeAsync,
+} from "expo-audio";
+import * as FileSystem from "expo-file-system";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
   withTiming,
-  withSequence
-} from 'react-native-reanimated';
-import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
-import { AudioPlayer } from '../../atoms/AudioPlayer';
-import { createStyles } from './AudioRecordingModal.styles';
-import { useTheme } from '../../../../providers/ThemeProvider';
+  withSequence,
+} from "react-native-reanimated";
+import {
+  ExpoSpeechRecognitionModule,
+  useSpeechRecognitionEvent,
+} from "expo-speech-recognition";
+import { AudioPlayer } from "../../atoms/AudioPlayer";
+import { createStyles } from "./AudioRecordingModal.styles";
+import { useTheme } from "../../../../providers/ThemeProvider";
 
-type RecordingState = 'preparing' | 'recording' | 'recorded' | 'playing' | 'transcribing' | 'transcribed';
+type RecordingState =
+  | "preparing"
+  | "recording"
+  | "recorded"
+  | "playing"
+  | "transcribing"
+  | "transcribed";
 
 interface AudioRecordingModalProps {
   visible: boolean;
@@ -24,59 +45,64 @@ interface AudioRecordingModalProps {
   onSend?: (transcribedText: string) => void;
 }
 
-export function AudioRecordingModal({ 
-  visible, 
-  onClose, 
-  onSend 
+export function AudioRecordingModal({
+  visible,
+  onClose,
+  onSend,
 }: AudioRecordingModalProps) {
   const { colors } = useTheme();
   const styles = createStyles(colors);
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
-  const [recordingState, setRecordingState] = useState<RecordingState>('preparing');
+  const [recordingState, setRecordingState] =
+    useState<RecordingState>("preparing");
   const [recordingTime, setRecordingTime] = useState(0);
   const [recordedUri, setRecordedUri] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [transcribedText, setTranscribedText] = useState<string>('');
-  const [transcriptionError, setTranscriptionError] = useState<string | null>(null);
-  
+  const [transcribedText, setTranscribedText] = useState<string>("");
+  const [transcriptionError, setTranscriptionError] = useState<string | null>(
+    null
+  );
+
   const recordingTimer = useRef<NodeJS.Timeout | null>(null);
   const pulseAnimation = useSharedValue(1);
   const isTranscribing = useRef(false);
 
   // Speech recognition event listeners
-  useSpeechRecognitionEvent('result', (event) => {
+  useSpeechRecognitionEvent("result", (event) => {
     if (!isTranscribing.current) return;
-    
+
     if (event.results && event.results.length > 0) {
       const transcription = event.results
-        .map(result => result.transcript)
-        .join(' ')
+        .map((result) => result.transcript)
+        .join(" ")
         .trim();
-      
+
       if (transcription) {
         setTranscribedText(transcription);
-        setRecordingState('transcribed');
+        setRecordingState("transcribed");
         isTranscribing.current = false;
       }
     }
   });
 
-  useSpeechRecognitionEvent('error', (event) => {
+  useSpeechRecognitionEvent("error", (event) => {
     if (!isTranscribing.current) return;
-    
-    console.error('Speech recognition error:', event.error);
-    setTranscriptionError(event.error || 'Transcription failed. Please try again.');
-    setRecordingState('recorded');
+
+    console.error("Speech recognition error:", event.error);
+    setTranscriptionError(
+      event.error || "Transcription failed. Please try again."
+    );
+    setRecordingState("recorded");
     isTranscribing.current = false;
   });
 
-  useSpeechRecognitionEvent('end', () => {
+  useSpeechRecognitionEvent("end", () => {
     if (!isTranscribing.current) return;
-    
+
     // If we ended without getting results, it's likely an error
-    if (recordingState === 'transcribing') {
-      setTranscriptionError('No speech detected. Please try recording again.');
-      setRecordingState('recorded');
+    if (recordingState === "transcribing") {
+      setTranscriptionError("No speech detected. Please try recording again.");
+      setRecordingState("recorded");
     }
     isTranscribing.current = false;
   });
@@ -97,11 +123,11 @@ export function AudioRecordingModal({
       clearInterval(recordingTimer.current);
       recordingTimer.current = null;
     }
-    
+
     // Only start timer when actually recording (not preparing)
-    if (recordingState === 'recording') {
+    if (recordingState === "recording") {
       recordingTimer.current = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
+        setRecordingTime((prev) => prev + 1);
       }, 1000);
     }
 
@@ -115,7 +141,7 @@ export function AudioRecordingModal({
 
   // Pulse animation for recording state
   useEffect(() => {
-    if (recordingState === 'recording') {
+    if (recordingState === "recording") {
       pulseAnimation.value = withRepeat(
         withSequence(
           withTiming(1.2, { duration: 600 }),
@@ -137,17 +163,17 @@ export function AudioRecordingModal({
 
   const startRecording = async () => {
     try {
-      setRecordingState('preparing');
+      setRecordingState("preparing");
       setRecordingTime(0);
-      
+
       // Request permissions using expo-audio
       const permission = await AudioModule.requestRecordingPermissionsAsync();
-      
+
       if (!permission.granted) {
         Alert.alert(
-          'Permission Required', 
-          'Please allow microphone access to record audio.',
-          [{ text: 'OK', onPress: onClose }]
+          "Permission Required",
+          "Please allow microphone access to record audio.",
+          [{ text: "OK", onPress: onClose }]
         );
         return;
       }
@@ -160,13 +186,13 @@ export function AudioRecordingModal({
 
       await audioRecorder.prepareToRecordAsync();
       await audioRecorder.record();
-      
+
       // Only set recording state after everything is ready
-      setRecordingState('recording');
+      setRecordingState("recording");
     } catch (error) {
-      console.error('Error starting recording:', error);
-      Alert.alert('Error', 'Failed to start recording. Please try again.');
-      setRecordingState('preparing');
+      console.error("Error starting recording:", error);
+      Alert.alert("Error", "Failed to start recording. Please try again.");
+      setRecordingState("preparing");
     }
   };
 
@@ -174,17 +200,17 @@ export function AudioRecordingModal({
     try {
       await audioRecorder.stop();
       const uri = audioRecorder.uri;
-      
+
       if (uri) {
         setRecordedUri(uri);
-        setRecordingState('recorded');
+        setRecordingState("recorded");
       } else {
-        Alert.alert('Error', 'Failed to save recording. Please try again.');
+        Alert.alert("Error", "Failed to save recording. Please try again.");
         handleReset();
       }
     } catch (error) {
-      console.error('Error stopping recording:', error);
-      Alert.alert('Error', 'Failed to stop recording. Please try again.');
+      console.error("Error stopping recording:", error);
+      Alert.alert("Error", "Failed to stop recording. Please try again.");
       handleReset();
     }
   };
@@ -192,10 +218,10 @@ export function AudioRecordingModal({
   const handleResourceCleanup = async () => {
     try {
       // Stop any active recording
-      if (recordingState === 'recording') {
+      if (recordingState === "recording") {
         await audioRecorder.stop();
       }
-      
+
       // Delete recorded file if it exists
       if (recordedUri) {
         try {
@@ -204,32 +230,32 @@ export function AudioRecordingModal({
             await FileSystem.deleteAsync(recordedUri);
           }
         } catch (deleteError) {
-          console.warn('Failed to delete audio file:', deleteError);
+          console.warn("Failed to delete audio file:", deleteError);
         }
       }
-      
+
       // Clear timer
       if (recordingTimer.current) {
         clearInterval(recordingTimer.current);
         recordingTimer.current = null;
       }
-      
+
       // Stop pulse animation
       pulseAnimation.value = 1;
     } catch (error) {
-      console.error('Error during cleanup:', error);
+      console.error("Error during cleanup:", error);
     }
   };
 
   const handleCompleteCleanup = async () => {
     await handleResourceCleanup();
-    
+
     // Reset all state
-    setRecordingState('preparing');
+    setRecordingState("preparing");
     setRecordingTime(0);
     setRecordedUri(null);
     setIsPlaying(false);
-    setTranscribedText('');
+    setTranscribedText("");
     setTranscriptionError(null);
     isTranscribing.current = false;
   };
@@ -245,24 +271,25 @@ export function AudioRecordingModal({
 
   const handleSend = async () => {
     if (!recordedUri) return;
-    
+
     try {
-      setRecordingState('transcribing');
+      setRecordingState("transcribing");
       setTranscriptionError(null);
       isTranscribing.current = true;
-      
+
       // Request speech recognition permissions
-      const permission = await ExpoSpeechRecognitionModule.requestSpeechRecognizerPermissionsAsync();
+      const permission =
+        await ExpoSpeechRecognitionModule.requestSpeechRecognizerPermissionsAsync();
       if (!permission.granted) {
         Alert.alert(
-          'Permission Required',
-          'Please allow speech recognition access to transcribe audio.',
-          [{ text: 'OK' }]
+          "Permission Required",
+          "Please allow speech recognition access to transcribe audio.",
+          [{ text: "OK" }]
         );
-        setRecordingState('recorded');
+        setRecordingState("recorded");
         return;
       }
-      
+
       // Start transcription
       await ExpoSpeechRecognitionModule.start({
         audioSource: {
@@ -271,12 +298,12 @@ export function AudioRecordingModal({
         interimResults: false,
         maxAlternatives: 1,
         continuous: false,
+        lang: "de-DE",
       });
-      
     } catch (error) {
-      console.error('Error starting transcription:', error);
-      setTranscriptionError('Failed to start transcription. Please try again.');
-      setRecordingState('recorded');
+      console.error("Error starting transcription:", error);
+      setTranscriptionError("Failed to start transcription. Please try again.");
+      setRecordingState("recorded");
       isTranscribing.current = false;
     }
   };
@@ -291,12 +318,12 @@ export function AudioRecordingModal({
   const formatTime = (timeInSeconds: number): string => {
     const minutes = Math.floor(timeInSeconds / 60);
     const seconds = timeInSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   const renderRecordingControls = () => {
     switch (recordingState) {
-      case 'preparing':
+      case "preparing":
         return (
           <View style={styles.controlsContainer}>
             <View style={styles.recordingButton}>
@@ -306,10 +333,12 @@ export function AudioRecordingModal({
           </View>
         );
 
-      case 'recording':
+      case "recording":
         return (
           <View style={styles.controlsContainer}>
-            <Animated.View style={[styles.recordingButton, animatedRecordingStyle]}>
+            <Animated.View
+              style={[styles.recordingButton, animatedRecordingStyle]}
+            >
               <TouchableOpacity
                 style={styles.stopButton}
                 onPress={stopRecording}
@@ -320,7 +349,7 @@ export function AudioRecordingModal({
                 <FontAwesome name="stop" size={24} color="white" />
               </TouchableOpacity>
             </Animated.View>
-            
+
             <View style={styles.recordingInfo}>
               <View style={styles.recordingIndicator}>
                 <View style={styles.recordingDot} />
@@ -331,8 +360,8 @@ export function AudioRecordingModal({
           </View>
         );
 
-      case 'recorded':
-      case 'playing':
+      case "recorded":
+      case "playing":
         return (
           <View style={styles.controlsContainer}>
             {recordedUri && (
@@ -342,13 +371,22 @@ export function AudioRecordingModal({
                 size="large"
               />
             )}
-            
+
             {transcriptionError && (
-              <Text style={[styles.recordingText, { color: colors.accent, textAlign: 'center', marginVertical: 8 }]}>
+              <Text
+                style={[
+                  styles.recordingText,
+                  {
+                    color: colors.accent,
+                    textAlign: "center",
+                    marginVertical: 8,
+                  },
+                ]}
+              >
                 {transcriptionError}
               </Text>
             )}
-            
+
             <View style={styles.actionButtons}>
               <TouchableOpacity
                 style={styles.deleteButton}
@@ -357,10 +395,14 @@ export function AudioRecordingModal({
                 accessibilityRole="button"
                 accessibilityLabel="Delete recording"
               >
-                <FontAwesome name="trash" size={20} color={colors.secondaryText} />
+                <FontAwesome
+                  name="trash"
+                  size={20}
+                  color={colors.secondaryText}
+                />
                 <Text style={styles.deleteButtonText}>Delete</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={styles.sendButton}
                 onPress={handleSend}
@@ -375,7 +417,7 @@ export function AudioRecordingModal({
           </View>
         );
 
-      case 'transcribing':
+      case "transcribing":
         return (
           <View style={styles.controlsContainer}>
             <View style={styles.recordingButton}>
@@ -385,16 +427,33 @@ export function AudioRecordingModal({
           </View>
         );
 
-      case 'transcribed':
+      case "transcribed":
         return (
           <View style={styles.controlsContainer}>
-            <View style={{ backgroundColor: colors.secondaryBackground, padding: 16, borderRadius: 12, marginBottom: 16, borderWidth: 1, borderColor: colors.border }}>
-              <Text style={[styles.recordingText, { marginBottom: 8 }]}>Transcribed text:</Text>
-              <Text style={{ color: colors.primaryText, fontSize: 16, lineHeight: 22 }}>
+            <View
+              style={{
+                backgroundColor: colors.secondaryBackground,
+                padding: 16,
+                borderRadius: 12,
+                marginBottom: 16,
+                borderWidth: 1,
+                borderColor: colors.border,
+              }}
+            >
+              <Text style={[styles.recordingText, { marginBottom: 8 }]}>
+                Transcribed text:
+              </Text>
+              <Text
+                style={{
+                  color: colors.primaryText,
+                  fontSize: 16,
+                  lineHeight: 22,
+                }}
+              >
                 "{transcribedText}"
               </Text>
             </View>
-            
+
             <View style={styles.actionButtons}>
               <TouchableOpacity
                 style={styles.deleteButton}
@@ -403,10 +462,14 @@ export function AudioRecordingModal({
                 accessibilityRole="button"
                 accessibilityLabel="Delete recording"
               >
-                <FontAwesome name="trash" size={20} color={colors.secondaryText} />
+                <FontAwesome
+                  name="trash"
+                  size={20}
+                  color={colors.secondaryText}
+                />
                 <Text style={styles.deleteButtonText}>Delete</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={styles.sendButton}
                 onPress={handleSendTranscription}
@@ -437,17 +500,18 @@ export function AudioRecordingModal({
       }}
     >
       <StatusBar style="light" />
-      <Pressable 
+      <Pressable
         style={styles.backdrop}
         onPress={async () => {
           await handleResourceCleanup();
           onClose();
         }}
       >
-        <Pressable style={styles.container} onPress={(e) => e.stopPropagation()}>
-          <View style={styles.content}>
-            {renderRecordingControls()}
-          </View>
+        <Pressable
+          style={styles.container}
+          onPress={(e) => e.stopPropagation()}
+        >
+          <View style={styles.content}>{renderRecordingControls()}</View>
         </Pressable>
       </Pressable>
     </Modal>

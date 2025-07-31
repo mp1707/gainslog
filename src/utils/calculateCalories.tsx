@@ -107,25 +107,3 @@ export function calculateCalorieGoals(
         gainWeight: Math.round(gainWeight),
     };
 }
-
-
-// --- Example Usage ---
-
-// const exampleUser: CalorieIntakeParams = {
-//     sex: 'female',
-//     age: 30,
-//     weight: 70, // kg
-//     height: 170, // cm
-// };
-
-// const goals = calculateCalorieGoals(exampleUser, 'light');
-
-// console.log('--- Mifflin-St Jeor Method ---');
-// console.log('Maintain Weight:', goals.maintainWeight, 'kcal/day');
-// console.log('Lose Weight:', goals.loseWeight, 'kcal/day');
-// console.log('Gain Weight:', goals.gainWeight, 'kcal/day');
-
-// Expected Output for this example:
-// Maintain Weight: 1968 kcal/day
-// Lose Weight: 1468 kcal/day
-// Gain Weight: 2268 kcal/day

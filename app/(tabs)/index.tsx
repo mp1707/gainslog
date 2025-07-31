@@ -75,8 +75,6 @@ export default function TodayTab() {
   }, []);
 
   const handleAudioSend = useCallback(async (transcribedText: string) => {
-    // Create food log from transcribed text
-    console.log('Transcribed text:', transcribedText);
     
     // Helper function to get today's date in ISO format (YYYY-MM-DD) in local timezone
     const getTodayDateString = (): string => {
