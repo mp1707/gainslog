@@ -135,9 +135,9 @@ export const ProteinCalculatorModal: React.FC<ProteinCalculatorModalProps> = ({
 
           {/* Calculation Methods */}
           <View style={styles.methodsSection}>
-            <Text style={styles.sectionTitle}>Choose Your Activity Level</Text>
+            <Text style={styles.sectionTitle}>Choose Your Goal</Text>
             <Text style={styles.sectionSubtitle}>
-              Select the option that best matches your lifestyle and training routine.
+              Select the option that best matches your goal.
             </Text>
             
             {methods.map((method) => (
