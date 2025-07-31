@@ -22,6 +22,10 @@ import {
   Sex,
 } from "../../../../utils/calculateCalories";
 import { useStyles } from "./CalorieCalculatorModal.styles";
+import { 
+  getCalorieCalculatorParams, 
+  saveCalorieCalculatorParams 
+} from "../../../../lib/storage";
 
 interface CalorieCalculatorModalProps {
   visible: boolean;
@@ -41,7 +45,6 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
   onClose,
   onSelectGoal,
   initialParams = {},
-  initialActivityLevel = "moderate",
 }) => {
   const styles = useStyles();
 
@@ -50,8 +53,8 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
     () => ({
       sex: "male" as Sex,
       age: 30,
-      weight: 70,
-      height: 170,
+      weight: 85,
+      height: 175,
       ...initialParams,
     }),
     [
@@ -68,6 +71,7 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
   const [selectedActivityLevel, setSelectedActivityLevel] =
     useState<ActivityLevel | null>(null);
   const [selectedGoal, setSelectedGoal] = useState<GoalType | null>(null);
+  const [isParamsLoaded, setIsParamsLoaded] = useState(false);
 
   // Animation setup for sliding toggle
   const slideAnimation = useSharedValue(params.sex === "male" ? 0 : 1);
@@ -95,17 +99,54 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
     };
   }, []);
 
-  // Reset state when modal opens
+  // Reset modal state when opened/closed
   useEffect(() => {
     if (visible) {
       setCurrentStep(0);
       setSelectedActivityLevel(null);
       setSelectedGoal(null);
-      setParams(stableInitialParams);
-      // Reset animation to match initial params
-      slideAnimation.value = stableInitialParams.sex === "male" ? 0 : 1;
+    } else {
+      setIsParamsLoaded(false);
     }
-  }, [visible, stableInitialParams]);
+  }, [visible]);
+
+  // Load saved params when modal opens (only once)
+  useEffect(() => {
+    const loadSavedParams = async () => {
+      if (visible && !isParamsLoaded) {
+        try {
+          const savedParams = await getCalorieCalculatorParams();
+          const mergedParams = { ...savedParams, ...initialParams };
+          setParams(mergedParams);
+          // Update animation to match loaded params
+          slideAnimation.value = mergedParams.sex === "male" ? 0 : 1;
+          setIsParamsLoaded(true);
+        } catch (error) {
+          console.error("Failed to load saved params:", error);
+          setParams(stableInitialParams);
+          slideAnimation.value = stableInitialParams.sex === "male" ? 0 : 1;
+          setIsParamsLoaded(true);
+        }
+      }
+    };
+
+    loadSavedParams();
+  }, [visible, stableInitialParams, initialParams]);
+
+  // Save params to storage whenever they change
+  useEffect(() => {
+    const saveParams = async () => {
+      if (isParamsLoaded) {
+        try {
+          await saveCalorieCalculatorParams(params);
+        } catch (error) {
+          console.error("Failed to save params:", error);
+        }
+      }
+    };
+
+    saveParams();
+  }, [params, isParamsLoaded]);
 
   const handleActivityLevelSelect = (method: CalorieCalculationMethod) => {
     setSelectedActivityLevel(method.id);

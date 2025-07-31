@@ -1,11 +1,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FoodLog, DailyTargets } from "../types";
+import type { CalorieIntakeParams, Sex } from "../utils/calculateCalories";
 
 const FOOD_LOGS_KEY = "food_logs";
 const DAILY_TARGETS_KEY = "daily_targets";
 
 const VISIBLE_NUTRITION_KEYS_KEY = "visible_nutrition_keys";
 const COLOR_SCHEME_KEY = "color_scheme";
+const CALORIE_CALCULATOR_PARAMS_KEY = "calorie_calculator_params";
+const PROTEIN_CALCULATOR_PARAMS_KEY = "protein_calculator_params";
 
 // Default visible nutrition keys
 export const DEFAULT_VISIBLE_NUTRITION_KEYS: Array<
@@ -201,5 +204,74 @@ export const getColorSchemePreference = async (): Promise<
   } catch (error) {
     console.error("Error getting color scheme preference:", error);
     return null;
+  }
+};
+
+// Default calorie calculator parameters
+const DEFAULT_CALORIE_CALCULATOR_PARAMS: CalorieIntakeParams = {
+  sex: "male" as Sex,
+  age: 30,
+  weight: 70,
+  height: 170,
+};
+
+/**
+ * Save calorie calculator parameters to AsyncStorage
+ */
+export const saveCalorieCalculatorParams = async (
+  params: CalorieIntakeParams
+): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(CALORIE_CALCULATOR_PARAMS_KEY, JSON.stringify(params));
+  } catch (error) {
+    console.error("Error saving calorie calculator params:", error);
+    throw new Error("Failed to save calorie calculator params");
+  }
+};
+
+/**
+ * Get calorie calculator parameters from AsyncStorage
+ */
+export const getCalorieCalculatorParams = async (): Promise<CalorieIntakeParams> => {
+  try {
+    const paramsJson = await AsyncStorage.getItem(CALORIE_CALCULATOR_PARAMS_KEY);
+    if (!paramsJson) {
+      return DEFAULT_CALORIE_CALCULATOR_PARAMS;
+    }
+    return JSON.parse(paramsJson) as CalorieIntakeParams;
+  } catch (error) {
+    console.error("Error getting calorie calculator params:", error);
+    return DEFAULT_CALORIE_CALCULATOR_PARAMS;
+  }
+};
+
+/**
+ * Save protein calculator body weight to AsyncStorage
+ */
+export const saveProteinCalculatorParams = async (
+  bodyWeight: number
+): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(PROTEIN_CALCULATOR_PARAMS_KEY, JSON.stringify({ bodyWeight }));
+  } catch (error) {
+    console.error("Error saving protein calculator params:", error);
+    throw new Error("Failed to save protein calculator params");
+  }
+};
+
+/**
+ * Get protein calculator body weight from AsyncStorage
+ */
+export const getProteinCalculatorParams = async (): Promise<number> => {
+  try {
+    const paramsJson = await AsyncStorage.getItem(PROTEIN_CALCULATOR_PARAMS_KEY);
+    if (!paramsJson) {
+      return 70; // Default body weight
+    }
+    const params = JSON.parse(paramsJson) as { bodyWeight: number };
+    return params.bodyWeight;
+  } catch (error) {
+    console.error("Error getting protein calculator params:", error);
+    return 70; // Default body weight
   }
 };

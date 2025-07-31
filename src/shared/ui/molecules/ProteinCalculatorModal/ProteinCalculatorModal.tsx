@@ -4,6 +4,10 @@ import { StatusBar } from 'expo-status-bar';
 import { Stepper } from '../../atoms/Stepper/Stepper';
 import { ProteinCalculationCard, CALCULATION_METHODS, ProteinCalculationMethod } from '../../atoms/ProteinCalculationCard';
 import { useStyles } from './ProteinCalculatorModal.styles';
+import { 
+  getProteinCalculatorParams, 
+  saveProteinCalculatorParams 
+} from '../../../../lib/storage';
 
 interface ProteinCalculatorModalProps {
   visible: boolean;
@@ -16,20 +20,54 @@ export const ProteinCalculatorModal: React.FC<ProteinCalculatorModalProps> = ({
   visible,
   onClose,
   onSelectMethod,
-  initialBodyWeight = 70,
+  initialBodyWeight = 85,
 }) => {
   const styles = useStyles();
   
   const [bodyWeight, setBodyWeight] = useState(initialBodyWeight);
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
+  const [isBodyWeightLoaded, setIsBodyWeightLoaded] = useState(false);
 
-  // Reset state when modal opens
+  // Load saved body weight when modal opens
   useEffect(() => {
+    const loadSavedBodyWeight = async () => {
+      if (visible && !isBodyWeightLoaded) {
+        try {
+          const savedBodyWeight = await getProteinCalculatorParams();
+          // Use saved value, but allow initialBodyWeight to override if provided
+          const finalBodyWeight = initialBodyWeight !== 70 ? initialBodyWeight : savedBodyWeight;
+          setBodyWeight(finalBodyWeight);
+          setIsBodyWeightLoaded(true);
+        } catch (error) {
+          console.error('Failed to load saved body weight:', error);
+          setBodyWeight(initialBodyWeight);
+          setIsBodyWeightLoaded(true);
+        }
+      }
+    };
+
     if (visible) {
       setSelectedMethodId(null);
-      setBodyWeight(initialBodyWeight);
+      loadSavedBodyWeight();
+    } else {
+      setIsBodyWeightLoaded(false);
     }
-  }, [visible, initialBodyWeight]);
+  }, [visible, initialBodyWeight, isBodyWeightLoaded]);
+
+  // Save body weight to storage whenever it changes
+  useEffect(() => {
+    const saveBodyWeight = async () => {
+      if (isBodyWeightLoaded) {
+        try {
+          await saveProteinCalculatorParams(bodyWeight);
+        } catch (error) {
+          console.error('Failed to save body weight:', error);
+        }
+      }
+    };
+
+    saveBodyWeight();
+  }, [bodyWeight, isBodyWeightLoaded]);
 
   const getBodyWeightNumber = (): number => {
     return bodyWeight > 0 ? bodyWeight : 0;
