@@ -17,7 +17,7 @@ export type Sex = 'male' | 'female';
  * Activity levels correspond to common Physical Activity Level (PAL) multipliers.
  * These are used to convert RMR to TDEE.
  */
-export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'very' | 'extra';
+export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'veryactive';
 
 /**
  * Input parameters for the calculation function.
@@ -49,8 +49,8 @@ const activityMultipliers: Record<ActivityLevel, number> = {
     sedentary: 1.2,
     light: 1.375,
     moderate: 1.55,
-    very: 1.725,
-    extra: 1.9,
+    active: 1.725,
+    veryactive: 1.9,
 };
 
 /**

@@ -19,7 +19,7 @@ import { Stepper } from "../../src/shared/ui/atoms/Stepper";
 import { ProteinCalculatorModal } from "../../src/shared/ui/molecules/ProteinCalculatorModal";
 import { ProteinCalculationMethod } from "../../src/shared/ui/atoms/ProteinCalculationCard";
 import { CalorieCalculatorModal } from "../../src/shared/ui/molecules/CalorieCalculatorModal";
-import { CalorieCalculationMethod } from "../../src/shared/ui/atoms/CalorieCalculationCard";
+import { CalorieCalculationMethod, CALCULATION_METHODS } from "../../src/shared/ui/atoms/CalorieCalculationCard";
 import { GoalType } from "../../src/shared/ui/atoms/GoalSelectionCard";
 import { CalorieIntakeParams, ActivityLevel } from "../../src/utils/calculateCalories";
 
@@ -102,7 +102,6 @@ export default function SettingsTab() {
     activityLevel: ActivityLevel
   ) => {
     // Create method object from activity level for store compatibility
-    const { CALCULATION_METHODS } = require("../../src/shared/ui/atoms/CalorieCalculationCard/CalorieCalculationCard");
     const method = CALCULATION_METHODS[activityLevel];
     
     // Store the calorie calculation in the store

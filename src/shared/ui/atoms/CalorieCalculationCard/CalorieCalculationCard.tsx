@@ -56,19 +56,19 @@ const CALCULATION_METHODS: Record<ActivityLevel, CalorieCalculationMethod> = {
       "Moderate exercise 3-5 days per week. Regular gym sessions or sports activities.",
     label: "Moderately Active",
   },
-  very: {
-    id: "very",
+  active: {
+    id: "active",
+    title: "Active",
+    description:
+      "Moderate exercise 6-7 days per week. Or intense training 3 to 4 times/week.",
+    label: "Active",
+  },
+  veryactive: {
+    id: "veryactive",
     title: "Very Active",
     description:
-      "Heavy exercise 6-7 days per week. Intense training or physically demanding job.",
+      "Very heavy physical work or 6 to 7 times/week intense exercise. Professional athlete level activity.",
     label: "Very Active",
-  },
-  extra: {
-    id: "extra",
-    title: "Extremely Active",
-    description:
-      "Very heavy physical work or 2x/day training. Professional athlete level activity.",
-    label: "Extremely Active",
   },
 };
 
@@ -80,9 +80,9 @@ const getIconForMethod = (methodId: ActivityLevel, color: string, size: number) 
       return <PersonIcon size={size} color={color} weight="regular" />;
     case "moderate":
       return <BicycleIcon size={size} color={color} weight="regular" />;
-    case "very":
+    case "active":
       return <FlameIcon size={size} color={color} weight="regular" />;
-    case "extra":
+    case "veryactive":
       return <LightningIcon size={size} color={color} weight="regular" />;
     default:
       return <PersonIcon size={size} color={color} weight="regular" />;
