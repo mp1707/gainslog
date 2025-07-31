@@ -265,13 +265,15 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
         >
           {/* Step 0: Personal Info Input */}
           {currentStep === 0 && (
-            <View style={styles.inputSection}>
-              <Text style={styles.sectionSubtitle}>
-                Enter your details to calculate your daily calorie needs.
-              </Text>
-
-              {/* Sex Selection */}
+            <View>
               <View style={styles.methodsSection}>
+                <Text style={styles.sectionSubtitle}>
+                  Enter your details to calculate your daily calorie needs.
+                </Text>
+              </View>
+
+              {/* Sex Selection Card */}
+              <View style={styles.inputCard}>
                 <Text style={styles.sectionTitle}>Biological Sex</Text>
                 <View style={styles.sexToggleContainer}>
                   {/* Animated sliding background */}
@@ -317,8 +319,8 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
                 </View>
               </View>
 
-              {/* Age Input */}
-              <View style={styles.methodsSection}>
+              {/* Age Input Card */}
+              <View style={styles.inputCard}>
                 <Text style={styles.sectionTitle}>Age (years)</Text>
                 <View style={styles.stepperContainer}>
                   <Stepper
@@ -331,8 +333,8 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
                 </View>
               </View>
 
-              {/* Weight Input */}
-              <View style={styles.methodsSection}>
+              {/* Weight Input Card */}
+              <View style={styles.inputCard}>
                 <Text style={styles.sectionTitle}>Weight (kg)</Text>
                 <View style={styles.stepperContainer}>
                   <Stepper
@@ -348,8 +350,8 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
                 </Text>
               </View>
 
-              {/* Height Input */}
-              <View style={styles.methodsSection}>
+              {/* Height Input Card */}
+              <View style={styles.inputCard}>
                 <Text style={styles.sectionTitle}>Height (cm)</Text>
                 <View style={styles.stepperContainer}>
                   <Stepper
@@ -361,7 +363,7 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
                   />
                 </View>
                 <Text style={styles.inputHint}>
-                  {params.height}cm = {Math.floor(params.height / 30.48)}'
+                  {params.height}cm = {Math.floor(params.height / 30.48)}'  
                   {Math.round((params.height % 30.48) / 2.54)}"
                 </Text>
               </View>

@@ -133,6 +133,20 @@ export const useStyles = () =>
         color: colors.white,
       },
 
+      // Input card styling
+      inputCard: {
+        backgroundColor: colors.secondaryBackground,
+        borderRadius: theme.components.cards.cornerRadius,
+        padding: theme.spacing.lg,
+        marginBottom: theme.spacing.lg,
+        // Apply card shadows from theme based on color scheme
+        shadowColor: theme.components.cards.lightMode.shadowColor,
+        shadowOffset: theme.components.cards.lightMode.shadowOffset,
+        shadowOpacity: theme.components.cards.lightMode.shadowOpacity,
+        shadowRadius: theme.components.cards.lightMode.shadowRadius,
+        elevation: theme.components.cards.lightMode.elevation,
+      },
+
       // Methods section
       methodsSection: {
         marginBottom: theme.spacing.lg,
