@@ -21,9 +21,9 @@ Overview
     - Configure appropriate bottomOffset for safe area
     - Ensure smooth keyboard transitions with reanimated integration
 
-    4. Settings Page Updates
+    4. Settings Page Modals Updates
 
-    - Replace ScrollView with KeyboardAwareScrollView in app/(tabs)/settings.tsx
+    - Replace ScrollView with KeyboardAwareScrollView in @src/shared/ui/molecules/ProteinCalculatorModal/ProteinCalculatorModal.tsx, @src/shared/ui/molecules/CalorieCalculatorModal/CalorieCalculatorModal.tsx  
     - Handle Stepper component interactions with keyboard
     - Maintain existing scroll behavior while adding keyboard awareness
 
