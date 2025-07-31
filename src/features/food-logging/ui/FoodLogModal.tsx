@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { FormField, NutritionGrid, ImageSkeleton } from '@/shared/ui';
 import { FoodLog, ModalMode } from '../../../types';
 import { mergeNutritionData } from '../utils';
@@ -173,7 +174,12 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
           </TouchableOpacity>
         </View>
 
-        <ScrollView style={styles.content}>
+        <KeyboardAwareScrollView 
+          style={styles.content}
+          contentContainerStyle={{ flexGrow: 1 }}
+          bottomOffset={20}
+          showsVerticalScrollIndicator={false}
+        >
           {(currentLog?.imageUrl || currentLog?.localImageUri) && (
             <View style={styles.imageContainer}>
               {currentLog.isUploading ? (
@@ -217,7 +223,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
             onCarbsChange={setTempCarbs}
             onFatChange={setTempFat}
           />
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </SafeAreaView>
     </Modal>
   );

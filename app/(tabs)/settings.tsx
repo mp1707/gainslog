@@ -2,12 +2,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
-  ScrollView,
   Switch,
   StyleSheet,
   Platform,
   TouchableOpacity,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -327,10 +327,11 @@ export default function SettingsTab() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      <ScrollView
+      <KeyboardAwareScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        bottomOffset={20}
       >
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Appearance</Text>
@@ -347,7 +348,7 @@ export default function SettingsTab() {
           </Text>
           {nutritionConfigs.map(renderNutritionCard)}
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
 
       <ProteinCalculatorModal
         visible={isProteinCalculatorVisible}

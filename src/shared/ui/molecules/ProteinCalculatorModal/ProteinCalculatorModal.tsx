@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { Modal, View, Text, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Stepper } from '../../atoms/Stepper/Stepper';
 import { ProteinCalculationCard, CALCULATION_METHODS, ProteinCalculationMethod } from '../../atoms/ProteinCalculationCard';
 import { useStyles } from './ProteinCalculatorModal.styles';
@@ -105,11 +106,11 @@ export const ProteinCalculatorModal: React.FC<ProteinCalculatorModalProps> = ({
         </View>
 
         {/* Content */}
-        <ScrollView 
+        <KeyboardAwareScrollView 
           style={styles.content}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+          bottomOffset={20}
         >
           {/* Body Weight Input Card */}
           <View style={styles.inputSection}>
@@ -163,7 +164,7 @@ export const ProteinCalculatorModal: React.FC<ProteinCalculatorModalProps> = ({
               </Text>
             </View>
           )}
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </View>
     </Modal>
   );

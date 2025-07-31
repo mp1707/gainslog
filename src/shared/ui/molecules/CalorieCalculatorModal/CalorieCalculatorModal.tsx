@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Modal, View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { Modal, View, Text, TouchableOpacity } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
 import Animated, {
   useSharedValue,
@@ -257,11 +258,11 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
         </View>
 
         {/* Content */}
-        <ScrollView
+        <KeyboardAwareScrollView
           style={styles.content}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+          bottomOffset={20}
         >
           {/* Step 0: Personal Info Input */}
           {currentStep === 0 && (
@@ -456,7 +457,7 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
               healthcare provider for personalized advice.
             </Text>
           </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </View>
     </Modal>
   );
