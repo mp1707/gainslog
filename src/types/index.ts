@@ -41,7 +41,7 @@ export interface NutritionMergeResult {
 
 // API request/response types (from lib/supabase.ts)
 export interface FoodEstimateRequest {
-  title: string;
+  title?: string;
   description?: string;
 }
 

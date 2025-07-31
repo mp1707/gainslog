@@ -11,16 +11,17 @@ import Animated, {
   withTiming,
   withSequence
 } from 'react-native-reanimated';
+import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
 import { AudioPlayer } from '../../atoms/AudioPlayer';
 import { createStyles } from './AudioRecordingModal.styles';
 import { useTheme } from '../../../../providers/ThemeProvider';
 
-type RecordingState = 'preparing' | 'recording' | 'recorded' | 'playing';
+type RecordingState = 'preparing' | 'recording' | 'recorded' | 'playing' | 'transcribing' | 'transcribed';
 
 interface AudioRecordingModalProps {
   visible: boolean;
   onClose: () => void;
-  onSend?: (audioUri: string) => void;
+  onSend?: (transcribedText: string) => void;
 }
 
 export function AudioRecordingModal({ 
@@ -35,9 +36,50 @@ export function AudioRecordingModal({
   const [recordingTime, setRecordingTime] = useState(0);
   const [recordedUri, setRecordedUri] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [transcribedText, setTranscribedText] = useState<string>('');
+  const [transcriptionError, setTranscriptionError] = useState<string | null>(null);
   
   const recordingTimer = useRef<NodeJS.Timeout | null>(null);
   const pulseAnimation = useSharedValue(1);
+  const isTranscribing = useRef(false);
+
+  // Speech recognition event listeners
+  useSpeechRecognitionEvent('result', (event) => {
+    if (!isTranscribing.current) return;
+    
+    if (event.results && event.results.length > 0) {
+      const transcription = event.results
+        .map(result => result.transcript)
+        .join(' ')
+        .trim();
+      
+      if (transcription) {
+        setTranscribedText(transcription);
+        setRecordingState('transcribed');
+        isTranscribing.current = false;
+      }
+    }
+  });
+
+  useSpeechRecognitionEvent('error', (event) => {
+    if (!isTranscribing.current) return;
+    
+    console.error('Speech recognition error:', event.error);
+    setTranscriptionError(event.error || 'Transcription failed. Please try again.');
+    setRecordingState('recorded');
+    isTranscribing.current = false;
+  });
+
+  useSpeechRecognitionEvent('end', () => {
+    if (!isTranscribing.current) return;
+    
+    // If we ended without getting results, it's likely an error
+    if (recordingState === 'transcribing') {
+      setTranscriptionError('No speech detected. Please try recording again.');
+      setRecordingState('recorded');
+    }
+    isTranscribing.current = false;
+  });
 
   // Auto-start recording when modal opens and cleanup on close
   useEffect(() => {
@@ -187,6 +229,9 @@ export function AudioRecordingModal({
     setRecordingTime(0);
     setRecordedUri(null);
     setIsPlaying(false);
+    setTranscribedText('');
+    setTranscriptionError(null);
+    isTranscribing.current = false;
   };
 
   const handleReset = () => {
@@ -198,9 +243,47 @@ export function AudioRecordingModal({
     onClose();
   };
 
-  const handleSend = () => {
-    if (recordedUri && onSend) {
-      onSend(recordedUri);
+  const handleSend = async () => {
+    if (!recordedUri) return;
+    
+    try {
+      setRecordingState('transcribing');
+      setTranscriptionError(null);
+      isTranscribing.current = true;
+      
+      // Request speech recognition permissions
+      const permission = await ExpoSpeechRecognitionModule.requestSpeechRecognizerPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          'Permission Required',
+          'Please allow speech recognition access to transcribe audio.',
+          [{ text: 'OK' }]
+        );
+        setRecordingState('recorded');
+        return;
+      }
+      
+      // Start transcription
+      await ExpoSpeechRecognitionModule.start({
+        audioSource: {
+          uri: recordedUri,
+        },
+        interimResults: false,
+        maxAlternatives: 1,
+        continuous: false,
+      });
+      
+    } catch (error) {
+      console.error('Error starting transcription:', error);
+      setTranscriptionError('Failed to start transcription. Please try again.');
+      setRecordingState('recorded');
+      isTranscribing.current = false;
+    }
+  };
+
+  const handleSendTranscription = () => {
+    if (transcribedText && onSend) {
+      onSend(transcribedText);
     }
     onClose();
   };
@@ -260,6 +343,12 @@ export function AudioRecordingModal({
               />
             )}
             
+            {transcriptionError && (
+              <Text style={[styles.recordingText, { color: colors.accent, textAlign: 'center', marginVertical: 8 }]}>
+                {transcriptionError}
+              </Text>
+            )}
+            
             <View style={styles.actionButtons}>
               <TouchableOpacity
                 style={styles.deleteButton}
@@ -277,7 +366,53 @@ export function AudioRecordingModal({
                 onPress={handleSend}
                 activeOpacity={0.7}
                 accessibilityRole="button"
-                accessibilityLabel="Send recording"
+                accessibilityLabel="Transcribe recording"
+              >
+                <FontAwesome name="microphone" size={20} color="white" />
+                <Text style={styles.sendButtonText}>Transcribe</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        );
+
+      case 'transcribing':
+        return (
+          <View style={styles.controlsContainer}>
+            <View style={styles.recordingButton}>
+              <FontAwesome name="cog" size={32} color="white" />
+            </View>
+            <Text style={styles.recordingText}>Transcribing audio...</Text>
+          </View>
+        );
+
+      case 'transcribed':
+        return (
+          <View style={styles.controlsContainer}>
+            <View style={{ backgroundColor: colors.secondaryBackground, padding: 16, borderRadius: 12, marginBottom: 16, borderWidth: 1, borderColor: colors.border }}>
+              <Text style={[styles.recordingText, { marginBottom: 8 }]}>Transcribed text:</Text>
+              <Text style={{ color: colors.primaryText, fontSize: 16, lineHeight: 22 }}>
+                "{transcribedText}"
+              </Text>
+            </View>
+            
+            <View style={styles.actionButtons}>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={handleDelete}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="Delete recording"
+              >
+                <FontAwesome name="trash" size={20} color={colors.secondaryText} />
+                <Text style={styles.deleteButtonText}>Delete</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.sendButton}
+                onPress={handleSendTranscription}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="Send transcription for nutrition estimation"
               >
                 <FontAwesome name="send" size={20} color="white" />
                 <Text style={styles.sendButtonText}>Send</Text>

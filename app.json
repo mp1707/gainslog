@@ -41,7 +41,14 @@
     },
     "plugins": [
       "expo-audio",
-      "expo-image-picker"
+      "expo-image-picker",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow Gainslog to use the microphone for audio food logging.",
+          "speechRecognitionPermission": "Allow Gainslog to use speech recognition for audio food logging."
+        }
+      ]
     ],
     "fonts": [
       "./assets/fonts/Nunito-Regular.ttf",

@@ -16,12 +16,14 @@
     "@supabase/supabase-js": "^2.52.0",
     "expo": "~53.0.20",
     "expo-audio": "^0.4.8",
+    "expo-dev-client": "~5.2.4",
     "expo-font": "^13.3.2",
     "expo-haptics": "^14.1.4",
     "expo-image-manipulator": "~13.1.7",
     "expo-image-picker": "~16.1.4",
     "expo-linking": "~7.1.7",
     "expo-router": "^5.1.4",
+    "expo-speech-recognition": "^2.1.1",
     "expo-status-bar": "~2.2.3",
     "phosphor-react-native": "^3.0.0",
     "react": "19.0.0",
@@ -32,8 +34,7 @@
     "react-native-screens": "~4.11.1",
     "react-native-svg": "15.11.2",
     "toastify-react-native": "^7.2.3",
-    "zustand": "^5.0.6",
-    "expo-dev-client": "~5.2.4"
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
