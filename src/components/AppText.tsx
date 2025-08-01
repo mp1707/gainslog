@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TextProps, StyleSheet, TextStyle } from 'react-native';
+import { Text, TextProps, TextStyle } from 'react-native';
 import { useTheme } from '../providers/ThemeProvider';
 
 export type TypographyRole = 'Title1' | 'Title2' | 'Headline' | 'Body' | 'Subhead' | 'Caption' | 'Button';

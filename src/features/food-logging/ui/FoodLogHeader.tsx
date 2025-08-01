@@ -3,10 +3,11 @@ import { View, Platform, TouchableOpacity } from "react-native";
 import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFoodLogStore } from "../../../stores/useFoodLogStore";
-import { PageHeader } from "../../../shared/ui/molecules/PageHeader";
+import { Card } from "../../../components/Card";
 import { AppText } from "../../../components/AppText";
 import { useTheme } from "../../../providers/ThemeProvider";
 import { createStyles, getProgressColor } from "./FoodLogHeader.styles";
+import { RadialProgressBar } from "../../../shared/ui/atoms/RadialProgressBar";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -14,28 +15,26 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 
-// Define nutrient metadata for easy mapping
-const NUTRIENT_META = {
-  protein: { label: "Protein:", unit: "g" },
-  carbs: { label: "Carb:", unit: "g" },
-  fat: { label: "Fat:", unit: "g" },
-  calories: { label: "Cal:", unit: "" },
+// Define nutrient metadata for horizontal progress bars
+const HORIZONTAL_NUTRIENT_META = {
+  carbs: { label: "Kohlenhydrate:", unit: "g" },
+  fat: { label: "Fett:", unit: "g" },
 } as const;
 
-// Local type for nutrition statistics
-type NutritionStat = {
-  key: "protein" | "carbs" | "fat" | "calories";
+// Local type for horizontal nutrition statistics
+type HorizontalNutritionStat = {
+  key: "carbs" | "fat";
   label: string;
   current: number;
   target: number;
   unit: string;
   percentage: number;
-  color: "protein" | "carbs" | "fat" | "calories";
+  color: "carbs" | "fat";
 };
 
 // Animated progress row component – encapsulates animation logic per row
 const NutritionProgressRow: React.FC<{
-  stat: NutritionStat;
+  stat: HorizontalNutritionStat;
   styles: ReturnType<typeof createStyles>;
 }> = ({ stat, styles }) => {
   // Shared value to drive width animations
@@ -86,17 +85,11 @@ export const FoodLogHeader: React.FC = () => {
     selectedDate,
     setSelectedDate,
     getDailyProgress,
-    visibleNutritionKeys,
-    loadVisibleNutritionKeys,
   } = useFoodLogStore();
   const { colors, colorScheme } = useTheme();
   const styles = createStyles(colors);
   const dailyProgress = getDailyProgress();
 
-  // Ensure visibility preferences are loaded (no-op if already loaded)
-  useEffect(() => {
-    loadVisibleNutritionKeys();
-  }, []);
 
   // Helper function to convert Date to local date string (YYYY-MM-DD)
   const dateToLocalDateString = (date: Date): string => {
@@ -134,9 +127,9 @@ export const FoodLogHeader: React.FC = () => {
     return selectedDate === todayString;
   };
 
-  // Build nutrition stats dynamically
-  const nutritionStats = visibleNutritionKeys.map((key) => {
-    const meta = NUTRIENT_META[key];
+  // Build nutrition stats for horizontal progress bars (carbs and fat only)
+  const horizontalProgressStats = ['carbs', 'fat'].map((key) => {
+    const meta = HORIZONTAL_NUTRIENT_META[key as keyof typeof HORIZONTAL_NUTRIENT_META];
     const currentVal = Math.round(
       dailyProgress.current[key as keyof typeof dailyProgress.current] as number
     );
@@ -156,62 +149,106 @@ export const FoodLogHeader: React.FC = () => {
       target: targetVal,
       unit: meta.unit,
       percentage: perc,
-      color: key as "protein" | "carbs" | "fat" | "calories",
+      color: key as "carbs" | "fat",
     };
   });
 
-  return (
-    <PageHeader>
-      {/* Date Navigation Section */}
-      <View style={styles.dateNavigationContainer}>
-        <TouchableOpacity
-          onPress={navigateToPreviousDay}
-          style={styles.navigationArrow}
-        >
-          <CaretLeftIcon
-            size={16}
-            color={colors.secondaryText}
-            weight="regular"
-          />
-        </TouchableOpacity>
+  // Get data for radial progress bars
+  const caloriesData = {
+    current: Math.round(dailyProgress.current.calories),
+    target: dailyProgress.targets.calories,
+    unit: '',
+    label: 'Kalorien',
+  };
 
-        <View style={styles.datePickerContainer}>
-          <DateTimePicker
-            value={new Date(selectedDate)}
-            mode="date"
-            display={Platform.OS === "ios" ? "compact" : "default"}
-            onChange={handleDateChange}
-            maximumDate={new Date()}
-            {...(Platform.OS === "ios" && {
-              themeVariant: colorScheme,
-              textColor: colors.primaryText,
-              accentColor: colors.accent,
-            })}
-          />
+  const proteinData = {
+    current: Math.round(dailyProgress.current.protein),
+    target: dailyProgress.targets.protein,
+    unit: 'g',
+    label: 'Eiweiß',
+  };
+
+  return (
+    <View style={styles.cardWrapper}>
+      <Card style={styles.card}>
+        {/* Date Navigation Section */}
+        <View style={styles.dateNavigationContainer}>
+          <TouchableOpacity
+            onPress={navigateToPreviousDay}
+            style={styles.navigationArrow}
+          >
+            <CaretLeftIcon
+              size={16}
+              color={colors.secondaryText}
+              weight="regular"
+            />
+          </TouchableOpacity>
+
+          <View style={styles.datePickerContainer}>
+            <DateTimePicker
+              value={new Date(selectedDate)}
+              mode="date"
+              display={Platform.OS === "ios" ? "compact" : "default"}
+              onChange={handleDateChange}
+              maximumDate={new Date()}
+              {...(Platform.OS === "ios" && {
+                themeVariant: colorScheme,
+                textColor: colors.primaryText,
+                accentColor: colors.accent,
+              })}
+            />
+          </View>
+
+          <TouchableOpacity
+            onPress={navigateToNextDay}
+            style={[
+              styles.navigationArrow,
+              isToday() && styles.navigationArrowDisabled,
+            ]}
+            disabled={isToday()}
+          >
+            <CaretRightIcon
+              size={16}
+              color={isToday() ? colors.disabledText : colors.secondaryText}
+              weight="regular"
+            />
+          </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          onPress={navigateToNextDay}
-          style={[
-            styles.navigationArrow,
-            isToday() && styles.navigationArrowDisabled,
-          ]}
-          disabled={isToday()}
-        >
-          <CaretRightIcon
-            size={16}
-            color={isToday() ? colors.disabledText : colors.secondaryText}
-            weight="regular"
-          />
-        </TouchableOpacity>
-      </View>
+        {/* 2x2 Grid Layout for Progress Indicators */}
+        <View style={styles.progressGrid}>
+          {/* Top Row - Radial Progress Bars */}
+          <View style={styles.progressRow}>
+            <View style={styles.progressItem}>
+              <RadialProgressBar
+                current={caloriesData.current}
+                target={caloriesData.target}
+                unit={caloriesData.unit}
+                label={caloriesData.label}
+                size={80}
+              />
+            </View>
+            <View style={styles.progressItem}>
+              <RadialProgressBar
+                current={proteinData.current}
+                target={proteinData.target}
+                unit={proteinData.unit}
+                label={proteinData.label}
+                size={80}
+              />
+            </View>
+          </View>
 
-      {/* Nutrition List */}
-      <View style={styles.nutritionList}>
-        {nutritionStats.map((stat) => (
-          <NutritionProgressRow key={stat.key} stat={stat} styles={styles} />
-        ))}
-      </View>
-    </PageHeader>
+          {/* Bottom Row - Horizontal Progress Bars */}
+          <View style={styles.progressRow}>
+            {horizontalProgressStats.map((stat) => (
+              <View key={stat.key} style={styles.progressItem}>
+                <NutritionProgressRow stat={stat} styles={styles} />
+              </View>
+            ))}
+          </View>
+        </View>
+      </Card>
+    </View>
   );
 };

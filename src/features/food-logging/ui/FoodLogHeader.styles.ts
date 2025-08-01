@@ -2,13 +2,24 @@ import { StyleSheet } from "react-native";
 import { theme } from "../../../theme";
 
 export const createStyles = (colors: any) => StyleSheet.create({
+  // Card wrapper with proper margins
+  cardWrapper: {
+    paddingHorizontal: theme.spacing.pageMargins.horizontal,
+    paddingTop: theme.spacing.md,
+  },
+
+  // Card styling
+  card: {
+    padding: theme.spacing.md,
+  },
+
   // Date navigation
   dateNavigationContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: theme.spacing.md,
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
   },
 
   navigationArrow: {
@@ -35,27 +46,38 @@ export const createStyles = (colors: any) => StyleSheet.create({
     marginLeft: -10,
   },
 
-  // Nutrition list layout
-  nutritionList: {
+  // 2x2 Grid layout for progress indicators
+  progressGrid: {
+    gap: theme.spacing.lg,
+  },
+
+  // Row within the grid
+  progressRow: {
+    flexDirection: "row",
+    gap: theme.spacing.md,
+  },
+
+  // Individual progress item container
+  progressItem: {
+    flex: 1,
+    alignItems: "center",
+  },
+
+  // Horizontal progress bar row (for carbs/fat)
+  nutritionRow: {
     flexDirection: "column",
+    alignItems: "center",
     gap: theme.spacing.sm,
     width: "100%",
   },
 
-  nutritionRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: theme.spacing.md,
-  },
-
   nutritionLabel: {
-    width: 70, // fixed width for alignment
-    textAlign: "right",
+    textAlign: "center",
     textTransform: "capitalize",
   },
 
   progressContainer: {
-    flex: 1,
+    width: "100%",
   },
 
   progressBackground: {
@@ -79,7 +101,7 @@ export const createStyles = (colors: any) => StyleSheet.create({
 
   progressText: {
     position: "absolute",
-    right: theme.spacing.sm,
+    alignSelf: "center",
     color: colors.primaryText,
   },
 });
