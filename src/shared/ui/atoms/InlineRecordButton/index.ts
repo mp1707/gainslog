@@ -1,0 +1,1 @@
+export { InlineRecordButton } from './InlineRecordButton';

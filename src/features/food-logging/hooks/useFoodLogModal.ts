@@ -5,10 +5,12 @@ export interface UseFoodLogModalReturn {
   isModalVisible: boolean;
   modalMode: ModalMode;
   selectedLog: FoodLog | null;
+  isAudioMode: boolean;
   handleAddInfo: (log: FoodLog) => void;
   handleManualLog: () => void;
   handleImageCaptured: (log: FoodLog) => void;
   handleAudioTranscribed: (log: FoodLog) => void;
+  handleAudioLog: () => void;
   handleModalClose: () => void;
   setSelectedLog: (log: FoodLog | null) => void;
   setModalMode: (mode: ModalMode) => void;
@@ -23,16 +25,19 @@ export function useFoodLogModal(): UseFoodLogModalReturn {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>('edit');
   const [selectedLog, setSelectedLog] = useState<FoodLog | null>(null);
+  const [isAudioMode, setIsAudioMode] = useState(false);
 
   const handleAddInfo = (log: FoodLog) => {
     setModalMode('edit');
     setSelectedLog(log);
+    setIsAudioMode(false);
     setIsModalVisible(true);
   };
 
   const handleManualLog = () => {
     setModalMode('create');
     setSelectedLog(null);
+    setIsAudioMode(false);
     setIsModalVisible(true);
   };
 
@@ -41,6 +46,7 @@ export function useFoodLogModal(): UseFoodLogModalReturn {
     // The skeleton will be added after modal closes
     setModalMode('create');
     setSelectedLog(log);
+    setIsAudioMode(false);
     setIsModalVisible(true);
   };
 
@@ -48,22 +54,34 @@ export function useFoodLogModal(): UseFoodLogModalReturn {
     // Similar to image captured, but for audio transcription
     setModalMode('create');
     setSelectedLog(log);
+    setIsAudioMode(true);
+    setIsModalVisible(true);
+  };
+
+  const handleAudioLog = () => {
+    // Direct audio logging - opens modal in audio mode
+    setModalMode('create');
+    setSelectedLog(null);
+    setIsAudioMode(true);
     setIsModalVisible(true);
   };
 
   const handleModalClose = () => {
     setIsModalVisible(false);
     setSelectedLog(null);
+    setIsAudioMode(false);
   };
 
   return {
     isModalVisible,
     modalMode,
     selectedLog,
+    isAudioMode,
     handleAddInfo,
     handleManualLog,
     handleImageCaptured,
     handleAudioTranscribed,
+    handleAudioLog,
     handleModalClose,
     setSelectedLog,
     setModalMode,

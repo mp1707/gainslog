@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Modal, View, Text, TouchableOpacity, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { FormField, NutritionGrid, ImageSkeleton, DescriptionSkeleton } from '@/shared/ui';
+import { FormField, NutritionGrid, ImageSkeleton, DescriptionSkeleton, FloatingStopButton, InlineRecordButton } from '@/shared/ui';
 import { FoodLog, ModalMode } from '../../../types';
 import { mergeNutritionData } from '../utils';
 import { useFoodLogStore } from '../../../stores/useFoodLogStore';
 import { useStyles } from './FoodLogModal.styles';
+import {
+  ExpoSpeechRecognitionModule,
+  useSpeechRecognitionEvent,
+} from 'expo-speech-recognition';
+import { AudioModule } from 'expo-audio';
 
 // Helper function to convert Date to local date string (YYYY-MM-DD)
 const dateToLocalDateString = (date: Date): string => {
@@ -17,12 +22,15 @@ const dateToLocalDateString = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
+type RecordingState = 'preparing' | 'recording' | 'idle';
+
 interface FoodLogModalProps {
   visible: boolean;
   mode: ModalMode;
   selectedLog: FoodLog | null;
   onClose: () => void;
   onSave: (log: FoodLog) => void;
+  isAudioMode?: boolean;
 }
 
 export const FoodLogModal: React.FC<FoodLogModalProps> = ({
@@ -31,6 +39,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   selectedLog,
   onClose,
   onSave,
+  isAudioMode = false,
 }) => {
   const styles = useStyles();
   const { selectedDate, foodLogs } = useFoodLogStore();
@@ -43,6 +52,68 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   const [tempProtein, setTempProtein] = useState('');
   const [tempCarbs, setTempCarbs] = useState('');
   const [tempFat, setTempFat] = useState('');
+
+  // Audio recording state
+  const [recordingState, setRecordingState] = useState<RecordingState>('idle');
+  const [liveTranscription, setLiveTranscription] = useState('');
+  const isRecording = useRef(false);
+
+  // Speech recognition event handlers
+  useSpeechRecognitionEvent('result', (event) => {
+    if (!isRecording.current) return;
+
+    if (event.results && event.results.length > 0) {
+      const transcription = event.results
+        .map((result) => result.transcript)
+        .join(' ')
+        .trim();
+
+      if (transcription) {
+        setLiveTranscription(transcription);
+        // Update description field with live transcription
+        setTempDescription(prev => {
+          // If there's existing text, append with space, otherwise replace
+          return prev.trim() ? `${prev} ${transcription}` : transcription;
+        });
+      }
+    }
+  });
+
+  useSpeechRecognitionEvent('error', (event) => {
+    if (!isRecording.current) return;
+
+    console.error('Speech recognition error:', event.error);
+    handleStopRecording();
+    
+    let errorMessage = 'Voice recognition failed. Please try again.';
+    if (event.error === 'no-speech') {
+      errorMessage = 'No speech detected. Please speak clearly and try again.';
+    } else if (event.error === 'network') {
+      errorMessage = 'Network connection required for voice recognition.';
+    }
+    
+    Alert.alert('Voice Recognition Error', errorMessage);
+  });
+
+  useSpeechRecognitionEvent('end', () => {
+    if (isRecording.current) {
+      handleStopRecording();
+    }
+  });
+
+  // Auto-start recording when modal opens in audio mode
+  useEffect(() => {
+    if (visible && isAudioMode) {
+      startRecording();
+    } else if (!visible) {
+      // Clean up when modal closes
+      if (isRecording.current) {
+        handleStopRecording();
+      }
+      setRecordingState('idle');
+      setLiveTranscription('');
+    }
+  }, [visible, isAudioMode]);
 
   // Reset form when modal opens or when currentLog changes (e.g., transcription completes)
   useEffect(() => {
@@ -67,6 +138,73 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
       setTempFat('');
     }
   }, [visible, currentLog, mode]);
+
+  // Audio recording functions
+  const startRecording = async () => {
+    try {
+      setRecordingState('preparing');
+      setLiveTranscription('');
+
+      // Request microphone permission
+      const permission = await AudioModule.requestRecordingPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          'Permission Required',
+          'Please allow microphone access to use voice recording.',
+          [{ text: 'OK', onPress: onClose }]
+        );
+        return;
+      }
+
+      // Request speech recognition permission
+      const speechPermission = await ExpoSpeechRecognitionModule.requestSpeechRecognizerPermissionsAsync();
+      if (!speechPermission.granted) {
+        Alert.alert(
+          'Permission Required',
+          'Please allow speech recognition access for voice transcription.',
+          [{ text: 'OK', onPress: onClose }]
+        );
+        return;
+      }
+
+      // Start real-time speech recognition
+      await ExpoSpeechRecognitionModule.start({
+        lang: 'de-DE', // Could be made configurable
+        interimResults: true,
+        maxAlternatives: 1,
+        continuous: true,
+      });
+
+      isRecording.current = true;
+      setRecordingState('recording');
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      Alert.alert('Error', 'Failed to start voice recording. Please try again.');
+      setRecordingState('idle');
+    }
+  };
+
+  const handleStopRecording = async () => {
+    try {
+      if (isRecording.current) {
+        await ExpoSpeechRecognitionModule.stop();
+        isRecording.current = false;
+      }
+      setRecordingState('idle');
+      setLiveTranscription('');
+    } catch (error) {
+      console.error('Error stopping recording:', error);
+    }
+  };
+
+  const startNewRecording = async () => {
+    // For the inline record button - append to existing description
+    if (recordingState === 'recording') {
+      handleStopRecording();
+    } else {
+      await startRecording();
+    }
+  };
 
   const handleSave = () => {
     // Validate required fields for create mode - title is optional for image logs
@@ -160,21 +298,32 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
         <StatusBar style="dark" />
         
         <View style={styles.header}>
-          <TouchableOpacity onPress={onClose}>
-            <Text style={styles.cancelButton}>Cancel</Text>
+          <TouchableOpacity 
+            onPress={onClose}
+            disabled={recordingState === 'recording'}
+          >
+            <Text style={[
+              styles.cancelButton,
+              recordingState === 'recording' && styles.saveButtonDisabled
+            ]}>
+              Cancel
+            </Text>
           </TouchableOpacity>
           <Text style={styles.title}>
-            {mode === 'create' ? 'Add Food Log' : 'Add Info'}
+            {recordingState === 'recording' ? 'Recording...' : 
+             recordingState === 'preparing' ? 'Preparing...' :
+             mode === 'create' ? 'Add Food Log' : 'Add Info'}
           </Text>
           <TouchableOpacity 
             onPress={handleSave}
-            disabled={currentLog?.isUploading}
+            disabled={currentLog?.isUploading || recordingState === 'recording'}
           >
             <Text style={[
               styles.saveButton,
-              currentLog?.isUploading && styles.saveButtonDisabled
+              (currentLog?.isUploading || recordingState === 'recording') && styles.saveButtonDisabled
             ]}>
-              {currentLog?.isUploading ? 'Uploading...' : 'Save'}
+              {currentLog?.isUploading ? 'Uploading...' : 
+               recordingState === 'recording' ? 'Recording' : 'Save'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -208,6 +357,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
             value={tempTitle}
             onChangeText={setTempTitle}
             placeholder={(currentLog?.imageUrl || currentLog?.localImageUri) ? 'Enter food title (AI will generate if empty)' : 'Enter food title'}
+            readOnly={recordingState === 'recording'}
           />
 
           {currentLog?.isTranscribing ? (
@@ -217,9 +367,26 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
               label="Description (Optional)"
               value={tempDescription}
               onChangeText={setTempDescription}
-              placeholder="Add details about preparation, ingredients, portion size, etc."
+              placeholder={recordingState === 'recording' 
+                ? 'Voice recording in progress...' 
+                : 'Add details about preparation, ingredients, portion size, etc.'
+              }
               multiline={true}
-            />
+              readOnly={recordingState === 'recording'}
+            >
+              {recordingState === 'idle' && (
+                <InlineRecordButton 
+                  onPress={startNewRecording}
+                  isRecording={false}
+                />
+              )}
+              {recordingState === 'recording' && (
+                <InlineRecordButton 
+                  onPress={handleStopRecording}
+                  isRecording={true}
+                />
+              )}
+            </FormField>
           )}
 
           <NutritionGrid
@@ -231,8 +398,14 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
             onProteinChange={setTempProtein}
             onCarbsChange={setTempCarbs}
             onFatChange={setTempFat}
+            disabled={recordingState === 'recording'}
           />
         </KeyboardAwareScrollView>
+
+        {/* Floating Stop Button - only show when recording */}
+        {recordingState === 'recording' && (
+          <FloatingStopButton onPress={handleStopRecording} />
+        )}
       </SafeAreaView>
     </Modal>
   );

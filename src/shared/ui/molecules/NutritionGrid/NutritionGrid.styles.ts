@@ -9,6 +9,10 @@ export const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
 
+  disabledSection: {
+    opacity: 0.6,
+  },
+
   title: {
     fontFamily: typography.Headline.fontFamily,
     fontSize: typography.Headline.fontSize,
@@ -17,12 +21,22 @@ export const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
 
+  disabledTitle: {
+    color: colors.secondaryText,
+    fontStyle: 'italic',
+  },
+
   subtitle: {
     fontFamily: typography.Body.fontFamily,
     fontSize: typography.Body.fontSize,
     fontWeight: typography.Body.fontWeight,
     color: colors.secondaryText,
     marginBottom: spacing.md,
+  },
+
+  disabledSubtitle: {
+    color: colors.secondaryText,
+    fontStyle: 'italic',
   },
 
   grid: {
@@ -43,6 +57,10 @@ export const styles = StyleSheet.create({
     fontWeight: typography.Subhead.fontWeight,
     color: colors.primaryText,
     marginBottom: spacing.sm,
+  },
+
+  disabledLabel: {
+    color: colors.secondaryText,
   },
 
   // Nutrition-specific label colors (using accent color for all)

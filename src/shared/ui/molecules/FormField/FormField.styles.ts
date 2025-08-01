@@ -6,12 +6,32 @@ export const createStyles = (colors: any) => StyleSheet.create({
     marginBottom: theme.spacing.md,
   },
 
+  readOnlyContainer: {
+    opacity: 0.7,
+  },
+
   label: {
     fontSize: theme.typography.Headline.fontSize,
     fontWeight: theme.typography.Headline.fontWeight,
     fontFamily: theme.typography.Headline.fontFamily,
     color: colors.primaryText,
     marginBottom: theme.spacing.sm,
+  },
+
+  readOnlyLabel: {
+    color: colors.secondaryText,
+    fontStyle: 'italic',
+  },
+
+  inputContainer: {
+    position: 'relative',
+  },
+
+  inlineElement: {
+    position: 'absolute',
+    right: 8,
+    bottom: 8,
+    zIndex: 1,
   },
 
   error: {

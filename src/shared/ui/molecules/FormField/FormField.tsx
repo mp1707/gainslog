@@ -9,26 +9,39 @@ interface FormFieldProps extends Omit<TextInputProps, 'error'> {
   label: string;
   required?: boolean;
   error?: string;
+  readOnly?: boolean;
+  children?: React.ReactNode; // For inline elements like record button
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
   label,
   required = false,
   error,
+  readOnly = false,
+  children,
   ...textInputProps
 }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>
+    <View style={[styles.container, readOnly && styles.readOnlyContainer]}>
+      <Text style={[styles.label, readOnly && styles.readOnlyLabel]}>
         {label}{required && ' *'}
+        {readOnly && ' (Recording...)'}
       </Text>
-      <TextInput 
-        {...textInputProps} 
-        error={!!error}
-      />
+      <View style={styles.inputContainer}>
+        <TextInput 
+          {...textInputProps} 
+          error={!!error}
+          disabled={readOnly}
+        />
+        {children && (
+          <View style={styles.inlineElement}>
+            {children}
+          </View>
+        )}
+      </View>
       {error && (
         <Text style={styles.error}>
           {error}

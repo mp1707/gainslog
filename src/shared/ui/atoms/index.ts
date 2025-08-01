@@ -6,3 +6,5 @@ export { ImageSkeleton } from "./ImageSkeleton";
 export { Badge } from "./Badge";
 export { ManualEntryButton } from "./ManualEntryButton";
 export { Stepper } from "./Stepper";
+export { FloatingStopButton } from "./FloatingStopButton";
+export { InlineRecordButton } from "./InlineRecordButton";
