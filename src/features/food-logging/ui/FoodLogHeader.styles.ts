@@ -61,6 +61,8 @@ export const createStyles = (colors: any) => StyleSheet.create({
   progressItem: {
     flex: 1,
     alignItems: "center",
+    paddingHorizontal: theme.spacing.md,
+
   },
 
   // Horizontal progress bar row (for carbs/fat)
@@ -69,10 +71,16 @@ export const createStyles = (colors: any) => StyleSheet.create({
     alignItems: "center",
     gap: theme.spacing.sm,
     width: "100%",
+    paddingHorizontal: theme.spacing.sm,
   },
 
   nutritionLabel: {
     textAlign: "center",
+    position: "absolute",
+    top: 5,
+    left: 0,
+    right: 0,
+    bottom: 0,
     textTransform: "capitalize",
   },
 
@@ -82,7 +90,7 @@ export const createStyles = (colors: any) => StyleSheet.create({
 
   progressBackground: {
     width: "100%",
-    height: theme.components.progressBars.height * 3, // 24px for better touch targets
+    height: theme.components.progressBars.height * 4, // 24px for better touch targets
     backgroundColor: colors.disabledBackground,
     borderRadius: theme.components.progressBars.cornerRadius * 2,
     overflow: "hidden",
@@ -100,7 +108,6 @@ export const createStyles = (colors: any) => StyleSheet.create({
   },
 
   progressText: {
-    position: "absolute",
     alignSelf: "center",
     color: colors.primaryText,
   },

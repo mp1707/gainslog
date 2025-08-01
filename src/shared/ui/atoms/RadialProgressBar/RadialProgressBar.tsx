@@ -9,6 +9,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "../../../../providers/ThemeProvider";
 import { AppText } from "src/components";
+import { theme } from "src/theme";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -28,7 +29,7 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
   unit,
   label,
   size = 100,
-  strokeWidth = 6,
+  strokeWidth = theme.components.progressBars.height,
   color,
 }) => {
   const { colors } = useTheme();
@@ -65,7 +66,7 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
 
   return (
     <View style={{ alignItems: "center" }}>
-      <View style={{ position: "relative" }}>
+      <View style={{ position: "relative", paddingBottom: 10 }}>
         <Svg width={size} height={size}>
           {/* Background arc */}
           <Circle
@@ -97,7 +98,7 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
         </Svg>
 
         {/* Center content */}
-        <View
+        {/* <View
           style={{
             position: "absolute",
             top: 0,
@@ -116,7 +117,7 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
                 textAlign: "center",
               }}
             >
-             1{Math.round(current)} /
+              {Math.round(current)}/
             </AppText>
             <AppText
               role="Button"
@@ -126,7 +127,6 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
                 marginBottom: -1,
               }}
             >
-              {" "}
               {target}
             </AppText>
           </View>
@@ -139,6 +139,89 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
             }}
           >
             {label}
+          </AppText>
+        </View> */}
+        <View
+          style={{
+            position: "absolute",
+            top: -10,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <AppText
+            role="Caption"
+            style={{
+              color: colors.secondaryText,
+              textAlign: "center",
+            }}
+          >
+            {label}
+          </AppText>
+        </View>
+        {/* <View
+          style={{
+            position: "absolute",
+
+            left: 5,
+
+            bottom: 0,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <AppText
+            role="Caption"
+            style={{
+              color: colors.primaryText,
+              textAlign: "center",
+            }}
+          >
+            {Math.round(current)}
+          </AppText>
+        </View>
+        <View
+          style={{
+            position: "absolute",
+
+            right: 5,
+
+            bottom: 0,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <AppText
+            role="Caption"
+            style={{
+              color: colors.primaryText,
+              textAlign: "center",
+            }}
+          >
+            {target}
+          </AppText>
+        </View> */}
+        <View
+          style={{
+            position: "absolute",
+            right: 0,
+            left: 0,
+            bottom: 0,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <AppText
+            role="Caption"
+            style={{
+              color: colors.primaryText,
+              textAlign: "center",
+            }}
+          >
+            {Math.round(current)} / {target}
           </AppText>
         </View>
       </View>

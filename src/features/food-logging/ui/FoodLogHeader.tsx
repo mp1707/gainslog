@@ -56,8 +56,9 @@ const NutritionProgressRow: React.FC<{
   return (
     <View style={styles.nutritionRow}>
       {/* Label aligned right */}
-      <AppText role="Subhead" style={styles.nutritionLabel}>
-        {stat.label}
+      <AppText role="Headline" style={styles.nutritionLabel}>
+        {stat.label} {stat.current}/{stat.target}
+        {stat.unit}
       </AppText>
 
       {/* Progress bar with animated fill */}
@@ -70,10 +71,6 @@ const NutritionProgressRow: React.FC<{
               animatedStyle,
             ]}
           />
-          <AppText role="Caption" style={styles.progressText} numberOfLines={1}>
-            {stat.current}/{stat.target}
-            {stat.unit}
-          </AppText>
         </View>
       </View>
     </View>
@@ -81,15 +78,10 @@ const NutritionProgressRow: React.FC<{
 };
 
 export const FoodLogHeader: React.FC = () => {
-  const {
-    selectedDate,
-    setSelectedDate,
-    getDailyProgress,
-  } = useFoodLogStore();
+  const { selectedDate, setSelectedDate, getDailyProgress } = useFoodLogStore();
   const { colors, colorScheme } = useTheme();
   const styles = createStyles(colors);
   const dailyProgress = getDailyProgress();
-
 
   // Helper function to convert Date to local date string (YYYY-MM-DD)
   const dateToLocalDateString = (date: Date): string => {
@@ -128,8 +120,9 @@ export const FoodLogHeader: React.FC = () => {
   };
 
   // Build nutrition stats for horizontal progress bars (carbs and fat only)
-  const horizontalProgressStats = (['carbs', 'fat'] as const).map((key) => {
-    const meta = HORIZONTAL_NUTRIENT_META[key as keyof typeof HORIZONTAL_NUTRIENT_META];
+  const horizontalProgressStats = (["carbs", "fat"] as const).map((key) => {
+    const meta =
+      HORIZONTAL_NUTRIENT_META[key as keyof typeof HORIZONTAL_NUTRIENT_META];
     const currentVal = Math.round(
       dailyProgress.current[key as keyof typeof dailyProgress.current] as number
     );
@@ -153,20 +146,37 @@ export const FoodLogHeader: React.FC = () => {
     };
   });
 
-  // Get data for radial progress bars
   const caloriesData = {
     current: Math.round(dailyProgress.current.calories),
     target: dailyProgress.targets.calories,
-    unit: '',
-    label: 'Kalorien',
+    unit: "",
+    label: "Calories",
   };
 
   const proteinData = {
     current: Math.round(dailyProgress.current.protein),
     target: dailyProgress.targets.protein,
-    unit: 'g',
-    label: 'Eiweiß',
+    unit: "g",
+    label: "Protein",
   };
+
+  const fatData = {
+    current: Math.round(dailyProgress.current.fat),
+    target: dailyProgress.targets.fat,
+    unit: "g",
+    label: "Fat",
+  };
+
+  const carbsData = {
+    current: Math.round(dailyProgress.current.carbs),
+    target: dailyProgress.targets.carbs,
+    unit: "g",
+    label: "Carbs",
+  };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    width: `${dailyProgress.percentages.calories}%`,
+  }));
 
   return (
     <View style={styles.cardWrapper}>
@@ -215,37 +225,54 @@ export const FoodLogHeader: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* 2x2 Grid Layout for Progress Indicators */}
         <View style={styles.progressGrid}>
-          {/* Top Row - Radial Progress Bars */}
           <View style={styles.progressRow}>
-            <View style={styles.progressItem}>
-              <RadialProgressBar
-                current={caloriesData.current}
-                target={caloriesData.target}
-                unit={caloriesData.unit}
-                label={caloriesData.label}
-                size={130}
-              />
+            <View style={styles.nutritionRow}>
+              <AppText role="Headline">{caloriesData.label}</AppText>
+              <View style={styles.progressContainer}>
+                <AppText role="Headline" style={styles.nutritionLabel}>
+                  {caloriesData.current} / {caloriesData.target} kcal
+                </AppText>
+                <View style={styles.progressBackground}>
+                  <Animated.View
+                    style={[
+                      styles.progressBar,
+                      { backgroundColor: colors.accent },
+                      animatedStyle,
+                    ]}
+                  />
+                </View>
+              </View>
             </View>
+          </View>
+          <View style={styles.progressRow}>
             <View style={styles.progressItem}>
               <RadialProgressBar
                 current={proteinData.current}
                 target={proteinData.target}
                 unit={proteinData.unit}
                 label={proteinData.label}
-                size={130}
+                size={90}
               />
             </View>
-          </View>
-
-          {/* Bottom Row - Horizontal Progress Bars */}
-          <View style={styles.progressRow}>
-            {horizontalProgressStats.map((stat) => (
-              <View key={stat.key} style={styles.progressItem}>
-                <NutritionProgressRow stat={stat} styles={styles} />
-              </View>
-            ))}
+            <View style={styles.progressItem}>
+              <RadialProgressBar
+                current={fatData.current}
+                target={fatData.target}
+                unit={fatData.unit}
+                label={fatData.label}
+                size={90}
+              />
+            </View>
+            <View style={styles.progressItem}>
+              <RadialProgressBar
+                current={carbsData.current}
+                target={carbsData.target}
+                unit={carbsData.unit}
+                label={carbsData.label}
+                size={90}
+              />
+            </View>
           </View>
         </View>
       </Card>
