@@ -21,7 +21,15 @@
       "@/types/*": ["src/types/*"],
       "@/types": ["src/types/index"],
       "@/lib/*": ["src/lib/*"],
-      "@/lib": ["src/lib/index"]
+      "@/lib": ["src/lib/index"],
+      "@/stores/*": ["src/stores/*"],
+      "@/stores": ["src/stores/index"],
+      "@/utils/*": ["src/utils/*"],
+      "@/utils": ["src/utils/index"],
+      "@/providers/*": ["src/providers/*"],
+      "@/providers": ["src/providers/index"],
+      "@/hooks/*": ["src/hooks/*"],
+      "@/hooks": ["src/hooks/index"]
     }
   },
   "include": [
