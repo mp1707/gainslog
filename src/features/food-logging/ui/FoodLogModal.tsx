@@ -14,14 +14,6 @@ import {
 } from 'expo-speech-recognition';
 import { AudioModule } from 'expo-audio';
 
-// Helper function to convert Date to local date string (YYYY-MM-DD)
-const dateToLocalDateString = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
 type RecordingState = 'preparing' | 'recording' | 'idle';
 
 interface FoodLogModalProps {
@@ -52,13 +44,13 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   const [tempProtein, setTempProtein] = useState('');
   const [tempCarbs, setTempCarbs] = useState('');
   const [tempFat, setTempFat] = useState('');
+  const [validationError, setValidationError] = useState('');
 
   // Audio recording state
   const [recordingState, setRecordingState] = useState<RecordingState>('idle');
   const [liveTranscription, setLiveTranscription] = useState('');
   const isRecording = useRef(false);
   const baseDescriptionRef = useRef(''); // Track base description before recording
-  const finalResultLengthRef = useRef(0); // Track length of final results to prevent duplication
 
   // Speech recognition event handlers
   useSpeechRecognitionEvent('result', (event) => {
@@ -120,7 +112,6 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
     if (visible && isAudioMode) {
       // Set base description to current value when starting audio mode
       baseDescriptionRef.current = tempDescription;
-      finalResultLengthRef.current = 0; // Reset final result tracking
       startRecording();
     } else if (!visible) {
       // Clean up when modal closes
@@ -130,7 +121,6 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
       setRecordingState('idle');
       setLiveTranscription('');
       baseDescriptionRef.current = '';
-      finalResultLengthRef.current = 0;
     }
   }, [visible, isAudioMode]);
 
@@ -148,6 +138,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
       setTempProtein(currentLog.userProtein?.toString() || '');
       setTempCarbs(currentLog.userCarbs?.toString() || '');
       setTempFat(currentLog.userFat?.toString() || '');
+      setValidationError(''); // Clear error when form resets
     } else if (visible && mode === 'create') {
       setTempTitle('');
       setTempDescription('');
@@ -155,8 +146,12 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
       setTempProtein('');
       setTempCarbs('');
       setTempFat('');
+      setValidationError(''); // Clear error when form resets
       // Reset audio recording state for fresh create logs
       baseDescriptionRef.current = '';
+    } else if (!visible) {
+      // Clear error when modal closes
+      setValidationError('');
     }
   }, [visible, currentLog, mode]);
 
@@ -236,18 +231,20 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
     } else {
       // Set base description to current value when starting new recording
       baseDescriptionRef.current = tempDescription;
-      finalResultLengthRef.current = 0; // Reset final result tracking
       await startRecording();
     }
   };
 
   const handleSave = () => {
-    // Validate required fields for create mode - title is optional for image logs
+    // Validate required fields for create mode - either title OR description needed for non-image logs
     const isImageLog = currentLog?.imageUrl || currentLog?.localImageUri;
-    if (mode === 'create' && !isImageLog && !tempTitle.trim()) {
-      Alert.alert('Error', 'Title is required');
+    if (mode === 'create' && !isImageLog && !tempTitle.trim() && !tempDescription.trim()) {
+      setValidationError('Please provide either a title or description for your food log.');
       return;
     }
+
+    // Clear any existing validation error
+    setValidationError('');
 
     // Get nutrition data from user input and determine if AI estimation is needed
     const nutritionData = mergeNutritionData(tempCalories, tempProtein, tempCarbs, tempFat);
@@ -363,6 +360,12 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
           </TouchableOpacity>
         </View>
 
+        {validationError && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{validationError}</Text>
+          </View>
+        )}
+
         <KeyboardAwareScrollView 
           style={styles.content}
           contentContainerStyle={{ flexGrow: 1 }}
@@ -388,20 +391,26 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
           )}
 
           <FormField
-            label={`Title${(currentLog?.imageUrl || currentLog?.localImageUri) ? ' (Optional)' : ''}`}
+            label="Title"
             value={tempTitle}
-            onChangeText={setTempTitle}
+            onChangeText={(text) => {
+              setTempTitle(text);
+              if (validationError) setValidationError(''); // Clear error when user types
+            }}
             placeholder={(currentLog?.imageUrl || currentLog?.localImageUri) ? 'Enter food title (AI will generate if empty)' : 'Enter food title'}
             readOnly={recordingState === 'recording'}
           />
 
           {currentLog?.isTranscribing ? (
-            <DescriptionSkeleton label="Description (Optional)" />
+            <DescriptionSkeleton label="Description" />
           ) : (
             <FormField
-              label="Description (Optional)"
+              label="Description"
               value={tempDescription}
-              onChangeText={setTempDescription}
+              onChangeText={(text) => {
+                setTempDescription(text);
+                if (validationError) setValidationError(''); // Clear error when user types
+              }}
               placeholder={recordingState === 'recording' 
                 ? 'Voice recording in progress...' 
                 : 'Add details about preparation, ingredients, portion size, etc.'

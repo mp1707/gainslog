@@ -16,6 +16,13 @@ const lightColors = {
   disabledBackground: 'rgba(17, 17, 17, 0.1)',
   disabledText: 'rgba(17, 17, 17, 0.4)',
   recording: '#FF3B30', // iOS system red for recording/stop states
+  // State colors following iOS design language
+  error: '#FF3B30', // iOS system red
+  errorBackground: 'rgba(255, 59, 48, 0.1)',
+  warning: '#FF9500', // iOS system orange
+  warningBackground: 'rgba(255, 149, 0, 0.1)',
+  success: '#34C759', // iOS system green
+  successBackground: 'rgba(52, 199, 89, 0.1)',
 } as const; 
 
 const darkColors = {
@@ -29,6 +36,13 @@ const darkColors = {
   disabledBackground: 'rgba(242, 242, 247, 0.15)',
   disabledText: 'rgba(242, 242, 247, 0.4)',
   recording: '#FF3B30', // iOS system red for recording/stop states
+  // State colors following iOS design language
+  error: '#FF3B30', // iOS system red
+  errorBackground: 'rgba(255, 59, 48, 0.15)', // Slightly more opacity for dark mode
+  warning: '#FF9500', // iOS system orange
+  warningBackground: 'rgba(255, 149, 0, 0.15)',
+  success: '#34C759', // iOS system green
+  successBackground: 'rgba(52, 199, 89, 0.15)',
 } as const;
 
 // Typography scale with Nunito font

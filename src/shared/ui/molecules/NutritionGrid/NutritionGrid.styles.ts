@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
-import { theme } from '../../../../theme';
+import { StyleSheet } from "react-native";
+import { theme } from "../../../../theme";
 
 const colors = theme.getColors();
 const { typography, spacing } = theme;
@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
 
   disabledTitle: {
     color: colors.secondaryText,
-    fontStyle: 'italic',
+    fontStyle: "italic",
   },
 
   subtitle: {
@@ -36,18 +36,18 @@ export const styles = StyleSheet.create({
 
   disabledSubtitle: {
     color: colors.secondaryText,
-    fontStyle: 'italic',
+    fontStyle: "italic",
   },
 
   grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
     gap: spacing.xs,
   },
 
   inputGroup: {
-    width: '48%',
+    width: "48%",
     marginBottom: spacing.md,
   },
 

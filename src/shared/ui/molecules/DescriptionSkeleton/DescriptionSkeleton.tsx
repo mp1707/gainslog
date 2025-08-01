@@ -9,7 +9,7 @@ interface DescriptionSkeletonProps {
 }
 
 export const DescriptionSkeleton: React.FC<DescriptionSkeletonProps> = ({
-  label = "Description (Optional)"
+  label = "Description"
 }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);

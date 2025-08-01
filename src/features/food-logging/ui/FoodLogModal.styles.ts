@@ -98,4 +98,23 @@ export const useStyles = () => useThemedStyles((colors, theme) => StyleSheet.cre
     color: colors.primaryText,
     marginBottom: theme.spacing.xs,
   },
+
+  // Error display
+  errorContainer: {
+    backgroundColor: colors.errorBackground,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.error,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    marginHorizontal: theme.spacing.md,
+    marginVertical: theme.spacing.sm,
+    borderRadius: theme.spacing.xs,
+  },
+
+  errorText: {
+    fontSize: theme.typography.Body.fontSize,
+    fontFamily: theme.typography.Body.fontFamily,
+    color: colors.error,
+    lineHeight: theme.typography.Body.fontSize * 1.4,
+  },
 }));
