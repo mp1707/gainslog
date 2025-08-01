@@ -30,13 +30,9 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
     <View style={[styles.section, disabled && styles.disabledSection]}>
       <Text style={[styles.title, disabled && styles.disabledTitle]}>
         Nutrition (Optional)
-        {disabled && ' - Recording...'}
       </Text>
       <Text style={[styles.subtitle, disabled && styles.disabledSubtitle]}>
-        {disabled 
-          ? 'Audio recording in progress - fields are temporarily disabled'
-          : 'Leave fields empty to have AI estimate missing values'
-        }
+        Leave fields empty to have AI estimate missing values
       </Text>
       
       <View style={styles.grid}>
@@ -51,7 +47,7 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
             keyboardType="numeric"
             disabled={disabled}
             accessibilityLabel="Calories input"
-            accessibilityHint={disabled ? "Disabled during recording" : "Enter calories or leave empty for AI estimation"}
+            accessibilityHint="Enter calories or leave empty for AI estimation"
           />
         </View>
         
@@ -66,7 +62,7 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
             keyboardType="numeric"
             disabled={disabled}
             accessibilityLabel="Protein input in grams"
-            accessibilityHint={disabled ? "Disabled during recording" : "Enter protein or leave empty for AI estimation"}
+            accessibilityHint="Enter protein or leave empty for AI estimation"
           />
         </View>
         
@@ -81,7 +77,7 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
             keyboardType="numeric"
             disabled={disabled}
             accessibilityLabel="Carbohydrates input in grams"
-            accessibilityHint={disabled ? "Disabled during recording" : "Enter carbohydrates or leave empty for AI estimation"}
+            accessibilityHint="Enter carbohydrates or leave empty for AI estimation"
           />
         </View>
         
@@ -96,7 +92,7 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
             keyboardType="numeric"
             disabled={disabled}
             accessibilityLabel="Fat input in grams"
-            accessibilityHint={disabled ? "Disabled during recording" : "Enter fat or leave empty for AI estimation"}
+            accessibilityHint="Enter fat or leave empty for AI estimation"
           />
         </View>
       </View>

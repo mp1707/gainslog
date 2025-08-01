@@ -28,7 +28,6 @@ export const FormField: React.FC<FormFieldProps> = ({
     <View style={[styles.container, readOnly && styles.readOnlyContainer]}>
       <Text style={[styles.label, readOnly && styles.readOnlyLabel]}>
         {label}{required && ' *'}
-        {readOnly && ' (Recording...)'}
       </Text>
       <View style={styles.inputContainer}>
         <TextInput 

@@ -14,7 +14,7 @@ import {
 } from 'expo-speech-recognition';
 import { AudioModule } from 'expo-audio';
 
-type RecordingState = 'preparing' | 'recording' | 'idle';
+type RecordingState = 'recording' | 'idle';
 
 interface FoodLogModalProps {
   visible: boolean;
@@ -158,7 +158,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   // Audio recording functions
   const startRecording = async () => {
     try {
-      setRecordingState('preparing');
+      setRecordingState('recording');
       setLiveTranscription('');
 
       // Request microphone permission
@@ -330,32 +330,23 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
         <StatusBar style="dark" />
         
         <View style={styles.header}>
-          <TouchableOpacity 
-            onPress={onClose}
-            disabled={recordingState === 'recording'}
-          >
-            <Text style={[
-              styles.cancelButton,
-              recordingState === 'recording' && styles.saveButtonDisabled
-            ]}>
+          <TouchableOpacity onPress={onClose}>
+            <Text style={styles.cancelButton}>
               Cancel
             </Text>
           </TouchableOpacity>
           <Text style={styles.title}>
-            {recordingState === 'recording' ? 'Recording...' : 
-             recordingState === 'preparing' ? 'Preparing...' :
-             mode === 'create' ? 'Add Food Log' : 'Add Info'}
+            {mode === 'create' ? 'Add Food Log' : 'Add Info'}
           </Text>
           <TouchableOpacity 
             onPress={handleSave}
-            disabled={currentLog?.isUploading || recordingState === 'recording'}
+            disabled={currentLog?.isUploading}
           >
             <Text style={[
               styles.saveButton,
-              (currentLog?.isUploading || recordingState === 'recording') && styles.saveButtonDisabled
+              currentLog?.isUploading && styles.saveButtonDisabled
             ]}>
-              {currentLog?.isUploading ? 'Uploading...' : 
-               recordingState === 'recording' ? 'Recording' : 'Save'}
+              {currentLog?.isUploading ? 'Uploading...' : 'Save'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -411,10 +402,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
                 setTempDescription(text);
                 if (validationError) setValidationError(''); // Clear error when user types
               }}
-              placeholder={recordingState === 'recording' 
-                ? 'Voice recording in progress...' 
-                : 'Add details about preparation, ingredients, portion size, etc.'
-              }
+              placeholder="Add details about preparation, ingredients, portion size, etc."
               multiline={true}
               readOnly={recordingState === 'recording'}
             >
