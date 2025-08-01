@@ -175,7 +175,7 @@ export const FoodLogHeader: React.FC = () => {
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
-    width: `${dailyProgress.percentages.calories}%`,
+    width: `${Math.min(100, dailyProgress.percentages.calories)}%`,
   }));
 
   return (

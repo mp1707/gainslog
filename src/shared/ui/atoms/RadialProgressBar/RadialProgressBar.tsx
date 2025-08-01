@@ -97,50 +97,6 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
           />
         </Svg>
 
-        {/* Center content */}
-        {/* <View
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
-            <AppText
-              role="Caption"
-              style={{
-                color: colors.primaryText,
-                textAlign: "center",
-              }}
-            >
-              {Math.round(current)}/
-            </AppText>
-            <AppText
-              role="Button"
-              style={{
-                color: colors.primaryText,
-                textAlign: "center",
-                marginBottom: -1,
-              }}
-            >
-              {target}
-            </AppText>
-          </View>
-          <AppText
-            role="Caption"
-            style={{
-              color: colors.secondaryText,
-              textAlign: "center",
-              marginTop: 2,
-            }}
-          >
-            {label}
-          </AppText>
-        </View> */}
         <View
           style={{
             position: "absolute",
@@ -162,48 +118,7 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
             {label}
           </AppText>
         </View>
-        {/* <View
-          style={{
-            position: "absolute",
 
-            left: 5,
-
-            bottom: 0,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <AppText
-            role="Caption"
-            style={{
-              color: colors.primaryText,
-              textAlign: "center",
-            }}
-          >
-            {Math.round(current)}
-          </AppText>
-        </View>
-        <View
-          style={{
-            position: "absolute",
-
-            right: 5,
-
-            bottom: 0,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <AppText
-            role="Caption"
-            style={{
-              color: colors.primaryText,
-              textAlign: "center",
-            }}
-          >
-            {target}
-          </AppText>
-        </View> */}
         <View
           style={{
             position: "absolute",
@@ -221,7 +136,8 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
               textAlign: "center",
             }}
           >
-            {Math.round(current)} / {target}
+            {Math.round(current)}/{target}
+            {unit}
           </AppText>
         </View>
       </View>

@@ -82,6 +82,7 @@ export const createStyles = (colors: any) => StyleSheet.create({
     right: 0,
     bottom: 0,
     textTransform: "capitalize",
+    zIndex: 1,
   },
 
   progressContainer: {
