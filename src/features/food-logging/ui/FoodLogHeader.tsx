@@ -128,7 +128,7 @@ export const FoodLogHeader: React.FC = () => {
   };
 
   // Build nutrition stats for horizontal progress bars (carbs and fat only)
-  const horizontalProgressStats = ['carbs', 'fat'].map((key) => {
+  const horizontalProgressStats = (['carbs', 'fat'] as const).map((key) => {
     const meta = HORIZONTAL_NUTRIENT_META[key as keyof typeof HORIZONTAL_NUTRIENT_META];
     const currentVal = Math.round(
       dailyProgress.current[key as keyof typeof dailyProgress.current] as number
@@ -225,7 +225,7 @@ export const FoodLogHeader: React.FC = () => {
                 target={caloriesData.target}
                 unit={caloriesData.unit}
                 label={caloriesData.label}
-                size={80}
+                size={130}
               />
             </View>
             <View style={styles.progressItem}>
@@ -234,7 +234,7 @@ export const FoodLogHeader: React.FC = () => {
                 target={proteinData.target}
                 unit={proteinData.unit}
                 label={proteinData.label}
-                size={80}
+                size={130}
               />
             </View>
           </View>

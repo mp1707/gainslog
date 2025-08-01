@@ -1,14 +1,14 @@
-import React, { useEffect } from 'react';
-import { View } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
+import React, { useEffect } from "react";
+import { View } from "react-native";
+import Svg, { Circle } from "react-native-svg";
 import Animated, {
   useSharedValue,
   useAnimatedProps,
   withTiming,
   Easing,
-} from 'react-native-reanimated';
-import { useTheme } from '../../../../providers/ThemeProvider';
-import { AppText } from 'src/components';
+} from "react-native-reanimated";
+import { useTheme } from "../../../../providers/ThemeProvider";
+import { AppText } from "src/components";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -27,22 +27,23 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
   target,
   unit,
   label,
-  size = 80,
+  size = 100,
   strokeWidth = 6,
   color,
 }) => {
   const { colors } = useTheme();
   const progress = useSharedValue(0);
-  
+
   // Calculate percentage and clamp between 0-100
   const percentage = Math.min(100, Math.max(0, (current / target) * 100));
-  
+
   // Circle calculations for partial arc (270 degrees)
   const radius = (size - strokeWidth) / 2;
   const arcAngle = 270; // degrees
   const arcLength = (arcAngle / 360) * (2 * Math.PI * radius);
+  const fullCircumference = 2 * Math.PI * radius;
   const center = size / 2;
-  
+
   // Animate progress when percentage changes
   useEffect(() => {
     progress.value = withTiming(percentage, {
@@ -50,20 +51,21 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
       easing: Easing.bezier(0.25, 1, 0.5, 1),
     });
   }, [percentage]);
-  
+
   // Animated props for the progress circle
   const animatedProps = useAnimatedProps(() => {
-    const strokeDashoffset = arcLength - (progress.value / 100) * arcLength;
+    // Calculate dynamic arc length based on progress percentage
+    const progressArcLength = (progress.value / 100) * arcLength;
     return {
-      strokeDashoffset,
+      strokeDasharray: `${progressArcLength} ${fullCircumference}`,
     };
   });
-  
+
   const progressColor = color || colors.accent;
-  
+
   return (
-    <View style={{ alignItems: 'center' }}>
-      <View style={{ position: 'relative' }}>
+    <View style={{ alignItems: "center" }}>
+      <View style={{ position: "relative" }}>
         <Svg width={size} height={size}>
           {/* Background arc */}
           <Circle
@@ -73,12 +75,12 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
             stroke={colors.disabledBackground}
             strokeWidth={strokeWidth}
             fill="transparent"
-            strokeDasharray={`${arcLength} ${2 * Math.PI * radius}`}
+            strokeDasharray={`${arcLength} ${fullCircumference - arcLength}`}
             strokeLinecap="round"
             rotation="135"
             origin={`${center}, ${center}`}
           />
-          
+
           {/* Progress arc */}
           <AnimatedCircle
             cx={center}
@@ -87,41 +89,52 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
             stroke={progressColor}
             strokeWidth={strokeWidth}
             fill="transparent"
-            strokeDasharray={arcLength}
             strokeLinecap="round"
             animatedProps={animatedProps}
             rotation="135"
             origin={`${center}, ${center}`}
           />
         </Svg>
-        
+
         {/* Center content */}
         <View
           style={{
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            justifyContent: 'center',
-            alignItems: 'center',
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
-          <AppText
-            role="Headline"
-            style={{
-              color: colors.primaryText,
-              textAlign: 'center',
-              lineHeight: 20,
-            }}
-          >
-            {Math.round(current)} / {target}
-          </AppText>
+          <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
+            <AppText
+              role="Caption"
+              style={{
+                color: colors.primaryText,
+                textAlign: "center",
+              }}
+            >
+             1{Math.round(current)} /
+            </AppText>
+            <AppText
+              role="Button"
+              style={{
+                color: colors.primaryText,
+                textAlign: "center",
+                marginBottom: -1,
+              }}
+            >
+              {" "}
+              {target}
+            </AppText>
+          </View>
           <AppText
             role="Caption"
             style={{
               color: colors.secondaryText,
-              textAlign: 'center', 
+              textAlign: "center",
               marginTop: 2,
             }}
           >
