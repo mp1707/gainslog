@@ -3,7 +3,7 @@ import { Modal, View, Text, TouchableOpacity, Image, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { FormField, NutritionGrid, ImageSkeleton, DescriptionSkeleton, FloatingStopButton, InlineRecordButton } from '@/shared/ui';
+import { FormField, NutritionGrid, ImageSkeleton, DescriptionSkeleton, InlineRecordButton } from '@/shared/ui';
 import { FoodLog, ModalMode } from '../../../types';
 import { mergeNutritionData } from '../utils';
 import { useFoodLogStore } from '../../../stores/useFoodLogStore';
@@ -436,11 +436,6 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
             disabled={recordingState === 'recording'}
           />
         </KeyboardAwareScrollView>
-
-        {/* Floating Stop Button - only show when recording */}
-        {recordingState === 'recording' && (
-          <FloatingStopButton onPress={handleStopRecording} />
-        )}
       </SafeAreaView>
     </Modal>
   );

@@ -8,7 +8,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { MicrophoneIcon } from 'phosphor-react-native';
+import { MicrophoneIcon, StopIcon } from 'phosphor-react-native';
 import * as Haptics from 'expo-haptics';
 import { createStyles } from './InlineRecordButton.styles';
 import { useTheme } from '../../../../providers/ThemeProvider';
@@ -82,14 +82,22 @@ export const InlineRecordButton: React.FC<InlineRecordButtonProps> = ({
       onPress={handlePress}
       activeOpacity={0.7}
       accessibilityRole="button"
-      accessibilityLabel={isRecording ? "Recording audio" : "Start recording"}
-      accessibilityHint={isRecording ? "Audio is being recorded" : "Tap to start recording audio for this field"}
+      accessibilityLabel={isRecording ? "Stop recording" : "Start recording"}
+      accessibilityHint={isRecording ? "Tap to stop audio recording" : "Tap to start recording audio for this field"}
     >
-      <MicrophoneIcon 
-        size={16} 
-        color={isRecording ? 'white' : colors.accent} 
-        weight={isRecording ? 'fill' : 'regular'} 
-      />
+      {isRecording ? (
+        <StopIcon 
+          size={16} 
+          color="white"
+          weight="fill"
+        />
+      ) : (
+        <MicrophoneIcon 
+          size={16} 
+          color={colors.accent} 
+          weight="regular"
+        />
+      )}
     </AnimatedTouchableOpacity>
   );
 };

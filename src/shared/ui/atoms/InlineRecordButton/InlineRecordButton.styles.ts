@@ -22,7 +22,7 @@ export const createStyles = (colors: Colors) =>
       elevation: 2,
     },
     recording: {
-      backgroundColor: colors.accent,
-      borderColor: colors.accent,
+      backgroundColor: colors.recording,
+      borderColor: colors.recording,
     },
   });

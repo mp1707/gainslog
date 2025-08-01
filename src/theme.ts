@@ -15,6 +15,7 @@ const lightColors = {
   white: '#FFFFFF',
   disabledBackground: 'rgba(17, 17, 17, 0.1)',
   disabledText: 'rgba(17, 17, 17, 0.4)',
+  recording: '#FF3B30', // iOS system red for recording/stop states
 } as const; 
 
 const darkColors = {
@@ -27,6 +28,7 @@ const darkColors = {
   white: '#FFFFFF',
   disabledBackground: 'rgba(242, 242, 247, 0.15)',
   disabledText: 'rgba(242, 242, 247, 0.4)',
+  recording: '#FF3B30', // iOS system red for recording/stop states
 } as const;
 
 // Typography scale with Nunito font
