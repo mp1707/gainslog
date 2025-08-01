@@ -57,24 +57,28 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   const [recordingState, setRecordingState] = useState<RecordingState>('idle');
   const [liveTranscription, setLiveTranscription] = useState('');
   const isRecording = useRef(false);
+  const baseDescriptionRef = useRef(''); // Track base description before recording
+  const finalResultLengthRef = useRef(0); // Track length of final results to prevent duplication
 
   // Speech recognition event handlers
   useSpeechRecognitionEvent('result', (event) => {
     if (!isRecording.current) return;
 
     if (event.results && event.results.length > 0) {
-      const transcription = event.results
-        .map((result) => result.transcript)
-        .join(' ')
-        .trim();
-
+      // Get the latest transcription result
+      const latestResult = event.results[event.results.length - 1];
+      const transcription = latestResult.transcript.trim();
+      
       if (transcription) {
+        // Always show live transcription feedback
         setLiveTranscription(transcription);
-        // Update description field with live transcription
-        setTempDescription(prev => {
-          // If there's existing text, append with space, otherwise replace
-          return prev.trim() ? `${prev} ${transcription}` : transcription;
-        });
+        
+        // Display in description field for live feedback
+        // This shows the base text + current transcription being spoken
+        const displayText = baseDescriptionRef.current.trim() 
+          ? `${baseDescriptionRef.current} ${transcription}`
+          : transcription;
+        setTempDescription(displayText);
       }
     }
   });
@@ -97,6 +101,16 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
 
   useSpeechRecognitionEvent('end', () => {
     if (isRecording.current) {
+      // When recognition ends, save the current transcription as final
+      if (liveTranscription.trim()) {
+        const finalText = baseDescriptionRef.current.trim() 
+          ? `${baseDescriptionRef.current} ${liveTranscription.trim()}`
+          : liveTranscription.trim();
+        
+        // Update the base description with final results
+        baseDescriptionRef.current = finalText;
+        setTempDescription(finalText);
+      }
       handleStopRecording();
     }
   });
@@ -104,6 +118,9 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   // Auto-start recording when modal opens in audio mode
   useEffect(() => {
     if (visible && isAudioMode) {
+      // Set base description to current value when starting audio mode
+      baseDescriptionRef.current = tempDescription;
+      finalResultLengthRef.current = 0; // Reset final result tracking
       startRecording();
     } else if (!visible) {
       // Clean up when modal closes
@@ -112,6 +129,8 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
       }
       setRecordingState('idle');
       setLiveTranscription('');
+      baseDescriptionRef.current = '';
+      finalResultLengthRef.current = 0;
     }
   }, [visible, isAudioMode]);
 
@@ -136,6 +155,8 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
       setTempProtein('');
       setTempCarbs('');
       setTempFat('');
+      // Reset audio recording state for fresh create logs
+      baseDescriptionRef.current = '';
     }
   }, [visible, currentLog, mode]);
 
@@ -170,7 +191,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
       // Start real-time speech recognition
       await ExpoSpeechRecognitionModule.start({
         lang: 'de-DE', // Could be made configurable
-        interimResults: true,
+        interimResults: true, // Enable for live feedback
         maxAlternatives: 1,
         continuous: true,
       });
@@ -187,6 +208,17 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   const handleStopRecording = async () => {
     try {
       if (isRecording.current) {
+        // Before stopping, capture any current transcription as final
+        if (liveTranscription.trim()) {
+          const finalText = baseDescriptionRef.current.trim() 
+            ? `${baseDescriptionRef.current} ${liveTranscription.trim()}`
+            : liveTranscription.trim();
+          
+          // Update the base description and display
+          baseDescriptionRef.current = finalText;
+          setTempDescription(finalText);
+        }
+        
         await ExpoSpeechRecognitionModule.stop();
         isRecording.current = false;
       }
@@ -202,6 +234,9 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
     if (recordingState === 'recording') {
       handleStopRecording();
     } else {
+      // Set base description to current value when starting new recording
+      baseDescriptionRef.current = tempDescription;
+      finalResultLengthRef.current = 0; // Reset final result tracking
       await startRecording();
     }
   };
