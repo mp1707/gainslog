@@ -22,20 +22,25 @@ export const createStyles = (colors: any) =>
       pointerEvents: "none",
     },
 
-    titleRow: {
+    topSection: {
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "flex-start",
+      marginBottom: theme.spacing.md,
+      gap: theme.spacing.sm,  
+    },
+
+    titleSection: {
+      flex: 1,
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "flex-start",
-      marginBottom: theme.spacing.md,
-    },
-
-    titleContent: {
-      flex: 1,
-      marginRight: theme.spacing.md,
+      gap: theme.spacing.sm,
     },
 
     title: {
       flex: 1,
+      alignSelf: "flex-end",
     },
 
     loadingTitle: {
@@ -47,11 +52,11 @@ export const createStyles = (colors: any) =>
       fontStyle: "italic",
     },
 
-    rightSection: {
-      alignItems: "flex-end",
-      gap: theme.spacing.sm,
+    bottomSection: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
     },
-
     // Macro badges container
     macroRowContainer: {
       flexDirection: "row",
@@ -59,17 +64,6 @@ export const createStyles = (colors: any) =>
       alignItems: "center",
       gap: theme.spacing.sm,
       flexWrap: "wrap",
-    },
-
-    // Skeleton-specific styles
-    macroRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "flex-start",
-    },
-
-    macroItem: {
-      alignItems: "center",
       flex: 1,
     },
   });

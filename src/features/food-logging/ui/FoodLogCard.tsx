@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { View, Pressable } from "react-native";
 import * as Haptics from "expo-haptics";
-import { Camera, CameraIcon } from "phosphor-react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -138,36 +137,29 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
         ) : (
           <>
             <Card style={styles.card}>
-              <View style={styles.titleRow}>
-                <View style={styles.titleContent}>
+              <View style={styles.topSection}>
+                <View style={styles.titleSection}>
                   <AppText role="Headline" style={styles.title}>
                     {foodLog.userTitle || foodLog.generatedTitle}
                   </AppText>
-
-                  {foodLog.userDescription && (
-                    <AppText
-                      role="Body"
-                      color="secondary"
-                      style={styles.description}
-                    >
-                      {foodLog.userDescription}
-                    </AppText>
-                  )}
-                </View>
-                <View style={styles.rightSection}>
                   <Badge
                     confidence={foodLog.estimationConfidence}
                     isLoading={false}
                   />
                 </View>
+                {foodLog.userDescription && (
+                  <AppText
+                    role="Body"
+                    color="secondary"
+                    style={styles.description}
+                  >
+                    {foodLog.userDescription}
+                  </AppText>
+                )}
               </View>
-              <View style={styles.macroRowContainer}>
-                {foodLog.imageUrl && (
-                  <CameraIcon
-                    size={16}
-                    color={colors.accent}
-                    weight="regular"
-                  />
+              <View style={styles.bottomSection}>
+                {(foodLog.imageUrl || foodLog.localImageUri) && (
+                  <Badge variant="icon" iconType="image" />
                 )}
                 <View style={styles.macroRowContainer}>
                   <Badge

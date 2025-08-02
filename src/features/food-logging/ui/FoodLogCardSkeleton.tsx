@@ -1,12 +1,11 @@
-import React from 'react';
-import { View } from 'react-native';
-import { Camera } from 'phosphor-react-native';
-import { Skeleton } from '@/shared/ui/atoms';
-import { SkeletonShimmerEffect } from '../../../components/SkeletonShimmerEffect';
-import { Card } from '../../../components/Card';
-import { FoodLog } from '../../../types';
-import { useTheme } from '../../../providers/ThemeProvider';
-import { createStyles } from './FoodLogCard.styles';
+import React from "react";
+import { View } from "react-native";
+import { Skeleton } from "@/shared/ui/atoms";
+import { SkeletonShimmerEffect } from "../../../components/SkeletonShimmerEffect";
+import { Card } from "../../../components/Card";
+import { FoodLog } from "../../../types";
+import { useTheme } from "../../../providers/ThemeProvider";
+import { createStyles } from "./FoodLogCard.styles";
 
 interface FoodLogCardSkeletonProps {
   foodLog: FoodLog;
@@ -21,46 +20,25 @@ export const FoodLogCardSkeleton: React.FC<FoodLogCardSkeletonProps> = ({
   return (
     <SkeletonShimmerEffect isActive={true}>
       <Card style={styles.card}>
-        <View style={styles.titleRow}>
-          <View style={styles.titleContent}>
-            <View style={styles.titleWithIcon}>
-              {foodLog.imageUrl && (
-                <Camera 
-                  size={16} 
-                  color={colors.disabledText}
-                  weight="regular"
-                  style={styles.cameraIcon}
-                />
-              )}
-              <Skeleton width="75%" height={17} style={styles.title} />
-            </View>
-            {foodLog.userDescription && (
-              <Skeleton width="60%" height={15} style={styles.description} />
-            )}
-          </View>
-          <View style={styles.rightSection}>
-            {/* Badge skeleton */}
+        <View style={styles.topSection}>
+          <View style={styles.titleSection}>
+            <Skeleton width="75%" height={17} style={styles.title} />
             <Skeleton width={80} height={28} style={{ borderRadius: 8 }} />
           </View>
+          {foodLog.userDescription && (
+            <Skeleton width="60%" height={15} style={styles.description} />
+          )}
         </View>
-        
-        {/* MacroRow skeleton - 4 nutrition values */}
-        <View style={styles.macroRow}>
-          <View style={styles.macroItem}>
-            <Skeleton width={40} height={13} style={{ marginBottom: 4 }} />
-            <Skeleton width={30} height={15} />
-          </View>
-          <View style={styles.macroItem}>
-            <Skeleton width={45} height={13} style={{ marginBottom: 4 }} />
-            <Skeleton width={25} height={15} />
-          </View>
-          <View style={styles.macroItem}>
-            <Skeleton width={35} height={13} style={{ marginBottom: 4 }} />
-            <Skeleton width={30} height={15} />
-          </View>
-          <View style={styles.macroItem}>
-            <Skeleton width={25} height={13} style={{ marginBottom: 4 }} />
-            <Skeleton width={20} height={15} />
+
+        <View style={styles.bottomSection}>
+          {(foodLog.imageUrl || foodLog.localImageUri) && (
+            <Skeleton width={40} height={28} style={{ borderRadius: 8 }} />
+          )}
+          <View style={styles.macroRowContainer}>
+            <Skeleton width={65} height={28} style={{ borderRadius: 8 }} />
+            <Skeleton width={45} height={28} style={{ borderRadius: 8 }} />
+            <Skeleton width={45} height={28} style={{ borderRadius: 8 }} />
+            <Skeleton width={40} height={28} style={{ borderRadius: 8 }} />
           </View>
         </View>
       </Card>
