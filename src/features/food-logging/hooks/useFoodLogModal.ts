@@ -11,7 +11,7 @@ export interface UseFoodLogModalReturn {
   handleImageCaptured: (log: FoodLog) => void;
   handleAudioTranscribed: (log: FoodLog) => void;
   handleAudioLog: () => void;
-  handleModalClose: () => void;
+  handleModalClose: (wasSaved?: boolean) => void;
   setSelectedLog: (log: FoodLog | null) => void;
   setModalMode: (mode: ModalMode) => void;
   setIsModalVisible: (visible: boolean) => void;
@@ -21,7 +21,7 @@ export interface UseFoodLogModalReturn {
  * Custom hook for managing food log modal state and handlers
  * Extracts modal-related logic from App.tsx for better separation of concerns
  */
-export function useFoodLogModal(): UseFoodLogModalReturn {
+export function useFoodLogModal(onSaveClose?: () => void): UseFoodLogModalReturn {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>('edit');
   const [selectedLog, setSelectedLog] = useState<FoodLog | null>(null);
@@ -66,10 +66,15 @@ export function useFoodLogModal(): UseFoodLogModalReturn {
     setIsModalVisible(true);
   };
 
-  const handleModalClose = () => {
+  const handleModalClose = (wasSaved?: boolean) => {
     setIsModalVisible(false);
     setSelectedLog(null);
     setIsAudioMode(false);
+    
+    // Trigger scroll to top if this was a save action
+    if (wasSaved && onSaveClose) {
+      onSaveClose();
+    }
   };
 
   return {

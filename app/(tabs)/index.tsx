@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { FoodLogScreen, FoodLogModal } from "../../src/features/food-logging";
 import { useFoodLogModal, useUpdateFoodLog } from "../../src/features/food-logging/hooks";
@@ -16,8 +16,16 @@ export default function TodayTab() {
     loadFoodLogs,
   } = useFoodLogStore();
 
+  // State to trigger scroll to top after save
+  const [shouldScrollToTop, setShouldScrollToTop] = useState(false);
+  
+  // Callback for immediate scroll on save-close
+  const handleSaveClose = useCallback(() => {
+    setShouldScrollToTop(true);
+  }, []);
+  
   /* UI hooks */
-  const modal = useFoodLogModal();
+  const modal = useFoodLogModal(handleSaveClose);
   const { create } = useCreateFoodLog();
   const { update } = useUpdateFoodLog();
   const { launchCamera, launchImageLibrary } = useImageCapture();
@@ -62,9 +70,21 @@ export default function TodayTab() {
       } else {
         await create(log);
       }
+      // Note: Scroll trigger now happens immediately when modal closes, not here
     },
     [create, update, modal.modalMode]
   );
+
+  // Reset scroll trigger after it's been processed
+  useEffect(() => {
+    if (shouldScrollToTop) {
+      // Reset the flag after a brief delay to ensure the scroll happens
+      const timer = setTimeout(() => {
+        setShouldScrollToTop(false);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [shouldScrollToTop]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -72,6 +92,7 @@ export default function TodayTab() {
         isLoadingLogs={isLoadingLogs}
         onDeleteLog={deleteFoodLogById}
         onAddInfo={modal.handleAddInfo}
+        scrollToTop={shouldScrollToTop}
       />
 
       <FoodLogModal

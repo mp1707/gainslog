@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ExpandableFAB } from "@/shared/ui";
@@ -17,13 +17,16 @@ interface FoodLogScreenProps {
   isLoadingLogs: boolean;
   onDeleteLog: (logId: string) => Promise<void>;
   onAddInfo: (log: FoodLog) => void;
+  scrollToTop?: boolean;
 }
 
 export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   isLoadingLogs,
   onDeleteLog,
   onAddInfo,
+  scrollToTop,
 }) => {
+  const scrollViewRef = useRef<ScrollView>(null);
   const {
     getDailyProgress,
     triggerManualLog,
@@ -63,6 +66,13 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
     triggerAudioCapture();
   };
 
+  // Handle scroll to top when prop changes
+  React.useEffect(() => {
+    if (scrollToTop) {
+      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+    }
+  }, [scrollToTop]);
+
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <DateNavigationHeader
@@ -74,6 +84,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
       />
 
       <ScrollView
+        ref={scrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
       >

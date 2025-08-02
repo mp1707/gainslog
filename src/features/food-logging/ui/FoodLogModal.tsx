@@ -17,7 +17,7 @@ interface FoodLogModalProps {
   visible: boolean;
   mode: ModalMode;
   selectedLog: FoodLog | null;
-  onClose: () => void;
+  onClose: (wasSaved?: boolean) => void;
   onSave: (log: FoodLog) => void;
   isAudioMode?: boolean;
 }
@@ -94,7 +94,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
     if (result.log) {
       // Close modal immediately and let parent handle AI processing
       onSave(result.log);
-      onClose();
+      onClose(true); // Pass true to indicate this was a save action
     }
   };
 
@@ -103,7 +103,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
       visible={visible}
       animationType="slide"
       presentationStyle="pageSheet"
-      onRequestClose={onClose}
+      onRequestClose={() => onClose(false)} // Pass false for system close
     >
       <SafeAreaView style={styles.container}>
         <StatusBar style="dark" />
@@ -111,7 +111,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
         <ModalHeader
           mode={mode}
           isUploading={currentLog?.isUploading}
-          onCancel={onClose}
+          onCancel={() => onClose(false)} // Pass false to indicate cancel
           onSave={handleSave}
         />
 
