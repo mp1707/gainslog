@@ -6,7 +6,7 @@ const SPACING_UNIT = 8;
 
 // Color palettes
 const lightColors = {
-  accent: '#8A3FFC',
+  accent: '#6200EA', // More vibrant, modern purple
   primaryBackground: '#F9F9F9',
   secondaryBackground: '#FFFFFF',
   primaryText: '#111111',
@@ -18,27 +18,27 @@ const lightColors = {
   recording: '#FF3B30', // iOS system red for recording/stop states
   // Semantic colors for nutrition data visualization (WCAG AA compliant)
   semantic: {
-    calories: '#34C759',
-    protein: '#0A84FF',
-    carbs: '#FF9F0A',
-    fat: '#FFD60A',
+    calories: '#00C853', // Vibrant nature-inspired green for health/vitality
+    protein: '#1976D2', // Deep trustworthy blue for strength/building
+    carbs: '#FF6F00', // Warm energetic orange for fuel/energy
+    fat: '#00ACC1', // Distinctive teal for balance and healthy fats (replaces similar amber)
   },
-  // State colors following iOS design language
-  error: '#FF3B30', // iOS system red
-  errorBackground: 'rgba(255, 59, 48, 0.1)',
-  warning: '#FF9500', // iOS system orange
-  warningBackground: 'rgba(255, 149, 0, 0.1)',
-  success: '#34C759', // iOS system green
-  successBackground: 'rgba(52, 199, 89, 0.1)',
+  // State colors - modern, accessible variants
+  error: '#D32F2F', // Deeper red for better contrast and modern feel
+  errorBackground: 'rgba(211, 47, 47, 0.1)',
+  warning: '#FF9800', // Bright orange for warnings, distinct from new teal fat color
+  warningBackground: 'rgba(255, 152, 0, 0.1)',
+  success: '#2E7D32', // Deeper green, distinct from calories color
+  successBackground: 'rgba(46, 125, 50, 0.1)',
   // Icon badge colors
   iconBadge: {
-    background: 'rgba(138, 63, 252, 0.15)',
-    iconColor: '#8A3FFC',
+    background: 'rgba(98, 0, 234, 0.15)', // Updated to match new accent color
+    iconColor: '#6200EA',
   },
 } as const; 
 
 const darkColors = {
-  accent: '#9E66FF',
+  accent: '#7C4DFF', // Lighter purple for dark mode
   primaryBackground: '#000000',
   secondaryBackground: '#1C1C1E',
   primaryText: '#F2F2F7',
@@ -48,24 +48,24 @@ const darkColors = {
   disabledBackground: 'rgba(242, 242, 247, 0.15)',
   disabledText: 'rgba(242, 242, 247, 0.4)',
   recording: '#FF3B30', // iOS system red for recording/stop states
-  // Semantic colors for nutrition data visualization
+  // Semantic colors for nutrition data visualization (optimized for dark backgrounds)
   semantic: {
-    calories: '#32D74B',
-    protein: '#0B84FF',
-    carbs: '#FF9500',
-    fat: '#FFCC0A',
+    calories: '#69F0AE', // Lighter green for dark backgrounds while maintaining vibrancy
+    protein: '#42A5F5', // Lighter blue for dark backgrounds with good contrast
+    carbs: '#FFB74D', // Lighter orange for dark backgrounds, warm and accessible
+    fat: '#4DD0E1', // Light teal for dark mode, distinctly different from orange carbs
   },
-  // State colors following iOS design language
-  error: '#FF3B30', // iOS system red
-  errorBackground: 'rgba(255, 59, 48, 0.15)', // Slightly more opacity for dark mode
-  warning: '#FF9500', // iOS system orange
-  warningBackground: 'rgba(255, 149, 0, 0.15)',
-  success: '#34C759', // iOS system green
-  successBackground: 'rgba(52, 199, 89, 0.15)',
+  // State colors - optimized for dark mode
+  error: '#F44336', // Lighter red for dark backgrounds with good contrast
+  errorBackground: 'rgba(244, 67, 54, 0.15)',
+  warning: '#FF9800', // Brighter orange for dark backgrounds
+  warningBackground: 'rgba(255, 152, 0, 0.15)',
+  success: '#4CAF50', // Lighter green for dark backgrounds, distinct from calories
+  successBackground: 'rgba(76, 175, 80, 0.15)',
   // Icon badge colors
   iconBadge: {
-    background: 'rgba(158, 102, 255, 0.15)',
-    iconColor: '#9E66FF',
+    background: 'rgba(124, 77, 255, 0.15)', // Updated to match new accent color
+    iconColor: '#7C4DFF',
   },
 } as const;
 
@@ -158,7 +158,7 @@ const components = {
         textColor: lightColors.white,
       },
       active: {
-        backgroundColor: '#6929CC',
+        backgroundColor: '#4527A0', // Darker variant of new accent color
         textColor: lightColors.white,
       },
       disabled: {
@@ -174,7 +174,7 @@ const components = {
         borderColor: lightColors.accent,
       },
       active: {
-        backgroundColor: 'rgba(138, 63, 252, 0.1)',
+        backgroundColor: 'rgba(98, 0, 234, 0.1)', // Updated to match new accent color
         textColor: lightColors.accent,
         borderWidth: 1.5,
         borderColor: lightColors.accent,
@@ -231,7 +231,7 @@ const animations = {
         easing: 'linear',
         gradient: [
           'transparent',
-          'rgba(138, 63, 252, 0.4)',
+          'rgba(98, 0, 234, 0.4)', // Updated to match new accent color
           'transparent',
         ],
       },
