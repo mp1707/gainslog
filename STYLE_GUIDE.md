@@ -28,10 +28,10 @@ These colors give immediate visual meaning to the app's core data points. They s
 
 | Role     | Color            | Hex Code (Light) | Hex Code (Dark) | Use Case                                              |
 | -------- | ---------------- | ---------------- | --------------- | ----------------------------------------------------- |
-| Calories | Vibrant Green    | #00C853          | #69F0AE         | Overall energy, calorie progress bar and totals.      |
-| Protein  | Deep Blue        | #1976D2          | #42A5F5         | Protein progress bar, stats, and related charts.      |
-| Carbs    | Warm Orange      | #FF6F00          | #FFB74D         | Carbohydrate progress bar, stats, and related charts. |
-| Fat      | Balanced Teal    | #00ACC1          | #4DD0E1         | Fat progress bar, stats, and related charts.          |
+| Calories | Action Purple    | #6200EA          | #7C4DFF         | Overall energy, calorie progress bar and totals.      |
+| Protein  | Teal             | #14B8A6          | #5EEAD4         | Protein progress bar, stats, and related charts.      |
+| Carbs    | Blue             | #3B82F6          | #60A5FA         | Carbohydrate progress bar, stats, and related charts. |
+| Fat      | Amber            | #F59E0B          | #FCD34D         | Fat progress bar, stats, and related charts.          |
 
 _Export to Sheets_
 
@@ -41,10 +41,10 @@ For badge components displaying nutrient information, use lighter background col
 
 | Nutrient | Light Mode Background | Light Mode Text | Dark Mode Background | Dark Mode Text |
 | -------- | -------------------- | --------------- | -------------------- | -------------- |
-| Calories | rgba(0, 200, 83, 0.15) | #00C853         | rgba(105, 240, 174, 0.15) | #69F0AE        |
-| Protein  | rgba(25, 118, 210, 0.15) | #1976D2         | rgba(66, 165, 245, 0.15) | #42A5F5        |
-| Carbs    | rgba(255, 111, 0, 0.15) | #FF6F00         | rgba(255, 183, 77, 0.15) | #FFB74D        |
-| Fat      | rgba(0, 172, 193, 0.15) | #00ACC1         | rgba(77, 208, 225, 0.15) | #4DD0E1        |
+| Calories | rgba(98, 0, 234, 0.15) | #6200EA         | rgba(124, 77, 255, 0.15) | #7C4DFF        |
+| Protein  | rgba(20, 184, 166, 0.15) | #14B8A6         | rgba(94, 234, 212, 0.15) | #5EEAD4        |
+| Carbs    | rgba(59, 130, 246, 0.15) | #3B82F6         | rgba(96, 165, 250, 0.15) | #60A5FA        |
+| Fat      | rgba(245, 158, 11, 0.15) | #F59E0B         | rgba(252, 211, 77, 0.15) | #FCD34D        |
 
 _Export to Sheets_
 
@@ -55,6 +55,26 @@ For badge components displaying input method icons (image, audio, text), use acc
 | Badge Type | Light Mode Background | Light Mode Icon | Dark Mode Background | Dark Mode Icon |
 | ---------- | -------------------- | --------------- | -------------------- | -------------- |
 | Icon Badge | rgba(98, 0, 234, 0.15) | #6200EA         | rgba(124, 77, 255, 0.15) | #7C4DFF        |
+
+_Export to Sheets_
+
+#### State & System Colors
+
+For system states and user feedback, use these colors with their corresponding background variants for proper visual hierarchy and accessibility.
+
+| State     | Light Mode | Dark Mode | Light Mode Background | Dark Mode Background | Use Case |
+| --------- | ---------- | --------- | -------------------- | -------------------- | -------- |
+| Recording | #FF3B30    | #FF3B30   | N/A                  | N/A                  | Audio recording state indicator (iOS system red) |
+| Error     | #D32F2F    | #F44336   | rgba(211, 47, 47, 0.1) | rgba(244, 67, 54, 0.15) | Error messages, failed operations |
+| Warning   | #FF9800    | #FF9800   | rgba(255, 152, 0, 0.1) | rgba(255, 152, 0, 0.15) | Warning states, caution alerts |
+| Success   | #2E7D32    | #4CAF50   | rgba(46, 125, 50, 0.1) | rgba(76, 175, 80, 0.15) | Success feedback, completed goals |
+
+**Usage Guidelines:**
+- Recording color follows iOS system standards for consistency with platform conventions
+- Error states use deeper, more accessible reds for better contrast and modern feel
+- Warning color is distinct from nutritional amber (fat) color to avoid confusion
+- Success green is distinct from accent purple (calories) for clear differentiation
+- Always use background variants for containers/badges with proper text contrast
 
 _Export to Sheets_
 
@@ -88,10 +108,10 @@ The color palette has been redesigned to address accessibility issues and create
 
 **Color Psychology Rationale:**
 
-- **Calories (Vibrant Green)**: Represents health, vitality, and life energy - the core concept of nutrition tracking
-- **Protein (Deep Blue)**: Conveys trust, stability, and strength - perfect for muscle-building nutrients  
-- **Carbs (Warm Orange)**: Suggests energy, warmth, and fuel - representing the body's primary energy source
-- **Fat (Balanced Teal)**: Represents balance, wellness, and healthy essential fats - distinctly different from carbs while maintaining positive health associations
+- **Calories (Action Purple)**: Uses the accent color to emphasize calories as the primary energy metric - consistent with the app's action-focused design language
+- **Protein (Teal)**: Conveys balance, strength, and health - perfect for muscle-building nutrients
+- **Carbs (Blue)**: Suggests energy, clarity, and fuel - representing the body's primary energy source
+- **Fat (Amber)**: Represents warmth and essential nutrition - distinctly different from other macros while maintaining positive health associations
 - **Accent (Modern Purple)**: Maintains brand identity while feeling more contemporary and vibrant
 
 **Accessibility Features:**
@@ -101,8 +121,12 @@ The color palette has been redesigned to address accessibility issues and create
 - Consistent lightness levels ensure reliable contrast ratios
 - Enhanced dark mode variants optimized for low-light usage
 
-**Latest Update (v1.2.1):**
-- **Improved Visual Distinction**: Fat colors changed from amber/orange family to distinctive teal family, eliminating confusion with carbs and creating clearer macro nutrient differentiation
+**Latest Update (v1.2.3):**
+- **Unified Calories**: Calories now use the accent color for consistency with action elements
+- **Optimized Macronutrients**: Protein moved to teal, carbs to blue, fat to amber for better visual distinction and color psychology alignment
+- **Enhanced Theme Integration**: All colors properly integrated into theme system with semantic badge support
+- **State Colors**: Added comprehensive state color system for error, warning, success, and recording states
+- **iOS Compliance**: Recording states now use iOS system red (#FF3B30) for platform consistency
 
 ### 3. Typography
 

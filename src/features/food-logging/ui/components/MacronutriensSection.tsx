@@ -78,22 +78,22 @@ export const MacronutriensSection: React.FC<MacronutriensSectionProps> = ({
           </View>
           <View style={styles.macroItem}>
             <RadialProgressBar
-              current={fatData.current}
-              target={fatData.target}
-              unit={fatData.unit}
-              label={fatData.label}
-              size={88}
-              color={colors.semantic?.fat || colors.accent}
-            />
-          </View>
-          <View style={styles.macroItem}>
-            <RadialProgressBar
               current={carbsData.current}
               target={carbsData.target}
               unit={carbsData.unit}
               label={carbsData.label}
               size={88}
               color={colors.semantic?.carbs || colors.accent}
+            />
+          </View>
+          <View style={styles.macroItem}>
+            <RadialProgressBar
+              current={fatData.current}
+              target={fatData.target}
+              unit={fatData.unit}
+              label={fatData.label}
+              size={88}
+              color={colors.semantic?.fat || colors.accent}
             />
           </View>
         </View>

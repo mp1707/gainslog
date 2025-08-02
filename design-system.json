@@ -1,8 +1,8 @@
 {
   "designSystemProfile": {
     "name": "Focused Motivation",
-    "version": "1.2.1",
-    "description": "A design system focused on clarity and motivational feedback. It uses a primary accent for actions and a semantic color palette for at-a-glance understanding of nutritional data.",
+    "version": "1.2.3",
+    "description": "A design system focused on clarity and motivational feedback. Uses a purple accent for actions and semantic colors that align with user expectations for nutritional data.",
     "global": {
       "spacingUnit": 8,
       "pageMargins": {
@@ -23,33 +23,42 @@
         "white": "#FFFFFF",
         "disabledBackground": "rgba(17, 17, 17, 0.1)",
         "disabledText": "rgba(17, 17, 17, 0.4)",
+        "recording": "#FF3B30",
         "semantic": {
-          "calories": "#00C853",
-          "protein": "#1976D2",
-          "carbs": "#FF6F00",
-          "fat": "#00ACC1"
+          "calories": "#6200EA",
+          "protein": "#14B8A6",
+          "carbs": "#3B82F6",
+          "fat": "#F59E0B"
         },
         "semanticBadges": {
           "calories": {
-            "background": "rgba(0, 200, 83, 0.15)",
-            "text": "#00C853"
+            "background": "rgba(98,0,234,0.15)",
+            "text": "#6200EA"
           },
           "protein": {
-            "background": "rgba(25, 118, 210, 0.15)",
-            "text": "#1976D2"
+            "background": "rgba(20,184,166,0.15)",
+            "text": "#14B8A6"
           },
           "carbs": {
-            "background": "rgba(255, 111, 0, 0.15)",
-            "text": "#FF6F00"
+            "background": "rgba(59,130,246,0.15)",
+            "text": "#3B82F6"
           },
           "fat": {
-            "background": "rgba(0, 172, 193, 0.15)",
-            "text": "#00ACC1"
+            "background": "rgba(245,158,11,0.15)",
+            "text": "#F59E0B"
           }
         },
         "iconBadges": {
           "background": "rgba(98, 0, 234, 0.15)",
           "iconColor": "#6200EA"
+        },
+        "stateColors": {
+          "error": "#D32F2F",
+          "errorBackground": "rgba(211, 47, 47, 0.1)",
+          "warning": "#FF9800",
+          "warningBackground": "rgba(255, 152, 0, 0.1)",
+          "success": "#2E7D32",
+          "successBackground": "rgba(46, 125, 50, 0.1)"
         }
       },
       "dark": {
@@ -62,33 +71,42 @@
         "white": "#FFFFFF",
         "disabledBackground": "rgba(242, 242, 247, 0.15)",
         "disabledText": "rgba(242, 242, 247, 0.4)",
+        "recording": "#FF3B30",
         "semantic": {
-          "calories": "#69F0AE",
-          "protein": "#42A5F5",
-          "carbs": "#FFB74D",
-          "fat": "#4DD0E1"
+          "calories": "#7C4DFF",
+          "protein": "#5EEAD4",
+          "carbs": "#60A5FA",
+          "fat": "#FCD34D"
         },
         "semanticBadges": {
           "calories": {
-            "background": "rgba(105, 240, 174, 0.15)",
-            "text": "#69F0AE"
+            "background": "rgba(124,77,255,0.15)",
+            "text": "#7C4DFF"
           },
           "protein": {
-            "background": "rgba(66, 165, 245, 0.15)",
-            "text": "#42A5F5"
+            "background": "rgba(94,234,212,0.15)",
+            "text": "#5EEAD4"
           },
           "carbs": {
-            "background": "rgba(255, 183, 77, 0.15)",
-            "text": "#FFB74D"
+            "background": "rgba(96,165,250,0.15)",
+            "text": "#60A5FA"
           },
           "fat": {
-            "background": "rgba(77, 208, 225, 0.15)",
-            "text": "#4DD0E1"
+            "background": "rgba(252,211,77,0.15)",
+            "text": "#FCD34D"
           }
         },
         "iconBadges": {
-          "background": "rgba(124, 77, 255, 0.15)",
+          "background": "rgba(124,77,255,0.15)",
           "iconColor": "#7C4DFF"
+        },
+        "stateColors": {
+          "error": "#F44336",
+          "errorBackground": "rgba(244, 67, 54, 0.15)",
+          "warning": "#FF9800",
+          "warningBackground": "rgba(255, 152, 0, 0.15)",
+          "success": "#4CAF50",
+          "successBackground": "rgba(76, 175, 80, 0.15)"
         }
       }
     },

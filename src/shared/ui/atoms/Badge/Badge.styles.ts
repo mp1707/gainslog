@@ -60,43 +60,43 @@ export const createStyles = (colors: any) => StyleSheet.create({
     color: colors.secondaryText,
   },
 
-  // Semantic nutrient styles
+  // Semantic nutrient styles using theme system
   semanticCalories: {
-    backgroundColor: colors.semantic?.calories ? `${colors.semantic.calories}26` : 'rgba(52, 199, 89, 0.15)', // 15% opacity
+    backgroundColor: colors.semanticBadges?.calories?.background || 'rgba(98, 0, 234, 0.15)',
   },
 
   semanticProtein: {
-    backgroundColor: colors.semantic?.protein ? `${colors.semantic.protein}26` : 'rgba(10, 132, 255, 0.15)', // 15% opacity
+    backgroundColor: colors.semanticBadges?.protein?.background || 'rgba(20, 184, 166, 0.15)',
   },
 
   semanticCarbs: {
-    backgroundColor: colors.semantic?.carbs ? `${colors.semantic.carbs}26` : 'rgba(255, 159, 10, 0.15)', // 15% opacity
+    backgroundColor: colors.semanticBadges?.carbs?.background || 'rgba(59, 130, 246, 0.15)',
   },
 
   semanticFat: {
-    backgroundColor: colors.semantic?.fat ? `${colors.semantic.fat}26` : 'rgba(255, 214, 10, 0.15)', // 15% opacity
+    backgroundColor: colors.semanticBadges?.fat?.background || 'rgba(245, 158, 11, 0.15)',
   },
 
-  // Semantic text colors
+  // Semantic text colors using theme system
   semanticCaloriesText: {
-    color: colors.semantic?.calories || '#34C759',
+    color: colors.semanticBadges?.calories?.text || colors.semantic?.calories || '#6200EA',
   },
 
   semanticProteinText: {
-    color: colors.semantic?.protein || '#0A84FF',
+    color: colors.semanticBadges?.protein?.text || colors.semantic?.protein || '#14B8A6',
   },
 
   semanticCarbsText: {
-    color: colors.semantic?.carbs || '#FF9F0A',
+    color: colors.semanticBadges?.carbs?.text || colors.semantic?.carbs || '#3B82F6',
   },
 
   semanticFatText: {
-    color: colors.semantic?.fat || '#FFD60A',
+    color: colors.semanticBadges?.fat?.text || colors.semantic?.fat || '#F59E0B',
   },
 
-  // Icon badge style
+  // Icon badge style using theme system
   iconBadge: {
-    backgroundColor: `${colors.accent}26`, // 15% opacity of accent color
+    backgroundColor: colors.iconBadge?.background || 'rgba(98, 0, 234, 0.15)',
   },
 });
 

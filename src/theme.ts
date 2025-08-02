@@ -6,7 +6,7 @@ const SPACING_UNIT = 8;
 
 // Color palettes
 const lightColors = {
-  accent: '#6200EA', // More vibrant, modern purple
+  accent: '#6200EA',
   primaryBackground: '#F9F9F9',
   secondaryBackground: '#FFFFFF',
   primaryText: '#111111',
@@ -18,10 +18,29 @@ const lightColors = {
   recording: '#FF3B30', // iOS system red for recording/stop states
   // Semantic colors for nutrition data visualization (WCAG AA compliant)
   semantic: {
-    calories: '#00C853', // Vibrant nature-inspired green for health/vitality
-    protein: '#1976D2', // Deep trustworthy blue for strength/building
-    carbs: '#FF6F00', // Warm energetic orange for fuel/energy
-    fat: '#00ACC1', // Distinctive teal for balance and healthy fats (replaces similar amber)
+    calories: '#6200EA', // Using accent color for calories
+    protein: '#14B8A6', // Teal for protein
+    carbs: '#3B82F6', // Blue for carbs
+    fat: '#F59E0B', // Amber for fat
+  },
+  // Semantic badge colors with proper backgrounds and text
+  semanticBadges: {
+    calories: {
+      background: 'rgba(98, 0, 234, 0.15)',
+      text: '#6200EA',
+    },
+    protein: {
+      background: 'rgba(20, 184, 166, 0.15)',
+      text: '#14B8A6',
+    },
+    carbs: {
+      background: 'rgba(59, 130, 246, 0.15)',
+      text: '#3B82F6',
+    },
+    fat: {
+      background: 'rgba(245, 158, 11, 0.15)',
+      text: '#F59E0B',
+    },
   },
   // State colors - modern, accessible variants
   error: '#D32F2F', // Deeper red for better contrast and modern feel
@@ -38,7 +57,7 @@ const lightColors = {
 } as const; 
 
 const darkColors = {
-  accent: '#7C4DFF', // Lighter purple for dark mode
+  accent: '#7C4DFF',
   primaryBackground: '#000000',
   secondaryBackground: '#1C1C1E',
   primaryText: '#F2F2F7',
@@ -50,10 +69,29 @@ const darkColors = {
   recording: '#FF3B30', // iOS system red for recording/stop states
   // Semantic colors for nutrition data visualization (optimized for dark backgrounds)
   semantic: {
-    calories: '#69F0AE', // Lighter green for dark backgrounds while maintaining vibrancy
-    protein: '#42A5F5', // Lighter blue for dark backgrounds with good contrast
-    carbs: '#FFB74D', // Lighter orange for dark backgrounds, warm and accessible
-    fat: '#4DD0E1', // Light teal for dark mode, distinctly different from orange carbs
+    calories: '#7C4DFF', // Using dark accent color for calories
+    protein: '#5EEAD4', // Light teal for protein
+    carbs: '#60A5FA', // Light blue for carbs
+    fat: '#FCD34D', // Light amber for fat
+  },
+  // Semantic badge colors with proper backgrounds and text
+  semanticBadges: {
+    calories: {
+      background: 'rgba(124, 77, 255, 0.15)',
+      text: '#7C4DFF',
+    },
+    protein: {
+      background: 'rgba(94, 234, 212, 0.15)',
+      text: '#5EEAD4',
+    },
+    carbs: {
+      background: 'rgba(96, 165, 250, 0.15)',
+      text: '#60A5FA',
+    },
+    fat: {
+      background: 'rgba(252, 211, 77, 0.15)',
+      text: '#FCD34D',
+    },
   },
   // State colors - optimized for dark mode
   error: '#F44336', // Lighter red for dark backgrounds with good contrast
