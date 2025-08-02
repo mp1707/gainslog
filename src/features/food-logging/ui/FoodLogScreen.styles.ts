@@ -1,12 +1,15 @@
 import { StyleSheet } from "react-native";
 import { theme } from "../../../theme";
+import type { Colors } from "../../../theme";
 
-export const createStyles = (colors: any, bottomPadding?: number) => StyleSheet.create({
+export const createStyles = (colors: Colors, bottomPadding?: number) => StyleSheet.create({
+  // Main container styles
   container: {
     flex: 1,
     backgroundColor: colors.primaryBackground,
   },
 
+  // ScrollView styles
   scrollView: {
     flex: 1,
     paddingTop: theme.spacing.md,
@@ -25,7 +28,6 @@ export const createStyles = (colors: any, bottomPadding?: number) => StyleSheet.
     alignItems: 'center',
     paddingHorizontal: theme.spacing.pageMargins.horizontal,
   },
-
 
   // Loading state
   loadingContainer: {

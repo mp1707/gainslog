@@ -1,33 +1,16 @@
 import React from "react";
-import { View, ScrollView, Platform, TouchableOpacity } from "react-native";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
-import Animated, {
-  Layout,
-  FadeInUp,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-  Easing,
-} from "react-native-reanimated";
-import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import {
-  SwipeToDelete,
-  SkeletonCard,
-  ExpandableFAB,
-  PageHeader,
-} from "@/shared/ui";
-import { FoodLogCard } from "./FoodLogCard";
-import { FoodLog } from "../../../types";
+import { ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ExpandableFAB } from "@/shared/ui";
+import { FoodLog } from "@/types";
 import { createStyles } from "./FoodLogScreen.styles";
-import { useFoodLogStore } from "../../../stores/useFoodLogStore";
-import { useTheme } from "../../../providers/ThemeProvider";
-import { Card } from "../../../components/Card";
-import { AppText } from "../../../components/AppText";
-import { RadialProgressBar } from "../../../shared/ui/atoms/RadialProgressBar";
+import { useFoodLogStore } from "@/stores/useFoodLogStore";
+import { useTheme } from "@/providers/ThemeProvider";
+import { useDateNavigation } from "./hooks/useDateNavigation";
+import { useTabBarSpacing } from "./hooks/useTabBarSpacing";
+import { DateNavigationHeader } from "./components/DateNavigationHeader";
+import { NutritionProgressCard } from "./components/NutritionProgressCard";
+import { FoodLogsList } from "./components/FoodLogsList";
 
 interface FoodLogScreenProps {
   isLoadingLogs: boolean;
@@ -41,8 +24,6 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   onAddInfo,
 }) => {
   const {
-    selectedDate,
-    setSelectedDate,
     getDailyProgress,
     triggerManualLog,
     triggerCameraCapture,
@@ -51,116 +32,19 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
     getFilteredFoodLogs,
   } = useFoodLogStore();
 
-  const { theme, colors, colorScheme } = useTheme();
-  const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
+  const { dynamicBottomPadding } = useTabBarSpacing();
+  const {
+    selectedDate,
+    handleDateChange,
+    navigateToPreviousDay,
+    navigateToNextDay,
+    isToday,
+  } = useDateNavigation();
+
   const dailyProgress = getDailyProgress();
-
-  // Helper function to convert Date to local date string (YYYY-MM-DD)
-  const dateToLocalDateString = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-
-  const handleDateChange = (event: any, selectedDate?: Date) => {
-    if (selectedDate) {
-      const dateString = dateToLocalDateString(selectedDate);
-      setSelectedDate(dateString);
-    }
-  };
-
-  const navigateToPreviousDay = () => {
-    const currentDate = new Date(selectedDate);
-    currentDate.setDate(currentDate.getDate() - 1);
-    const dateString = dateToLocalDateString(currentDate);
-    setSelectedDate(dateString);
-  };
-
-  const navigateToNextDay = () => {
-    const currentDate = new Date(selectedDate);
-    currentDate.setDate(currentDate.getDate() + 1);
-    const dateString = dateToLocalDateString(currentDate);
-    setSelectedDate(dateString);
-  };
-
-  // Check if the selected date is today to disable next button
-  const isToday = () => {
-    const today = new Date();
-    const todayString = dateToLocalDateString(today);
-    return selectedDate === todayString;
-  };
-
-  // Prepare nutrition data
-  const caloriesData = {
-    current: Math.round(dailyProgress.current.calories),
-    target: dailyProgress.targets.calories,
-    unit: "",
-    label: "Calories",
-  };
-
-  const proteinData = {
-    current: Math.round(dailyProgress.current.protein),
-    target: dailyProgress.targets.protein,
-    unit: "g",
-    label: "Protein",
-  };
-
-  const fatData = {
-    current: Math.round(dailyProgress.current.fat),
-    target: dailyProgress.targets.fat,
-    unit: "g",
-    label: "Fat",
-  };
-
-  const carbsData = {
-    current: Math.round(dailyProgress.current.carbs),
-    target: dailyProgress.targets.carbs,
-    unit: "g",
-    label: "Carbs",
-  };
-
-  // Animated style for calories progress bar with design system timing
-  const caloriesProgress = useSharedValue(0);
-
-  // Update progress with motivational moment animation
-  React.useEffect(() => {
-    caloriesProgress.value = withTiming(
-      Math.min(100, dailyProgress.percentages.calories),
-      {
-        duration: 500,
-        easing: Easing.bezier(0.25, 1, 0.5, 1),
-      }
-    );
-  }, [dailyProgress.percentages.calories]);
-
-  const caloriesAnimatedStyle = useAnimatedStyle(() => ({
-    width: `${caloriesProgress.value}%`,
-  }));
-
-  // Calculate platform-specific tab bar height for Expo Router
-  const getTabBarHeight = () => {
-    if (Platform.OS === "ios") {
-      // iOS tab bar: 49px standard height + bottom safe area
-      return 49 + insets.bottom;
-    } else {
-      // Android tab bar: 56px standard height
-      return 56;
-    }
-  };
-
-  // Calculate dynamic bottom padding
-  // Tab bar height + FAB spacing + extra clearance for comfortable scrolling
-  const tabBarHeight = getTabBarHeight();
-  const dynamicBottomPadding =
-    tabBarHeight + theme.spacing.lg + theme.spacing.md;
-
   const styles = createStyles(colors, dynamicBottomPadding);
   const filteredFoodLogs = getFilteredFoodLogs();
-
-  const handleDeleteLog = async (logId: string) => {
-    await onDeleteLog(logId);
-  };
 
   const handleManualLog = () => {
     triggerManualLog();
@@ -180,232 +64,28 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      {/* Sticky Date Picker Card */}
-      <PageHeader>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: theme.spacing.md,
-            minHeight: 40,
-          }}
-        >
-          <TouchableOpacity
-            onPress={navigateToPreviousDay}
-            style={{
-              padding: theme.spacing.sm,
-              borderRadius: theme.spacing.sm,
-              backgroundColor: colors.secondaryBackground,
-              borderWidth: 1,
-              borderColor: colors.border,
-              shadowColor: "rgba(0, 0, 0, 0.05)",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 1,
-              shadowRadius: 4,
-              elevation: 2,
-            }}
-          >
-            <CaretLeftIcon
-              size={16}
-              color={colors.secondaryText}
-              weight="regular"
-            />
-          </TouchableOpacity>
-
-          <View
-            style={{
-              flexShrink: 0,
-              marginLeft: -10,
-            }}
-          >
-            <DateTimePicker
-              value={new Date(selectedDate)}
-              mode="date"
-              display={Platform.OS === "ios" ? "compact" : "default"}
-              onChange={handleDateChange}
-              maximumDate={new Date()}
-              {...(Platform.OS === "ios" && {
-                themeVariant: colorScheme,
-                textColor: colors.primaryText,
-                accentColor: colors.accent,
-              })}
-            />
-          </View>
-
-          <TouchableOpacity
-            onPress={navigateToNextDay}
-            style={[
-              {
-                padding: theme.spacing.sm,
-                borderRadius: theme.spacing.sm,
-                backgroundColor: colors.secondaryBackground,
-                borderWidth: 1,
-                borderColor: colors.border,
-                shadowColor: "rgba(0, 0, 0, 0.05)",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 1,
-                shadowRadius: 4,
-                elevation: 2,
-              },
-              isToday() && {
-                backgroundColor: colors.disabledBackground,
-                borderColor: colors.border,
-                opacity: 0.5,
-              },
-            ]}
-            disabled={isToday()}
-          >
-            <CaretRightIcon
-              size={16}
-              color={isToday() ? colors.disabledText : colors.secondaryText}
-              weight="regular"
-            />
-          </TouchableOpacity>
-        </View>
-      </PageHeader>
+      <DateNavigationHeader
+        selectedDate={selectedDate}
+        onDateChange={handleDateChange}
+        onNavigatePrevious={navigateToPreviousDay}
+        onNavigateNext={navigateToNextDay}
+        isToday={isToday()}
+      />
 
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Nutrition Progress Card */}
-        <Card style={{ padding: theme.spacing.lg }}>
-          <View style={{ gap: theme.spacing.md }}>
-            {/* Calories Section */}
-            <View style={{ alignItems: "center" }}>
-              <AppText role="Title2" style={{ marginBottom: theme.spacing.sm }}>
-                {caloriesData.label}
-              </AppText>
-              <View
-                style={{
-                  width: "100%",
-                  alignItems: "center",
-                  gap: theme.spacing.sm,
-                  paddingHorizontal: theme.spacing.sm,
-                }}
-              >
-                <AppText role="Headline" style={{ textAlign: "center" }}>
-                  {caloriesData.current} / {caloriesData.target} kcal
-                </AppText>
-                <View
-                  style={{
-                    width: "100%",
-                    height: theme.components.progressBars.height,
-                    backgroundColor: colors.disabledBackground,
-                    borderRadius: theme.components.progressBars.cornerRadius,
-                    overflow: "hidden",
-                    position: "relative",
-                  }}
-                >
-                  <Animated.View
-                    style={[
-                      {
-                        height: "100%",
-                        borderRadius:
-                          theme.components.progressBars.cornerRadius,
-                        minWidth: 1,
-                        position: "absolute",
-                        left: 0,
-                        top: 0,
-                        backgroundColor: colors.accent,
-                      },
-                      caloriesAnimatedStyle,
-                    ]}
-                  />
-                </View>
-              </View>
-            </View>
-
-            {/* Subtle Separator */}
-            <View
-              style={{
-                height: 1,
-                backgroundColor: colors.border,
-                marginHorizontal: theme.spacing.sm,
-                marginTop: theme.spacing.sm,
-                opacity: 0.3,
-              }}
-            />
-
-            {/* Macros Section */}
-            <View style={{ gap: theme.spacing.sm }}>
-              <AppText
-                role="Headline"
-                style={{
-                  textAlign: "center",
-                  marginBottom: theme.spacing.xs,
-                }}
-              >
-                Macronutrients
-              </AppText>
-              <View style={{ flexDirection: "row", gap: theme.spacing.sm }}>
-                <View style={{ flex: 1, alignItems: "center" }}>
-                  <RadialProgressBar
-                    current={proteinData.current}
-                    target={proteinData.target}
-                    unit={proteinData.unit}
-                    label={proteinData.label}
-                    size={88}
-                  />
-                </View>
-                <View style={{ flex: 1, alignItems: "center" }}>
-                  <RadialProgressBar
-                    current={fatData.current}
-                    target={fatData.target}
-                    unit={fatData.unit}
-                    label={fatData.label}
-                    size={88}
-                  />
-                </View>
-                <View style={{ flex: 1, alignItems: "center" }}>
-                  <RadialProgressBar
-                    current={carbsData.current}
-                    target={carbsData.target}
-                    unit={carbsData.unit}
-                    label={carbsData.label}
-                    size={88}
-                  />
-                </View>
-              </View>
-            </View>
-          </View>
-        </Card>
-
-        {isLoadingLogs ? (
-          <Animated.View>
-            {[1, 2, 3].map((i) => (
-              <Animated.View
-                key={i}
-                entering={FadeInUp.delay(i * 80)
-                  .springify()
-                  .damping(18)
-                  .stiffness(150)}
-                layout={Layout.springify().damping(18).stiffness(150).mass(1)}
-              >
-                <SkeletonCard />
-              </Animated.View>
-            ))}
-          </Animated.View>
-        ) : (
-          filteredFoodLogs.map((log, index) => (
-            <Animated.View
-              key={log.id}
-              entering={FadeInUp.delay(index * 80)
-                .springify()
-                .damping(18)
-                .stiffness(150)}
-              layout={Layout.springify().damping(18).stiffness(150).mass(1)}
-            >
-              <SwipeToDelete onDelete={() => handleDeleteLog(log.id)}>
-                <FoodLogCard foodLog={log} onAddInfo={onAddInfo} />
-              </SwipeToDelete>
-            </Animated.View>
-          ))
-        )}
+        <NutritionProgressCard dailyProgress={dailyProgress} />
+        
+        <FoodLogsList
+          isLoadingLogs={isLoadingLogs}
+          foodLogs={filteredFoodLogs}
+          onDeleteLog={onDeleteLog}
+          onAddInfo={onAddInfo}
+        />
       </ScrollView>
 
-      {/* Expandable Floating Action Button */}
       <ExpandableFAB
         onManualLog={handleManualLog}
         onCameraLog={handleCameraLog}
