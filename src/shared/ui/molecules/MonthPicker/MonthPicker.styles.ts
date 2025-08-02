@@ -5,7 +5,7 @@ export const createStyles = (
   colors: any,
   themeObj: typeof defaultTheme = defaultTheme
 ) => {
-  const { typography, spacing } = themeObj;
+  const { spacing } = themeObj;
 
   return StyleSheet.create({
     container: {
@@ -19,9 +19,9 @@ export const createStyles = (
       padding: spacing.sm,
       borderRadius: spacing.sm,
       backgroundColor: colors.secondaryBackground,
-      borderWidth: StyleSheet.hairlineWidth,
+      borderWidth: 1,
       borderColor: colors.border,
-      shadowColor: 'rgba(0, 0, 0, 0.05)',
+      shadowColor: "rgba(0, 0, 0, 0.05)",
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 1,
       shadowRadius: 4,
@@ -33,14 +33,18 @@ export const createStyles = (
       opacity: 0.5,
     },
     monthTextContainer: {
-      backgroundColor: colors.disabledBackground,
-      paddingHorizontal: spacing.xs,
-      paddingVertical: spacing.sm - 1,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flexShrink: 0,
+      height: 34,
       borderRadius: spacing.sm,
+      backgroundColor: colors.disabledBackground,
     },
     monthText: {
       color: colors.primaryText,
       textAlign: "center",
+      paddingHorizontal: spacing.md,
       minWidth: 150,
     },
   });

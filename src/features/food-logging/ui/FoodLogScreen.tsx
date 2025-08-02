@@ -9,7 +9,8 @@ import { useTheme } from "@/providers/ThemeProvider";
 import { useDateNavigation } from "./hooks/useDateNavigation";
 import { useTabBarSpacing } from "./hooks/useTabBarSpacing";
 import { DateNavigationHeader } from "./components/DateNavigationHeader";
-import { NutritionProgressCard } from "./components/NutritionProgressCard";
+import { MacronutriensSection } from "./components/MacronutriensSection";
+import { CaloriesSection } from "./components/CaloriesSection";
 import { FoodLogsList } from "./components/FoodLogsList";
 
 interface FoodLogScreenProps {
@@ -76,8 +77,10 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
       >
-        <NutritionProgressCard dailyProgress={dailyProgress} />
-        
+        <CaloriesSection dailyProgress={dailyProgress} />
+
+        <MacronutriensSection dailyProgress={dailyProgress} />
+
         <FoodLogsList
           isLoadingLogs={isLoadingLogs}
           foodLogs={filteredFoodLogs}
