@@ -179,7 +179,7 @@ export default function SettingsTab() {
         {isCalorieCard && (
           <View style={styles.proteinActions}>
             <TouchableOpacity
-              style={styles.calculateButton}
+              style={[styles.calculateButton, { borderColor: colors.semantic.calories }]}
               onPress={() => setIsCalorieCalculatorVisible(true)}
               accessibilityRole="button"
               accessibilityLabel="Open calorie calculator"
@@ -187,7 +187,7 @@ export default function SettingsTab() {
             >
               <CalculatorIcon
                 size={16}
-                color={colors.accent}
+                color={colors.primaryText}
                 weight="regular"
               />
               <Text style={styles.calculateButtonText}>
@@ -200,7 +200,7 @@ export default function SettingsTab() {
         {isProteinCard && (
           <View style={styles.proteinActions}>
             <TouchableOpacity
-              style={styles.calculateButton}
+              style={[styles.calculateButton, { borderColor: colors.semantic.protein }]}
               onPress={() => setIsProteinCalculatorVisible(true)}
               accessibilityRole="button"
               accessibilityLabel="Open protein calculator"
@@ -208,7 +208,7 @@ export default function SettingsTab() {
             >
               <CalculatorIcon
                 size={16}
-                color={colors.accent}
+                color={colors.primaryText}
                 weight="regular"
               />
               <Text style={styles.calculateButtonText}>
@@ -272,6 +272,7 @@ export default function SettingsTab() {
               max={config.max}
               step={config.step}
               onChange={(value) => handleTargetChange(config.key, value)}
+              type={config.key}
             />
           </View>
 
@@ -457,7 +458,6 @@ const createStyles = (
     calculateButton: {
       backgroundColor: "transparent",
       borderWidth: 1.5,
-      borderColor: colors.accent,
       paddingHorizontal: spacing.lg,
       paddingVertical: spacing.md,
       borderRadius: 12,
@@ -471,7 +471,7 @@ const createStyles = (
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
       fontWeight: typography.Body.fontWeight,
-      color: colors.accent,
+      color: colors.primaryText,
     },
     calculationInfo: {
       backgroundColor:

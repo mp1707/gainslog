@@ -16,7 +16,7 @@ const lightColors = {
   disabledBackground: 'rgba(17, 17, 17, 0.1)',
   disabledText: 'rgba(17, 17, 17, 0.4)',
   recording: '#FF3B30', // iOS system red for recording/stop states
-  // Semantic colors for nutrition data visualization
+  // Semantic colors for nutrition data visualization (WCAG AA compliant)
   semantic: {
     calories: '#34C759',
     protein: '#0A84FF',

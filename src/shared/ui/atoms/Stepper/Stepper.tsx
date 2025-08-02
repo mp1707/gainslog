@@ -9,6 +9,7 @@ interface StepperProps {
   max?: number;
   step?: number;
   onChange: (value: number) => void;
+  type?: "calories" | "protein" | "carbs" | "fat" | "default";
 }
 
 export const Stepper: React.FC<StepperProps> = ({
@@ -17,6 +18,7 @@ export const Stepper: React.FC<StepperProps> = ({
   max = 10000,
   step = 1,
   onChange,
+  type = "default",
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(String(value));
@@ -51,13 +53,18 @@ export const Stepper: React.FC<StepperProps> = ({
     setIsEditing(false);
   };
 
+  const accentColor =
+    type === "calories"
+      ? colors.semantic.calories
+      : colors.semantic[type as keyof typeof colors.semantic];
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { borderColor: accentColor }]}>
       <TouchableOpacity
         style={[
-          styles.buttonBase, 
+          styles.buttonBase,
           styles.buttonLeft,
-          minusPressed && styles.buttonBasePressed
+          minusPressed && styles.buttonBasePressed,
         ]}
         onPress={handleMinus}
         onPressIn={() => setMinusPressed(true)}
@@ -66,7 +73,7 @@ export const Stepper: React.FC<StepperProps> = ({
         accessibilityLabel={`Decrease value by ${step}. Current value is ${value}`}
         accessibilityHint="Double tap to decrease the value"
       >
-        <Text style={styles.buttonText}>-</Text>
+        <Text style={[styles.buttonText, { color: accentColor }]}>-</Text>
       </TouchableOpacity>
 
       {isEditing ? (
@@ -98,9 +105,9 @@ export const Stepper: React.FC<StepperProps> = ({
 
       <TouchableOpacity
         style={[
-          styles.buttonBase, 
+          styles.buttonBase,
           styles.buttonRight,
-          plusPressed && styles.buttonBasePressed
+          plusPressed && styles.buttonBasePressed,
         ]}
         onPress={handlePlus}
         onPressIn={() => setPlusPressed(true)}
@@ -109,7 +116,7 @@ export const Stepper: React.FC<StepperProps> = ({
         accessibilityLabel={`Increase value by ${step}. Current value is ${value}`}
         accessibilityHint="Double tap to increase the value"
       >
-        <Text style={styles.buttonText}>+</Text>
+        <Text style={[styles.buttonText, { color: accentColor }]}>+</Text>
       </TouchableOpacity>
     </View>
   );

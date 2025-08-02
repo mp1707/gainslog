@@ -3,25 +3,36 @@ import { theme } from '../../../../theme';
 
 export const createStyles = (colors: any) => StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     paddingTop: theme.spacing.sm,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.border,
   },
 
-  macroItem: {
+  gridContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-around',
     alignItems: 'center',
-    gap: theme.spacing.xs,
+    flexWrap: 'nowrap',
+  },
+
+  macroItem: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    minWidth: 0, // Prevents overflow
+    gap: 2,
   },
 
   label: {
-    // Styling handled by AppText component
+    textAlign: 'center',
+    // Additional styling handled by AppText component
   },
 
   value: {
-    // Styling handled by AppText component  
+    textAlign: 'center',
+    fontWeight: '600', // Slightly bolder for better readability
+    // Additional styling handled by AppText component  
   },
 });
 

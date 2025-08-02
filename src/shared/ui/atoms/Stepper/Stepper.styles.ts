@@ -9,7 +9,6 @@ export const createStyles = (colors: any) =>
       borderRadius: 12,
       backgroundColor: colors.secondaryBackground,
       borderWidth: 1.5,
-      borderColor: colors.accent,
       shadowColor: colors.primaryText,
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.05,
