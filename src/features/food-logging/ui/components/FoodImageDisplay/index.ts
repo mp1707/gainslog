@@ -1,0 +1,1 @@
+export { FoodImageDisplay } from './FoodImageDisplay';
