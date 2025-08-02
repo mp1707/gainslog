@@ -63,20 +63,20 @@ export const styles = StyleSheet.create({
     color: colors.secondaryText,
   },
 
-  // Nutrition-specific label colors (using accent color for all)
+  // Nutrition-specific label colors using semantic colors
   caloriesLabel: {
-    color: colors.accent,
+    color: colors.semantic?.calories || colors.accent,
   },
 
   proteinLabel: {
-    color: colors.accent,
+    color: colors.semantic?.protein || colors.accent,
   },
 
   carbsLabel: {
-    color: colors.accent,
+    color: colors.semantic?.carbs || colors.accent,
   },
 
   fatLabel: {
-    color: colors.accent,
+    color: colors.semantic?.fat || colors.accent,
   },
 });

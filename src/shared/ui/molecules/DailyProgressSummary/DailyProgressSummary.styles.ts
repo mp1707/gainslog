@@ -34,7 +34,6 @@ export const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: colors.accent,
     borderRadius: 3,
     minWidth: 2,
   },

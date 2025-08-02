@@ -73,6 +73,7 @@ export const MacronutriensSection: React.FC<MacronutriensSectionProps> = ({
               unit={proteinData.unit}
               label={proteinData.label}
               size={88}
+              color={colors.semantic?.protein || colors.accent}
             />
           </View>
           <View style={styles.macroItem}>
@@ -82,6 +83,7 @@ export const MacronutriensSection: React.FC<MacronutriensSectionProps> = ({
               unit={fatData.unit}
               label={fatData.label}
               size={88}
+              color={colors.semantic?.fat || colors.accent}
             />
           </View>
           <View style={styles.macroItem}>
@@ -91,6 +93,7 @@ export const MacronutriensSection: React.FC<MacronutriensSectionProps> = ({
               unit={carbsData.unit}
               label={carbsData.label}
               size={88}
+              color={colors.semantic?.carbs || colors.accent}
             />
           </View>
         </View>

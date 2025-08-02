@@ -2,6 +2,7 @@ import React, { useCallback, useRef } from 'react';
 import { View, Text, Animated } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { styles } from './NutritionSlider.styles';
+import { useTheme } from '../../../../providers/ThemeProvider';
 
 interface NutritionSliderProps {
   label: string;
@@ -24,6 +25,7 @@ export function NutritionSlider({
   onValueChange,
   onSlidingComplete,
 }: NutritionSliderProps) {
+  const { colors } = useTheme();
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
   const handleValueChange = useCallback((newValue: number) => {
@@ -64,9 +66,9 @@ export function NutritionSlider({
           step={step}
           onValueChange={handleValueChange}
           onSlidingComplete={onSlidingComplete}
-          minimumTrackTintColor="#007AFF"
-          maximumTrackTintColor="#E5E5E7"
-          thumbTintColor="#007AFF"
+          minimumTrackTintColor={colors.accent}
+          maximumTrackTintColor={colors.border}
+          thumbTintColor={colors.accent}
           tapToSeek={true}
         />
         <View style={styles.rangeLabels}>

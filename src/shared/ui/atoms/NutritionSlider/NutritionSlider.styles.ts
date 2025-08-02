@@ -1,4 +1,8 @@
 import { StyleSheet } from 'react-native';
+import { theme } from '../../../../theme';
+
+const colors = theme.getColors();
+const { typography, spacing } = theme;
 
 export const styles = StyleSheet.create({
   container: {
@@ -12,15 +16,17 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
   label: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#1C1C1E',
+    fontSize: typography.Body.fontSize,
+    fontWeight: typography.Headline.fontWeight,
+    fontFamily: typography.Body.fontFamily,
+    color: colors.primaryText,
     letterSpacing: -0.4,
   },
   value: {
-    fontSize: 17,
-    fontWeight: '500',
-    color: '#007AFF',
+    fontSize: typography.Body.fontSize,
+    fontWeight: typography.Headline.fontWeight,
+    fontFamily: typography.Body.fontFamily,
+    color: colors.accent,
     letterSpacing: -0.4,
     minWidth: 70,
     textAlign: 'right',
@@ -39,9 +45,10 @@ export const styles = StyleSheet.create({
     marginTop: 4,
   },
   rangeLabel: {
-    fontSize: 13,
-    fontWeight: '400',
-    color: '#8E8E93',
+    fontSize: typography.Caption.fontSize,
+    fontWeight: typography.Caption.fontWeight,
+    fontFamily: typography.Caption.fontFamily,
+    color: colors.secondaryText,
     letterSpacing: -0.08,
   },
 });

@@ -119,7 +119,7 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
       accessibilityRole="button"
       accessibilityLabel={`Food log: ${foodLog.userTitle || foodLog.generatedTitle}`}
       accessibilityHint="Tap to edit or add more information"
-      android_ripple={{ color: 'rgba(255, 122, 90, 0.1)' }}
+      android_ripple={{ color: 'rgba(138, 63, 252, 0.1)' }}
     >
       <Animated.View style={[styles.cardContainer, cardAnimatedStyle]}>
         {isLoading ? (

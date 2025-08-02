@@ -6,7 +6,7 @@ const SPACING_UNIT = 8;
 
 // Color palettes
 const lightColors = {
-  accent: '#FF7A5A',
+  accent: '#8A3FFC',
   primaryBackground: '#F9F9F9',
   secondaryBackground: '#FFFFFF',
   primaryText: '#111111',
@@ -16,6 +16,13 @@ const lightColors = {
   disabledBackground: 'rgba(17, 17, 17, 0.1)',
   disabledText: 'rgba(17, 17, 17, 0.4)',
   recording: '#FF3B30', // iOS system red for recording/stop states
+  // Semantic colors for nutrition data visualization
+  semantic: {
+    calories: '#34C759',
+    protein: '#0A84FF',
+    carbs: '#FF9F0A',
+    fat: '#FFD60A',
+  },
   // State colors following iOS design language
   error: '#FF3B30', // iOS system red
   errorBackground: 'rgba(255, 59, 48, 0.1)',
@@ -26,7 +33,7 @@ const lightColors = {
 } as const; 
 
 const darkColors = {
-  accent: '#FF7A5A',
+  accent: '#9E66FF',
   primaryBackground: '#000000',
   secondaryBackground: '#1C1C1E',
   primaryText: '#F2F2F7',
@@ -36,6 +43,13 @@ const darkColors = {
   disabledBackground: 'rgba(242, 242, 247, 0.15)',
   disabledText: 'rgba(242, 242, 247, 0.4)',
   recording: '#FF3B30', // iOS system red for recording/stop states
+  // Semantic colors for nutrition data visualization
+  semantic: {
+    calories: '#32D74B',
+    protein: '#0B84FF',
+    carbs: '#FF9500',
+    fat: '#FFCC0A',
+  },
   // State colors following iOS design language
   error: '#FF3B30', // iOS system red
   errorBackground: 'rgba(255, 59, 48, 0.15)', // Slightly more opacity for dark mode
@@ -95,7 +109,7 @@ const typography = {
 const spacing = {
   unit: SPACING_UNIT,
   pageMargins: {
-    horizontal: 16,
+    horizontal: 20,
   },
   xs: SPACING_UNIT * 0.5, // 4
   sm: SPACING_UNIT, // 8
@@ -134,7 +148,7 @@ const components = {
         textColor: lightColors.white,
       },
       active: {
-        backgroundColor: '#E06A4F',
+        backgroundColor: '#6929CC',
         textColor: lightColors.white,
       },
       disabled: {
@@ -150,7 +164,7 @@ const components = {
         borderColor: lightColors.accent,
       },
       active: {
-        backgroundColor: 'rgba(255, 122, 90, 0.1)',
+        backgroundColor: 'rgba(138, 63, 252, 0.1)',
         textColor: lightColors.accent,
         borderWidth: 1.5,
         borderColor: lightColors.accent,
@@ -207,7 +221,7 @@ const animations = {
         easing: 'linear',
         gradient: [
           'transparent',
-          'rgba(255, 122, 90, 0.4)',
+          'rgba(138, 63, 252, 0.4)',
           'transparent',
         ],
       },

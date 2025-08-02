@@ -2,12 +2,15 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { styles } from './DailyProgressSummary.styles';
 import { DailyProgress } from '../../../../types';
+import { useTheme } from '../../../../providers/ThemeProvider';
 
 interface DailyProgressSummaryProps {
   progress: DailyProgress;
 }
 
 export function DailyProgressSummary({ progress }: DailyProgressSummaryProps) {
+  const { colors } = useTheme();
+  
   return (
     <View style={styles.container}>
       {/* Protein Progress */}
@@ -17,7 +20,10 @@ export function DailyProgressSummary({ progress }: DailyProgressSummaryProps) {
           <View 
             style={[
               styles.progressFill, 
-              { width: `${Math.min(100, progress.percentages.protein)}%` }
+              { 
+                width: `${Math.min(100, progress.percentages.protein)}%`,
+                backgroundColor: colors.semantic?.protein || colors.accent
+              }
             ]} 
           />
         </View>

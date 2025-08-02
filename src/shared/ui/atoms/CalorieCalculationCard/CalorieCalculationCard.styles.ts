@@ -20,8 +20,8 @@ export const createStyles = (
     selectedContainer: {
       borderColor: colors.accent,
       backgroundColor: colorScheme === 'light' 
-        ? 'rgba(255, 122, 90, 0.05)' 
-        : 'rgba(255, 122, 90, 0.1)',
+        ? 'rgba(138, 63, 252, 0.05)' 
+        : 'rgba(158, 102, 255, 0.1)',
     },
     content: {
       flexDirection: 'column',

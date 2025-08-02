@@ -85,7 +85,7 @@ export const CaloriesSection: React.FC<CaloriesSectionProps> = ({
     },
     progressBarFill: {
       height: "100%",
-      backgroundColor: theme.getComponentStyles(colorScheme).progressBars.fillColor,
+      backgroundColor: colors.semantic?.calories || colors.accent,
       borderRadius: theme.components.progressBars.cornerRadius,
     },
     headerStyle: {

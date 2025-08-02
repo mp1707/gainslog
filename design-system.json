@@ -1,8 +1,8 @@
 {
   "designSystemProfile": {
     "name": "Focused Motivation",
-    "version": "1.1.0",
-    "description": "A design system focused on clarity, simplicity, and motivational feedback for an AI-powered food tracking app. The core principle is a minimalist UI punctuated by energetic, rewarding feedback.",
+    "version": "1.2.0",
+    "description": "A design system focused on clarity and motivational feedback. It uses a primary accent for actions and a semantic color palette for at-a-glance understanding of nutritional data.",
     "global": {
       "spacingUnit": 8,
       "pageMargins": {
@@ -14,7 +14,7 @@
     },
     "colorPalettes": {
       "light": {
-        "accent": "#FF7A5A",
+        "accent": "#8A3FFC",
         "primaryBackground": "#F9F9F9",
         "secondaryBackground": "#FFFFFF",
         "primaryText": "#111111",
@@ -22,10 +22,16 @@
         "border": "#EAEAEA",
         "white": "#FFFFFF",
         "disabledBackground": "rgba(17, 17, 17, 0.1)",
-        "disabledText": "rgba(17, 17, 17, 0.4)"
+        "disabledText": "rgba(17, 17, 17, 0.4)",
+        "semantic": {
+          "calories": "#34C759",
+          "protein": "#0A84FF",
+          "carbs": "#FF9F0A",
+          "fat": "#FFD60A"
+        }
       },
       "dark": {
-        "accent": "#FF7A5A",
+        "accent": "#9E66FF",
         "primaryBackground": "#000000",
         "secondaryBackground": "#1C1C1E",
         "primaryText": "#F2F2F7",
@@ -33,7 +39,13 @@
         "border": "#38383A",
         "white": "#FFFFFF",
         "disabledBackground": "rgba(242, 242, 247, 0.15)",
-        "disabledText": "rgba(242, 242, 247, 0.4)"
+        "disabledText": "rgba(242, 242, 247, 0.4)",
+        "semantic": {
+          "calories": "#32D74B",
+          "protein": "#0B84FF",
+          "carbs": "#FF9500",
+          "fat": "#FFCC0A"
+        }
       }
     },
     "typography": {
@@ -104,6 +116,7 @@
       },
       "rules": [
         "DO NOT use the accent color unless the icon represents a primary action or a selected state.",
+        "DO NOT use semantic colors for general iconography; they are reserved for data visualization.",
         "DO NOT place icons within colored container backgrounds unless specified by a component (e.g., AI Action Target).",
         "DO NOT use gradients for icon fills."
       ]
@@ -122,10 +135,7 @@
             "blur": 12,
             "color": "rgba(0, 0, 0, 0.05)"
           },
-          "border": {
-            "width": 0,
-            "color": "none"
-          }
+          "border": { "width": 0, "color": "none" }
         },
         "darkMode": {
           "background": {
@@ -133,10 +143,7 @@
             "color": "secondaryBackground (#1C1C1E)"
           },
           "shadow": "none",
-          "border": {
-            "width": 0,
-            "color": "none"
-          }
+          "border": { "width": 0, "color": "none" }
         },
         "rules": [
           "DO NOT apply gradients to card backgrounds.",
@@ -149,18 +156,12 @@
           "cornerRadius": 12,
           "states": {
             "default": {
-              "background": {
-                "type": "solid",
-                "color": "accent (#FF7A5A)"
-              },
+              "background": { "type": "solid", "colorContext": "accent" },
               "textColor": "white (#FFFFFF)",
               "border": "none"
             },
             "active": {
-              "background": {
-                "type": "solid",
-                "color": "#E06A4F"
-              },
+              "background": { "type": "solid", "color": "#6929CC" },
               "textColor": "white (#FFFFFF)"
             },
             "disabled": {
@@ -176,37 +177,22 @@
           "cornerRadius": 12,
           "states": {
             "default": {
-              "background": {
-                "type": "solid",
-                "color": "transparent"
-              },
-              "textColor": "accent (#FF7A5A)",
-              "border": {
-                "width": 1.5,
-                "color": "accent (#FF7A5A)"
-              }
+              "background": { "type": "solid", "color": "transparent" },
+              "textColor": "accent",
+              "border": { "width": 1.5, "colorContext": "accent" }
             },
             "active": {
               "background": {
                 "type": "solid",
-                "color": "rgba(255, 122, 90, 0.1)"
+                "color": "rgba(138, 63, 252, 0.1)"
               },
-              "textColor": "accent (#FF7A5A)",
-              "border": {
-                "width": 1.5,
-                "color": "accent (#FF7A5A)"
-              }
+              "textColor": "accent",
+              "border": { "width": 1.5, "colorContext": "accent" }
             },
             "disabled": {
-              "background": {
-                "type": "solid",
-                "color": "transparent"
-              },
+              "background": { "type": "solid", "color": "transparent" },
               "textColor": "disabledText",
-              "border": {
-                "width": 1.5,
-                "colorContext": "disabledBackground"
-              }
+              "border": { "width": 1.5, "colorContext": "disabledBackground" }
             }
           }
         },
@@ -218,24 +204,18 @@
       "aiActionTargets": {
         "description": "The large, clear tap targets for Camera, Voice, and Text input.",
         "style": "Inherits from Primary Button styling but with a larger size and an icon.",
-        "size": {
-          "height": 56,
-          "minWidth": 120
-        },
-        "icon": {
-          "color": "white (#FFFFFF)",
-          "size": 24
-        }
+        "size": { "height": 56, "minWidth": 120 },
+        "icon": { "color": "white (#FFFFFF)", "size": 24 }
       },
       "progressBars": {
         "height": 8,
         "cornerRadius": 4,
         "trackColorContext": "disabledBackground",
-        "fillColorContext": "accent"
+        "fillColorContext": "Use the corresponding semantic color (e.g., 'semantic.protein' for the protein bar)."
       },
       "charts": {
         "style": "Clean bar or line charts.",
-        "primaryDataSeriesColorContext": "accent",
+        "primaryDataSeriesColorContext": "Use the corresponding semantic color for each data series.",
         "secondaryDataSeriesColorContext": "secondaryText",
         "axisLabelColorContext": "secondaryText"
       }
@@ -256,21 +236,18 @@
             "duration": 500,
             "easing": "Easing.bezier(0.25, 1, 0.5, 1)"
           },
-          "haptics": {
-            "type": "Impact",
-            "style": "Light"
-          }
+          "haptics": { "type": "Impact", "style": "Light" }
         },
         "goalCompletion": {
           "target": "The specific metric or progress bar that was completed.",
-          "description": "A subtle, non-blocking shimmer or particle effect.",
+          "description": "A subtle, non-blocking shimmer or particle effect using the completed metric's semantic color.",
           "shimmerEffect": {
-            "implementation": "Animate a linear gradient with transparent and semi-transparent accent colors across the component.",
+            "implementation": "Animate a linear gradient with transparent and semi-transparent versions of the relevant semantic color across the component.",
             "duration": 1000,
             "easing": "Easing.linear",
             "gradient": [
               "transparent",
-              "rgba(255, 122, 90, 0.4)",
+              "rgba(of-the-semantic-color, 0.4)",
               "transparent"
             ]
           }

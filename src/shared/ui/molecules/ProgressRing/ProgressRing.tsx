@@ -11,6 +11,7 @@ interface ProgressRingProps {
   label: string;
   size?: number;
   color?: string;
+  nutritionType?: 'calories' | 'protein' | 'carbs' | 'fat';
 }
 
 export function ProgressRing({
@@ -20,18 +21,22 @@ export function ProgressRing({
   unit,
   label,
   size = 100,
-  color
+  color,
+  nutritionType
 }: ProgressRingProps) {
   const { colors } = useTheme();
   const clampedProgress = Math.max(0, Math.min(100, progress));
   
-  // Get color based on progress (simplified to use accent color)
-  const getProgressColor = (progress: number) => {
-    // Using consistent accent color as per new design system
+  // Get color based on nutrition type or fallback to accent
+  const getProgressColor = () => {
+    if (color) return color;
+    if (nutritionType && colors.semantic) {
+      return colors.semantic[nutritionType];
+    }
     return colors.accent;
   };
 
-  const progressColor = color || getProgressColor(clampedProgress);
+  const progressColor = getProgressColor();
 
   return (
     <View style={styles.container}>
