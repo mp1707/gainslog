@@ -30,6 +30,11 @@ const lightColors = {
   warningBackground: 'rgba(255, 149, 0, 0.1)',
   success: '#34C759', // iOS system green
   successBackground: 'rgba(52, 199, 89, 0.1)',
+  // Icon badge colors
+  iconBadge: {
+    background: 'rgba(138, 63, 252, 0.15)',
+    iconColor: '#8A3FFC',
+  },
 } as const; 
 
 const darkColors = {
@@ -57,6 +62,11 @@ const darkColors = {
   warningBackground: 'rgba(255, 149, 0, 0.15)',
   success: '#34C759', // iOS system green
   successBackground: 'rgba(52, 199, 89, 0.15)',
+  // Icon badge colors
+  iconBadge: {
+    background: 'rgba(158, 102, 255, 0.15)',
+    iconColor: '#9E66FF',
+  },
 } as const;
 
 // Typography scale with Nunito font

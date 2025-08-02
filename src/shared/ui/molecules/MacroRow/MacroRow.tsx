@@ -70,7 +70,7 @@ export const MacroRow: React.FC<MacroRowProps> = ({ foodLog }) => {
   return (
     <View 
       style={styles.container}
-      accessibilityRole="group"
+      accessibilityRole="text"
       accessibilityLabel={`Nutrition information: ${foodLog.protein}g protein, ${foodLog.carbs}g carbohydrates, ${foodLog.fat}g fat, ${foodLog.calories} calories`}
     >
       <View style={styles.gridContainer}>

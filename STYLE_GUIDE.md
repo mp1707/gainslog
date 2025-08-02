@@ -35,6 +35,29 @@ These colors give immediate visual meaning to the app's core data points. They s
 
 _Export to Sheets_
 
+#### Semantic Badge Colors
+
+For badge components displaying nutrient information, use lighter background colors with higher opacity and the full semantic color for text to ensure proper contrast and readability in both light and dark modes.
+
+| Nutrient | Light Mode Background | Light Mode Text | Dark Mode Background | Dark Mode Text |
+| -------- | -------------------- | --------------- | -------------------- | -------------- |
+| Calories | rgba(52, 199, 89, 0.15) | #34C759         | rgba(50, 215, 75, 0.15) | #32D74B        |
+| Protein  | rgba(10, 132, 255, 0.15) | #0A84FF         | rgba(11, 132, 255, 0.15) | #0B84FF        |
+| Carbs    | rgba(255, 159, 10, 0.15) | #FF9F0A         | rgba(255, 149, 0, 0.15) | #FF9500        |
+| Fat      | rgba(255, 214, 10, 0.15) | #FFD60A         | rgba(255, 204, 10, 0.15) | #FFCC0A        |
+
+_Export to Sheets_
+
+#### Icon Badge Colors
+
+For badge components displaying input method icons (image, audio, text), use accent color backgrounds with lower opacity and full accent color for the icons.
+
+| Badge Type | Light Mode Background | Light Mode Icon | Dark Mode Background | Dark Mode Icon |
+| ---------- | -------------------- | --------------- | -------------------- | -------------- |
+| Icon Badge | rgba(138, 63, 252, 0.15) | #8A3FFC         | rgba(158, 102, 255, 0.15) | #9E66FF        |
+
+_Export to Sheets_
+
 #### Theme & Text Colors
 
 The neutral base theme ensures readability and allows the accent and semantic colors to pop.

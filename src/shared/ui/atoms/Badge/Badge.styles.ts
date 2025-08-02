@@ -59,6 +59,45 @@ export const createStyles = (colors: any) => StyleSheet.create({
   loadingText: {
     color: colors.secondaryText,
   },
+
+  // Semantic nutrient styles
+  semanticCalories: {
+    backgroundColor: colors.semantic?.calories ? `${colors.semantic.calories}26` : 'rgba(52, 199, 89, 0.15)', // 15% opacity
+  },
+
+  semanticProtein: {
+    backgroundColor: colors.semantic?.protein ? `${colors.semantic.protein}26` : 'rgba(10, 132, 255, 0.15)', // 15% opacity
+  },
+
+  semanticCarbs: {
+    backgroundColor: colors.semantic?.carbs ? `${colors.semantic.carbs}26` : 'rgba(255, 159, 10, 0.15)', // 15% opacity
+  },
+
+  semanticFat: {
+    backgroundColor: colors.semantic?.fat ? `${colors.semantic.fat}26` : 'rgba(255, 214, 10, 0.15)', // 15% opacity
+  },
+
+  // Semantic text colors
+  semanticCaloriesText: {
+    color: colors.semantic?.calories || '#34C759',
+  },
+
+  semanticProteinText: {
+    color: colors.semantic?.protein || '#0A84FF',
+  },
+
+  semanticCarbsText: {
+    color: colors.semantic?.carbs || '#FF9F0A',
+  },
+
+  semanticFatText: {
+    color: colors.semantic?.fat || '#FFD60A',
+  },
+
+  // Icon badge style
+  iconBadge: {
+    backgroundColor: `${colors.accent}26`, // 15% opacity of accent color
+  },
 });
 
 // Legacy export for compatibility

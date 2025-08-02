@@ -95,6 +95,21 @@ export interface ConfidenceBadgeProps {
   isLoading?: boolean;
 }
 
+export interface SemanticBadgeProps {
+  variant: 'semantic';
+  semanticType: 'calories' | 'protein' | 'carbs' | 'fat';
+  label: string;
+  isLoading?: boolean;
+}
+
+export interface IconBadgeProps {
+  variant: 'icon';
+  iconType: 'image' | 'audio' | 'text';
+  isLoading?: boolean;
+}
+
+export type BadgeProps = (ConfidenceBadgeProps & { variant?: 'confidence' }) | SemanticBadgeProps | IconBadgeProps;
+
 // Daily nutrition targets interface
 export interface DailyTargets {
   calories: number;

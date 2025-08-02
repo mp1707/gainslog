@@ -28,6 +28,28 @@
           "protein": "#0A84FF",
           "carbs": "#FF9F0A",
           "fat": "#FFD60A"
+        },
+        "semanticBadges": {
+          "calories": {
+            "background": "rgba(52, 199, 89, 0.15)",
+            "text": "#34C759"
+          },
+          "protein": {
+            "background": "rgba(10, 132, 255, 0.15)",
+            "text": "#0A84FF"
+          },
+          "carbs": {
+            "background": "rgba(255, 159, 10, 0.15)",
+            "text": "#FF9F0A"
+          },
+          "fat": {
+            "background": "rgba(255, 214, 10, 0.15)",
+            "text": "#FFD60A"
+          }
+        },
+        "iconBadges": {
+          "background": "rgba(138, 63, 252, 0.15)",
+          "iconColor": "#8A3FFC"
         }
       },
       "dark": {
@@ -45,6 +67,28 @@
           "protein": "#0B84FF",
           "carbs": "#FF9500",
           "fat": "#FFCC0A"
+        },
+        "semanticBadges": {
+          "calories": {
+            "background": "rgba(50, 215, 75, 0.15)",
+            "text": "#32D74B"
+          },
+          "protein": {
+            "background": "rgba(11, 132, 255, 0.15)",
+            "text": "#0B84FF"
+          },
+          "carbs": {
+            "background": "rgba(255, 149, 0, 0.15)",
+            "text": "#FF9500"
+          },
+          "fat": {
+            "background": "rgba(255, 204, 10, 0.15)",
+            "text": "#FFCC0A"
+          }
+        },
+        "iconBadges": {
+          "background": "rgba(158, 102, 255, 0.15)",
+          "iconColor": "#9E66FF"
         }
       }
     },

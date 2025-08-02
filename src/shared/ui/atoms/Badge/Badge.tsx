@@ -1,30 +1,130 @@
 import React from 'react';
 import { View } from 'react-native';
-import { ConfidenceBadgeProps } from '../../../../types';
+import { Camera, Microphone, TextT } from 'phosphor-react-native';
+import { BadgeProps } from '../../../../types';
 import { LoadingSpinner } from '../LoadingSpinner';
 import { AppText } from '../../../../components/AppText';
 import { useTheme } from '../../../../providers/ThemeProvider';
 import { createStyles } from './Badge.styles';
 
-export const Badge: React.FC<ConfidenceBadgeProps> = ({ 
-  confidence, 
-  isLoading = false 
-}) => {
+export const Badge: React.FC<BadgeProps> = (props) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
+  
+  const isLoading = props.isLoading || false;
+  
   if (isLoading) {
     return (
       <View 
         style={[styles.base, styles.loading]}
         accessibilityRole="text"
-        accessibilityLabel="Loading confidence indicator"
+        accessibilityLabel="Loading indicator"
       >
         <LoadingSpinner size="small" />
       </View>
     );
   }
 
+  // Handle semantic variant
+  if (props.variant === 'semantic') {
+    const getSemanticInfo = () => {
+      switch (props.semanticType) {
+        case 'calories':
+          return {
+            style: styles.semanticCalories,
+            textStyle: styles.semanticCaloriesText,
+            accessibilityLabel: `Calories: ${props.label}`
+          };
+        case 'protein':
+          return {
+            style: styles.semanticProtein,
+            textStyle: styles.semanticProteinText,
+            accessibilityLabel: `Protein: ${props.label}`
+          };
+        case 'carbs':
+          return {
+            style: styles.semanticCarbs,
+            textStyle: styles.semanticCarbsText,
+            accessibilityLabel: `Carbohydrates: ${props.label}`
+          };
+        case 'fat':
+          return {
+            style: styles.semanticFat,
+            textStyle: styles.semanticFatText,
+            accessibilityLabel: `Fat: ${props.label}`
+          };
+        default:
+          return {
+            style: styles.uncertain,
+            textStyle: styles.uncertainText,
+            accessibilityLabel: props.label
+          };
+      }
+    };
+
+    const semanticInfo = getSemanticInfo();
+
+    return (
+      <View 
+        style={[styles.base, semanticInfo.style]}
+        accessibilityRole="text"
+        accessibilityLabel={semanticInfo.accessibilityLabel}
+      >
+        <AppText role="Caption" style={[styles.text, semanticInfo.textStyle]}>
+          {props.label}
+        </AppText>
+      </View>
+    );
+  }
+
+  // Handle icon variant
+  if (props.variant === 'icon') {
+    const getIconInfo = () => {
+      switch (props.iconType) {
+        case 'image':
+          return {
+            icon: Camera,
+            accessibilityLabel: 'Image input'
+          };
+        case 'audio':
+          return {
+            icon: Microphone,
+            accessibilityLabel: 'Audio input'
+          };
+        case 'text':
+          return {
+            icon: TextT,
+            accessibilityLabel: 'Text input'
+          };
+        default:
+          return {
+            icon: Camera,
+            accessibilityLabel: 'Input method'
+          };
+      }
+    };
+
+    const iconInfo = getIconInfo();
+    const IconComponent = iconInfo.icon;
+
+    return (
+      <View 
+        style={[styles.base, styles.iconBadge]}
+        accessibilityRole="image"
+        accessibilityLabel={iconInfo.accessibilityLabel}
+      >
+        <IconComponent 
+          size={16} 
+          color={colors.accent} 
+          weight="regular" 
+        />
+      </View>
+    );
+  }
+
+  // Handle confidence variant (default)
   const getConfidenceInfo = () => {
+    const confidence = (props as any).confidence || 0;
     // Updated confidence ranges based on design system
     if (confidence >= 80) return { 
       style: styles.high, 
@@ -53,6 +153,7 @@ export const Badge: React.FC<ConfidenceBadgeProps> = ({
   };
 
   const confidenceInfo = getConfidenceInfo();
+  const confidence = (props as any).confidence || 0;
 
   return (
     <View 

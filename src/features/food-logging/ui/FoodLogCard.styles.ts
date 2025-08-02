@@ -34,12 +34,6 @@ export const createStyles = (colors: any) =>
       marginRight: theme.spacing.md,
     },
 
-    titleWithIcon: {
-      flexDirection: "row",
-      alignItems: "center",
-      marginBottom: theme.spacing.xs,
-    },
-
     title: {
       flex: 1,
     },
@@ -58,9 +52,13 @@ export const createStyles = (colors: any) =>
       gap: theme.spacing.sm,
     },
 
-    // Camera icon styling
-    cameraIcon: {
-      marginRight: theme.spacing.xs,
+    // Macro badges container
+    macroRowContainer: {
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      alignItems: "center",
+      gap: theme.spacing.sm,
+      flexWrap: "wrap",
     },
 
     // Skeleton-specific styles
