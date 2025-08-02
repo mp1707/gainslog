@@ -8,6 +8,9 @@ import Animated, {
   Layout,
   FadeInUp,
   useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+  Easing,
 } from "react-native-reanimated";
 import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -117,9 +120,22 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
     label: "Carbs",
   };
 
-  // Animated style for calories progress bar
+  // Animated style for calories progress bar with design system timing
+  const caloriesProgress = useSharedValue(0);
+
+  // Update progress with motivational moment animation
+  React.useEffect(() => {
+    caloriesProgress.value = withTiming(
+      Math.min(100, dailyProgress.percentages.calories),
+      {
+        duration: 500,
+        easing: Easing.bezier(0.25, 1, 0.5, 1),
+      }
+    );
+  }, [dailyProgress.percentages.calories]);
+
   const caloriesAnimatedStyle = useAnimatedStyle(() => ({
-    width: `${Math.min(100, dailyProgress.percentages.calories)}%`,
+    width: `${caloriesProgress.value}%`,
   }));
 
   // Calculate platform-specific tab bar height for Expo Router
@@ -254,112 +270,103 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         contentContainerStyle={styles.scrollContent}
       >
         {/* Nutrition Progress Card */}
-        <Card style={{ padding: theme.spacing.md }}>
-          <View style={{ gap: theme.spacing.lg }}>
-            {/* Calories Row */}
-            <View style={{ flexDirection: "row", gap: theme.spacing.md }}>
+        <Card style={{ padding: theme.spacing.lg }}>
+          <View style={{ gap: theme.spacing.md }}>
+            {/* Calories Section */}
+            <View style={{ alignItems: "center" }}>
+              <AppText role="Title2" style={{ marginBottom: theme.spacing.sm }}>
+                {caloriesData.label}
+              </AppText>
               <View
                 style={{
-                  flexDirection: "column",
+                  width: "100%",
                   alignItems: "center",
                   gap: theme.spacing.sm,
-                  width: "100%",
                   paddingHorizontal: theme.spacing.sm,
                 }}
               >
-                <AppText role="Headline">{caloriesData.label}</AppText>
-                <View style={{ width: "100%" }}>
-                  <AppText
-                    role="Headline"
-                    style={{
-                      textAlign: "center",
-                      position: "absolute",
-                      top: 1,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      textTransform: "capitalize",
-                      zIndex: 1,
-                    }}
-                  >
-                    {caloriesData.current} / {caloriesData.target} kcal
-                  </AppText>
-                  <View
-                    style={{
-                      width: "100%",
-                      height: 24,
-                      backgroundColor: colors.disabledBackground,
-                      borderRadius: 12,
-                      overflow: "hidden",
-                      position: "relative",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Animated.View
-                      style={[
-                        {
-                          height: "100%",
-                          borderRadius: 12,
-                          minWidth: 1,
-                          position: "absolute",
-                          left: 0,
-                          top: 0,
-                          backgroundColor: colors.accent,
-                        },
-                        caloriesAnimatedStyle,
-                      ]}
-                    />
-                  </View>
+                <AppText role="Headline" style={{ textAlign: "center" }}>
+                  {caloriesData.current} / {caloriesData.target} kcal
+                </AppText>
+                <View
+                  style={{
+                    width: "100%",
+                    height: theme.components.progressBars.height,
+                    backgroundColor: colors.disabledBackground,
+                    borderRadius: theme.components.progressBars.cornerRadius,
+                    overflow: "hidden",
+                    position: "relative",
+                  }}
+                >
+                  <Animated.View
+                    style={[
+                      {
+                        height: "100%",
+                        borderRadius:
+                          theme.components.progressBars.cornerRadius,
+                        minWidth: 1,
+                        position: "absolute",
+                        left: 0,
+                        top: 0,
+                        backgroundColor: colors.accent,
+                      },
+                      caloriesAnimatedStyle,
+                    ]}
+                  />
                 </View>
               </View>
             </View>
 
-            {/* Macros Row */}
-            <View style={{ flexDirection: "row", gap: theme.spacing.md }}>
-              <View
+            {/* Subtle Separator */}
+            <View
+              style={{
+                height: 1,
+                backgroundColor: colors.border,
+                marginHorizontal: theme.spacing.sm,
+                marginTop: theme.spacing.sm,
+                opacity: 0.3,
+              }}
+            />
+
+            {/* Macros Section */}
+            <View style={{ gap: theme.spacing.sm }}>
+              <AppText
+                role="Headline"
                 style={{
-                  flex: 1,
-                  alignItems: "center",
-                  paddingHorizontal: theme.spacing.md,
+                  textAlign: "center",
+                  marginBottom: theme.spacing.xs,
                 }}
               >
-                <RadialProgressBar
-                  current={proteinData.current}
-                  target={proteinData.target}
-                  unit={proteinData.unit}
-                  label={proteinData.label}
-                  size={90}
-                />
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                  paddingHorizontal: theme.spacing.md,
-                }}
-              >
-                <RadialProgressBar
-                  current={fatData.current}
-                  target={fatData.target}
-                  unit={fatData.unit}
-                  label={fatData.label}
-                  size={90}
-                />
-              </View>
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                  paddingHorizontal: theme.spacing.md,
-                }}
-              >
-                <RadialProgressBar
-                  current={carbsData.current}
-                  target={carbsData.target}
-                  unit={carbsData.unit}
-                  label={carbsData.label}
-                  size={90}
-                />
+                Macronutrients
+              </AppText>
+              <View style={{ flexDirection: "row", gap: theme.spacing.sm }}>
+                <View style={{ flex: 1, alignItems: "center" }}>
+                  <RadialProgressBar
+                    current={proteinData.current}
+                    target={proteinData.target}
+                    unit={proteinData.unit}
+                    label={proteinData.label}
+                    size={88}
+                  />
+                </View>
+                <View style={{ flex: 1, alignItems: "center" }}>
+                  <RadialProgressBar
+                    current={fatData.current}
+                    target={fatData.target}
+                    unit={fatData.unit}
+                    label={fatData.label}
+                    size={88}
+                  />
+                </View>
+                <View style={{ flex: 1, alignItems: "center" }}>
+                  <RadialProgressBar
+                    current={carbsData.current}
+                    target={carbsData.target}
+                    unit={carbsData.unit}
+                    label={carbsData.label}
+                    size={88}
+                  />
+                </View>
               </View>
             </View>
           </View>
