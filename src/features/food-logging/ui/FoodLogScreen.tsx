@@ -11,7 +11,12 @@ import Animated, {
 } from "react-native-reanimated";
 import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { SwipeToDelete, SkeletonCard, ExpandableFAB } from "@/shared/ui";
+import {
+  SwipeToDelete,
+  SkeletonCard,
+  ExpandableFAB,
+  PageHeader,
+} from "@/shared/ui";
 import { FoodLogCard } from "./FoodLogCard";
 import { FoodLog } from "../../../types";
 import { createStyles } from "./FoodLogScreen.styles";
@@ -160,25 +165,62 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       {/* Sticky Date Picker Card */}
-      <View
-        style={{
-          paddingHorizontal: theme.spacing.pageMargins.horizontal,
-          paddingTop: theme.spacing.md,
-          paddingBottom: theme.spacing.sm,
-        }}
-      >
-        <Card style={{ padding: theme.spacing.md }}>
-          <View
+      <PageHeader>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: theme.spacing.md,
+            minHeight: 40,
+          }}
+        >
+          <TouchableOpacity
+            onPress={navigateToPreviousDay}
             style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: theme.spacing.md,
+              padding: theme.spacing.sm,
+              borderRadius: theme.spacing.sm,
+              backgroundColor: colors.secondaryBackground,
+              borderWidth: 1,
+              borderColor: colors.border,
+              shadowColor: "rgba(0, 0, 0, 0.05)",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 1,
+              shadowRadius: 4,
+              elevation: 2,
             }}
           >
-            <TouchableOpacity
-              onPress={navigateToPreviousDay}
-              style={{
+            <CaretLeftIcon
+              size={16}
+              color={colors.secondaryText}
+              weight="regular"
+            />
+          </TouchableOpacity>
+
+          <View
+            style={{
+              flexShrink: 0,
+              marginLeft: -10,
+            }}
+          >
+            <DateTimePicker
+              value={new Date(selectedDate)}
+              mode="date"
+              display={Platform.OS === "ios" ? "compact" : "default"}
+              onChange={handleDateChange}
+              maximumDate={new Date()}
+              {...(Platform.OS === "ios" && {
+                themeVariant: colorScheme,
+                textColor: colors.primaryText,
+                accentColor: colors.accent,
+              })}
+            />
+          </View>
+
+          <TouchableOpacity
+            onPress={navigateToNextDay}
+            style={[
+              {
                 padding: theme.spacing.sm,
                 borderRadius: theme.spacing.sm,
                 backgroundColor: colors.secondaryBackground,
@@ -189,67 +231,23 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
                 shadowOpacity: 1,
                 shadowRadius: 4,
                 elevation: 2,
-              }}
-            >
-              <CaretLeftIcon
-                size={16}
-                color={colors.secondaryText}
-                weight="regular"
-              />
-            </TouchableOpacity>
-
-            <View
-              style={{
-                flexShrink: 0,
-                marginLeft: -10,
-              }}
-            >
-              <DateTimePicker
-                value={new Date(selectedDate)}
-                mode="date"
-                display={Platform.OS === "ios" ? "compact" : "default"}
-                onChange={handleDateChange}
-                maximumDate={new Date()}
-                {...(Platform.OS === "ios" && {
-                  themeVariant: colorScheme,
-                  textColor: colors.primaryText,
-                  accentColor: colors.accent,
-                })}
-              />
-            </View>
-
-            <TouchableOpacity
-              onPress={navigateToNextDay}
-              style={[
-                {
-                  padding: theme.spacing.sm,
-                  borderRadius: theme.spacing.sm,
-                  backgroundColor: colors.secondaryBackground,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  shadowColor: "rgba(0, 0, 0, 0.05)",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 1,
-                  shadowRadius: 4,
-                  elevation: 2,
-                },
-                isToday() && {
-                  backgroundColor: colors.disabledBackground,
-                  borderColor: colors.border,
-                  opacity: 0.5,
-                },
-              ]}
-              disabled={isToday()}
-            >
-              <CaretRightIcon
-                size={16}
-                color={isToday() ? colors.disabledText : colors.secondaryText}
-                weight="regular"
-              />
-            </TouchableOpacity>
-          </View>
-        </Card>
-      </View>
+              },
+              isToday() && {
+                backgroundColor: colors.disabledBackground,
+                borderColor: colors.border,
+                opacity: 0.5,
+              },
+            ]}
+            disabled={isToday()}
+          >
+            <CaretRightIcon
+              size={16}
+              color={isToday() ? colors.disabledText : colors.secondaryText}
+              weight="regular"
+            />
+          </TouchableOpacity>
+        </View>
+      </PageHeader>
 
       <ScrollView
         style={styles.scrollView}

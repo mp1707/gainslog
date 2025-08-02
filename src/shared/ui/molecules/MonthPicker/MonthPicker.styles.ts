@@ -13,6 +13,7 @@ export const createStyles = (
       alignItems: "center",
       justifyContent: "center",
       gap: spacing.md,
+      minHeight: 40,
     },
     navigationArrow: {
       padding: spacing.sm,
