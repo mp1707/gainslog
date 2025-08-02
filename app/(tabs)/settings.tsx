@@ -19,9 +19,12 @@ import { Stepper } from "../../src/shared/ui/atoms/Stepper";
 import { ProteinCalculatorModal } from "../../src/shared/ui/molecules/ProteinCalculatorModal";
 import { ProteinCalculationMethod } from "../../src/shared/ui/atoms/ProteinCalculationCard";
 import { CalorieCalculatorModal } from "../../src/shared/ui/molecules/CalorieCalculatorModal";
-import { CalorieCalculationMethod, CALCULATION_METHODS } from "../../src/shared/ui/atoms/CalorieCalculationCard";
+import { CALCULATION_METHODS } from "../../src/shared/ui/atoms/CalorieCalculationCard";
 import { GoalType } from "../../src/shared/ui/atoms/GoalSelectionCard";
-import { CalorieIntakeParams, ActivityLevel } from "../../src/utils/calculateCalories";
+import {
+  CalorieIntakeParams,
+  ActivityLevel,
+} from "../../src/utils/calculateCalories";
 
 export default function SettingsTab() {
   const {
@@ -29,9 +32,6 @@ export default function SettingsTab() {
     updateDailyTargetsDebounced,
     loadDailyTargets,
     isLoadingTargets,
-    visibleNutritionKeys,
-    toggleVisibleNutritionKey,
-    loadVisibleNutritionKeys,
     proteinCalculation,
     setProteinCalculation,
     calorieCalculation,
@@ -73,7 +73,6 @@ export default function SettingsTab() {
 
   useEffect(() => {
     loadDailyTargets();
-    loadVisibleNutritionKeys();
   }, []);
 
   const handleTargetChange = (
@@ -103,12 +102,12 @@ export default function SettingsTab() {
   ) => {
     // Create method object from activity level for store compatibility
     const method = CALCULATION_METHODS[activityLevel];
-    
+
     // Store the calorie calculation in the store
     setCalorieCalculation(method, params, activityLevel, calories, goalType);
-    
+
     // Update the calorie target based on selected goal
-    handleTargetChange('calories', calories);
+    handleTargetChange("calories", calories);
   };
 
   const getCardDescription = (key: keyof typeof dailyTargets): string => {
@@ -128,14 +127,14 @@ export default function SettingsTab() {
 
   const getGoalTitle = (goalType: GoalType): string => {
     switch (goalType) {
-      case 'lose':
-        return 'Lose Weight';
-      case 'maintain':
-        return 'Maintain Weight';
-      case 'gain':
-        return 'Gain Weight';
+      case "lose":
+        return "Lose Weight";
+      case "maintain":
+        return "Maintain Weight";
+      case "gain":
+        return "Gain Weight";
       default:
-        return '';
+        return "";
     }
   };
 
@@ -161,7 +160,6 @@ export default function SettingsTab() {
   ];
 
   const renderNutritionCard = (config: (typeof nutritionConfigs)[number]) => {
-    const switchValue = visibleNutritionKeys.includes(config.key as any);
     const isProteinCard = config.key === "protein";
     const isCalorieCard = config.key === "calories";
 
@@ -179,7 +177,10 @@ export default function SettingsTab() {
         {isCalorieCard && (
           <View style={styles.proteinActions}>
             <TouchableOpacity
-              style={[styles.calculateButton, { borderColor: colors.semantic.calories }]}
+              style={[
+                styles.calculateButton,
+                { borderColor: colors.semantic.calories },
+              ]}
               onPress={() => setIsCalorieCalculatorVisible(true)}
               accessibilityRole="button"
               accessibilityLabel="Open calorie calculator"
@@ -200,7 +201,10 @@ export default function SettingsTab() {
         {isProteinCard && (
           <View style={styles.proteinActions}>
             <TouchableOpacity
-              style={[styles.calculateButton, { borderColor: colors.semantic.protein }]}
+              style={[
+                styles.calculateButton,
+                { borderColor: colors.semantic.protein },
+              ]}
               onPress={() => setIsProteinCalculatorVisible(true)}
               accessibilityRole="button"
               accessibilityLabel="Open protein calculator"
@@ -226,7 +230,10 @@ export default function SettingsTab() {
                 {getGoalTitle(calorieCalculation.goalType)}
               </Text>
               <Text style={styles.bodyWeightText}>
-                {calorieCalculation.params.sex === 'male' ? 'Male' : 'Female'}, {calorieCalculation.params.age} years, {calorieCalculation.params.weight}kg, {calorieCalculation.params.height}cm
+                {calorieCalculation.params.sex === "male" ? "Male" : "Female"},{" "}
+                {calorieCalculation.params.age} years,{" "}
+                {calorieCalculation.params.weight}kg,{" "}
+                {calorieCalculation.params.height}cm
               </Text>
             </View>
             <Text style={styles.calculatedValue}>
@@ -273,21 +280,6 @@ export default function SettingsTab() {
               step={config.step}
               onChange={(value) => handleTargetChange(config.key, value)}
               type={config.key}
-            />
-          </View>
-
-          <View style={styles.settingDivider} />
-
-          <View style={styles.nutritionSettingRow}>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Show Progress Bar</Text>
-              <Text style={styles.settingSubtext}>
-                Display {config.label.toLowerCase()} progress on main screen
-              </Text>
-            </View>
-            <Switch
-              value={switchValue}
-              onValueChange={() => toggleVisibleNutritionKey(config.key as any)}
             />
           </View>
         </View>

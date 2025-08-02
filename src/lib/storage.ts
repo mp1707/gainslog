@@ -5,15 +5,10 @@ import type { CalorieIntakeParams, Sex } from "../utils/calculateCalories";
 const FOOD_LOGS_KEY = "food_logs";
 const DAILY_TARGETS_KEY = "daily_targets";
 
-const VISIBLE_NUTRITION_KEYS_KEY = "visible_nutrition_keys";
 const COLOR_SCHEME_KEY = "color_scheme";
 const CALORIE_CALCULATOR_PARAMS_KEY = "calorie_calculator_params";
 const PROTEIN_CALCULATOR_PARAMS_KEY = "protein_calculator_params";
 
-// Default visible nutrition keys
-export const DEFAULT_VISIBLE_NUTRITION_KEYS: Array<
-  "calories" | "protein" | "carbs" | "fat"
-> = ["protein", "carbs", "fat", "calories"];
 
 /**
  * Save a food log to AsyncStorage
@@ -144,42 +139,7 @@ export const getDailyTargets = async (): Promise<DailyTargets> => {
   }
 };
 
-/**
- * Save visible nutrition keys to AsyncStorage
- */
-export const saveVisibleNutritionKeys = async (
-  keys: Array<"calories" | "protein" | "carbs" | "fat">
-): Promise<void> => {
-  try {
-    await AsyncStorage.setItem(
-      VISIBLE_NUTRITION_KEYS_KEY,
-      JSON.stringify(keys)
-    );
-  } catch (error) {
-    console.error("Error saving visible nutrition keys:", error);
-    throw new Error("Failed to save visible nutrition keys");
-  }
-};
 
-/**
- * Get visible nutrition keys from AsyncStorage
- */
-export const getVisibleNutritionKeys = async (): Promise<
-  Array<"calories" | "protein" | "carbs" | "fat">
-> => {
-  try {
-    const keysJson = await AsyncStorage.getItem(VISIBLE_NUTRITION_KEYS_KEY);
-    if (!keysJson) {
-      return DEFAULT_VISIBLE_NUTRITION_KEYS;
-    }
-    return JSON.parse(keysJson) as Array<
-      "calories" | "protein" | "carbs" | "fat"
-    >;
-  } catch (error) {
-    console.error("Error getting visible nutrition keys:", error);
-    return DEFAULT_VISIBLE_NUTRITION_KEYS;
-  }
-};
 
 export const saveColorSchemePreference = async (
   scheme: import("../theme").ColorScheme

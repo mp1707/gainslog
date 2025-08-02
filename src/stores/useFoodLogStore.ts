@@ -7,12 +7,6 @@ import { CalorieCalculationMethod } from "../shared/ui/atoms/CalorieCalculationC
 import { CalorieIntakeParams, ActivityLevel } from "../utils/calculateCalories";
 import { GoalType } from "../shared/ui/atoms/GoalSelectionCard";
 
-// Import storage helpers for nutrition visibility
-import {
-  getVisibleNutritionKeys,
-  saveVisibleNutritionKeys,
-  DEFAULT_VISIBLE_NUTRITION_KEYS,
-} from "@/lib/storage";
 import {
   getFoodLogs,
   saveFoodLog,
@@ -107,17 +101,6 @@ interface FoodLogStore {
 
   // Progress calculations
   getDailyProgress: () => DailyProgress;
-
-  // Nutrition visibility state
-  visibleNutritionKeys: Array<"calories" | "protein" | "carbs" | "fat">;
-  isLoadingVisibleNutrition: boolean;
-  loadVisibleNutritionKeys: () => Promise<void>;
-  updateVisibleNutritionKeys: (
-    keys: Array<"calories" | "protein" | "carbs" | "fat">
-  ) => Promise<void>;
-  toggleVisibleNutritionKey: (
-    key: "calories" | "protein" | "carbs" | "fat"
-  ) => Promise<void>;
 }
 
 // Helper function to get today's date in ISO format (YYYY-MM-DD) in local timezone
@@ -167,9 +150,6 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   proteinCalculation: null,
   // Calorie calculation initial state
   calorieCalculation: null,
-  // Nutrition visibility initial state
-  visibleNutritionKeys: DEFAULT_VISIBLE_NUTRITION_KEYS,
-  isLoadingVisibleNutrition: true,
 
   // Data actions
   loadFoodLogs: async () => {
@@ -485,57 +465,7 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   clearCalorieCalculation: () => {
     set({ calorieCalculation: null });
   },
-
-  // Nutrition visibility actions
-  loadVisibleNutritionKeys: async () => {
-    set({ isLoadingVisibleNutrition: true });
-    try {
-      const keys = await getVisibleNutritionKeys();
-      set({ visibleNutritionKeys: keys });
-    } catch (error) {
-      console.error("Error loading visible nutrition keys:", error);
-    } finally {
-      set({ isLoadingVisibleNutrition: false });
-    }
-  },
-
-  updateVisibleNutritionKeys: async (
-    keys: Array<"calories" | "protein" | "carbs" | "fat">
-  ) => {
-    try {
-      await saveVisibleNutritionKeys(keys);
-      set({ visibleNutritionKeys: keys });
-    } catch (error) {
-      console.error("Error updating visible nutrition keys:", error);
-      throw error;
-    }
-  },
-
-  toggleVisibleNutritionKey: async (
-    key: "calories" | "protein" | "carbs" | "fat"
-  ) => {
-    const { visibleNutritionKeys, updateVisibleNutritionKeys } = get();
-    const isCurrentlyVisible = visibleNutritionKeys.includes(key);
-    const updatedKeys = isCurrentlyVisible
-      ? visibleNutritionKeys.filter((k) => k !== key)
-      : [...visibleNutritionKeys, key];
-    await updateVisibleNutritionKeys(updatedKeys);
-  },
 }));
-
-// After store creation, automatically load visible nutrition keys once
-(async () => {
-  try {
-    const keys = await getVisibleNutritionKeys();
-    useFoodLogStore.setState({
-      visibleNutritionKeys: keys,
-      isLoadingVisibleNutrition: false,
-    });
-  } catch (error) {
-    console.error("Error initializing visible nutrition keys:", error);
-    useFoodLogStore.setState({ isLoadingVisibleNutrition: false });
-  }
-})();
 
 // Export types for components that need them
 export type { ActionType, ProteinCalculationSelection };
