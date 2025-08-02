@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, TouchableOpacity, Text, TextInput } from "react-native";
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withSpring, 
+} from "react-native-reanimated";
 import { useTheme } from "../../../../providers/ThemeProvider";
 import { createStyles } from "./Stepper.styles";
 
@@ -22,11 +27,14 @@ export const Stepper: React.FC<StepperProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(String(value));
-  const [minusPressed, setMinusPressed] = useState(false);
-  const [plusPressed, setPlusPressed] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const { colors } = useTheme();
   const styles = createStyles(colors);
+
+  // Animation values
+  const minusScale = useSharedValue(1);
+  const plusScale = useSharedValue(1);
+  const valueScale = useSharedValue(1);
 
   // Sync internal input state when external value changes
   useEffect(() => {
@@ -38,11 +46,41 @@ export const Stepper: React.FC<StepperProps> = ({
   const clamp = (val: number) => Math.max(min, Math.min(max, val));
 
   const handleMinus = () => {
-    onChange(clamp(value - step));
+    const newValue = clamp(value - step);
+    if (newValue !== value) {
+      // Animate value change
+      valueScale.value = withSpring(1.1, { damping: 15, stiffness: 300 }, () => {
+        valueScale.value = withSpring(1, { damping: 15, stiffness: 300 });
+      });
+      onChange(newValue);
+    }
   };
 
   const handlePlus = () => {
-    onChange(clamp(value + step));
+    const newValue = clamp(value + step);
+    if (newValue !== value) {
+      // Animate value change
+      valueScale.value = withSpring(1.1, { damping: 15, stiffness: 300 }, () => {
+        valueScale.value = withSpring(1, { damping: 15, stiffness: 300 });
+      });
+      onChange(newValue);
+    }
+  };
+
+  const handleMinusPressIn = () => {
+    minusScale.value = withSpring(0.95, { damping: 15, stiffness: 400 });
+  };
+
+  const handleMinusPressOut = () => {
+    minusScale.value = withSpring(1, { damping: 15, stiffness: 400 });
+  };
+
+  const handlePlusPressIn = () => {
+    plusScale.value = withSpring(0.95, { damping: 15, stiffness: 400 });
+  };
+
+  const handlePlusPressOut = () => {
+    plusScale.value = withSpring(1, { damping: 15, stiffness: 400 });
   };
 
   const confirmInput = () => {
@@ -56,25 +94,42 @@ export const Stepper: React.FC<StepperProps> = ({
   const accentColor =
     type === "calories"
       ? colors.semantic.calories
-      : colors.semantic[type as keyof typeof colors.semantic];
+      : type === "protein"
+      ? colors.semantic.protein
+      : type === "carbs"
+      ? colors.semantic.carbs
+      : type === "fat"
+      ? colors.semantic.fat
+      : colors.accent
+
+  // Animated styles
+  const minusAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: minusScale.value }],
+  }));
+
+  const plusAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: plusScale.value }],
+  }));
+
+  const valueAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: valueScale.value }],
+  }));
 
   return (
     <View style={[styles.container, { borderColor: accentColor }]}>
-      <TouchableOpacity
-        style={[
-          styles.buttonBase,
-          styles.buttonLeft,
-          minusPressed && styles.buttonBasePressed,
-        ]}
-        onPress={handleMinus}
-        onPressIn={() => setMinusPressed(true)}
-        onPressOut={() => setMinusPressed(false)}
-        accessibilityRole="button"
-        accessibilityLabel={`Decrease value by ${step}. Current value is ${value}`}
-        accessibilityHint="Double tap to decrease the value"
-      >
-        <Text style={[styles.buttonText, { color: accentColor }]}>-</Text>
-      </TouchableOpacity>
+      <Animated.View style={minusAnimatedStyle}>
+        <TouchableOpacity
+          style={[styles.buttonBase, styles.buttonLeft]}
+          onPress={handleMinus}
+          onPressIn={handleMinusPressIn}
+          onPressOut={handleMinusPressOut}
+          accessibilityRole="button"
+          accessibilityLabel={`Decrease value by ${step}. Current value is ${value}`}
+          accessibilityHint="Double tap to decrease the value"
+        >
+          <Text style={[styles.buttonText, { color: accentColor }]}>−</Text>
+        </TouchableOpacity>
+      </Animated.View>
 
       {isEditing ? (
         <TextInput
@@ -92,32 +147,32 @@ export const Stepper: React.FC<StepperProps> = ({
           accessibilityRole="spinbutton"
         />
       ) : (
-        <TouchableOpacity
-          style={styles.valueBox}
-          onPress={() => setIsEditing(true)}
-          accessibilityRole="button"
-          accessibilityLabel={`Current value is ${value}. Tap to edit`}
-          accessibilityHint="Opens text input to enter a specific value"
-        >
-          <Text style={styles.valueText}>{value}</Text>
-        </TouchableOpacity>
+        <Animated.View style={valueAnimatedStyle}>
+          <TouchableOpacity
+            style={styles.valueBox}
+            onPress={() => setIsEditing(true)}
+            accessibilityRole="button"
+            accessibilityLabel={`Current value is ${value}. Tap to edit`}
+            accessibilityHint="Opens text input to enter a specific value"
+          >
+            <Text style={styles.valueText}>{value}</Text>
+          </TouchableOpacity>
+        </Animated.View>
       )}
 
-      <TouchableOpacity
-        style={[
-          styles.buttonBase,
-          styles.buttonRight,
-          plusPressed && styles.buttonBasePressed,
-        ]}
-        onPress={handlePlus}
-        onPressIn={() => setPlusPressed(true)}
-        onPressOut={() => setPlusPressed(false)}
-        accessibilityRole="button"
-        accessibilityLabel={`Increase value by ${step}. Current value is ${value}`}
-        accessibilityHint="Double tap to increase the value"
-      >
-        <Text style={[styles.buttonText, { color: accentColor }]}>+</Text>
-      </TouchableOpacity>
+      <Animated.View style={plusAnimatedStyle}>
+        <TouchableOpacity
+          style={[styles.buttonBase, styles.buttonRight]}
+          onPress={handlePlus}
+          onPressIn={handlePlusPressIn}
+          onPressOut={handlePlusPressOut}
+          accessibilityRole="button"
+          accessibilityLabel={`Increase value by ${step}. Current value is ${value}`}
+          accessibilityHint="Double tap to increase the value"
+        >
+          <Text style={[styles.buttonText, { color: accentColor }]}>+</Text>
+        </TouchableOpacity>
+      </Animated.View>
     </View>
   );
 };

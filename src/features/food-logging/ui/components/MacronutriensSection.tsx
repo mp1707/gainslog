@@ -6,7 +6,6 @@ import { RadialProgressBar } from "../../../../shared/ui/atoms/RadialProgressBar
 import { useTheme } from "../../../../providers/ThemeProvider";
 import { DailyProgress } from "@/types/index";
 
-
 interface MacronutriensSectionProps {
   dailyProgress: DailyProgress;
 }
@@ -40,15 +39,13 @@ export const MacronutriensSection: React.FC<MacronutriensSectionProps> = ({
   const styles = StyleSheet.create({
     container: {
       padding: theme.spacing.lg,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
     },
     header: {
       color: colors.primaryText,
       marginBottom: theme.spacing.md,
-    },
-    macrosGrid: {
-      flexDirection: "row",
-      justifyContent: "space-around",
-      alignItems: "center",
     },
     macroItem: {
       alignItems: "center",
@@ -65,37 +62,35 @@ export const MacronutriensSection: React.FC<MacronutriensSectionProps> = ({
         Macronutriens
       </AppText>
       <Card style={styles.container}>
-        <View style={styles.macrosGrid}>
-          <View style={styles.macroItem}>
-            <RadialProgressBar
-              current={proteinData.current}
-              target={proteinData.target}
-              unit={proteinData.unit}
-              label={proteinData.label}
-              size={88}
-              color={colors.semantic?.protein || colors.accent}
-            />
-          </View>
-          <View style={styles.macroItem}>
-            <RadialProgressBar
-              current={carbsData.current}
-              target={carbsData.target}
-              unit={carbsData.unit}
-              label={carbsData.label}
-              size={88}
-              color={colors.semantic?.carbs || colors.accent}
-            />
-          </View>
-          <View style={styles.macroItem}>
-            <RadialProgressBar
-              current={fatData.current}
-              target={fatData.target}
-              unit={fatData.unit}
-              label={fatData.label}
-              size={88}
-              color={colors.semantic?.fat || colors.accent}
-            />
-          </View>
+        <View style={styles.macroItem}>
+          <RadialProgressBar
+            current={proteinData.current}
+            target={proteinData.target}
+            unit={proteinData.unit}
+            label={proteinData.label}
+            size={88}
+            color={colors.semantic?.protein || colors.accent}
+          />
+        </View>
+        <View style={styles.macroItem}>
+          <RadialProgressBar
+            current={carbsData.current}
+            target={carbsData.target}
+            unit={carbsData.unit}
+            label={carbsData.label}
+            size={88}
+            color={colors.semantic?.carbs || colors.accent}
+          />
+        </View>
+        <View style={styles.macroItem}>
+          <RadialProgressBar
+            current={fatData.current}
+            target={fatData.target}
+            unit={fatData.unit}
+            label={fatData.label}
+            size={88}
+            color={colors.semantic?.fat || colors.accent}
+          />
         </View>
       </Card>
     </View>

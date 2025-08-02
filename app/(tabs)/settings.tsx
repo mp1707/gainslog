@@ -7,6 +7,12 @@ import {
   Platform,
   TouchableOpacity,
 } from "react-native";
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withSpring,
+  withTiming 
+} from "react-native-reanimated";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import {
   SafeAreaView,
@@ -25,6 +31,82 @@ import {
   CalorieIntakeParams,
   ActivityLevel,
 } from "../../src/utils/calculateCalories";
+
+// Animated Calculator Button Component
+const AnimatedCalculatorButton: React.FC<{
+  isCalorieCard: boolean;
+  onPress: () => void;
+  colors: any;
+}> = ({ isCalorieCard, onPress, colors }) => {
+  const scale = useSharedValue(1);
+  const rotation = useSharedValue(0);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: scale.value },
+      { rotate: `${rotation.value}deg` }
+    ],
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.9, { damping: 15, stiffness: 400 });
+    rotation.value = withTiming(-5, { duration: 100 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 15, stiffness: 400 });
+    rotation.value = withTiming(0, { duration: 100 });
+  };
+
+  const handlePress = () => {
+    rotation.value = withTiming(15, { duration: 100 }, () => {
+      rotation.value = withTiming(0, { duration: 100 });
+    });
+    onPress();
+  };
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <TouchableOpacity
+        style={[
+          {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            justifyContent: "center",
+            alignItems: "center",
+            borderWidth: 1,
+            shadowColor: colors.primaryText,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.08,
+            shadowRadius: 8,
+            elevation: 3,
+          },
+          { 
+            backgroundColor: isCalorieCard 
+              ? colors.semantic.calories + "15" 
+              : colors.semantic.protein + "15",
+            borderColor: isCalorieCard 
+              ? colors.semantic.calories 
+              : colors.semantic.protein 
+          }
+        ]}
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        accessibilityRole="button"
+        accessibilityLabel={`Open ${isCalorieCard ? 'calorie' : 'protein'} calculator`}
+        accessibilityHint={`Calculate ${isCalorieCard ? 'calorie' : 'protein'} needs based on personal info`}
+      >
+        <CalculatorIcon
+          size={18}
+          color={isCalorieCard ? colors.semantic.calories : colors.semantic.protein}
+          weight="regular"
+        />
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
 
 export default function SettingsTab() {
   const {
@@ -172,55 +254,18 @@ export default function SettingsTab() {
               {getCardDescription(config.key)}
             </Text>
           </View>
+          {(isCalorieCard || isProteinCard) && (
+            <AnimatedCalculatorButton
+              isCalorieCard={isCalorieCard}
+              onPress={() => isCalorieCard 
+                ? setIsCalorieCalculatorVisible(true) 
+                : setIsProteinCalculatorVisible(true)
+              }
+              colors={colors}
+            />
+          )}
         </View>
 
-        {isCalorieCard && (
-          <View style={styles.proteinActions}>
-            <TouchableOpacity
-              style={[
-                styles.calculateButton,
-                { borderColor: colors.semantic.calories },
-              ]}
-              onPress={() => setIsCalorieCalculatorVisible(true)}
-              accessibilityRole="button"
-              accessibilityLabel="Open calorie calculator"
-              accessibilityHint="Calculate calorie needs based on personal info and activity level"
-            >
-              <CalculatorIcon
-                size={16}
-                color={colors.primaryText}
-                weight="regular"
-              />
-              <Text style={styles.calculateButtonText}>
-                Calculate Calorie Needs
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {isProteinCard && (
-          <View style={styles.proteinActions}>
-            <TouchableOpacity
-              style={[
-                styles.calculateButton,
-                { borderColor: colors.semantic.protein },
-              ]}
-              onPress={() => setIsProteinCalculatorVisible(true)}
-              accessibilityRole="button"
-              accessibilityLabel="Open protein calculator"
-              accessibilityHint="Calculate protein needs based on body weight and activity level"
-            >
-              <CalculatorIcon
-                size={16}
-                color={colors.primaryText}
-                weight="regular"
-              />
-              <Text style={styles.calculateButtonText}>
-                Calculate Protein Needs
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
 
         {/* Show selected calculation method for calories */}
         {isCalorieCard && calorieCalculation && (
@@ -416,10 +461,15 @@ const createStyles = (
       marginBottom: spacing.lg,
     },
     nutritionCard: {
-      borderRadius: themeObj.components.cards.cornerRadius,
-      padding: spacing.lg,
+      borderRadius: 20,
+      padding: spacing.xl,
       marginBottom: spacing.lg,
       ...componentStyles.cards,
+      shadowColor: colors.primaryText,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.03,
+      shadowRadius: 16,
+      elevation: 2,
     },
     cardHeader: {
       flexDirection: "row",
@@ -444,65 +494,51 @@ const createStyles = (
       fontWeight: typography.Headline.fontWeight,
       color: colors.primaryText,
     },
-    proteinActions: {
-      marginBottom: spacing.lg,
-    },
-    calculateButton: {
-      backgroundColor: "transparent",
-      borderWidth: 1.5,
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
-      borderRadius: 12,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      minHeight: 44,
-      gap: spacing.sm,
-    },
-    calculateButtonText: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      fontWeight: typography.Body.fontWeight,
-      color: colors.primaryText,
-    },
     calculationInfo: {
       backgroundColor:
         scheme === "light"
-          ? "rgba(255, 122, 90, 0.05)"
-          : "rgba(255, 122, 90, 0.1)",
-      borderRadius: 12,
+          ? "rgba(255, 122, 90, 0.04)"
+          : "rgba(255, 122, 90, 0.08)",
+      borderRadius: 16,
       padding: spacing.lg,
       marginBottom: spacing.lg,
-      borderLeftWidth: 4,
-      borderLeftColor: colors.accent,
+      borderWidth: 1,
+      borderColor: colors.accent + "20",
+      shadowColor: colors.accent,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 1,
     },
     calculationHeader: {
       marginBottom: spacing.sm,
     },
     calculationMethodTitle: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      fontWeight: typography.Headline.fontWeight,
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
+      fontWeight: "600",
       color: colors.primaryText,
       marginBottom: spacing.xs / 2,
     },
     bodyWeightText: {
-      fontSize: typography.Subhead.fontSize,
-      fontFamily: typography.Subhead.fontFamily,
-      color: colors.secondaryText,
-    },
-    calculatedValue: {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
-      fontWeight: typography.Headline.fontWeight,
+      color: colors.secondaryText,
+      opacity: 0.8,
+    },
+    calculatedValue: {
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
+      fontWeight: "600",
       color: colors.accent,
       marginBottom: spacing.sm,
     },
     calculationSubtext: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
-      lineHeight: 16,
+      lineHeight: 18,
+      opacity: 0.7,
     },
     settingsGroup: {
       backgroundColor: "transparent",
@@ -523,17 +559,18 @@ const createStyles = (
       marginRight: spacing.lg,
     },
     settingLabel: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      fontWeight: typography.Body.fontWeight,
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
+      fontWeight: "600",
       color: colors.primaryText,
       marginBottom: spacing.xs / 2,
     },
     settingSubtext: {
-      fontSize: typography.Subhead.fontSize,
-      fontFamily: typography.Subhead.fontFamily,
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
-      lineHeight: 18,
+      lineHeight: 20,
+      opacity: 0.8,
     },
     settingDivider: {
       height: 1,
