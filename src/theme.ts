@@ -175,8 +175,14 @@ const components = {
   progressBars: {
     height: 8,
     cornerRadius: 4,
-    trackColor: lightColors.disabledBackground,
-    fillColor: lightColors.accent,
+    lightMode: {
+      trackColor: lightColors.disabledBackground,
+      fillColor: lightColors.accent,
+    },
+    darkMode: {
+      trackColor: darkColors.disabledBackground,
+      fillColor: darkColors.accent,
+    },
   },
 } as const;
 
@@ -232,6 +238,10 @@ const getComponentStyles = (scheme?: 'light' | 'dark') => {
     aiActionTargets: {
       ...components.aiActionTargets,
       iconColor: components.aiActionTargets.iconColor[currentScheme],
+    },
+    progressBars: {
+      ...components.progressBars,
+      ...(currentScheme === 'dark' ? components.progressBars.darkMode : components.progressBars.lightMode),
     },
   };
 };

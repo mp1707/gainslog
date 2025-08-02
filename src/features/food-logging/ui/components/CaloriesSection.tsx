@@ -38,7 +38,7 @@ interface CaloriesSectionProps {
 export const CaloriesSection: React.FC<CaloriesSectionProps> = ({
   dailyProgress,
 }) => {
-  const { theme, colors } = useTheme();
+  const { theme, colors, colorScheme } = useTheme();
 
   const caloriesData = {
     current: Math.round(dailyProgress.current.calories),
@@ -79,13 +79,13 @@ export const CaloriesSection: React.FC<CaloriesSectionProps> = ({
     },
     progressBarContainer: {
       height: theme.components.progressBars.height,
-      backgroundColor: theme.components.progressBars.trackColor,
+      backgroundColor: theme.getComponentStyles(colorScheme).progressBars.trackColor,
       borderRadius: theme.components.progressBars.cornerRadius,
       overflow: "hidden",
     },
     progressBarFill: {
       height: "100%",
-      backgroundColor: theme.components.progressBars.fillColor,
+      backgroundColor: theme.getComponentStyles(colorScheme).progressBars.fillColor,
       borderRadius: theme.components.progressBars.cornerRadius,
     },
     headerStyle: {
