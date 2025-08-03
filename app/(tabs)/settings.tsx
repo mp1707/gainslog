@@ -1,12 +1,7 @@
 import React, { useEffect, useMemo } from "react";
-import {
-  View,
-  Text,
-} from "react-native";
+import { View, Text } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import {
-  SafeAreaView,
-} from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { Button } from "@/shared/ui/atoms/Button";
@@ -28,11 +23,9 @@ import {
 } from "@/utils/nutritionCalculations";
 import { createStyles } from "./settings.styles";
 
-
 export default function SettingsTab() {
   const { loadDailyTargets, isLoadingTargets } = useFoodLogStore();
   const { colors, theme: themeObj } = useTheme();
-
 
   // Use extracted hooks
   const nutritionCalculations = useNutritionCalculations();
@@ -45,10 +38,8 @@ export default function SettingsTab() {
     handleFatPercentageChange,
   } = nutritionCalculations;
 
-  const { stepInfo, isCaloriesFieldEnabled, isProteinFieldEnabled } = useStepFlow(
-    isCaloriesSet,
-    isProteinSet
-  );
+  const { stepInfo, isCaloriesFieldEnabled, isProteinFieldEnabled } =
+    useStepFlow(isCaloriesSet, isProteinSet);
 
   const {
     isProteinCalculatorVisible,
@@ -61,7 +52,6 @@ export default function SettingsTab() {
     handleCalorieGoalSelect,
     handleResetTargets,
   } = useSettingsModals(handleTargetChange);
-
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -92,13 +82,22 @@ export default function SettingsTab() {
     },
   ];
 
-
   // Helper function to calculate values for card components
   const calculateMacroValues = () => {
-    const fatGrams = calculateFatGramsFromPercentage(dailyTargets.calories, fatPercentage);
-    const carbsGrams = calculateCarbsFromMacros(dailyTargets.calories, dailyTargets.protein, fatGrams);
-    const maxFatPercentage = calculateMaxFatPercentage(dailyTargets.calories, dailyTargets.protein);
-    
+    const fatGrams = calculateFatGramsFromPercentage(
+      dailyTargets.calories,
+      fatPercentage
+    );
+    const carbsGrams = calculateCarbsFromMacros(
+      dailyTargets.calories,
+      dailyTargets.protein,
+      fatGrams
+    );
+    const maxFatPercentage = calculateMaxFatPercentage(
+      dailyTargets.calories,
+      dailyTargets.protein
+    );
+
     return { fatGrams, carbsGrams, maxFatPercentage };
   };
 
@@ -136,13 +135,12 @@ export default function SettingsTab() {
           <Text style={styles.sectionSubtitle}>
             Follow these steps to set up your personalized nutrition targets
           </Text>
-          
+
           {/* Step 1: Calories */}
           <StepHeader
             stepNumber={1}
             title={stepInfo.step1.title}
             description={stepInfo.step1.description}
-            helpText={stepInfo.step1.helpText}
             completed={stepInfo.step1.completed}
           />
           <NutritionCard
@@ -160,7 +158,6 @@ export default function SettingsTab() {
             stepNumber={2}
             title={stepInfo.step2.title}
             description={stepInfo.step2.description}
-            helpText={stepInfo.step2.helpText}
             completed={stepInfo.step2.completed}
           />
           <NutritionCard
@@ -180,7 +177,6 @@ export default function SettingsTab() {
                 stepNumber={3}
                 title={stepInfo.step3.title}
                 description={stepInfo.step3.description}
-                helpText={stepInfo.step3.helpText}
                 completed={stepInfo.step3.completed}
               />
               <MacroDistributionCard
@@ -199,7 +195,7 @@ export default function SettingsTab() {
               />
             </>
           )}
-          
+
           <View style={styles.resetButtonContainer}>
             <Button
               onPress={handleResetTargets}
@@ -231,4 +227,3 @@ export default function SettingsTab() {
     </SafeAreaView>
   );
 }
-

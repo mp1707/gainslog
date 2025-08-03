@@ -51,19 +51,5 @@ export const createStyles = (
       color: colors.secondaryText,
       lineHeight: 22,
     },
-    stepHelpContainer: {
-      backgroundColor: `${colors.accent}08`,
-      borderRadius: 8,
-      padding: spacing.md,
-      borderLeftWidth: 3,
-      borderLeftColor: colors.accent,
-    },
-    stepHelpText: {
-      fontSize: typography.Subhead.fontSize,
-      fontFamily: typography.Subhead.fontFamily,
-      color: colors.primaryText,
-      lineHeight: 20,
-      fontStyle: "italic",
-    },
   });
 };

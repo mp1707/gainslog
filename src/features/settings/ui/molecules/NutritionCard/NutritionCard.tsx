@@ -63,9 +63,9 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
   const getCardDescription = (key: "calories" | "protein"): string => {
     switch (key) {
       case "calories":
-        return "Energy from food to fuel your daily activities";
+        return "Your total energy intake target for the day.";
       case "protein":
-        return "Essential for muscle growth and recovery";
+        return "Essential for muscle growth and recovery.";
       default:
         return "";
     }

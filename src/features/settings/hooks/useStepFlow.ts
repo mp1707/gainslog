@@ -2,7 +2,6 @@ interface StepInfo {
   completed: boolean;
   title: string;
   description: string;
-  helpText: string;
 }
 
 interface UseStepFlowReturn {
@@ -29,22 +28,19 @@ export const useStepFlow = (
       step1: {
         completed: isCaloriesSet,
         title: "Step 1: Set Your Daily Calories",
-        description: "Your total energy intake target for the day",
-        helpText:
-          "This forms the foundation for all other nutritional calculations",
+        description: "Foundation for all other nutritional calculations.",
       },
       step2: {
         completed: isProteinSet,
         title: "Step 2: Set Your Protein Target",
-        description: "Essential macronutrient for muscle growth and recovery",
-        helpText: "Protein needs are based on body weight and activity level",
+        description:
+          "Protein needs are based on body weight and activity level.",
       },
       step3: {
         completed: isCaloriesSet && isProteinSet,
         title: "Step 3: Distribute Remaining Calories",
-        description: "Balance fat and carbohydrates for optimal nutrition",
-        helpText:
-          "For advanced strength athletes, 25-35% of total calories from fat is recommended",
+        description:
+          "Select a percentage of your calories from fat. The rest will be automatically allocated to carbohydrates.",
       },
     };
   };

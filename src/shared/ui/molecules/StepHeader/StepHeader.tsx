@@ -8,7 +8,6 @@ interface StepHeaderProps {
   stepNumber: number;
   title: string;
   description: string;
-  helpText: string;
   completed: boolean;
 }
 
@@ -16,7 +15,6 @@ export const StepHeader: React.FC<StepHeaderProps> = ({
   stepNumber,
   title,
   description,
-  helpText,
   completed,
 }) => {
   const { colors, theme: themeObj } = useTheme();
@@ -60,15 +58,6 @@ export const StepHeader: React.FC<StepHeaderProps> = ({
           </Text>
           <Text style={styles.stepDescription}>{description}</Text>
         </View>
-      </View>
-      <View style={styles.stepHelpContainer}>
-        <Text
-          style={styles.stepHelpText}
-          accessibilityRole="text"
-          accessibilityHint="Helpful tip for this step"
-        >
-          {helpText}
-        </Text>
       </View>
     </View>
   );

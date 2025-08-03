@@ -1,8 +1,9 @@
-import React, { useCallback, useRef } from 'react';
-import { View, Text, Animated } from 'react-native';
-import Slider from '@react-native-community/slider';
-import { styles } from './NutritionSlider.styles';
-import { useTheme } from '../../../../providers/ThemeProvider';
+import React, { useCallback, useRef } from "react";
+import { View, Text, Animated } from "react-native";
+import Slider from "@react-native-community/slider";
+import { useMemo } from "react";
+import { createStyles } from "./NutritionSlider.styles";
+import { useTheme } from "../../../../providers/ThemeProvider";
 
 interface NutritionSliderProps {
   label: string;
@@ -25,26 +26,33 @@ export function NutritionSlider({
   onValueChange,
   onSlidingComplete,
 }: NutritionSliderProps) {
-  const { colors } = useTheme();
+  const { colors, theme: themeObj } = useTheme();
+  const styles = useMemo(
+    () => createStyles(colors, themeObj),
+    [colors, themeObj]
+  );
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
-  const handleValueChange = useCallback((newValue: number) => {
-    // Subtle fade animation when value changes
-    Animated.sequence([
-      Animated.timing(fadeAnim, {
-        toValue: 0.7,
-        duration: 50,
-        useNativeDriver: true,
-      }),
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
+  const handleValueChange = useCallback(
+    (newValue: number) => {
+      // Subtle fade animation when value changes
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 0.7,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]).start();
 
-    onValueChange(newValue);
-  }, [onValueChange, fadeAnim]);
+      onValueChange(newValue);
+    },
+    [onValueChange, fadeAnim]
+  );
 
   return (
     <View style={styles.container}>
@@ -56,7 +64,7 @@ export function NutritionSlider({
           </Text>
         </Animated.View>
       </View>
-      
+
       <View style={styles.sliderContainer}>
         <Slider
           style={styles.slider}

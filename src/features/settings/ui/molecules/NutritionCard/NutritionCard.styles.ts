@@ -39,8 +39,8 @@ export const createStyles = (
       marginRight: spacing.md,
     },
     cardDescription: {
-      fontSize: typography.Subhead.fontSize,
-      fontFamily: typography.Subhead.fontFamily,
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
       marginTop: spacing.xs,
       lineHeight: 20,
