@@ -31,6 +31,13 @@ import {
   CalorieIntakeParams,
   ActivityLevel,
 } from "../../src/utils/calculateCalories";
+import {
+  calculateMacrosFromProtein,
+  calculateCarbsFromProteinChange,
+  calculateCarbsFromFatChange,
+  calculateCaloriesFromCarbsChange,
+  calculateCarbsFromCaloriesChange,
+} from "../../src/utils/nutritionCalculations";
 
 // Animated Calculator Button Component
 const AnimatedCalculatorButton: React.FC<{
@@ -125,6 +132,9 @@ export default function SettingsTab() {
   const [isCalorieCalculatorVisible, setIsCalorieCalculatorVisible] =
     useState(false);
 
+  // Flow state management
+  const [hasInitialSetupRun, setHasInitialSetupRun] = useState(false);
+
   const {
     colors,
     theme: themeObj,
@@ -157,14 +167,108 @@ export default function SettingsTab() {
     loadDailyTargets();
   }, []);
 
+  // Flow state logic
+  const isCaloriesSet = dailyTargets.calories > 0;
+  const isProteinSet = dailyTargets.protein > 0;
+  
+  // Determine field enablement based on flow state
+  const isCaloriesFieldEnabled = true; // Always enabled
+  const isProteinFieldEnabled = isCaloriesSet;
+  const isCarbsFieldEnabled = isCaloriesSet && isProteinSet;
+  const isFatFieldEnabled = isCaloriesSet && isProteinSet;
+  
+  // Determine instructional text
+  const getInstructionalText = (): string | null => {
+    if (!isCaloriesSet) {
+      return "First, set a calorie target.";
+    }
+    if (!isProteinSet) {
+      return "Next, set a protein target.";
+    }
+    return null; // No text when all are set
+  };
+
+  const instructionalText = getInstructionalText();
+
   const handleTargetChange = (
     key: keyof typeof dailyTargets,
     value: number
   ) => {
-    const newTargets = {
-      ...dailyTargets,
+    const currentTargets = dailyTargets;
+    
+    // Check if this is the first time protein is being set (during guided flow)
+    const isFirstTimeSettingProtein = 
+      key === "protein" && 
+      !isProteinSet && 
+      isCaloriesSet && 
+      value > 0;
+    
+    // Check if we're in the manual adjustment phase (both calories and protein are already set)
+    const isManualAdjustmentPhase = isCaloriesSet && isProteinSet && !isFirstTimeSettingProtein;
+    
+    let newTargets = {
+      ...currentTargets,
       [key]: value,
     };
+    
+    // Auto-calculate Fat and Carbs when protein is first set
+    if (isFirstTimeSettingProtein) {
+      const calculated = calculateMacrosFromProtein(currentTargets.calories, value);
+      newTargets = {
+        ...newTargets,
+        fat: calculated.fat,
+        carbs: calculated.carbs,
+      };
+    }
+    // Manual adjustment logic - use Carbs as buffer macro
+    else if (isManualAdjustmentPhase) {
+      if (key === "protein") {
+        // Protein changes → Recalculate Carbs (Fat unchanged)
+        const newCarbs = calculateCarbsFromProteinChange(
+          currentTargets.calories, 
+          value, 
+          currentTargets.fat
+        );
+        newTargets = {
+          ...newTargets,
+          carbs: newCarbs,
+        };
+      } else if (key === "fat") {
+        // Fat changes → Recalculate Carbs (Protein unchanged)
+        const newCarbs = calculateCarbsFromFatChange(
+          currentTargets.calories, 
+          currentTargets.protein, 
+          value
+        );
+        newTargets = {
+          ...newTargets,
+          carbs: newCarbs,
+        };
+      } else if (key === "carbs") {
+        // Carbs changes → Recalculate Total Calories (override calorie target)
+        const newCalories = calculateCaloriesFromCarbsChange(
+          currentTargets.protein, 
+          currentTargets.fat, 
+          value
+        );
+        newTargets = {
+          ...newTargets,
+          calories: newCalories,
+        };
+      } else if (key === "calories") {
+        // Calories changes → Recalculate Carbs (Protein/Fat unchanged)
+        const newCarbs = calculateCarbsFromCaloriesChange(
+          value, 
+          currentTargets.protein, 
+          currentTargets.fat
+        );
+        newTargets = {
+          ...newTargets,
+          carbs: newCarbs,
+        };
+      }
+    }
+    
     updateDailyTargetsDebounced(newTargets);
   };
 
@@ -244,6 +348,15 @@ export default function SettingsTab() {
   const renderNutritionCard = (config: (typeof nutritionConfigs)[number]) => {
     const isProteinCard = config.key === "protein";
     const isCalorieCard = config.key === "calories";
+    const isCarbsCard = config.key === "carbs";
+    const isFatCard = config.key === "fat";
+    
+    // Determine if this field should be disabled
+    const isFieldDisabled = 
+      (isCalorieCard && !isCaloriesFieldEnabled) ||
+      (isProteinCard && !isProteinFieldEnabled) ||
+      (isCarbsCard && !isCarbsFieldEnabled) ||
+      (isFatCard && !isFatFieldEnabled);
 
     return (
       <View style={styles.nutritionCard} key={config.key}>
@@ -254,7 +367,7 @@ export default function SettingsTab() {
               {getCardDescription(config.key)}
             </Text>
           </View>
-          {(isCalorieCard || isProteinCard) && (
+          {(isCalorieCard || isProteinCard) && !isFieldDisabled && (
             <AnimatedCalculatorButton
               isCalorieCard={isCalorieCard}
               onPress={() => isCalorieCard 
@@ -325,6 +438,7 @@ export default function SettingsTab() {
               step={config.step}
               onChange={(value) => handleTargetChange(config.key, value)}
               type={config.key}
+              disabled={isFieldDisabled}
             />
           </View>
         </View>
@@ -384,6 +498,11 @@ export default function SettingsTab() {
           <Text style={styles.sectionSubtitle}>
             Set your daily nutrition goals and manage which metrics to track
           </Text>
+          {instructionalText && (
+            <View style={styles.instructionalContainer}>
+              <Text style={styles.instructionalText}>{instructionalText}</Text>
+            </View>
+          )}
           {nutritionConfigs.map(renderNutritionCard)}
         </View>
       </KeyboardAwareScrollView>
@@ -594,6 +713,21 @@ const createStyles = (
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
+    },
+    instructionalContainer: {
+      backgroundColor: colors.accent + "10",
+      borderRadius: 12,
+      padding: spacing.lg,
+      marginBottom: spacing.lg,
+      borderWidth: 1,
+      borderColor: colors.accent + "20",
+    },
+    instructionalText: {
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
+      fontWeight: "600",
+      color: colors.accent,
+      textAlign: "center",
     },
   });
 };
