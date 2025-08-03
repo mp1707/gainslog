@@ -10,8 +10,7 @@ import { CalorieCalculatorModal } from "@/shared/ui/molecules/CalorieCalculatorM
 import { StepHeader } from "@/shared/ui/molecules/StepHeader";
 import { FlowArrow } from "@/shared/ui/atoms/FlowArrow";
 import { NutritionCard } from "@/features/settings/ui/molecules/NutritionCard";
-import { MacroDistributionCard } from "@/features/settings/ui/molecules/MacroDistributionCard";
-import { FatPercentageCard } from "@/features/settings/ui/molecules/FatPercentageCard";
+import { MacroSplitCard } from "@/features/settings/ui/molecules/MacroSplitCard";
 import { AppearanceCard } from "@/features/settings/ui/molecules/AppearanceCard";
 import { useNutritionCalculations } from "@/features/settings/hooks/useNutritionCalculations";
 import { useStepFlow } from "@/features/settings/hooks/useStepFlow";
@@ -179,17 +178,12 @@ export default function SettingsTab() {
                 description={stepInfo.step3.description}
                 completed={stepInfo.step3.completed}
               />
-              <MacroDistributionCard
+              <MacroSplitCard
                 calories={dailyTargets.calories}
                 protein={dailyTargets.protein}
                 fatGrams={fatGrams}
                 carbsGrams={carbsGrams}
                 fatPercentage={fatPercentage}
-              />
-              <FatPercentageCard
-                calories={dailyTargets.calories}
-                fatPercentage={fatPercentage}
-                fatGrams={fatGrams}
                 maxFatPercentage={maxFatPercentage}
                 onFatPercentageChange={handleFatPercentageChange}
               />
