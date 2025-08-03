@@ -2,12 +2,10 @@ import React, { useEffect, useMemo } from "react";
 import {
   View,
   Text,
-  Platform,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import {
   SafeAreaView,
-  useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
@@ -33,8 +31,8 @@ import { createStyles } from "./settings.styles";
 
 export default function SettingsTab() {
   const { loadDailyTargets, isLoadingTargets } = useFoodLogStore();
-  const { colors, theme: themeObj, colorScheme } = useTheme();
-  const insets = useSafeAreaInsets();
+  const { colors, theme: themeObj } = useTheme();
+
 
   // Use extracted hooks
   const nutritionCalculations = useNutritionCalculations();
@@ -64,19 +62,9 @@ export default function SettingsTab() {
     handleResetTargets,
   } = useSettingsModals(handleTargetChange);
 
-  // Calculate platform-specific tab bar height for Expo Router
-  const getTabBarHeight = () => {
-    if (Platform.OS === "ios") {
-      // iOS tab bar: 49px standard height + bottom safe area
-      return 49 + insets.bottom;
-    } else {
-      // Android tab bar: 56px standard height
-      return 56;
-    }
-  };
 
   const styles = useMemo(
-    () => createStyles(colors, themeObj, colorScheme),
+    () => createStyles(colors, themeObj),
     [colors, themeObj]
   );
 
