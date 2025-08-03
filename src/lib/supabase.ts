@@ -16,7 +16,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 export const estimateNutritionTextBased = async (request: FoodEstimateRequest): Promise<FoodEstimateResponse> => {
   
-  const response = await fetch('https://cjsbuqvntoimmawozpko.supabase.co/functions/v1/text-estimation', {
+  const response = await fetch(`${supabaseUrl}/functions/v1/text-estimation`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ export const estimateNutritionTextBased = async (request: FoodEstimateRequest): 
 
 export const estimateNutritionImageBased = async (request: ImageEstimateRequest): Promise<FoodEstimateResponse> => {
   
-  const response = await fetch('https://cjsbuqvntoimmawozpko.supabase.co/functions/v1/image-estimation', {
+  const response = await fetch(`${supabaseUrl}/functions/v1/image-estimation`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
