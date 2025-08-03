@@ -90,6 +90,7 @@ interface FoodLogStore {
   loadDailyTargets: () => Promise<void>;
   updateDailyTargets: (targets: DailyTargets) => Promise<void>;
   updateDailyTargetsDebounced: (targets: DailyTargets) => void;
+  resetDailyTargets: () => Promise<void>;
 
   // Protein calculation actions
   setProteinCalculation: (method: ProteinCalculationMethod, bodyWeight: number, calculatedProtein: number) => void;
@@ -464,6 +465,28 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
 
   clearCalorieCalculation: () => {
     set({ calorieCalculation: null });
+  },
+
+  resetDailyTargets: async () => {
+    const resetTargets: DailyTargets = {
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+    };
+    
+    try {
+      await saveDailyTargets(resetTargets);
+      set({ 
+        dailyTargets: resetTargets,
+        proteinCalculation: null,
+        calorieCalculation: null,
+      });
+    } catch (error) {
+      console.error("Error resetting daily targets:", error);
+      Alert.alert("Error", "Failed to reset daily targets");
+      throw error;
+    }
   },
 }));
 
