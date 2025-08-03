@@ -15,6 +15,7 @@ import {
   getDailyTargets,
   saveDailyTargets,
 } from "@/lib/storage";
+import { calculateMacrosFromProtein } from "@/utils/nutritionCalculations";
 
 type ActionType = "manual" | "camera" | "library" | "audio" | null;
 
@@ -141,10 +142,10 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   selectedMonth: getCurrentMonthString(),
   triggerAction: null,
   dailyTargets: {
-    calories: 2000,
-    protein: 150,
-    carbs: 250,
-    fat: 65,
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
   },
   isLoadingTargets: true,
   // Protein calculation initial state
@@ -431,10 +432,26 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
     
     // Update protein target to calculated value
     const currentTargets = get().dailyTargets;
-    const newTargets = {
+    
+    // Check if this is the first time protein is being set (during guided flow)
+    const isCaloriesSet = currentTargets.calories > 0;
+    const isProteinSet = currentTargets.protein > 0;
+    const isFirstTimeSettingProtein = !isProteinSet && isCaloriesSet && calculatedProtein > 0;
+    
+    let newTargets = {
       ...currentTargets,
       protein: calculatedProtein,
     };
+    
+    // Auto-calculate Fat and Carbs when protein is first set
+    if (isFirstTimeSettingProtein) {
+      const calculated = calculateMacrosFromProtein(currentTargets.calories, calculatedProtein);
+      newTargets = {
+        ...newTargets,
+        fat: calculated.fat,
+        carbs: calculated.carbs,
+      };
+    }
     
     set({ 
       proteinCalculation,
