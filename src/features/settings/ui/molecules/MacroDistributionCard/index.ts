@@ -1,1 +1,0 @@
-export { MacroDistributionCard } from "./MacroDistributionCard";

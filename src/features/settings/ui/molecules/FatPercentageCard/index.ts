@@ -1,1 +1,0 @@
-export { FatPercentageCard } from "./FatPercentageCard";
