@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Platform,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import Animated, { 
   useSharedValue, 
@@ -27,6 +28,7 @@ import { ProteinCalculationMethod } from "../../src/shared/ui/atoms/ProteinCalcu
 import { CalorieCalculatorModal } from "../../src/shared/ui/molecules/CalorieCalculatorModal";
 import { CALCULATION_METHODS } from "../../src/shared/ui/atoms/CalorieCalculationCard";
 import { GoalType } from "../../src/shared/ui/atoms/GoalSelectionCard";
+import { Button } from "../../src/shared/ui/atoms/Button";
 import {
   CalorieIntakeParams,
   ActivityLevel,
@@ -125,6 +127,7 @@ export default function SettingsTab() {
     setProteinCalculation,
     calorieCalculation,
     setCalorieCalculation,
+    resetDailyTargets,
   } = useFoodLogStore();
 
   const [isProteinCalculatorVisible, setIsProteinCalculatorVisible] =
@@ -294,6 +297,31 @@ export default function SettingsTab() {
 
     // Update the calorie target based on selected goal
     handleTargetChange("calories", calories);
+  };
+
+  const handleResetTargets = () => {
+    Alert.alert(
+      "Reset Daily Targets",
+      "This will reset all your daily nutrition targets to zero and clear any saved calculations. This action cannot be undone.\n\nAre you sure you want to continue?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Reset",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await resetDailyTargets();
+              Alert.alert("Success", "Daily targets have been reset successfully.");
+            } catch (error) {
+              // Error is already handled in the store
+            }
+          }
+        }
+      ]
+    );
   };
 
   const getCardDescription = (key: keyof typeof dailyTargets): string => {
@@ -504,6 +532,20 @@ export default function SettingsTab() {
             </View>
           )}
           {nutritionConfigs.map(renderNutritionCard)}
+          
+          <View style={styles.resetButtonContainer}>
+            <Button
+              onPress={handleResetTargets}
+              variant="destructive"
+              size="medium"
+              shape="round"
+              accessibilityLabel="Reset daily targets"
+              accessibilityHint="Resets all nutrition targets to zero and clears saved calculations"
+              style={styles.resetButton}
+            >
+              <Text style={styles.resetButtonText}>Reset Daily Targets</Text>
+            </Button>
+          </View>
         </View>
       </KeyboardAwareScrollView>
 
@@ -728,6 +770,18 @@ const createStyles = (
       fontWeight: "600",
       color: colors.accent,
       textAlign: "center",
+    },
+    resetButtonContainer: {
+      marginTop: spacing.lg,
+      alignItems: "center",
+    },
+    resetButton: {
+      minWidth: 200,
+    },
+    resetButtonText: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      fontWeight: "600",
     },
   });
 };
