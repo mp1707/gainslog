@@ -23,6 +23,7 @@ import { CalculatorIcon } from "phosphor-react-native";
 import { useTheme } from "../../src/providers/ThemeProvider";
 import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 import { Stepper } from "../../src/shared/ui/atoms/Stepper";
+import { NutritionSlider } from "../../src/shared/ui/atoms/NutritionSlider/NutritionSlider";
 import { ProteinCalculatorModal } from "../../src/shared/ui/molecules/ProteinCalculatorModal";
 import { ProteinCalculationMethod } from "../../src/shared/ui/atoms/ProteinCalculationCard";
 import { CalorieCalculatorModal } from "../../src/shared/ui/molecules/CalorieCalculatorModal";
@@ -35,10 +36,9 @@ import {
 } from "../../src/utils/calculateCalories";
 import {
   calculateMacrosFromProtein,
-  calculateCarbsFromProteinChange,
-  calculateCarbsFromFatChange,
-  calculateCaloriesFromCarbsChange,
-  calculateCarbsFromCaloriesChange,
+  calculateFatGramsFromPercentage,
+  calculateCarbsFromMacros,
+  calculateMaxFatPercentage,
 } from "../../src/utils/nutritionCalculations";
 
 // Animated Calculator Button Component
@@ -135,8 +135,8 @@ export default function SettingsTab() {
   const [isCalorieCalculatorVisible, setIsCalorieCalculatorVisible] =
     useState(false);
 
-  // Flow state management
-  const [hasInitialSetupRun, setHasInitialSetupRun] = useState(false);
+  // Fat percentage state for new flow
+  const [fatPercentage, setFatPercentage] = useState(30);
 
   const {
     colors,
@@ -177,8 +177,6 @@ export default function SettingsTab() {
   // Determine field enablement based on flow state
   const isCaloriesFieldEnabled = true; // Always enabled
   const isProteinFieldEnabled = isCaloriesSet;
-  const isCarbsFieldEnabled = isCaloriesSet && isProteinSet;
-  const isFatFieldEnabled = isCaloriesSet && isProteinSet;
   
   // Determine instructional text
   const getInstructionalText = (): string | null => {
@@ -199,6 +197,11 @@ export default function SettingsTab() {
   ) => {
     const currentTargets = dailyTargets;
     
+    let newTargets = {
+      ...currentTargets,
+      [key]: value,
+    };
+    
     // Check if this is the first time protein is being set (during guided flow)
     const isFirstTimeSettingProtein = 
       key === "protein" && 
@@ -206,70 +209,32 @@ export default function SettingsTab() {
       isCaloriesSet && 
       value > 0;
     
-    // Check if we're in the manual adjustment phase (both calories and protein are already set)
-    const isManualAdjustmentPhase = isCaloriesSet && isProteinSet && !isFirstTimeSettingProtein;
-    
-    let newTargets = {
-      ...currentTargets,
-      [key]: value,
-    };
-    
-    // Auto-calculate Fat and Carbs when protein is first set
     if (isFirstTimeSettingProtein) {
+      // Auto-calculate Fat and Carbs when protein is first set
       const calculated = calculateMacrosFromProtein(currentTargets.calories, value);
+      setFatPercentage(calculated.fatPercentage);
       newTargets = {
         ...newTargets,
         fat: calculated.fat,
         carbs: calculated.carbs,
       };
-    }
-    // Manual adjustment logic - use Carbs as buffer macro
-    else if (isManualAdjustmentPhase) {
-      if (key === "protein") {
-        // Protein changes → Recalculate Carbs (Fat unchanged)
-        const newCarbs = calculateCarbsFromProteinChange(
-          currentTargets.calories, 
-          value, 
-          currentTargets.fat
-        );
-        newTargets = {
-          ...newTargets,
-          carbs: newCarbs,
-        };
-      } else if (key === "fat") {
-        // Fat changes → Recalculate Carbs (Protein unchanged)
-        const newCarbs = calculateCarbsFromFatChange(
-          currentTargets.calories, 
-          currentTargets.protein, 
-          value
-        );
-        newTargets = {
-          ...newTargets,
-          carbs: newCarbs,
-        };
-      } else if (key === "carbs") {
-        // Carbs changes → Recalculate Total Calories (override calorie target)
-        const newCalories = calculateCaloriesFromCarbsChange(
-          currentTargets.protein, 
-          currentTargets.fat, 
-          value
-        );
-        newTargets = {
-          ...newTargets,
-          calories: newCalories,
-        };
-      } else if (key === "calories") {
-        // Calories changes → Recalculate Carbs (Protein/Fat unchanged)
-        const newCarbs = calculateCarbsFromCaloriesChange(
-          value, 
-          currentTargets.protein, 
-          currentTargets.fat
-        );
-        newTargets = {
-          ...newTargets,
-          carbs: newCarbs,
-        };
-      }
+    } else if (key === "calories" && isProteinSet) {
+      // Calories changed: recalculate fat and carbs based on current percentage
+      const newFatGrams = calculateFatGramsFromPercentage(value, fatPercentage);
+      const newCarbsGrams = calculateCarbsFromMacros(value, currentTargets.protein, newFatGrams);
+      newTargets = {
+        ...newTargets,
+        fat: newFatGrams,
+        carbs: newCarbsGrams,
+      };
+    } else if (key === "protein" && isProteinSet) {
+      // Protein changed: recalculate carbs (fat percentage stays same)
+      const fatGrams = calculateFatGramsFromPercentage(currentTargets.calories, fatPercentage);
+      const newCarbsGrams = calculateCarbsFromMacros(currentTargets.calories, value, fatGrams);
+      newTargets = {
+        ...newTargets,
+        carbs: newCarbsGrams,
+      };
     }
     
     updateDailyTargetsDebounced(newTargets);
@@ -330,10 +295,6 @@ export default function SettingsTab() {
         return "Energy from food to fuel your daily activities";
       case "protein":
         return "Essential for muscle growth and recovery";
-      case "carbs":
-        return "Primary energy source for your body and brain";
-      case "fat":
-        return "Important for hormone production and nutrient absorption";
       default:
         return "";
     }
@@ -369,22 +330,16 @@ export default function SettingsTab() {
       step: 50,
     },
     { key: "protein", label: "Protein", unit: "g", min: 50, max: 500, step: 5 },
-    { key: "carbs", label: "Carbs", unit: "g", min: 50, max: 500, step: 5 },
-    { key: "fat", label: "Fat", unit: "g", min: 20, max: 500, step: 5 },
   ];
 
   const renderNutritionCard = (config: (typeof nutritionConfigs)[number]) => {
     const isProteinCard = config.key === "protein";
     const isCalorieCard = config.key === "calories";
-    const isCarbsCard = config.key === "carbs";
-    const isFatCard = config.key === "fat";
     
     // Determine if this field should be disabled
     const isFieldDisabled = 
       (isCalorieCard && !isCaloriesFieldEnabled) ||
-      (isProteinCard && !isProteinFieldEnabled) ||
-      (isCarbsCard && !isCarbsFieldEnabled) ||
-      (isFatCard && !isFatFieldEnabled);
+      (isProteinCard && !isProteinFieldEnabled);
 
     return (
       <View style={styles.nutritionCard} key={config.key}>
@@ -474,6 +429,85 @@ export default function SettingsTab() {
     );
   };
 
+  const renderMacroDistributionCard = () => {
+    if (!isCaloriesSet || !isProteinSet) return null;
+
+    const proteinCalories = dailyTargets.protein * 4;
+    const remainingCalories = dailyTargets.calories - proteinCalories;
+    const fatGrams = calculateFatGramsFromPercentage(dailyTargets.calories, fatPercentage);
+    const carbsGrams = calculateCarbsFromMacros(dailyTargets.calories, dailyTargets.protein, fatGrams);
+
+    return (
+      <View style={styles.nutritionCard}>
+        <View style={styles.cardHeader}>
+          <View style={styles.cardTitleSection}>
+            <Text style={styles.nutritionHeadline}>Macro Distribution</Text>
+            <Text style={styles.cardDescription}>
+              The remaining {remainingCalories} calories are distributed between fat and carbs
+            </Text>
+          </View>
+        </View>
+        
+        <View style={styles.macroDistributionInfo}>
+          <Text style={styles.macroDistributionText}>
+            Fat gets {fatPercentage}% of total calories ({fatGrams}g)
+          </Text>
+          <Text style={styles.macroDistributionText}>
+            Carbs get the rest ({carbsGrams}g)
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
+  const renderFatPercentageCard = () => {
+    if (!isCaloriesSet || !isProteinSet) return null;
+
+    const maxFatPercentage = calculateMaxFatPercentage(dailyTargets.calories, dailyTargets.protein);
+    const fatGrams = calculateFatGramsFromPercentage(dailyTargets.calories, fatPercentage);
+
+    const handleFatPercentageChange = (newPercentage: number) => {
+      setFatPercentage(newPercentage);
+      const newFatGrams = calculateFatGramsFromPercentage(dailyTargets.calories, newPercentage);
+      const newCarbsGrams = calculateCarbsFromMacros(dailyTargets.calories, dailyTargets.protein, newFatGrams);
+      
+      updateDailyTargetsDebounced({
+        ...dailyTargets,
+        fat: newFatGrams,
+        carbs: newCarbsGrams,
+      });
+    };
+
+    return (
+      <View style={styles.nutritionCard}>
+        <View style={styles.cardHeader}>
+          <View style={styles.cardTitleSection}>
+            <Text style={styles.nutritionHeadline}>Fat Percentage</Text>
+            <Text style={styles.cardDescription}>
+              Adjust what percentage of your calories come from fat
+            </Text>
+          </View>
+        </View>
+
+        <NutritionSlider
+          label="Fat Percentage"
+          unit="%"
+          value={fatPercentage}
+          minimumValue={10}
+          maximumValue={maxFatPercentage}
+          step={1}
+          onValueChange={handleFatPercentageChange}
+        />
+
+        <View style={styles.fatCalculatedInfo}>
+          <Text style={styles.fatCalculatedText}>
+            {fatPercentage}% of {dailyTargets.calories} calories = {fatGrams}g fat
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
   const renderAppearanceCard = () => {
     return (
       <View style={styles.nutritionCard}>
@@ -532,6 +566,8 @@ export default function SettingsTab() {
             </View>
           )}
           {nutritionConfigs.map(renderNutritionCard)}
+          {renderMacroDistributionCard()}
+          {renderFatPercentageCard()}
           
           <View style={styles.resetButtonContainer}>
             <Button
@@ -781,6 +817,32 @@ const createStyles = (
     resetButtonText: {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
+      fontWeight: "600",
+    },
+    macroDistributionInfo: {
+      backgroundColor: colors.accent + "10",
+      borderRadius: 12,
+      padding: spacing.lg,
+      borderWidth: 1,
+      borderColor: colors.accent + "20",
+    },
+    macroDistributionText: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      color: colors.primaryText,
+      marginBottom: spacing.xs,
+    },
+    fatCalculatedInfo: {
+      backgroundColor: colors.semanticBadges.fat.background,
+      borderRadius: 12,
+      padding: spacing.md,
+      marginTop: spacing.md,
+    },
+    fatCalculatedText: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      color: colors.semantic.fat,
+      textAlign: "center",
       fontWeight: "600",
     },
   });
