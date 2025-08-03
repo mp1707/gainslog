@@ -18,8 +18,8 @@ export const MacroDistributionCard: React.FC<MacroDistributionCardProps> = ({
   carbsGrams,
   fatPercentage,
 }) => {
-  const { colors, theme: themeObj } = useTheme();
-  const styles = createStyles(colors, themeObj);
+  const { colors, theme: themeObj, colorScheme } = useTheme();
+  const styles = createStyles(colors, themeObj, colorScheme);
 
   const proteinCalories = protein * 4;
   const remainingCalories = calories - proteinCalories;
@@ -60,8 +60,8 @@ export const MacroDistributionCard: React.FC<MacroDistributionCardProps> = ({
             ]}
           />
           <Text style={styles.macroDistributionText}>
-            Carbs: {Math.round((carbCalories / calories) * 100)}% ({carbsGrams}g ={" "}
-            {carbCalories} cal)
+            Carbs: {Math.round((carbCalories / calories) * 100)}% ({carbsGrams}g
+            = {carbCalories} cal)
           </Text>
         </View>
       </View>

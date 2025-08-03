@@ -18,7 +18,7 @@ interface NutritionConfig {
 }
 
 interface CalorieCalculation {
-  method: typeof CALCULATION_METHODS[keyof typeof CALCULATION_METHODS];
+  method: (typeof CALCULATION_METHODS)[keyof typeof CALCULATION_METHODS];
   params: {
     sex: "male" | "female";
     age: number;
@@ -53,8 +53,9 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
   calorieCalculation,
   proteinCalculation,
 }) => {
-  const { colors, theme } = useTheme();
-  const styles = createStyles(colors, theme);
+  const { colors, theme, colorScheme } = useTheme();
+  // Pass the current color scheme to ensure scheme-aware component styles
+  const styles = createStyles(colors, theme, colorScheme);
 
   const isProteinCard = config.key === "protein";
   const isCalorieCard = config.key === "calories";

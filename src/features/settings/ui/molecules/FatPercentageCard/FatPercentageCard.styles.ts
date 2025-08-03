@@ -1,14 +1,15 @@
 import { StyleSheet } from "react-native";
-import { useTheme } from "@/providers/ThemeProvider";
+import { ColorScheme, theme as defaultTheme } from "../../../../../theme";
 
-type Colors = ReturnType<typeof useTheme>["colors"];
-type Theme = ReturnType<typeof useTheme>["theme"];
+type Colors = ReturnType<typeof defaultTheme.getColors>;
+type Theme = typeof defaultTheme;
 
 export const createStyles = (
   colors: Colors,
-  themeObj: Theme,
+  themeObj: Theme = defaultTheme,
+  scheme: ColorScheme = "light"
 ) => {
-  const componentStyles = themeObj.getComponentStyles();
+  const componentStyles = themeObj.getComponentStyles(scheme);
   const { typography, spacing } = themeObj;
 
   return StyleSheet.create({

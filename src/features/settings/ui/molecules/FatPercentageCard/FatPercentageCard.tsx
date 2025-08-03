@@ -19,8 +19,8 @@ export const FatPercentageCard: React.FC<FatPercentageCardProps> = ({
   maxFatPercentage,
   onFatPercentageChange,
 }) => {
-  const { colors, theme: themeObj } = useTheme();
-  const styles = createStyles(colors, themeObj);
+  const { colors, theme: themeObj, colorScheme } = useTheme();
+  const styles = createStyles(colors, themeObj, colorScheme);
 
   const isInRecommendedRange = fatPercentage >= 25 && fatPercentage <= 35;
 
@@ -28,9 +28,7 @@ export const FatPercentageCard: React.FC<FatPercentageCardProps> = ({
     <View style={styles.nutritionCard}>
       <View style={styles.cardHeader}>
         <View style={styles.cardTitleSection}>
-          <Text style={styles.nutritionHeadline}>
-            Fine-Tune Fat Percentage
-          </Text>
+          <Text style={styles.nutritionHeadline}>Fine-Tune Fat Percentage</Text>
           <Text style={styles.cardDescription}>
             Adjust what percentage of your calories come from fat
           </Text>
@@ -41,9 +39,9 @@ export const FatPercentageCard: React.FC<FatPercentageCardProps> = ({
       <View style={styles.educationalCallout}>
         <Text style={styles.educationalTitle}>💡 Nutrition Tip</Text>
         <Text style={styles.educationalText}>
-          For advanced strength athletes, a fat intake of 25-35% of total
-          daily calories is recommended for optimal hormone production and
-          nutrient absorption.
+          For advanced strength athletes, a fat intake of 25-35% of total daily
+          calories is recommended for optimal hormone production and nutrient
+          absorption.
         </Text>
       </View>
 

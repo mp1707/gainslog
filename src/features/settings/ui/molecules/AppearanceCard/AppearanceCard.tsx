@@ -4,8 +4,13 @@ import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./AppearanceCard.styles";
 
 export const AppearanceCard: React.FC = () => {
-  const { colors, theme: themeObj, colorScheme, toggleColorScheme } = useTheme();
-  const styles = createStyles(colors, themeObj);
+  const {
+    colors,
+    theme: themeObj,
+    colorScheme,
+    toggleColorScheme,
+  } = useTheme();
+  const styles = createStyles(colors, themeObj, colorScheme);
 
   return (
     <View style={styles.nutritionCard}>

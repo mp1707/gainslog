@@ -76,7 +76,7 @@ export default function SettingsTab() {
   };
 
   const styles = useMemo(
-    () => createStyles(colors, themeObj),
+    () => createStyles(colors, themeObj, colorScheme),
     [colors, themeObj]
   );
 
