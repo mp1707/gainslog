@@ -1,155 +1,169 @@
 // Centralized theme system based on "Focused Motivation" design system
-import { Appearance } from 'react-native';
+import { Appearance } from "react-native";
 
 // Base spacing unit
 const SPACING_UNIT = 8;
 
 // Color palettes
 const lightColors = {
-  accent: '#6200EA',
-  primaryBackground: '#F9F9F9',
-  secondaryBackground: '#FFFFFF',
-  primaryText: '#111111',
-  secondaryText: '#8A8A8E',
-  border: '#EAEAEA',
-  white: '#FFFFFF',
-  disabledBackground: 'rgba(17, 17, 17, 0.1)',
-  disabledText: 'rgba(17, 17, 17, 0.4)',
-  recording: '#FF3B30', // iOS system red for recording/stop states
-  // Semantic colors for nutrition data visualization (research-based v1.3.0)
+  accent: "#6200EA",
+  primaryBackground: "#F9F9F9",
+  secondaryBackground: "#FFFFFF",
+  primaryText: "#111111",
+  secondaryText: "#8A8A8E",
+  border: "#EAEAEA",
+  white: "#FFFFFF",
+  disabledBackground: "rgba(17, 17, 17, 0.1)",
+  disabledText: "rgba(17, 17, 17, 0.4)",
+  recording: "#FF3B30", // iOS system red for recording/stop states
+  // Semantic colors for nutrition data visualization (v1.4.0 - Vibrancy Harmonized)
   semantic: {
-    calories: '#2E7D32', // Green for health/energy
-    protein: '#1565C0', // Blue for strength/muscle
-    carbs: '#F57C00', // Orange for energy/fuel
-    fat: '#FBC02D', // Yellow for essential nutrition
+    // Change: Brighter, more energetic green to match the accent's vibrancy.
+    calories: "#00C853",
+    // Change: More saturated, "digital" blue that feels more active and less corporate.
+    protein: "#2962FF",
+    // Change: Slightly adjusted for harmony with the new palette.
+    carbs: "#FF6D00",
+    // Change: Kept a strong yellow, ensuring it feels distinct from the new orange.
+    fat: "#FDB813",
   },
   // Semantic badge colors with proper backgrounds and text
   semanticBadges: {
     calories: {
-      background: 'rgba(46, 125, 50, 0.15)',
-      text: '#2E7D32',
+      background: "rgba(0, 200, 83, 0.15)",
+      text: "#00C853",
     },
     protein: {
-      background: 'rgba(21, 101, 192, 0.15)',
-      text: '#1565C0',
+      background: "rgba(41, 98, 255, 0.15)",
+      text: "#2962FF",
     },
     carbs: {
-      background: 'rgba(245, 124, 0, 0.15)',
-      text: '#F57C00',
+      background: "rgba(255, 109, 0, 0.15)",
+      text: "#FF6D00",
     },
     fat: {
-      background: 'rgba(251, 192, 45, 0.15)',
-      text: '#FBC02D',
+      background: "rgba(253, 184, 19, 0.15)",
+      text: "#FDB813",
     },
   },
-  // State colors - modern, accessible variants
-  error: '#D32F2F', // Deeper red for better contrast and modern feel
-  errorBackground: 'rgba(211, 47, 47, 0.1)',
-  warning: '#FF9800', // Bright orange for warnings, distinct from new teal fat color
-  warningBackground: 'rgba(255, 152, 0, 0.1)',
-  success: '#2E7D32', // Deeper green, distinct from calories color
-  successBackground: 'rgba(46, 125, 50, 0.1)',
+  // State colors - harmonized with the new vibrant palette
+  // Change: Using a deep, clear red that fits the palette.
+  error: "#D50000",
+  errorBackground: "rgba(213, 0, 0, 0.1)",
+  // Change: A vibrant amber that stands out clearly.
+  warning: "#FFAB00",
+  warningBackground: "rgba(255, 171, 0, 0.1)",
+  // Change: A distinct teal/green for success messages, preventing confusion with the 'calories' green.
+  success: "#00BFA5",
+  successBackground: "rgba(0, 191, 165, 0.1)",
   // Icon badge colors
   iconBadge: {
-    background: 'rgba(98, 0, 234, 0.15)', // Updated to match new accent color
-    iconColor: '#6200EA',
+    background: "rgba(98, 0, 234, 0.15)",
+    iconColor: "#6200EA",
   },
-} as const; 
+} as const;
 
 const darkColors = {
-  accent: '#7C4DFF',
-  primaryBackground: '#000000',
-  secondaryBackground: '#1C1C1E',
-  primaryText: '#F2F2F7',
-  secondaryText: '#8D8D93',
-  border: '#38383A',
-  white: '#FFFFFF',
-  disabledBackground: 'rgba(242, 242, 247, 0.15)',
-  disabledText: 'rgba(242, 242, 247, 0.4)',
-  recording: '#FF3B30', // iOS system red for recording/stop states
-  // Semantic colors for nutrition data visualization (research-based v1.3.0)
+  accent: "#7C4DFF",
+  primaryBackground: "#000000",
+  secondaryBackground: "#1C1C1E",
+  primaryText: "#F2F2F7",
+  secondaryText: "#8D8D93",
+  border: "#38383A",
+  white: "#FFFFFF",
+  disabledBackground: "rgba(242, 242, 247, 0.15)",
+  disabledText: "rgba(242, 242, 247, 0.4)",
+  recording: "#FF453A", // Lighter red for dark mode
+  // Semantic colors for nutrition data visualization (v1.4.0 - Vibrancy Harmonized)
   semantic: {
-    calories: '#81C784', // Light green for health/energy
-    protein: '#64B5F6', // Light blue for strength/muscle
-    carbs: '#FFB74D', // Light orange for energy/fuel
-    fat: '#FFD54F', // Light yellow for essential nutrition
+    // Change: Brighter, more neon-like green for better pop on dark backgrounds.
+    calories: "#69F0AE",
+    // Change: A vivid light blue that pairs well with the accent.
+    protein: "#40C4FF",
+    // Change: Adjusted to a slightly more saturated light orange.
+    carbs: "#FFAB40",
+    // Change: A bright, clear yellow.
+    fat: "#FFD740",
   },
   // Semantic badge colors with proper backgrounds and text
   semanticBadges: {
     calories: {
-      background: 'rgba(129, 199, 132, 0.15)',
-      text: '#81C784',
+      background: "rgba(105, 240, 174, 0.15)",
+      text: "#69F0AE",
     },
     protein: {
-      background: 'rgba(100, 181, 246, 0.15)',
-      text: '#64B5F6',
+      background: "rgba(64, 196, 255, 0.15)",
+      text: "#40C4FF",
     },
     carbs: {
-      background: 'rgba(255, 183, 77, 0.15)',
-      text: '#FFB74D',
+      background: "rgba(255, 171, 64, 0.15)",
+      text: "#FFAB40",
     },
     fat: {
-      background: 'rgba(255, 213, 79, 0.15)',
-      text: '#FFD54F',
+      background: "rgba(255, 215, 64, 0.15)",
+      text: "#FFD740",
     },
   },
-  // State colors - optimized for dark mode
-  error: '#F44336', // Lighter red for dark backgrounds with good contrast
-  errorBackground: 'rgba(244, 67, 54, 0.15)',
-  warning: '#FF9800', // Brighter orange for dark backgrounds
-  warningBackground: 'rgba(255, 152, 0, 0.15)',
-  success: '#4CAF50', // Lighter green for dark backgrounds, distinct from calories
-  successBackground: 'rgba(76, 175, 80, 0.15)',
+  // State colors - optimized and harmonized for dark mode
+  // Change: A clearer, more vibrant red for errors.
+  error: "#FF5252",
+  errorBackground: "rgba(255, 82, 82, 0.15)",
+  // Change: Consistent amber color for warnings.
+  warning: "#FFAB40",
+  warningBackground: "rgba(255, 171, 64, 0.15)",
+  // Change: A bright and friendly teal for success.
+  success: "#64FFDA",
+  successBackground: "rgba(100, 255, 218, 0.15)",
   // Icon badge colors
   iconBadge: {
-    background: 'rgba(124, 77, 255, 0.15)', // Updated to match new accent color
-    iconColor: '#7C4DFF',
+    background: "rgba(124, 77, 255, 0.15)",
+    iconColor: "#7C4DFF",
   },
 } as const;
 
 // Typography scale with Nunito font
 const typography = {
   Title1: {
-    fontFamily: 'Nunito-Bold',
+    fontFamily: "Nunito-Bold",
     fontSize: 28,
-    fontWeight: '700' as const,
-    useCase: 'Main dashboard greeting',
+    fontWeight: "700" as const,
+    useCase: "Main dashboard greeting",
   },
   Title2: {
-    fontFamily: 'Nunito-Bold',
+    fontFamily: "Nunito-Bold",
     fontSize: 22,
-    fontWeight: '700' as const,
-    useCase: 'Screen titles',
+    fontWeight: "700" as const,
+    useCase: "Screen titles",
   },
   Headline: {
-    fontFamily: 'Nunito-SemiBold',
+    fontFamily: "Nunito-SemiBold",
     fontSize: 17,
-    fontWeight: '600' as const,
-    useCase: 'Card titles, key metrics',
+    fontWeight: "600" as const,
+    useCase: "Card titles, key metrics",
   },
   Body: {
-    fontFamily: 'Nunito-Regular',
+    fontFamily: "Nunito-Regular",
     fontSize: 17,
-    fontWeight: '400' as const,
-    useCase: 'Main text, descriptions',
+    fontWeight: "400" as const,
+    useCase: "Main text, descriptions",
   },
   Subhead: {
-    fontFamily: 'Nunito-Regular',
+    fontFamily: "Nunito-Regular",
     fontSize: 15,
-    fontWeight: '400' as const,
-    useCase: 'Secondary info, list items',
+    fontWeight: "400" as const,
+    useCase: "Secondary info, list items",
   },
   Caption: {
-    fontFamily: 'Nunito-Regular',
+    fontFamily: "Nunito-Regular",
     fontSize: 13,
-    fontWeight: '400' as const,
-    useCase: 'Timestamps, small annotations',
+    fontWeight: "400" as const,
+    useCase: "Timestamps, small annotations",
   },
   Button: {
-    fontFamily: 'Nunito-Bold',
+    fontFamily: "Nunito-Bold",
     fontSize: 17,
-    fontWeight: '700' as const,
-    useCase: 'Button labels',
+    fontWeight: "700" as const,
+    useCase: "Button labels",
   },
 } as const;
 
@@ -173,7 +187,7 @@ const components = {
     cornerRadius: 16,
     lightMode: {
       backgroundColor: lightColors.secondaryBackground,
-      shadowColor: 'rgba(0, 0, 0, 0.05)',
+      shadowColor: "rgba(0, 0, 0, 0.05)",
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 1,
       shadowRadius: 12,
@@ -181,7 +195,7 @@ const components = {
     },
     darkMode: {
       backgroundColor: darkColors.secondaryBackground,
-      shadowColor: 'transparent',
+      shadowColor: "transparent",
       shadowOffset: { width: 0, height: 0 },
       shadowOpacity: 0,
       shadowRadius: 0,
@@ -196,7 +210,7 @@ const components = {
         textColor: lightColors.white,
       },
       active: {
-        backgroundColor: '#4527A0', // Darker variant of new accent color
+        backgroundColor: "#4527A0",
         textColor: lightColors.white,
       },
       disabled: {
@@ -206,19 +220,19 @@ const components = {
     },
     secondary: {
       default: {
-        backgroundColor: 'transparent',
+        backgroundColor: "transparent",
         textColor: lightColors.accent,
         borderWidth: 1.5,
         borderColor: lightColors.accent,
       },
       active: {
-        backgroundColor: 'rgba(98, 0, 234, 0.1)', // Updated to match new accent color
+        backgroundColor: "rgba(98, 0, 234, 0.1)",
         textColor: lightColors.accent,
         borderWidth: 1.5,
         borderColor: lightColors.accent,
       },
       disabled: {
-        backgroundColor: 'transparent',
+        backgroundColor: "transparent",
         textColor: lightColors.disabledText,
         borderWidth: 1.5,
         borderColor: lightColors.disabledBackground,
@@ -252,25 +266,25 @@ const components = {
 const animations = {
   defaultTransition: {
     duration: 300,
-    easing: 'easeOut',
+    easing: "easeOut",
   },
   motivationalMoments: {
     logSuccess: {
       duration: 500,
-      easing: 'bezier(0.25, 1, 0.5, 1)',
+      easing: "bezier(0.25, 1, 0.5, 1)",
       haptics: {
-        type: 'impact',
-        style: 'light',
+        type: "impact",
+        style: "light",
       },
     },
     goalCompletion: {
       shimmer: {
         duration: 1000,
-        easing: 'linear',
+        easing: "linear",
         gradient: [
-          'transparent',
-          'rgba(46, 125, 50, 0.4)', // Updated to match new calories green
-          'transparent',
+          "transparent",
+          "rgba(105, 240, 174, 0.4)", // Using the new vibrant dark mode green
+          "transparent",
         ],
       },
     },
@@ -279,23 +293,25 @@ const animations = {
 
 // Helper function to get current color scheme
 const getColorScheme = () => {
-  return Appearance.getColorScheme() || 'light';
+  return Appearance.getColorScheme() || "light";
 };
 
 // Get colors based on current scheme
-const getColors = (scheme?: 'light' | 'dark') => {
+const getColors = (scheme?: "light" | "dark") => {
   const currentScheme = scheme || getColorScheme();
-  return currentScheme === 'dark' ? darkColors : lightColors;
+  return currentScheme === "dark" ? darkColors : lightColors;
 };
 
 // Get component styles based on current scheme
-const getComponentStyles = (scheme?: 'light' | 'dark') => {
+const getComponentStyles = (scheme?: "light" | "dark") => {
   const currentScheme = scheme || getColorScheme();
   return {
     ...components,
     cards: {
       ...components.cards,
-      ...(currentScheme === 'dark' ? components.cards.darkMode : components.cards.lightMode),
+      ...(currentScheme === "dark"
+        ? components.cards.darkMode
+        : components.cards.lightMode),
     },
     aiActionTargets: {
       ...components.aiActionTargets,
@@ -303,7 +319,9 @@ const getComponentStyles = (scheme?: 'light' | 'dark') => {
     },
     progressBars: {
       ...components.progressBars,
-      ...(currentScheme === 'dark' ? components.progressBars.darkMode : components.progressBars.lightMode),
+      ...(currentScheme === "dark"
+        ? components.progressBars.darkMode
+        : components.progressBars.lightMode),
     },
   };
 };
@@ -324,7 +342,7 @@ export const theme = {
 } as const;
 
 export type Theme = typeof theme;
-export type ColorScheme = 'light' | 'dark';
+export type ColorScheme = "light" | "dark";
 export type Colors = typeof lightColors | typeof darkColors;
 export type Typography = typeof typography;
 export type Spacing = typeof spacing;
