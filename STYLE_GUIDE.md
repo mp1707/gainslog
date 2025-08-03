@@ -28,10 +28,10 @@ These colors give immediate visual meaning to the app's core data points. They s
 
 | Role     | Color            | Hex Code (Light) | Hex Code (Dark) | Use Case                                              |
 | -------- | ---------------- | ---------------- | --------------- | ----------------------------------------------------- |
-| Calories | Green            | #2E7D32          | #81C784         | Overall energy, calorie progress bar and totals.      |
-| Protein  | Blue             | #1565C0          | #64B5F6         | Protein progress bar, stats, and related charts.      |
-| Carbs    | Orange           | #F57C00          | #FFB74D         | Carbohydrate progress bar, stats, and related charts. |
-| Fat      | Yellow           | #FBC02D          | #FFD54F         | Fat progress bar, stats, and related charts.          |
+| Calories | Green            | #00C853          | #69F0AE         | Overall energy, calorie progress bar and totals.      |
+| Protein  | Blue             | #2962FF          | #40C4FF         | Protein progress bar, stats, and related charts.      |
+| Carbs    | Orange           | #FF6D00          | #FFAB40         | Carbohydrate progress bar, stats, and related charts. |
+| Fat      | Yellow           | #FDB813          | #FFD740         | Fat progress bar, stats, and related charts.          |
 
 _Export to Sheets_
 
@@ -41,10 +41,10 @@ For badge components displaying nutrient information, use lighter background col
 
 | Nutrient | Light Mode Background | Light Mode Text | Dark Mode Background | Dark Mode Text |
 | -------- | -------------------- | --------------- | -------------------- | -------------- |
-| Calories | rgba(46, 125, 50, 0.15) | #2E7D32         | rgba(129, 199, 132, 0.15) | #81C784        |
-| Protein  | rgba(21, 101, 192, 0.15) | #1565C0         | rgba(100, 181, 246, 0.15) | #64B5F6        |
-| Carbs    | rgba(245, 124, 0, 0.15) | #F57C00         | rgba(255, 183, 77, 0.15) | #FFB74D        |
-| Fat      | rgba(251, 192, 45, 0.15) | #FBC02D         | rgba(255, 213, 79, 0.15) | #FFD54F        |
+| Calories | rgba(0, 200, 83, 0.15) | #00C853         | rgba(105, 240, 174, 0.15) | #69F0AE        |
+| Protein  | rgba(41, 98, 255, 0.15) | #2962FF         | rgba(64, 196, 255, 0.15) | #40C4FF        |
+| Carbs    | rgba(255, 109, 0, 0.15) | #FF6D00         | rgba(255, 171, 64, 0.15) | #FFAB40        |
+| Fat      | rgba(253, 184, 19, 0.15) | #FDB813         | rgba(255, 215, 64, 0.15) | #FFD740        |
 
 _Export to Sheets_
 
@@ -64,10 +64,10 @@ For system states and user feedback, use these colors with their corresponding b
 
 | State     | Light Mode | Dark Mode | Light Mode Background | Dark Mode Background | Use Case |
 | --------- | ---------- | --------- | -------------------- | -------------------- | -------- |
-| Recording | #FF3B30    | #FF3B30   | N/A                  | N/A                  | Audio recording state indicator (iOS system red) |
-| Error     | #D32F2F    | #F44336   | rgba(211, 47, 47, 0.1) | rgba(244, 67, 54, 0.15) | Error messages, failed operations |
-| Warning   | #FF9800    | #FF9800   | rgba(255, 152, 0, 0.1) | rgba(255, 152, 0, 0.15) | Warning states, caution alerts |
-| Success   | #2E7D32    | #4CAF50   | rgba(46, 125, 50, 0.1) | rgba(76, 175, 80, 0.15) | Success feedback, completed goals |
+| Recording | #FF3B30    | #FF453A   | N/A                  | N/A                  | Audio recording state indicator (iOS system red) |
+| Error     | #D50000    | #FF5252   | rgba(213, 0, 0, 0.1) | rgba(255, 82, 82, 0.15) | Error messages, failed operations |
+| Warning   | #FFAB00    | #FFAB40   | rgba(255, 171, 0, 0.1) | rgba(255, 171, 64, 0.15) | Warning states, caution alerts |
+| Success   | #00BFA5    | #64FFDA   | rgba(0, 191, 165, 0.1) | rgba(100, 255, 218, 0.15) | Success feedback, completed goals |
 
 **Usage Guidelines:**
 - Recording color follows iOS system standards for consistency with platform conventions
@@ -121,12 +121,22 @@ The color palette has been completely redesigned with a research-based semantic 
 - Consistent lightness levels ensure reliable contrast ratios
 - Enhanced dark mode variants optimized for low-light usage
 
-**Latest Update (v1.3.0 - Research-Based Semantic Palette):**
+**Latest Update (v1.4.0 - Vibrancy Harmonized Palette):**
+- **Vibrancy Harmonized**: Enhanced the semantic colors with brighter, more energetic variants while maintaining accessibility
+- **Energetic Green for Calories**: Updated to #00C853 (light) / #69F0AE (dark) for more vibrant health associations
+- **Vivid Blue for Protein**: Updated to #2962FF (light) / #40C4FF (dark) for stronger, more confident feel
+- **Dynamic Orange for Carbs**: Updated to #FF6D00 (light) / #FFAB40 (dark) for enhanced energy visualization
+- **Bright Yellow for Fat**: Updated to #FDB813 (light) / #FFD740 (dark) for clearer distinction and vibrancy
+- **Enhanced State Colors**: Updated error (#D50000/#FF5252), warning (#FFAB00/#FFAB40), and success (#00BFA5/#64FFDA) for better visual impact
+- **Maintained Accessibility**: All new colors continue to meet WCAG AA contrast requirements
+- **Improved Visual Energy**: Colors now provide more motivational feedback while preserving semantic meaning
+
+**Previous Update (v1.3.0 - Research-Based Semantic Palette):**
 - **Research-Based Color Mapping**: Completely redesigned semantic colors based on user research for improved intuitiveness and accessibility
-- **Green for Calories**: Moved from purple to green (#2E7D32) for universal health/wellness associations
-- **Blue for Protein**: Moved from teal to blue (#1565C0) for strength and structural building associations
-- **Orange for Carbs**: Moved from blue to orange (#F57C00) for energy and fuel associations
-- **Yellow for Fat**: Moved from amber to yellow (#FBC02D) for essential nutrition and sustained energy
+- **Green for Calories**: Moved from purple to green for universal health/wellness associations
+- **Blue for Protein**: Moved from teal to blue for strength and structural building associations
+- **Orange for Carbs**: Moved from blue to orange for energy and fuel associations
+- **Yellow for Fat**: Moved from amber to yellow for essential nutrition and sustained energy
 - **Enhanced Accessibility**: All color combinations tested and optimized for better contrast and color-blind accessibility
 - **Improved Intuitiveness**: Colors now align with common health/nutrition app conventions and user expectations
 

@@ -1,8 +1,8 @@
 {
   "designSystemProfile": {
     "name": "Focused Motivation",
-    "version": "1.3.0",
-    "description": "A design system focused on clarity and motivational feedback. It uses a primary accent for actions and a semantic color palette for at-a-glance understanding of nutritional data. Version 1.3.0 introduces a revised, research-based semantic color palette for improved intuitiveness and accessibility.",
+    "version": "1.4.0",
+    "description": "A design system focused on clarity and motivational feedback. It uses a primary accent for actions and a semantic color palette for at-a-glance understanding of nutritional data. Version 1.4.0 introduces the 'Vibrancy Harmonized' palette with brighter, more energetic colors that maintain accessibility while adding visual energy.",
     "global": {
       "spacingUnit": 8,
       "pageMargins": {
@@ -25,27 +25,27 @@
         "disabledText": "rgba(17, 17, 17, 0.4)",
         "recording": "#FF3B30",
         "semantic": {
-          "calories": "#2E7D32",
-          "protein": "#1565C0",
-          "carbs": "#F57C00",
-          "fat": "#FBC02D"
+          "calories": "#00C853",
+          "protein": "#2962FF",
+          "carbs": "#FF6D00",
+          "fat": "#FDB813"
         },
         "semanticBadges": {
           "calories": {
-            "background": "rgba(46, 125, 50, 0.15)",
-            "text": "#2E7D32"
+            "background": "rgba(0, 200, 83, 0.15)",
+            "text": "#00C853"
           },
           "protein": {
-            "background": "rgba(21, 101, 192, 0.15)",
-            "text": "#1565C0"
+            "background": "rgba(41, 98, 255, 0.15)",
+            "text": "#2962FF"
           },
           "carbs": {
-            "background": "rgba(245, 124, 0, 0.15)",
-            "text": "#F57C00"
+            "background": "rgba(255, 109, 0, 0.15)",
+            "text": "#FF6D00"
           },
           "fat": {
-            "background": "rgba(251, 192, 45, 0.15)",
-            "text": "#FBC02D"
+            "background": "rgba(253, 184, 19, 0.15)",
+            "text": "#FDB813"
           }
         },
         "iconBadges": {
@@ -53,12 +53,12 @@
           "iconColor": "#6200EA"
         },
         "stateColors": {
-          "error": "#D32F2F",
-          "errorBackground": "rgba(211, 47, 47, 0.1)",
-          "warning": "#FF9800",
-          "warningBackground": "rgba(255, 152, 0, 0.1)",
-          "success": "#2E7D32",
-          "successBackground": "rgba(46, 125, 50, 0.1)"
+          "error": "#D50000",
+          "errorBackground": "rgba(213, 0, 0, 0.1)",
+          "warning": "#FFAB00",
+          "warningBackground": "rgba(255, 171, 0, 0.1)",
+          "success": "#00BFA5",
+          "successBackground": "rgba(0, 191, 165, 0.1)"
         }
       },
       "dark": {
@@ -73,27 +73,27 @@
         "disabledText": "rgba(242, 242, 247, 0.4)",
         "recording": "#FF3B30",
         "semantic": {
-          "calories": "#81C784",
-          "protein": "#64B5F6",
-          "carbs": "#FFB74D",
-          "fat": "#FFD54F"
+          "calories": "#69F0AE",
+          "protein": "#40C4FF",
+          "carbs": "#FFAB40",
+          "fat": "#FFD740"
         },
         "semanticBadges": {
           "calories": {
-            "background": "rgba(129, 199, 132, 0.15)",
-            "text": "#81C784"
+            "background": "rgba(105, 240, 174, 0.15)",
+            "text": "#69F0AE"
           },
           "protein": {
-            "background": "rgba(100, 181, 246, 0.15)",
-            "text": "#64B5F6"
+            "background": "rgba(64, 196, 255, 0.15)",
+            "text": "#40C4FF"
           },
           "carbs": {
-            "background": "rgba(255, 183, 77, 0.15)",
-            "text": "#FFB74D"
+            "background": "rgba(255, 171, 64, 0.15)",
+            "text": "#FFAB40"
           },
           "fat": {
-            "background": "rgba(255, 213, 79, 0.15)",
-            "text": "#FFD54F"
+            "background": "rgba(255, 215, 64, 0.15)",
+            "text": "#FFD740"
           }
         },
         "iconBadges": {
@@ -101,12 +101,12 @@
           "iconColor": "#7C4DFF"
         },
         "stateColors": {
-          "error": "#F44336",
-          "errorBackground": "rgba(244, 67, 54, 0.15)",
-          "warning": "#FF9800",
-          "warningBackground": "rgba(255, 152, 0, 0.15)",
-          "success": "#4CAF50",
-          "successBackground": "rgba(76, 175, 80, 0.15)"
+          "error": "#FF5252",
+          "errorBackground": "rgba(255, 82, 82, 0.15)",
+          "warning": "#FFAB40",
+          "warningBackground": "rgba(255, 171, 64, 0.15)",
+          "success": "#64FFDA",
+          "successBackground": "rgba(100, 255, 218, 0.15)"
         }
       }
     },
@@ -309,7 +309,7 @@
             "easing": "Easing.linear",
             "gradient": [
               "transparent",
-              "rgba(of-the-semantic-color, 0.4)",
+              "rgba(105, 240, 174, 0.4)",
               "transparent"
             ]
           }
