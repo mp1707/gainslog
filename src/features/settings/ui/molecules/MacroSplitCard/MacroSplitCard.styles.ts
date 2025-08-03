@@ -60,10 +60,12 @@ export const createStyles = (
       padding: spacing.md,
       borderRadius: 12,
       backgroundColor: colors.semanticBadges.fat.background,
+      borderLeftWidth: 4,
+      borderLeftColor: colors.semantic.fat,
     },
     fatCalculatedText: {
       ...typography.Body,
-      color: colors.semantic.fat,
+      color: colors.primaryText,
       textAlign: "center",
     },
     educationalCallout: {
@@ -71,16 +73,18 @@ export const createStyles = (
       padding: spacing.md,
       borderRadius: 12,
       backgroundColor: colors.warningBackground,
+      borderLeftWidth: 4,
+      borderLeftColor: colors.warning,
     },
     educationalTitle: {
       ...typography.Subhead,
       fontWeight: "600",
-      color: colors.warning,
+      color: colors.primaryText,
       marginBottom: spacing.xs,
     },
     educationalText: {
       ...typography.Body,
-      color: colors.secondaryText,
+      color: colors.primaryText,
       lineHeight: 18,
     },
   });
