@@ -39,9 +39,13 @@ export const FatPercentageCard: React.FC<FatPercentageCardProps> = ({
       <View style={styles.educationalCallout}>
         <Text style={styles.educationalTitle}>💡 Nutrition Tip</Text>
         <Text style={styles.educationalText}>
-          For advanced strength athletes, a fat intake of 25-35% of total daily
-          calories is recommended for optimal hormone production and nutrient
-          absorption.
+          A scientifically based guideline for fat intake is a proportion of 25%
+          to 35% of total daily calories. Your specific goal determines where
+          you should position yourself within this range: for muscle gain,
+          25–30% is more suitable to leave more calories available for
+          performance-enhancing carbohydrates. For fat loss, 30–35% is
+          beneficial, as fat supports satiety and helps stabilize hormone
+          production during a calorie deficit.
         </Text>
       </View>
 

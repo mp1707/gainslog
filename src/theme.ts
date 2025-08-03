@@ -143,7 +143,7 @@ const typography = {
   },
   Body: {
     fontFamily: "Nunito-Regular",
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: "400" as const,
     useCase: "Main text, descriptions",
   },
