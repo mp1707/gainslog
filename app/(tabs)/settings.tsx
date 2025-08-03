@@ -8,18 +8,22 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
   withSpring,
-  withTiming 
+  withTiming,
 } from "react-native-reanimated";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { CalculatorIcon } from "phosphor-react-native";
+import {
+  CalculatorIcon,
+  ArrowDownIcon,
+  CheckCircleIcon,
+} from "phosphor-react-native";
 import { useTheme } from "../../src/providers/ThemeProvider";
 import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 import { Stepper } from "../../src/shared/ui/atoms/Stepper";
@@ -41,6 +45,100 @@ import {
   calculateMaxFatPercentage,
 } from "../../src/utils/nutritionCalculations";
 
+// Step Header Component
+const StepHeader: React.FC<{
+  stepNumber: number;
+  title: string;
+  description: string;
+  helpText: string;
+  completed: boolean;
+  colors: any;
+  styles: any;
+}> = ({
+  stepNumber,
+  title,
+  description,
+  helpText,
+  completed,
+  colors,
+  styles,
+}) => {
+  return (
+    <View
+      style={styles.stepHeader}
+      accessibilityLabel={`${title}. ${
+        completed ? "Completed" : "In progress"
+      }`}
+      accessibilityHint={description}
+    >
+      <View style={styles.stepTitleRow}>
+        <View
+          style={styles.stepNumberContainer}
+          accessibilityRole="image"
+          accessibilityLabel={
+            completed ? `Step ${stepNumber} completed` : `Step ${stepNumber}`
+          }
+        >
+          {completed ? (
+            <CheckCircleIcon
+              size={24}
+              color={colors.semantic.calories}
+              weight="fill"
+            />
+          ) : (
+            <View
+              style={[styles.stepNumber, { backgroundColor: colors.accent }]}
+            >
+              <Text style={[styles.stepNumberText, { color: colors.white }]}>
+                {stepNumber}
+              </Text>
+            </View>
+          )}
+        </View>
+        <View style={styles.stepTitleContent}>
+          <Text style={styles.stepTitle} accessibilityRole="header">
+            {title}
+          </Text>
+          <Text style={styles.stepDescription}>{description}</Text>
+        </View>
+      </View>
+      <View style={styles.stepHelpContainer}>
+        <Text
+          style={styles.stepHelpText}
+          accessibilityRole="text"
+          accessibilityHint="Helpful tip for this step"
+        >
+          {helpText}
+        </Text>
+      </View>
+    </View>
+  );
+};
+
+// Flow Arrow Component
+const FlowArrow: React.FC<{
+  visible: boolean;
+  colors: any;
+  styles: any;
+}> = ({ visible, colors, styles }) => {
+  if (!visible) return null;
+
+  return (
+    <View
+      style={styles.flowArrowContainer}
+      accessibilityRole="image"
+      accessibilityLabel="Step completed, proceed to next step"
+      accessibilityHint="Visual indicator showing flow to next step"
+    >
+      <ArrowDownIcon
+        size={20}
+        color={colors.semantic.calories}
+        weight="regular"
+      />
+    </View>
+  );
+};
+
 // Animated Calculator Button Component
 const AnimatedCalculatorButton: React.FC<{
   isCalorieCard: boolean;
@@ -51,10 +149,7 @@ const AnimatedCalculatorButton: React.FC<{
   const rotation = useSharedValue(0);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scale.value },
-      { rotate: `${rotation.value}deg` }
-    ],
+    transform: [{ scale: scale.value }, { rotate: `${rotation.value}deg` }],
   }));
 
   const handlePressIn = () => {
@@ -91,25 +186,31 @@ const AnimatedCalculatorButton: React.FC<{
             shadowRadius: 8,
             elevation: 3,
           },
-          { 
-            backgroundColor: isCalorieCard 
-              ? colors.semantic.calories + "15" 
+          {
+            backgroundColor: isCalorieCard
+              ? colors.semantic.calories + "15"
               : colors.semantic.protein + "15",
-            borderColor: isCalorieCard 
-              ? colors.semantic.calories 
-              : colors.semantic.protein 
-          }
+            borderColor: isCalorieCard
+              ? colors.semantic.calories
+              : colors.semantic.protein,
+          },
         ]}
         onPress={handlePress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         accessibilityRole="button"
-        accessibilityLabel={`Open ${isCalorieCard ? 'calorie' : 'protein'} calculator`}
-        accessibilityHint={`Calculate ${isCalorieCard ? 'calorie' : 'protein'} needs based on personal info`}
+        accessibilityLabel={`Open ${
+          isCalorieCard ? "calorie" : "protein"
+        } calculator`}
+        accessibilityHint={`Calculate ${
+          isCalorieCard ? "calorie" : "protein"
+        } needs based on personal info`}
       >
         <CalculatorIcon
           size={18}
-          color={isCalorieCard ? colors.semantic.calories : colors.semantic.protein}
+          color={
+            isCalorieCard ? colors.semantic.calories : colors.semantic.protein
+          }
           weight="regular"
         />
       </TouchableOpacity>
@@ -173,45 +274,60 @@ export default function SettingsTab() {
   // Flow state logic
   const isCaloriesSet = dailyTargets.calories > 0;
   const isProteinSet = dailyTargets.protein > 0;
-  
+
   // Determine field enablement based on flow state
   const isCaloriesFieldEnabled = true; // Always enabled
   const isProteinFieldEnabled = isCaloriesSet;
-  
+
   // Determine instructional text
-  const getInstructionalText = (): string | null => {
-    if (!isCaloriesSet) {
-      return "First, set a calorie target.";
-    }
-    if (!isProteinSet) {
-      return "Next, set a protein target.";
-    }
-    return null; // No text when all are set
+  const getStepInfo = () => {
+    return {
+      step1: {
+        completed: isCaloriesSet,
+        title: "Step 1: Set Your Daily Calories",
+        description: "Your total energy intake target for the day",
+        helpText:
+          "This forms the foundation for all other nutritional calculations",
+      },
+      step2: {
+        completed: isProteinSet,
+        title: "Step 2: Set Your Protein Target",
+        description: "Essential macronutrient for muscle growth and recovery",
+        helpText: "Protein needs are based on body weight and activity level",
+      },
+      step3: {
+        completed: isCaloriesSet && isProteinSet,
+        title: "Step 3: Distribute Remaining Calories",
+        description: "Balance fat and carbohydrates for optimal nutrition",
+        helpText:
+          "For advanced strength athletes, 25-35% of total calories from fat is recommended",
+      },
+    };
   };
 
-  const instructionalText = getInstructionalText();
+  const stepInfo = getStepInfo();
 
   const handleTargetChange = (
     key: keyof typeof dailyTargets,
     value: number
   ) => {
     const currentTargets = dailyTargets;
-    
+
     let newTargets = {
       ...currentTargets,
       [key]: value,
     };
-    
+
     // Check if this is the first time protein is being set (during guided flow)
-    const isFirstTimeSettingProtein = 
-      key === "protein" && 
-      !isProteinSet && 
-      isCaloriesSet && 
-      value > 0;
-    
+    const isFirstTimeSettingProtein =
+      key === "protein" && !isProteinSet && isCaloriesSet && value > 0;
+
     if (isFirstTimeSettingProtein) {
       // Auto-calculate Fat and Carbs when protein is first set
-      const calculated = calculateMacrosFromProtein(currentTargets.calories, value);
+      const calculated = calculateMacrosFromProtein(
+        currentTargets.calories,
+        value
+      );
       setFatPercentage(calculated.fatPercentage);
       newTargets = {
         ...newTargets,
@@ -221,7 +337,11 @@ export default function SettingsTab() {
     } else if (key === "calories" && isProteinSet) {
       // Calories changed: recalculate fat and carbs based on current percentage
       const newFatGrams = calculateFatGramsFromPercentage(value, fatPercentage);
-      const newCarbsGrams = calculateCarbsFromMacros(value, currentTargets.protein, newFatGrams);
+      const newCarbsGrams = calculateCarbsFromMacros(
+        value,
+        currentTargets.protein,
+        newFatGrams
+      );
       newTargets = {
         ...newTargets,
         fat: newFatGrams,
@@ -229,14 +349,21 @@ export default function SettingsTab() {
       };
     } else if (key === "protein" && isProteinSet) {
       // Protein changed: recalculate carbs (fat percentage stays same)
-      const fatGrams = calculateFatGramsFromPercentage(currentTargets.calories, fatPercentage);
-      const newCarbsGrams = calculateCarbsFromMacros(currentTargets.calories, value, fatGrams);
+      const fatGrams = calculateFatGramsFromPercentage(
+        currentTargets.calories,
+        fatPercentage
+      );
+      const newCarbsGrams = calculateCarbsFromMacros(
+        currentTargets.calories,
+        value,
+        fatGrams
+      );
       newTargets = {
         ...newTargets,
         carbs: newCarbsGrams,
       };
     }
-    
+
     updateDailyTargetsDebounced(newTargets);
   };
 
@@ -271,7 +398,7 @@ export default function SettingsTab() {
       [
         {
           text: "Cancel",
-          style: "cancel"
+          style: "cancel",
         },
         {
           text: "Reset",
@@ -279,12 +406,15 @@ export default function SettingsTab() {
           onPress: async () => {
             try {
               await resetDailyTargets();
-              Alert.alert("Success", "Daily targets have been reset successfully.");
+              Alert.alert(
+                "Success",
+                "Daily targets have been reset successfully."
+              );
             } catch (error) {
               // Error is already handled in the store
             }
-          }
-        }
+          },
+        },
       ]
     );
   };
@@ -335,9 +465,9 @@ export default function SettingsTab() {
   const renderNutritionCard = (config: (typeof nutritionConfigs)[number]) => {
     const isProteinCard = config.key === "protein";
     const isCalorieCard = config.key === "calories";
-    
+
     // Determine if this field should be disabled
-    const isFieldDisabled = 
+    const isFieldDisabled =
       (isCalorieCard && !isCaloriesFieldEnabled) ||
       (isProteinCard && !isProteinFieldEnabled);
 
@@ -353,15 +483,15 @@ export default function SettingsTab() {
           {(isCalorieCard || isProteinCard) && !isFieldDisabled && (
             <AnimatedCalculatorButton
               isCalorieCard={isCalorieCard}
-              onPress={() => isCalorieCard 
-                ? setIsCalorieCalculatorVisible(true) 
-                : setIsProteinCalculatorVisible(true)
+              onPress={() =>
+                isCalorieCard
+                  ? setIsCalorieCalculatorVisible(true)
+                  : setIsProteinCalculatorVisible(true)
               }
               colors={colors}
             />
           )}
         </View>
-
 
         {/* Show selected calculation method for calories */}
         {isCalorieCard && calorieCalculation && (
@@ -434,27 +564,57 @@ export default function SettingsTab() {
 
     const proteinCalories = dailyTargets.protein * 4;
     const remainingCalories = dailyTargets.calories - proteinCalories;
-    const fatGrams = calculateFatGramsFromPercentage(dailyTargets.calories, fatPercentage);
-    const carbsGrams = calculateCarbsFromMacros(dailyTargets.calories, dailyTargets.protein, fatGrams);
+    const fatGrams = calculateFatGramsFromPercentage(
+      dailyTargets.calories,
+      fatPercentage
+    );
+    const carbsGrams = calculateCarbsFromMacros(
+      dailyTargets.calories,
+      dailyTargets.protein,
+      fatGrams
+    );
+    const fatCalories = fatGrams * 9;
+    const carbCalories = carbsGrams * 4;
 
     return (
       <View style={styles.nutritionCard}>
         <View style={styles.cardHeader}>
           <View style={styles.cardTitleSection}>
-            <Text style={styles.nutritionHeadline}>Macro Distribution</Text>
+            <Text style={styles.nutritionHeadline}>
+              Remaining Calorie Distribution
+            </Text>
             <Text style={styles.cardDescription}>
-              The remaining {remainingCalories} calories are distributed between fat and carbs
+              After protein ({dailyTargets.protein}g = {proteinCalories}{" "}
+              calories), you have {remainingCalories} calories left to
+              distribute
             </Text>
           </View>
         </View>
-        
+
         <View style={styles.macroDistributionInfo}>
-          <Text style={styles.macroDistributionText}>
-            Fat gets {fatPercentage}% of total calories ({fatGrams}g)
-          </Text>
-          <Text style={styles.macroDistributionText}>
-            Carbs get the rest ({carbsGrams}g)
-          </Text>
+          <View style={styles.macroBreakdownRow}>
+            <View
+              style={[
+                styles.macroColorIndicator,
+                { backgroundColor: colors.semantic.fat },
+              ]}
+            />
+            <Text style={styles.macroDistributionText}>
+              Fat: {fatPercentage}% ({fatGrams}g = {fatCalories} cal)
+            </Text>
+          </View>
+          <View style={styles.macroBreakdownRow}>
+            <View
+              style={[
+                styles.macroColorIndicator,
+                { backgroundColor: colors.semantic.carbs },
+              ]}
+            />
+            <Text style={styles.macroDistributionText}>
+              Carbs: {Math.round((carbCalories / dailyTargets.calories) * 100)}%
+              ({carbsGrams}g = {carbCalories} cal)
+            </Text>
+          </View>
         </View>
       </View>
     );
@@ -463,14 +623,28 @@ export default function SettingsTab() {
   const renderFatPercentageCard = () => {
     if (!isCaloriesSet || !isProteinSet) return null;
 
-    const maxFatPercentage = calculateMaxFatPercentage(dailyTargets.calories, dailyTargets.protein);
-    const fatGrams = calculateFatGramsFromPercentage(dailyTargets.calories, fatPercentage);
+    const maxFatPercentage = calculateMaxFatPercentage(
+      dailyTargets.calories,
+      dailyTargets.protein
+    );
+    const fatGrams = calculateFatGramsFromPercentage(
+      dailyTargets.calories,
+      fatPercentage
+    );
+    const isInRecommendedRange = fatPercentage >= 25 && fatPercentage <= 35;
 
     const handleFatPercentageChange = (newPercentage: number) => {
       setFatPercentage(newPercentage);
-      const newFatGrams = calculateFatGramsFromPercentage(dailyTargets.calories, newPercentage);
-      const newCarbsGrams = calculateCarbsFromMacros(dailyTargets.calories, dailyTargets.protein, newFatGrams);
-      
+      const newFatGrams = calculateFatGramsFromPercentage(
+        dailyTargets.calories,
+        newPercentage
+      );
+      const newCarbsGrams = calculateCarbsFromMacros(
+        dailyTargets.calories,
+        dailyTargets.protein,
+        newFatGrams
+      );
+
       updateDailyTargetsDebounced({
         ...dailyTargets,
         fat: newFatGrams,
@@ -482,11 +656,23 @@ export default function SettingsTab() {
       <View style={styles.nutritionCard}>
         <View style={styles.cardHeader}>
           <View style={styles.cardTitleSection}>
-            <Text style={styles.nutritionHeadline}>Fat Percentage</Text>
+            <Text style={styles.nutritionHeadline}>
+              Fine-Tune Fat Percentage
+            </Text>
             <Text style={styles.cardDescription}>
               Adjust what percentage of your calories come from fat
             </Text>
           </View>
+        </View>
+
+        {/* Educational content */}
+        <View style={styles.educationalCallout}>
+          <Text style={styles.educationalTitle}>💡 Nutrition Tip</Text>
+          <Text style={styles.educationalText}>
+            For advanced strength athletes, a fat intake of 25-35% of total
+            daily calories is recommended for optimal hormone production and
+            nutrient absorption.
+          </Text>
         </View>
 
         <NutritionSlider
@@ -499,9 +685,21 @@ export default function SettingsTab() {
           onValueChange={handleFatPercentageChange}
         />
 
-        <View style={styles.fatCalculatedInfo}>
-          <Text style={styles.fatCalculatedText}>
-            {fatPercentage}% of {dailyTargets.calories} calories = {fatGrams}g fat
+        <View
+          style={[
+            styles.fatCalculatedInfo,
+            isInRecommendedRange && styles.fatCalculatedInfoRecommended,
+          ]}
+        >
+          <Text
+            style={[
+              styles.fatCalculatedText,
+              isInRecommendedRange && { color: colors.semantic.calories },
+            ]}
+          >
+            {fatPercentage}% of {dailyTargets.calories} calories = {fatGrams}g
+            fat
+            {isInRecommendedRange && " ✓ Within recommended range"}
           </Text>
         </View>
       </View>
@@ -558,17 +756,56 @@ export default function SettingsTab() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Nutrition Tracking</Text>
           <Text style={styles.sectionSubtitle}>
-            Set your daily nutrition goals and manage which metrics to track
+            Follow these steps to set up your personalized nutrition targets
           </Text>
-          {instructionalText && (
-            <View style={styles.instructionalContainer}>
-              <Text style={styles.instructionalText}>{instructionalText}</Text>
-            </View>
+          {/* Step 1: Calories */}
+          <StepHeader
+            stepNumber={1}
+            title={stepInfo.step1.title}
+            description={stepInfo.step1.description}
+            helpText={stepInfo.step1.helpText}
+            completed={stepInfo.step1.completed}
+            colors={colors}
+            styles={styles}
+          />
+          {renderNutritionCard(nutritionConfigs[0])} {/* Calories card */}
+          <FlowArrow
+            visible={stepInfo.step1.completed}
+            colors={colors}
+            styles={styles}
+          />
+          {/* Step 2: Protein */}
+          <StepHeader
+            stepNumber={2}
+            title={stepInfo.step2.title}
+            description={stepInfo.step2.description}
+            helpText={stepInfo.step2.helpText}
+            completed={stepInfo.step2.completed}
+            colors={colors}
+            styles={styles}
+          />
+          {renderNutritionCard(nutritionConfigs[1])} {/* Protein card */}
+          <FlowArrow
+            visible={stepInfo.step2.completed}
+            colors={colors}
+            styles={styles}
+          />
+          {/* Step 3: Fat & Carb Distribution */}
+          {stepInfo.step1.completed && stepInfo.step2.completed && (
+            <>
+              <StepHeader
+                stepNumber={3}
+                title={stepInfo.step3.title}
+                description={stepInfo.step3.description}
+                helpText={stepInfo.step3.helpText}
+                completed={stepInfo.step3.completed}
+                colors={colors}
+                styles={styles}
+              />
+              {renderMacroDistributionCard()}
+              {renderFatPercentageCard()}
+            </>
           )}
-          {nutritionConfigs.map(renderNutritionCard)}
-          {renderMacroDistributionCard()}
-          {renderFatPercentageCard()}
-          
           <View style={styles.resetButtonContainer}>
             <Button
               onPress={handleResetTargets}
@@ -793,12 +1030,12 @@ const createStyles = (
       color: colors.secondaryText,
     },
     instructionalContainer: {
-      backgroundColor: colors.accent + "10",
+      backgroundColor: `${colors.accent}10`,
       borderRadius: 12,
       padding: spacing.lg,
       marginBottom: spacing.lg,
       borderWidth: 1,
-      borderColor: colors.accent + "20",
+      borderColor: `${colors.accent}20`,
     },
     instructionalText: {
       fontSize: typography.Headline.fontSize,
@@ -820,17 +1057,29 @@ const createStyles = (
       fontWeight: "600",
     },
     macroDistributionInfo: {
-      backgroundColor: colors.accent + "10",
+      backgroundColor: `${colors.accent}10`,
       borderRadius: 12,
       padding: spacing.lg,
       borderWidth: 1,
-      borderColor: colors.accent + "20",
+      borderColor: `${colors.accent}20`,
     },
     macroDistributionText: {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
       color: colors.primaryText,
       marginBottom: spacing.xs,
+      flex: 1,
+    },
+    macroBreakdownRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: spacing.xs,
+    },
+    macroColorIndicator: {
+      width: 12,
+      height: 12,
+      borderRadius: 6,
+      marginRight: spacing.sm,
     },
     fatCalculatedInfo: {
       backgroundColor: colors.semanticBadges.fat.background,
@@ -844,6 +1093,92 @@ const createStyles = (
       color: colors.semantic.fat,
       textAlign: "center",
       fontWeight: "600",
+    },
+    fatCalculatedInfoRecommended: {
+      backgroundColor: colors.semanticBadges.calories.background,
+      borderWidth: 1,
+      borderColor: `${colors.semantic.calories}30`,
+    },
+    educationalCallout: {
+      backgroundColor: `${colors.semantic.fat}10`,
+      borderRadius: 12,
+      padding: spacing.lg,
+      marginBottom: spacing.lg,
+      borderLeftWidth: 3,
+      borderLeftColor: colors.semantic.fat,
+    },
+    educationalTitle: {
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
+      fontWeight: "600",
+      color: colors.primaryText,
+      marginBottom: spacing.xs,
+    },
+    educationalText: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      color: colors.primaryText,
+      lineHeight: 22,
+    },
+    // Step header styles
+    stepHeader: {
+      marginBottom: spacing.lg,
+    },
+    stepTitleRow: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      marginBottom: spacing.sm,
+    },
+    stepNumberContainer: {
+      marginRight: spacing.md,
+      marginTop: spacing.xs,
+    },
+    stepNumber: {
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    stepNumberText: {
+      fontSize: typography.Caption.fontSize,
+      fontFamily: typography.Caption.fontFamily,
+      fontWeight: "700",
+    },
+    stepTitleContent: {
+      flex: 1,
+    },
+    stepTitle: {
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
+      fontWeight: typography.Headline.fontWeight,
+      color: colors.primaryText,
+      marginBottom: spacing.xs / 2,
+    },
+    stepDescription: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      color: colors.secondaryText,
+      lineHeight: 22,
+    },
+    stepHelpContainer: {
+      backgroundColor: `${colors.accent}08`,
+      borderRadius: 8,
+      padding: spacing.md,
+      borderLeftWidth: 3,
+      borderLeftColor: colors.accent,
+    },
+    stepHelpText: {
+      fontSize: typography.Subhead.fontSize,
+      fontFamily: typography.Subhead.fontFamily,
+      color: colors.primaryText,
+      lineHeight: 20,
+      fontStyle: "italic",
+    },
+    // Flow arrow styles
+    flowArrowContainer: {
+      alignItems: "center",
+      paddingVertical: spacing.md,
     },
   });
 };
