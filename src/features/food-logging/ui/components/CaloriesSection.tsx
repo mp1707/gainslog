@@ -67,6 +67,11 @@ export const CaloriesSection: React.FC<CaloriesSectionProps> = ({
     container: {
       padding: theme.spacing.lg,
     },
+    notDefinedContainer: {
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+    },
     header: {
       color: colors.primaryText,
       marginBottom: theme.spacing.md,
@@ -79,7 +84,8 @@ export const CaloriesSection: React.FC<CaloriesSectionProps> = ({
     },
     progressBarContainer: {
       height: theme.components.progressBars.height,
-      backgroundColor: theme.getComponentStyles(colorScheme).progressBars.trackColor,
+      backgroundColor:
+        theme.getComponentStyles(colorScheme).progressBars.trackColor,
       borderRadius: theme.components.progressBars.cornerRadius,
       overflow: "hidden",
     },
@@ -99,18 +105,26 @@ export const CaloriesSection: React.FC<CaloriesSectionProps> = ({
       <AppText role="Headline" style={styles.headerStyle}>
         Calories
       </AppText>
-      <Card style={styles.container}>
-        <View style={styles.caloriesContent}>
-          <AppText role="Headline" style={styles.caloriesText}>
-            {caloriesData.current} / {caloriesData.target} kcal
+      {caloriesData.target === 0 ? (
+        <Card style={styles.notDefinedContainer}>
+          <AppText role="Caption">
+            Define your daily target on the settings tab
           </AppText>
-          <View style={styles.progressBarContainer}>
-            <Animated.View
-              style={[styles.progressBarFill, caloriesAnimatedStyle]}
-            />
+        </Card>
+      ) : (
+        <Card style={styles.container}>
+          <View style={styles.caloriesContent}>
+            <AppText role="Headline" style={styles.caloriesText}>
+              {caloriesData.current} / {caloriesData.target} kcal
+            </AppText>
+            <View style={styles.progressBarContainer}>
+              <Animated.View
+                style={[styles.progressBarFill, caloriesAnimatedStyle]}
+              />
+            </View>
           </View>
-        </View>
-      </Card>
+        </Card>
+      )}
     </View>
   );
 };
