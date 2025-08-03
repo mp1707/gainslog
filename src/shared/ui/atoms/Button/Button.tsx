@@ -77,7 +77,15 @@ export const Button: React.FC<ButtonProps> = ({
       accessibilityState={{ disabled }}
     >
       {isLoading ? (
-        children
+        // If children is ActivityIndicator, render it directly
+        // Otherwise, wrap any text content in Text component
+        React.isValidElement(children) && children.type === ActivityIndicator ? (
+          children
+        ) : (
+          <Text style={textStyles}>
+            {children}
+          </Text>
+        )
       ) : (
         <Text style={textStyles}>
           {children}
