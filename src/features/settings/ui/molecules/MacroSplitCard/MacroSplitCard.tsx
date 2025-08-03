@@ -86,15 +86,11 @@ export const MacroSplitCard: React.FC<MacroSplitCardProps> = ({
           styles.fatCalculatedInfo,
           isInRecommendedRange && {
             backgroundColor: colors.successBackground,
+            borderLeftColor: colors.success,
           },
         ]}
       >
-        <Text
-          style={[
-            styles.fatCalculatedText,
-            isInRecommendedRange && { color: colors.success },
-          ]}
-        >
+        <Text style={styles.fatCalculatedText}>
           {fatPercentage}% of {calories} calories = {fatGrams.toFixed(0)}g fat
           {"\n"}
           {isInRecommendedRange
