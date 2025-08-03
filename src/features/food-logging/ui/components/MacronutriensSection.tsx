@@ -40,7 +40,12 @@ export const MacronutriensSection: React.FC<MacronutriensSectionProps> = ({
     container: {
       padding: theme.spacing.lg,
       flexDirection: "row",
-      justifyContent: "space-between",
+      justifyContent: "space-around",
+      alignItems: "center",
+    },
+    notDefinedContainer: {
+      flexDirection: "row",
+      justifyContent: "center",
       alignItems: "center",
     },
     header: {
@@ -56,43 +61,58 @@ export const MacronutriensSection: React.FC<MacronutriensSectionProps> = ({
     },
   });
 
+  const macroNutrientsNotDefined =
+    proteinData.target === 0 && fatData.target === 0 && carbsData.target === 0;
+
   return (
     <View>
       <AppText role="Headline" style={styles.headerStyle}>
         Macronutriens
       </AppText>
-      <Card style={styles.container}>
-        <View style={styles.macroItem}>
-          <RadialProgressBar
-            current={proteinData.current}
-            target={proteinData.target}
-            unit={proteinData.unit}
-            label={proteinData.label}
-            size={88}
-            color={colors.semantic?.protein || colors.accent}
-          />
-        </View>
-        <View style={styles.macroItem}>
-          <RadialProgressBar
-            current={carbsData.current}
-            target={carbsData.target}
-            unit={carbsData.unit}
-            label={carbsData.label}
-            size={88}
-            color={colors.semantic?.carbs || colors.accent}
-          />
-        </View>
-        <View style={styles.macroItem}>
-          <RadialProgressBar
-            current={fatData.current}
-            target={fatData.target}
-            unit={fatData.unit}
-            label={fatData.label}
-            size={88}
-            color={colors.semantic?.fat || colors.accent}
-          />
-        </View>
-      </Card>
+      {macroNutrientsNotDefined ? (
+        <Card style={styles.notDefinedContainer}>
+          <AppText role="Caption">
+            Define your daily targets on the settings tab
+          </AppText>
+        </Card>
+      ) : (
+        <Card style={styles.container}>
+          <View style={styles.macroItem}>
+            <RadialProgressBar
+              current={proteinData.current}
+              target={proteinData.target}
+              unit={proteinData.unit}
+              label={proteinData.label}
+              size={88}
+              color={colors.semantic?.protein || colors.accent}
+            />
+          </View>
+          {carbsData.target !== 0 && (
+            <View style={styles.macroItem}>
+              <RadialProgressBar
+                current={carbsData.current}
+                target={carbsData.target}
+                unit={carbsData.unit}
+                label={carbsData.label}
+                size={88}
+                color={colors.semantic?.carbs || colors.accent}
+              />
+            </View>
+          )}
+          {fatData.target !== 0 && (
+            <View style={styles.macroItem}>
+              <RadialProgressBar
+                current={fatData.current}
+                target={fatData.target}
+                unit={fatData.unit}
+                label={fatData.label}
+                size={88}
+                color={colors.semantic?.fat || colors.accent}
+              />
+            </View>
+          )}
+        </Card>
+      )}
     </View>
   );
 };
