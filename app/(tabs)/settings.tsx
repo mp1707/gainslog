@@ -292,7 +292,7 @@ export default function SettingsTab() {
 
         {/* Show selected calculation method for protein */}
         {isProteinCard && proteinCalculation && (
-          <View style={styles.calculationInfo}>
+          <View style={styles.calculationInfoProtein}>
             <View style={styles.calculationHeader}>
               <Text style={styles.calculationMethodTitle}>
                 {proteinCalculation.method.title}
@@ -301,7 +301,7 @@ export default function SettingsTab() {
                 {proteinCalculation.bodyWeight}kg body weight
               </Text>
             </View>
-            <Text style={styles.calculatedValue}>
+            <Text style={styles.calculatedValueProtein}>
               Recommended: {proteinCalculation.calculatedProtein}g daily
             </Text>
             <Text style={styles.calculationSubtext}>
@@ -495,16 +495,26 @@ const createStyles = (
       color: colors.primaryText,
     },
     calculationInfo: {
-      backgroundColor:
-        scheme === "light"
-          ? "rgba(255, 122, 90, 0.04)"
-          : "rgba(255, 122, 90, 0.08)",
+      backgroundColor: colors.iconBadge.background,
       borderRadius: 16,
       padding: spacing.lg,
       marginBottom: spacing.lg,
       borderWidth: 1,
       borderColor: colors.accent + "20",
       shadowColor: colors.accent,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 1,
+    },
+    calculationInfoProtein: {
+      backgroundColor: colors.semanticBadges.protein.background,
+      borderRadius: 16,
+      padding: spacing.lg,
+      marginBottom: spacing.lg,
+      borderWidth: 1,
+      borderColor: colors.semantic.protein + "20",
+      shadowColor: colors.semantic.protein,
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.05,
       shadowRadius: 8,
@@ -531,6 +541,13 @@ const createStyles = (
       fontFamily: typography.Headline.fontFamily,
       fontWeight: "600",
       color: colors.accent,
+      marginBottom: spacing.sm,
+    },
+    calculatedValueProtein: {
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
+      fontWeight: "600",
+      color: colors.semantic.protein,
       marginBottom: spacing.sm,
     },
     calculationSubtext: {
