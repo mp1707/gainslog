@@ -5,6 +5,7 @@
 export interface MacroCalculationResult {
   fat: number;
   carbs: number;
+  fatPercentage: number;
 }
 
 /**
@@ -13,7 +14,7 @@ export interface MacroCalculationResult {
  * 
  * @param totalCalories - Total calorie target
  * @param proteinInGrams - Protein target in grams
- * @returns Object with calculated fat and carbs values
+ * @returns Object with calculated fat, carbs values and fat percentage
  */
 export const calculateMacrosFromProtein = (
   totalCalories: number,
@@ -23,7 +24,8 @@ export const calculateMacrosFromProtein = (
   const proteinCalories = proteinInGrams * 4;
   
   // Fat should be 30% of total calories (as per requirements)
-  const fatInGrams = Math.round((totalCalories * 0.3) / 9);
+  const fatPercentage = 30;
+  const fatInGrams = Math.round((totalCalories * (fatPercentage / 100)) / 9);
   const fatCalories = fatInGrams * 9;
   
   // Remaining calories go to carbs
@@ -33,6 +35,7 @@ export const calculateMacrosFromProtein = (
   return {
     fat: fatInGrams,
     carbs: carbsInGrams,
+    fatPercentage,
   };
 };
 
@@ -114,4 +117,57 @@ export const calculateCarbsFromCaloriesChange = (
   const fatCalories = currentFatInGrams * 9;
   const carbCalories = newTotalCalories - proteinCalories - fatCalories;
   return Math.round(carbCalories / 4);
+};
+
+/**
+ * Calculate fat grams from percentage of total calories
+ * 
+ * @param totalCalories - Total calorie target
+ * @param fatPercentage - Fat percentage (0-100)
+ * @returns Fat in grams
+ */
+export const calculateFatGramsFromPercentage = (
+  totalCalories: number,
+  fatPercentage: number
+): number => {
+  const fatCalories = totalCalories * (fatPercentage / 100);
+  return Math.round(fatCalories / 9);
+};
+
+/**
+ * Calculate carbs from macros (used for the new simplified flow)
+ * 
+ * @param totalCalories - Total calorie target
+ * @param proteinInGrams - Protein in grams
+ * @param fatInGrams - Fat in grams
+ * @returns Carbs in grams
+ */
+export const calculateCarbsFromMacros = (
+  totalCalories: number,
+  proteinInGrams: number,
+  fatInGrams: number
+): number => {
+  const proteinCalories = proteinInGrams * 4;
+  const fatCalories = fatInGrams * 9;
+  const carbCalories = totalCalories - proteinCalories - fatCalories;
+  return Math.round(Math.max(0, carbCalories / 4));
+};
+
+/**
+ * Calculate maximum fat percentage based on calories and protein
+ * Ensures there are enough calories left for reasonable carbs (at least 50g)
+ * 
+ * @param totalCalories - Total calorie target
+ * @param proteinInGrams - Protein in grams
+ * @returns Maximum fat percentage
+ */
+export const calculateMaxFatPercentage = (
+  totalCalories: number,
+  proteinInGrams: number
+): number => {
+  const proteinCalories = proteinInGrams * 4;
+  const minCarbCalories = 50 * 4; // Reserve at least 50g carbs (200 calories)
+  const availableCaloriesForFat = totalCalories - proteinCalories - minCarbCalories;
+  const maxFatPercentage = Math.floor((availableCaloriesForFat / totalCalories) * 100);
+  return Math.max(10, Math.min(70, maxFatPercentage)); // Between 10% and 70%
 };
