@@ -89,8 +89,8 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
   const animatedSliderStyle = useAnimatedStyle(() => {
     // Calculate the available sliding space accounting for padding
     // Container has 3pt padding on each side, slider width is 50%
-    // So the slider can move from 0 to the remaining 50% width minus 3pt offset
-    const slideDistance = slideAnimation.value * 100;
+    // So the slider can move from 0 to the remaining 50% width minus 4pt offset
+    const slideDistance = slideAnimation.value * 101;
     return {
       transform: [
         {

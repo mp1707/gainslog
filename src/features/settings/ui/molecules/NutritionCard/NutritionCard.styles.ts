@@ -43,7 +43,7 @@ export const createStyles = (
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
       marginTop: spacing.xs,
-      lineHeight: 20,
+      lineHeight: typography.Body.fontSize * 1.33, // Better line height for readability
     },
     nutritionHeadline: {
       fontSize: typography.Headline.fontSize,
@@ -107,7 +107,7 @@ export const createStyles = (
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
-      lineHeight: 18,
+      lineHeight: typography.Body.fontSize * 1.2,
       opacity: 0.7,
     },
     settingsGroup: {
@@ -134,8 +134,42 @@ export const createStyles = (
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
-      lineHeight: 20,
+      lineHeight: typography.Body.fontSize * 1.33,
       opacity: 0.8,
+    },
+    // New section styles for improved UX - using proper design system
+    recommendedSection: {
+      marginBottom: spacing.xl,
+    },
+    recommendedSectionHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: spacing.md,
+    },
+    sectionLabel: {
+      fontSize: typography.Caption.fontSize,
+      fontFamily: typography.Caption.fontFamily,
+      fontWeight: "600",
+      color: colors.primaryText,
+      textTransform: "uppercase",
+      letterSpacing: 0.8,
+      opacity: 0.7,
+      marginBottom: spacing.xs,
+    },
+    sectionDescription: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      color: colors.secondaryText,
+      lineHeight: typography.Body.fontSize * 1.2, // 1.2 line height ratio
+      marginBottom: spacing.lg,
+    },
+    manualOverrideSection: {
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      paddingTop: spacing.lg,
+    },
+    manualOverrideSectionHeader: {
+      marginBottom: spacing.lg,
     },
   });
 };

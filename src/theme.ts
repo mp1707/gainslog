@@ -162,7 +162,7 @@ const typography = {
   Button: {
     fontFamily: "Nunito-Bold",
     fontSize: 17,
-    fontWeight: "700" as const,
+    fontWeight: "500" as const,
     useCase: "Button labels",
   },
 } as const;

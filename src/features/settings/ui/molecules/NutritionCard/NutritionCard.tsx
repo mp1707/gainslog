@@ -93,13 +93,23 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
             {getCardDescription(config.key)}
           </Text>
         </View>
-        {(isCalorieCard || isProteinCard) && !isFieldDisabled && (
+      </View>
+
+      {/* Recommended section with primary calculator CTA */}
+      {(isCalorieCard || isProteinCard) && !isFieldDisabled && (
+        <View style={styles.recommendedSection}>
+          <Text style={styles.sectionLabel}>Recommended</Text>
+          <Text style={styles.sectionDescription}>
+            Get a personalized {config.label.toLowerCase()} target based on your body composition and goals.
+          </Text>
           <AnimatedCalculatorButton
             isCalorieCard={isCalorieCard}
             onPress={onCalculatorPress}
+            variant="primary"
+            hasCalculation={!!(isCalorieCard ? calorieCalculation : proteinCalculation)}
           />
-        )}
-      </View>
+        </View>
+      )}
 
       {/* Show selected calculation method for calories */}
       {isCalorieCard && calorieCalculation && (
@@ -144,7 +154,14 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
         </View>
       )}
 
-      <View style={styles.settingsGroup}>
+      {/* Manual override section */}
+      <View style={styles.manualOverrideSection}>
+        <View style={styles.manualOverrideSectionHeader}>
+          <Text style={styles.sectionLabel}>Manual Override</Text>
+          <Text style={styles.sectionDescription}>
+            Prefer to set your own target? Use the stepper below to manually adjust your daily goal.
+          </Text>
+        </View>
         <View style={styles.nutritionSettingRow}>
           <View style={styles.settingInfo}>
             <Text style={styles.settingLabel}>Daily Target</Text>
