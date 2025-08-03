@@ -153,24 +153,28 @@ export default function SettingsTab() {
           <FlowArrow visible={stepInfo.step1.completed} />
 
           {/* Step 2: Protein */}
-          <StepHeader
-            stepNumber={2}
-            title={stepInfo.step2.title}
-            description={stepInfo.step2.description}
-            completed={stepInfo.step2.completed}
-          />
-          <NutritionCard
-            config={nutritionConfigs[1]}
-            value={dailyTargets.protein}
-            isFieldDisabled={!isProteinFieldEnabled}
-            onValueChange={handleTargetChange}
-            onCalculatorPress={() => setIsProteinCalculatorVisible(true)}
-            proteinCalculation={proteinCalculation}
-          />
-          <FlowArrow visible={stepInfo.step2.completed} />
+          {stepInfo.step1.completed && (
+            <>
+              <StepHeader
+                stepNumber={2}
+                title={stepInfo.step2.title}
+                description={stepInfo.step2.description}
+                completed={stepInfo.step2.completed}
+              />
+              <NutritionCard
+                config={nutritionConfigs[1]}
+                value={dailyTargets.protein}
+                isFieldDisabled={!isProteinFieldEnabled}
+                onValueChange={handleTargetChange}
+                onCalculatorPress={() => setIsProteinCalculatorVisible(true)}
+                proteinCalculation={proteinCalculation}
+              />
+              <FlowArrow visible={stepInfo.step2.completed} />
+            </>
+          )}
 
           {/* Step 3: Fat & Carb Distribution */}
-          {stepInfo.step1.completed && stepInfo.step2.completed && (
+          {stepInfo.step2.completed && (
             <>
               <StepHeader
                 stepNumber={3}
