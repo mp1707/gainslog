@@ -1,14 +1,19 @@
 import { StyleSheet } from "react-native";
-import { useTheme } from "@/providers/ThemeProvider";
+import { ColorScheme, theme as defaultTheme } from "../../../../../theme";
 
-type Colors = ReturnType<typeof useTheme>["colors"];
-type Theme = ReturnType<typeof useTheme>["theme"];
+// Derive Colors and Theme types from the central theme file to avoid hook coupling
+// This keeps the style factory purely functional and easier to test.
+type Colors = ReturnType<typeof defaultTheme.getColors>;
+type Theme = typeof defaultTheme;
 
 export const createStyles = (
   colors: Colors,
-  themeObj: Theme,
+  themeObj: Theme = defaultTheme,
+  scheme: ColorScheme = "light"
 ) => {
-  const componentStyles = themeObj.getComponentStyles();
+  // Retrieve component styles for the *current* color scheme so that
+  // backgroundColor and other scheme-dependent values update correctly.
+  const componentStyles = themeObj.getComponentStyles(scheme);
   const { typography, spacing } = themeObj;
 
   return StyleSheet.create({

@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { useTheme } from "@/providers/ThemeProvider";
+import { ColorScheme } from "src/theme";
 
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
@@ -7,14 +8,17 @@ type Theme = ReturnType<typeof useTheme>["theme"];
 export const createStyles = (
   colors: Colors,
   themeObj: Theme,
-  bottomPadding?: number
+  scheme: ColorScheme,
+  bottomPadding?: number,
 ) => {
+  const componentStyles = themeObj.getComponentStyles(scheme);
+
   const { typography, spacing } = themeObj;
 
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.primaryBackground,
+      backgroundColor: componentStyles.cards.backgroundColor,
     },
     centered: {
       justifyContent: "center",
