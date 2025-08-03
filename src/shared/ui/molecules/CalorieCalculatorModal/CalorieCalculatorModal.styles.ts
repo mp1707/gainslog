@@ -97,7 +97,7 @@ export const useStyles = () =>
         borderColor: colors.accent,
         position: "relative",
         minHeight: 46,
-        padding: 3, // 3pt padding creates breathing room between slider and border
+        padding: 4, // 3pt padding creates breathing room between slider and border
       },
 
       sexToggleSlider: {
