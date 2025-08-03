@@ -16,30 +16,30 @@ const lightColors = {
   disabledBackground: 'rgba(17, 17, 17, 0.1)',
   disabledText: 'rgba(17, 17, 17, 0.4)',
   recording: '#FF3B30', // iOS system red for recording/stop states
-  // Semantic colors for nutrition data visualization (WCAG AA compliant)
+  // Semantic colors for nutrition data visualization (research-based v1.3.0)
   semantic: {
-    calories: '#6200EA', // Using accent color for calories
-    protein: '#14B8A6', // Teal for protein
-    carbs: '#3B82F6', // Blue for carbs
-    fat: '#F59E0B', // Amber for fat
+    calories: '#2E7D32', // Green for health/energy
+    protein: '#1565C0', // Blue for strength/muscle
+    carbs: '#F57C00', // Orange for energy/fuel
+    fat: '#FBC02D', // Yellow for essential nutrition
   },
   // Semantic badge colors with proper backgrounds and text
   semanticBadges: {
     calories: {
-      background: 'rgba(98, 0, 234, 0.15)',
-      text: '#6200EA',
+      background: 'rgba(46, 125, 50, 0.15)',
+      text: '#2E7D32',
     },
     protein: {
-      background: 'rgba(20, 184, 166, 0.15)',
-      text: '#14B8A6',
+      background: 'rgba(21, 101, 192, 0.15)',
+      text: '#1565C0',
     },
     carbs: {
-      background: 'rgba(59, 130, 246, 0.15)',
-      text: '#3B82F6',
+      background: 'rgba(245, 124, 0, 0.15)',
+      text: '#F57C00',
     },
     fat: {
-      background: 'rgba(245, 158, 11, 0.15)',
-      text: '#F59E0B',
+      background: 'rgba(251, 192, 45, 0.15)',
+      text: '#FBC02D',
     },
   },
   // State colors - modern, accessible variants
@@ -67,30 +67,30 @@ const darkColors = {
   disabledBackground: 'rgba(242, 242, 247, 0.15)',
   disabledText: 'rgba(242, 242, 247, 0.4)',
   recording: '#FF3B30', // iOS system red for recording/stop states
-  // Semantic colors for nutrition data visualization (optimized for dark backgrounds)
+  // Semantic colors for nutrition data visualization (research-based v1.3.0)
   semantic: {
-    calories: '#7C4DFF', // Using dark accent color for calories
-    protein: '#5EEAD4', // Light teal for protein
-    carbs: '#60A5FA', // Light blue for carbs
-    fat: '#FCD34D', // Light amber for fat
+    calories: '#81C784', // Light green for health/energy
+    protein: '#64B5F6', // Light blue for strength/muscle
+    carbs: '#FFB74D', // Light orange for energy/fuel
+    fat: '#FFD54F', // Light yellow for essential nutrition
   },
   // Semantic badge colors with proper backgrounds and text
   semanticBadges: {
     calories: {
-      background: 'rgba(124, 77, 255, 0.15)',
-      text: '#7C4DFF',
+      background: 'rgba(129, 199, 132, 0.15)',
+      text: '#81C784',
     },
     protein: {
-      background: 'rgba(94, 234, 212, 0.15)',
-      text: '#5EEAD4',
+      background: 'rgba(100, 181, 246, 0.15)',
+      text: '#64B5F6',
     },
     carbs: {
-      background: 'rgba(96, 165, 250, 0.15)',
-      text: '#60A5FA',
+      background: 'rgba(255, 183, 77, 0.15)',
+      text: '#FFB74D',
     },
     fat: {
-      background: 'rgba(252, 211, 77, 0.15)',
-      text: '#FCD34D',
+      background: 'rgba(255, 213, 79, 0.15)',
+      text: '#FFD54F',
     },
   },
   // State colors - optimized for dark mode
@@ -269,7 +269,7 @@ const animations = {
         easing: 'linear',
         gradient: [
           'transparent',
-          'rgba(98, 0, 234, 0.4)', // Updated to match new accent color
+          'rgba(46, 125, 50, 0.4)', // Updated to match new calories green
           'transparent',
         ],
       },

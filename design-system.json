@@ -1,8 +1,8 @@
 {
   "designSystemProfile": {
     "name": "Focused Motivation",
-    "version": "1.2.3",
-    "description": "A design system focused on clarity and motivational feedback. Uses a purple accent for actions and semantic colors that align with user expectations for nutritional data.",
+    "version": "1.3.0",
+    "description": "A design system focused on clarity and motivational feedback. It uses a primary accent for actions and a semantic color palette for at-a-glance understanding of nutritional data. Version 1.3.0 introduces a revised, research-based semantic color palette for improved intuitiveness and accessibility.",
     "global": {
       "spacingUnit": 8,
       "pageMargins": {
@@ -25,27 +25,27 @@
         "disabledText": "rgba(17, 17, 17, 0.4)",
         "recording": "#FF3B30",
         "semantic": {
-          "calories": "#6200EA",
-          "protein": "#14B8A6",
-          "carbs": "#3B82F6",
-          "fat": "#F59E0B"
+          "calories": "#2E7D32",
+          "protein": "#1565C0",
+          "carbs": "#F57C00",
+          "fat": "#FBC02D"
         },
         "semanticBadges": {
           "calories": {
-            "background": "rgba(98,0,234,0.15)",
-            "text": "#6200EA"
+            "background": "rgba(46, 125, 50, 0.15)",
+            "text": "#2E7D32"
           },
           "protein": {
-            "background": "rgba(20,184,166,0.15)",
-            "text": "#14B8A6"
+            "background": "rgba(21, 101, 192, 0.15)",
+            "text": "#1565C0"
           },
           "carbs": {
-            "background": "rgba(59,130,246,0.15)",
-            "text": "#3B82F6"
+            "background": "rgba(245, 124, 0, 0.15)",
+            "text": "#F57C00"
           },
           "fat": {
-            "background": "rgba(245,158,11,0.15)",
-            "text": "#F59E0B"
+            "background": "rgba(251, 192, 45, 0.15)",
+            "text": "#FBC02D"
           }
         },
         "iconBadges": {
@@ -73,31 +73,31 @@
         "disabledText": "rgba(242, 242, 247, 0.4)",
         "recording": "#FF3B30",
         "semantic": {
-          "calories": "#7C4DFF",
-          "protein": "#5EEAD4",
-          "carbs": "#60A5FA",
-          "fat": "#FCD34D"
+          "calories": "#81C784",
+          "protein": "#64B5F6",
+          "carbs": "#FFB74D",
+          "fat": "#FFD54F"
         },
         "semanticBadges": {
           "calories": {
-            "background": "rgba(124,77,255,0.15)",
-            "text": "#7C4DFF"
+            "background": "rgba(129, 199, 132, 0.15)",
+            "text": "#81C784"
           },
           "protein": {
-            "background": "rgba(94,234,212,0.15)",
-            "text": "#5EEAD4"
+            "background": "rgba(100, 181, 246, 0.15)",
+            "text": "#64B5F6"
           },
           "carbs": {
-            "background": "rgba(96,165,250,0.15)",
-            "text": "#60A5FA"
+            "background": "rgba(255, 183, 77, 0.15)",
+            "text": "#FFB74D"
           },
           "fat": {
-            "background": "rgba(252,211,77,0.15)",
-            "text": "#FCD34D"
+            "background": "rgba(255, 213, 79, 0.15)",
+            "text": "#FFD54F"
           }
         },
         "iconBadges": {
-          "background": "rgba(124,77,255,0.15)",
+          "background": "rgba(124, 77, 255, 0.15)",
           "iconColor": "#7C4DFF"
         },
         "stateColors": {

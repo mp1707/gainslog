@@ -28,10 +28,10 @@ These colors give immediate visual meaning to the app's core data points. They s
 
 | Role     | Color            | Hex Code (Light) | Hex Code (Dark) | Use Case                                              |
 | -------- | ---------------- | ---------------- | --------------- | ----------------------------------------------------- |
-| Calories | Action Purple    | #6200EA          | #7C4DFF         | Overall energy, calorie progress bar and totals.      |
-| Protein  | Teal             | #14B8A6          | #5EEAD4         | Protein progress bar, stats, and related charts.      |
-| Carbs    | Blue             | #3B82F6          | #60A5FA         | Carbohydrate progress bar, stats, and related charts. |
-| Fat      | Amber            | #F59E0B          | #FCD34D         | Fat progress bar, stats, and related charts.          |
+| Calories | Green            | #2E7D32          | #81C784         | Overall energy, calorie progress bar and totals.      |
+| Protein  | Blue             | #1565C0          | #64B5F6         | Protein progress bar, stats, and related charts.      |
+| Carbs    | Orange           | #F57C00          | #FFB74D         | Carbohydrate progress bar, stats, and related charts. |
+| Fat      | Yellow           | #FBC02D          | #FFD54F         | Fat progress bar, stats, and related charts.          |
 
 _Export to Sheets_
 
@@ -41,10 +41,10 @@ For badge components displaying nutrient information, use lighter background col
 
 | Nutrient | Light Mode Background | Light Mode Text | Dark Mode Background | Dark Mode Text |
 | -------- | -------------------- | --------------- | -------------------- | -------------- |
-| Calories | rgba(98, 0, 234, 0.15) | #6200EA         | rgba(124, 77, 255, 0.15) | #7C4DFF        |
-| Protein  | rgba(20, 184, 166, 0.15) | #14B8A6         | rgba(94, 234, 212, 0.15) | #5EEAD4        |
-| Carbs    | rgba(59, 130, 246, 0.15) | #3B82F6         | rgba(96, 165, 250, 0.15) | #60A5FA        |
-| Fat      | rgba(245, 158, 11, 0.15) | #F59E0B         | rgba(252, 211, 77, 0.15) | #FCD34D        |
+| Calories | rgba(46, 125, 50, 0.15) | #2E7D32         | rgba(129, 199, 132, 0.15) | #81C784        |
+| Protein  | rgba(21, 101, 192, 0.15) | #1565C0         | rgba(100, 181, 246, 0.15) | #64B5F6        |
+| Carbs    | rgba(245, 124, 0, 0.15) | #F57C00         | rgba(255, 183, 77, 0.15) | #FFB74D        |
+| Fat      | rgba(251, 192, 45, 0.15) | #FBC02D         | rgba(255, 213, 79, 0.15) | #FFD54F        |
 
 _Export to Sheets_
 
@@ -92,9 +92,9 @@ The neutral base theme ensures readability and allows the accent and semantic co
 
 _Export to Sheets_
 
-#### Color System Improvements (v1.2.1)
+#### Color System Evolution (v1.3.0)
 
-The color palette has been redesigned to address accessibility issues and create a more modern, harmonious appearance while maintaining the "Focused Motivation" philosophy.
+The color palette has been completely redesigned with a research-based semantic approach to create the most intuitive and accessible nutrition tracking experience while maintaining the "Focused Motivation" philosophy.
 
 **Key Improvements:**
 
@@ -106,12 +106,12 @@ The color palette has been redesigned to address accessibility issues and create
 
 4. **Modern Feel**: Updated to reflect 2024 design trends with more vibrant, nature-inspired colors that feel contemporary and trustworthy.
 
-**Color Psychology Rationale:**
+**Color Psychology Rationale (v1.3.0 Research-Based Palette):**
 
-- **Calories (Action Purple)**: Uses the accent color to emphasize calories as the primary energy metric - consistent with the app's action-focused design language
-- **Protein (Teal)**: Conveys balance, strength, and health - perfect for muscle-building nutrients
-- **Carbs (Blue)**: Suggests energy, clarity, and fuel - representing the body's primary energy source
-- **Fat (Amber)**: Represents warmth and essential nutrition - distinctly different from other macros while maintaining positive health associations
+- **Calories (Green)**: Green universally represents health, vitality, and positive energy - making it the most intuitive choice for overall caloric intake and wellness tracking
+- **Protein (Blue)**: Blue conveys strength, reliability, and building blocks - perfect for muscle-building and structural nutrients
+- **Carbs (Orange)**: Orange suggests energy, warmth, and fuel - representing the body's primary quick energy source with vibrant, active associations
+- **Fat (Yellow)**: Yellow represents essential nutrition and sustained energy - distinctly different from other macros while maintaining positive health associations
 - **Accent (Modern Purple)**: Maintains brand identity while feeling more contemporary and vibrant
 
 **Accessibility Features:**
@@ -121,12 +121,14 @@ The color palette has been redesigned to address accessibility issues and create
 - Consistent lightness levels ensure reliable contrast ratios
 - Enhanced dark mode variants optimized for low-light usage
 
-**Latest Update (v1.2.3):**
-- **Unified Calories**: Calories now use the accent color for consistency with action elements
-- **Optimized Macronutrients**: Protein moved to teal, carbs to blue, fat to amber for better visual distinction and color psychology alignment
-- **Enhanced Theme Integration**: All colors properly integrated into theme system with semantic badge support
-- **State Colors**: Added comprehensive state color system for error, warning, success, and recording states
-- **iOS Compliance**: Recording states now use iOS system red (#FF3B30) for platform consistency
+**Latest Update (v1.3.0 - Research-Based Semantic Palette):**
+- **Research-Based Color Mapping**: Completely redesigned semantic colors based on user research for improved intuitiveness and accessibility
+- **Green for Calories**: Moved from purple to green (#2E7D32) for universal health/wellness associations
+- **Blue for Protein**: Moved from teal to blue (#1565C0) for strength and structural building associations
+- **Orange for Carbs**: Moved from blue to orange (#F57C00) for energy and fuel associations
+- **Yellow for Fat**: Moved from amber to yellow (#FBC02D) for essential nutrition and sustained energy
+- **Enhanced Accessibility**: All color combinations tested and optimized for better contrast and color-blind accessibility
+- **Improved Intuitiveness**: Colors now align with common health/nutrition app conventions and user expectations
 
 ### 3. Typography
 
