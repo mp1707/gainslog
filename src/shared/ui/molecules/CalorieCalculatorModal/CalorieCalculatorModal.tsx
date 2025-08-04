@@ -260,8 +260,8 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
         {/* Content */}
         <KeyboardAvoidingView
           style={{ flex: 1 }}
-          behavior="position"
-          keyboardVerticalOffset={100}
+          behavior="padding"
+          keyboardVerticalOffset={80}
         >
           <ScrollView
             style={styles.content}

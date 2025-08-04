@@ -118,7 +118,6 @@ export default function SettingsTab() {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior="padding"
-        keyboardVerticalOffset={100}
       >
         <ScrollView
           style={styles.scrollView}
