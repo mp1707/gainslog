@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { FoodLogScreen, FoodLogModal } from "../../src/features/food-logging";
 import { useFoodLogModal, useUpdateFoodLog } from "../../src/features/food-logging/hooks";
 import { useCreateFoodLog } from "../../src/features/food-logging/hooks/useCreateFoodLog";
@@ -64,7 +65,7 @@ export default function TodayTab() {
 
   /* Modal save handler */
   const handleSave = useCallback(
-    async (log) => {
+    async (log: any) => {
       if (modal.modalMode === 'edit') {
         await update(log);
       } else {
@@ -88,12 +89,18 @@ export default function TodayTab() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <FoodLogScreen
-        isLoadingLogs={isLoadingLogs}
-        onDeleteLog={deleteFoodLogById}
-        onAddInfo={modal.handleAddInfo}
-        scrollToTop={shouldScrollToTop}
-      />
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }} 
+        behavior="translate-with-padding"
+        keyboardVerticalOffset={100}
+      >
+        <FoodLogScreen
+          isLoadingLogs={isLoadingLogs}
+          onDeleteLog={deleteFoodLogById}
+          onAddInfo={modal.handleAddInfo}
+          scrollToTop={shouldScrollToTop}
+        />
+      </KeyboardAvoidingView>
 
       <FoodLogModal
         visible={modal.isModalVisible}

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, forwardRef } from 'react';
 import { TextInput as RNTextInput, ViewStyle } from 'react-native';
 import { TextInputProps } from '@/types';
 import { useTheme } from '../../../../providers/ThemeProvider';
 import { createStyles } from './TextInput.styles';
 
-export const TextInput: React.FC<TextInputProps> = ({
+export const TextInput = forwardRef<RNTextInput, TextInputProps>(({
   value,
   onChangeText,
   placeholder,
@@ -18,7 +18,7 @@ export const TextInput: React.FC<TextInputProps> = ({
   accessibilityHint,
   onFocus,
   onBlur,
-}) => {
+}, ref) => {
   const [isFocused, setIsFocused] = useState(false);
   const { colors } = useTheme();
   const styles = createStyles(colors);
@@ -63,6 +63,7 @@ export const TextInput: React.FC<TextInputProps> = ({
 
   return (
     <RNTextInput
+      ref={ref}
       style={baseStyles}
       placeholderTextColor={colors.secondaryText}
       value={value}
@@ -77,6 +78,8 @@ export const TextInput: React.FC<TextInputProps> = ({
       numberOfLines={multiline ? 4 : 1}
       editable={!disabled}
       selectTextOnFocus={!disabled}
+      returnKeyType={multiline ? 'default' : 'done'}
+      blurOnSubmit={!multiline}
       // Accessibility
       accessibilityLabel={accessibilityLabel || placeholder}
       accessibilityHint={accessibilityHint}
@@ -88,4 +91,6 @@ export const TextInput: React.FC<TextInputProps> = ({
       accessible={true}
     />
   );
-};
+});
+
+TextInput.displayName = 'TextInput';

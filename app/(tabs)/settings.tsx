@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from "react";
-import { View, Text } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { View, Text, ScrollView } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
@@ -115,12 +115,17 @@ export default function SettingsTab() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      <KeyboardAwareScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        bottomOffset={20}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior="padding"
+        keyboardVerticalOffset={100}
       >
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Appearance</Text>
           <Text style={styles.sectionSubtitle}>
@@ -208,7 +213,8 @@ export default function SettingsTab() {
             </Button>
           </View>
         </View>
-      </KeyboardAwareScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       <ProteinCalculatorModal
         visible={isProteinCalculatorVisible}

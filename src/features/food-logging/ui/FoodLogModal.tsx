@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import { Modal, View, Text } from 'react-native';
+import { Modal, View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { FoodLog, ModalMode } from '../../../types';
 import { useFoodLogStore } from '../../../stores/useFoodLogStore';
 import { useStyles } from './FoodLogModal.styles';
@@ -121,24 +121,30 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
           </View>
         )}
 
-        <KeyboardAwareScrollView 
-          style={styles.content}
-          contentContainerStyle={{ flexGrow: 1 }}
-          bottomOffset={20}
-          showsVerticalScrollIndicator={false}
+        <KeyboardAvoidingView 
+          style={{ flex: 1 }}
+          behavior="position"
+          keyboardVerticalOffset={120}
         >
-          {currentLog && (
-            <FoodImageDisplay log={currentLog} />
-          )}
+          <ScrollView 
+            style={styles.content}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            {currentLog && (
+              <FoodImageDisplay log={currentLog} />
+            )}
 
-          <FoodLogFormFields
-            formData={form.formData}
-            currentLog={currentLog}
-            audioRecording={audioRecording}
-            onFieldChange={form.updateField}
-            onValidationErrorClear={() => form.setValidationError('')}
-          />
-        </KeyboardAwareScrollView>
+            <FoodLogFormFields
+              formData={form.formData}
+              currentLog={currentLog}
+              audioRecording={audioRecording}
+              onFieldChange={form.updateField}
+              onValidationErrorClear={() => form.setValidationError('')}
+            />
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </Modal>
   );

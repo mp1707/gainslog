@@ -153,7 +153,9 @@ export const Stepper: React.FC<StepperProps> = ({
           returnKeyType="done"
           onBlur={confirmInput}
           onSubmitEditing={confirmInput}
+          blurOnSubmit={true}
           autoFocus
+          inputAccessoryViewID=""
           accessibilityLabel={`Enter value between ${min} and ${max}`}
           accessibilityHint={`Current value is ${inputValue}. Enter a number and press done to confirm`}
           accessibilityRole="spinbutton"

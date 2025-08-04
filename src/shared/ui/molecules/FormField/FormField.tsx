@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { TextInput } from '@/shared/ui/atoms';
 import { TextInputProps } from '@/types';
 import { useTheme } from '../../../../providers/ThemeProvider';
@@ -23,14 +23,24 @@ export const FormField: React.FC<FormFieldProps> = ({
 }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
+  const inputRef = useRef<any>(null);
+
+  const handleLabelPress = () => {
+    if (!readOnly && inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
 
   return (
     <View style={[styles.container, readOnly && styles.readOnlyContainer]}>
-      <Text style={[styles.label, readOnly && styles.readOnlyLabel]}>
-        {label}{required && ' *'}
-      </Text>
+      <TouchableOpacity onPress={handleLabelPress} disabled={readOnly}>
+        <Text style={[styles.label, readOnly && styles.readOnlyLabel]}>
+          {label}{required && ' *'}
+        </Text>
+      </TouchableOpacity>
       <View style={styles.inputContainer}>
         <TextInput 
+          ref={inputRef}
           {...textInputProps} 
           error={!!error}
           disabled={readOnly}
