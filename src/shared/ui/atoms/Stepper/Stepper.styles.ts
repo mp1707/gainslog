@@ -79,7 +79,8 @@ export const createStyles = (colors: any) =>
       textAlign: "center",
       padding: 0,
       margin: 0,
-      width: "100%",
+      minWidth: 72,
+      maxWidth: 72,
     },
   });
 
