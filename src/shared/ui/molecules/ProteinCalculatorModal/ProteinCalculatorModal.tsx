@@ -118,7 +118,7 @@ export const ProteinCalculatorModal: React.FC<ProteinCalculatorModalProps> = ({
         {/* Content */}
         <KeyboardAvoidingView
           style={{ flex: 1 }}
-          behavior="translate-with-padding"
+          behavior="padding"
           keyboardVerticalOffset={0}
         >
           <ScrollView

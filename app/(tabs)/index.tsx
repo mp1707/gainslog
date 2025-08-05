@@ -97,7 +97,7 @@ export default function TodayTab() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior="translate-with-padding"
+        behavior="padding"
         keyboardVerticalOffset={keyboardOffset}
       >
         <FoodLogScreen

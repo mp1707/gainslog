@@ -19,18 +19,17 @@ export const useKeyboardOffset = (hasTabBar: boolean = false) => {
   const calculateOffset = () => {
     let offset = 0;
 
-    // Add top safe area (status bar, notch, etc.)
-    offset += insets.top;
-
-    // Add tab bar height if present
+    // For tab bar screens, we only need minimal offset
     if (hasTabBar) {
-      offset += TAB_BAR_HEIGHT;
-    }
-
-    // Platform-specific adjustments
-    if (Platform.OS === "android") {
-      // Android might need additional offset for certain devices
-      offset += 10;
+      // Just account for the tab bar height, not safe areas
+      offset = Platform.select({
+        ios: 10, // Minimal offset for iOS
+        android: 15, // Slightly more for Android
+        default: 10,
+      });
+    } else {
+      // For modals, no offset needed
+      offset = 0;
     }
 
     return offset;

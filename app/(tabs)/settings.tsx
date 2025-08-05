@@ -116,12 +116,8 @@ export default function SettingsTab() {
   const { fatGrams, carbsGrams, maxFatPercentage } = calculateMacroValues();
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior="translate-with-padding"
-        keyboardVerticalOffset={keyboardOffset}
-      >
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -216,21 +212,21 @@ export default function SettingsTab() {
             </View>
           </View>
         </ScrollView>
-      </KeyboardAvoidingView>
 
-      <ProteinCalculatorModal
-        visible={isProteinCalculatorVisible}
-        onClose={() => setIsProteinCalculatorVisible(false)}
-        onSelectMethod={handleProteinCalculationSelect}
-        initialBodyWeight={proteinCalculation?.bodyWeight || 70}
-      />
+        <ProteinCalculatorModal
+          visible={isProteinCalculatorVisible}
+          onClose={() => setIsProteinCalculatorVisible(false)}
+          onSelectMethod={handleProteinCalculationSelect}
+          initialBodyWeight={proteinCalculation?.bodyWeight || 70}
+        />
 
-      <CalorieCalculatorModal
-        visible={isCalorieCalculatorVisible}
-        onClose={() => setIsCalorieCalculatorVisible(false)}
-        onSelectGoal={handleCalorieGoalSelect}
-      />
-    </SafeAreaView>
+        <CalorieCalculatorModal
+          visible={isCalorieCalculatorVisible}
+          onClose={() => setIsCalorieCalculatorVisible(false)}
+          onSelectGoal={handleCalorieGoalSelect}
+        />
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 

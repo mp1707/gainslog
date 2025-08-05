@@ -129,8 +129,8 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
 
         <KeyboardAvoidingView
           style={{ flex: 1 }}
-          behavior="translate-with-padding"
-          keyboardVerticalOffset={0}
+          behavior="padding"
+          keyboardVerticalOffset={80}
         >
           <ScrollView
             style={styles.content}
