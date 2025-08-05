@@ -1,17 +1,17 @@
-import React, { useEffect } from 'react';
-import { Modal, View, Text, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
-import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
-import { FoodLog, ModalMode } from '../../../types';
-import { useFoodLogStore } from '../../../stores/useFoodLogStore';
-import { useStyles } from './FoodLogModal.styles';
-import { ModalHeader } from './components/ModalHeader';
-import { FoodImageDisplay } from './components/FoodImageDisplay';
-import { FoodLogFormFields } from './components/FoodLogFormFields';
-import { useFoodLogForm } from './hooks/useFoodLogForm';
-import { useAudioRecording } from './hooks/useAudioRecording';
-import { useFoodLogValidation } from './hooks/useFoodLogValidation';
+import React, { useEffect } from "react";
+import { Modal, View, Text, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+import { FoodLog, ModalMode } from "../../../types";
+import { useFoodLogStore } from "../../../stores/useFoodLogStore";
+import { useStyles } from "./FoodLogModal.styles";
+import { ModalHeader } from "./components/ModalHeader";
+import { FoodImageDisplay } from "./components/FoodImageDisplay";
+import { FoodLogFormFields } from "./components/FoodLogFormFields";
+import { useFoodLogForm } from "./hooks/useFoodLogForm";
+import { useAudioRecording } from "./hooks/useAudioRecording";
+import { useFoodLogValidation } from "./hooks/useFoodLogValidation";
 
 interface FoodLogModalProps {
   visible: boolean;
@@ -32,10 +32,12 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
 }) => {
   const styles = useStyles();
   const { foodLogs } = useFoodLogStore();
-  
+
   // Get the live log from store to reflect upload progress
-  const currentLog = selectedLog ? foodLogs.find(log => log.id === selectedLog.id) || selectedLog : selectedLog;
-  
+  const currentLog = selectedLog
+    ? foodLogs.find((log) => log.id === selectedLog.id) || selectedLog
+    : selectedLog;
+
   // Custom hooks for state and logic management
   const form = useFoodLogForm();
   const audioRecording = useAudioRecording();
@@ -44,7 +46,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   // Set up transcription completion callback
   useEffect(() => {
     audioRecording.setOnTranscriptionComplete((transcription) => {
-      form.updateField('description', transcription);
+      form.updateField("description", transcription);
     });
   }, []);
 
@@ -67,23 +69,27 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
     if (visible) {
       form.initializeForm(currentLog, mode);
       // Reset audio recording state
-      if (mode === 'create' && !currentLog) {
-        audioRecording.setBaseDescription('');
+      if (mode === "create" && !currentLog) {
+        audioRecording.setBaseDescription("");
       }
     }
   }, [visible, currentLog, mode]);
 
   // Sync audio transcription with form description
   useEffect(() => {
-    if (audioRecording.recordingState === 'recording') {
+    if (audioRecording.recordingState === "recording") {
       // Set the base description when starting recording
       audioRecording.setBaseDescription(form.formData.description);
     }
   }, [audioRecording.recordingState]);
 
   const handleSave = () => {
-    const result = validation.validateAndCreateLog(form.formData, currentLog, mode);
-    
+    const result = validation.validateAndCreateLog(
+      form.formData,
+      currentLog,
+      mode
+    );
+
     if (!result.isValid) {
       if (result.error) {
         form.setValidationError(result.error);
@@ -107,7 +113,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
     >
       <SafeAreaView style={styles.container}>
         <StatusBar style="dark" />
-        
+
         <ModalHeader
           mode={mode}
           isUploading={currentLog?.isUploading}
@@ -121,27 +127,25 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
           </View>
         )}
 
-        <KeyboardAvoidingView 
+        <KeyboardAvoidingView
           style={{ flex: 1 }}
-          behavior="padding"
-          keyboardVerticalOffset={80}
+          behavior="translate-with-padding"
+          keyboardVerticalOffset={0}
         >
-          <ScrollView 
+          <ScrollView
             style={styles.content}
             contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            {currentLog && (
-              <FoodImageDisplay log={currentLog} />
-            )}
+            {currentLog && <FoodImageDisplay log={currentLog} />}
 
             <FoodLogFormFields
               formData={form.formData}
               currentLog={currentLog}
               audioRecording={audioRecording}
               onFieldChange={form.updateField}
-              onValidationErrorClear={() => form.setValidationError('')}
+              onValidationErrorClear={() => form.setValidationError("")}
             />
           </ScrollView>
         </KeyboardAvoidingView>

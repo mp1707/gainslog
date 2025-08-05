@@ -2,10 +2,14 @@ import React, { useEffect, useCallback, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { FoodLogScreen, FoodLogModal } from "../../src/features/food-logging";
-import { useFoodLogModal, useUpdateFoodLog } from "../../src/features/food-logging/hooks";
+import {
+  useFoodLogModal,
+  useUpdateFoodLog,
+} from "../../src/features/food-logging/hooks";
 import { useCreateFoodLog } from "../../src/features/food-logging/hooks/useCreateFoodLog";
 import { useImageCapture } from "../../src/features/image-capture/hooks/useImageCapture";
 import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
+import { useKeyboardOffset } from "../../src/features/settings/hooks/useKeyboardOffset";
 
 export default function TodayTab() {
   // Global store for logs & trigger state
@@ -17,14 +21,16 @@ export default function TodayTab() {
     loadFoodLogs,
   } = useFoodLogStore();
 
+  const keyboardOffset = useKeyboardOffset(true); // true because we have a tab bar
+
   // State to trigger scroll to top after save
   const [shouldScrollToTop, setShouldScrollToTop] = useState(false);
-  
+
   // Callback for immediate scroll on save-close
   const handleSaveClose = useCallback(() => {
     setShouldScrollToTop(true);
   }, []);
-  
+
   /* UI hooks */
   const modal = useFoodLogModal(handleSaveClose);
   const { create } = useCreateFoodLog();
@@ -66,7 +72,7 @@ export default function TodayTab() {
   /* Modal save handler */
   const handleSave = useCallback(
     async (log: any) => {
-      if (modal.modalMode === 'edit') {
+      if (modal.modalMode === "edit") {
         await update(log);
       } else {
         await create(log);
@@ -89,10 +95,10 @@ export default function TodayTab() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <KeyboardAvoidingView 
-        style={{ flex: 1 }} 
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
         behavior="translate-with-padding"
-        keyboardVerticalOffset={100}
+        keyboardVerticalOffset={keyboardOffset}
       >
         <FoodLogScreen
           isLoadingLogs={isLoadingLogs}

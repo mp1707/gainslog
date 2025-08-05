@@ -23,9 +23,9 @@ import {
   Sex,
 } from "../../../../utils/calculateCalories";
 import { useStyles } from "./CalorieCalculatorModal.styles";
-import { 
-  getCalorieCalculatorParams, 
-  saveCalorieCalculatorParams 
+import {
+  getCalorieCalculatorParams,
+  saveCalorieCalculatorParams,
 } from "../../../../lib/storage";
 
 interface CalorieCalculatorModalProps {
@@ -260,208 +260,211 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
         {/* Content */}
         <KeyboardAvoidingView
           style={{ flex: 1 }}
-          behavior="padding"
-          keyboardVerticalOffset={80}
+          behavior="translate-with-padding"
+          keyboardVerticalOffset={0}
         >
           <ScrollView
             style={styles.content}
-            contentContainerStyle={[styles.scrollContent, { paddingBottom: 100 }]}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingBottom: 100 },
+            ]}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-          {/* Step 0: Personal Info Input */}
-          {currentStep === 0 && (
-            <View>
+            {/* Step 0: Personal Info Input */}
+            {currentStep === 0 && (
+              <View>
+                <View style={styles.methodsSection}>
+                  <Text style={styles.sectionSubtitle}>
+                    Enter your details to calculate your daily calorie needs.
+                  </Text>
+                </View>
+
+                {/* Sex Selection Card */}
+                <View style={styles.inputCard}>
+                  <Text style={styles.sectionTitle}>Biological Sex</Text>
+                  <View style={styles.sexToggleContainer}>
+                    {/* Animated sliding background */}
+                    <Animated.View
+                      style={[styles.sexToggleSlider, animatedSliderStyle]}
+                    />
+
+                    {/* Static buttons with text */}
+                    <TouchableOpacity
+                      onPress={() => updateParam("sex", "male")}
+                      style={styles.sexToggleButton}
+                      accessibilityRole="button"
+                      accessibilityLabel="Select male"
+                      accessibilityState={{ selected: params.sex === "male" }}
+                    >
+                      <Text
+                        style={[
+                          styles.sexToggleButtonText,
+                          params.sex === "male" &&
+                            styles.sexToggleButtonTextSelected,
+                        ]}
+                      >
+                        Male
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => updateParam("sex", "female")}
+                      style={styles.sexToggleButton}
+                      accessibilityRole="button"
+                      accessibilityLabel="Select female"
+                      accessibilityState={{ selected: params.sex === "female" }}
+                    >
+                      <Text
+                        style={[
+                          styles.sexToggleButtonText,
+                          params.sex === "female" &&
+                            styles.sexToggleButtonTextSelected,
+                        ]}
+                      >
+                        Female
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Age Input Card */}
+                <View style={styles.inputCard}>
+                  <Text style={styles.sectionTitle}>Age (years)</Text>
+                  <View style={styles.stepperContainer}>
+                    <Stepper
+                      value={params.age}
+                      min={13}
+                      max={120}
+                      step={1}
+                      onChange={(value) => updateParam("age", value)}
+                    />
+                  </View>
+                </View>
+
+                {/* Weight Input Card */}
+                <View style={styles.inputCard}>
+                  <Text style={styles.sectionTitle}>Weight (kg)</Text>
+                  <View style={styles.stepperContainer}>
+                    <Stepper
+                      value={params.weight}
+                      min={30}
+                      max={300}
+                      step={1}
+                      onChange={(value) => updateParam("weight", value)}
+                    />
+                  </View>
+                  <Text style={styles.inputHint}>
+                    {params.weight}kg = {Math.round(params.weight * 2.205)}lbs
+                  </Text>
+                </View>
+
+                {/* Height Input Card */}
+                <View style={styles.inputCard}>
+                  <Text style={styles.sectionTitle}>Height (cm)</Text>
+                  <View style={styles.stepperContainer}>
+                    <Stepper
+                      value={params.height}
+                      min={100}
+                      max={250}
+                      step={1}
+                      onChange={(value) => updateParam("height", value)}
+                    />
+                  </View>
+                  <Text style={styles.inputHint}>
+                    {params.height}cm = {Math.floor(params.height / 30.48)}'
+                    {Math.round((params.height % 30.48) / 2.54)}"
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            {/* Step 1: Activity Level Selection */}
+            {currentStep === 1 && (
               <View style={styles.methodsSection}>
                 <Text style={styles.sectionSubtitle}>
-                  Enter your details to calculate your daily calorie needs.
+                  Select the option that best matches your lifestyle and
+                  exercise routine.
                 </Text>
-              </View>
 
-              {/* Sex Selection Card */}
-              <View style={styles.inputCard}>
-                <Text style={styles.sectionTitle}>Biological Sex</Text>
-                <View style={styles.sexToggleContainer}>
-                  {/* Animated sliding background */}
-                  <Animated.View
-                    style={[styles.sexToggleSlider, animatedSliderStyle]}
+                {methods.map((method) => (
+                  <CalorieCalculationCard
+                    key={method.id}
+                    method={method}
+                    isSelected={selectedActivityLevel === method.id}
+                    onSelect={handleActivityLevelSelect}
+                    showCalorieGoals={false}
                   />
-
-                  {/* Static buttons with text */}
-                  <TouchableOpacity
-                    onPress={() => updateParam("sex", "male")}
-                    style={styles.sexToggleButton}
-                    accessibilityRole="button"
-                    accessibilityLabel="Select male"
-                    accessibilityState={{ selected: params.sex === "male" }}
-                  >
-                    <Text
-                      style={[
-                        styles.sexToggleButtonText,
-                        params.sex === "male" &&
-                          styles.sexToggleButtonTextSelected,
-                      ]}
-                    >
-                      Male
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => updateParam("sex", "female")}
-                    style={styles.sexToggleButton}
-                    accessibilityRole="button"
-                    accessibilityLabel="Select female"
-                    accessibilityState={{ selected: params.sex === "female" }}
-                  >
-                    <Text
-                      style={[
-                        styles.sexToggleButtonText,
-                        params.sex === "female" &&
-                          styles.sexToggleButtonTextSelected,
-                      ]}
-                    >
-                      Female
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+                ))}
               </View>
+            )}
 
-              {/* Age Input Card */}
-              <View style={styles.inputCard}>
-                <Text style={styles.sectionTitle}>Age (years)</Text>
-                <View style={styles.stepperContainer}>
-                  <Stepper
-                    value={params.age}
-                    min={13}
-                    max={120}
-                    step={1}
-                    onChange={(value) => updateParam("age", value)}
-                  />
-                </View>
-              </View>
-
-              {/* Weight Input Card */}
-              <View style={styles.inputCard}>
-                <Text style={styles.sectionTitle}>Weight (kg)</Text>
-                <View style={styles.stepperContainer}>
-                  <Stepper
-                    value={params.weight}
-                    min={30}
-                    max={300}
-                    step={1}
-                    onChange={(value) => updateParam("weight", value)}
-                  />
-                </View>
-                <Text style={styles.inputHint}>
-                  {params.weight}kg = {Math.round(params.weight * 2.205)}lbs
+            {/* Step 2: Goal Selection */}
+            {currentStep === 2 && selectedCalorieGoals && (
+              <View style={styles.methodsSection}>
+                <Text style={styles.sectionSubtitle}>
+                  Choose your calorie goal based on what you want to achieve.
                 </Text>
-              </View>
 
-              {/* Height Input Card */}
-              <View style={styles.inputCard}>
-                <Text style={styles.sectionTitle}>Height (cm)</Text>
-                <View style={styles.stepperContainer}>
-                  <Stepper
-                    value={params.height}
-                    min={100}
-                    max={250}
-                    step={1}
-                    onChange={(value) => updateParam("height", value)}
-                  />
-                </View>
-                <Text style={styles.inputHint}>
-                  {params.height}cm = {Math.floor(params.height / 30.48)}'  
-                  {Math.round((params.height % 30.48) / 2.54)}"
-                </Text>
-              </View>
-            </View>
-          )}
-
-          {/* Step 1: Activity Level Selection */}
-          {currentStep === 1 && (
-            <View style={styles.methodsSection}>
-              <Text style={styles.sectionSubtitle}>
-                Select the option that best matches your lifestyle and exercise
-                routine.
-              </Text>
-
-              {methods.map((method) => (
-                <CalorieCalculationCard
-                  key={method.id}
-                  method={method}
-                  isSelected={selectedActivityLevel === method.id}
-                  onSelect={handleActivityLevelSelect}
-                  showCalorieGoals={false}
+                <GoalSelectionCard
+                  goalType="lose"
+                  calories={selectedCalorieGoals.loseWeight}
+                  isSelected={selectedGoal === "lose"}
+                  onSelect={handleGoalSelect}
                 />
-              ))}
-            </View>
-          )}
 
-          {/* Step 2: Goal Selection */}
-          {currentStep === 2 && selectedCalorieGoals && (
-            <View style={styles.methodsSection}>
-              <Text style={styles.sectionSubtitle}>
-                Choose your calorie goal based on what you want to achieve.
-              </Text>
+                <GoalSelectionCard
+                  goalType="maintain"
+                  calories={selectedCalorieGoals.maintainWeight}
+                  isSelected={selectedGoal === "maintain"}
+                  onSelect={handleGoalSelect}
+                />
 
-              <GoalSelectionCard
-                goalType="lose"
-                calories={selectedCalorieGoals.loseWeight}
-                isSelected={selectedGoal === "lose"}
-                onSelect={handleGoalSelect}
-              />
+                <GoalSelectionCard
+                  goalType="gain"
+                  calories={selectedCalorieGoals.gainWeight}
+                  isSelected={selectedGoal === "gain"}
+                  onSelect={handleGoalSelect}
+                />
+              </View>
+            )}
 
-              <GoalSelectionCard
-                goalType="maintain"
-                calories={selectedCalorieGoals.maintainWeight}
-                isSelected={selectedGoal === "maintain"}
-                onSelect={handleGoalSelect}
-              />
-
-              <GoalSelectionCard
-                goalType="gain"
-                calories={selectedCalorieGoals.gainWeight}
-                isSelected={selectedGoal === "gain"}
-                onSelect={handleGoalSelect}
-              />
-            </View>
-          )}
-
-          {/* Navigation Button */}
-          {currentStep < 2 && (
-            <View style={styles.navigationContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.continueButton,
-                  !canProceedToNextStep() && styles.continueButtonDisabled,
-                ]}
-                onPress={handleNextStep}
-                disabled={!canProceedToNextStep()}
-              >
-                <Text
+            {/* Navigation Button */}
+            {currentStep < 2 && (
+              <View style={styles.navigationContainer}>
+                <TouchableOpacity
                   style={[
-                    styles.continueButtonText,
-                    !canProceedToNextStep() &&
-                      styles.continueButtonTextDisabled,
+                    styles.continueButton,
+                    !canProceedToNextStep() && styles.continueButtonDisabled,
                   ]}
+                  onPress={handleNextStep}
+                  disabled={!canProceedToNextStep()}
                 >
-                  Continue
-                </Text>
-                <CaretRightIcon
-                  size={20}
-                  color={canProceedToNextStep() ? "#FFFFFF" : "#999999"}
-                />
-              </TouchableOpacity>
-            </View>
-          )}
+                  <Text
+                    style={[
+                      styles.continueButtonText,
+                      !canProceedToNextStep() &&
+                        styles.continueButtonTextDisabled,
+                    ]}
+                  >
+                    Continue
+                  </Text>
+                  <CaretRightIcon
+                    size={20}
+                    color={canProceedToNextStep() ? "#FFFFFF" : "#999999"}
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
 
-          {/* Footer Note */}
-          <View style={styles.footer}>
-            <Text style={styles.footerNote}>
-              These recommendations are general guidelines based on the
-              Mifflin-St Jeor equation. Consult with a nutritionist or
-              healthcare provider for personalized advice.
-            </Text>
-          </View>
+            {/* Footer Note */}
+            <View style={styles.footer}>
+              <Text style={styles.footerNote}>
+                These recommendations are general guidelines based on the
+                Mifflin-St Jeor equation. Consult with a nutritionist or
+                healthcare provider for personalized advice.
+              </Text>
+            </View>
           </ScrollView>
         </KeyboardAvoidingView>
       </View>

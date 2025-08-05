@@ -15,6 +15,7 @@ import { AppearanceCard } from "@/features/settings/ui/molecules/AppearanceCard"
 import { useNutritionCalculations } from "@/features/settings/hooks/useNutritionCalculations";
 import { useStepFlow } from "@/features/settings/hooks/useStepFlow";
 import { useSettingsModals } from "@/features/settings/hooks/useSettingsModals";
+import { useKeyboardOffset } from "@/features/settings/hooks/useKeyboardOffset";
 import {
   calculateFatGramsFromPercentage,
   calculateCarbsFromMacros,
@@ -25,6 +26,7 @@ import { StyleSheet } from "react-native";
 export default function SettingsTab() {
   const { loadDailyTargets, isLoadingTargets } = useFoodLogStore();
   const { colors, theme: themeObj } = useTheme();
+  const keyboardOffset = useKeyboardOffset(true); // true because we have a tab bar
 
   // Use extracted hooks
   const nutritionCalculations = useNutritionCalculations();
@@ -117,7 +119,8 @@ export default function SettingsTab() {
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior="padding"
+        behavior="translate-with-padding"
+        keyboardVerticalOffset={keyboardOffset}
       >
         <ScrollView
           style={styles.scrollView}
@@ -125,93 +128,93 @@ export default function SettingsTab() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Appearance</Text>
-          <Text style={styles.sectionSubtitle}>
-            Customize the visual appearance of your app
-          </Text>
-          <AppearanceCard />
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Nutrition Tracking</Text>
-          <Text style={styles.sectionSubtitle}>
-            Follow these steps to set up your personalized nutrition targets
-          </Text>
-
-          {/* Step 1: Calories */}
-          <StepHeader
-            stepNumber={1}
-            title={stepInfo.step1.title}
-            description={stepInfo.step1.description}
-            completed={stepInfo.step1.completed}
-          />
-          <NutritionCard
-            config={nutritionConfigs[0]}
-            value={dailyTargets.calories}
-            isFieldDisabled={!isCaloriesFieldEnabled}
-            onValueChange={handleTargetChange}
-            onCalculatorPress={() => setIsCalorieCalculatorVisible(true)}
-            calorieCalculation={calorieCalculation}
-          />
-          <FlowArrow visible={stepInfo.step1.completed} />
-
-          {/* Step 2: Protein */}
-          {stepInfo.step1.completed && (
-            <>
-              <StepHeader
-                stepNumber={2}
-                title={stepInfo.step2.title}
-                description={stepInfo.step2.description}
-                completed={stepInfo.step2.completed}
-              />
-              <NutritionCard
-                config={nutritionConfigs[1]}
-                value={dailyTargets.protein}
-                isFieldDisabled={!isProteinFieldEnabled}
-                onValueChange={handleTargetChange}
-                onCalculatorPress={() => setIsProteinCalculatorVisible(true)}
-                proteinCalculation={proteinCalculation}
-              />
-              <FlowArrow visible={stepInfo.step2.completed} />
-            </>
-          )}
-
-          {/* Step 3: Fat & Carb Distribution */}
-          {stepInfo.step2.completed && (
-            <>
-              <StepHeader
-                stepNumber={3}
-                title={stepInfo.step3.title}
-                description={stepInfo.step3.description}
-                completed={stepInfo.step3.completed}
-              />
-              <MacroSplitCard
-                calories={dailyTargets.calories}
-                protein={dailyTargets.protein}
-                fatGrams={fatGrams}
-                carbsGrams={carbsGrams}
-                fatPercentage={fatPercentage}
-                maxFatPercentage={maxFatPercentage}
-                onFatPercentageChange={handleFatPercentageChange}
-              />
-            </>
-          )}
-
-          <View style={styles.resetButtonContainer}>
-            <Button
-              onPress={handleResetTargets}
-              variant="destructive"
-              size="medium"
-              shape="round"
-              accessibilityLabel="Reset daily targets"
-              accessibilityHint="Resets all nutrition targets to zero and clears saved calculations"
-              style={styles.resetButton}
-            >
-              <Text style={styles.resetButtonText}>Reset Daily Targets</Text>
-            </Button>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Appearance</Text>
+            <Text style={styles.sectionSubtitle}>
+              Customize the visual appearance of your app
+            </Text>
+            <AppearanceCard />
           </View>
-        </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Nutrition Tracking</Text>
+            <Text style={styles.sectionSubtitle}>
+              Follow these steps to set up your personalized nutrition targets
+            </Text>
+
+            {/* Step 1: Calories */}
+            <StepHeader
+              stepNumber={1}
+              title={stepInfo.step1.title}
+              description={stepInfo.step1.description}
+              completed={stepInfo.step1.completed}
+            />
+            <NutritionCard
+              config={nutritionConfigs[0]}
+              value={dailyTargets.calories}
+              isFieldDisabled={!isCaloriesFieldEnabled}
+              onValueChange={handleTargetChange}
+              onCalculatorPress={() => setIsCalorieCalculatorVisible(true)}
+              calorieCalculation={calorieCalculation}
+            />
+            <FlowArrow visible={stepInfo.step1.completed} />
+
+            {/* Step 2: Protein */}
+            {stepInfo.step1.completed && (
+              <>
+                <StepHeader
+                  stepNumber={2}
+                  title={stepInfo.step2.title}
+                  description={stepInfo.step2.description}
+                  completed={stepInfo.step2.completed}
+                />
+                <NutritionCard
+                  config={nutritionConfigs[1]}
+                  value={dailyTargets.protein}
+                  isFieldDisabled={!isProteinFieldEnabled}
+                  onValueChange={handleTargetChange}
+                  onCalculatorPress={() => setIsProteinCalculatorVisible(true)}
+                  proteinCalculation={proteinCalculation}
+                />
+                <FlowArrow visible={stepInfo.step2.completed} />
+              </>
+            )}
+
+            {/* Step 3: Fat & Carb Distribution */}
+            {stepInfo.step2.completed && (
+              <>
+                <StepHeader
+                  stepNumber={3}
+                  title={stepInfo.step3.title}
+                  description={stepInfo.step3.description}
+                  completed={stepInfo.step3.completed}
+                />
+                <MacroSplitCard
+                  calories={dailyTargets.calories}
+                  protein={dailyTargets.protein}
+                  fatGrams={fatGrams}
+                  carbsGrams={carbsGrams}
+                  fatPercentage={fatPercentage}
+                  maxFatPercentage={maxFatPercentage}
+                  onFatPercentageChange={handleFatPercentageChange}
+                />
+              </>
+            )}
+
+            <View style={styles.resetButtonContainer}>
+              <Button
+                onPress={handleResetTargets}
+                variant="destructive"
+                size="medium"
+                shape="round"
+                accessibilityLabel="Reset daily targets"
+                accessibilityHint="Resets all nutrition targets to zero and clears saved calculations"
+                style={styles.resetButton}
+              >
+                <Text style={styles.resetButtonText}>Reset Daily Targets</Text>
+              </Button>
+            </View>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -239,7 +242,6 @@ const createStyles = (
   themeObj: Theme,
   bottomPadding?: number
 ) => {
-
   const { typography, spacing } = themeObj;
 
   return StyleSheet.create({
