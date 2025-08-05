@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, TouchableOpacity, Text, TextInput } from "react-native";
+import { View, TouchableOpacity, Text, AccessibilityActionEvent } from "react-native";
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
   withSpring, 
 } from "react-native-reanimated";
 import { useTheme } from "../../../../providers/ThemeProvider";
+import { CustomNumericKeypad } from "../../molecules/CustomNumericKeypad";
 import { createStyles } from "./Stepper.styles";
 
 interface StepperProps {
@@ -27,9 +28,7 @@ export const Stepper: React.FC<StepperProps> = ({
   type = "default",
   disabled = false,
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [inputValue, setInputValue] = useState(String(value));
-  const inputRef = useRef<TextInput>(null);
+  const [isKeypadVisible, setIsKeypadVisible] = useState(false);
   const { colors } = useTheme();
   const styles = createStyles(colors);
 
@@ -38,12 +37,6 @@ export const Stepper: React.FC<StepperProps> = ({
   const plusScale = useSharedValue(1);
   const valueScale = useSharedValue(1);
 
-  // Sync internal input state when external value changes
-  useEffect(() => {
-    if (!isEditing) {
-      setInputValue(String(value));
-    }
-  }, [value, isEditing]);
 
   const clamp = (val: number) => Math.max(min, Math.min(max, val));
 
@@ -91,12 +84,31 @@ export const Stepper: React.FC<StepperProps> = ({
     plusScale.value = withSpring(1, { damping: 15, stiffness: 400 });
   };
 
-  const confirmInput = () => {
-    const numeric = parseInt(inputValue, 10);
-    if (!isNaN(numeric)) {
-      onChange(clamp(numeric));
+  const handleKeypadSubmit = (newValue: number) => {
+    onChange(clamp(newValue));
+    setIsKeypadVisible(false);
+  };
+
+  const handleKeypadClose = () => {
+    setIsKeypadVisible(false);
+  };
+
+  const handleValueTap = () => {
+    if (!disabled) {
+      setIsKeypadVisible(true);
     }
-    setIsEditing(false);
+  };
+
+  // Accessibility action handler for increment/decrement
+  const onAccessibilityAction = (event: AccessibilityActionEvent) => {
+    switch (event.nativeEvent.actionName) {
+      case 'increment':
+        handlePlus();
+        break;
+      case 'decrement':
+        handleMinus();
+        break;
+    }
   };
 
   const accentColor =
@@ -127,68 +139,81 @@ export const Stepper: React.FC<StepperProps> = ({
   }));
 
   return (
-    <View style={[styles.container, { borderColor: accentColor }, disabledStyle]}>
-      <Animated.View style={minusAnimatedStyle}>
-        <TouchableOpacity
-          style={[styles.buttonBase, styles.buttonLeft]}
-          onPress={handleMinus}
-          onPressIn={handleMinusPressIn}
-          onPressOut={handleMinusPressOut}
-          disabled={disabled}
-          accessibilityRole="button"
-          accessibilityLabel={`Decrease value by ${step}. Current value is ${value}`}
-          accessibilityHint="Double tap to decrease the value"
-        >
-          <Text style={[styles.buttonText, { color: accentColor }]}>−</Text>
-        </TouchableOpacity>
-      </Animated.View>
+    <>
+      <View 
+        style={[styles.container, { borderColor: accentColor }, disabledStyle]}
+        accessibilityRole="adjustable"
+        accessibilityLabel={`${type === 'default' ? 'Value' : type} stepper. Current value is ${value}`}
+        accessibilityValue={{ 
+          min: min, 
+          max: max, 
+          now: value,
+          text: `${value}` 
+        }}
+        accessibilityActions={[
+          { name: 'increment', label: `Increase by ${step}` },
+          { name: 'decrement', label: `Decrease by ${step}` }
+        ]}
+        onAccessibilityAction={onAccessibilityAction}
+      >
+        <Animated.View style={minusAnimatedStyle}>
+          <TouchableOpacity
+            style={[styles.buttonBase, styles.buttonLeft]}
+            onPress={handleMinus}
+            onPressIn={handleMinusPressIn}
+            onPressOut={handleMinusPressOut}
+            disabled={disabled}
+            accessibilityRole="button"
+            accessibilityLabel={`Decrease value by ${step}`}
+            accessibilityHint="Double tap to decrease the value"
+          >
+            <Text style={[styles.buttonText, { color: accentColor }]}>−</Text>
+          </TouchableOpacity>
+        </Animated.View>
 
-      {isEditing ? (
-        <TextInput
-          ref={inputRef}
-          style={[styles.valueBox, styles.valueInput]}
-          value={inputValue}
-          onChangeText={setInputValue}
-          keyboardType="number-pad"
-          returnKeyType="done"
-          onBlur={confirmInput}
-          onSubmitEditing={confirmInput}
-          blurOnSubmit={true}
-          autoFocus
-          inputAccessoryViewID=""
-          accessibilityLabel={`Enter value between ${min} and ${max}`}
-          accessibilityHint={`Current value is ${inputValue}. Enter a number and press done to confirm`}
-          accessibilityRole="spinbutton"
-        />
-      ) : (
         <Animated.View style={valueAnimatedStyle}>
           <TouchableOpacity
             style={styles.valueBox}
-            onPress={() => !disabled && setIsEditing(true)}
+            onPress={handleValueTap}
             disabled={disabled}
             accessibilityRole="button"
-            accessibilityLabel={`Current value is ${value}. Tap to edit`}
-            accessibilityHint="Opens text input to enter a specific value"
+            accessibilityLabel={`Current value: ${value}. Tap to edit directly.`}
+            accessibilityHint="Opens numeric keypad to enter a specific value"
           >
-            <Text style={styles.valueText}>{value}</Text>
+            <Text 
+              style={styles.valueText}
+              accessibilityLiveRegion="polite"
+              accessibilityLabel={`Current value: ${value}`}
+            >
+              {value}
+            </Text>
           </TouchableOpacity>
         </Animated.View>
-      )}
 
-      <Animated.View style={plusAnimatedStyle}>
-        <TouchableOpacity
-          style={[styles.buttonBase, styles.buttonRight]}
-          onPress={handlePlus}
-          onPressIn={handlePlusPressIn}
-          onPressOut={handlePlusPressOut}
-          disabled={disabled}
-          accessibilityRole="button"
-          accessibilityLabel={`Increase value by ${step}. Current value is ${value}`}
-          accessibilityHint="Double tap to increase the value"
-        >
-          <Text style={[styles.buttonText, { color: accentColor }]}>+</Text>
-        </TouchableOpacity>
-      </Animated.View>
-    </View>
+        <Animated.View style={plusAnimatedStyle}>
+          <TouchableOpacity
+            style={[styles.buttonBase, styles.buttonRight]}
+            onPress={handlePlus}
+            onPressIn={handlePlusPressIn}
+            onPressOut={handlePlusPressOut}
+            disabled={disabled}
+            accessibilityRole="button"
+            accessibilityLabel={`Increase value by ${step}`}
+            accessibilityHint="Double tap to increase the value"
+          >
+            <Text style={[styles.buttonText, { color: accentColor }]}>+</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      </View>
+
+      <CustomNumericKeypad
+        visible={isKeypadVisible}
+        initialValue={value}
+        min={min}
+        max={max}
+        onSubmit={handleKeypadSubmit}
+        onClose={handleKeypadClose}
+      />
+    </>
   );
 };

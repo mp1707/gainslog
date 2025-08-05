@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
-import { Modal, View, Text, ScrollView } from "react-native";
+import { Modal, View, Text, ScrollView, KeyboardAvoidingView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { FoodLog, ModalMode } from "../../../types";
 import { useFoodLogStore } from "../../../stores/useFoodLogStore";
 import { useStyles } from "./FoodLogModal.styles";

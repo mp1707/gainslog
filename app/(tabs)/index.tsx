@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+import { KeyboardAvoidingView } from "react-native";
 import { FoodLogScreen, FoodLogModal } from "../../src/features/food-logging";
 import {
   useFoodLogModal,

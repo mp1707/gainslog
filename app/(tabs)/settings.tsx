@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { View, Text, ScrollView } from "react-native";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+import { View, Text, ScrollView, KeyboardAvoidingView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Modal, View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { Modal, View, Text, TouchableOpacity, ScrollView, KeyboardAvoidingView } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
 import Animated, {
   useSharedValue,

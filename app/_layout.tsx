@@ -5,7 +5,6 @@ import React, { useEffect } from "react";
 import ToastManager from "toastify-react-native";
 import { useFonts } from "../src/hooks/useFonts";
 import { View, Text, ActivityIndicator } from "react-native";
-import { KeyboardProvider } from "react-native-keyboard-controller";
 
 export default function RootLayout() {
   const { loadFoodLogs, loadDailyTargets } = useFoodLogStore();
@@ -48,17 +47,15 @@ export default function RootLayout() {
   }
 
   return (
-    <KeyboardProvider>
-      <ThemeProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
-          <Stack.Screen name="(tabs)" />
-        </Stack>
-        <ToastManager />
-      </ThemeProvider>
-    </KeyboardProvider>
+    <ThemeProvider>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="(tabs)" />
+      </Stack>
+      <ToastManager />
+    </ThemeProvider>
   );
 }
