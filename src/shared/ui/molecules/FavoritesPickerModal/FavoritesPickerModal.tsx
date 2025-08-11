@@ -9,6 +9,7 @@ import { createStyles } from "./FavoritesPickerModal.styles";
 import { AppText } from "src/components";
 import { SearchBar } from "../../components";
 import { FavoriteCard } from "@/features/food-logging/ui/FavoriteCard";
+import { PageHeader } from "../PageHeader";
 
 interface FavoritesPickerModalProps {
   visible: boolean;
@@ -55,12 +56,13 @@ export const FavoritesPickerModal: React.FC<FavoritesPickerModalProps> = ({
             </AppText>
           </TouchableOpacity>
         </View>
-
-        <SearchBar
-          value={query}
-          onChange={setQuery}
-          placeholder="Search favorites"
-        />
+        <View style={styles.searchBarContainer}>
+          <SearchBar
+            value={query}
+            onChange={setQuery}
+            placeholder="Search favorites"
+          />
+        </View>
 
         <ScrollView
           style={styles.scroll}

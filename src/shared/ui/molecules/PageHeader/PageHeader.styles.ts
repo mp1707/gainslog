@@ -7,8 +7,11 @@ export const createStyles = (colors: any) =>
       paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.pageMargins.horizontal,
       backgroundColor: colors.secondaryBackground,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: colors.border,
+      // borderBottomWidth: StyleSheet.hairlineWidth,
+      // borderBottomColor: colors.border,
+      position: "relative",
+      zIndex: 20,
+      elevation: 2,
       // reserve space so the absolute mini row can overlap without covering content below
     },
 

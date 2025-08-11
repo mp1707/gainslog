@@ -15,7 +15,10 @@ export const createStyles = (colors: Colors, bottomPadding?: number) =>
       flex: 1,
       paddingTop: theme.spacing.md,
     },
-
+    statsContainer: {
+      gap: theme.spacing.md,
+    },
+    
     scrollContent: {
       paddingHorizontal: theme.spacing.pageMargins.horizontal,
       paddingBottom: bottomPadding || 100, // Dynamic bottom padding for tab bar and FAB

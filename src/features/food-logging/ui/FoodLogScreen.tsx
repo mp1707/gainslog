@@ -151,6 +151,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
             const { y, height } = e.nativeEvent.layout;
             statsLayoutRef.current = { y, height };
           }}
+          style={styles.statsContainer}
         >
           <CaloriesSection dailyProgress={dailyProgress} />
 

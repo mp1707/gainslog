@@ -46,7 +46,7 @@ export const DateNavigationHeader: React.FC<DateNavigationHeaderProps> = ({
     visibility.value = miniProgress;
   }, [miniProgress, visibility]);
 
-  const animatedMiniStyle = useAnimatedStyle(() => {
+  const animatedContentStyle = useAnimatedStyle(() => {
     // Keep opacity subtle to avoid a pop while sliding in
     const opacity = interpolate(visibility.value, [0, 1], [0, 1]);
     // Only a subtle downward motion so it doesn't travel over the date picker
@@ -60,6 +60,12 @@ export const DateNavigationHeader: React.FC<DateNavigationHeaderProps> = ({
       opacity,
       transform: [{ translateY }],
     } as const;
+  }, [miniHeight]);
+
+  // Animate only the background expansion (no fading) so the header appears to grow
+  const animatedBackgroundStyle = useAnimatedStyle(() => {
+    const height = interpolate(visibility.value, [0, 1], [0, miniHeight]);
+    return { height } as const;
   }, [miniHeight]);
 
   return (
@@ -109,13 +115,17 @@ export const DateNavigationHeader: React.FC<DateNavigationHeaderProps> = ({
 
       {/* Animated mini summary row (overlay) */}
       <Animated.View
-        style={[styles.miniSummaryWrapper, animatedMiniStyle]}
+        style={[styles.miniSummaryWrapper]}
         accessibilityRole="summary"
         accessibilityLabel="Daily progress mini summary"
         pointerEvents="none"
       >
-        <View
-          style={styles.miniSummaryContent}
+        {/* Expanding background (separate animation, no opacity change) */}
+        <Animated.View
+          style={[styles.miniBackground, animatedBackgroundStyle]}
+        />
+        <Animated.View
+          style={[styles.miniSummaryContent, animatedContentStyle]}
           onLayout={(e) => setMiniHeight(e.nativeEvent.layout.height)}
         >
           {!!progress && (
@@ -142,7 +152,7 @@ export const DateNavigationHeader: React.FC<DateNavigationHeaderProps> = ({
               />
             </View>
           )}
-        </View>
+        </Animated.View>
       </Animated.View>
     </PageHeader>
   );

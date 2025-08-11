@@ -44,18 +44,23 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       // extend beyond the header's horizontal padding so the background is full width
       left: -theme.spacing.pageMargins.horizontal,
       right: -theme.spacing.pageMargins.horizontal,
-      bottom: - 65,
-      backgroundColor: colors.secondaryBackground,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: colors.border,
-      paddingBottom: theme.spacing.sm,
+      bottom: -65,
       // Sit above the scroll content but below modal overlays
       zIndex: 10,
       elevation: 3,
     },
+    miniBackground: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: colors.secondaryBackground,
+      // borderBottomWidth: StyleSheet.hairlineWidth,
+      // borderBottomColor: colors.border,
+    },
     miniSummaryContent: {
       paddingHorizontal: theme.spacing.pageMargins.horizontal,
-      paddingVertical: theme.spacing.sm,
+      paddingVertical: theme.spacing.md,
     },
     miniSummaryLabel: {
       color: colors.secondaryText,

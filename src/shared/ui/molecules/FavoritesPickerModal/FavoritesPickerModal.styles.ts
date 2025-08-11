@@ -7,6 +7,10 @@ export const createStyles = (colors: any, theme: any) =>
       backgroundColor: colors.primaryBackground,
       paddingHorizontal: theme.spacing.pageMargins.horizontal,
     },
+    searchBarContainer: {
+      paddingHorizontal: theme.spacing.pageMargins.horizontal,
+      paddingBottom: theme.spacing.md,
+    },
     header: {
       flexDirection: "row",
       alignItems: "center",
