@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ExpandableFAB } from "@/shared/ui";
 import { FoodLog } from "@/types";
@@ -15,6 +15,15 @@ import { FoodLogsList } from "./components/FoodLogsList";
 import { FavoritesPickerModal } from "@/shared/ui/molecules/FavoritesPickerModal/FavoritesPickerModal";
 import { FavoriteEntry } from "@/types";
 import { generateFoodLogId } from "@/lib/storage";
+import Animated, {
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+import { Badge } from "@/shared/ui/atoms/Badge";
+import { AppText } from "../../../components/AppText";
 
 interface FoodLogScreenProps {
   isLoadingLogs: boolean;
@@ -54,6 +63,39 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   const filteredFoodLogs = getFilteredFoodLogs();
   const [isFavoritesModalVisible, setFavoritesModalVisible] =
     React.useState(false);
+
+  // Track layout for the main stats (Calories + Macros)
+  const statsLayoutRef = useRef<{ y: number; height: number }>({
+    y: 0,
+    height: 0,
+  });
+
+  // Animated visibility for mini summary
+  const miniVisible = useSharedValue(0);
+  const [miniContentHeight, setMiniContentHeight] = React.useState(0);
+
+  const animatedMiniStyle = useAnimatedStyle(() => {
+    const opacity = withTiming(miniVisible.value, {
+      duration: 220,
+      easing: Easing.out(Easing.quad),
+    });
+    const translateY = withTiming(
+      interpolate(miniVisible.value, [0, 1], [-8, 0]),
+      {
+        duration: 220,
+        easing: Easing.out(Easing.quad),
+      }
+    );
+    const height = withTiming(miniVisible.value * miniContentHeight, {
+      duration: 260,
+      easing: Easing.out(Easing.quad),
+    });
+    return {
+      height,
+      opacity,
+      transform: [{ translateY }],
+    } as const;
+  }, [miniContentHeight]);
 
   const handleManualLog = () => {
     triggerManualLog();
@@ -115,14 +157,74 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         isToday={isToday()}
       />
 
+      {/* Mini stat summary that animates in when main stats are scrolled out */}
+      <Animated.View
+        style={[styles.miniSummaryWrapper, animatedMiniStyle]}
+        accessibilityRole="summary"
+        accessibilityLabel="Daily progress mini summary"
+      >
+        <View
+          style={styles.miniSummaryContent}
+          onLayout={(e) => setMiniContentHeight(e.nativeEvent.layout.height)}
+        >
+          <AppText role="Subhead" style={styles.miniSummaryLabel}>
+            Today
+          </AppText>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.miniBadgesRow}
+          >
+            <Badge
+              variant="semantic"
+              semanticType="calories"
+              label={`${Math.max(0, dailyProgress.percentages.calories)}%`}
+            />
+            <Badge
+              variant="semantic"
+              semanticType="protein"
+              label={`${Math.max(0, dailyProgress.percentages.protein)}%`}
+            />
+            <Badge
+              variant="semantic"
+              semanticType="carbs"
+              label={`${Math.max(0, dailyProgress.percentages.carbs)}%`}
+            />
+            <Badge
+              variant="semantic"
+              semanticType="fat"
+              label={`${Math.max(0, dailyProgress.percentages.fat)}%`}
+            />
+          </ScrollView>
+        </View>
+      </Animated.View>
+
       <ScrollView
         ref={scrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
+        onScroll={(e) => {
+          const y = e.nativeEvent.contentOffset.y;
+          const bottomOfStats =
+            statsLayoutRef.current.y + statsLayoutRef.current.height;
+          // Show mini summary when the main stats are fully above the viewport
+          const threshold = 24; // px hysteresis to avoid flicker
+          const shouldShow =
+            y >= bottomOfStats - threshold && bottomOfStats > 0;
+          miniVisible.value = shouldShow ? 1 : 0;
+        }}
+        scrollEventThrottle={16}
       >
-        <CaloriesSection dailyProgress={dailyProgress} />
+        <View
+          onLayout={(e) => {
+            const { y, height } = e.nativeEvent.layout;
+            statsLayoutRef.current = { y, height };
+          }}
+        >
+          <CaloriesSection dailyProgress={dailyProgress} />
 
-        <MacronutriensSection dailyProgress={dailyProgress} />
+          <MacronutriensSection dailyProgress={dailyProgress} />
+        </View>
 
         <FoodLogsList
           isLoadingLogs={isLoadingLogs}
