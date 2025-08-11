@@ -402,7 +402,7 @@ export default function SettingsTab() {
         visible={isProteinCalculatorVisible}
         onClose={() => setIsProteinCalculatorVisible(false)}
         onSelectMethod={handleProteinCalculationSelect}
-        initialBodyWeight={proteinCalculation?.bodyWeight || 70}
+        initialBodyWeight={proteinCalculation?.bodyWeight}
       />
 
       <CalorieCalculatorModal

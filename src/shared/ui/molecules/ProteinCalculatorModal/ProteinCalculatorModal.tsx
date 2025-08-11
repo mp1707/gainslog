@@ -35,11 +35,13 @@ export const ProteinCalculatorModal: React.FC<ProteinCalculatorModalProps> = ({
   visible,
   onClose,
   onSelectMethod,
-  initialBodyWeight = 85,
+  initialBodyWeight,
 }) => {
   const styles = useStyles();
 
-  const [bodyWeight, setBodyWeight] = useState(initialBodyWeight);
+  const [bodyWeight, setBodyWeight] = useState<number>(
+    typeof initialBodyWeight === "number" ? initialBodyWeight : 70
+  );
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
   const [isBodyWeightLoaded, setIsBodyWeightLoaded] = useState(false);
 
@@ -49,17 +51,16 @@ export const ProteinCalculatorModal: React.FC<ProteinCalculatorModalProps> = ({
       if (visible && !isBodyWeightLoaded) {
         try {
           const savedParams = await getCalorieCalculatorParams();
-          // Use saved weight, but allow non-default initialBodyWeight to override if provided
-          const defaultInitialBodyWeight = 85;
           const finalBodyWeight =
-            initialBodyWeight !== defaultInitialBodyWeight
-              ? initialBodyWeight
-              : savedParams.weight;
-          setBodyWeight(finalBodyWeight ?? defaultInitialBodyWeight);
+            (savedParams?.weight as number | undefined) ??
+            (typeof initialBodyWeight === "number" ? initialBodyWeight : 70);
+          setBodyWeight(finalBodyWeight);
           setIsBodyWeightLoaded(true);
         } catch (error) {
           console.error("Failed to load saved body weight:", error);
-          setBodyWeight(initialBodyWeight);
+          setBodyWeight(
+            typeof initialBodyWeight === "number" ? initialBodyWeight : 70
+          );
           setIsBodyWeightLoaded(true);
         }
       }
