@@ -1,11 +1,15 @@
 import React, { useEffect, useMemo } from "react";
 import { ScrollView, Text, StyleSheet, Platform } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { useTheme } from "../../src/providers/ThemeProvider";
 import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 import { DailySummaryCard } from "../../src/shared/ui/molecules/DailySummaryCard";
 import { MonthPicker } from "../../src/shared/ui/molecules/MonthPicker";
 import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
+import { Badge } from "@/shared/ui";
 
 export default function OverviewTab() {
   const {
@@ -34,10 +38,10 @@ export default function OverviewTab() {
 
   const { colors, theme } = useTheme();
   const insets = useSafeAreaInsets();
-  
+
   // Calculate platform-specific tab bar height for Expo Router
   const getTabBarHeight = () => {
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === "ios") {
       // iOS tab bar: 49px standard height + bottom safe area
       return 49 + insets.bottom;
     } else {
@@ -45,19 +49,33 @@ export default function OverviewTab() {
       return 56;
     }
   };
-  
+
   const tabBarHeight = getTabBarHeight();
-  const dynamicBottomPadding = tabBarHeight + theme.spacing.lg + theme.spacing.md;
-  
-  const styles = useMemo(() => createStyles(colors, theme, dynamicBottomPadding), [colors, theme, dynamicBottomPadding]);
+  const dynamicBottomPadding =
+    tabBarHeight + theme.spacing.lg + theme.spacing.md;
+
+  const styles = useMemo(
+    () => createStyles(colors, theme, dynamicBottomPadding),
+    [colors, theme, dynamicBottomPadding]
+  );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <PageHeader>
         <MonthPicker
           selectedMonth={selectedMonth}
           onMonthChange={handleMonthChange}
         />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.legendRow}
+        >
+          <Badge variant="semantic" semanticType="calories" label="Calories" />
+          <Badge variant="semantic" semanticType="protein" label="Protein" />
+          <Badge variant="semantic" semanticType="carbs" label="Carbs" />
+          <Badge variant="semantic" semanticType="fat" label="Fat" />
+        </ScrollView>
       </PageHeader>
 
       {dailyTotals.length === 0 ? (
@@ -109,6 +127,11 @@ function createStyles(colors: any, themeObj: any, bottomPadding?: number) {
       marginTop: spacing.xl,
       paddingHorizontal: spacing.lg,
       lineHeight: 22,
+    },
+    legendRow: {
+      width: "100%",
+      gap: spacing.sm,
+      justifyContent: "center",
     },
   });
 }

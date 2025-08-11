@@ -21,36 +21,15 @@ export const createStyles = (
       color: colors.primaryText,
       marginBottom: themeObj.spacing.md,
     },
-    nutritionGrid: {
+    badgesRow: {
       flexDirection: "row",
       flexWrap: "wrap",
-      justifyContent: "space-between",
-    },
-    nutritionItem: {
-      width: "48%",
-      flexDirection: "row",
-      justifyContent: "space-between",
       alignItems: "center",
-      marginBottom: themeObj.spacing.xs,
-    },
-    label: {
-      fontSize: themeObj.typography.Subhead.fontSize,
-      fontWeight: themeObj.typography.Subhead.fontWeight,
-      fontFamily: themeObj.typography.Subhead.fontFamily,
-    },
-    value: {
-      fontSize: themeObj.typography.Subhead.fontSize,
-      fontWeight: themeObj.typography.Headline.fontWeight,
-      fontFamily: themeObj.typography.Headline.fontFamily,
-    },
-    metColor: {
-      color: colors.accent,
-    },
-    notMetColor: {
-      color: colors.secondaryText,
+      justifyContent: "flex-end",
+      gap: themeObj.spacing.sm,
     },
     backgroundOverlay: {
-      position: 'absolute',
+      position: "absolute",
       top: 0,
       left: 0,
       right: 0,

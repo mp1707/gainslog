@@ -1,16 +1,17 @@
 import React, { useMemo } from "react";
 import { View, Text, Pressable } from "react-native";
-import * as Haptics from 'expo-haptics';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withTiming, 
+import * as Haptics from "expo-haptics";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
   withSpring,
-  Easing 
-} from 'react-native-reanimated';
+  Easing,
+} from "react-native-reanimated";
 import { DailyTargets } from "../../../../types";
 import { useTheme } from "../../../../providers/ThemeProvider";
 import { createStyles } from "./DailySummaryCard.styles";
+import { Badge } from "@/shared/ui";
 
 interface DailySummaryCardProps {
   date: string;
@@ -75,14 +76,23 @@ export function DailySummaryCard({
   // Press animation handlers
   const handlePressIn = () => {
     // Press down animation - scale down and show background tint
-    pressScale.value = withTiming(0.96, { duration: 150, easing: Easing.out(Easing.quad) });
-    pressBackgroundOpacity.value = withTiming(0.04, { duration: 150, easing: Easing.out(Easing.quad) });
+    pressScale.value = withTiming(0.96, {
+      duration: 150,
+      easing: Easing.out(Easing.quad),
+    });
+    pressBackgroundOpacity.value = withTiming(0.04, {
+      duration: 150,
+      easing: Easing.out(Easing.quad),
+    });
   };
 
   const handlePressOut = () => {
     // Release animation - spring back and fade background
     pressScale.value = withSpring(1.0, { damping: 22, stiffness: 300 });
-    pressBackgroundOpacity.value = withTiming(0, { duration: 350, easing: Easing.bezier(0.25, 1, 0.5, 1) });
+    pressBackgroundOpacity.value = withTiming(0, {
+      duration: 350,
+      easing: Easing.bezier(0.25, 1, 0.5, 1),
+    });
   };
 
   const handlePress = () => {
@@ -111,122 +121,35 @@ export function DailySummaryCard({
     >
       <Animated.View style={[styles.container, containerAnimatedStyle]}>
         {/* Background tint overlay */}
-        <Animated.View 
+        <Animated.View
           style={[styles.backgroundOverlay, backgroundAnimatedStyle]}
           pointerEvents="none"
         />
-        
+
         <Text style={styles.dateText}>{formatDate(date)}</Text>
 
-        <View style={styles.nutritionGrid}>
-        <View style={styles.nutritionItem}>
-          <Text
-            style={[
-              styles.label,
-              {
-                color: isProteinMet
-                  ? styles.metColor.color
-                  : styles.notMetColor.color,
-              },
-            ]}
-          >
-            Protein:
-          </Text>
-          <Text
-            style={[
-              styles.value,
-              {
-                color: isProteinMet
-                  ? styles.metColor.color
-                  : styles.notMetColor.color,
-              },
-            ]}
-          >
-            {Math.round(totals.protein)}
-          </Text>
+        <View style={styles.badgesRow}>
+          <Badge
+            variant="semantic"
+            semanticType="calories"
+            label={`${Math.round(totals.calories)} kcal`}
+          />
+          <Badge
+            variant="semantic"
+            semanticType="protein"
+            label={`${Math.round(totals.protein)}g`}
+          />
+          <Badge
+            variant="semantic"
+            semanticType="carbs"
+            label={`${Math.round(totals.carbs)}g`}
+          />
+          <Badge
+            variant="semantic"
+            semanticType="fat"
+            label={`${Math.round(totals.fat)}g`}
+          />
         </View>
-
-        <View style={styles.nutritionItem}>
-          <Text
-            style={[
-              styles.label,
-              {
-                color: isFatMet
-                  ? styles.metColor.color
-                  : styles.notMetColor.color,
-              },
-            ]}
-          >
-            Fat:
-          </Text>
-          <Text
-            style={[
-              styles.value,
-              {
-                color: isFatMet
-                  ? styles.metColor.color
-                  : styles.notMetColor.color,
-              },
-            ]}
-          >
-            {Math.round(totals.fat)}
-          </Text>
-        </View>
-
-        <View style={styles.nutritionItem}>
-          <Text
-            style={[
-              styles.label,
-              {
-                color: isCarbsMet
-                  ? styles.metColor.color
-                  : styles.notMetColor.color,
-              },
-            ]}
-          >
-            Carbs:
-          </Text>
-          <Text
-            style={[
-              styles.value,
-              {
-                color: isCarbsMet
-                  ? styles.metColor.color
-                  : styles.notMetColor.color,
-              },
-            ]}
-          >
-            {Math.round(totals.carbs)}
-          </Text>
-        </View>
-
-        <View style={styles.nutritionItem}>
-          <Text
-            style={[
-              styles.label,
-              {
-                color: isCaloriesMet
-                  ? styles.metColor.color
-                  : styles.notMetColor.color,
-              },
-            ]}
-          >
-            Calories:
-          </Text>
-          <Text
-            style={[
-              styles.value,
-              {
-                color: isCaloriesMet
-                  ? styles.metColor.color
-                  : styles.notMetColor.color,
-              },
-            ]}
-          >
-            {Math.round(totals.calories)}
-          </Text>
-        </View>
-      </View>
       </Animated.View>
     </Pressable>
   );
