@@ -19,7 +19,6 @@ import {
 } from "@/utils/nutritionCalculations";
 import { StyleSheet } from "react-native";
 import { Card, AppText } from "src/components";
-import { NutritionSlider } from "@/shared/ui/atoms/NutritionSlider";
 import { CalculationInfoCard } from "@/shared/ui/molecules/CalculationInfoCard";
 import { SettingsSection } from "@/shared/ui/molecules/SettingsSection";
 import { NutritionAccordionContent } from "@/features/settings/ui/molecules/NutritionAccordionContent";
@@ -326,32 +325,28 @@ export default function SettingsTab() {
                 setExpandedStep((prev) => (prev === "fat" ? null : "fat"))
               }
             >
-              <View style={styles.accordionContent}>
-                <AppText role="Body" color="secondary">
-                  Adjust the percentage of total calories that come from fat.
-                  Maximum allowed based on your protein and calories:{" "}
-                  {Math.round(maxFatPercentage)}%
-                </AppText>
-                {fatEnabled && (
-                  <CalculationInfoCard
-                    type="fat"
-                    highlightText={`Current: ${Math.round(
-                      fatGrams
-                    )} g • ${fatPercentage}%`}
-                    description={`Maximum allowed based on your protein and calories: ${Math.round(
-                      maxFatPercentage
-                    )}%`}
-                  />
-                )}
-              </View>
-              <NutritionSlider
-                label="Fat Percentage"
-                unit="%"
-                value={fatPercentage}
-                minimumValue={10}
-                maximumValue={maxFatPercentage}
-                step={1}
-                onValueChange={handleFatPercentageChange}
+              <NutritionAccordionContent
+                calculationInfo={
+                  fatEnabled
+                    ? {
+                        type: "fat",
+                        highlightText: `Current: ${Math.round(
+                          fatGrams
+                        )} g • ${fatPercentage}%`,
+                        description: `Maximum allowed based on your protein and calories: ${Math.round(
+                          maxFatPercentage
+                        )}%`,
+                      }
+                    : null
+                }
+                stepperLabel="Adjust the percentage of total calories that come from fat."
+                stepperValue={fatPercentage}
+                stepperMin={10}
+                stepperMax={Math.round(maxFatPercentage)}
+                stepperStep={1}
+                onStepperChange={handleFatPercentageChange}
+                stepperType="fat"
+                stepperDisabled={!fatEnabled}
               />
             </AccordionItem>
 
@@ -457,9 +452,6 @@ const createStyles = (
     },
     resetButton: {
       minWidth: 200,
-    },
-    accordionContent: {
-      gap: spacing.lg,
     },
     settingInfo: {
       flex: 1,

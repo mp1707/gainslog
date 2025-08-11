@@ -1,1 +1,0 @@
-export { NutritionSlider } from './NutritionSlider';

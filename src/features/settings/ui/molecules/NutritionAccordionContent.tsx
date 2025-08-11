@@ -7,12 +7,12 @@ import { CalculationInfoCard } from "@/shared/ui/molecules/CalculationInfoCard";
 import { Stepper } from "@/shared/ui/atoms/Stepper";
 
 interface NutritionAccordionContentProps {
-  // Calculator section
-  calculatorType: "calories" | "protein";
-  calculatorDescription: string;
-  onCalculatorPress: () => void;
+  // Calculator section (optional for types like fat)
+  calculatorType?: "calories" | "protein" | "fat";
+  calculatorDescription?: string;
+  onCalculatorPress?: () => void;
   calculationInfo?: {
-    type: "calories" | "protein";
+    type: "calories" | "protein" | "fat";
     headerTitle?: string;
     headerSubtitle?: string;
     highlightText: string;
@@ -26,7 +26,7 @@ interface NutritionAccordionContentProps {
   stepperMax: number;
   stepperStep: number;
   onStepperChange: (value: number) => void;
-  stepperType: "calories" | "protein";
+  stepperType: "calories" | "protein" | "fat";
   stepperDisabled?: boolean;
 }
 
@@ -54,17 +54,21 @@ export const NutritionAccordionContent: React.FC<NutritionAccordionContentProps>
 
   return (
     <View style={styles.content}>
-      {/* Recommended Calculator Section */}
-      <View>
-        <AppText role="Body" color="secondary">
-          {calculatorDescription}
-        </AppText>
-      </View>
-      
-      <AnimatedCalculatorButton
-        isCalorieCard={calculatorType === "calories"}
-        onPress={onCalculatorPress}
-      />
+      {/* Recommended Calculator Section (only for calories/protein) */}
+      {calculatorType && calculatorDescription && onCalculatorPress && (
+        <>
+          <View>
+            <AppText role="Body" color="secondary">
+              {calculatorDescription}
+            </AppText>
+          </View>
+          
+          <AnimatedCalculatorButton
+            isCalorieCard={calculatorType === "calories"}
+            onPress={onCalculatorPress}
+          />
+        </>
+      )}
 
       {/* Selected Calculation Details */}
       {calculationInfo && (
@@ -78,9 +82,11 @@ export const NutritionAccordionContent: React.FC<NutritionAccordionContentProps>
       )}
 
       {/* Manual Override Section */}
-      <AppText role="Body" color="secondary">
-        {stepperLabel}
-      </AppText>
+      {stepperLabel && (
+        <AppText role="Body" color="secondary">
+          {stepperLabel}
+        </AppText>
+      )}
 
       <Stepper
         value={stepperValue}
