@@ -7,7 +7,6 @@ const DAILY_TARGETS_KEY = "daily_targets";
 
 const COLOR_SCHEME_KEY = "color_scheme";
 const CALORIE_CALCULATOR_PARAMS_KEY = "calorie_calculator_params";
-const PROTEIN_CALCULATOR_PARAMS_KEY = "protein_calculator_params";
 const FAVORITE_ENTRIES_KEY = "favorite_entries";
 
 /**
@@ -212,38 +211,12 @@ export const getCalorieCalculatorParams =
 /**
  * Save protein calculator body weight to AsyncStorage
  */
-export const saveProteinCalculatorParams = async (
-  bodyWeight: number
-): Promise<void> => {
-  try {
-    await AsyncStorage.setItem(
-      PROTEIN_CALCULATOR_PARAMS_KEY,
-      JSON.stringify({ bodyWeight })
-    );
-  } catch (error) {
-    console.error("Error saving protein calculator params:", error);
-    throw new Error("Failed to save protein calculator params");
-  }
-};
+// Deprecated: Protein calculator now uses shared calorie calculator params' weight
 
 /**
  * Get protein calculator body weight from AsyncStorage
  */
-export const getProteinCalculatorParams = async (): Promise<number> => {
-  try {
-    const paramsJson = await AsyncStorage.getItem(
-      PROTEIN_CALCULATOR_PARAMS_KEY
-    );
-    if (!paramsJson) {
-      return 70; // Default body weight
-    }
-    const params = JSON.parse(paramsJson) as { bodyWeight: number };
-    return params.bodyWeight;
-  } catch (error) {
-    console.error("Error getting protein calculator params:", error);
-    return 70; // Default body weight
-  }
-};
+// Deprecated: Protein calculator now uses shared calorie calculator params' weight
 
 /**
  * Favorites storage helpers

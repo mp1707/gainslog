@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Modal, View, Text, TouchableOpacity, ScrollView, KeyboardAvoidingView } from "react-native";
+import {
+  Modal,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  KeyboardAvoidingView,
+} from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Stepper } from "../../atoms/Stepper/Stepper";
 import {
@@ -9,8 +16,8 @@ import {
 } from "../../atoms/ProteinCalculationCard";
 import { useStyles } from "./ProteinCalculatorModal.styles";
 import {
-  getProteinCalculatorParams,
-  saveProteinCalculatorParams,
+  getCalorieCalculatorParams,
+  saveCalorieCalculatorParams,
 } from "../../../../lib/storage";
 
 interface ProteinCalculatorModalProps {
@@ -36,16 +43,19 @@ export const ProteinCalculatorModal: React.FC<ProteinCalculatorModalProps> = ({
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
   const [isBodyWeightLoaded, setIsBodyWeightLoaded] = useState(false);
 
-  // Load saved body weight when modal opens
+  // Load saved body weight from shared calorie params when modal opens
   useEffect(() => {
     const loadSavedBodyWeight = async () => {
       if (visible && !isBodyWeightLoaded) {
         try {
-          const savedBodyWeight = await getProteinCalculatorParams();
-          // Use saved value, but allow initialBodyWeight to override if provided
+          const savedParams = await getCalorieCalculatorParams();
+          // Use saved weight, but allow non-default initialBodyWeight to override if provided
+          const defaultInitialBodyWeight = 85;
           const finalBodyWeight =
-            initialBodyWeight !== 70 ? initialBodyWeight : savedBodyWeight;
-          setBodyWeight(finalBodyWeight);
+            initialBodyWeight !== defaultInitialBodyWeight
+              ? initialBodyWeight
+              : savedParams.weight;
+          setBodyWeight(finalBodyWeight ?? defaultInitialBodyWeight);
           setIsBodyWeightLoaded(true);
         } catch (error) {
           console.error("Failed to load saved body weight:", error);
@@ -63,12 +73,16 @@ export const ProteinCalculatorModal: React.FC<ProteinCalculatorModalProps> = ({
     }
   }, [visible, initialBodyWeight, isBodyWeightLoaded]);
 
-  // Save body weight to storage whenever it changes
+  // Save body weight to shared calorie params whenever it changes
   useEffect(() => {
     const saveBodyWeight = async () => {
       if (isBodyWeightLoaded) {
         try {
-          await saveProteinCalculatorParams(bodyWeight);
+          const currentParams = await getCalorieCalculatorParams();
+          await saveCalorieCalculatorParams({
+            ...currentParams,
+            weight: bodyWeight,
+          });
         } catch (error) {
           console.error("Failed to save body weight:", error);
         }
