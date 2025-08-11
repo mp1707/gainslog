@@ -75,7 +75,7 @@ export const MacroDistributionSection: React.FC<
           onValueChange={onFatPercentageChange}
         />
         <Text style={styles.helperText}>
-          Remaining calories are automatically set to carbohydrates.
+          Remaining calories go to carbohydrates.
         </Text>
       </View>
     </View>

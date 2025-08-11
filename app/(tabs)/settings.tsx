@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
-  Text,
   ScrollView,
   KeyboardAvoidingView,
   TouchableOpacity,
@@ -25,7 +24,7 @@ import {
   calculateMaxFatPercentage,
 } from "@/utils/nutritionCalculations";
 import { StyleSheet } from "react-native";
-import { Card } from "src/components";
+import { Card, AppText } from "src/components";
 
 export default function SettingsTab() {
   const { loadDailyTargets, isLoadingTargets } = useFoodLogStore();
@@ -143,7 +142,9 @@ export default function SettingsTab() {
         style={[styles.container, styles.centered]}
         edges={["top", "left", "right"]}
       >
-        <Text style={styles.loadingText}>Loading settings...</Text>
+        <AppText role="Body" color="secondary">
+          Loading settings...
+        </AppText>
       </SafeAreaView>
     );
   }
@@ -167,18 +168,30 @@ export default function SettingsTab() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Appearance</Text>
-            <Text style={styles.sectionSubtitle}>
+            <AppText role="Title2" style={styles.sectionTitle}>
+              Appearance
+            </AppText>
+            <AppText
+              role="Body"
+              color="secondary"
+              style={styles.sectionSubtitle}
+            >
               Customize the visual appearance of your app
-            </Text>
+            </AppText>
             <AppearanceCard />
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Nutrition Tracking</Text>
-            <Text style={styles.sectionSubtitle}>
-              Follow these steps to set up your personalized nutrition targets
-            </Text>
+            <AppText role="Title2" style={styles.sectionTitle}>
+              Nutrition Tracking
+            </AppText>
+            <AppText
+              role="Body"
+              color="secondary"
+              style={styles.sectionSubtitle}
+            >
+              Set up your daily targets
+            </AppText>
 
             <Card>
               {/* Step 1 - Calories */}
@@ -201,16 +214,18 @@ export default function SettingsTab() {
                     expanded: expandedStep === "calories",
                     disabled: !caloriesEnabled,
                   }}
-                  accessibilityLabel="Calorie target"
+                  accessibilityLabel="Calories"
                   style={[styles.accordionHeader, styles.accordionHeaderFirst]}
                 >
                   <View style={styles.headerTextContainer}>
-                    <Text style={styles.accordionTitle}>Calorie target</Text>
-                    <Text style={styles.accordionSummary}>
+                    <AppText role="Headline" style={styles.accordionTitle}>
+                      Calories
+                    </AppText>
+                    <AppText role="Caption" color="secondary">
                       {isCaloriesSet
                         ? `Target: ${dailyTargets.calories} kcal`
-                        : "Select a calories target"}
-                    </Text>
+                        : "Set target"}
+                    </AppText>
                   </View>
                   <StatusIcon
                     type={isCaloriesSet ? "completed" : "next"}
@@ -263,14 +278,16 @@ export default function SettingsTab() {
                   style={styles.accordionHeader}
                 >
                   <View style={styles.headerTextContainer}>
-                    <Text style={styles.accordionTitle}>Protein target</Text>
-                    <Text style={styles.accordionSummary}>
+                    <AppText role="Headline" style={styles.accordionTitle}>
+                      Protein
+                    </AppText>
+                    <AppText role="Caption" color="secondary">
                       {proteinEnabled
                         ? isProteinSet
                           ? `Target: ${dailyTargets.protein} g`
-                          : "Select a protein target"
-                        : "Select a calories target first to continue"}
-                    </Text>
+                          : "Set target"
+                        : "Set calories first"}
+                    </AppText>
                   </View>
                   {isProteinSet ? (
                     <StatusIcon
@@ -324,14 +341,14 @@ export default function SettingsTab() {
                   style={styles.accordionHeader}
                 >
                   <View style={styles.headerTextContainer}>
-                    <Text style={styles.accordionTitle}>Fat target</Text>
-                    <Text style={styles.accordionSummary}>
+                    <AppText role="Headline" style={styles.accordionTitle}>
+                      Fat
+                    </AppText>
+                    <AppText role="Caption" color="secondary">
                       {fatEnabled
-                        ? `Fat: ${Math.round(
-                            fatGrams
-                          )} g • Fat %: ${fatPercentage}%`
-                        : "Select a protein target first to continue"}
-                    </Text>
+                        ? `${Math.round(fatGrams)} g • ${fatPercentage}%`
+                        : "Set protein first"}
+                    </AppText>
                   </View>
                   {fatEnabled ? (
                     <StatusIcon
@@ -381,12 +398,14 @@ export default function SettingsTab() {
                   style={[styles.accordionHeader, styles.accordionHeaderLast]}
                 >
                   <View style={styles.headerTextContainer}>
-                    <Text style={styles.accordionTitle}>Carb target</Text>
-                    <Text style={styles.accordionSummary}>
+                    <AppText role="Headline" style={styles.accordionTitle}>
+                      Carbs
+                    </AppText>
+                    <AppText role="Caption" color="secondary">
                       {carbsEnabled
-                        ? `Carbs: ${Math.round(carbsGrams)} g`
-                        : "Select a protein target first to continue"}
-                    </Text>
+                        ? `${Math.round(carbsGrams)} g`
+                        : "Set protein first"}
+                    </AppText>
                   </View>
                   {carbsEnabled ? (
                     <StatusIcon
@@ -402,18 +421,17 @@ export default function SettingsTab() {
                       styles.accordionContentLast,
                     ]}
                   >
-                    <Text style={styles.accordionSummary}>
-                      Carbohydrates are set automatically to the remaining
-                      calories after protein and fat.
-                    </Text>
+                    <AppText role="Caption" color="secondary">
+                      Remaining calories go to carbohydrates.
+                    </AppText>
                     <View style={{ height: 8 }} />
-                    <Text style={styles.accordionSummary}>
+                    <AppText role="Caption" color="secondary">
                       {`Target: ${Math.round(carbsGrams)} g (${Math.round(
                         ((carbsGrams * 4) /
                           Math.max(dailyTargets.calories, 1)) *
                           100
                       )}% of calories)`}
-                    </Text>
+                    </AppText>
                   </View>
                 )}
               </View>
@@ -429,7 +447,9 @@ export default function SettingsTab() {
                 accessibilityHint="Resets all nutrition targets to zero and clears saved calculations"
                 style={styles.resetButton}
               >
-                <Text style={styles.resetButtonText}>Reset Daily Targets</Text>
+                <AppText role="Button" color="white">
+                  Reset daily targets
+                </AppText>
               </Button>
             </View>
           </View>
@@ -483,23 +503,10 @@ const createStyles = (
       marginBottom: spacing.xl,
     },
     sectionTitle: {
-      fontSize: typography.Title2.fontSize,
-      fontFamily: typography.Title2.fontFamily,
-      fontWeight: typography.Title2.fontWeight,
-      color: colors.primaryText,
       marginBottom: spacing.xs,
     },
     sectionSubtitle: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-      lineHeight: 22,
       marginBottom: spacing.lg,
-    },
-    loadingText: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
     },
     accordionContainer: {
       borderRadius: 16,
@@ -533,19 +540,11 @@ const createStyles = (
       paddingRight: spacing.md,
     },
     accordionTitle: {
-      fontSize: typography.Subhead.fontSize,
-      fontFamily: typography.Subhead.fontFamily,
-      fontWeight: "600",
-      color: colors.primaryText,
       marginBottom: 4,
-    },
-    accordionSummary: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
-      color: colors.secondaryText,
     },
     accordionContent: {
       paddingHorizontal: spacing.lg,
+      paddingTop: spacing.lg,
       paddingBottom: spacing.lg,
       backgroundColor: colors.secondaryBackground,
       borderTopWidth: 1,
@@ -555,31 +554,12 @@ const createStyles = (
       borderBottomLeftRadius: 16,
       borderBottomRightRadius: 16,
     },
-    checkIcon: {
-      width: 22,
-      height: 22,
-      borderRadius: 11,
-      backgroundColor: colors.success,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    checkIconText: {
-      color: colors.white,
-      fontSize: 14,
-      fontWeight: "700",
-      lineHeight: 16,
-    },
     resetButtonContainer: {
       marginTop: spacing.lg,
       alignItems: "center",
     },
     resetButton: {
       minWidth: 200,
-    },
-    resetButtonText: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      fontWeight: "600",
     },
   });
 };

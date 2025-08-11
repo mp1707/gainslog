@@ -95,14 +95,16 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
         variant === "flat" && styles.nutritionCardFlat,
       ]}
     >
-      <View style={styles.cardHeader}>
-        <View style={styles.cardTitleSection}>
-          <Text style={styles.nutritionHeadline}>{config.label}</Text>
-          <Text style={styles.cardDescription}>
-            {getCardDescription(config.key)}
-          </Text>
+      {variant !== "flat" && (
+        <View style={styles.cardHeader}>
+          <View style={styles.cardTitleSection}>
+            <Text style={styles.nutritionHeadline}>{config.label}</Text>
+            <Text style={styles.cardDescription}>
+              {getCardDescription(config.key)}
+            </Text>
+          </View>
         </View>
-      </View>
+      )}
 
       {/* Recommended section with primary calculator CTA */}
       {(isCalorieCard || isProteinCard) && !isFieldDisabled && (
@@ -110,7 +112,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
           <Text style={styles.sectionLabel}>Recommended</Text>
           <Text style={styles.sectionDescription}>
             Get a personalized {config.label.toLowerCase()} target based on your
-            body composition and goals.
+            body and goals.
           </Text>
           <AnimatedCalculatorButton
             isCalorieCard={isCalorieCard}
@@ -169,17 +171,16 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
       {/* Manual override section */}
       <View style={styles.manualOverrideSection}>
         <View style={styles.manualOverrideSectionHeader}>
-          <Text style={styles.sectionLabel}>Manual Override</Text>
+          <Text style={styles.sectionLabel}>Manual</Text>
           <Text style={styles.sectionDescription}>
-            Prefer to set your own target? Use the stepper below to manually
-            adjust your daily goal.
+            Set your own target below.
           </Text>
         </View>
         <View style={styles.nutritionSettingRow}>
           <View style={styles.settingInfo}>
-            <Text style={styles.settingLabel}>Daily Target</Text>
+            <Text style={styles.settingLabel}>Daily target</Text>
             <Text style={styles.settingSubtext}>
-              Set your daily {config.label.toLowerCase()} goal
+              Adjust your daily {config.label.toLowerCase()} goal
             </Text>
           </View>
           <Stepper

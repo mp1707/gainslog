@@ -164,8 +164,6 @@ export const createStyles = (
       fontFamily: typography.Caption.fontFamily,
       fontWeight: "600",
       color: colors.primaryText,
-      textTransform: "uppercase",
-      letterSpacing: 0.8,
       opacity: 0.7,
       marginBottom: spacing.xs,
     },
