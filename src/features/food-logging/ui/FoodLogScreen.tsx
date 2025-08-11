@@ -15,15 +15,7 @@ import { FoodLogsList } from "./components/FoodLogsList";
 import { FavoritesPickerModal } from "@/shared/ui/molecules/FavoritesPickerModal/FavoritesPickerModal";
 import { FavoriteEntry } from "@/types";
 import { generateFoodLogId } from "@/lib/storage";
-import Animated, {
-  Easing,
-  interpolate,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
-import { Badge } from "@/shared/ui/atoms/Badge";
-import { AppText } from "../../../components/AppText";
+import { useState, useEffect } from "react";
 
 interface FoodLogScreenProps {
   isLoadingLogs: boolean;
@@ -69,33 +61,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
     y: 0,
     height: 0,
   });
-
-  // Animated visibility for mini summary
-  const miniVisible = useSharedValue(0);
-  const [miniContentHeight, setMiniContentHeight] = React.useState(0);
-
-  const animatedMiniStyle = useAnimatedStyle(() => {
-    const opacity = withTiming(miniVisible.value, {
-      duration: 220,
-      easing: Easing.out(Easing.quad),
-    });
-    const translateY = withTiming(
-      interpolate(miniVisible.value, [0, 1], [-8, 0]),
-      {
-        duration: 220,
-        easing: Easing.out(Easing.quad),
-      }
-    );
-    const height = withTiming(miniVisible.value * miniContentHeight, {
-      duration: 260,
-      easing: Easing.out(Easing.quad),
-    });
-    return {
-      height,
-      opacity,
-      transform: [{ translateY }],
-    } as const;
-  }, [miniContentHeight]);
+  const [isMiniVisible, setIsMiniVisible] = useState(false);
 
   const handleManualLog = () => {
     triggerManualLog();
@@ -141,7 +107,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   };
 
   // Handle scroll to top when prop changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (scrollToTop) {
       scrollViewRef.current?.scrollTo({ y: 0, animated: true });
     }
@@ -155,49 +121,9 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         onNavigatePrevious={navigateToPreviousDay}
         onNavigateNext={navigateToNextDay}
         isToday={isToday()}
+        miniVisible={isMiniVisible}
+        progress={dailyProgress}
       />
-
-      {/* Mini stat summary that animates in when main stats are scrolled out */}
-      <Animated.View
-        style={[styles.miniSummaryWrapper, animatedMiniStyle]}
-        accessibilityRole="summary"
-        accessibilityLabel="Daily progress mini summary"
-      >
-        <View
-          style={styles.miniSummaryContent}
-          onLayout={(e) => setMiniContentHeight(e.nativeEvent.layout.height)}
-        >
-          <AppText role="Subhead" style={styles.miniSummaryLabel}>
-            Today
-          </AppText>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.miniBadgesRow}
-          >
-            <Badge
-              variant="semantic"
-              semanticType="calories"
-              label={`${Math.max(0, dailyProgress.percentages.calories)}%`}
-            />
-            <Badge
-              variant="semantic"
-              semanticType="protein"
-              label={`${Math.max(0, dailyProgress.percentages.protein)}%`}
-            />
-            <Badge
-              variant="semantic"
-              semanticType="carbs"
-              label={`${Math.max(0, dailyProgress.percentages.carbs)}%`}
-            />
-            <Badge
-              variant="semantic"
-              semanticType="fat"
-              label={`${Math.max(0, dailyProgress.percentages.fat)}%`}
-            />
-          </ScrollView>
-        </View>
-      </Animated.View>
 
       <ScrollView
         ref={scrollViewRef}
@@ -211,7 +137,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
           const threshold = 24; // px hysteresis to avoid flicker
           const shouldShow =
             y >= bottomOfStats - threshold && bottomOfStats > 0;
-          miniVisible.value = shouldShow ? 1 : 0;
+          setIsMiniVisible(shouldShow);
         }}
         scrollEventThrottle={16}
       >

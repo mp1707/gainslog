@@ -1,10 +1,20 @@
-import React from 'react';
-import { View, TouchableOpacity, Platform } from 'react-native';
-import { CaretLeftIcon, CaretRightIcon } from 'phosphor-react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { PageHeader } from '../../../../../shared/ui';
-import { useTheme } from '../../../../../providers/ThemeProvider';
-import { createStyles } from './DateNavigationHeader.styles';
+import React from "react";
+import { View, TouchableOpacity, Platform, ScrollView } from "react-native";
+import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { PageHeader } from "../../../../../shared/ui";
+import { useTheme } from "../../../../../providers/ThemeProvider";
+import { createStyles } from "./DateNavigationHeader.styles";
+import Animated, {
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+import { Badge } from "../../../../../shared/ui/atoms/Badge";
+import { AppText } from "../../../../../components/AppText";
+import type { DailyProgress } from "../../../../../types";
 
 interface DateNavigationHeaderProps {
   selectedDate: string;
@@ -12,6 +22,9 @@ interface DateNavigationHeaderProps {
   onNavigatePrevious: () => void;
   onNavigateNext: () => void;
   isToday: boolean;
+  // Mini summary controls
+  miniVisible?: boolean;
+  progress?: DailyProgress;
 }
 
 export const DateNavigationHeader: React.FC<DateNavigationHeaderProps> = ({
@@ -20,9 +33,38 @@ export const DateNavigationHeader: React.FC<DateNavigationHeaderProps> = ({
   onNavigatePrevious,
   onNavigateNext,
   isToday,
+  miniVisible = false,
+  progress,
 }) => {
   const { theme, colors, colorScheme } = useTheme();
   const styles = createStyles(colors, theme);
+
+  // Animate mini summary visibility
+  const visibility = useSharedValue(0);
+  const [miniHeight, setMiniHeight] = React.useState(0);
+
+  React.useEffect(() => {
+    visibility.value = withTiming(miniVisible ? 1 : 0, {
+      duration: 220,
+      easing: Easing.out(Easing.quad),
+    });
+  }, [miniVisible, visibility]);
+
+  const animatedMiniStyle = useAnimatedStyle(() => {
+    const opacity = visibility.value;
+    const translateY = withTiming(
+      interpolate(visibility.value, [0, 1], [-8, 0]),
+      {
+        duration: 220,
+        easing: Easing.out(Easing.quad),
+      }
+    );
+    const height = withTiming(visibility.value * miniHeight, {
+      duration: 260,
+      easing: Easing.out(Easing.quad),
+    });
+    return { height, opacity, transform: [{ translateY }] } as const;
+  }, [miniHeight]);
 
   return (
     <PageHeader>
@@ -68,6 +110,50 @@ export const DateNavigationHeader: React.FC<DateNavigationHeaderProps> = ({
           />
         </TouchableOpacity>
       </View>
+
+      {/* Animated mini summary row */}
+      <Animated.View
+        style={[styles.miniSummaryWrapper, animatedMiniStyle]}
+        accessibilityRole="summary"
+        accessibilityLabel="Daily progress mini summary"
+      >
+        <View
+          style={styles.miniSummaryContent}
+          onLayout={(e) => setMiniHeight(e.nativeEvent.layout.height)}
+        >
+          <AppText role="Subhead" style={styles.miniSummaryLabel}>
+            Today
+          </AppText>
+          {!!progress && (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.miniBadgesRow}
+            >
+              <Badge
+                variant="semantic"
+                semanticType="calories"
+                label={`${Math.max(0, progress.percentages.calories)}%`}
+              />
+              <Badge
+                variant="semantic"
+                semanticType="protein"
+                label={`${Math.max(0, progress.percentages.protein)}%`}
+              />
+              <Badge
+                variant="semantic"
+                semanticType="carbs"
+                label={`${Math.max(0, progress.percentages.carbs)}%`}
+              />
+              <Badge
+                variant="semantic"
+                semanticType="fat"
+                label={`${Math.max(0, progress.percentages.fat)}%`}
+              />
+            </ScrollView>
+          )}
+        </View>
+      </Animated.View>
     </PageHeader>
   );
 };
