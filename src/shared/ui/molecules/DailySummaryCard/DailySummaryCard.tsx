@@ -128,22 +128,22 @@ export function DailySummaryCard({
             <Badge
               variant="semantic"
               semanticType="calories"
-              label={`${Math.round(totals.calories)} kcal`}
+              label={`${Math.round((totals.calories / targets.calories) * 100)}%`}
             />
             <Badge
               variant="semantic"
               semanticType="protein"
-              label={`${Math.round(totals.protein)}g`}
+              label={`${Math.round((totals.protein / targets.protein) * 100)}%`}
             />
             <Badge
               variant="semantic"
               semanticType="carbs"
-              label={`${Math.round(totals.carbs)}g`}
+              label={`${Math.round((totals.carbs / targets.carbs) * 100)}%`}
             />
             <Badge
               variant="semantic"
               semanticType="fat"
-              label={`${Math.round(totals.fat)}g`}
+              label={`${Math.round((totals.fat / targets.fat) * 100)}%`}
             />
           </View>
         </Card>
