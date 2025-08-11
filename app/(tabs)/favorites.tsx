@@ -6,8 +6,8 @@ import { useTheme } from "@/providers/ThemeProvider";
 import { useFavoritesStore } from "@/stores/useFavoritesStore";
 import { SearchBar } from "@/shared/ui/components/SearchBar/SearchBar";
 import { FavoriteEntry } from "@/types";
-import { AppText, Card } from "src/components";
-import { FoodLogCard } from "@/features/food-logging";
+import { AppText } from "src/components";
+import { FavoriteCard } from "@/features/food-logging/ui/FavoriteCard";
 
 export default function FavoritesTab() {
   const { colors, theme } = useTheme();
@@ -22,24 +22,9 @@ export default function FavoritesTab() {
   const filtered = filter(query);
 
   const renderItem = (fav: FavoriteEntry, idx: number) => (
-    <Card key={`${fav.title}-${idx}`} style={styles.card}>
-      <View style={styles.itemTop}>
-        <AppText role="Headline" style={styles.title}>
-          {fav.title}
-        </AppText>
-        {fav.description ? (
-          <AppText role="Caption" color="secondary">
-            {fav.description}
-          </AppText>
-        ) : null}
-      </View>
-      <View style={styles.itemBottom}>
-        <AppText role="Caption">{fav.calories} kcal</AppText>
-        <AppText role="Caption">{fav.protein}g P</AppText>
-        <AppText role="Caption">{fav.carbs}g C</AppText>
-        <AppText role="Caption">{fav.fat}g F</AppText>
-      </View>
-    </Card>
+    <View key={`${fav.title}-${idx}`} style={styles.cardContainer}>
+      <FavoriteCard entry={fav} />
+    </View>
   );
 
   return (
@@ -84,17 +69,8 @@ function createStyles(colors: any, theme: any) {
       paddingHorizontal: theme.spacing.pageMargins.horizontal,
       paddingTop: theme.spacing.md,
       paddingBottom: theme.spacing.xl,
-      gap: theme.spacing.sm,
+      gap: theme.spacing.md,
     },
-    card: {
-      borderRadius: theme.components.cards.cornerRadius,
-    },
-    itemTop: { gap: theme.spacing.xs, marginBottom: theme.spacing.sm },
-    title: { color: colors.primaryText },
-    itemBottom: {
-      flexDirection: "row",
-      gap: theme.spacing.sm,
-      justifyContent: "flex-end",
-    },
+    cardContainer: {},
   } as const;
 }

@@ -9,9 +9,8 @@ import Animated, {
   withSpring,
   Easing,
 } from "react-native-reanimated";
-import { Badge } from "@/shared/ui";
-import { Card } from "../../../components/Card";
 import { AppText } from "../../../components/AppText";
+import { FoodLogCardView } from "./FoodLogCardView";
 import { FoodLog } from "../../../types";
 import { useTheme } from "../../../providers/ThemeProvider";
 import { createStyles } from "./FoodLogCard.styles";
@@ -140,80 +139,43 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
           <FoodLogCardSkeleton foodLog={foodLog} />
         ) : (
           <>
-            <Card style={styles.card}>
-              <View style={styles.topSection}>
-                <View style={styles.titleSection}>
-                  <AppText role="Headline" style={styles.title}>
-                    {foodLog.userTitle || foodLog.generatedTitle}
-                  </AppText>
-                  <Badge
-                    confidence={foodLog.estimationConfidence}
-                    isLoading={false}
-                  />
-                  <TouchableOpacity
-                    onPress={async () => {
-                      Haptics.selectionAsync();
-                      await toggleForLog(foodLog);
-                    }}
-                    style={styles.favoriteButton}
-                    accessibilityRole="button"
-                    accessibilityLabel={
-                      favorite ? "Remove favorite" : "Add to favorites"
-                    }
-                    accessibilityHint={
-                      favorite
-                        ? "Removes this entry from your favorites"
-                        : "Adds this entry to your favorites"
-                    }
-                    onPressIn={handlePressIn}
-                    onPressOut={handlePressOut}
-                  >
-                    {favorite ? (
-                      <StarIcon size={20} color="#FDB813" weight="fill" />
-                    ) : (
-                      <StarIcon size={20} color="#FDB813" weight="regular" />
-                    )}
-                  </TouchableOpacity>
-                </View>
-                {foodLog.userDescription && (
-                  <AppText
-                    role="Body"
-                    color="secondary"
-                    style={styles.description}
-                  >
-                    {foodLog.userDescription}
-                  </AppText>
-                )}
-              </View>
-
-              <View style={styles.bottomSection}>
-                {(foodLog.imageUrl || foodLog.localImageUri) && (
-                  <Badge variant="icon" iconType="image" />
-                )}
-                <View style={styles.macroRowContainer}>
-                  <Badge
-                    variant="semantic"
-                    semanticType="calories"
-                    label={`${foodLog.calories} kcal`}
-                  />
-                  <Badge
-                    variant="semantic"
-                    semanticType="protein"
-                    label={`${foodLog.protein}g`}
-                  />
-                  <Badge
-                    variant="semantic"
-                    semanticType="carbs"
-                    label={`${foodLog.carbs}g`}
-                  />
-                  <Badge
-                    variant="semantic"
-                    semanticType="fat"
-                    label={`${foodLog.fat}g`}
-                  />
-                </View>
-              </View>
-            </Card>
+            <FoodLogCardView
+              title={foodLog.userTitle || foodLog.generatedTitle}
+              description={foodLog.userDescription}
+              calories={foodLog.calories}
+              protein={foodLog.protein}
+              carbs={foodLog.carbs}
+              fat={foodLog.fat}
+              showImageIcon={Boolean(foodLog.imageUrl || foodLog.localImageUri)}
+              confidence={foodLog.estimationConfidence}
+              showConfidence
+              accessoryRight={
+                <TouchableOpacity
+                  onPress={async () => {
+                    Haptics.selectionAsync();
+                    await toggleForLog(foodLog);
+                  }}
+                  style={styles.favoriteButton}
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    favorite ? "Remove favorite" : "Add to favorites"
+                  }
+                  accessibilityHint={
+                    favorite
+                      ? "Removes this entry from your favorites"
+                      : "Adds this entry to your favorites"
+                  }
+                  onPressIn={handlePressIn}
+                  onPressOut={handlePressOut}
+                >
+                  {favorite ? (
+                    <StarIcon size={20} color="#FDB813" weight="fill" />
+                  ) : (
+                    <StarIcon size={20} color="#FDB813" weight="regular" />
+                  )}
+                </TouchableOpacity>
+              }
+            />
 
             {/* Flash overlay for success animation */}
             <Animated.View

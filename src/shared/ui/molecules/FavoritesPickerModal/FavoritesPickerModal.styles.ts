@@ -20,8 +20,9 @@ export const createStyles = (colors: any, theme: any) =>
       flex: 1,
     },
     scrollContent: {
+      paddingTop: theme.spacing.md,
       paddingBottom: theme.spacing.xl,
-      gap: theme.spacing.sm,
+      gap: theme.spacing.md,
     },
     card: {
       borderRadius: theme.components.cards.cornerRadius,
