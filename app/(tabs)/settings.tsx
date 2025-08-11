@@ -1,10 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  View,
-  ScrollView,
-  KeyboardAvoidingView,
-  TouchableOpacity,
-} from "react-native";
+import { View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
@@ -13,8 +8,8 @@ import { StatusIcon } from "@/shared/ui/atoms/StatusIcon";
 import { ProteinCalculatorModal } from "@/shared/ui/molecules/ProteinCalculatorModal";
 import { CalorieCalculatorModal } from "@/shared/ui/molecules/CalorieCalculatorModal";
 import { NutritionCard } from "@/features/settings/ui/molecules/NutritionCard";
-import { MacroDistributionSection } from "@/features/settings/ui/molecules/MacroSplitCard";
 import { AppearanceCard } from "@/features/settings/ui/molecules/AppearanceCard";
+import { AccordionItem } from "@/features/settings/ui/components/AccordionItem";
 import { useNutritionCalculations } from "@/features/settings/hooks/useNutritionCalculations";
 import { useSettingsModals } from "@/features/settings/hooks/useSettingsModals";
 import { useKeyboardOffset } from "@/features/settings/hooks/useKeyboardOffset";
@@ -25,6 +20,7 @@ import {
 } from "@/utils/nutritionCalculations";
 import { StyleSheet } from "react-native";
 import { Card, AppText } from "src/components";
+import { NutritionSlider } from "@/shared/ui/atoms/NutritionSlider";
 
 export default function SettingsTab() {
   const { loadDailyTargets, isLoadingTargets } = useFoodLogStore();
@@ -159,316 +155,213 @@ export default function SettingsTab() {
     : null;
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.section}>
-            <AppText role="Title2" style={styles.sectionTitle}>
-              Appearance
-            </AppText>
-            <AppText
-              role="Body"
-              color="secondary"
-              style={styles.sectionSubtitle}
-            >
-              Customize the visual appearance of your app
-            </AppText>
-            <AppearanceCard />
-          </View>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.section}>
+          <AppText role="Title2" style={styles.sectionTitle}>
+            Appearance
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.sectionSubtitle}>
+            Customize the visual appearance of your app
+          </AppText>
+          <AppearanceCard />
+        </View>
 
-          <View style={styles.section}>
-            <AppText role="Title2" style={styles.sectionTitle}>
-              Nutrition Tracking
-            </AppText>
-            <AppText
-              role="Body"
-              color="secondary"
-              style={styles.sectionSubtitle}
-            >
-              Set up your daily targets
-            </AppText>
+        <View style={styles.section}>
+          <AppText role="Title2" style={styles.sectionTitle}>
+            Nutrition Tracking
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.sectionSubtitle}>
+            Set up your daily targets
+          </AppText>
 
-            <Card>
-              {/* Step 1 - Calories */}
-              <View
-                style={[
-                  styles.accordionItem,
-                  !caloriesEnabled && styles.accordionDisabled,
-                ]}
-              >
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => {
-                    if (!caloriesEnabled) return;
-                    setExpandedStep((prev) =>
-                      prev === "calories" ? null : "calories"
-                    );
-                  }}
-                  accessibilityRole="button"
-                  accessibilityState={{
-                    expanded: expandedStep === "calories",
-                    disabled: !caloriesEnabled,
-                  }}
-                  accessibilityLabel="Calories"
-                  style={[styles.accordionHeader, styles.accordionHeaderFirst]}
-                >
-                  <View style={styles.headerTextContainer}>
-                    <AppText role="Headline" style={styles.accordionTitle}>
-                      Calories
-                    </AppText>
-                    <AppText role="Caption" color="secondary">
-                      {isCaloriesSet
-                        ? `Target: ${dailyTargets.calories} kcal`
-                        : "Set target"}
-                    </AppText>
-                  </View>
+          <Card>
+            <AccordionItem
+              title="Calories"
+              subtitle={
+                isCaloriesSet
+                  ? `Target: ${dailyTargets.calories} kcal`
+                  : "Set target"
+              }
+              accessibilityLabel="Calories"
+              rightAccessory={
+                <StatusIcon
+                  type={isCaloriesSet ? "completed" : "next"}
+                  accessibilityLabel={
+                    isCaloriesSet
+                      ? "Calorie target completed"
+                      : "Next step: set calories"
+                  }
+                />
+              }
+              disabled={!caloriesEnabled}
+              expanded={expandedStep === "calories"}
+              onToggle={() =>
+                setExpandedStep((prev) =>
+                  prev === "calories" ? null : "calories"
+                )
+              }
+              isFirst
+            >
+              <NutritionCard
+                config={nutritionConfigs[0]}
+                value={dailyTargets.calories}
+                isFieldDisabled={false}
+                onValueChange={handleTargetChange}
+                onCalculatorPress={() => setIsCalorieCalculatorVisible(true)}
+                calorieCalculation={calorieCalculation}
+                variant="flat"
+              />
+            </AccordionItem>
+
+            <AccordionItem
+              title="Protein"
+              subtitle={
+                proteinEnabled
+                  ? isProteinSet
+                    ? `Target: ${dailyTargets.protein} g`
+                    : "Set target"
+                  : "Set calories first"
+              }
+              accessibilityLabel="Protein target"
+              rightAccessory={
+                isProteinSet ? (
                   <StatusIcon
-                    type={isCaloriesSet ? "completed" : "next"}
-                    accessibilityLabel={
-                      isCaloriesSet
-                        ? "Calorie target completed"
-                        : "Next step: set calories"
-                    }
+                    type="completed"
+                    accessibilityLabel="Protein target completed"
                   />
-                </TouchableOpacity>
-                {expandedStep === "calories" && (
-                  <View style={styles.accordionContent}>
-                    <NutritionCard
-                      config={nutritionConfigs[0]}
-                      value={dailyTargets.calories}
-                      isFieldDisabled={false}
-                      onValueChange={handleTargetChange}
-                      onCalculatorPress={() =>
-                        setIsCalorieCalculatorVisible(true)
-                      }
-                      calorieCalculation={calorieCalculation}
-                      variant="flat"
-                    />
-                  </View>
-                )}
-              </View>
+                ) : nextStep === "protein" ? (
+                  <StatusIcon
+                    type="next"
+                    accessibilityLabel="Next step: set protein"
+                  />
+                ) : null
+              }
+              disabled={!proteinEnabled}
+              expanded={expandedStep === "protein"}
+              onToggle={() =>
+                setExpandedStep((prev) =>
+                  prev === "protein" ? null : "protein"
+                )
+              }
+            >
+              <NutritionCard
+                config={nutritionConfigs[1]}
+                value={dailyTargets.protein}
+                isFieldDisabled={!proteinEnabled}
+                onValueChange={handleTargetChange}
+                onCalculatorPress={() => setIsProteinCalculatorVisible(true)}
+                proteinCalculation={proteinCalculation}
+                variant="flat"
+              />
+            </AccordionItem>
 
-              {/* Step 2 - Protein */}
-              <View
-                style={[
-                  styles.accordionItem,
-                  !proteinEnabled && styles.accordionDisabled,
-                ]}
-              >
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => {
-                    if (!proteinEnabled) return;
-                    setExpandedStep((prev) =>
-                      prev === "protein" ? null : "protein"
-                    );
-                  }}
-                  disabled={!proteinEnabled}
-                  accessibilityRole="button"
-                  accessibilityState={{
-                    expanded: expandedStep === "protein",
-                    disabled: !proteinEnabled,
-                  }}
-                  accessibilityLabel="Protein target"
-                  style={styles.accordionHeader}
-                >
-                  <View style={styles.headerTextContainer}>
-                    <AppText role="Headline" style={styles.accordionTitle}>
-                      Protein
-                    </AppText>
-                    <AppText role="Caption" color="secondary">
-                      {proteinEnabled
-                        ? isProteinSet
-                          ? `Target: ${dailyTargets.protein} g`
-                          : "Set target"
-                        : "Set calories first"}
-                    </AppText>
-                  </View>
-                  {isProteinSet ? (
-                    <StatusIcon
-                      type="completed"
-                      accessibilityLabel="Protein target completed"
-                    />
-                  ) : nextStep === "protein" ? (
-                    <StatusIcon
-                      type="next"
-                      accessibilityLabel="Next step: set protein"
-                    />
-                  ) : null}
-                </TouchableOpacity>
-                {expandedStep === "protein" && (
-                  <View style={styles.accordionContent}>
-                    <NutritionCard
-                      config={nutritionConfigs[1]}
-                      value={dailyTargets.protein}
-                      isFieldDisabled={!proteinEnabled}
-                      onValueChange={handleTargetChange}
-                      onCalculatorPress={() =>
-                        setIsProteinCalculatorVisible(true)
-                      }
-                      proteinCalculation={proteinCalculation}
-                      variant="flat"
-                    />
-                  </View>
-                )}
-              </View>
+            <AccordionItem
+              title="Fat"
+              subtitle={
+                fatEnabled
+                  ? `${Math.round(fatGrams)} g • ${fatPercentage}%`
+                  : "Set protein first"
+              }
+              accessibilityLabel="Fat target"
+              rightAccessory={
+                fatEnabled ? (
+                  <StatusIcon
+                    type="completed"
+                    accessibilityLabel="Fat target ready"
+                  />
+                ) : null
+              }
+              disabled={!fatEnabled}
+              expanded={expandedStep === "fat"}
+              onToggle={() =>
+                setExpandedStep((prev) => (prev === "fat" ? null : "fat"))
+              }
+            >
+              <AppText role="Caption" color="secondary">
+                Set the percentage of total calories that come from fat.
+              </AppText> 
+              <NutritionSlider
+                label="Fat Percentage"
+                unit="%"
+                value={fatPercentage}
+                minimumValue={10}
+                maximumValue={maxFatPercentage}
+                step={1}
+                onValueChange={handleFatPercentageChange}
+              />
+            </AccordionItem>
 
-              {/* Step 3 - Fat */}
-              <View
-                style={[
-                  styles.accordionItem,
-                  !fatEnabled && styles.accordionDisabled,
-                ]}
-              >
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => {
-                    if (!fatEnabled) return;
-                    setExpandedStep((prev) => (prev === "fat" ? null : "fat"));
-                  }}
-                  disabled={!fatEnabled}
-                  accessibilityRole="button"
-                  accessibilityState={{
-                    expanded: expandedStep === "fat",
-                    disabled: !fatEnabled,
-                  }}
-                  accessibilityLabel="Fat target"
-                  style={styles.accordionHeader}
-                >
-                  <View style={styles.headerTextContainer}>
-                    <AppText role="Headline" style={styles.accordionTitle}>
-                      Fat
-                    </AppText>
-                    <AppText role="Caption" color="secondary">
-                      {fatEnabled
-                        ? `${Math.round(fatGrams)} g • ${fatPercentage}%`
-                        : "Set protein first"}
-                    </AppText>
-                  </View>
-                  {fatEnabled ? (
-                    <StatusIcon
-                      type="completed"
-                      accessibilityLabel="Fat target ready"
-                    />
-                  ) : null}
-                </TouchableOpacity>
-                {expandedStep === "fat" && (
-                  <View style={styles.accordionContent}>
-                    <MacroDistributionSection
-                      calories={dailyTargets.calories}
-                      protein={dailyTargets.protein}
-                      fatGrams={fatGrams}
-                      carbsGrams={carbsGrams}
-                      fatPercentage={fatPercentage}
-                      maxFatPercentage={maxFatPercentage}
-                      onFatPercentageChange={handleFatPercentageChange}
-                      variant="flat"
-                    />
-                  </View>
-                )}
-              </View>
+            <AccordionItem
+              title="Carbs"
+              subtitle={
+                carbsEnabled
+                  ? `${Math.round(carbsGrams)} g`
+                  : "Set protein first"
+              }
+              accessibilityLabel="Carb target"
+              rightAccessory={
+                carbsEnabled ? (
+                  <StatusIcon
+                    type="completed"
+                    accessibilityLabel="Carb target ready"
+                  />
+                ) : null
+              }
+              disabled={!carbsEnabled}
+              expanded={expandedStep === "carbs"}
+              onToggle={() =>
+                setExpandedStep((prev) => (prev === "carbs" ? null : "carbs"))
+              }
+            >
+              <AppText role="Caption" color="secondary">
+                Remaining calories go to carbohydrates.
+              </AppText>
+              <View style={{ height: 8 }} />
+              <AppText role="Caption" color="secondary">
+                {`Target: ${Math.round(carbsGrams)} g (${Math.round(
+                  ((carbsGrams * 4) / Math.max(dailyTargets.calories, 1)) * 100
+                )}% of calories)`}
+              </AppText>
+            </AccordionItem>
+          </Card>
 
-              {/* Step 4 - Carbs */}
-              <View
-                style={[
-                  styles.accordionItem,
-                  !carbsEnabled && styles.accordionDisabled,
-                ]}
-              >
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => {
-                    if (!carbsEnabled) return;
-                    setExpandedStep((prev) =>
-                      prev === "carbs" ? null : "carbs"
-                    );
-                  }}
-                  disabled={!carbsEnabled}
-                  accessibilityRole="button"
-                  accessibilityState={{
-                    expanded: expandedStep === "carbs",
-                    disabled: !carbsEnabled,
-                  }}
-                  accessibilityLabel="Carb target"
-                  style={[styles.accordionHeader, styles.accordionHeaderLast]}
-                >
-                  <View style={styles.headerTextContainer}>
-                    <AppText role="Headline" style={styles.accordionTitle}>
-                      Carbs
-                    </AppText>
-                    <AppText role="Caption" color="secondary">
-                      {carbsEnabled
-                        ? `${Math.round(carbsGrams)} g`
-                        : "Set protein first"}
-                    </AppText>
-                  </View>
-                  {carbsEnabled ? (
-                    <StatusIcon
-                      type="completed"
-                      accessibilityLabel="Carb target ready"
-                    />
-                  ) : null}
-                </TouchableOpacity>
-                {expandedStep === "carbs" && (
-                  <View
-                    style={[
-                      styles.accordionContent,
-                      styles.accordionContentLast,
-                    ]}
-                  >
-                    <AppText role="Caption" color="secondary">
-                      Remaining calories go to carbohydrates.
-                    </AppText>
-                    <View style={{ height: 8 }} />
-                    <AppText role="Caption" color="secondary">
-                      {`Target: ${Math.round(carbsGrams)} g (${Math.round(
-                        ((carbsGrams * 4) /
-                          Math.max(dailyTargets.calories, 1)) *
-                          100
-                      )}% of calories)`}
-                    </AppText>
-                  </View>
-                )}
-              </View>
-            </Card>
-
-            <View style={styles.resetButtonContainer}>
-              <Button
-                onPress={handleResetTargets}
-                variant="destructive"
-                size="medium"
-                shape="round"
-                accessibilityLabel="Reset daily targets"
-                accessibilityHint="Resets all nutrition targets to zero and clears saved calculations"
-                style={styles.resetButton}
-              >
-                <AppText role="Button" color="white">
-                  Reset daily targets
-                </AppText>
-              </Button>
-            </View>
+          <View style={styles.resetButtonContainer}>
+            <Button
+              onPress={handleResetTargets}
+              variant="destructive"
+              size="medium"
+              shape="round"
+              accessibilityLabel="Reset daily targets"
+              accessibilityHint="Resets all nutrition targets to zero and clears saved calculations"
+              style={styles.resetButton}
+            >
+              <AppText role="Button" color="white">
+                Reset daily targets
+              </AppText>
+            </Button>
           </View>
-        </ScrollView>
+        </View>
+      </ScrollView>
 
-        <ProteinCalculatorModal
-          visible={isProteinCalculatorVisible}
-          onClose={() => setIsProteinCalculatorVisible(false)}
-          onSelectMethod={handleProteinCalculationSelect}
-          initialBodyWeight={proteinCalculation?.bodyWeight || 70}
-        />
+      <ProteinCalculatorModal
+        visible={isProteinCalculatorVisible}
+        onClose={() => setIsProteinCalculatorVisible(false)}
+        onSelectMethod={handleProteinCalculationSelect}
+        initialBodyWeight={proteinCalculation?.bodyWeight || 70}
+      />
 
-        <CalorieCalculatorModal
-          visible={isCalorieCalculatorVisible}
-          onClose={() => setIsCalorieCalculatorVisible(false)}
-          onSelectGoal={handleCalorieGoalSelect}
-        />
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+      <CalorieCalculatorModal
+        visible={isCalorieCalculatorVisible}
+        onClose={() => setIsCalorieCalculatorVisible(false)}
+        onSelectGoal={handleCalorieGoalSelect}
+      />
+    </SafeAreaView>
   );
 }
 
@@ -480,7 +373,7 @@ const createStyles = (
   themeObj: Theme,
   bottomPadding?: number
 ) => {
-  const { typography, spacing } = themeObj;
+  const { spacing } = themeObj;
 
   return StyleSheet.create({
     container: {
@@ -507,52 +400,6 @@ const createStyles = (
     },
     sectionSubtitle: {
       marginBottom: spacing.lg,
-    },
-    accordionContainer: {
-      borderRadius: 16,
-      backgroundColor: colors.secondaryBackground,
-      overflow: "hidden",
-    },
-    accordionItem: {
-      backgroundColor: "transparent",
-    },
-    accordionDisabled: {
-      opacity: 0.5,
-    },
-    accordionHeader: {
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
-      backgroundColor: colors.secondaryBackground,
-      borderTopWidth: 1,
-      borderTopColor: colors.border,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-    },
-    accordionHeaderFirst: {
-      borderTopWidth: 0,
-    },
-    accordionHeaderLast: {
-      // keeps same style; rounded corners are on container
-    },
-    headerTextContainer: {
-      flex: 1,
-      paddingRight: spacing.md,
-    },
-    accordionTitle: {
-      marginBottom: 4,
-    },
-    accordionContent: {
-      paddingHorizontal: spacing.lg,
-      paddingTop: spacing.lg,
-      paddingBottom: spacing.lg,
-      backgroundColor: colors.secondaryBackground,
-      borderTopWidth: 1,
-      borderTopColor: colors.border,
-    },
-    accordionContentLast: {
-      borderBottomLeftRadius: 16,
-      borderBottomRightRadius: 16,
     },
     resetButtonContainer: {
       marginTop: spacing.lg,

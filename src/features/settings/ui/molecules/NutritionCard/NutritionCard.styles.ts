@@ -51,19 +51,6 @@ export const createStyles = (
       flex: 1,
       marginRight: spacing.md,
     },
-    cardDescription: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-      marginTop: spacing.xs,
-      lineHeight: typography.Body.fontSize * 1.33, // Better line height for readability
-    },
-    nutritionHeadline: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      fontWeight: typography.Headline.fontWeight,
-      color: colors.primaryText,
-    },
     calculationInfo: {
       backgroundColor: colors.semanticBadges.calories.background,
       borderRadius: 16,
@@ -89,40 +76,6 @@ export const createStyles = (
     calculationHeader: {
       marginBottom: spacing.sm,
     },
-    calculationMethodTitle: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      fontWeight: "600",
-      color: colors.primaryText,
-      marginBottom: spacing.xs / 2,
-    },
-    bodyWeightText: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-      opacity: 0.8,
-    },
-    calculatedValue: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      fontWeight: "600",
-      color: colors.semantic.calories,
-      marginBottom: spacing.sm,
-    },
-    calculatedValueProtein: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      fontWeight: "600",
-      color: colors.semantic.protein,
-      marginBottom: spacing.sm,
-    },
-    calculationSubtext: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-      lineHeight: typography.Body.fontSize * 1.2,
-      opacity: 0.7,
-    },
     settingsGroup: {
       backgroundColor: "transparent",
     },
@@ -136,43 +89,9 @@ export const createStyles = (
       flex: 1,
       marginRight: spacing.lg,
     },
-    settingLabel: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      fontWeight: "600",
-      color: colors.primaryText,
-      marginBottom: spacing.xs / 2,
-    },
-    settingSubtext: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-      lineHeight: typography.Body.fontSize * 1.33,
-      opacity: 0.8,
-    },
     // New section styles for improved UX - using proper design system
     recommendedSection: {
       marginBottom: spacing.xl,
-    },
-    recommendedSectionHeader: {
-      flexDirection: "row",
-      alignItems: "center",
-      marginBottom: spacing.md,
-    },
-    sectionLabel: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
-      fontWeight: "600",
-      color: colors.primaryText,
-      opacity: 0.7,
-      marginBottom: spacing.xs,
-    },
-    sectionDescription: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-      lineHeight: typography.Body.fontSize * 1.2, // 1.2 line height ratio
-      marginBottom: spacing.lg,
     },
     manualOverrideSection: {
       borderTopWidth: 1,

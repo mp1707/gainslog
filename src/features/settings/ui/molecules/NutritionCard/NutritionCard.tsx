@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import { useTheme } from "@/providers/ThemeProvider";
 import { Stepper } from "@/shared/ui/atoms/Stepper";
 import { AnimatedCalculatorButton } from "@/shared/ui/atoms/AnimatedCalculatorButton";
@@ -7,6 +7,7 @@ import { ProteinCalculationMethod } from "@/shared/ui/atoms/ProteinCalculationCa
 import { CALCULATION_METHODS } from "@/shared/ui/atoms/CalorieCalculationCard";
 import { GoalType } from "@/shared/ui/atoms/GoalSelectionCard";
 import { createStyles } from "./NutritionCard.styles";
+import { AppText } from "src/components";
 
 interface NutritionConfig {
   key: "calories" | "protein";
@@ -98,10 +99,10 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
       {variant !== "flat" && (
         <View style={styles.cardHeader}>
           <View style={styles.cardTitleSection}>
-            <Text style={styles.nutritionHeadline}>{config.label}</Text>
-            <Text style={styles.cardDescription}>
+            <AppText role="Headline">{config.label}</AppText>
+            <AppText role="Body" color="secondary" style={{ marginTop: 4 }}>
               {getCardDescription(config.key)}
-            </Text>
+            </AppText>
           </View>
         </View>
       )}
@@ -109,11 +110,13 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
       {/* Recommended section with primary calculator CTA */}
       {(isCalorieCard || isProteinCard) && !isFieldDisabled && (
         <View style={styles.recommendedSection}>
-          <Text style={styles.sectionLabel}>Recommended</Text>
-          <Text style={styles.sectionDescription}>
+          <AppText role="Caption" style={{ marginBottom: 4 }}>
+            Recommended
+          </AppText>
+          <AppText role="Body" color="secondary" style={{ marginBottom: 16 }}>
             Get a personalized {config.label.toLowerCase()} target based on your
             body and goals.
-          </Text>
+          </AppText>
           <AnimatedCalculatorButton
             isCalorieCard={isCalorieCard}
             onPress={onCalculatorPress}
@@ -129,22 +132,25 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
       {isCalorieCard && calorieCalculation && (
         <View style={styles.calculationInfo}>
           <View style={styles.calculationHeader}>
-            <Text style={styles.calculationMethodTitle}>
+            <AppText role="Headline" style={{ marginBottom: 2 }}>
               {getGoalTitle(calorieCalculation.goalType)}
-            </Text>
-            <Text style={styles.bodyWeightText}>
+            </AppText>
+            <AppText role="Body" color="secondary">
               {calorieCalculation.params.sex === "male" ? "Male" : "Female"},{" "}
               {calorieCalculation.params.age} years,{" "}
               {calorieCalculation.params.weight}kg,{" "}
               {calorieCalculation.params.height}cm
-            </Text>
+            </AppText>
           </View>
-          <Text style={styles.calculatedValue}>
+          <AppText
+            role="Headline"
+            style={{ color: colors.semantic.calories, marginBottom: 8 }}
+          >
             Activity Level: {calorieCalculation.method.label}
-          </Text>
-          <Text style={styles.calculationSubtext}>
+          </AppText>
+          <AppText role="Body" color="secondary">
             {calorieCalculation.method.description}
-          </Text>
+          </AppText>
         </View>
       )}
 
@@ -152,36 +158,43 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
       {isProteinCard && proteinCalculation && (
         <View style={styles.calculationInfoProtein}>
           <View style={styles.calculationHeader}>
-            <Text style={styles.calculationMethodTitle}>
+            <AppText role="Headline" style={{ marginBottom: 2 }}>
               {proteinCalculation.method.title}
-            </Text>
-            <Text style={styles.bodyWeightText}>
+            </AppText>
+            <AppText role="Body" color="secondary">
               {proteinCalculation.bodyWeight}kg body weight
-            </Text>
+            </AppText>
           </View>
-          <Text style={styles.calculatedValueProtein}>
+          <AppText
+            role="Headline"
+            style={{ color: colors.semantic.protein, marginBottom: 8 }}
+          >
             Recommended: {proteinCalculation.calculatedProtein}g daily
-          </Text>
-          <Text style={styles.calculationSubtext}>
+          </AppText>
+          <AppText role="Body" color="secondary">
             {proteinCalculation.method.description}
-          </Text>
+          </AppText>
         </View>
       )}
 
       {/* Manual override section */}
       <View style={styles.manualOverrideSection}>
         <View style={styles.manualOverrideSectionHeader}>
-          <Text style={styles.sectionLabel}>Manual</Text>
-          <Text style={styles.sectionDescription}>
+          <AppText role="Caption" style={{ marginBottom: 8 }}>
+            Manual
+          </AppText>
+          <AppText role="Body" color="secondary">
             Set your own target below.
-          </Text>
+          </AppText>
         </View>
         <View style={styles.nutritionSettingRow}>
           <View style={styles.settingInfo}>
-            <Text style={styles.settingLabel}>Daily target</Text>
-            <Text style={styles.settingSubtext}>
+            <AppText role="Headline" style={{ marginBottom: 4 }}>
+              Daily target
+            </AppText>
+            <AppText role="Body" color="secondary">
               Adjust your daily {config.label.toLowerCase()} goal
-            </Text>
+            </AppText>
           </View>
           <Stepper
             value={value}

@@ -50,3 +50,6 @@ android/
 
 # build
 build/
+
+# other stuff
+.notes/
