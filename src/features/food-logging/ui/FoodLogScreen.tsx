@@ -12,6 +12,9 @@ import { DateNavigationHeader } from "./components/DateNavigationHeader";
 import { MacronutriensSection } from "./components/MacronutriensSection";
 import { CaloriesSection } from "./components/CaloriesSection";
 import { FoodLogsList } from "./components/FoodLogsList";
+import { FavoritesPickerModal } from "@/shared/ui/molecules/FavoritesPickerModal/FavoritesPickerModal";
+import { FavoriteEntry } from "@/types";
+import { generateFoodLogId } from "@/lib/storage";
 
 interface FoodLogScreenProps {
   isLoadingLogs: boolean;
@@ -49,6 +52,8 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   const dailyProgress = getDailyProgress();
   const styles = createStyles(colors, dynamicBottomPadding);
   const filteredFoodLogs = getFilteredFoodLogs();
+  const [isFavoritesModalVisible, setFavoritesModalVisible] =
+    React.useState(false);
 
   const handleManualLog = () => {
     triggerManualLog();
@@ -64,6 +69,33 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
 
   const handleAudioLog = () => {
     triggerAudioCapture();
+  };
+
+  const handleFavoritesLog = () => {
+    setFavoritesModalVisible(true);
+  };
+
+  const handleSelectFavorite = (fav: FavoriteEntry) => {
+    const now = new Date();
+    const id = generateFoodLogId();
+    const log: FoodLog = {
+      id,
+      userTitle: fav.title,
+      userDescription: fav.description,
+      generatedTitle: fav.title,
+      estimationConfidence: 100,
+      calories: fav.calories,
+      protein: fav.protein,
+      carbs: fav.carbs,
+      fat: fav.fat,
+      createdAt: now.toISOString(),
+      date: selectedDate,
+      needsAiEstimation: false,
+    };
+    // Add directly without AI estimation
+    // Reuse store path for persistence and state update
+    useFoodLogStore.getState().addFoodLog(log);
+    setFavoritesModalVisible(false);
   };
 
   // Handle scroll to top when prop changes
@@ -105,6 +137,13 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         onCameraLog={handleCameraLog}
         onLibraryLog={handleLibraryLog}
         onAudioLog={handleAudioLog}
+        onFavoritesLog={handleFavoritesLog}
+      />
+
+      <FavoritesPickerModal
+        visible={isFavoritesModalVisible}
+        onClose={() => setFavoritesModalVisible(false)}
+        onSelectFavorite={handleSelectFavorite}
       />
     </SafeAreaView>
   );

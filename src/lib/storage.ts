@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FoodLog, DailyTargets } from "../types";
+import { FoodLog, DailyTargets, FavoriteEntry } from "../types";
 import type { CalorieIntakeParams, Sex } from "../utils/calculateCalories";
 
 const FOOD_LOGS_KEY = "food_logs";
@@ -8,7 +8,7 @@ const DAILY_TARGETS_KEY = "daily_targets";
 const COLOR_SCHEME_KEY = "color_scheme";
 const CALORIE_CALCULATOR_PARAMS_KEY = "calorie_calculator_params";
 const PROTEIN_CALCULATOR_PARAMS_KEY = "protein_calculator_params";
-
+const FAVORITE_ENTRIES_KEY = "favorite_entries";
 
 /**
  * Save a food log to AsyncStorage
@@ -139,8 +139,6 @@ export const getDailyTargets = async (): Promise<DailyTargets> => {
   }
 };
 
-
-
 export const saveColorSchemePreference = async (
   scheme: import("../theme").ColorScheme
 ): Promise<void> => {
@@ -182,7 +180,10 @@ export const saveCalorieCalculatorParams = async (
   params: CalorieIntakeParams
 ): Promise<void> => {
   try {
-    await AsyncStorage.setItem(CALORIE_CALCULATOR_PARAMS_KEY, JSON.stringify(params));
+    await AsyncStorage.setItem(
+      CALORIE_CALCULATOR_PARAMS_KEY,
+      JSON.stringify(params)
+    );
   } catch (error) {
     console.error("Error saving calorie calculator params:", error);
     throw new Error("Failed to save calorie calculator params");
@@ -192,18 +193,21 @@ export const saveCalorieCalculatorParams = async (
 /**
  * Get calorie calculator parameters from AsyncStorage
  */
-export const getCalorieCalculatorParams = async (): Promise<CalorieIntakeParams> => {
-  try {
-    const paramsJson = await AsyncStorage.getItem(CALORIE_CALCULATOR_PARAMS_KEY);
-    if (!paramsJson) {
+export const getCalorieCalculatorParams =
+  async (): Promise<CalorieIntakeParams> => {
+    try {
+      const paramsJson = await AsyncStorage.getItem(
+        CALORIE_CALCULATOR_PARAMS_KEY
+      );
+      if (!paramsJson) {
+        return DEFAULT_CALORIE_CALCULATOR_PARAMS;
+      }
+      return JSON.parse(paramsJson) as CalorieIntakeParams;
+    } catch (error) {
+      console.error("Error getting calorie calculator params:", error);
       return DEFAULT_CALORIE_CALCULATOR_PARAMS;
     }
-    return JSON.parse(paramsJson) as CalorieIntakeParams;
-  } catch (error) {
-    console.error("Error getting calorie calculator params:", error);
-    return DEFAULT_CALORIE_CALCULATOR_PARAMS;
-  }
-};
+  };
 
 /**
  * Save protein calculator body weight to AsyncStorage
@@ -212,7 +216,10 @@ export const saveProteinCalculatorParams = async (
   bodyWeight: number
 ): Promise<void> => {
   try {
-    await AsyncStorage.setItem(PROTEIN_CALCULATOR_PARAMS_KEY, JSON.stringify({ bodyWeight }));
+    await AsyncStorage.setItem(
+      PROTEIN_CALCULATOR_PARAMS_KEY,
+      JSON.stringify({ bodyWeight })
+    );
   } catch (error) {
     console.error("Error saving protein calculator params:", error);
     throw new Error("Failed to save protein calculator params");
@@ -224,7 +231,9 @@ export const saveProteinCalculatorParams = async (
  */
 export const getProteinCalculatorParams = async (): Promise<number> => {
   try {
-    const paramsJson = await AsyncStorage.getItem(PROTEIN_CALCULATOR_PARAMS_KEY);
+    const paramsJson = await AsyncStorage.getItem(
+      PROTEIN_CALCULATOR_PARAMS_KEY
+    );
     if (!paramsJson) {
       return 70; // Default body weight
     }
@@ -233,5 +242,35 @@ export const getProteinCalculatorParams = async (): Promise<number> => {
   } catch (error) {
     console.error("Error getting protein calculator params:", error);
     return 70; // Default body weight
+  }
+};
+
+/**
+ * Favorites storage helpers
+ */
+
+export const getFavoriteEntries = async (): Promise<FavoriteEntry[]> => {
+  try {
+    const json = await AsyncStorage.getItem(FAVORITE_ENTRIES_KEY);
+    if (!json) return [];
+    const parsed = JSON.parse(json);
+    if (Array.isArray(parsed)) {
+      return parsed as FavoriteEntry[];
+    }
+    return [];
+  } catch (error) {
+    console.error("Error getting favorite entries:", error);
+    return [];
+  }
+};
+
+export const saveFavoriteEntries = async (
+  entries: FavoriteEntry[]
+): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(FAVORITE_ENTRIES_KEY, JSON.stringify(entries));
+  } catch (error) {
+    console.error("Error saving favorite entries:", error);
+    throw new Error("Failed to save favorite entries");
   }
 };

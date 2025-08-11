@@ -1,23 +1,31 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, Pressable } from 'react-native';
+import React, { useState } from "react";
+import { View, TouchableOpacity, Pressable } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
   withTiming,
-    interpolate,
-    withDelay,
-} from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
-import { PlusIcon, PencilIcon, CameraIcon, ImageIcon, MicrophoneIcon } from 'phosphor-react-native';
-import { createStyles } from './ExpandableFAB.styles';
-import { useTheme } from 'src/providers/ThemeProvider';
+  interpolate,
+  withDelay,
+} from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
+import {
+  PlusIcon,
+  PencilIcon,
+  CameraIcon,
+  ImageIcon,
+  MicrophoneIcon,
+  Star,
+} from "phosphor-react-native";
+import { createStyles } from "./ExpandableFAB.styles";
+import { useTheme } from "src/providers/ThemeProvider";
 
 interface ExpandableFABProps {
   onManualLog: () => void;
   onCameraLog: () => void;
   onLibraryLog: () => void;
   onAudioLog: () => void;
+  onFavoritesLog?: () => void;
   bottomOffset?: number;
 }
 
@@ -33,6 +41,7 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
   onCameraLog,
   onLibraryLog,
   onAudioLog,
+  onFavoritesLog,
   bottomOffset,
 }) => {
   const { theme, colors, colorScheme } = useTheme();
@@ -48,28 +57,64 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
   // Action buttons configuration
   const actionButtons: ActionButton[] = [
     {
-      icon: <PencilIcon size={componentStyles.aiActionTargets.iconSize} color={componentStyles.aiActionTargets.iconColor} weight="regular" />,
+      icon: (
+        <PencilIcon
+          size={componentStyles.aiActionTargets.iconSize}
+          color={componentStyles.aiActionTargets.iconColor}
+          weight="regular"
+        />
+      ),
       onPress: onManualLog,
       accessibilityLabel: "Manual food entry",
-      accessibilityHint: "Opens manual food logging form"
+      accessibilityHint: "Opens manual food logging form",
     },
     {
-      icon: <CameraIcon size={componentStyles.aiActionTargets.iconSize} color={componentStyles.aiActionTargets.iconColor} weight="regular" />,
+      icon: (
+        <CameraIcon
+          size={componentStyles.aiActionTargets.iconSize}
+          color={componentStyles.aiActionTargets.iconColor}
+          weight="regular"
+        />
+      ),
       onPress: onCameraLog,
       accessibilityLabel: "Take photo",
-      accessibilityHint: "Opens camera to photograph food"
+      accessibilityHint: "Opens camera to photograph food",
     },
     {
-      icon: <ImageIcon size={componentStyles.aiActionTargets.iconSize} color={componentStyles.aiActionTargets.iconColor} weight="regular" />,
+      icon: (
+        <ImageIcon
+          size={componentStyles.aiActionTargets.iconSize}
+          color={componentStyles.aiActionTargets.iconColor}
+          weight="regular"
+        />
+      ),
       onPress: onLibraryLog,
       accessibilityLabel: "Choose from library",
-      accessibilityHint: "Opens photo library to select food image"
+      accessibilityHint: "Opens photo library to select food image",
     },
     {
-      icon: <MicrophoneIcon size={componentStyles.aiActionTargets.iconSize} color={componentStyles.aiActionTargets.iconColor} weight="regular" />,
+      icon: (
+        <MicrophoneIcon
+          size={componentStyles.aiActionTargets.iconSize}
+          color={componentStyles.aiActionTargets.iconColor}
+          weight="regular"
+        />
+      ),
       onPress: onAudioLog,
       accessibilityLabel: "Record audio",
-      accessibilityHint: "Opens audio recording for voice food logging"
+      accessibilityHint: "Opens audio recording for voice food logging",
+    },
+    {
+      icon: (
+        <Star
+          size={componentStyles.aiActionTargets.iconSize}
+          color={componentStyles.aiActionTargets.iconColor}
+          weight="regular"
+        />
+      ),
+      onPress: onFavoritesLog || (() => {}),
+      accessibilityLabel: "Choose favorite",
+      accessibilityHint: "Open favorites to reuse a previous entry",
     },
   ];
 
@@ -103,7 +148,7 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
   const handleActionPress = (action: () => void) => {
     // Light haptic feedback for action button press
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    
+
     // Close FAB first, then execute action
     setIsExpanded(false);
     expandAnimation.value = withSpring(0, {
@@ -119,7 +164,7 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
     backdropAnimation.value = withTiming(0, {
       duration: 250,
     });
-    
+
     // Execute the action after a short delay for smooth animation
     setTimeout(action, 120);
   };
@@ -127,7 +172,7 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
   // Main FAB animated styles
   const mainFabAnimatedStyle = useAnimatedStyle(() => {
     const rotation = interpolate(rotationAnimation.value, [0, 1], [0, 45]);
-    
+
     return {
       transform: [{ rotate: `${rotation}deg` }],
     };
@@ -139,37 +184,34 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
       // Compact spacing for thumb reach - 50px between buttons
       const buttonSpacing = 70;
       const buttonOffset = (index + 1) * buttonSpacing;
-      
+
       // Scale animation - buttons start invisible and scale up
       const scale = interpolate(
         expandAnimation.value,
         [0, 0.2, 1],
         [0, 0.3, 1],
-        'clamp'
+        "clamp"
       );
-      
+
       // Opacity with staggered appearance for smooth cascade
       const delayFactor = index * 0.15; // Stagger each button
       const opacity = interpolate(
         expandAnimation.value,
         [delayFactor, delayFactor + 0.3, 1],
         [0, 0, 1],
-        'clamp'
+        "clamp"
       );
-      
+
       // True slide from FAB center (0,0) to final position
       const translateY = interpolate(
         expandAnimation.value,
         [0, 1],
         [0, -buttonOffset], // Slide from center to final position
-        'clamp'
+        "clamp"
       );
-      
+
       return {
-        transform: [
-          { translateY },
-          { scale }
-        ],
+        transform: [{ translateY }, { scale }],
         opacity,
       };
     });
@@ -179,7 +221,7 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
   const backdropAnimatedStyle = useAnimatedStyle(() => {
     return {
       opacity: backdropAnimation.value * 0.3,
-      pointerEvents: backdropAnimation.value > 0 ? 'auto' : 'none',
+      pointerEvents: backdropAnimation.value > 0 ? "auto" : "none",
     };
   });
 
@@ -197,7 +239,7 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
             key={index}
             style={[
               styles.actionButtonWrapper,
-              getActionButtonAnimatedStyle(actionButtons.length - 1 - index) // Reverse order for bottom-up animation
+              getActionButtonAnimatedStyle(actionButtons.length - 1 - index), // Reverse order for bottom-up animation
             ]}
           >
             <TouchableOpacity
@@ -224,15 +266,23 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
         }}
         activeOpacity={0.7}
         accessibilityRole="button"
-        accessibilityLabel={isExpanded ? "Close food logging options" : "Open food logging options"}
-        accessibilityHint={isExpanded ? "Closes the food logging menu" : "Shows food logging options"}
+        accessibilityLabel={
+          isExpanded
+            ? "Close food logging options"
+            : "Open food logging options"
+        }
+        accessibilityHint={
+          isExpanded
+            ? "Closes the food logging menu"
+            : "Shows food logging options"
+        }
         accessibilityState={{ expanded: isExpanded }}
       >
         <Animated.View style={mainFabAnimatedStyle}>
-          <PlusIcon 
-            size={componentStyles.aiActionTargets.iconSize} 
-            color={componentStyles.aiActionTargets.iconColor} 
-            weight="bold" 
+          <PlusIcon
+            size={componentStyles.aiActionTargets.iconSize}
+            color={componentStyles.aiActionTargets.iconColor}
+            weight="bold"
           />
         </Animated.View>
       </TouchableOpacity>

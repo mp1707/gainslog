@@ -23,7 +23,7 @@ export interface FoodLog {
 }
 
 // Modal modes for food log modal
-export type ModalMode = 'edit' | 'create';
+export type ModalMode = "edit" | "create";
 
 // Nutrition data merging result
 export interface NutritionMergeResult {
@@ -65,9 +65,9 @@ export interface FoodEstimateResponse {
 export interface ButtonProps {
   onPress: () => void;
   disabled?: boolean;
-  shape?: 'round' | 'square';
-  variant?: 'primary' | 'secondary' | 'tertiary' | 'destructive';
-  size?: 'small' | 'medium' | 'large';
+  shape?: "round" | "square";
+  variant?: "primary" | "secondary" | "tertiary" | "destructive";
+  size?: "small" | "medium" | "large";
   children: React.ReactNode;
   style?: any; // ViewStyle but avoiding import
   accessibilityLabel?: string;
@@ -79,8 +79,8 @@ export interface TextInputProps {
   onChangeText: (text: string) => void;
   placeholder?: string;
   multiline?: boolean;
-  keyboardType?: 'default' | 'numeric';
-  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  keyboardType?: "default" | "numeric";
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
   error?: boolean;
   disabled?: boolean;
   style?: any; // ViewStyle but avoiding import
@@ -96,19 +96,22 @@ export interface ConfidenceBadgeProps {
 }
 
 export interface SemanticBadgeProps {
-  variant: 'semantic';
-  semanticType: 'calories' | 'protein' | 'carbs' | 'fat';
+  variant: "semantic";
+  semanticType: "calories" | "protein" | "carbs" | "fat";
   label: string;
   isLoading?: boolean;
 }
 
 export interface IconBadgeProps {
-  variant: 'icon';
-  iconType: 'image' | 'audio' | 'text';
+  variant: "icon";
+  iconType: "image" | "audio" | "text";
   isLoading?: boolean;
 }
 
-export type BadgeProps = (ConfidenceBadgeProps & { variant?: 'confidence' }) | SemanticBadgeProps | IconBadgeProps;
+export type BadgeProps =
+  | (ConfidenceBadgeProps & { variant?: "confidence" })
+  | SemanticBadgeProps
+  | IconBadgeProps;
 
 // Daily nutrition targets interface
 export interface DailyTargets {
@@ -133,4 +136,14 @@ export interface DailyProgress {
     carbs: number;
     fat: number;
   };
+}
+
+// Favorite entry template stored on device
+export interface FavoriteEntry {
+  title: string;
+  description?: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
 }

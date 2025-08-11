@@ -27,7 +27,7 @@ export const createStyles = (colors: any) =>
       justifyContent: "center",
       alignItems: "flex-start",
       marginBottom: theme.spacing.md,
-      gap: theme.spacing.sm,  
+      gap: theme.spacing.sm,
     },
 
     titleSection: {
@@ -41,6 +41,11 @@ export const createStyles = (colors: any) =>
     title: {
       flex: 1,
       alignSelf: "flex-end",
+    },
+
+    favoriteButton: {
+      paddingHorizontal: theme.spacing.xs,
+      paddingVertical: theme.spacing.xs,
     },
 
     loadingTitle: {

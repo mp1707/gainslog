@@ -27,7 +27,7 @@ export const createStyles = (
       flexDirection: "row",
       flexWrap: "wrap",
       alignItems: "center",
-      justifyContent: "flex-end",
+      justifyContent: "flex-start",
       gap: themeObj.spacing.sm,
     },
     pressOverlay: {

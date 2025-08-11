@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { View, Pressable } from "react-native";
+import { View, Pressable, TouchableOpacity } from "react-native";
 import * as Haptics from "expo-haptics";
 import Animated, {
   useSharedValue,
@@ -16,6 +16,8 @@ import { FoodLog } from "../../../types";
 import { useTheme } from "../../../providers/ThemeProvider";
 import { createStyles } from "./FoodLogCard.styles";
 import { FoodLogCardSkeleton } from "./FoodLogCardSkeleton";
+import { StarIcon } from "phosphor-react-native";
+import { useFavoritesStore } from "@/stores/useFavoritesStore";
 
 interface FoodLogCardProps {
   foodLog: FoodLog;
@@ -28,6 +30,8 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
 }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
+  const { isFavorite, toggleForLog } = useFavoritesStore();
+  const favorite = isFavorite(foodLog);
 
   // Loading state detection
   const isLoading = foodLog.estimationConfidence === 0;
@@ -146,6 +150,30 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
                     confidence={foodLog.estimationConfidence}
                     isLoading={false}
                   />
+                  <TouchableOpacity
+                    onPress={async () => {
+                      Haptics.selectionAsync();
+                      await toggleForLog(foodLog);
+                    }}
+                    style={styles.favoriteButton}
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      favorite ? "Remove favorite" : "Add to favorites"
+                    }
+                    accessibilityHint={
+                      favorite
+                        ? "Removes this entry from your favorites"
+                        : "Adds this entry to your favorites"
+                    }
+                    onPressIn={handlePressIn}
+                    onPressOut={handlePressOut}
+                  >
+                    {favorite ? (
+                      <StarIcon size={20} color="#FDB813" weight="fill" />
+                    ) : (
+                      <StarIcon size={20} color="#FDB813" weight="regular" />
+                    )}
+                  </TouchableOpacity>
                 </View>
                 {foodLog.userDescription && (
                   <AppText
@@ -157,6 +185,7 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
                   </AppText>
                 )}
               </View>
+
               <View style={styles.bottomSection}>
                 {(foodLog.imageUrl || foodLog.localImageUri) && (
                   <Badge variant="icon" iconType="image" />

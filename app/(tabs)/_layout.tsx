@@ -5,7 +5,7 @@ import React from "react";
 
 export default function TabLayout() {
   const { colors } = useTheme();
-  
+
   return (
     <Tabs
       screenOptions={{
@@ -33,6 +33,15 @@ export default function TabLayout() {
           title: "Overview",
           tabBarIcon: ({ color }) => (
             <FontAwesome name="calendar" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="favorites"
+        options={{
+          title: "Favorites",
+          tabBarIcon: ({ color }) => (
+            <FontAwesome name="star" size={24} color={color} />
           ),
         }}
       />
