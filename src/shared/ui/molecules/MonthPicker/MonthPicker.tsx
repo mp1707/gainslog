@@ -63,7 +63,7 @@ export function MonthPicker({
         <CaretLeftIcon size={16} color={colors.secondaryText} weight="regular" />
       </TouchableOpacity>
       <View style={styles.monthTextContainer}>
-        <AppText role="Body" style={styles.monthText}>{formatMonth(currentDate)}</AppText>
+        <AppText role="Headline" style={styles.monthText}>{formatMonth(currentDate)}</AppText>
       </View>
 
       <TouchableOpacity

@@ -9,10 +9,12 @@ export const createStyles = (
   const componentStyles = themeObj.getComponentStyles(scheme);
 
   return StyleSheet.create({
-    container: {
-      borderRadius: themeObj.components.cards.cornerRadius,
+    cardContainer: {
+      // Container for the animated card and overlays
+    },
+    card: {
       padding: themeObj.spacing.lg,
-      ...componentStyles.cards, // Apply scheme-aware card styles
+      gap: themeObj.spacing.md,
     },
     dateText: {
       fontSize: themeObj.typography.Title2.fontSize,
@@ -28,7 +30,7 @@ export const createStyles = (
       justifyContent: "flex-end",
       gap: themeObj.spacing.sm,
     },
-    backgroundOverlay: {
+    pressOverlay: {
       position: "absolute",
       top: 0,
       left: 0,

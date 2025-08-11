@@ -12,6 +12,8 @@ import { DailyTargets } from "../../../../types";
 import { useTheme } from "../../../../providers/ThemeProvider";
 import { createStyles } from "./DailySummaryCard.styles";
 import { Badge } from "@/shared/ui";
+import { Card } from "../../../../components/Card";
+import { AppText } from "src/components";
 
 interface DailySummaryCardProps {
   date: string;
@@ -119,37 +121,38 @@ export function DailySummaryCard({
       accessibilityLabel={`Daily summary for ${formatDate(date)}`}
       accessibilityHint="Tap to view detailed nutrition information for this day"
     >
-      <Animated.View style={[styles.container, containerAnimatedStyle]}>
-        {/* Background tint overlay */}
+      <Animated.View style={[styles.cardContainer, containerAnimatedStyle]}>
+        <Card style={styles.card}>
+          <AppText role="Headline">{formatDate(date)}</AppText>
+          <View style={styles.badgesRow}>
+            <Badge
+              variant="semantic"
+              semanticType="calories"
+              label={`${Math.round(totals.calories)} kcal`}
+            />
+            <Badge
+              variant="semantic"
+              semanticType="protein"
+              label={`${Math.round(totals.protein)}g`}
+            />
+            <Badge
+              variant="semantic"
+              semanticType="carbs"
+              label={`${Math.round(totals.carbs)}g`}
+            />
+            <Badge
+              variant="semantic"
+              semanticType="fat"
+              label={`${Math.round(totals.fat)}g`}
+            />
+          </View>
+        </Card>
+
+        {/* Press background overlay for animation feedback */}
         <Animated.View
-          style={[styles.backgroundOverlay, backgroundAnimatedStyle]}
+          style={[styles.pressOverlay, backgroundAnimatedStyle]}
           pointerEvents="none"
         />
-
-        <Text style={styles.dateText}>{formatDate(date)}</Text>
-
-        <View style={styles.badgesRow}>
-          <Badge
-            variant="semantic"
-            semanticType="calories"
-            label={`${Math.round(totals.calories)} kcal`}
-          />
-          <Badge
-            variant="semantic"
-            semanticType="protein"
-            label={`${Math.round(totals.protein)}g`}
-          />
-          <Badge
-            variant="semantic"
-            semanticType="carbs"
-            label={`${Math.round(totals.carbs)}g`}
-          />
-          <Badge
-            variant="semantic"
-            semanticType="fat"
-            label={`${Math.round(totals.fat)}g`}
-          />
-        </View>
       </Animated.View>
     </Pressable>
   );
