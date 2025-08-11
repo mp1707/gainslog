@@ -7,7 +7,7 @@ import Animated, {
   withTiming,
   Easing,
 } from "react-native-reanimated";
-import { Backspace } from "phosphor-react-native";
+import { BackspaceIcon } from "phosphor-react-native";
 import { useTheme } from "../../../../providers/ThemeProvider";
 import { createStyles } from "./CustomNumericKeypad.styles";
 
@@ -30,14 +30,14 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
 }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
-  
+
   const [displayValue, setDisplayValue] = useState(String(initialValue));
   const [hasDecimal, setHasDecimal] = useState(false);
-  
+
   // Animation values - always initialize these hooks
   const backdropOpacity = useSharedValue(0);
   const keypadTranslateY = useSharedValue(300);
-  
+
   // Button press animations - declare all shared values at top level
   const buttonScale0 = useSharedValue(1);
   const buttonScale1 = useSharedValue(1);
@@ -51,12 +51,21 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
   const buttonScale9 = useSharedValue(1);
   const buttonScale10 = useSharedValue(1);
   const buttonScale11 = useSharedValue(1);
-  
+
   // Create array reference after all shared values are declared
   const buttonScales = [
-    buttonScale0, buttonScale1, buttonScale2, buttonScale3,
-    buttonScale4, buttonScale5, buttonScale6, buttonScale7,
-    buttonScale8, buttonScale9, buttonScale10, buttonScale11
+    buttonScale0,
+    buttonScale1,
+    buttonScale2,
+    buttonScale3,
+    buttonScale4,
+    buttonScale5,
+    buttonScale6,
+    buttonScale7,
+    buttonScale8,
+    buttonScale9,
+    buttonScale10,
+    buttonScale11,
   ];
 
   // Reset state when modal becomes visible
@@ -64,8 +73,8 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
     if (visible) {
       const initialStr = String(initialValue);
       setDisplayValue(initialStr);
-      setHasDecimal(initialStr.includes('.'));
-      
+      setHasDecimal(initialStr.includes("."));
+
       // Animate in
       backdropOpacity.value = withTiming(1, {
         duration: 200,
@@ -98,62 +107,103 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
   }));
 
   // Create individual button animated styles to follow Rules of Hooks
-  const button0Style = useAnimatedStyle(() => ({ transform: [{ scale: buttonScales[0].value }] }));
-  const button1Style = useAnimatedStyle(() => ({ transform: [{ scale: buttonScales[1].value }] }));
-  const button2Style = useAnimatedStyle(() => ({ transform: [{ scale: buttonScales[2].value }] }));
-  const button3Style = useAnimatedStyle(() => ({ transform: [{ scale: buttonScales[3].value }] }));
-  const button4Style = useAnimatedStyle(() => ({ transform: [{ scale: buttonScales[4].value }] }));
-  const button5Style = useAnimatedStyle(() => ({ transform: [{ scale: buttonScales[5].value }] }));
-  const button6Style = useAnimatedStyle(() => ({ transform: [{ scale: buttonScales[6].value }] }));
-  const button7Style = useAnimatedStyle(() => ({ transform: [{ scale: buttonScales[7].value }] }));
-  const button8Style = useAnimatedStyle(() => ({ transform: [{ scale: buttonScales[8].value }] }));
-  const button9Style = useAnimatedStyle(() => ({ transform: [{ scale: buttonScales[9].value }] }));
-  const button10Style = useAnimatedStyle(() => ({ transform: [{ scale: buttonScales[10].value }] }));
-  const button11Style = useAnimatedStyle(() => ({ transform: [{ scale: buttonScales[11].value }] }));
+  const button0Style = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScales[0].value }],
+  }));
+  const button1Style = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScales[1].value }],
+  }));
+  const button2Style = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScales[2].value }],
+  }));
+  const button3Style = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScales[3].value }],
+  }));
+  const button4Style = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScales[4].value }],
+  }));
+  const button5Style = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScales[5].value }],
+  }));
+  const button6Style = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScales[6].value }],
+  }));
+  const button7Style = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScales[7].value }],
+  }));
+  const button8Style = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScales[8].value }],
+  }));
+  const button9Style = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScales[9].value }],
+  }));
+  const button10Style = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScales[10].value }],
+  }));
+  const button11Style = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScales[11].value }],
+  }));
 
   // Create array reference for easier access
   const buttonAnimatedStyles = [
-    button0Style, button1Style, button2Style, button3Style,
-    button4Style, button5Style, button6Style, button7Style,
-    button8Style, button9Style, button10Style, button11Style
+    button0Style,
+    button1Style,
+    button2Style,
+    button3Style,
+    button4Style,
+    button5Style,
+    button6Style,
+    button7Style,
+    button8Style,
+    button9Style,
+    button10Style,
+    button11Style,
   ];
 
   const animateButtonPress = (index: number) => {
-    buttonScales[index].value = withSpring(0.95, { damping: 15, stiffness: 400 }, () => {
-      buttonScales[index].value = withSpring(1, { damping: 15, stiffness: 400 });
-    });
+    buttonScales[index].value = withSpring(
+      0.95,
+      { damping: 15, stiffness: 400 },
+      () => {
+        buttonScales[index].value = withSpring(1, {
+          damping: 15,
+          stiffness: 400,
+        });
+      }
+    );
   };
 
   const handleNumberPress = (digit: string) => {
-    const index = digit === '0' ? 9 : parseInt(digit) - 1;
+    const index = digit === "0" ? 9 : parseInt(digit) - 1;
     animateButtonPress(index);
-    
-    if (displayValue === '0' && digit !== '.') {
+
+    if (displayValue === "0" && digit !== ".") {
       setDisplayValue(digit);
-    } else if (displayValue.length < 6) { // Limit to reasonable length
-      setDisplayValue(prev => prev + digit);
+    } else if (displayValue.length < 6) {
+      // Limit to reasonable length
+      setDisplayValue((prev) => prev + digit);
     }
   };
 
   const handleDecimalPress = () => {
     animateButtonPress(10); // Decimal button is at index 10
-    
+
     if (!hasDecimal && displayValue.length < 5) {
-      setDisplayValue(prev => prev + '.');
+      setDisplayValue((prev) => prev + ".");
       setHasDecimal(true);
     }
   };
 
   const handleBackspace = () => {
     animateButtonPress(11); // Backspace button is at index 11
-    
+
     if (displayValue.length === 1) {
-      setDisplayValue('0');
+      setDisplayValue("0");
       setHasDecimal(false);
     } else {
       const newValue = displayValue.slice(0, -1);
       setDisplayValue(newValue);
-      setHasDecimal(newValue.includes('.'));
+      setHasDecimal(newValue.includes("."));
     }
   };
 
@@ -175,12 +225,14 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
   };
 
   // Digit button component
-  const DigitButton: React.FC<{ 
-    digit: string; 
-    index: number; 
-    accessibilityLabel: string; 
+  const DigitButton: React.FC<{
+    digit: string;
+    index: number;
+    accessibilityLabel: string;
   }> = ({ digit, index, accessibilityLabel }) => (
-    <Animated.View style={buttonAnimatedStyles[index]}>
+    <Animated.View
+      style={[styles.digitButtonContainer, buttonAnimatedStyles[index]]}
+    >
       <TouchableOpacity
         style={styles.digitButton}
         onPress={() => handleNumberPress(digit)}
@@ -203,19 +255,19 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
       {visible && (
         <>
           <Animated.View style={[styles.backdrop, animatedBackdropStyle]}>
-            <TouchableOpacity 
-              style={styles.backdropTouchable} 
+            <TouchableOpacity
+              style={styles.backdropTouchable}
               onPress={handleClose}
               activeOpacity={1}
               accessibilityRole="button"
               accessibilityLabel="Close keypad"
             />
           </Animated.View>
-          
+
           <Animated.View style={[styles.keypadContainer, animatedKeypadStyle]}>
             {/* Display */}
             <View style={styles.displayContainer}>
-              <Text 
+              <Text
                 style={styles.displayText}
                 accessibilityRole="text"
                 accessibilityLabel={`Current value: ${displayValue}`}
@@ -253,9 +305,17 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
 
               {/* Row 4: decimal, 0, backspace */}
               <View style={styles.keypadRow}>
-                <Animated.View style={buttonAnimatedStyles[10]}>
+                <Animated.View
+                  style={[
+                    styles.digitButtonContainer,
+                    buttonAnimatedStyles[10],
+                  ]}
+                >
                   <TouchableOpacity
-                    style={[styles.digitButton, !hasDecimal ? {} : styles.disabledButton]}
+                    style={[
+                      styles.digitButton,
+                      !hasDecimal ? {} : styles.disabledButton,
+                    ]}
                     onPress={handleDecimalPress}
                     disabled={hasDecimal}
                     accessibilityRole="keyboardkey"
@@ -263,7 +323,12 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
                     accessibilityState={{ disabled: hasDecimal }}
                     activeOpacity={0.7}
                   >
-                    <Text style={[styles.digitText, hasDecimal ? styles.disabledText : {}]}>
+                    <Text
+                      style={[
+                        styles.digitText,
+                        hasDecimal ? styles.disabledText : {},
+                      ]}
+                    >
                       .
                     </Text>
                   </TouchableOpacity>
@@ -271,7 +336,12 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
 
                 <DigitButton digit="0" index={9} accessibilityLabel="0" />
 
-                <Animated.View style={buttonAnimatedStyles[11]}>
+                <Animated.View
+                  style={[
+                    styles.digitButtonContainer,
+                    buttonAnimatedStyles[11],
+                  ]}
+                >
                   <TouchableOpacity
                     style={styles.actionButton}
                     onPress={handleBackspace}
@@ -279,7 +349,11 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
                     accessibilityLabel="delete last digit"
                     activeOpacity={0.7}
                   >
-                    <Backspace size={24} color={colors.accent} weight="regular" />
+                    <BackspaceIcon
+                      size={24}
+                      color={colors.accent}
+                      weight="regular"
+                    />
                   </TouchableOpacity>
                 </Animated.View>
               </View>
@@ -300,7 +374,7 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
               <TouchableOpacity
                 style={[
                   styles.submitButton,
-                  !isValidValue() ? styles.submitButtonDisabled : {}
+                  !isValidValue() ? styles.submitButtonDisabled : {},
                 ]}
                 onPress={handleSubmit}
                 disabled={!isValidValue()}
@@ -309,10 +383,10 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
                 accessibilityState={{ disabled: !isValidValue() }}
                 activeOpacity={0.7}
               >
-                <Text 
+                <Text
                   style={[
                     styles.submitButtonText,
-                    !isValidValue() ? styles.submitButtonTextDisabled : {}
+                    !isValidValue() ? styles.submitButtonTextDisabled : {},
                   ]}
                 >
                   Done

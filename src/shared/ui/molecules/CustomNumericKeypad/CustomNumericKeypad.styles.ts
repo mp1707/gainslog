@@ -15,7 +15,7 @@ export const createStyles = (colors: any) =>
       backgroundColor: colors.secondaryBackground,
       borderTopLeftRadius: theme.spacing.md, // 16pt
       borderTopRightRadius: theme.spacing.md, // 16pt
-      marginTop: "auto", 
+      marginTop: "auto",
       paddingTop: theme.spacing.lg, // 24pt
       paddingHorizontal: theme.spacing.pageMargins.horizontal, // 20pt
       paddingBottom: theme.spacing.xl, // 32pt
@@ -56,11 +56,14 @@ export const createStyles = (colors: any) =>
     },
     keypadRow: {
       flexDirection: "row",
-      justifyContent: "space-between",
+      gap: theme.spacing.md, // 16pt horizontal spacing between buttons
       marginBottom: theme.spacing.md, // 16pt
     },
+    digitButtonContainer: {
+      flex: 1,
+    },
     digitButton: {
-      width: 72, // Large enough for 44pt minimum + padding
+      width: "100%", // Fill available horizontal space within container
       height: 56, // Large enough for 44pt minimum + padding
       backgroundColor: colors.primaryBackground,
       borderRadius: theme.components.buttons.cornerRadius, // 12pt
@@ -81,7 +84,7 @@ export const createStyles = (colors: any) =>
       color: colors.primaryText,
     },
     actionButton: {
-      width: 72,
+      width: "100%",
       height: 56,
       backgroundColor: colors.primaryBackground,
       borderRadius: theme.components.buttons.cornerRadius, // 12pt

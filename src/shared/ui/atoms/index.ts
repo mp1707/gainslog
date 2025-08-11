@@ -1,5 +1,6 @@
 export { Button } from "./Button";
 export { TextInput } from "./TextInput";
+export { NumericTextInput } from "./NumericTextInput";
 export { LoadingSpinner } from "./LoadingSpinner";
 export { Skeleton } from "./Skeleton";
 export { ImageSkeleton } from "./ImageSkeleton";
