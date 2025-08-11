@@ -30,7 +30,6 @@ export default function FavoritesTab() {
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <PageHeader>
-        <AppText role="Title2">Favorites</AppText>
         <SearchBar
           value={query}
           onChange={setQuery}

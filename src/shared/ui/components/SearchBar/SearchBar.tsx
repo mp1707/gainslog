@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "react-native";
-import { MagnifyingGlass } from "phosphor-react-native";
+import { MagnifyingGlassIcon } from "phosphor-react-native";
 import { TextInput } from "@/shared/ui";
 import { useTheme } from "@/providers/ThemeProvider";
 
@@ -23,10 +23,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         flexDirection: "row",
         alignItems: "center",
         gap: theme.spacing.sm,
-        marginBottom: theme.spacing.md,
       }}
     >
-      <MagnifyingGlass size={18} color={colors.secondaryText} />
+      <MagnifyingGlassIcon size={18} color={colors.secondaryText} />
       <TextInput
         value={value}
         onChangeText={onChange}

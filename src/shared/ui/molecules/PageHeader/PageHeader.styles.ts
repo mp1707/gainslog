@@ -1,20 +1,23 @@
 import { StyleSheet } from "react-native";
 import { theme } from "../../../../theme";
 
-export const createStyles = (colors: any) => StyleSheet.create({
-  container: {
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.pageMargins.horizontal,
-    backgroundColor: colors.secondaryBackground,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
+export const createStyles = (colors: any) =>
+  StyleSheet.create({
+    container: {
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.pageMargins.horizontal,
+      backgroundColor: colors.secondaryBackground,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+      // reserve space so the absolute mini row can overlap without covering content below
+    },
 
-  content: {
-    flexDirection: "column",
-    gap: theme.spacing.md,
-  },
-});
+    content: {
+      flexDirection: "column",
+      gap: theme.spacing.md,
+      position: "relative",
+    },
+  });
 
 // Legacy export for compatibility
 export const styles = createStyles(theme.getColors());

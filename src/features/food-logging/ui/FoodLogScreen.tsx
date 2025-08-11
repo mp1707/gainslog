@@ -61,7 +61,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
     y: 0,
     height: 0,
   });
-  const [isMiniVisible, setIsMiniVisible] = useState(false);
+  const [miniProgress, setMiniProgress] = useState(0);
 
   const handleManualLog = () => {
     triggerManualLog();
@@ -121,7 +121,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         onNavigatePrevious={navigateToPreviousDay}
         onNavigateNext={navigateToNextDay}
         isToday={isToday()}
-        miniVisible={isMiniVisible}
+        miniProgress={miniProgress}
         progress={dailyProgress}
       />
 
@@ -133,11 +133,16 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
           const y = e.nativeEvent.contentOffset.y;
           const bottomOfStats =
             statsLayoutRef.current.y + statsLayoutRef.current.height;
-          // Show mini summary when the main stats are fully above the viewport
-          const threshold = 24; // px hysteresis to avoid flicker
-          const shouldShow =
-            y >= bottomOfStats - threshold && bottomOfStats > 0;
-          setIsMiniVisible(shouldShow);
+          if (bottomOfStats <= 0) {
+            setMiniProgress(0);
+            return;
+          }
+          // Start fading just before stats leave the viewport
+          const fadeStart = bottomOfStats - 24; // begin slightly early
+          const fadeDistance = 80; // px over which to interpolate to 1
+          const raw = (y - fadeStart) / fadeDistance;
+          const clamped = Math.max(0, Math.min(1, raw));
+          setMiniProgress(clamped);
         }}
         scrollEventThrottle={16}
       >

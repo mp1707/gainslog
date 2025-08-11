@@ -3,6 +3,9 @@ import type { Colors, Theme } from "../../../../../theme";
 
 export const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
+    expandableContainer: {
+      position: "relative",
+    },
     container: {
       flexDirection: "row",
       alignItems: "center",
@@ -35,9 +38,20 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       marginLeft: -10,
     },
 
-    // Mini summary placed below the header row
+    // Mini summary overlay (no layout shift)
     miniSummaryWrapper: {
-      overflow: "hidden",
+      position: "absolute",
+      // extend beyond the header's horizontal padding so the background is full width
+      left: -theme.spacing.pageMargins.horizontal,
+      right: -theme.spacing.pageMargins.horizontal,
+      bottom: - 65,
+      backgroundColor: colors.secondaryBackground,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+      paddingBottom: theme.spacing.sm,
+      // Sit above the scroll content but below modal overlays
+      zIndex: 10,
+      elevation: 3,
     },
     miniSummaryContent: {
       paddingHorizontal: theme.spacing.pageMargins.horizontal,

@@ -6,14 +6,11 @@ import { PageHeader } from "../../../../../shared/ui";
 import { useTheme } from "../../../../../providers/ThemeProvider";
 import { createStyles } from "./DateNavigationHeader.styles";
 import Animated, {
-  Easing,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
 } from "react-native-reanimated";
 import { Badge } from "../../../../../shared/ui/atoms/Badge";
-import { AppText } from "../../../../../components/AppText";
 import type { DailyProgress } from "../../../../../types";
 
 interface DateNavigationHeaderProps {
@@ -23,7 +20,8 @@ interface DateNavigationHeaderProps {
   onNavigateNext: () => void;
   isToday: boolean;
   // Mini summary controls
-  miniVisible?: boolean;
+  // 0 → hidden, 1 → fully visible; driven by scroll position
+  miniProgress?: number;
   progress?: DailyProgress;
 }
 
@@ -33,37 +31,35 @@ export const DateNavigationHeader: React.FC<DateNavigationHeaderProps> = ({
   onNavigatePrevious,
   onNavigateNext,
   isToday,
-  miniVisible = false,
+  miniProgress = 0,
   progress,
 }) => {
   const { theme, colors, colorScheme } = useTheme();
   const styles = createStyles(colors, theme);
 
-  // Animate mini summary visibility
+  // Scroll-synced mini summary visibility (no layout shift)
   const visibility = useSharedValue(0);
   const [miniHeight, setMiniHeight] = React.useState(0);
 
   React.useEffect(() => {
-    visibility.value = withTiming(miniVisible ? 1 : 0, {
-      duration: 150,
-      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-    });
-  }, [miniVisible, miniHeight, visibility]);
+    // Directly map to the latest progress for scroll-synced behavior
+    visibility.value = miniProgress;
+  }, [miniProgress, visibility]);
 
   const animatedMiniStyle = useAnimatedStyle(() => {
-    const opacity = visibility.value;
-    const translateY = withTiming(
-      interpolate(visibility.value, [0, 1], [-4, 0]),
-      {
-        duration: 150,
-        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-      }
+    // Keep opacity subtle to avoid a pop while sliding in
+    const opacity = interpolate(visibility.value, [0, 1], [0, 1]);
+    // Only a subtle downward motion so it doesn't travel over the date picker
+    const subtleDistance = Math.min(12, miniHeight * 0.25);
+    const translateY = interpolate(
+      visibility.value,
+      [0, 1],
+      [-subtleDistance, 0]
     );
-    const height = withTiming(visibility.value * miniHeight, {
-      duration: 150,
-      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-    });
-    return { height, opacity, transform: [{ translateY }] } as const;
+    return {
+      opacity,
+      transform: [{ translateY }],
+    } as const;
   }, [miniHeight]);
 
   return (
@@ -111,11 +107,12 @@ export const DateNavigationHeader: React.FC<DateNavigationHeaderProps> = ({
         </TouchableOpacity>
       </View>
 
-      {/* Animated mini summary row */}
+      {/* Animated mini summary row (overlay) */}
       <Animated.View
         style={[styles.miniSummaryWrapper, animatedMiniStyle]}
         accessibilityRole="summary"
         accessibilityLabel="Daily progress mini summary"
+        pointerEvents="none"
       >
         <View
           style={styles.miniSummaryContent}
