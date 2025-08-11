@@ -1,1 +1,1 @@
-export * from "./MacroSplitCard";
+export * from "./MacroDistributionSection";

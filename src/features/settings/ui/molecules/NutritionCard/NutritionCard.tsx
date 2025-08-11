@@ -34,6 +34,8 @@ interface ProteinCalculation {
   calculatedProtein: number;
 }
 
+type NutritionCardVariant = "card" | "flat";
+
 interface NutritionCardProps {
   config: NutritionConfig;
   value: number;
@@ -42,6 +44,7 @@ interface NutritionCardProps {
   onCalculatorPress: () => void;
   calorieCalculation?: CalorieCalculation | null;
   proteinCalculation?: ProteinCalculation | null;
+  variant?: NutritionCardVariant;
 }
 
 export const NutritionCard: React.FC<NutritionCardProps> = ({
@@ -52,6 +55,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
   onCalculatorPress,
   calorieCalculation,
   proteinCalculation,
+  variant = "card",
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   // Pass the current color scheme to ensure scheme-aware component styles
@@ -85,7 +89,12 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
   };
 
   return (
-    <View style={styles.nutritionCard}>
+    <View
+      style={[
+        styles.nutritionCard,
+        variant === "flat" && styles.nutritionCardFlat,
+      ]}
+    >
       <View style={styles.cardHeader}>
         <View style={styles.cardTitleSection}>
           <Text style={styles.nutritionHeadline}>{config.label}</Text>
@@ -100,13 +109,16 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
         <View style={styles.recommendedSection}>
           <Text style={styles.sectionLabel}>Recommended</Text>
           <Text style={styles.sectionDescription}>
-            Get a personalized {config.label.toLowerCase()} target based on your body composition and goals.
+            Get a personalized {config.label.toLowerCase()} target based on your
+            body composition and goals.
           </Text>
           <AnimatedCalculatorButton
             isCalorieCard={isCalorieCard}
             onPress={onCalculatorPress}
             variant="primary"
-            hasCalculation={!!(isCalorieCard ? calorieCalculation : proteinCalculation)}
+            hasCalculation={
+              !!(isCalorieCard ? calorieCalculation : proteinCalculation)
+            }
           />
         </View>
       )}
@@ -159,7 +171,8 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
         <View style={styles.manualOverrideSectionHeader}>
           <Text style={styles.sectionLabel}>Manual Override</Text>
           <Text style={styles.sectionDescription}>
-            Prefer to set your own target? Use the stepper below to manually adjust your daily goal.
+            Prefer to set your own target? Use the stepper below to manually
+            adjust your daily goal.
           </Text>
         </View>
         <View style={styles.nutritionSettingRow}>

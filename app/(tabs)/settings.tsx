@@ -1,18 +1,21 @@
-import React, { useEffect, useMemo } from "react";
-import { View, Text, ScrollView, KeyboardAvoidingView } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  KeyboardAvoidingView,
+  TouchableOpacity,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { Button } from "@/shared/ui/atoms/Button";
 import { ProteinCalculatorModal } from "@/shared/ui/molecules/ProteinCalculatorModal";
 import { CalorieCalculatorModal } from "@/shared/ui/molecules/CalorieCalculatorModal";
-import { StepHeader } from "@/shared/ui/molecules/StepHeader";
-import { FlowArrow } from "@/shared/ui/atoms/FlowArrow";
 import { NutritionCard } from "@/features/settings/ui/molecules/NutritionCard";
-import { MacroSplitCard } from "@/features/settings/ui/molecules/MacroSplitCard";
+import { MacroDistributionSection } from "@/features/settings/ui/molecules/MacroSplitCard";
 import { AppearanceCard } from "@/features/settings/ui/molecules/AppearanceCard";
 import { useNutritionCalculations } from "@/features/settings/hooks/useNutritionCalculations";
-import { useStepFlow } from "@/features/settings/hooks/useStepFlow";
 import { useSettingsModals } from "@/features/settings/hooks/useSettingsModals";
 import { useKeyboardOffset } from "@/features/settings/hooks/useKeyboardOffset";
 import {
@@ -38,9 +41,6 @@ export default function SettingsTab() {
     handleFatPercentageChange,
   } = nutritionCalculations;
 
-  const { stepInfo, isCaloriesFieldEnabled, isProteinFieldEnabled } =
-    useStepFlow(isCaloriesSet, isProteinSet);
-
   const {
     isProteinCalculatorVisible,
     setIsProteinCalculatorVisible,
@@ -54,13 +54,43 @@ export default function SettingsTab() {
   } = useSettingsModals(handleTargetChange);
 
   const styles = useMemo(
-    () => createStyles(colors, themeObj),
-    [colors, themeObj]
+    () => createStyles(colors, themeObj, keyboardOffset),
+    [colors, themeObj, keyboardOffset]
   );
 
   useEffect(() => {
     loadDailyTargets();
   }, [loadDailyTargets]);
+
+  type StepKey = "calories" | "protein" | "macros";
+  const [expandedStep, setExpandedStep] = useState<StepKey | null>("calories");
+  const prevIsCaloriesSet = useRef(isCaloriesSet);
+  const prevIsProteinSet = useRef(isProteinSet);
+
+  const caloriesEnabled = true;
+  const proteinEnabled = isCaloriesSet;
+  const macrosEnabled = isCaloriesSet && isProteinSet;
+
+  // Auto-advance when a step transitions to completed
+  useEffect(() => {
+    if (!prevIsCaloriesSet.current && isCaloriesSet) {
+      setExpandedStep("protein");
+    }
+    if (!prevIsProteinSet.current && isProteinSet) {
+      setExpandedStep("macros");
+    }
+    prevIsCaloriesSet.current = isCaloriesSet;
+    prevIsProteinSet.current = isProteinSet;
+  }, [isCaloriesSet, isProteinSet]);
+
+  // Ensure the currently expanded step is always enabled; if not, fallback to the earliest enabled step
+  useEffect(() => {
+    if (expandedStep === "macros" && !macrosEnabled) {
+      setExpandedStep(proteinEnabled ? "protein" : "calories");
+    } else if (expandedStep === "protein" && !proteinEnabled) {
+      setExpandedStep("calories");
+    }
+  }, [expandedStep, proteinEnabled, macrosEnabled]);
 
   // Nutrition configuration data
   const nutritionConfigs = [
@@ -137,64 +167,191 @@ export default function SettingsTab() {
               Follow these steps to set up your personalized nutrition targets
             </Text>
 
-            {/* Step 1: Calories */}
-            <StepHeader
-              stepNumber={1}
-              title={stepInfo.step1.title}
-              description={stepInfo.step1.description}
-              completed={stepInfo.step1.completed}
-            />
-            <NutritionCard
-              config={nutritionConfigs[0]}
-              value={dailyTargets.calories}
-              isFieldDisabled={!isCaloriesFieldEnabled}
-              onValueChange={handleTargetChange}
-              onCalculatorPress={() => setIsCalorieCalculatorVisible(true)}
-              calorieCalculation={calorieCalculation}
-            />
-            <FlowArrow visible={stepInfo.step1.completed} />
+            <View style={styles.accordionContainer}>
+              {/* Step 1 - Calories */}
+              <View
+                style={[
+                  styles.accordionItem,
+                  !caloriesEnabled && styles.accordionDisabled,
+                ]}
+              >
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    if (!caloriesEnabled) return;
+                    setExpandedStep((prev) =>
+                      prev === "calories" ? null : "calories"
+                    );
+                  }}
+                  accessibilityRole="button"
+                  accessibilityState={{
+                    expanded: expandedStep === "calories",
+                    disabled: !caloriesEnabled,
+                  }}
+                  accessibilityLabel="Calorie target"
+                  style={[styles.accordionHeader, styles.accordionHeaderFirst]}
+                >
+                  <View style={styles.headerTextContainer}>
+                    <Text style={styles.accordionTitle}>Calorie target</Text>
+                    <Text style={styles.accordionSummary}>
+                      {isCaloriesSet
+                        ? `Target: ${dailyTargets.calories} kcal`
+                        : "Select a calories target"}
+                    </Text>
+                  </View>
+                  {isCaloriesSet && (
+                    <View
+                      accessibilityRole="image"
+                      accessibilityLabel="Completed"
+                      style={styles.checkIcon}
+                    >
+                      <Text style={styles.checkIconText}>✓</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+                {expandedStep === "calories" && (
+                  <View style={styles.accordionContent}>
+                    <NutritionCard
+                      config={nutritionConfigs[0]}
+                      value={dailyTargets.calories}
+                      isFieldDisabled={false}
+                      onValueChange={handleTargetChange}
+                      onCalculatorPress={() =>
+                        setIsCalorieCalculatorVisible(true)
+                      }
+                      calorieCalculation={calorieCalculation}
+                      variant="flat"
+                    />
+                  </View>
+                )}
+              </View>
 
-            {/* Step 2: Protein */}
-            {stepInfo.step1.completed && (
-              <>
-                <StepHeader
-                  stepNumber={2}
-                  title={stepInfo.step2.title}
-                  description={stepInfo.step2.description}
-                  completed={stepInfo.step2.completed}
-                />
-                <NutritionCard
-                  config={nutritionConfigs[1]}
-                  value={dailyTargets.protein}
-                  isFieldDisabled={!isProteinFieldEnabled}
-                  onValueChange={handleTargetChange}
-                  onCalculatorPress={() => setIsProteinCalculatorVisible(true)}
-                  proteinCalculation={proteinCalculation}
-                />
-                <FlowArrow visible={stepInfo.step2.completed} />
-              </>
-            )}
+              {/* Step 2 - Protein */}
+              <View
+                style={[
+                  styles.accordionItem,
+                  !proteinEnabled && styles.accordionDisabled,
+                ]}
+              >
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    if (!proteinEnabled) return;
+                    setExpandedStep((prev) =>
+                      prev === "protein" ? null : "protein"
+                    );
+                  }}
+                  disabled={!proteinEnabled}
+                  accessibilityRole="button"
+                  accessibilityState={{
+                    expanded: expandedStep === "protein",
+                    disabled: !proteinEnabled,
+                  }}
+                  accessibilityLabel="Protein target"
+                  style={styles.accordionHeader}
+                >
+                  <View style={styles.headerTextContainer}>
+                    <Text style={styles.accordionTitle}>Protein target</Text>
+                    <Text style={styles.accordionSummary}>
+                      {proteinEnabled
+                        ? isProteinSet
+                          ? `Target: ${dailyTargets.protein} g`
+                          : "Select a protein target"
+                        : "Select a calories target first to continue"}
+                    </Text>
+                  </View>
+                  {isProteinSet && (
+                    <View
+                      accessibilityRole="image"
+                      accessibilityLabel="Completed"
+                      style={styles.checkIcon}
+                    >
+                      <Text style={styles.checkIconText}>✓</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+                {expandedStep === "protein" && (
+                  <View style={styles.accordionContent}>
+                    <NutritionCard
+                      config={nutritionConfigs[1]}
+                      value={dailyTargets.protein}
+                      isFieldDisabled={!proteinEnabled}
+                      onValueChange={handleTargetChange}
+                      onCalculatorPress={() =>
+                        setIsProteinCalculatorVisible(true)
+                      }
+                      proteinCalculation={proteinCalculation}
+                      variant="flat"
+                    />
+                  </View>
+                )}
+              </View>
 
-            {/* Step 3: Fat & Carb Distribution */}
-            {stepInfo.step2.completed && (
-              <>
-                <StepHeader
-                  stepNumber={3}
-                  title={stepInfo.step3.title}
-                  description={stepInfo.step3.description}
-                  completed={stepInfo.step3.completed}
-                />
-                <MacroSplitCard
-                  calories={dailyTargets.calories}
-                  protein={dailyTargets.protein}
-                  fatGrams={fatGrams}
-                  carbsGrams={carbsGrams}
-                  fatPercentage={fatPercentage}
-                  maxFatPercentage={maxFatPercentage}
-                  onFatPercentageChange={handleFatPercentageChange}
-                />
-              </>
-            )}
+              {/* Step 3 - Fat & Carbs */}
+              <View
+                style={[
+                  styles.accordionItem,
+                  !macrosEnabled && styles.accordionDisabled,
+                ]}
+              >
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    if (!macrosEnabled) return;
+                    setExpandedStep((prev) =>
+                      prev === "macros" ? null : "macros"
+                    );
+                  }}
+                  disabled={!macrosEnabled}
+                  accessibilityRole="button"
+                  accessibilityState={{
+                    expanded: expandedStep === "macros",
+                    disabled: !macrosEnabled,
+                  }}
+                  accessibilityLabel="Fat and carb target"
+                  style={[styles.accordionHeader, styles.accordionHeaderLast]}
+                >
+                  <View style={styles.headerTextContainer}>
+                    <Text style={styles.accordionTitle}>Fat & carb target</Text>
+                    <Text style={styles.accordionSummary}>
+                      {macrosEnabled
+                        ? `Fat: ${Math.round(fatGrams)} g • Carbs: ${Math.round(
+                            carbsGrams
+                          )} g • Fat %: ${fatPercentage}%`
+                        : "Select a protein target first to continue"}
+                    </Text>
+                  </View>
+                  {macrosEnabled && (
+                    <View
+                      accessibilityRole="image"
+                      accessibilityLabel="Completed"
+                      style={styles.checkIcon}
+                    >
+                      <Text style={styles.checkIconText}>✓</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+                {expandedStep === "macros" && (
+                  <View
+                    style={[
+                      styles.accordionContent,
+                      styles.accordionContentLast,
+                    ]}
+                  >
+                    <MacroDistributionSection
+                      calories={dailyTargets.calories}
+                      protein={dailyTargets.protein}
+                      fatGrams={fatGrams}
+                      carbsGrams={carbsGrams}
+                      fatPercentage={fatPercentage}
+                      maxFatPercentage={maxFatPercentage}
+                      onFatPercentageChange={handleFatPercentageChange}
+                      variant="flat"
+                    />
+                  </View>
+                )}
+              </View>
+            </View>
 
             <View style={styles.resetButtonContainer}>
               <Button
@@ -277,6 +434,76 @@ const createStyles = (
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
+    },
+    accordionContainer: {
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.secondaryBackground,
+      overflow: "hidden",
+    },
+    accordionItem: {
+      backgroundColor: "transparent",
+    },
+    accordionDisabled: {
+      opacity: 0.5,
+    },
+    accordionHeader: {
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      backgroundColor: colors.secondaryBackground,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    accordionHeaderFirst: {
+      borderTopWidth: 0,
+    },
+    accordionHeaderLast: {
+      // keeps same style; rounded corners are on container
+    },
+    headerTextContainer: {
+      flex: 1,
+      paddingRight: spacing.md,
+    },
+    accordionTitle: {
+      fontSize: typography.Subhead.fontSize,
+      fontFamily: typography.Subhead.fontFamily,
+      fontWeight: "600",
+      color: colors.primaryText,
+      marginBottom: 4,
+    },
+    accordionSummary: {
+      fontSize: typography.Caption.fontSize,
+      fontFamily: typography.Caption.fontFamily,
+      color: colors.secondaryText,
+    },
+    accordionContent: {
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.lg,
+      backgroundColor: colors.secondaryBackground,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    accordionContentLast: {
+      borderBottomLeftRadius: 16,
+      borderBottomRightRadius: 16,
+    },
+    checkIcon: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      backgroundColor: colors.success,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    checkIconText: {
+      color: colors.white,
+      fontSize: 14,
+      fontWeight: "700",
+      lineHeight: 16,
     },
     resetButtonContainer: {
       marginTop: spacing.lg,
