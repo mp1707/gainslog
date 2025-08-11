@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { TextInput } from '@/shared/ui/atoms';
+import { NumericTextInput } from '@/shared/ui/atoms';
 import { styles } from './NutritionGrid.styles';
 
 interface NutritionGridProps {
@@ -40,11 +40,12 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
           <Text style={[styles.label, styles.caloriesLabel, disabled && styles.disabledLabel]}>
             Calories
           </Text>
-          <TextInput
+          <NumericTextInput
             value={calories}
             onChangeText={onCaloriesChange}
             placeholder="0"
-            keyboardType="numeric"
+            min={0}
+            max={10000}
             disabled={disabled}
             accessibilityLabel="Calories input"
             accessibilityHint="Enter calories or leave empty for AI estimation"
@@ -55,11 +56,12 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
           <Text style={[styles.label, styles.proteinLabel, disabled && styles.disabledLabel]}>
             Protein (g)
           </Text>
-          <TextInput
+          <NumericTextInput
             value={protein}
             onChangeText={onProteinChange}
             placeholder="0"
-            keyboardType="numeric"
+            min={0}
+            max={500}
             disabled={disabled}
             accessibilityLabel="Protein input in grams"
             accessibilityHint="Enter protein or leave empty for AI estimation"
@@ -70,11 +72,12 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
           <Text style={[styles.label, styles.carbsLabel, disabled && styles.disabledLabel]}>
             Carbs (g)
           </Text>
-          <TextInput
+          <NumericTextInput
             value={carbs}
             onChangeText={onCarbsChange}
             placeholder="0"
-            keyboardType="numeric"
+            min={0}
+            max={500}
             disabled={disabled}
             accessibilityLabel="Carbohydrates input in grams"
             accessibilityHint="Enter carbohydrates or leave empty for AI estimation"
@@ -85,11 +88,12 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
           <Text style={[styles.label, styles.fatLabel, disabled && styles.disabledLabel]}>
             Fat (g)
           </Text>
-          <TextInput
+          <NumericTextInput
             value={fat}
             onChangeText={onFatChange}
             placeholder="0"
-            keyboardType="numeric"
+            min={0}
+            max={200}
             disabled={disabled}
             accessibilityLabel="Fat input in grams"
             accessibilityHint="Enter fat or leave empty for AI estimation"
