@@ -41,14 +41,17 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     },
     miniSummaryContent: {
       paddingHorizontal: theme.spacing.pageMargins.horizontal,
-      paddingBottom: theme.spacing.sm,
-      gap: theme.spacing.xs,
+      paddingVertical: theme.spacing.sm,
     },
     miniSummaryLabel: {
       color: colors.secondaryText,
     },
     miniBadgesRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
       gap: theme.spacing.sm,
       paddingVertical: theme.spacing.xs,
+      justifyContent: "center",
+      alignItems: "center",
     },
   });

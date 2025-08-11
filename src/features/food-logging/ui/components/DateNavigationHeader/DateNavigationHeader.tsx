@@ -1,5 +1,5 @@
 import React from "react";
-import { View, TouchableOpacity, Platform, ScrollView } from "react-native";
+import { View, TouchableOpacity, Platform } from "react-native";
 import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { PageHeader } from "../../../../../shared/ui";
@@ -45,23 +45,23 @@ export const DateNavigationHeader: React.FC<DateNavigationHeaderProps> = ({
 
   React.useEffect(() => {
     visibility.value = withTiming(miniVisible ? 1 : 0, {
-      duration: 220,
-      easing: Easing.out(Easing.quad),
+      duration: 150,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
     });
-  }, [miniVisible, visibility]);
+  }, [miniVisible, miniHeight, visibility]);
 
   const animatedMiniStyle = useAnimatedStyle(() => {
     const opacity = visibility.value;
     const translateY = withTiming(
-      interpolate(visibility.value, [0, 1], [-8, 0]),
+      interpolate(visibility.value, [0, 1], [-4, 0]),
       {
-        duration: 220,
-        easing: Easing.out(Easing.quad),
+        duration: 150,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
       }
     );
     const height = withTiming(visibility.value * miniHeight, {
-      duration: 260,
-      easing: Easing.out(Easing.quad),
+      duration: 150,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
     });
     return { height, opacity, transform: [{ translateY }] } as const;
   }, [miniHeight]);
@@ -121,15 +121,8 @@ export const DateNavigationHeader: React.FC<DateNavigationHeaderProps> = ({
           style={styles.miniSummaryContent}
           onLayout={(e) => setMiniHeight(e.nativeEvent.layout.height)}
         >
-          <AppText role="Subhead" style={styles.miniSummaryLabel}>
-            Today
-          </AppText>
           {!!progress && (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.miniBadgesRow}
-            >
+            <View style={styles.miniBadgesRow}>
               <Badge
                 variant="semantic"
                 semanticType="calories"
@@ -150,7 +143,7 @@ export const DateNavigationHeader: React.FC<DateNavigationHeaderProps> = ({
                 semanticType="fat"
                 label={`${Math.max(0, progress.percentages.fat)}%`}
               />
-            </ScrollView>
+            </View>
           )}
         </View>
       </Animated.View>
