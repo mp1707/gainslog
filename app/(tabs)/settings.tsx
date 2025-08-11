@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -49,7 +49,11 @@ export default function SettingsTab() {
     handleProteinCalculationSelect,
     handleCalorieGoalSelect,
     handleResetTargets,
-  } = useSettingsModals(handleTargetChange);
+  } = useSettingsModals(
+    handleTargetChange,
+    () => setExpandedStep("protein"), // onCalorieCalculatorComplete
+    () => setExpandedStep("fat")      // onProteinCalculatorComplete
+  );
 
   const styles = useMemo(
     () => createStyles(colors, themeObj, keyboardOffset),
@@ -62,25 +66,12 @@ export default function SettingsTab() {
 
   type StepKey = "calories" | "protein" | "fat" | "carbs";
   const [expandedStep, setExpandedStep] = useState<StepKey | null>("calories");
-  const prevIsCaloriesSet = useRef(isCaloriesSet);
-  const prevIsProteinSet = useRef(isProteinSet);
 
   const caloriesEnabled = true;
   const proteinEnabled = isCaloriesSet;
   const fatEnabled = isCaloriesSet && isProteinSet;
   const carbsEnabled = isCaloriesSet && isProteinSet;
 
-  // Auto-advance when a step transitions to completed
-  useEffect(() => {
-    if (!prevIsCaloriesSet.current && isCaloriesSet) {
-      setExpandedStep("protein");
-    }
-    if (!prevIsProteinSet.current && isProteinSet) {
-      setExpandedStep("fat");
-    }
-    prevIsCaloriesSet.current = isCaloriesSet;
-    prevIsProteinSet.current = isProteinSet;
-  }, [isCaloriesSet, isProteinSet]);
 
   // Ensure the currently expanded step is always enabled; if not, fallback to the earliest enabled step
   useEffect(() => {

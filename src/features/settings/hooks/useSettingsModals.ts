@@ -10,7 +10,9 @@ import {
 } from "@/utils/calculateCalories";
 
 export const useSettingsModals = (
-  onTargetChange: (key: "calories" | "protein", value: number) => void
+  onTargetChange: (key: "calories" | "protein", value: number) => void,
+  onCalorieCalculatorComplete?: () => void,
+  onProteinCalculatorComplete?: () => void
 ) => {
   const {
     proteinCalculation,
@@ -31,6 +33,8 @@ export const useSettingsModals = (
     calculatedProtein: number
   ) => {
     setProteinCalculation(method, bodyWeight, calculatedProtein);
+    onTargetChange("protein", calculatedProtein);
+    onProteinCalculatorComplete?.();
   };
 
   const handleCalorieGoalSelect = (
@@ -47,6 +51,7 @@ export const useSettingsModals = (
 
     // Update the calorie target based on selected goal
     onTargetChange("calories", calories);
+    onCalorieCalculatorComplete?.();
   };
 
   const handleResetTargets = () => {
