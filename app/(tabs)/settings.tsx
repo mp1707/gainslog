@@ -10,6 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { Button } from "@/shared/ui/atoms/Button";
+import { StatusIcon } from "@/shared/ui/atoms/StatusIcon";
 import { ProteinCalculatorModal } from "@/shared/ui/molecules/ProteinCalculatorModal";
 import { CalorieCalculatorModal } from "@/shared/ui/molecules/CalorieCalculatorModal";
 import { NutritionCard } from "@/features/settings/ui/molecules/NutritionCard";
@@ -24,6 +25,7 @@ import {
   calculateMaxFatPercentage,
 } from "@/utils/nutritionCalculations";
 import { StyleSheet } from "react-native";
+import { Card } from "src/components";
 
 export default function SettingsTab() {
   const { loadDailyTargets, isLoadingTargets } = useFoodLogStore();
@@ -148,6 +150,13 @@ export default function SettingsTab() {
 
   const { fatGrams, carbsGrams, maxFatPercentage } = calculateMacroValues();
 
+  // Determine next step for guidance icon
+  const nextStep: StepKey | null = !isCaloriesSet
+    ? "calories"
+    : !isProteinSet
+    ? "protein"
+    : null;
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
@@ -171,7 +180,7 @@ export default function SettingsTab() {
               Follow these steps to set up your personalized nutrition targets
             </Text>
 
-            <View style={styles.accordionContainer}>
+            <Card>
               {/* Step 1 - Calories */}
               <View
                 style={[
@@ -203,15 +212,14 @@ export default function SettingsTab() {
                         : "Select a calories target"}
                     </Text>
                   </View>
-                  {isCaloriesSet && (
-                    <View
-                      accessibilityRole="image"
-                      accessibilityLabel="Completed"
-                      style={styles.checkIcon}
-                    >
-                      <Text style={styles.checkIconText}>✓</Text>
-                    </View>
-                  )}
+                  <StatusIcon
+                    type={isCaloriesSet ? "completed" : "next"}
+                    accessibilityLabel={
+                      isCaloriesSet
+                        ? "Calorie target completed"
+                        : "Next step: set calories"
+                    }
+                  />
                 </TouchableOpacity>
                 {expandedStep === "calories" && (
                   <View style={styles.accordionContent}>
@@ -264,15 +272,17 @@ export default function SettingsTab() {
                         : "Select a calories target first to continue"}
                     </Text>
                   </View>
-                  {isProteinSet && (
-                    <View
-                      accessibilityRole="image"
-                      accessibilityLabel="Completed"
-                      style={styles.checkIcon}
-                    >
-                      <Text style={styles.checkIconText}>✓</Text>
-                    </View>
-                  )}
+                  {isProteinSet ? (
+                    <StatusIcon
+                      type="completed"
+                      accessibilityLabel="Protein target completed"
+                    />
+                  ) : nextStep === "protein" ? (
+                    <StatusIcon
+                      type="next"
+                      accessibilityLabel="Next step: set protein"
+                    />
+                  ) : null}
                 </TouchableOpacity>
                 {expandedStep === "protein" && (
                   <View style={styles.accordionContent}>
@@ -323,15 +333,12 @@ export default function SettingsTab() {
                         : "Select a protein target first to continue"}
                     </Text>
                   </View>
-                  {fatEnabled && (
-                    <View
-                      accessibilityRole="image"
-                      accessibilityLabel="Completed"
-                      style={styles.checkIcon}
-                    >
-                      <Text style={styles.checkIconText}>✓</Text>
-                    </View>
-                  )}
+                  {fatEnabled ? (
+                    <StatusIcon
+                      type="completed"
+                      accessibilityLabel="Fat target ready"
+                    />
+                  ) : null}
                 </TouchableOpacity>
                 {expandedStep === "fat" && (
                   <View style={styles.accordionContent}>
@@ -381,15 +388,12 @@ export default function SettingsTab() {
                         : "Select a protein target first to continue"}
                     </Text>
                   </View>
-                  {carbsEnabled && (
-                    <View
-                      accessibilityRole="image"
-                      accessibilityLabel="Completed"
-                      style={styles.checkIcon}
-                    >
-                      <Text style={styles.checkIconText}>✓</Text>
-                    </View>
-                  )}
+                  {carbsEnabled ? (
+                    <StatusIcon
+                      type="completed"
+                      accessibilityLabel="Carb target ready"
+                    />
+                  ) : null}
                 </TouchableOpacity>
                 {expandedStep === "carbs" && (
                   <View
@@ -413,7 +417,7 @@ export default function SettingsTab() {
                   </View>
                 )}
               </View>
-            </View>
+            </Card>
 
             <View style={styles.resetButtonContainer}>
               <Button
@@ -499,8 +503,6 @@ const createStyles = (
     },
     accordionContainer: {
       borderRadius: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
       backgroundColor: colors.secondaryBackground,
       overflow: "hidden",
     },

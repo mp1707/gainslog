@@ -8,3 +8,4 @@ export { Badge } from "./Badge";
 export { ManualEntryButton } from "./ManualEntryButton";
 export { Stepper } from "./Stepper";
 export { InlineRecordButton } from "./InlineRecordButton";
+export { StatusIcon } from "./StatusIcon";
