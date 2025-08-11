@@ -52,7 +52,7 @@ export default function SettingsTab() {
   } = useSettingsModals(
     handleTargetChange,
     () => setExpandedStep("protein"), // onCalorieCalculatorComplete
-    () => setExpandedStep("fat")      // onProteinCalculatorComplete
+    () => setExpandedStep(null) // onProteinCalculatorComplete
   );
 
   const styles = useMemo(
@@ -71,7 +71,6 @@ export default function SettingsTab() {
   const proteinEnabled = isCaloriesSet;
   const fatEnabled = isCaloriesSet && isProteinSet;
   const carbsEnabled = isCaloriesSet && isProteinSet;
-
 
   // Ensure the currently expanded step is always enabled; if not, fallback to the earliest enabled step
   useEffect(() => {
@@ -165,7 +164,6 @@ export default function SettingsTab() {
           title="Nutrition Tracking"
           subtitle="Set up your daily targets"
         >
-
           <Card>
             <AccordionItem
               title="Calories"
@@ -196,7 +194,7 @@ export default function SettingsTab() {
             >
               <NutritionAccordionContent
                 calculatorType="calories"
-                calculatorDescription="Get a personalized calories target based on your body and goals. (Recommended)"
+                calculatorDescription="Calories provide the body with energy to perform all physical and mental activities. Get a personalized calories target based on your body and goals. (Recommended)"
                 onCalculatorPress={() => setIsCalorieCalculatorVisible(true)}
                 calculationInfo={
                   calorieCalculation
@@ -266,7 +264,7 @@ export default function SettingsTab() {
             >
               <NutritionAccordionContent
                 calculatorType="protein"
-                calculatorDescription="Get a personalized protein target based on your body weight."
+                calculatorDescription="Protein supports muscle growth, repair, and the maintenance of body tissues. Get a personalized protein target based on your body weight."
                 onCalculatorPress={() => setIsProteinCalculatorVisible(true)}
                 calculationInfo={
                   proteinCalculation
@@ -330,7 +328,7 @@ export default function SettingsTab() {
                       }
                     : null
                 }
-                stepperLabel="Adjust the percentage of total calories that come from fat."
+                stepperLabel="Fat is essential for hormone production, nutrient absorption, and long-term energy storage. A scientifically based guideline for fat intake is a proportion of 25% to 35% of total daily calories. Your specific goal determines where you should position yourself within this range: for muscle gain, 25–30% is more suitable to leave more calories available for performance-enhancing carbohydrates. For fat loss, 30–35% is beneficial, as fat supports satiety and helps stabilize hormone production during a calorie deficit. Adjust the percentage of total calories that come from fat here. "
                 stepperValue={fatPercentage}
                 stepperMin={10}
                 stepperMax={Math.round(maxFatPercentage)}
@@ -345,7 +343,7 @@ export default function SettingsTab() {
               title="Carbs"
               subtitle={
                 carbsEnabled
-                  ? `Target: ${Math.round(carbsGrams)} g`
+                  ? `Target: ${Math.round(carbsGrams)} g (rest of calories)`
                   : "Set protein first"
               }
               accessibilityLabel="Carb target"
@@ -364,14 +362,20 @@ export default function SettingsTab() {
               }
             >
               {carbsEnabled && (
-                <CalculationInfoCard
-                  type="carbs"
-                  highlightText={`Target: ${Math.round(carbsGrams)} g`}
-                  description={`${Math.round(
-                    ((carbsGrams * 4) / Math.max(dailyTargets.calories, 1)) *
-                      100
-                  )}% of calories. Remaining calories go to carbohydrates.`}
-                />
+                <View style={styles.carbsInfoContainer}>
+                  <AppText role="Caption">
+                    Carbohydrates serve as the body’s main source of quick and
+                    efficient energy. (You need them for hard workouts!)
+                  </AppText>
+                  <CalculationInfoCard
+                    type="carbs"
+                    highlightText={`Target: ${Math.round(carbsGrams)} g`}
+                    description={`${Math.round(
+                      ((carbsGrams * 4) / Math.max(dailyTargets.calories, 1)) *
+                        100
+                    )}% of calories. Remaining calories go to carbohydrates.`}
+                  />
+                </View>
               )}
             </AccordionItem>
           </Card>
@@ -447,6 +451,9 @@ const createStyles = (
     settingInfo: {
       flex: 1,
       marginRight: spacing.lg,
+    },
+    carbsInfoContainer: {
+      gap: spacing.md,
     },
   });
 };
