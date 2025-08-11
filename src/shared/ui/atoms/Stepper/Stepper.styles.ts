@@ -4,6 +4,8 @@ import { theme } from "../../../../theme";
 export const createStyles = (colors: any) =>
   StyleSheet.create({
     container: {
+      // maxWidth: 220,
+      justifyContent: "space-between",
       flexDirection: "row",
       alignItems: "center",
       borderRadius: 16,

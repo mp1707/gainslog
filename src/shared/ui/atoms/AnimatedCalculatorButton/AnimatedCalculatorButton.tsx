@@ -13,20 +13,13 @@ import { createStyles } from "./AnimatedCalculatorButton.styles";
 interface AnimatedCalculatorButtonProps {
   isCalorieCard: boolean;
   onPress: () => void;
-  variant?: "compact" | "primary";
-  hasCalculation?: boolean;
 }
 
 export const AnimatedCalculatorButton: React.FC<
   AnimatedCalculatorButtonProps
-> = ({
-  isCalorieCard,
-  onPress,
-  variant = "compact",
-  hasCalculation = false,
-}) => {
+> = ({ isCalorieCard, onPress }) => {
   const { colors, theme } = useTheme();
-  const styles = createStyles(colors, theme, variant as "compact" | "primary");
+  const styles = createStyles(colors, theme);
 
   // Use design system animation specifications
   const { animations } = theme;
@@ -61,47 +54,11 @@ export const AnimatedCalculatorButton: React.FC<
     ? colors.semantic.calories
     : colors.semantic.protein;
 
-  if (variant === "primary") {
-    return (
-      <Animated.View style={animatedStyle}>
-        <TouchableOpacity
-          style={[
-            styles.primaryButton,
-            {
-              backgroundColor: semanticColor + "15",
-              borderColor: semanticColor,
-            },
-          ]}
-          onPress={handlePress}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-          accessibilityRole="button"
-          accessibilityLabel={"Calculate Target"}
-          accessibilityHint={`Calculate ${
-            isCalorieCard ? "calorie" : "protein"
-          } needs based on your personal information`}
-        >
-          <View style={styles.primaryButtonContent}>
-            <CalculatorIcon
-              size={theme.components.aiActionTargets.iconSize}
-              color={semanticColor}
-              weight="regular"
-            />
-            <Text style={[styles.primaryButtonText, { color: semanticColor }]}>
-              Calculate Target
-            </Text>
-          </View>
-        </TouchableOpacity>
-      </Animated.View>
-    );
-  }
-
-  // Compact variant (original design)
   return (
     <Animated.View style={animatedStyle}>
       <TouchableOpacity
         style={[
-          styles.button,
+          styles.primaryButton,
           {
             backgroundColor: semanticColor + "15",
             borderColor: semanticColor,
@@ -111,14 +68,21 @@ export const AnimatedCalculatorButton: React.FC<
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         accessibilityRole="button"
-        accessibilityLabel={`Open ${
-          isCalorieCard ? "calorie" : "protein"
-        } calculator`}
+        accessibilityLabel={"Calculate Target"}
         accessibilityHint={`Calculate ${
           isCalorieCard ? "calorie" : "protein"
-        } needs based on personal info`}
+        } needs based on your personal information`}
       >
-        <CalculatorIcon size={18} color={semanticColor} weight="regular" />
+        <View style={styles.primaryButtonContent}>
+          <CalculatorIcon
+            size={theme.components.aiActionTargets.iconSize}
+            color={semanticColor}
+            weight="regular"
+          />
+          <Text style={[styles.primaryButtonText, { color: semanticColor }]}>
+            Calculate Target
+          </Text>
+        </View>
       </TouchableOpacity>
     </Animated.View>
   );
