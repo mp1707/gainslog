@@ -61,7 +61,7 @@ const createStyles = (
       backgroundColor: colors.success,
     },
     completedText: {
-      color: colors.white,
+      color: colors.primaryBackground,
     },
     next: {
       backgroundColor: colors.disabledBackground,

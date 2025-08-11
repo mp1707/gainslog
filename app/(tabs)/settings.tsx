@@ -7,8 +7,6 @@ import { Button } from "@/shared/ui/atoms/Button";
 import { StatusIcon } from "@/shared/ui/atoms/StatusIcon";
 import { ProteinCalculatorModal } from "@/shared/ui/molecules/ProteinCalculatorModal";
 import { CalorieCalculatorModal } from "@/shared/ui/molecules/CalorieCalculatorModal";
-import { Stepper } from "@/shared/ui/atoms/Stepper";
-import { AnimatedCalculatorButton } from "@/shared/ui/atoms/AnimatedCalculatorButton";
 import { AppearanceCard } from "@/features/settings/ui/molecules/AppearanceCard";
 import { AccordionItem } from "@/features/settings/ui/components/AccordionItem";
 import { useNutritionCalculations } from "@/features/settings/hooks/useNutritionCalculations";
@@ -23,6 +21,8 @@ import { StyleSheet } from "react-native";
 import { Card, AppText } from "src/components";
 import { NutritionSlider } from "@/shared/ui/atoms/NutritionSlider";
 import { CalculationInfoCard } from "@/shared/ui/molecules/CalculationInfoCard";
+import { SettingsSection } from "@/shared/ui/molecules/SettingsSection";
+import { NutritionAccordionContent } from "@/features/settings/ui/molecules/NutritionAccordionContent";
 
 export default function SettingsTab() {
   const { loadDailyTargets, isLoadingTargets } = useFoodLogStore();
@@ -164,23 +164,17 @@ export default function SettingsTab() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.section}>
-          <AppText role="Title2" style={styles.sectionTitle}>
-            Appearance
-          </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionSubtitle}>
-            Customize the visual appearance of your app
-          </AppText>
+        <SettingsSection
+          title="Appearance"
+          subtitle="Customize the visual appearance of your app"
+        >
           <AppearanceCard />
-        </View>
+        </SettingsSection>
 
-        <View style={styles.section}>
-          <AppText role="Title2" style={styles.sectionTitle}>
-            Nutrition Tracking
-          </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionSubtitle}>
-            Set up your daily targets
-          </AppText>
+        <SettingsSection
+          title="Nutrition Tracking"
+          subtitle="Set up your daily targets"
+        >
 
           <Card>
             <AccordionItem
@@ -210,58 +204,43 @@ export default function SettingsTab() {
               }
               isFirst
             >
-              {/** Recommended section with primary calculator CTA */}
-              <View style={styles.accordionContent}>
-                <View>
-                  <AppText role="Body" color="secondary">
-                    Get a personalized calories target based on your body and
-                    goals. (Recommended)
-                  </AppText>
-                </View>
-                <AnimatedCalculatorButton
-                  isCalorieCard
-                  onPress={() => setIsCalorieCalculatorVisible(true)}
-                />
-                {/** Selected calculation details */}
-                {!!calorieCalculation && (
-                  <CalculationInfoCard
-                    type="calories"
-                    headerTitle={
-                      calorieCalculation.goalType === "lose"
-                        ? "Lose Weight"
-                        : calorieCalculation.goalType === "maintain"
-                        ? "Maintain Weight"
-                        : "Gain Weight"
-                    }
-                    headerSubtitle={`${
-                      calorieCalculation.params.sex === "male"
-                        ? "Male"
-                        : "Female"
-                    }, ${calorieCalculation.params.age} years, ${
-                      calorieCalculation.params.weight
-                    }kg, ${calorieCalculation.params.height}cm`}
-                    highlightText={`Activity Level: ${calorieCalculation.method.label}`}
-                    description={calorieCalculation.method.description}
-                  />
-                )}
-
-                {/** Manual override section */}
-                <AppText role="Body" color="secondary">
-                  Or set your own target below.
-                </AppText>
-
-                <Stepper
-                  value={dailyTargets.calories}
-                  min={nutritionConfigs[0].min}
-                  max={nutritionConfigs[0].max}
-                  step={nutritionConfigs[0].step}
-                  onChange={(newValue) =>
-                    handleTargetChange("calories", newValue)
-                  }
-                  type="calories"
-                  disabled={false}
-                />
-              </View>
+              <NutritionAccordionContent
+                calculatorType="calories"
+                calculatorDescription="Get a personalized calories target based on your body and goals. (Recommended)"
+                onCalculatorPress={() => setIsCalorieCalculatorVisible(true)}
+                calculationInfo={
+                  calorieCalculation
+                    ? {
+                        type: "calories",
+                        headerTitle:
+                          calorieCalculation.goalType === "lose"
+                            ? "Lose Weight"
+                            : calorieCalculation.goalType === "maintain"
+                            ? "Maintain Weight"
+                            : "Gain Weight",
+                        headerSubtitle: `${
+                          calorieCalculation.params.sex === "male"
+                            ? "Male"
+                            : "Female"
+                        }, ${calorieCalculation.params.age} years, ${
+                          calorieCalculation.params.weight
+                        }kg, ${calorieCalculation.params.height}cm`,
+                        highlightText: `Activity Level: ${calorieCalculation.method.label}`,
+                        description: calorieCalculation.method.description,
+                      }
+                    : null
+                }
+                stepperLabel="Or set your own target below."
+                stepperValue={dailyTargets.calories}
+                stepperMin={nutritionConfigs[0].min}
+                stepperMax={nutritionConfigs[0].max}
+                stepperStep={nutritionConfigs[0].step}
+                onStepperChange={(newValue) =>
+                  handleTargetChange("calories", newValue)
+                }
+                stepperType="calories"
+                stepperDisabled={false}
+              />
             </AccordionItem>
 
             <AccordionItem
@@ -295,44 +274,32 @@ export default function SettingsTab() {
                 )
               }
             >
-              {/** Recommended section with primary calculator CTA */}
-              <View style={styles.accordionContent}>
-                <AppText role="Body" color="secondary">
-                  Get a personalized protein target based on your body weight.
-                </AppText>
-                <AnimatedCalculatorButton
-                  isCalorieCard={false}
-                  onPress={() => setIsProteinCalculatorVisible(true)}
-                />
-                {/** Selected calculation details */}
-                {!!proteinCalculation && (
-                  <CalculationInfoCard
-                    type="protein"
-                    headerTitle={proteinCalculation.method.title}
-                    headerSubtitle={`${proteinCalculation.bodyWeight}kg body weight`}
-                    highlightText={`Recommended: ${proteinCalculation.calculatedProtein}g daily`}
-                    description={proteinCalculation.method.description}
-                  />
-                )}
-
-                {/** Manual override section */}
-
-                <AppText role="Body" color="secondary">
-                  Set your own target below.
-                </AppText>
-
-                <Stepper
-                  value={dailyTargets.protein}
-                  min={nutritionConfigs[1].min}
-                  max={nutritionConfigs[1].max}
-                  step={nutritionConfigs[1].step}
-                  onChange={(newValue) =>
-                    handleTargetChange("protein", newValue)
-                  }
-                  type="protein"
-                  disabled={!proteinEnabled}
-                />
-              </View>
+              <NutritionAccordionContent
+                calculatorType="protein"
+                calculatorDescription="Get a personalized protein target based on your body weight."
+                onCalculatorPress={() => setIsProteinCalculatorVisible(true)}
+                calculationInfo={
+                  proteinCalculation
+                    ? {
+                        type: "protein",
+                        headerTitle: proteinCalculation.method.title,
+                        headerSubtitle: `${proteinCalculation.bodyWeight}kg body weight`,
+                        highlightText: `Recommended: ${proteinCalculation.calculatedProtein}g daily`,
+                        description: proteinCalculation.method.description,
+                      }
+                    : null
+                }
+                stepperLabel="Set your own target below."
+                stepperValue={dailyTargets.protein}
+                stepperMin={nutritionConfigs[1].min}
+                stepperMax={nutritionConfigs[1].max}
+                stepperStep={nutritionConfigs[1].step}
+                onStepperChange={(newValue) =>
+                  handleTargetChange("protein", newValue)
+                }
+                stepperType="protein"
+                stepperDisabled={!proteinEnabled}
+              />
             </AccordionItem>
 
             <AccordionItem
@@ -438,7 +405,7 @@ export default function SettingsTab() {
               </AppText>
             </Button>
           </View>
-        </View>
+        </SettingsSection>
       </ScrollView>
 
       <ProteinCalculatorModal
@@ -484,15 +451,6 @@ const createStyles = (
       paddingTop: spacing.lg,
       paddingBottom: bottomPadding || spacing.xl,
     },
-    section: {
-      marginBottom: spacing.xl,
-    },
-    sectionTitle: {
-      marginBottom: spacing.xs,
-    },
-    sectionSubtitle: {
-      marginBottom: spacing.lg,
-    },
     resetButtonContainer: {
       marginTop: spacing.lg,
       alignItems: "center",
@@ -500,7 +458,6 @@ const createStyles = (
     resetButton: {
       minWidth: 200,
     },
-    // Inline accordion content styles (moved from removed NutritionCard)
     accordionContent: {
       gap: spacing.lg,
     },

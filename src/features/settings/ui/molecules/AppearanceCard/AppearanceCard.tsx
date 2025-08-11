@@ -1,25 +1,37 @@
 import React from "react";
-import { View, Text, Switch } from "react-native";
+import { View, Switch, StyleSheet } from "react-native";
 import { useTheme } from "@/providers/ThemeProvider";
-import { createStyles } from "./AppearanceCard.styles";
+import { SettingCard } from "@/shared/ui/molecules/SettingCard";
+import { AppText } from "src/components";
 
 export const AppearanceCard: React.FC = () => {
-  const {
-    colors,
-    theme: themeObj,
-    colorScheme,
-    toggleColorScheme,
-  } = useTheme();
-  const styles = createStyles(colors, themeObj, colorScheme);
+  const { theme, colorScheme, toggleColorScheme } = useTheme();
+
+  const styles = StyleSheet.create({
+    settingRow: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+    },
+    settingInfo: {
+      flex: 1,
+      marginRight: theme.spacing.lg,
+    },
+    settingLabel: {
+      marginBottom: theme.spacing.xs / 2,
+    },
+  });
 
   return (
-    <View style={styles.nutritionCard}>
+    <SettingCard>
       <View style={styles.settingRow}>
         <View style={styles.settingInfo}>
-          <Text style={styles.settingLabel}>Dark Mode</Text>
-          <Text style={styles.settingSubtext}>
+          <AppText role="Headline" style={styles.settingLabel}>
+            Dark Mode
+          </AppText>
+          <AppText role="Body" color="secondary">
             Choose between light and dark appearance
-          </Text>
+          </AppText>
         </View>
         <Switch
           value={colorScheme === "dark"}
@@ -27,6 +39,6 @@ export const AppearanceCard: React.FC = () => {
           accessibilityLabel="Toggle theme"
         />
       </View>
-    </View>
+    </SettingCard>
   );
 };

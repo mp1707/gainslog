@@ -31,7 +31,6 @@ export const CalculationInfoCard: React.FC<CalculationInfoCardProps> = ({
   const baseCard: ViewStyle = {
     borderRadius: theme.components.cards.cornerRadius,
     padding: theme.spacing.lg,
-    marginBottom: theme.spacing.lg,
     shadowColor: colors.primaryText,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
