@@ -62,14 +62,15 @@ export default function SettingsTab() {
     loadDailyTargets();
   }, [loadDailyTargets]);
 
-  type StepKey = "calories" | "protein" | "macros";
+  type StepKey = "calories" | "protein" | "fat" | "carbs";
   const [expandedStep, setExpandedStep] = useState<StepKey | null>("calories");
   const prevIsCaloriesSet = useRef(isCaloriesSet);
   const prevIsProteinSet = useRef(isProteinSet);
 
   const caloriesEnabled = true;
   const proteinEnabled = isCaloriesSet;
-  const macrosEnabled = isCaloriesSet && isProteinSet;
+  const fatEnabled = isCaloriesSet && isProteinSet;
+  const carbsEnabled = isCaloriesSet && isProteinSet;
 
   // Auto-advance when a step transitions to completed
   useEffect(() => {
@@ -77,7 +78,7 @@ export default function SettingsTab() {
       setExpandedStep("protein");
     }
     if (!prevIsProteinSet.current && isProteinSet) {
-      setExpandedStep("macros");
+      setExpandedStep("fat");
     }
     prevIsCaloriesSet.current = isCaloriesSet;
     prevIsProteinSet.current = isProteinSet;
@@ -85,12 +86,15 @@ export default function SettingsTab() {
 
   // Ensure the currently expanded step is always enabled; if not, fallback to the earliest enabled step
   useEffect(() => {
-    if (expandedStep === "macros" && !macrosEnabled) {
+    if (
+      (expandedStep === "fat" && !fatEnabled) ||
+      (expandedStep === "carbs" && !carbsEnabled)
+    ) {
       setExpandedStep(proteinEnabled ? "protein" : "calories");
     } else if (expandedStep === "protein" && !proteinEnabled) {
       setExpandedStep("calories");
     }
-  }, [expandedStep, proteinEnabled, macrosEnabled]);
+  }, [expandedStep, proteinEnabled, fatEnabled, carbsEnabled]);
 
   // Nutrition configuration data
   const nutritionConfigs = [
@@ -287,41 +291,39 @@ export default function SettingsTab() {
                 )}
               </View>
 
-              {/* Step 3 - Fat & Carbs */}
+              {/* Step 3 - Fat */}
               <View
                 style={[
                   styles.accordionItem,
-                  !macrosEnabled && styles.accordionDisabled,
+                  !fatEnabled && styles.accordionDisabled,
                 ]}
               >
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => {
-                    if (!macrosEnabled) return;
-                    setExpandedStep((prev) =>
-                      prev === "macros" ? null : "macros"
-                    );
+                    if (!fatEnabled) return;
+                    setExpandedStep((prev) => (prev === "fat" ? null : "fat"));
                   }}
-                  disabled={!macrosEnabled}
+                  disabled={!fatEnabled}
                   accessibilityRole="button"
                   accessibilityState={{
-                    expanded: expandedStep === "macros",
-                    disabled: !macrosEnabled,
+                    expanded: expandedStep === "fat",
+                    disabled: !fatEnabled,
                   }}
-                  accessibilityLabel="Fat and carb target"
-                  style={[styles.accordionHeader, styles.accordionHeaderLast]}
+                  accessibilityLabel="Fat target"
+                  style={styles.accordionHeader}
                 >
                   <View style={styles.headerTextContainer}>
-                    <Text style={styles.accordionTitle}>Fat & carb target</Text>
+                    <Text style={styles.accordionTitle}>Fat target</Text>
                     <Text style={styles.accordionSummary}>
-                      {macrosEnabled
-                        ? `Fat: ${Math.round(fatGrams)} g • Carbs: ${Math.round(
-                            carbsGrams
+                      {fatEnabled
+                        ? `Fat: ${Math.round(
+                            fatGrams
                           )} g • Fat %: ${fatPercentage}%`
                         : "Select a protein target first to continue"}
                     </Text>
                   </View>
-                  {macrosEnabled && (
+                  {fatEnabled && (
                     <View
                       accessibilityRole="image"
                       accessibilityLabel="Completed"
@@ -331,13 +333,8 @@ export default function SettingsTab() {
                     </View>
                   )}
                 </TouchableOpacity>
-                {expandedStep === "macros" && (
-                  <View
-                    style={[
-                      styles.accordionContent,
-                      styles.accordionContentLast,
-                    ]}
-                  >
+                {expandedStep === "fat" && (
+                  <View style={styles.accordionContent}>
                     <MacroDistributionSection
                       calories={dailyTargets.calories}
                       protein={dailyTargets.protein}
@@ -348,6 +345,71 @@ export default function SettingsTab() {
                       onFatPercentageChange={handleFatPercentageChange}
                       variant="flat"
                     />
+                  </View>
+                )}
+              </View>
+
+              {/* Step 4 - Carbs */}
+              <View
+                style={[
+                  styles.accordionItem,
+                  !carbsEnabled && styles.accordionDisabled,
+                ]}
+              >
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    if (!carbsEnabled) return;
+                    setExpandedStep((prev) =>
+                      prev === "carbs" ? null : "carbs"
+                    );
+                  }}
+                  disabled={!carbsEnabled}
+                  accessibilityRole="button"
+                  accessibilityState={{
+                    expanded: expandedStep === "carbs",
+                    disabled: !carbsEnabled,
+                  }}
+                  accessibilityLabel="Carb target"
+                  style={[styles.accordionHeader, styles.accordionHeaderLast]}
+                >
+                  <View style={styles.headerTextContainer}>
+                    <Text style={styles.accordionTitle}>Carb target</Text>
+                    <Text style={styles.accordionSummary}>
+                      {carbsEnabled
+                        ? `Carbs: ${Math.round(carbsGrams)} g`
+                        : "Select a protein target first to continue"}
+                    </Text>
+                  </View>
+                  {carbsEnabled && (
+                    <View
+                      accessibilityRole="image"
+                      accessibilityLabel="Completed"
+                      style={styles.checkIcon}
+                    >
+                      <Text style={styles.checkIconText}>✓</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+                {expandedStep === "carbs" && (
+                  <View
+                    style={[
+                      styles.accordionContent,
+                      styles.accordionContentLast,
+                    ]}
+                  >
+                    <Text style={styles.accordionSummary}>
+                      Carbohydrates are set automatically to the remaining
+                      calories after protein and fat.
+                    </Text>
+                    <View style={{ height: 8 }} />
+                    <Text style={styles.accordionSummary}>
+                      {`Target: ${Math.round(carbsGrams)} g (${Math.round(
+                        ((carbsGrams * 4) /
+                          Math.max(dailyTargets.calories, 1)) *
+                          100
+                      )}% of calories)`}
+                    </Text>
                   </View>
                 )}
               </View>

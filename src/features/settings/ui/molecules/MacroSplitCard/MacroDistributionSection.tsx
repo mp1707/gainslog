@@ -65,7 +65,6 @@ export const MacroDistributionSection: React.FC<
       </View>
 
       <View style={styles.sliderBlock}>
-
         <NutritionSlider
           label="Fat Percentage"
           unit="%"
