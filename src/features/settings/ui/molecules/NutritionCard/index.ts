@@ -1,1 +1,0 @@
-export { NutritionCard } from "./NutritionCard";
