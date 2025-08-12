@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/providers";
@@ -65,7 +65,21 @@ export default function SettingsTab() {
   }, [loadDailyTargets]);
 
   type StepKey = "calories" | "protein" | "fat" | "carbs";
-  const [expandedStep, setExpandedStep] = useState<StepKey | null>("calories");
+  const [expandedStep, setExpandedStep] = useState<StepKey | null>(null);
+  const hasInitialized = useRef(false);
+
+  // Set initial expanded step based on what user needs to do next (only once)
+  useEffect(() => {
+    if (!hasInitialized.current && expandedStep === null) {
+      const initialStep = !isCaloriesSet
+        ? "calories"
+        : !isProteinSet
+        ? "protein"
+        : null;
+      setExpandedStep(initialStep);
+      hasInitialized.current = true;
+    }
+  }, [isCaloriesSet, isProteinSet, expandedStep]);
 
   const caloriesEnabled = true;
   const proteinEnabled = isCaloriesSet;
