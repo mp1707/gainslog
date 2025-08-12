@@ -7,15 +7,12 @@ import { useTheme } from "@/providers/ThemeProvider";
 interface ProgressRowProps {
   label: string;
   value: number; // 0..100+ actual value
-  prevValue?: number;
   color: string;
   icon?: React.ReactNode;
-  animated?: boolean;
-  animationKey?: number | string;
 }
 
 export const ProgressRow: React.FC<ProgressRowProps> = React.memo(
-  ({ label, value, prevValue, color, icon, animated = true, animationKey }) => {
+  ({ label, value, color, icon }) => {
     const { colors, theme } = useTheme();
     const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -35,23 +32,11 @@ export const ProgressRow: React.FC<ProgressRowProps> = React.memo(
         <View style={styles.middle}>
           <ProgressBar
             value={value}
-            prevValue={prevValue}
             color={color}
             trackColor={colors.disabledBackground}
             height={8}
             borderRadius={4}
             accessibilityLabel={`${label} progress`}
-            delayMs={
-              label === "Calories"
-                ? 0
-                : label === "Protein"
-                ? 50
-                : label === "Carbs"
-                ? 100
-                : 150
-            }
-            animated={animated}
-            animationKey={animationKey}
           />
         </View>
         <View style={styles.right}>

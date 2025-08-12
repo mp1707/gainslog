@@ -1,192 +1,71 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { View, StyleSheet, LayoutChangeEvent } from "react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withRepeat,
-  cancelAnimation,
-  withDelay,
-  Easing,
-  interpolate,
-} from "react-native-reanimated";
+import React, { useMemo } from "react";
+import { View, StyleSheet } from "react-native";
 import { useTheme } from "@/providers/ThemeProvider";
 
 export interface ProgressBarProps {
   value: number; // percent value, can exceed 100
-  prevValue?: number; // previous percent value for animation start
   color: string;
   trackColor?: string;
   height?: number;
   borderRadius?: number;
   accessibilityLabel?: string;
-  delayMs?: number;
-  animated?: boolean;
-  animationKey?: number | string;
 }
 
-export const ProgressBar: React.FC<ProgressBarProps> = ({
-  value,
-  prevValue,
-  color,
-  trackColor,
-  height = 8,
-  borderRadius = 4,
-  accessibilityLabel,
-  delayMs = 0,
-  animated = true,
-  animationKey,
-}) => {
-  const { colors, theme } = useTheme();
-  const styles = useMemo(
-    () => createStyles(height, borderRadius),
-    [height, borderRadius]
-  );
+export const ProgressBar: React.FC<ProgressBarProps> = React.memo(
+  ({
+    value,
+    color,
+    trackColor,
+    height = 8,
+    borderRadius = 4,
+    accessibilityLabel,
+  }) => {
+    const { theme } = useTheme();
+    const styles = useMemo(() => createStyles(height), [height]);
 
-  const [trackWidth, setTrackWidth] = useState(0);
-  const clampedVisible = Math.max(0, Math.min(100, value));
-  const isOverflowing = value > 100;
+    // Clamp values and calculate ratios
+    const clampedVisible = Math.max(0, Math.min(100, value));
+    const isOverflowing = value > 100;
+    const targetRatio = clampedVisible / 100;
 
-  const targetRatio = clampedVisible / 100;
-  const startRatio =
-    prevValue !== undefined ? Math.max(0, Math.min(100, prevValue)) / 100 : 0;
+    const effectiveTrackColor = useMemo(() => {
+      return trackColor || theme.getComponentStyles().progressBars.trackColor;
+    }, [trackColor, theme]);
 
-  const progress = useSharedValue(startRatio);
-  const shimmerX = useSharedValue(-24);
-  const pulseOpacity = useSharedValue(0);
-
-  const handleLayout = useCallback((e: LayoutChangeEvent) => {
-    setTrackWidth(e.nativeEvent.layout.width);
-  }, []);
-
-  // Animate progress to target
-  useEffect(() => {
-    if (!animated) {
-      progress.value = targetRatio;
-      return;
-    }
-    progress.value = withDelay(
-      delayMs,
-      withTiming(targetRatio, {
-        duration: 500,
-        easing: Easing.bezier(0.25, 1, 0.5, 1),
-      })
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [targetRatio, delayMs, animated, animationKey]);
-
-  // Trigger shimmer when crossing 100% from below
-  const crossedToOverflow =
-    prevValue !== undefined && prevValue <= 100 && value > 100;
-  useEffect(() => {
-    if (!animated) return;
-    if (crossedToOverflow) {
-      shimmerX.value = -24;
-      shimmerX.value = withTiming((trackWidth || 0) + 24, {
-        duration: 1000,
-        easing: Easing.linear,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [crossedToOverflow, trackWidth, animated, animationKey]);
-
-  // Overflow pulse indicator animation
-  useEffect(() => {
-    if (!animated) {
-      pulseOpacity.value = 0;
-      return;
-    }
-    if (isOverflowing) {
-      pulseOpacity.value = withRepeat(
-        withTiming(0.6, { duration: 800, easing: Easing.inOut(Easing.quad) }),
-        -1,
-        true
-      );
-      return () => {
-        cancelAnimation(pulseOpacity);
-      };
-    }
-    pulseOpacity.value = 0;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOverflowing, animated, animationKey]);
-
-  const fillAnimatedStyle = useAnimatedStyle(() => {
-    const minVisibleSliver = 2; // px
-    const width = trackWidth * progress.value;
-    const ensuredWidth =
-      progress.value > 0 && width < minVisibleSliver ? minVisibleSliver : width;
-    return {
-      width: ensuredWidth,
-      backgroundColor: color,
-    };
-  }, [trackWidth, color]);
-
-  const shimmerStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: shimmerX.value }],
-    opacity: interpolate(shimmerX.value, [-24, (trackWidth || 0) + 24], [0, 1]),
-  }));
-
-  const overflowPulseStyle = useAnimatedStyle(() => ({
-    opacity: pulseOpacity.value,
-  }));
-
-  const effectiveTrackColor =
-    trackColor || theme.getComponentStyles().progressBars.trackColor;
-
-  return (
-    <View
-      style={[
-        styles.track,
-        { backgroundColor: effectiveTrackColor, borderRadius },
-      ]}
-      onLayout={handleLayout}
-      accessible={true}
-      accessibilityRole="progressbar"
-      accessibilityLabel={accessibilityLabel}
-      accessibilityValue={{
-        min: 0,
-        max: 100,
-        now: Math.min(100, Math.max(0, Math.round(value))),
-      }}
-      accessibilityHint={
-        isOverflowing ? `${Math.round(value)}% over target` : undefined
-      }
-    >
-      {animated ? (
-        <Animated.View
-          style={[styles.fill, { borderRadius }, fillAnimatedStyle]}
-        />
-      ) : (
+    return (
+      <View
+        style={[
+          styles.track,
+          { backgroundColor: effectiveTrackColor, borderRadius },
+        ]}
+        accessible={true}
+        accessibilityRole="progressbar"
+        accessibilityLabel={accessibilityLabel}
+        accessibilityValue={{
+          min: 0,
+          max: 100,
+          now: Math.min(100, Math.max(0, Math.round(value))),
+        }}
+        accessibilityHint={
+          isOverflowing ? `${Math.round(value)}% over target` : undefined
+        }
+      >
         <View
-          style={{
-            height: "100%",
-            width: trackWidth * targetRatio,
-            backgroundColor: color,
-            borderRadius,
-          }}
+          style={[
+            styles.fill,
+            {
+              width: `${targetRatio * 100}%`,
+              backgroundColor: color,
+              borderRadius,
+            },
+          ]}
         />
-      )}
+      </View>
+    );
+  }
+);
 
-      {/* Shimmer overlay when crossing goal */}
-      {animated && (
-        <Animated.View
-          pointerEvents="none"
-          style={[styles.shimmer, shimmerStyle]}
-        />
-      )}
-
-      {/* Overflow thin pulse at the right edge of the bar */}
-      {animated && isOverflowing && (
-        <Animated.View
-          pointerEvents="none"
-          style={[styles.pulse, { backgroundColor: color }, overflowPulseStyle]}
-        />
-      )}
-    </View>
-  );
-};
-
-const createStyles = (height: number, radius: number) =>
+const createStyles = (height: number) =>
   StyleSheet.create({
     track: {
       width: "100%",
@@ -196,20 +75,5 @@ const createStyles = (height: number, radius: number) =>
     },
     fill: {
       height: "100%",
-    },
-    shimmer: {
-      position: "absolute",
-      top: 0,
-      bottom: 0,
-      width: 24,
-      backgroundColor: "rgba(255,255,255,0.25)",
-    },
-    pulse: {
-      position: "absolute",
-      top: 0,
-      bottom: 0,
-      width: 2,
-      right: 0,
-      borderRadius: radius,
     },
   });

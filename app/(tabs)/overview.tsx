@@ -25,52 +25,84 @@ import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
 import { FilterBadge, AppText } from "src/components";
 
 export default function OverviewTab() {
-  // Subscribe to only the needed slices of state to avoid re-renders on unrelated changes
-  const selectedMonth = useFoodLogStore(selectSelectedMonth);
+  // Subscribe to only the needed slices of state with safe defaults
+  const selectedMonth =
+    useFoodLogStore(selectSelectedMonth) ||
+    new Date().toISOString().slice(0, 7);
   const setSelectedMonth = useFoodLogStore((s) => s.setSelectedMonth);
-  const dailyTargets = useFoodLogStore(selectDailyTargets);
+  const dailyTargets = useFoodLogStore(selectDailyTargets) || {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  };
   const loadDailyTargets = useFoodLogStore((s) => s.loadDailyTargets);
   const navigateToTodayWithDate = useFoodLogStore(
     (s) => s.navigateToTodayWithDate
   );
-  const foodLogs = useFoodLogStore(selectFoodLogs);
+  const foodLogs = useFoodLogStore(selectFoodLogs) || [];
+
+  // Early return if essential data is not available
+  if (!setSelectedMonth || !loadDailyTargets || !navigateToTodayWithDate) {
+    return null; // or a loading spinner
+  }
+
+  // Filter logs for the current month using useMemo (fixes infinite re-render)
+  const monthlyFoodLogs = useMemo(
+    () =>
+      foodLogs.filter((log) => log.date && log.date.startsWith(selectedMonth)),
+    [foodLogs, selectedMonth]
+  );
 
   // Load daily targets on mount
   useEffect(() => {
     loadDailyTargets();
   }, [loadDailyTargets]);
 
-  // Compute daily totals for the selected month using memoization to avoid expensive recomputation
+  // Optimized daily totals computation with better memoization
   const dailyTotals = useMemo(() => {
-    // Filter logs for the selected month
-    const monthlyLogs = foodLogs.filter((log) =>
-      log.date.startsWith(selectedMonth)
-    );
+    if (monthlyFoodLogs.length === 0) return [];
 
-    // Group by date and sum totals
-    const logsByDate = monthlyLogs.reduce((acc, log) => {
-      const date = log.date;
-      if (!acc[date]) acc[date] = [];
-      acc[date].push(log);
-      return acc;
-    }, {} as Record<string, typeof foodLogs>);
+    // Group by date using a more efficient approach
+    const logsByDate = new Map<string, typeof monthlyFoodLogs>();
 
-    const totals = Object.entries(logsByDate).map(([date, logs]) => ({
-      date,
-      totals: logs.reduce(
-        (sum, l) => ({
-          calories: sum.calories + l.calories,
-          protein: sum.protein + l.protein,
-          carbs: sum.carbs + l.carbs,
-          fat: sum.fat + l.fat,
-        }),
-        { calories: 0, protein: 0, carbs: 0, fat: 0 }
-      ),
-    }));
+    for (const log of monthlyFoodLogs) {
+      const existingLogs = logsByDate.get(log.date);
+      if (existingLogs) {
+        existingLogs.push(log);
+      } else {
+        logsByDate.set(log.date, [log]);
+      }
+    }
+
+    // Calculate totals more efficiently
+    const totals: Array<{
+      date: string;
+      totals: { calories: number; protein: number; carbs: number; fat: number };
+    }> = [];
+
+    for (const [date, logs] of logsByDate) {
+      let calories = 0,
+        protein = 0,
+        carbs = 0,
+        fat = 0;
+
+      for (const log of logs) {
+        calories += log.calories;
+        protein += log.protein;
+        carbs += log.carbs;
+        fat += log.fat;
+      }
+
+      totals.push({
+        date,
+        totals: { calories, protein, carbs, fat },
+      });
+    }
 
     // Sort by date desc (most recent first)
     return totals.sort((a, b) => b.date.localeCompare(a.date));
-  }, [foodLogs, selectedMonth]);
+  }, [monthlyFoodLogs]);
 
   const { colors, theme } = useTheme();
   const insets = useSafeAreaInsets();
@@ -95,15 +127,7 @@ export default function OverviewTab() {
     [colors, theme, dynamicBottomPadding]
   );
 
-  // Animate bars only when month changes (not on initial mount)
-  const [barsAnimationKey, setBarsAnimationKey] = useState<number | null>(null);
-  const previousMonthRef = React.useRef<string>(selectedMonth);
-  useEffect(() => {
-    if (previousMonthRef.current !== selectedMonth) {
-      setBarsAnimationKey((k) => (k === null ? 1 : k + 1));
-      previousMonthRef.current = selectedMonth;
-    }
-  }, [selectedMonth]);
+  // Removed animation state
 
   // Nutrient filter state
   const [filters, setFilters] = useState({
@@ -112,6 +136,12 @@ export default function OverviewTab() {
     carbs: true,
     fat: true,
   });
+
+  // Memoized filter object for stable reference
+  const memoizedFilters = useMemo(
+    () => filters,
+    [filters.calories, filters.protein, filters.carbs, filters.fat]
+  );
 
   // Memoized filter toggle handler to prevent unnecessary re-renders
   const handleToggleFilter = useCallback((key: keyof typeof filters) => {
@@ -134,28 +164,40 @@ export default function OverviewTab() {
     [navigateToTodayWithDate]
   );
 
-  // Memoize transformed data to prevent recalculation on every render
+  // Memoize transformed data with optimized calculations
   const transformedDailyData = useMemo(() => {
+    if (dailyTotals.length === 0) return [];
+
+    // Pre-calculate divisors to avoid repeated division checks
+    const caloriesDivisor = dailyTargets.calories || 1;
+    const proteinDivisor = dailyTargets.protein || 1;
+    const carbsDivisor = dailyTargets.carbs || 1;
+    const fatDivisor = dailyTargets.fat || 1;
+
     return dailyTotals.map(({ date, totals }) => ({
       dateIso: date,
       calories:
         dailyTargets.calories > 0
-          ? Math.round((totals.calories / dailyTargets.calories) * 100)
+          ? Math.round((totals.calories / caloriesDivisor) * 100)
           : 0,
       protein:
         dailyTargets.protein > 0
-          ? Math.round((totals.protein / dailyTargets.protein) * 100)
+          ? Math.round((totals.protein / proteinDivisor) * 100)
           : 0,
       carbs:
         dailyTargets.carbs > 0
-          ? Math.round((totals.carbs / dailyTargets.carbs) * 100)
+          ? Math.round((totals.carbs / carbsDivisor) * 100)
           : 0,
       fat:
-        dailyTargets.fat > 0
-          ? Math.round((totals.fat / dailyTargets.fat) * 100)
-          : 0,
+        dailyTargets.fat > 0 ? Math.round((totals.fat / fatDivisor) * 100) : 0,
     }));
-  }, [dailyTotals, dailyTargets]);
+  }, [
+    dailyTotals,
+    dailyTargets.calories,
+    dailyTargets.protein,
+    dailyTargets.carbs,
+    dailyTargets.fat,
+  ]);
 
   const renderItem = useCallback<
     ListRenderItem<{
@@ -174,18 +216,17 @@ export default function OverviewTab() {
           protein={item.protein}
           carbs={item.carbs}
           fat={item.fat}
-          visible={filters}
+          visible={memoizedFilters}
           onPress={() => handleDayPress(item.dateIso)}
-          animateBars={Boolean(barsAnimationKey) && index < 10}
-          animationKey={barsAnimationKey ?? undefined}
-          enablePressAnimation={false}
         />
       </View>
     ),
-    [filters, handleDayPress, styles.cardWrap]
+    [memoizedFilters, handleDayPress, styles.cardWrap]
   );
 
   const keyExtractor = useCallback((d: { dateIso: string }) => d.dateIso, []);
+
+  // Note: Do not use getItemLayout; rows have variable height based on filters
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
@@ -204,25 +245,25 @@ export default function OverviewTab() {
             type="calories"
             label="Calories"
             active={filters.calories}
-            onToggle={() => handleToggleFilter("calories")}
+            onToggle={handleToggleFilter}
           />
           <FilterBadge
             type="protein"
             label="Protein"
             active={filters.protein}
-            onToggle={() => handleToggleFilter("protein")}
+            onToggle={handleToggleFilter}
           />
           <FilterBadge
             type="carbs"
             label="Carbs"
             active={filters.carbs}
-            onToggle={() => handleToggleFilter("carbs")}
+            onToggle={handleToggleFilter}
           />
           <FilterBadge
             type="fat"
             label="Fat"
             active={filters.fat}
-            onToggle={() => handleToggleFilter("fat")}
+            onToggle={handleToggleFilter}
           />
         </ScrollView>
       </PageHeader>
@@ -231,14 +272,22 @@ export default function OverviewTab() {
         data={transformedDailyData}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
+        // getItemLayout intentionally omitted because rows can change height
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        initialNumToRender={10}
-        maxToRenderPerBatch={10}
-        updateCellsBatchingPeriod={30}
-        windowSize={6}
-        removeClippedSubviews
-        extraData={filters}
+        // Optimized performance settings
+        initialNumToRender={5} // Reduced from 10
+        maxToRenderPerBatch={5} // Reduced from 10
+        updateCellsBatchingPeriod={10} // Reduced from 30
+        windowSize={10} // Increased from 6
+        removeClippedSubviews={true}
+        // Performance optimizations
+        disableIntervalMomentum={true}
+        maintainVisibleContentPosition={{
+          minIndexForVisible: 0,
+          autoscrollToTopThreshold: 10,
+        }}
+        extraData={memoizedFilters}
         ListEmptyComponent={() => (
           <Text style={styles.emptyText}>
             No food logs found for this month.

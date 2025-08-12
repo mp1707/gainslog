@@ -1,15 +1,15 @@
 import React, { useMemo } from "react";
 import { View, Pressable } from "react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withSpring,
-  Easing,
-} from "react-native-reanimated";
 import { useTheme } from "@/providers/ThemeProvider";
 import { Card, AppText, ProgressRow } from "@/components";
 import { useStyles } from "./DailySummaryCard.styles";
+
+// Memoized date formatter to avoid repeated date processing
+const formatDate = (dateString: string): string => {
+  const d = new Date(dateString + "T00:00:00");
+  const month = d.toLocaleDateString("en-US", { month: "short" });
+  return `${d.getDate()}. ${month}`;
+};
 
 // Memoized component for better performance
 export const DailySummaryCard = React.memo(function DailySummaryCard({
@@ -20,9 +20,6 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
   fat,
   onPress,
   visible = { calories: true, protein: true, carbs: true, fat: true },
-  animateBars = true,
-  animationKey,
-  enablePressAnimation = true,
 }: {
   dateIso: string;
   calories: number;
@@ -36,152 +33,129 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
     carbs: boolean;
     fat: boolean;
   };
-  animateBars?: boolean;
-  animationKey?: number | string;
-  enablePressAnimation?: boolean;
 }) {
   const styles = useStyles();
   const { colors } = useTheme();
 
-  // Format date like "12. Aug"
-  const formatDate = (dateString: string): string => {
-    const d = new Date(dateString + "T00:00:00");
-    const month = d.toLocaleDateString("en-US", { month: "short" });
-    return `${d.getDate()}. ${month}`;
+  // Memoize formatted date to avoid recalculation
+  const formattedDate = useMemo(() => formatDate(dateIso), [dateIso]);
+
+  // Animations removed
+
+  // Pre-calculate colors with null safety
+  const semanticColors = useMemo(() => {
+    const semantic = colors?.semantic || {};
+    return {
+      calories: semantic.calories || "#FF7A5A",
+      protein: semantic.protein || "#4ECDC4",
+      carbs: semantic.carbs || "#45B7D1",
+      fat: semantic.fat || "#FFA726",
+    };
+  }, [colors?.semantic]);
+
+  // Add null safety for visible prop
+  const safeVisible = visible || {
+    calories: false,
+    protein: false,
+    carbs: false,
+    fat: false,
   };
 
-  // Single press animation - optimized for performance
-  const pressScale = useSharedValue(1);
-
-  const handlePressIn = () => {
-    if (!enablePressAnimation) return;
-    pressScale.value = withTiming(0.97, {
-      duration: 100,
-      easing: Easing.out(Easing.quad),
-    });
-  };
-
-  const handlePressOut = () => {
-    if (!enablePressAnimation) return;
-    pressScale.value = withSpring(1.0, {
-      damping: 15,
-      stiffness: 400,
-      mass: 0.8,
-    });
-  };
-
-  const containerAnimatedStyle = useAnimatedStyle(
-    () => ({
-      transform: enablePressAnimation ? [{ scale: pressScale.value }] : [],
-    }),
-    [enablePressAnimation]
-  );
-
-  // Pre-calculate colors for better performance
-  const semanticColors = useMemo(
-    () => ({
-      calories: colors.semantic.calories,
-      protein: colors.semantic.protein,
-      carbs: colors.semantic.carbs,
-      fat: colors.semantic.fat,
-    }),
-    [colors.semantic]
-  );
-
-  // Create accessibility label once
+  // Memoize accessibility label with simplified dependencies
   const accessibilityLabel = useMemo(() => {
     const parts: string[] = [];
-    if (visible?.calories)
+    if (safeVisible.calories)
       parts.push(`Calories ${Math.round(calories)} percent`);
-    if (visible?.protein) parts.push(`Protein ${Math.round(protein)} percent`);
-    if (visible?.carbs) parts.push(`Carbs ${Math.round(carbs)} percent`);
-    if (visible?.fat) parts.push(`Fat ${Math.round(fat)} percent`);
-    return `"${formatDate(dateIso)}"${
-      parts.length ? ", " + parts.join(", ") : ""
-    }`;
-  }, [dateIso, visible, calories, protein, carbs, fat]);
+    if (safeVisible.protein)
+      parts.push(`Protein ${Math.round(protein)} percent`);
+    if (safeVisible.carbs) parts.push(`Carbs ${Math.round(carbs)} percent`);
+    if (safeVisible.fat) parts.push(`Fat ${Math.round(fat)} percent`);
+    return `"${formattedDate}"${parts.length ? ", " + parts.join(", ") : ""}`;
+  }, [formattedDate, safeVisible, calories, protein, carbs, fat]);
 
-  // Render metrics efficiently
-  const renderMetrics = () => {
-    const metrics = [];
-    if (visible.calories) {
+  // Optimized metrics rendering with simplified dependencies
+  const metricsContent = useMemo(() => {
+    const metrics: React.ReactNode[] = [];
+
+    if (safeVisible.calories) {
       metrics.push(
         <ProgressRow
           key="calories"
           label="Calories"
           value={calories}
           color={semanticColors.calories}
-          animated={animateBars}
-          animationKey={animationKey}
         />
       );
     }
-    if (visible.protein) {
+    if (safeVisible.protein) {
       metrics.push(
         <ProgressRow
           key="protein"
           label="Protein"
           value={protein}
           color={semanticColors.protein}
-          animated={animateBars}
-          animationKey={animationKey}
         />
       );
     }
-    if (visible.carbs) {
+    if (safeVisible.carbs) {
       metrics.push(
         <ProgressRow
           key="carbs"
           label="Carbs"
           value={carbs}
           color={semanticColors.carbs}
-          animated={animateBars}
-          animationKey={animationKey}
         />
       );
     }
-    if (visible.fat) {
+    if (safeVisible.fat) {
       metrics.push(
         <ProgressRow
           key="fat"
           label="Fat"
           value={fat}
           color={semanticColors.fat}
-          animated={animateBars}
-          animationKey={animationKey}
         />
       );
     }
 
-    // Add gaps between metrics
-    return metrics.reduce((acc: React.ReactNode[], metric, index) => {
-      acc.push(metric);
+    // Add gaps between metrics efficiently
+    const result: React.ReactNode[] = [];
+    metrics.forEach((metric, index) => {
+      result.push(metric);
       if (index < metrics.length - 1) {
-        acc.push(<View key={`gap-${index}`} style={styles.rowGap} />);
+        result.push(<View key={`gap-${index}`} style={styles.rowGap} />);
       }
-      return acc;
-    }, []);
-  };
+    });
+
+    return result;
+  }, [
+    safeVisible,
+    calories,
+    protein,
+    carbs,
+    fat,
+    semanticColors,
+    styles.rowGap,
+  ]);
 
   return (
     <Pressable
       onPress={onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
+      // animations removed
       accessible={true}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
     >
-      <Animated.View style={[styles.cardContainer, containerAnimatedStyle]}>
+      <View style={styles.cardContainer}>
         <Card elevated={false}>
           <View style={styles.row}>
             <View style={styles.dateColumn}>
-              <AppText role="Headline">{formatDate(dateIso)}</AppText>
+              <AppText role="Headline">{formattedDate}</AppText>
             </View>
-            <View style={styles.metricsColumn}>{renderMetrics()}</View>
+            <View style={styles.metricsColumn}>{metricsContent}</View>
           </View>
         </Card>
-      </Animated.View>
+      </View>
     </Pressable>
   );
 });
