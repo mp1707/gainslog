@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, View, Text, ScrollView, KeyboardAvoidingView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -11,6 +11,8 @@ import { FoodLogFormFields } from "./components/FoodLogFormFields";
 import { useFoodLogForm } from "./hooks/useFoodLogForm";
 import { useAudioRecording } from "./hooks/useAudioRecording";
 import { useFoodLogValidation } from "./hooks/useFoodLogValidation";
+
+export type NutritionMode = "estimation" | "manual";
 
 interface FoodLogModalProps {
   visible: boolean;
@@ -32,6 +34,9 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   const styles = useStyles();
   const { foodLogs } = useFoodLogStore();
 
+  // Nutrition mode state - defaults to estimation
+  const [nutritionMode, setNutritionMode] = useState<NutritionMode>("estimation");
+
   // Get the live log from store to reflect upload progress
   const currentLog = selectedLog
     ? foodLogs.find((log) => log.id === selectedLog.id) || selectedLog
@@ -41,6 +46,16 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   const form = useFoodLogForm();
   const audioRecording = useAudioRecording();
   const validation = useFoodLogValidation();
+
+  // Handle nutrition mode toggle change
+  const handleNutritionModeChange = (mode: NutritionMode) => {
+    setNutritionMode(mode);
+    
+    // Clear nutrition fields when switching from manual to estimation
+    if (mode === "estimation") {
+      form.clearNutritionFields();
+    }
+  };
 
   // Set up transcription completion callback
   useEffect(() => {
@@ -67,8 +82,9 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   useEffect(() => {
     if (visible) {
       form.initializeForm(currentLog, mode);
-      // Reset audio recording state
+      // Reset nutrition mode to estimation for new logs
       if (mode === "create" && !currentLog) {
+        setNutritionMode("estimation");
         audioRecording.setBaseDescription("");
       }
     }
@@ -143,8 +159,10 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
               formData={form.formData}
               currentLog={currentLog}
               audioRecording={audioRecording}
+              nutritionMode={nutritionMode}
               onFieldChange={form.updateField}
               onValidationErrorClear={() => form.setValidationError("")}
+              onNutritionModeChange={handleNutritionModeChange}
             />
           </ScrollView>
         </KeyboardAvoidingView>

@@ -17,6 +17,7 @@ export interface UseFoodLogFormReturn {
   updateField: (field: keyof FoodLogFormData, value: string) => void;
   resetForm: () => void;
   initializeForm: (log: FoodLog | null, mode: ModalMode) => void;
+  clearNutritionFields: () => void;
 }
 
 /**
@@ -59,6 +60,16 @@ export function useFoodLogForm(): UseFoodLogFormReturn {
     setValidationError('');
   };
 
+  const clearNutritionFields = () => {
+    setFormData(prev => ({
+      ...prev,
+      calories: '',
+      protein: '',
+      carbs: '',
+      fat: '',
+    }));
+  };
+
   const initializeForm = (currentLog: FoodLog | null, mode: ModalMode) => {
     if (currentLog) {
       // For audio logs being transcribed, keep title field empty for user input
@@ -89,5 +100,6 @@ export function useFoodLogForm(): UseFoodLogFormReturn {
     updateField,
     resetForm,
     initializeForm,
+    clearNutritionFields,
   };
 }

@@ -1,23 +1,30 @@
 import React from 'react';
+import { SparkleIcon, PencilIcon } from 'phosphor-react-native';
 import { FormField, NutritionGrid, DescriptionSkeleton, InlineRecordButton } from '@/shared/ui';
+import { Toggle, type ToggleOption } from '@/shared/ui/atoms/Toggle';
 import { FoodLog } from '@/types';
 import { FoodLogFormData } from '../../hooks/useFoodLogForm';
 import { UseAudioRecordingReturn } from '../../hooks/useAudioRecording';
+import { NutritionMode } from '../../FoodLogModal';
 
 interface FoodLogFormFieldsProps {
   formData: FoodLogFormData;
   currentLog: FoodLog | null;
   audioRecording: UseAudioRecordingReturn;
+  nutritionMode: NutritionMode;
   onFieldChange: (field: keyof FoodLogFormData, value: string) => void;
   onValidationErrorClear: () => void;
+  onNutritionModeChange: (mode: NutritionMode) => void;
 }
 
 export const FoodLogFormFields: React.FC<FoodLogFormFieldsProps> = ({
   formData,
   currentLog,
   audioRecording,
+  nutritionMode,
   onFieldChange,
   onValidationErrorClear,
+  onNutritionModeChange,
 }) => {
   const { recordingState, startNewRecording, handleStopRecording, getCurrentTranscription } = audioRecording;
 
@@ -25,6 +32,20 @@ export const FoodLogFormFields: React.FC<FoodLogFormFieldsProps> = ({
   const displayDescription = recordingState === 'recording' 
     ? getCurrentTranscription() 
     : formData.description;
+
+  // Nutrition mode toggle options
+  const nutritionModeOptions: [ToggleOption<NutritionMode>, ToggleOption<NutritionMode>] = [
+    {
+      value: "estimation",
+      label: "Estimation",
+      icon: SparkleIcon,
+    },
+    {
+      value: "manual",
+      label: "Manual", 
+      icon: PencilIcon,
+    },
+  ];
 
   return (
     <>
@@ -68,17 +89,28 @@ export const FoodLogFormFields: React.FC<FoodLogFormFieldsProps> = ({
         </FormField>
       )}
 
-      <NutritionGrid
-        calories={formData.calories}
-        protein={formData.protein}
-        carbs={formData.carbs}
-        fat={formData.fat}
-        onCaloriesChange={(value) => onFieldChange('calories', value)}
-        onProteinChange={(value) => onFieldChange('protein', value)}
-        onCarbsChange={(value) => onFieldChange('carbs', value)}
-        onFatChange={(value) => onFieldChange('fat', value)}
-        disabled={recordingState === 'recording'}
+      {/* Nutrition mode toggle */}
+      <Toggle
+        value={nutritionMode}
+        options={nutritionModeOptions}
+        onChange={onNutritionModeChange}
+        accessibilityLabel="Select nutrition input mode"
       />
+
+      {/* Show nutrition inputs only in manual mode */}
+      {nutritionMode === "manual" && (
+        <NutritionGrid
+          calories={formData.calories}
+          protein={formData.protein}
+          carbs={formData.carbs}
+          fat={formData.fat}
+          onCaloriesChange={(value) => onFieldChange('calories', value)}
+          onProteinChange={(value) => onFieldChange('protein', value)}
+          onCarbsChange={(value) => onFieldChange('carbs', value)}
+          onFatChange={(value) => onFieldChange('fat', value)}
+          disabled={recordingState === 'recording'}
+        />
+      )}
     </>
   );
 };
