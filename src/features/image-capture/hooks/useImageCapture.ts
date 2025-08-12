@@ -1,22 +1,20 @@
-import { useState } from 'react';
-import { Alert } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import * as ImageManipulator from 'expo-image-manipulator';
-import { supabase } from '@/lib/supabase';
-import { FoodLog } from '../../../types';
-import { generateFoodLogId } from '../../../lib/storage';
-import { useFoodLogStore } from '../../../stores/useFoodLogStore';
-
-
+import { useState } from "react";
+import { Alert } from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from "expo-image-manipulator";
+import { supabase } from "@/lib/supabase";
+import { FoodLog } from "@/types";
+import { generateFoodLogId } from "@/lib/storage";
+import { useFoodLogStore, selectSelectedDate } from "@/stores/useFoodLogStore";
 
 export const useImageCapture = () => {
   const [isUploading, setIsUploading] = useState(false);
-  const { selectedDate, updateFoodLogInState, addFoodLogToState } = useFoodLogStore();
+  const selectedDate = useFoodLogStore(selectSelectedDate);
 
   const createPartialLog = (localImageUri: string): FoodLog => {
     return {
       id: generateFoodLogId(),
-      generatedTitle: '',
+      generatedTitle: "",
       estimationConfidence: 0,
       calories: 0,
       protein: 0,
@@ -29,7 +27,11 @@ export const useImageCapture = () => {
     };
   };
 
-  const uploadImageInBackground = async (log: FoodLog, imageUri: string) => {
+  const uploadImageInBackground = async (
+    log: FoodLog,
+    imageUri: string,
+    onUpdated?: (updated: FoodLog) => void
+  ) => {
     try {
       // Process and resize image
       const resizedImageUri = await ImageManipulator.manipulateAsync(
@@ -41,15 +43,15 @@ export const useImageCapture = () => {
       // Upload to Supabase Storage
       const filename = `public/food-image-${Date.now()}.jpg`;
       const formData = new FormData();
-      formData.append('file', {
+      formData.append("file", {
         uri: resizedImageUri.uri,
         name: filename,
-        type: 'image/jpeg',
+        type: "image/jpeg",
       } as any);
 
       const { error: uploadError } = await supabase.storage
-        .from('food-images')
-        .upload(filename, formData);
+        .from("food-images")
+        .upload(filename, formData, { upsert: false });
 
       if (uploadError) {
         throw uploadError;
@@ -57,8 +59,11 @@ export const useImageCapture = () => {
 
       // Get the public URL for the uploaded image
       const { data: publicUrlData } = supabase.storage
-        .from('food-images')
+        .from("food-images")
         .getPublicUrl(filename);
+      if (!publicUrlData?.publicUrl) {
+        throw new Error("Failed to obtain public URL");
+      }
 
       // Update the log with uploaded image URL
       const updatedLog: FoodLog = {
@@ -67,94 +72,107 @@ export const useImageCapture = () => {
         isUploading: false,
         localImageUri: undefined, // Clear local URI after successful upload
       };
-
-      // Update the log in the store
-      updateFoodLogInState(updatedLog);
+      onUpdated?.(updatedLog);
     } catch (error) {
-      console.error('Error processing and uploading image:', error);
-      
+      console.error("Error processing and uploading image:", error);
+
       // Update log to show upload failed
       const failedLog: FoodLog = {
         ...log,
         isUploading: false,
         // Keep local URI so user can retry
       };
-      
-      updateFoodLogInState(failedLog);
-      Alert.alert('Upload Failed', 'Failed to upload image. You can still save this entry with the local image.');
+      onUpdated?.(failedLog);
+      Alert.alert(
+        "Upload Failed",
+        "Failed to upload image. You can still save this entry with the local image."
+      );
     }
   };
 
-  const launchCamera = async (): Promise<FoodLog | null> => {
+  const launchCamera = async (
+    onProgressUpdate?: (updated: FoodLog) => void
+  ): Promise<FoodLog | null> => {
     try {
       // Request camera permissions
-      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+      const permissionResult =
+        await ImagePicker.requestCameraPermissionsAsync();
 
-      if (permissionResult.status !== 'granted') {
-        Alert.alert('Permission Required', 'Camera access is required to take photos');
+      if (permissionResult.status !== "granted") {
+        Alert.alert(
+          "Permission Required",
+          "Camera access is required to take photos"
+        );
         return null;
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ['images'],
+        mediaTypes: ["images"],
         allowsEditing: false,
         quality: 1,
       });
 
       if (result.canceled) return null;
 
-      // Create partial log immediately
+      // Create partial log for modal (do NOT add to main list yet)
       const partialLog = createPartialLog(result.assets[0].uri);
-      
-      // Add to store state immediately so modal can track it
-      addFoodLogToState(partialLog);
-      
-      // Start background upload
-      uploadImageInBackground(partialLog, result.assets[0].uri);
-      
+
+      // Start background upload and provide updates to caller (modal)
+      uploadImageInBackground(
+        partialLog,
+        result.assets[0].uri,
+        onProgressUpdate
+      );
+
       return partialLog;
     } catch (error) {
-      console.error('Error launching camera:', error);
-      Alert.alert('Error', 'Failed to access camera');
+      console.error("Error launching camera:", error);
+      Alert.alert("Error", "Failed to access camera");
       return null;
     }
   };
 
-  const launchImageLibrary = async (): Promise<FoodLog | null> => {
+  const launchImageLibrary = async (
+    onProgressUpdate?: (updated: FoodLog) => void
+  ): Promise<FoodLog | null> => {
     try {
       // Request media library permissions
-      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-      if (permissionResult.status !== 'granted') {
-        Alert.alert('Permission Required', 'Photo library access is required to select images');
+      if (permissionResult.status !== "granted") {
+        Alert.alert(
+          "Permission Required",
+          "Photo library access is required to select images"
+        );
         return null;
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
+        mediaTypes: ["images"],
         allowsEditing: false,
         quality: 1,
       });
 
       if (result.canceled) return null;
 
-      // Create partial log immediately
+      // Create partial log for modal (do NOT add to main list yet)
       const partialLog = createPartialLog(result.assets[0].uri);
-      
-      // Add to store state immediately so modal can track it
-      addFoodLogToState(partialLog);
-      
-      // Start background upload
-      uploadImageInBackground(partialLog, result.assets[0].uri);
-      
+
+      // Start background upload and provide updates to caller (modal)
+      uploadImageInBackground(
+        partialLog,
+        result.assets[0].uri,
+        onProgressUpdate
+      );
+
       return partialLog;
     } catch (error) {
-      console.error('Error launching image library:', error);
-      Alert.alert('Error', 'Failed to access photo library');
+      console.error("Error launching image library:", error);
+      Alert.alert("Error", "Failed to access photo library");
       return null;
     }
   };
-
 
   return {
     isUploading,

@@ -47,7 +47,12 @@ export function useFoodLogModal(
     // Don't add to state yet - just open modal for user input
     // The skeleton will be added after modal closes
     setModalMode("create");
-    setSelectedLog(log);
+    // Merge defensively to avoid overwriting newer upload progress
+    setSelectedLog((prev) => {
+      if (!prev || prev.id !== log.id) return log;
+      // Prefer fields from the more up-to-date previous value (e.g., imageUrl, isUploading=false)
+      return { ...log, ...prev };
+    });
     setIsAudioMode(false);
     setIsModalVisible(true);
   };

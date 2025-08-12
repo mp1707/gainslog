@@ -52,12 +52,17 @@ export default function TodayTab() {
       if (triggerAction === "manual") {
         modal.handleManualLog();
       } else if (triggerAction === "camera") {
-        const log = await launchCamera();
+        const log = await launchCamera((updated) => {
+          // Keep modal in sync with upload progress (avoid stale closure by updating unconditionally)
+          modal.setSelectedLog(updated);
+        });
         if (log) {
           modal.handleImageCaptured(log);
         }
       } else if (triggerAction === "library") {
-        const log = await launchImageLibrary();
+        const log = await launchImageLibrary((updated) => {
+          modal.setSelectedLog(updated);
+        });
         if (log) {
           modal.handleImageCaptured(log);
         }

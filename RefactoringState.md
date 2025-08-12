@@ -1366,9 +1366,10 @@ Notes:
   - changeLog: []
 - path: `src/features/image-capture/hooks/useImageCapture.ts`
 
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Deferred skeleton insertion until after modal save. Hook now returns partial log without adding to store and provides progress updates via callback; store insertion handled in save flow.
 
 - path: `src/features/image-capture/ui/index.ts`
   - state: open
