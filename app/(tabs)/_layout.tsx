@@ -1,5 +1,10 @@
 import { Tabs } from "expo-router";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import {
+  CalendarIcon,
+  ForkKnifeIcon,
+  GearSixIcon,
+  StarIcon,
+} from "phosphor-react-native";
 import { useTheme } from "../../src/providers/ThemeProvider";
 import React from "react";
 
@@ -22,8 +27,12 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Food Log",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome name="cutlery" size={24} color={color} />
+          tabBarIcon: ({ color, focused, size }) => (
+            <ForkKnifeIcon
+              color={color}
+              size={size ?? 24}
+              weight={focused ? "fill" : "regular"}
+            />
           ),
         }}
       />
@@ -31,8 +40,12 @@ export default function TabLayout() {
         name="overview"
         options={{
           title: "Overview",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome name="calendar" size={24} color={color} />
+          tabBarIcon: ({ color, focused, size }) => (
+            <CalendarIcon
+              color={color}
+              size={size ?? 24}
+              weight={focused ? "fill" : "regular"}
+            />
           ),
         }}
       />
@@ -40,8 +53,12 @@ export default function TabLayout() {
         name="favorites"
         options={{
           title: "Favorites",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome name="star" size={24} color={color} />
+          tabBarIcon: ({ color, focused, size }) => (
+            <StarIcon
+              color={color}
+              size={size ?? 24}
+              weight={focused ? "fill" : "regular"}
+            />
           ),
         }}
       />
@@ -49,8 +66,12 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: "Settings",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome name="cog" size={24} color={color} />
+          tabBarIcon: ({ color, focused, size }) => (
+            <GearSixIcon
+              color={color}
+              size={size ?? 24}
+              weight={focused ? "fill" : "regular"}
+            />
           ),
         }}
       />
