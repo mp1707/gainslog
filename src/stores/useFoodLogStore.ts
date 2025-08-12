@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import { Alert } from "react-native";
 import { router } from "expo-router";
-import { FoodLog, DailyTargets, DailyProgress } from "../types";
 import type {
+  FoodLog,
+  DailyTargets,
   ProteinCalculationMethod,
   CalorieCalculationMethod,
   CalorieIntakeParams,
@@ -113,9 +114,6 @@ interface FoodLogStore {
     goalType: GoalType
   ) => void;
   clearCalorieCalculation: () => void;
-
-  // Progress calculations
-  getDailyProgress: () => DailyProgress;
 }
 
 // Helper function to get today's date in ISO format (YYYY-MM-DD) in local timezone
@@ -144,7 +142,7 @@ const getCurrentMonthString = (): string => {
 };
 
 // Debounce helper for auto-saving targets
-let debounceTimer: NodeJS.Timeout | null = null;
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 const DEBOUNCE_DELAY = 800; // 800ms delay
 
 export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
@@ -401,47 +399,6 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
     }, DEBOUNCE_DELAY);
   },
 
-  // Progress calculations
-  getDailyProgress: (): DailyProgress => {
-    const { dailyTargets } = get();
-    const filteredLogs = get().getFilteredFoodLogs();
-
-    const current = filteredLogs.reduce(
-      (totals, log) => ({
-        calories: totals.calories + log.calories,
-        protein: totals.protein + log.protein,
-        carbs: totals.carbs + log.carbs,
-        fat: totals.fat + log.fat,
-      }),
-      { calories: 0, protein: 0, carbs: 0, fat: 0 }
-    );
-
-    const percentages = {
-      calories:
-        dailyTargets.calories > 0
-          ? Math.round((current.calories / dailyTargets.calories) * 100)
-          : 0,
-      protein:
-        dailyTargets.protein > 0
-          ? Math.round((current.protein / dailyTargets.protein) * 100)
-          : 0,
-      carbs:
-        dailyTargets.carbs > 0
-          ? Math.round((current.carbs / dailyTargets.carbs) * 100)
-          : 0,
-      fat:
-        dailyTargets.fat > 0
-          ? Math.round((current.fat / dailyTargets.fat) * 100)
-          : 0,
-    };
-
-    return {
-      current,
-      targets: dailyTargets,
-      percentages,
-    };
-  },
-
   // Protein calculation actions
   setProteinCalculation: (
     method: ProteinCalculationMethod,
@@ -544,3 +501,21 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
 
 // Export types for components that need them
 export type { ActionType, ProteinCalculationSelection };
+
+// Memoizable selectors for component-level subscription
+export const selectFoodLogs = (state: FoodLogStore) => state.foodLogs;
+export const selectIsLoadingLogs = (state: FoodLogStore) => state.isLoadingLogs;
+export const selectSelectedDate = (state: FoodLogStore) => state.selectedDate;
+export const selectSelectedMonth = (state: FoodLogStore) => state.selectedMonth;
+export const selectTriggerAction = (state: FoodLogStore) => state.triggerAction;
+export const selectDailyTargets = (state: FoodLogStore) => state.dailyTargets;
+export const selectIsLoadingTargets = (state: FoodLogStore) =>
+  state.isLoadingTargets;
+export const selectProteinCalculation = (state: FoodLogStore) =>
+  state.proteinCalculation;
+export const selectCalorieCalculation = (state: FoodLogStore) =>
+  state.calorieCalculation;
+export const selectFilteredFoodLogs = (state: FoodLogStore) =>
+  state.getFilteredFoodLogs();
+export const selectMonthlyFoodLogs = (state: FoodLogStore) =>
+  state.getMonthlyFoodLogs();

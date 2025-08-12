@@ -165,23 +165,6 @@ export interface DailyTargets {
   fat: number;
 }
 
-// Daily progress data interface
-export interface DailyProgress {
-  current: {
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
-  targets: DailyTargets;
-  percentages: {
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
-}
-
 // Favorite entry template stored on device
 export interface FavoriteEntry {
   title: string;

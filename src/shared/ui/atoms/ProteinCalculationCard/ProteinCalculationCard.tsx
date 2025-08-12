@@ -18,7 +18,7 @@ import { useTheme } from "../../../../providers/ThemeProvider";
 import { createStyles } from "./ProteinCalculationCard.styles";
 import type { ProteinCalculationMethod } from "@/types";
 
-interface ProteinCalculationCardProps {
+export interface ProteinCalculationCardProps {
   method: ProteinCalculationMethod;
   bodyWeight: number;
   isSelected: boolean;

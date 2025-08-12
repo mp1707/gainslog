@@ -25,7 +25,7 @@ import type {
 
 // CalorieCalculationMethod type centralized in @/types
 
-interface CalorieCalculationCardProps {
+export interface CalorieCalculationCardProps {
   method: CalorieCalculationMethod;
   calorieGoals?: CalorieGoals;
   isSelected: boolean;

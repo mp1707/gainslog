@@ -403,53 +403,72 @@ Notes:
 
 - path: `src/stores/useFavoritesStore.ts`
 
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
-  - notes: Ensure selectors and immutability; avoid over-rendering.
+  - changeLog:
+    - 2025-08-12: Added memoizable selectors (`selectFavorites`, `selectFavoritesIsLoading`, parameterized selectors). Verified immutability in add/remove/toggle. No API breaking changes.
+  - notes: Consumers should use selectors for granular subscriptions.
+  - followUps:
+    - Migrate components to use new selectors (`selectFavorites`, `selectFavoritesIsLoading`, parameterized selectors) to reduce re-renders.
 
 - path: `src/stores/useFoodLogStore.ts`
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
-  - notes: Normalize entities; derive selectors for computed state.
+  - changeLog:
+    - 2025-08-12: Unified type imports to `@/types`. Tightened debounce type (`ReturnType<typeof setTimeout>`). Added memoizable selectors for all major slices and computed getters. No functional changes.
+  - notes: Selectors reduce re-renders; computed selectors call store methods.
+  - followUps:
+    - Replace direct `useFoodLogStore()` usages across screens/components with memoizable selectors (`selectFoodLogs`, `selectSelectedDate`, etc.).
+    - Verify key consumers: `FoodLogScreen.tsx`, `DailyProgressSummary`, `DailySummaryCard`, `FavoritesPickerModal`, and tab screens.
 
 ### Shared Icons
 
 - path: `src/shared/icons/ArrowLeftIcon.tsx`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Migrated to `react-native-svg` with `size` and `color` props; created common `IconProps`.
 
 - path: `src/shared/icons/ArrowRightIcon.tsx`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Migrated to `react-native-svg`; consumes shared `IconProps`.
 
 - path: `src/shared/icons/CalendarIcon.tsx`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Migrated to `react-native-svg`; standardized API.
 
 - path: `src/shared/icons/CameraIcon.tsx`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Migrated to `react-native-svg`; standardized API.
 
 - path: `src/shared/icons/PencilIcon.tsx`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Migrated to `react-native-svg`; standardized API.
 
 - path: `src/shared/icons/SettingsIcon.tsx`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Migrated to `react-native-svg`; standardized API.
+- path: `src/shared/icons/index.ts`
+
+- state: done
+- priority: low
+- changeLog:
+  - 2025-08-12: Added barrel export for all icons and shared `IconProps`.
 
 ### Shared UI - Atoms
 

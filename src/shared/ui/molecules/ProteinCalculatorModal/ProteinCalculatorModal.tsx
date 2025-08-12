@@ -12,8 +12,8 @@ import { Stepper } from "../../atoms/Stepper/Stepper";
 import {
   ProteinCalculationCard,
   CALCULATION_METHODS,
-  ProteinCalculationMethod,
 } from "../../atoms/ProteinCalculationCard";
+import type { ProteinCalculationMethod } from "@/types";
 import { useStyles } from "./ProteinCalculatorModal.styles";
 import {
   getCalorieCalculatorParams,

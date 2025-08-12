@@ -93,3 +93,14 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
     });
   },
 }));
+
+// Selectors for performance-friendly consumption
+export const selectFavorites = (state: FavoritesStore) => state.favorites;
+export const selectFavoritesIsLoading = (state: FavoritesStore) =>
+  state.isLoading;
+export const selectIsFavoriteForLog =
+  (log: FoodLog) => (state: FavoritesStore) =>
+    state.isFavorite(log);
+export const selectFilteredFavorites =
+  (term: string) => (state: FavoritesStore) =>
+    state.filter(term);

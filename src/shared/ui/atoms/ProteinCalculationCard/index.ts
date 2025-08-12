@@ -1,2 +1,5 @@
-export { ProteinCalculationCard, CALCULATION_METHODS } from './ProteinCalculationCard';
-export type { ProteinCalculationMethod } from './ProteinCalculationCard';
+export {
+  ProteinCalculationCard,
+  CALCULATION_METHODS,
+} from "./ProteinCalculationCard";
+export type { ProteinCalculationCardProps } from "./ProteinCalculationCard";
