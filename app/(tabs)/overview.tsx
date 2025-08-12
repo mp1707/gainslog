@@ -9,7 +9,7 @@ import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 import { DailySummaryCard } from "../../src/shared/ui/molecules/DailySummaryCard";
 import { MonthPicker } from "../../src/shared/ui/molecules/MonthPicker";
 import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
-import { SemanticBadge } from "@/components/SemanticBadge";
+import { FilterBadge } from "@/components/FilterBadge";
 
 export default function OverviewTab() {
   const {
@@ -59,6 +59,18 @@ export default function OverviewTab() {
     [colors, theme, dynamicBottomPadding]
   );
 
+  // Nutrient filter state
+  const [filters, setFilters] = useState({
+    calories: true,
+    protein: true,
+    carbs: true,
+    fat: true,
+  });
+
+  const handleToggleFilter = (key: keyof typeof filters) => {
+    setFilters((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <PageHeader>
@@ -71,10 +83,30 @@ export default function OverviewTab() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.legendRow}
         >
-          <SemanticBadge type="calories" label="Calories" />
-          <SemanticBadge type="protein" label="Protein" />
-          <SemanticBadge type="carbs" label="Carbs" />
-          <SemanticBadge type="fat" label="Fat" />
+          <FilterBadge
+            type="calories"
+            label="Calories"
+            active={filters.calories}
+            onToggle={() => handleToggleFilter("calories")}
+          />
+          <FilterBadge
+            type="protein"
+            label="Protein"
+            active={filters.protein}
+            onToggle={() => handleToggleFilter("protein")}
+          />
+          <FilterBadge
+            type="carbs"
+            label="Carbs"
+            active={filters.carbs}
+            onToggle={() => handleToggleFilter("carbs")}
+          />
+          <FilterBadge
+            type="fat"
+            label="Fat"
+            active={filters.fat}
+            onToggle={() => handleToggleFilter("fat")}
+          />
         </ScrollView>
       </PageHeader>
 
@@ -105,14 +137,14 @@ export default function OverviewTab() {
                 ? Math.round((totals.fat / dailyTargets.fat) * 100)
                 : 0,
           }))
-          .map((d, idx) => (
+           .map((d, idx) => (
             <View key={d.dateIso} style={styles.cardWrap}>
               <DailySummaryCard
                 dateIso={d.dateIso}
-                calories={d.calories}
-                protein={d.protein}
-                carbs={d.carbs}
-                fat={d.fat}
+                 calories={filters.calories ? d.calories : 0}
+                 protein={filters.protein ? d.protein : 0}
+                 carbs={filters.carbs ? d.carbs : 0}
+                 fat={filters.fat ? d.fat : 0}
                 onPress={() => handleDayPress(d.dateIso)}
               />
             </View>
