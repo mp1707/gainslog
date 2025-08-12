@@ -1,10 +1,10 @@
 import React from "react";
 import { View } from "react-native";
-import { CameraIcon, MicrophoneIcon, TextTIcon } from "phosphor-react-native";
-import { BadgeProps } from "../../../../types";
+import { CameraIcon } from "@/shared/icons";
+import { BadgeProps } from "@/types";
 import { LoadingSpinner } from "../LoadingSpinner";
-import { AppText } from "src/components";
-import { useTheme } from "../../../../providers/ThemeProvider";
+import { AppText } from "@/components";
+import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./Badge.styles";
 
 export const Badge: React.FC<BadgeProps> = (props) => {
@@ -86,16 +86,6 @@ export const Badge: React.FC<BadgeProps> = (props) => {
             icon: CameraIcon,
             accessibilityLabel: "Image input",
           };
-        case "audio":
-          return {
-            icon: MicrophoneIcon,
-            accessibilityLabel: "Audio input",
-          };
-        case "text":
-          return {
-            icon: TextTIcon,
-            accessibilityLabel: "Text input",
-          };
         default:
           return {
             icon: CameraIcon,
@@ -113,7 +103,7 @@ export const Badge: React.FC<BadgeProps> = (props) => {
         accessibilityRole="image"
         accessibilityLabel={iconInfo.accessibilityLabel}
       >
-        <IconComponent size={16} color={colors.accent} weight="regular" />
+        <IconComponent size={16} color={colors.accent} />
       </View>
     );
   }

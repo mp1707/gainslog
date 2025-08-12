@@ -473,46 +473,55 @@ Notes:
 ### Shared UI - Atoms
 
 - path: `src/shared/ui/atoms/AnimatedCalculatorButton/AnimatedCalculatorButton.tsx`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified implementation aligns with theme tokens and accessibility. Kept logic. No API change.
 - path: `src/shared/ui/atoms/AnimatedCalculatorButton/AnimatedCalculatorButton.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Removed unused `variant` parameter and dead variable. No visual change. Lint clean.
 - path: `src/shared/ui/atoms/AnimatedCalculatorButton/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel export verified.
 
 - path: `src/shared/ui/atoms/Badge/Badge.tsx`
-  - state: open
-  - priority: low
-  - changeLog: []
+  - state: done
+  - priority: medium
+  - changeLog:
+    - 2025-08-12: Fixed imports to use path aliases (`@/types`, `@/components`, `@/providers`, `@/shared/icons`). Removed unsupported icon variants and phosphor dependencies to use shared SVG icons. Resolved type error with icon props. Added consistent accessibility.
 - path: `src/shared/ui/atoms/Badge/Badge.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified theme usage; kept legacy export for compatibility. No changes required.
 - path: `src/shared/ui/atoms/Badge/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel export verified.
 
 - path: `src/shared/ui/atoms/Button/Button.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified props against `@/types`. Confirmed pressed/disabled states and a11y. No code changes needed.
 - path: `src/shared/ui/atoms/Button/Button.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified usage of theme tokens; no code changes required.
 - path: `src/shared/ui/atoms/Button/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel export verified.
 
 - path: `src/shared/ui/atoms/CalorieCalculationCard/CalorieCalculationCard.tsx`
   - state: open

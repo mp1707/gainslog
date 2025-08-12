@@ -4,13 +4,8 @@ import { useTheme } from "@/providers/ThemeProvider";
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
 
-export const createStyles = (
-  colors: Colors,
-  theme: Theme,
-  variant: "compact" | "primary" = "compact"
-) => {
+export const createStyles = (colors: Colors, theme: Theme) => {
   const { typography, spacing, components } = theme;
-  const componentStyles = theme.getComponentStyles();
 
   return StyleSheet.create({
     button: {
