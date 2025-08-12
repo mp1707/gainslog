@@ -1,5 +1,13 @@
 import React, { useMemo } from "react";
 import { View, Pressable } from "react-native";
+import * as Haptics from "expo-haptics";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  Easing,
+} from "react-native-reanimated";
 import { useTheme } from "@/providers/ThemeProvider";
 import { Card, AppText, ProgressRow } from "@/components";
 import { useStyles } from "./DailySummaryCard.styles";
@@ -40,7 +48,9 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
   // Memoize formatted date to avoid recalculation
   const formattedDate = useMemo(() => formatDate(dateIso), [dateIso]);
 
-  // Animations removed
+  // Press animation shared values
+  const pressScale = useSharedValue(1);
+  const pressFlashOpacity = useSharedValue(0);
 
   // Pre-calculate colors with null safety
   const semanticColors = useMemo(() => {
@@ -52,6 +62,16 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
       fat: semantic.fat || "#FFA726",
     };
   }, [colors?.semantic]);
+
+  // Press animation styles
+  const cardAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pressScale.value }],
+  }));
+
+  const pressFlashAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: pressFlashOpacity.value,
+    backgroundColor: colors.primaryText,
+  }));
 
   // Add null safety for visible prop
   const safeVisible = visible || {
@@ -138,15 +158,43 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
     styles.rowGap,
   ]);
 
+  // Press handlers for animation
+  const handlePressIn = () => {
+    // Press down animation - scale down and flash
+    pressScale.value = withTiming(0.97, {
+      duration: 150,
+      easing: Easing.out(Easing.quad),
+    });
+    pressFlashOpacity.value = withTiming(0.08, {
+      duration: 150,
+      easing: Easing.out(Easing.quad),
+    });
+  };
+
+  const handlePressOut = () => {
+    // Release animation - spring back and fade flash
+    pressScale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+    pressFlashOpacity.value = withTiming(0, {
+      duration: 300,
+      easing: Easing.out(Easing.quad),
+    });
+  };
+
+  const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress();
+  };
+
   return (
     <Pressable
-      onPress={onPress}
-      // animations removed
+      onPress={handlePress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
       accessible={true}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
     >
-      <View style={styles.cardContainer}>
+      <Animated.View style={[styles.cardContainer, cardAnimatedStyle]}>
         <Card elevated={false}>
           <View style={styles.row}>
             <View style={styles.dateColumn}>
@@ -155,7 +203,13 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
             <View style={styles.metricsColumn}>{metricsContent}</View>
           </View>
         </Card>
-      </View>
+        
+        {/* Press flash overlay for press feedback */}
+        <Animated.View
+          style={[styles.pressOverlay, pressFlashAnimatedStyle]}
+          pointerEvents="none"
+        />
+      </Animated.View>
     </Pressable>
   );
 });
