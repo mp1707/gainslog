@@ -141,11 +141,11 @@ export default function OverviewTab() {
             <View key={d.dateIso} style={styles.cardWrap}>
               <DailySummaryCard
                 dateIso={d.dateIso}
-                 calories={d.calories}
-                 protein={d.protein}
-                 carbs={d.carbs}
-                 fat={d.fat}
-                 visible={filters}
+                calories={d.calories}
+                protein={d.protein}
+                carbs={d.carbs}
+                fat={d.fat}
+                visible={filters}
                 onPress={() => handleDayPress(d.dateIso)}
               />
             </View>

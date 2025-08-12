@@ -33,15 +33,24 @@ export const FilterBadge: React.FC<FilterBadgeProps> = ({
       onPress={() => onToggle(type)}
       accessibilityRole="button"
       accessibilityLabel={`${label} filter`}
-      accessibilityState={{ pressed: active }}
-      accessibilityHint={active ? "Active. Tap to hide this metric." : "Inactive. Tap to show this metric."}
+      accessibilityState={{ disabled: !active }}
+      accessibilityHint={
+        active
+          ? "Active. Tap to hide this metric."
+          : "Inactive. Tap to show this metric."
+      }
       style={[
         styles.badge,
         { backgroundColor: active ? bgActive : bgInactive },
         style,
       ]}
     >
-      <AppText role="Caption" style={{ color: active ? (textActive || colors.primaryText) : textInactive }}>
+      <AppText
+        role="Caption"
+        style={{
+          color: active ? textActive || colors.primaryText : textInactive,
+        }}
+      >
         {label}
       </AppText>
     </Pressable>
@@ -59,5 +68,3 @@ const createStyles = (theme: any) =>
       alignItems: "center",
     },
   });
-
-
