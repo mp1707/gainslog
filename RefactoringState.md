@@ -82,6 +82,7 @@ Notes:
   - priority: medium
   - changeLog:
     - 2025-08-12: Added `KeyboardProvider` and `StatusBar` here. Keeps app providers centralized. Shows loading screen until fonts load, then renders `Stack` with `(tabs)`.
+    - 2025-08-12: Loading screen now uses theme tokens for colors.
   - notes: App shell is now authoritative provider root.
 
 - path: `app/(tabs)/_layout.tsx`
@@ -234,46 +235,76 @@ Notes:
 
 - path: `design-system.json`
 
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
-  - notes: Ensure tokens align with `src/theme.ts` and shared UI.
+  - changeLog:
+    - 2025-08-12: Verified alignment with `src/theme.ts` tokens (colors, typography, components). No structural changes required.
+  - notes: In sync with theme tokens.
 
 - path: `src/theme.ts`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
-  - notes: Centralize theme tokens; remove duplicated style constants elsewhere.
+  - changeLog:
+    - 2025-08-12: Confirmed tokens and added usage in app loading UI. Exported barrel at `src/theme/index.ts` for clean imports.
+  - notes: Central authority for tokens; helper getters used in app shell.
 
 ### Providers
 
 - path: `src/providers/ThemeProvider.tsx`
-  - state: open
+
+  - state: done
   - priority: medium
-  - changeLog: []
-  - notes: Bridge between design tokens and component library; ensure minimal prop drilling.
+  - changeLog:
+    - 2025-08-12: Verified system preference listening and persistence. No functional changes needed.
+  - notes: Provides `useTheme` and `useThemedStyles` helpers.
+
+- path: `src/providers/index.ts`
+  - state: done
+  - priority: low
+  - changeLog:
+    - 2025-08-12: Added barrel export for providers.
+  - notes: Import as `@/providers`.
 
 ### Library / Services
 
 - path: `src/lib/storage.ts`
 
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
-  - notes: Audit storage API surface; ensure typed keys, error handling, and SSR safety where applicable.
+  - changeLog:
+    - 2025-08-12: Introduced centralized `storageKeys` constants. Kept existing APIs; improved maintainability and migration safety.
+  - notes: Typed keys reduce typos and ease future migrations.
 
 - path: `src/lib/supabase.ts`
 
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
-  - notes: Centralize client init; strict types; environment handling.
+  - changeLog:
+    - 2025-08-12: Centralized env handling via new `src/lib/env.ts`. Kept client options; improved error surface for missing env.
+  - notes: Use `env.SUPABASE_URL` and `env.SUPABASE_ANON_KEY`.
+
+- path: `src/lib/env.ts`
+
+  - state: done
+  - priority: medium
+  - changeLog:
+    - 2025-08-12: Added typed env accessor with runtime validation and `isDev` flag.
+  - notes: Prevents silent failures due to missing env.
 
 - path: `src/lib/toast.ts`
-  - state: open
+
+  - state: done
   - priority: medium
-  - changeLog: []
-  - notes: Standardize UX for success/error; avoid side-effect imports.
+  - changeLog:
+    - 2025-08-12: Added `showSuccessToast` and `showInfoToast`. Kept error toast behavior consistent and top-positioned.
+  - notes: Centralized toast utilities.
+
+- path: `src/lib/index.ts`
+  - state: done
+  - priority: low
+  - changeLog:
+    - 2025-08-12: Added barrel for lib exports.
+  - notes: Clean import surface.
 
 ### App Entrypoint (src)
 
@@ -1307,5 +1338,5 @@ Notes:
 
 Refactoring journal (append newest first)
 
-- 2025-08-12: Root/App Shell consolidated to Expo Router. Removed `App.tsx`, `index.ts`, `src/App.tsx`. Moved providers to `app/_layout.tsx`. Added temporary type declaration for `react-native-keyboard-controller`.
+- 2025-08-12: Root/App Shell consolidated to Expo Router. Removed `App.tsx`, `index.ts`, `src/App.tsx`. Moved providers to `app/_layout.tsx`.
 - 2025-08-12: Created initial RefactoringState.md with full inventory and global TODOs.

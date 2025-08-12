@@ -2,12 +2,20 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FoodLog, DailyTargets, FavoriteEntry } from "../types";
 import type { CalorieIntakeParams, Sex } from "../utils/calculateCalories";
 
-const FOOD_LOGS_KEY = "food_logs";
-const DAILY_TARGETS_KEY = "daily_targets";
+// Centralized, typed storage keys to avoid typos and ease migrations
+export const storageKeys = {
+  FOOD_LOGS: "food_logs",
+  DAILY_TARGETS: "daily_targets",
+  COLOR_SCHEME: "color_scheme",
+  CALORIE_CALCULATOR_PARAMS: "calorie_calculator_params",
+  FAVORITE_ENTRIES: "favorite_entries",
+} as const;
 
-const COLOR_SCHEME_KEY = "color_scheme";
-const CALORIE_CALCULATOR_PARAMS_KEY = "calorie_calculator_params";
-const FAVORITE_ENTRIES_KEY = "favorite_entries";
+const FOOD_LOGS_KEY = storageKeys.FOOD_LOGS;
+const DAILY_TARGETS_KEY = storageKeys.DAILY_TARGETS;
+const COLOR_SCHEME_KEY = storageKeys.COLOR_SCHEME;
+const CALORIE_CALCULATOR_PARAMS_KEY = storageKeys.CALORIE_CALCULATOR_PARAMS;
+const FAVORITE_ENTRIES_KEY = storageKeys.FAVORITE_ENTRIES;
 
 /**
  * Save a food log to AsyncStorage

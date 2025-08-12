@@ -5,7 +5,7 @@ import {
   GearSixIcon,
   StarIcon,
 } from "phosphor-react-native";
-import { useTheme } from "../../src/providers/ThemeProvider";
+import { useTheme } from "@/providers";
 import React from "react";
 
 export default function TabLayout() {

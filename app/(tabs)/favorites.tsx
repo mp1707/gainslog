@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { PageHeader } from "@/shared/ui/molecules/PageHeader";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/providers";
 import { useFavoritesStore } from "@/stores/useFavoritesStore";
 import { SearchBar } from "@/shared/ui/components/SearchBar/SearchBar";
 import { FavoriteEntry } from "@/types";

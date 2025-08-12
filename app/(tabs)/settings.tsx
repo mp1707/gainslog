@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { Button } from "@/shared/ui/atoms/Button";
 import { StatusIcon } from "@/shared/ui/atoms/StatusIcon";

@@ -4,7 +4,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { useTheme } from "../../src/providers/ThemeProvider";
+import { useTheme } from "@/providers";
 import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 import { DailySummaryCard } from "../../src/shared/ui/molecules/DailySummaryCard";
 import { MonthPicker } from "../../src/shared/ui/molecules/MonthPicker";
