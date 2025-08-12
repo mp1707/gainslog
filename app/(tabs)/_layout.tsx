@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import {
-  CalendarIcon,
+  ChartBarIcon,
   ForkKnifeIcon,
   GearSixIcon,
   StarIcon,
@@ -41,7 +41,7 @@ export default function TabLayout() {
         options={{
           title: "Overview",
           tabBarIcon: ({ color, focused, size }) => (
-            <CalendarIcon
+            <ChartBarIcon
               color={color}
               size={size ?? 24}
               weight={focused ? "fill" : "regular"}

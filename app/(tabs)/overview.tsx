@@ -28,34 +28,6 @@ export default function OverviewTab() {
 
   const dailyTotals = getDailyTotalsForMonth();
 
-  // Build demo data if no targets set or no logs
-  const demoData = [
-    {
-      dateIso: `${selectedMonth}-12`,
-      calories: 56,
-      protein: 48,
-      carbs: 55,
-      fat: 37,
-      prev: { calories: 40, protein: 40, carbs: 40, fat: 30 },
-    },
-    {
-      dateIso: `${selectedMonth}-11`,
-      calories: 128,
-      protein: 110,
-      carbs: 135,
-      fat: 95,
-      prev: { calories: 90, protein: 90, carbs: 100, fat: 80 },
-    },
-    {
-      dateIso: `${selectedMonth}-10`,
-      calories: 3,
-      protein: 4,
-      carbs: 2,
-      fat: 1,
-      prev: { calories: 0, protein: 0, carbs: 0, fat: 0 },
-    },
-  ];
-
   const handleMonthChange = (month: string) => {
     setSelectedMonth(month);
   };
@@ -90,8 +62,15 @@ export default function OverviewTab() {
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <PageHeader>
-        <MonthPicker selectedMonth={selectedMonth} onMonthChange={handleMonthChange} />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.legendRow}>
+        <MonthPicker
+          selectedMonth={selectedMonth}
+          onMonthChange={handleMonthChange}
+        />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.legendRow}
+        >
           <SemanticBadge type="calories" label="Calories" />
           <SemanticBadge type="protein" label="Protein" />
           <SemanticBadge type="carbs" label="Carbs" />
@@ -99,33 +78,49 @@ export default function OverviewTab() {
         </ScrollView>
       </PageHeader>
 
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} stickyHeaderIndices={[0]}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        stickyHeaderIndices={[0]}
+      >
         <View style={styles.stickyHeaderSpacer} />
-        {(dailyTotals.length > 0
-          ? dailyTotals.map(({ date, totals }) => ({
-              dateIso: date,
-              calories:
-                dailyTargets.calories > 0 ? Math.round((totals.calories / dailyTargets.calories) * 100) : 0,
-              protein:
-                dailyTargets.protein > 0 ? Math.round((totals.protein / dailyTargets.protein) * 100) : 0,
-              carbs: dailyTargets.carbs > 0 ? Math.round((totals.carbs / dailyTargets.carbs) * 100) : 0,
-              fat: dailyTargets.fat > 0 ? Math.round((totals.fat / dailyTargets.fat) * 100) : 0,
-            }))
-          : demoData
-        ).map((d, idx) => (
-          <View key={d.dateIso} style={styles.cardWrap}>
-            <DailySummaryCard
-              dateIso={d.dateIso}
-              calories={d.calories}
-              protein={d.protein}
-              carbs={d.carbs}
-              fat={d.fat}
-              prev={d.prev}
-            />
-          </View>
-        ))}
+        {dailyTotals
+          .map(({ date, totals }) => ({
+            dateIso: date,
+            calories:
+              dailyTargets.calories > 0
+                ? Math.round((totals.calories / dailyTargets.calories) * 100)
+                : 0,
+            protein:
+              dailyTargets.protein > 0
+                ? Math.round((totals.protein / dailyTargets.protein) * 100)
+                : 0,
+            carbs:
+              dailyTargets.carbs > 0
+                ? Math.round((totals.carbs / dailyTargets.carbs) * 100)
+                : 0,
+            fat:
+              dailyTargets.fat > 0
+                ? Math.round((totals.fat / dailyTargets.fat) * 100)
+                : 0,
+          }))
+          .map((d, idx) => (
+            <View key={d.dateIso} style={styles.cardWrap}>
+              <DailySummaryCard
+                dateIso={d.dateIso}
+                calories={d.calories}
+                protein={d.protein}
+                carbs={d.carbs}
+                fat={d.fat}
+                onPress={() => handleDayPress(d.dateIso)}
+              />
+            </View>
+          ))}
         {dailyTotals.length === 0 && (
-          <Text style={styles.emptyText}>No food logs found for this month. Showing examples.</Text>
+          <Text style={styles.emptyText}>
+            No food logs found for this month. Showing examples.
+          </Text>
         )}
       </ScrollView>
     </SafeAreaView>

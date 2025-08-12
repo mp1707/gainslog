@@ -11,7 +11,11 @@ interface SemanticBadgeProps {
   style?: ViewStyle;
 }
 
-export const SemanticBadge: React.FC<SemanticBadgeProps> = ({ type, label, style }) => {
+export const SemanticBadge: React.FC<SemanticBadgeProps> = ({
+  type,
+  label,
+  style,
+}) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(), []);
 
@@ -20,7 +24,11 @@ export const SemanticBadge: React.FC<SemanticBadgeProps> = ({ type, label, style
 
   return (
     <View
-      style={[styles.badge, { backgroundColor: bg || "rgba(0,0,0,0.08)" }, style]}
+      style={[
+        styles.badge,
+        { backgroundColor: bg || "rgba(0,0,0,0.08)" },
+        style,
+      ]}
       accessibilityRole="text"
       accessibilityLabel={`${label} legend badge`}
     >
@@ -42,5 +50,3 @@ const createStyles = () =>
       alignItems: "center",
     },
   });
-
-

@@ -12,7 +12,13 @@ interface ProgressRowProps {
   icon?: React.ReactNode;
 }
 
-export const ProgressRow: React.FC<ProgressRowProps> = ({ label, value, prevValue, color, icon }) => {
+export const ProgressRow: React.FC<ProgressRowProps> = ({
+  label,
+  value,
+  prevValue,
+  color,
+  icon,
+}) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -38,7 +44,15 @@ export const ProgressRow: React.FC<ProgressRowProps> = ({ label, value, prevValu
           height={8}
           borderRadius={4}
           accessibilityLabel={`${label} progress`}
-          delayMs={label === 'Calories' ? 0 : label === 'Protein' ? 50 : label === 'Carbs' ? 100 : 150}
+          delayMs={
+            label === "Calories"
+              ? 0
+              : label === "Protein"
+              ? 50
+              : label === "Carbs"
+              ? 100
+              : 150
+          }
         />
       </View>
       <View style={styles.right}>
@@ -73,5 +87,3 @@ const createStyles = (theme: any) =>
       gap: 6,
     },
   });
-
-

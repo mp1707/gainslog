@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { View, StyleSheet, LayoutChangeEvent } from "react-native";
 import Animated, {
   useSharedValue,
@@ -8,7 +8,6 @@ import Animated, {
   cancelAnimation,
   withDelay,
   Easing,
-  useDerivedValue,
   interpolate,
 } from "react-native-reanimated";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -35,14 +34,18 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   delayMs = 0,
 }) => {
   const { colors, theme } = useTheme();
-  const styles = useMemo(() => createStyles(height, borderRadius), [height, borderRadius]);
+  const styles = useMemo(
+    () => createStyles(height, borderRadius),
+    [height, borderRadius]
+  );
 
   const [trackWidth, setTrackWidth] = useState(0);
   const clampedVisible = Math.max(0, Math.min(100, value));
   const isOverflowing = value > 100;
 
   const targetRatio = clampedVisible / 100;
-  const startRatio = prevValue !== undefined ? Math.max(0, Math.min(100, prevValue)) / 100 : 0;
+  const startRatio =
+    prevValue !== undefined ? Math.max(0, Math.min(100, prevValue)) / 100 : 0;
 
   const progress = useSharedValue(startRatio);
   const shimmerX = useSharedValue(-24);
@@ -54,15 +57,19 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 
   // Animate progress to target
   useEffect(() => {
-    progress.value = withDelay(delayMs, withTiming(targetRatio, {
-      duration: 500,
-      easing: Easing.bezier(0.25, 1, 0.5, 1),
-    }));
+    progress.value = withDelay(
+      delayMs,
+      withTiming(targetRatio, {
+        duration: 500,
+        easing: Easing.bezier(0.25, 1, 0.5, 1),
+      })
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetRatio, delayMs]);
 
   // Trigger shimmer when crossing 100% from below
-  const crossedToOverflow = prevValue !== undefined && prevValue <= 100 && value > 100;
+  const crossedToOverflow =
+    prevValue !== undefined && prevValue <= 100 && value > 100;
   useEffect(() => {
     if (crossedToOverflow) {
       shimmerX.value = -24;
@@ -93,7 +100,8 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   const fillAnimatedStyle = useAnimatedStyle(() => {
     const minVisibleSliver = 2; // px
     const width = trackWidth * progress.value;
-    const ensuredWidth = progress.value > 0 && width < minVisibleSliver ? minVisibleSliver : width;
+    const ensuredWidth =
+      progress.value > 0 && width < minVisibleSliver ? minVisibleSliver : width;
     return {
       width: ensuredWidth,
       backgroundColor: color,
@@ -109,22 +117,37 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
     opacity: pulseOpacity.value,
   }));
 
-  const effectiveTrackColor = trackColor || theme.getComponentStyles().progressBars.trackColor;
+  const effectiveTrackColor =
+    trackColor || theme.getComponentStyles().progressBars.trackColor;
 
   return (
     <View
-      style={[styles.track, { backgroundColor: effectiveTrackColor, borderRadius }]}
+      style={[
+        styles.track,
+        { backgroundColor: effectiveTrackColor, borderRadius },
+      ]}
       onLayout={handleLayout}
       accessible={true}
       accessibilityRole="progressbar"
       accessibilityLabel={accessibilityLabel}
-      accessibilityValue={{ min: 0, max: 100, now: Math.min(100, Math.max(0, Math.round(value))) }}
-      accessibilityHint={isOverflowing ? `${Math.round(value)}% over target` : undefined}
+      accessibilityValue={{
+        min: 0,
+        max: 100,
+        now: Math.min(100, Math.max(0, Math.round(value))),
+      }}
+      accessibilityHint={
+        isOverflowing ? `${Math.round(value)}% over target` : undefined
+      }
     >
-      <Animated.View style={[styles.fill, { borderRadius }, fillAnimatedStyle]} />
+      <Animated.View
+        style={[styles.fill, { borderRadius }, fillAnimatedStyle]}
+      />
 
       {/* Shimmer overlay when crossing goal */}
-      <Animated.View pointerEvents="none" style={[styles.shimmer, shimmerStyle]} />
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.shimmer, shimmerStyle]}
+      />
 
       {/* Overflow thin pulse at the right edge of the bar */}
       {isOverflowing && (
@@ -164,5 +187,3 @@ const createStyles = (height: number, radius: number) =>
       borderRadius: radius,
     },
   });
-
-
