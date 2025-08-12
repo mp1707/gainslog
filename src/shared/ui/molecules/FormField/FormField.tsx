@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { TextInput } from "@/shared/ui/atoms";
 import { TextInputProps } from "@/types";
-import { useTheme } from "../../../../providers/ThemeProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./FormField.styles";
 
 interface FormFieldProps extends Omit<TextInputProps, "error"> {

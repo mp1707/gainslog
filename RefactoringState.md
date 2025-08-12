@@ -853,9 +853,10 @@ Notes:
   - changeLog:
     - 2025-08-12: Standardized imports to `@/components`. Kept performance and a11y optimizations.
 - path: `src/shared/ui/molecules/DailySummaryCard/DailySummaryCard.styles.ts`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Typed themed callback parameters (`Colors`, `Theme`) and kept `useThemedStyles` API. No visual changes.
 - path: `src/shared/ui/molecules/DailySummaryCard/DailyMacroBars.tsx`
   - state: done
   - priority: medium
@@ -874,51 +875,61 @@ Notes:
     - 2025-08-12: Left as-is; already pure and typed.
 
 - path: `src/shared/ui/molecules/DescriptionSkeleton/DescriptionSkeleton.tsx`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized imports to aliases (`@/shared/ui/atoms`, `@/providers`).
 - path: `src/shared/ui/molecules/DescriptionSkeleton/DescriptionSkeleton.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched theme import to `@/theme`, typed `Colors` for styles factory. Kept legacy export.
 - path: `src/shared/ui/molecules/DescriptionSkeleton/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel remains correct.
 
 - path: `src/shared/ui/molecules/ExpandableFAB/ExpandableFAB.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized provider import to `@/providers/ThemeProvider`. Kept animations and a11y.
 - path: `src/shared/ui/molecules/ExpandableFAB/ExpandableFAB.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched theme import to `@/theme`.
 - path: `src/shared/ui/molecules/ExpandableFAB/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel verified.
 
 - path: `src/shared/ui/molecules/FavoritesPickerModal/FavoritesPickerModal.tsx`
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized imports to aliases (`@/components`, `@/shared/ui/components`).
 - path: `src/shared/ui/molecules/FavoritesPickerModal/FavoritesPickerModal.styles.ts`
 
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Added explicit `Colors` and `Theme` typings to style factory.
 
 - path: `src/shared/ui/molecules/FormField/FormField.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized provider import to `@/providers`; kept API and a11y.
 - path: `src/shared/ui/molecules/FormField/FormField.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched theme import to `@/theme` and typed `Colors` param. Kept legacy export.
 - path: `src/shared/ui/molecules/FormField/index.ts`
 
   - state: open

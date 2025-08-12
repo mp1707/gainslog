@@ -1,8 +1,9 @@
 import { useThemedStyles } from "@/providers/ThemeProvider";
 import { StyleSheet } from "react-native";
+import type { Colors, Theme } from "@/theme";
 
 export const useStyles = () =>
-  useThemedStyles((colors, theme) =>
+  useThemedStyles((colors: Colors, theme: Theme) =>
     StyleSheet.create({
       cardContainer: {
         position: "relative",

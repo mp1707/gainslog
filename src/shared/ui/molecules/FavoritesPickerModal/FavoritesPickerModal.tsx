@@ -6,8 +6,8 @@ import { useTheme } from "@/providers/ThemeProvider";
 import { useFavoritesStore } from "@/stores/useFavoritesStore";
 import { FavoriteEntry } from "@/types";
 import { createStyles } from "./FavoritesPickerModal.styles";
-import { AppText } from "src/components";
-import { SearchBar } from "../../components";
+import { AppText } from "@/components";
+import { SearchBar } from "@/shared/ui/components";
 import { FavoriteCard } from "@/features/food-logging/ui/FavoriteCard";
 import { PageHeader } from "../PageHeader";
 

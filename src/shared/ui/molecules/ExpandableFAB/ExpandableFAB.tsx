@@ -19,7 +19,7 @@ import {
   StarIcon,
 } from "phosphor-react-native";
 import { createStyles } from "./ExpandableFAB.styles";
-import { useTheme } from "src/providers/ThemeProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 
 interface ExpandableFABProps {
   onManualLog: () => void;
