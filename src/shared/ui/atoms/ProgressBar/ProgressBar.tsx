@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
+import Animated, { useAnimatedStyle, SharedValue } from "react-native-reanimated";
 import { useTheme } from "@/providers/ThemeProvider";
 
 export interface ProgressBarProps {
@@ -9,6 +10,7 @@ export interface ProgressBarProps {
   height?: number;
   borderRadius?: number;
   accessibilityLabel?: string;
+  animatedProgress?: SharedValue<number>; // 0 to 1 for animation
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = React.memo(
@@ -19,6 +21,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = React.memo(
     height = 8,
     borderRadius = 4,
     accessibilityLabel,
+    animatedProgress,
   }) => {
     const { theme } = useTheme();
     const styles = useMemo(() => createStyles(height), [height]);
@@ -31,6 +34,16 @@ export const ProgressBar: React.FC<ProgressBarProps> = React.memo(
     const effectiveTrackColor = useMemo(() => {
       return trackColor || theme.getComponentStyles().progressBars.trackColor;
     }, [trackColor, theme]);
+
+    // Animated style for the fill bar
+    const animatedFillStyle = useAnimatedStyle(() => {
+      if (animatedProgress) {
+        return {
+          transform: [{ scaleX: animatedProgress.value * targetRatio }],
+        };
+      }
+      return {};
+    }, [animatedProgress, targetRatio]);
 
     return (
       <View
@@ -50,14 +63,16 @@ export const ProgressBar: React.FC<ProgressBarProps> = React.memo(
           isOverflowing ? `${Math.round(value)}% over target` : undefined
         }
       >
-        <View
+        <Animated.View
           style={[
             styles.fill,
             {
-              width: `${targetRatio * 100}%`,
+              width: animatedProgress ? "100%" : `${targetRatio * 100}%`,
               backgroundColor: color,
               borderRadius,
+              transformOrigin: "left",
             },
+            animatedFillStyle,
           ]}
         />
       </View>

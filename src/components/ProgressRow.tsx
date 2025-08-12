@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
+import { SharedValue } from "react-native-reanimated";
 import { AppText } from "./AppText";
 import { ProgressBar } from "@/shared/ui/atoms/ProgressBar";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -9,10 +10,11 @@ interface ProgressRowProps {
   value: number; // 0..100+ actual value
   color: string;
   icon?: React.ReactNode;
+  animatedProgress?: SharedValue<number>;
 }
 
 export const ProgressRow: React.FC<ProgressRowProps> = React.memo(
-  ({ label, value, color, icon }) => {
+  ({ label, value, color, icon, animatedProgress }) => {
     const { colors, theme } = useTheme();
     const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -37,6 +39,7 @@ export const ProgressRow: React.FC<ProgressRowProps> = React.memo(
             height={8}
             borderRadius={4}
             accessibilityLabel={`${label} progress`}
+            animatedProgress={animatedProgress}
           />
         </View>
         <View style={styles.right}>

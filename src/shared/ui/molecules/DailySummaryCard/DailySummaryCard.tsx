@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { View, Pressable } from "react-native";
 import * as Haptics from "expo-haptics";
 import Animated, {
@@ -6,6 +6,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
   withSpring,
+  withDelay,
   Easing,
 } from "react-native-reanimated";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -52,6 +53,12 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
   const pressScale = useSharedValue(1);
   const pressFlashOpacity = useSharedValue(0);
 
+  // Progress bar animation shared values
+  const caloriesProgress = useSharedValue(0);
+  const proteinProgress = useSharedValue(0);
+  const carbsProgress = useSharedValue(0);
+  const fatProgress = useSharedValue(0);
+
   // Pre-calculate colors with null safety
   const semanticColors = useMemo(() => {
     const semantic = colors?.semantic || {};
@@ -81,6 +88,34 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
     fat: false,
   };
 
+  // Trigger staggered progress bar animations
+  useEffect(() => {
+    const animationConfig = {
+      duration: 400,
+      easing: Easing.out(Easing.cubic),
+    };
+
+    // Reset all progress bars to 0 first
+    caloriesProgress.value = 0;
+    proteinProgress.value = 0;
+    carbsProgress.value = 0;
+    fatProgress.value = 0;
+
+    // Staggered animations with 50ms delay between each
+    if (safeVisible.calories) {
+      caloriesProgress.value = withDelay(0, withTiming(1, animationConfig));
+    }
+    if (safeVisible.protein) {
+      proteinProgress.value = withDelay(50, withTiming(1, animationConfig));
+    }
+    if (safeVisible.carbs) {
+      carbsProgress.value = withDelay(100, withTiming(1, animationConfig));
+    }
+    if (safeVisible.fat) {
+      fatProgress.value = withDelay(150, withTiming(1, animationConfig));
+    }
+  }, [dateIso, safeVisible]); // Trigger on date change or visibility change
+
   // Memoize accessibility label with simplified dependencies
   const accessibilityLabel = useMemo(() => {
     const parts: string[] = [];
@@ -104,6 +139,7 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
           label="Calories"
           value={calories}
           color={semanticColors.calories}
+          animatedProgress={caloriesProgress}
         />
       );
     }
@@ -114,6 +150,7 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
           label="Protein"
           value={protein}
           color={semanticColors.protein}
+          animatedProgress={proteinProgress}
         />
       );
     }
@@ -124,6 +161,7 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
           label="Carbs"
           value={carbs}
           color={semanticColors.carbs}
+          animatedProgress={carbsProgress}
         />
       );
     }
@@ -134,6 +172,7 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
           label="Fat"
           value={fat}
           color={semanticColors.fat}
+          animatedProgress={fatProgress}
         />
       );
     }
@@ -156,6 +195,10 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
     fat,
     semanticColors,
     styles.rowGap,
+    caloriesProgress,
+    proteinProgress,
+    carbsProgress,
+    fatProgress,
   ]);
 
   // Press handlers for animation
