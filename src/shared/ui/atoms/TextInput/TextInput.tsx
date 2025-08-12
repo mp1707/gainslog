@@ -1,7 +1,7 @@
-import React, { useState, useRef, forwardRef } from "react";
+import React, { useState, forwardRef } from "react";
 import { TextInput as RNTextInput, ViewStyle } from "react-native";
 import { TextInputProps } from "@/types";
-import { useTheme } from "../../../../providers/ThemeProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./TextInput.styles";
 
 export const TextInput = forwardRef<RNTextInput, TextInputProps>(

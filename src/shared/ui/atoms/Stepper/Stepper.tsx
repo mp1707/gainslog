@@ -1,12 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
-import { View, TouchableOpacity, Text, AccessibilityActionEvent } from "react-native";
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withSpring, 
+import React, { useState } from "react";
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  AccessibilityActionEvent,
+} from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
 } from "react-native-reanimated";
-import { useTheme } from "../../../../providers/ThemeProvider";
-import { CustomNumericKeypad } from "../../molecules/CustomNumericKeypad";
+import { useTheme } from "@/providers/ThemeProvider";
+import { CustomNumericKeypad } from "@/shared/ui/molecules/CustomNumericKeypad";
 import { createStyles } from "./Stepper.styles";
 
 interface StepperProps {
@@ -37,7 +42,6 @@ export const Stepper: React.FC<StepperProps> = ({
   const plusScale = useSharedValue(1);
   const valueScale = useSharedValue(1);
 
-
   const clamp = (val: number) => Math.max(min, Math.min(max, val));
 
   const handleMinus = () => {
@@ -45,9 +49,13 @@ export const Stepper: React.FC<StepperProps> = ({
     const newValue = clamp(value - step);
     if (newValue !== value) {
       // Animate value change
-      valueScale.value = withSpring(1.1, { damping: 15, stiffness: 300 }, () => {
-        valueScale.value = withSpring(1, { damping: 15, stiffness: 300 });
-      });
+      valueScale.value = withSpring(
+        1.1,
+        { damping: 15, stiffness: 300 },
+        () => {
+          valueScale.value = withSpring(1, { damping: 15, stiffness: 300 });
+        }
+      );
       onChange(newValue);
     }
   };
@@ -57,9 +65,13 @@ export const Stepper: React.FC<StepperProps> = ({
     const newValue = clamp(value + step);
     if (newValue !== value) {
       // Animate value change
-      valueScale.value = withSpring(1.1, { damping: 15, stiffness: 300 }, () => {
-        valueScale.value = withSpring(1, { damping: 15, stiffness: 300 });
-      });
+      valueScale.value = withSpring(
+        1.1,
+        { damping: 15, stiffness: 300 },
+        () => {
+          valueScale.value = withSpring(1, { damping: 15, stiffness: 300 });
+        }
+      );
       onChange(newValue);
     }
   };
@@ -102,10 +114,10 @@ export const Stepper: React.FC<StepperProps> = ({
   // Accessibility action handler for increment/decrement
   const onAccessibilityAction = (event: AccessibilityActionEvent) => {
     switch (event.nativeEvent.actionName) {
-      case 'increment':
+      case "increment":
         handlePlus();
         break;
-      case 'decrement':
+      case "decrement":
         handleMinus();
         break;
     }
@@ -120,10 +132,10 @@ export const Stepper: React.FC<StepperProps> = ({
       ? colors.semantic.carbs
       : type === "fat"
       ? colors.semantic.fat
-      : colors.accent
+      : colors.accent;
 
   // Get disabled styling
-  const disabledStyle = disabled ? { opacity: 0.4 } : {}
+  const disabledStyle = disabled ? { opacity: 0.4 } : {};
 
   // Animated styles
   const minusAnimatedStyle = useAnimatedStyle(() => ({
@@ -140,19 +152,21 @@ export const Stepper: React.FC<StepperProps> = ({
 
   return (
     <>
-      <View 
+      <View
         style={[styles.container, { borderColor: accentColor }, disabledStyle]}
         accessibilityRole="adjustable"
-        accessibilityLabel={`${type === 'default' ? 'Value' : type} stepper. Current value is ${value}`}
-        accessibilityValue={{ 
-          min: min, 
-          max: max, 
+        accessibilityLabel={`${
+          type === "default" ? "Value" : type
+        } stepper. Current value is ${value}`}
+        accessibilityValue={{
+          min: min,
+          max: max,
           now: value,
-          text: `${value}` 
+          text: `${value}`,
         }}
         accessibilityActions={[
-          { name: 'increment', label: `Increase by ${step}` },
-          { name: 'decrement', label: `Decrease by ${step}` }
+          { name: "increment", label: `Increase by ${step}` },
+          { name: "decrement", label: `Decrease by ${step}` },
         ]}
         onAccessibilityAction={onAccessibilityAction}
       >
@@ -180,7 +194,7 @@ export const Stepper: React.FC<StepperProps> = ({
             accessibilityLabel={`Current value: ${value}. Tap to edit directly.`}
             accessibilityHint="Opens numeric keypad to enter a specific value"
           >
-            <Text 
+            <Text
               style={styles.valueText}
               accessibilityLiveRegion="polite"
               accessibilityLabel={`Current value: ${value}`}

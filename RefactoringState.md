@@ -679,85 +679,102 @@ Notes:
     - 2025-08-12: Barrel verified; no change needed.
 
 - path: `src/shared/ui/atoms/RadialProgressBar/RadialProgressBar.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized imports to path aliases (`@/providers`, `@/components`, `@/theme`), guarded divide-by-zero on percentage calc, switched `rotation` to numeric, added a11y label. No API changes.
 - path: `src/shared/ui/atoms/RadialProgressBar/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Export verified. Included in atoms barrel index.
 
 - path: `src/shared/ui/atoms/Skeleton/Skeleton.tsx`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified implementation. No changes required.
 - path: `src/shared/ui/atoms/Skeleton/Skeleton.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched to `@/providers/ThemeProvider` alias. No visual changes.
 - path: `src/shared/ui/atoms/Skeleton/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Export verified. No changes.
 
 - path: `src/shared/ui/atoms/StatusIcon/StatusIcon.tsx`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified typed styles and a11y semantics. No edits required.
 - path: `src/shared/ui/atoms/StatusIcon/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Export verified.
 
 - path: `src/shared/ui/atoms/Stepper/Stepper.tsx`
-  - state: open
-  - priority: low
-  - changeLog: []
+  - state: done
+  - priority: medium
+  - changeLog:
+    - 2025-08-12: Standardized imports to aliases, removed unused imports, aligned keypad import to `@/shared/ui/molecules/CustomNumericKeypad`. Kept a11y actions. No API change.
 - path: `src/shared/ui/atoms/Stepper/Stepper.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Typed `colors` param as `Colors` from `@/theme` and standardized theme import.
 - path: `src/shared/ui/atoms/Stepper/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Export verified.
 
 - path: `src/shared/ui/atoms/TextInput/TextInput.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized imports to `@/providers`. Removed unused refs import. Kept a11y states and focus handling.
 - path: `src/shared/ui/atoms/TextInput/TextInput.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Typed `colors` as `Colors` from `@/theme` and standardized theme import.
 - path: `src/shared/ui/atoms/TextInput/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Export verified.
 
 - path: `src/shared/ui/atoms/Toggle/Toggle.tsx`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified logic and haptics. No code changes required.
 - path: `src/shared/ui/atoms/Toggle/Toggle.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched to `@/providers/ThemeProvider` alias. No visual changes.
 - path: `src/shared/ui/atoms/Toggle/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Export verified.
 
 - path: `src/shared/ui/atoms/index.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Added `RadialProgressBar` to barrel. All atoms export surface consolidated.
 
 ### Shared UI - Molecules & Components
 

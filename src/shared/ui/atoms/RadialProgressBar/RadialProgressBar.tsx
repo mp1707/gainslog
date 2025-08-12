@@ -7,9 +7,9 @@ import Animated, {
   withTiming,
   Easing,
 } from "react-native-reanimated";
-import { useTheme } from "../../../../providers/ThemeProvider";
-import { AppText } from "src/components";
-import { theme } from "src/theme";
+import { useTheme } from "@/providers/ThemeProvider";
+import { AppText } from "@/components";
+import { theme } from "@/theme";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -35,8 +35,9 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
   const { colors } = useTheme();
   const progress = useSharedValue(0);
 
-  // Calculate percentage and clamp between 0-100
-  const percentage = Math.min(100, Math.max(0, (current / target) * 100));
+  // Calculate percentage and clamp between 0-100; guard against divide-by-zero
+  const percentage =
+    target > 0 ? Math.min(100, Math.max(0, (current / target) * 100)) : 0;
 
   // Circle calculations for partial arc (270 degrees)
   const radius = (size - strokeWidth) / 2;
@@ -65,7 +66,12 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
   const progressColor = color || colors.accent;
 
   return (
-    <View style={{ alignItems: "center" }}>
+    <View
+      style={{ alignItems: "center" }}
+      accessibilityRole="image"
+      accessibilityLabel={`${label}: ${Math.round(percentage)}%`}
+      accessible
+    >
       <View style={{ position: "relative", paddingBottom: 10 }}>
         <Svg width={size} height={size}>
           {/* Background arc */}
@@ -78,7 +84,7 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
             fill="transparent"
             strokeDasharray={`${arcLength} ${fullCircumference - arcLength}`}
             strokeLinecap="round"
-            rotation="135"
+            rotation={135}
             origin={`${center}, ${center}`}
           />
 
@@ -92,7 +98,7 @@ export const RadialProgressBar: React.FC<RadialProgressBarProps> = ({
             fill="transparent"
             strokeLinecap="round"
             animatedProps={animatedProps}
-            rotation="135"
+            rotation={135}
             origin={`${center}, ${center}`}
           />
         </Svg>
