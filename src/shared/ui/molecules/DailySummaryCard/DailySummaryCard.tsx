@@ -8,9 +8,7 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { useTheme } from "@/providers/ThemeProvider";
-import { Card } from "@/components/Card";
-import { AppText } from "@/components/AppText";
-import { ProgressRow } from "@/components/ProgressRow";
+import { Card, AppText, ProgressRow } from "src/components";
 import { useStyles } from "./DailySummaryCard.styles";
 
 // Memoized component for better performance
@@ -57,34 +55,43 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
   };
 
   const handlePressOut = () => {
-    pressScale.value = withSpring(1.0, { 
-      damping: 15, 
+    pressScale.value = withSpring(1.0, {
+      damping: 15,
       stiffness: 400,
       // Use native driver for better performance
       mass: 0.8,
     });
   };
 
-  const containerAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: pressScale.value }],
-  }), []);
+  const containerAnimatedStyle = useAnimatedStyle(
+    () => ({
+      transform: [{ scale: pressScale.value }],
+    }),
+    []
+  );
 
   // Pre-calculate colors for better performance
-  const semanticColors = useMemo(() => ({
-    calories: colors.semantic.calories,
-    protein: colors.semantic.protein,
-    carbs: colors.semantic.carbs,
-    fat: colors.semantic.fat,
-  }), [colors.semantic]);
+  const semanticColors = useMemo(
+    () => ({
+      calories: colors.semantic.calories,
+      protein: colors.semantic.protein,
+      carbs: colors.semantic.carbs,
+      fat: colors.semantic.fat,
+    }),
+    [colors.semantic]
+  );
 
   // Create accessibility label once
   const accessibilityLabel = useMemo(() => {
     const parts: string[] = [];
-    if (visible?.calories) parts.push(`Calories ${Math.round(calories)} percent`);
+    if (visible?.calories)
+      parts.push(`Calories ${Math.round(calories)} percent`);
     if (visible?.protein) parts.push(`Protein ${Math.round(protein)} percent`);
     if (visible?.carbs) parts.push(`Carbs ${Math.round(carbs)} percent`);
     if (visible?.fat) parts.push(`Fat ${Math.round(fat)} percent`);
-    return `"${formatDate(dateIso)}"${parts.length ? ", " + parts.join(", ") : ""}`;
+    return `"${formatDate(dateIso)}"${
+      parts.length ? ", " + parts.join(", ") : ""
+    }`;
   }, [dateIso, visible, calories, protein, carbs, fat]);
 
   // Render metrics efficiently
@@ -130,7 +137,7 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
         />
       );
     }
-    
+
     // Add gaps between metrics
     return metrics.reduce((acc: React.ReactNode[], metric, index) => {
       acc.push(metric);
@@ -156,9 +163,7 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
             <View style={styles.dateColumn}>
               <AppText role="Headline">{formatDate(dateIso)}</AppText>
             </View>
-            <View style={styles.metricsColumn}>
-              {renderMetrics()}
-            </View>
+            <View style={styles.metricsColumn}>{renderMetrics()}</View>
           </View>
         </Card>
       </Animated.View>

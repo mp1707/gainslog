@@ -1,8 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import { Skeleton } from "@/shared/ui/atoms";
-import { SkeletonShimmerEffect } from "../../../components/SkeletonShimmerEffect";
-import { Card } from "../../../components/Card";
+import { SkeletonShimmerEffect, Card } from "src/components";
 import { FoodLog } from "../../../types";
 import { useTheme } from "../../../providers/ThemeProvider";
 import { createStyles } from "./FoodLogCard.styles";

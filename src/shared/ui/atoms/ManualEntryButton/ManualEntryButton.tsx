@@ -1,21 +1,18 @@
-import React from 'react';
-import { View } from 'react-native';
-import { Button } from '../../../../components/Button';
-import { styles } from './ManualEntryButton.styles';
-import { Pencil } from 'phosphor-react-native';
+import React from "react";
+import { View } from "react-native";
+import { Button } from "@/shared/ui/atoms/Button";
+import { styles } from "./ManualEntryButton.styles";
 
 interface ManualEntryButtonProps {
   onPress: () => void;
 }
 
-export const ManualEntryButton: React.FC<ManualEntryButtonProps> = ({ onPress }) => {
+export const ManualEntryButton: React.FC<ManualEntryButtonProps> = ({
+  onPress,
+}) => {
   return (
     <View style={styles.button}>
-      <Button
-        onPress={onPress}
-        variant="secondary"
-        size="medium"
-      >
+      <Button onPress={onPress} variant="secondary" size="medium">
         Add Food
       </Button>
     </View>

@@ -1,9 +1,9 @@
-import React from 'react';
-import { View } from 'react-native';
-import { FoodLog } from '@/types';
-import { AppText } from '../../../../components/AppText';
-import { useTheme } from '../../../../providers/ThemeProvider';
-import { createStyles } from './MacroRow.styles';
+import React from "react";
+import { View } from "react-native";
+import { FoodLog } from "@/types";
+import { AppText } from "@/components/AppText";
+import { useTheme } from "@/providers";
+import { createStyles } from "./MacroRow.styles";
 
 interface MacroRowProps {
   foodLog: FoodLog;
@@ -16,12 +16,17 @@ interface MacroItemProps {
   accessibilityLabel: string;
 }
 
-const MacroItem: React.FC<MacroItemProps> = ({ label, value, color, accessibilityLabel }) => {
+const MacroItem: React.FC<MacroItemProps> = ({
+  label,
+  value,
+  color,
+  accessibilityLabel,
+}) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
-  
+
   return (
-    <View 
+    <View
       style={styles.macroItem}
       accessibilityRole="text"
       accessibilityLabel={accessibilityLabel}
@@ -39,36 +44,36 @@ const MacroItem: React.FC<MacroItemProps> = ({ label, value, color, accessibilit
 export const MacroRow: React.FC<MacroRowProps> = ({ foodLog }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
-  
+
   const macroData = [
     {
-      label: 'Protein',
+      label: "Protein",
       value: `${foodLog.protein}g`,
       color: colors.semantic?.protein || colors.primaryText,
-      accessibilityLabel: `${foodLog.protein} grams of protein`
+      accessibilityLabel: `${foodLog.protein} grams of protein`,
     },
     {
-      label: 'Carbs',
+      label: "Carbs",
       value: `${foodLog.carbs}g`,
       color: colors.semantic?.carbs || colors.primaryText,
-      accessibilityLabel: `${foodLog.carbs} grams of carbohydrates`
+      accessibilityLabel: `${foodLog.carbs} grams of carbohydrates`,
     },
     {
-      label: 'Fat',
+      label: "Fat",
       value: `${foodLog.fat}g`,
       color: colors.semantic?.fat || colors.primaryText,
-      accessibilityLabel: `${foodLog.fat} grams of fat`
+      accessibilityLabel: `${foodLog.fat} grams of fat`,
     },
     {
-      label: 'Calories',
+      label: "Calories",
       value: `${foodLog.calories}`,
       color: colors.semantic?.calories || colors.primaryText,
-      accessibilityLabel: `${foodLog.calories} calories`
-    }
+      accessibilityLabel: `${foodLog.calories} calories`,
+    },
   ];
-  
+
   return (
-    <View 
+    <View
       style={styles.container}
       accessibilityRole="text"
       accessibilityLabel={`Nutrition information: ${foodLog.protein}g protein, ${foodLog.carbs}g carbohydrates, ${foodLog.fat}g fat, ${foodLog.calories} calories`}

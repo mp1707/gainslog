@@ -9,8 +9,7 @@ import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 import { DailySummaryCard } from "../../src/shared/ui/molecules/DailySummaryCard";
 import { MonthPicker } from "../../src/shared/ui/molecules/MonthPicker";
 import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
-import { FilterBadge } from "@/components/FilterBadge";
-import { AppText } from "@/components/AppText";
+import { FilterBadge, AppText } from "src/components";
 
 export default function OverviewTab() {
   const {
@@ -28,7 +27,6 @@ export default function OverviewTab() {
   }, [loadDailyTargets]);
 
   const dailyTotals = getDailyTotalsForMonth();
-
 
   const { colors, theme } = useTheme();
   const insets = useSafeAreaInsets();
@@ -67,14 +65,20 @@ export default function OverviewTab() {
   }, []);
 
   // Memoized month change handler
-  const handleMonthChange = useCallback((month: string) => {
-    setSelectedMonth(month);
-  }, [setSelectedMonth]);
+  const handleMonthChange = useCallback(
+    (month: string) => {
+      setSelectedMonth(month);
+    },
+    [setSelectedMonth]
+  );
 
   // Memoized day press handler
-  const handleDayPress = useCallback((date: string) => {
-    navigateToTodayWithDate(date);
-  }, [navigateToTodayWithDate]);
+  const handleDayPress = useCallback(
+    (date: string) => {
+      navigateToTodayWithDate(date);
+    },
+    [navigateToTodayWithDate]
+  );
 
   // Memoize transformed data to prevent recalculation on every render
   const transformedDailyData = useMemo(() => {

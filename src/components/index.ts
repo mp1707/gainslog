@@ -1,8 +1,13 @@
 // Export all design system components
-export { AppText } from './AppText';
-export { Button } from './Button';
-export { Card } from './Card';
+export { AppText } from "./AppText";
+export { Card } from "./Card";
+export { FilterBadge } from "./FilterBadge";
+export { ProgressRow } from "./ProgressRow";
+export { SemanticBadge } from "./SemanticBadge";
+export { SkeletonShimmerEffect } from "./SkeletonShimmerEffect";
+
+// Re-export shared Button atom to centralize imports
+export { Button } from "@/shared/ui/atoms/Button";
 
 // Export types
-export type { TypographyRole } from './AppText';
-export type { ButtonVariant, ButtonSize } from './Button';
+export type { TypographyRole } from "./AppText";

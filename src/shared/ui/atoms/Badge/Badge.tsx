@@ -1,21 +1,21 @@
-import React from 'react';
-import { View } from 'react-native';
-import { Camera, Microphone, TextT } from 'phosphor-react-native';
-import { BadgeProps } from '../../../../types';
-import { LoadingSpinner } from '../LoadingSpinner';
-import { AppText } from '../../../../components/AppText';
-import { useTheme } from '../../../../providers/ThemeProvider';
-import { createStyles } from './Badge.styles';
+import React from "react";
+import { View } from "react-native";
+import { CameraIcon, MicrophoneIcon, TextTIcon } from "phosphor-react-native";
+import { BadgeProps } from "../../../../types";
+import { LoadingSpinner } from "../LoadingSpinner";
+import { AppText } from "src/components";
+import { useTheme } from "../../../../providers/ThemeProvider";
+import { createStyles } from "./Badge.styles";
 
 export const Badge: React.FC<BadgeProps> = (props) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
-  
+
   const isLoading = props.isLoading || false;
-  
+
   if (isLoading) {
     return (
-      <View 
+      <View
         style={[styles.base, styles.loading]}
         accessibilityRole="text"
         accessibilityLabel="Loading indicator"
@@ -26,38 +26,38 @@ export const Badge: React.FC<BadgeProps> = (props) => {
   }
 
   // Handle semantic variant
-  if (props.variant === 'semantic') {
+  if (props.variant === "semantic") {
     const getSemanticInfo = () => {
       switch (props.semanticType) {
-        case 'calories':
+        case "calories":
           return {
             style: styles.semanticCalories,
             textStyle: styles.semanticCaloriesText,
-            accessibilityLabel: `Calories: ${props.label}`
+            accessibilityLabel: `Calories: ${props.label}`,
           };
-        case 'protein':
+        case "protein":
           return {
             style: styles.semanticProtein,
             textStyle: styles.semanticProteinText,
-            accessibilityLabel: `Protein: ${props.label}`
+            accessibilityLabel: `Protein: ${props.label}`,
           };
-        case 'carbs':
+        case "carbs":
           return {
             style: styles.semanticCarbs,
             textStyle: styles.semanticCarbsText,
-            accessibilityLabel: `Carbohydrates: ${props.label}`
+            accessibilityLabel: `Carbohydrates: ${props.label}`,
           };
-        case 'fat':
+        case "fat":
           return {
             style: styles.semanticFat,
             textStyle: styles.semanticFatText,
-            accessibilityLabel: `Fat: ${props.label}`
+            accessibilityLabel: `Fat: ${props.label}`,
           };
         default:
           return {
             style: styles.uncertain,
             textStyle: styles.uncertainText,
-            accessibilityLabel: props.label
+            accessibilityLabel: props.label,
           };
       }
     };
@@ -65,7 +65,7 @@ export const Badge: React.FC<BadgeProps> = (props) => {
     const semanticInfo = getSemanticInfo();
 
     return (
-      <View 
+      <View
         style={[styles.base, semanticInfo.style]}
         accessibilityRole="text"
         accessibilityLabel={semanticInfo.accessibilityLabel}
@@ -78,28 +78,28 @@ export const Badge: React.FC<BadgeProps> = (props) => {
   }
 
   // Handle icon variant
-  if (props.variant === 'icon') {
+  if (props.variant === "icon") {
     const getIconInfo = () => {
       switch (props.iconType) {
-        case 'image':
+        case "image":
           return {
-            icon: Camera,
-            accessibilityLabel: 'Image input'
+            icon: CameraIcon,
+            accessibilityLabel: "Image input",
           };
-        case 'audio':
+        case "audio":
           return {
-            icon: Microphone,
-            accessibilityLabel: 'Audio input'
+            icon: MicrophoneIcon,
+            accessibilityLabel: "Audio input",
           };
-        case 'text':
+        case "text":
           return {
-            icon: TextT,
-            accessibilityLabel: 'Text input'
+            icon: TextTIcon,
+            accessibilityLabel: "Text input",
           };
         default:
           return {
-            icon: Camera,
-            accessibilityLabel: 'Input method'
+            icon: CameraIcon,
+            accessibilityLabel: "Input method",
           };
       }
     };
@@ -108,16 +108,12 @@ export const Badge: React.FC<BadgeProps> = (props) => {
     const IconComponent = iconInfo.icon;
 
     return (
-      <View 
+      <View
         style={[styles.base, styles.iconBadge]}
         accessibilityRole="image"
         accessibilityLabel={iconInfo.accessibilityLabel}
       >
-        <IconComponent 
-          size={16} 
-          color={colors.accent} 
-          weight="regular" 
-        />
+        <IconComponent size={16} color={colors.accent} weight="regular" />
       </View>
     );
   }
@@ -126,29 +122,32 @@ export const Badge: React.FC<BadgeProps> = (props) => {
   const getConfidenceInfo = () => {
     const confidence = (props as any).confidence || 0;
     // Updated confidence ranges based on design system
-    if (confidence >= 80) return { 
-      style: styles.high, 
-      textStyle: styles.highText, 
-      label: 'High Accuracy',
-      range: '80-100%'
-    };
-    if (confidence >= 60) return { 
-      style: styles.good, 
-      textStyle: styles.goodText, 
-      label: 'Medium Accuracy',
-      range: '60-79%'
-    };
-    if (confidence >= 40) return { 
-      style: styles.partial, 
-      textStyle: styles.partialText, 
-      label: 'Low Accuracy',
-      range: '40-59%'
-    };
-    return { 
-      style: styles.uncertain, 
-      textStyle: styles.uncertainText, 
-      label: 'Uncertain',
-      range: '0-39%'
+    if (confidence >= 80)
+      return {
+        style: styles.high,
+        textStyle: styles.highText,
+        label: "High Accuracy",
+        range: "80-100%",
+      };
+    if (confidence >= 60)
+      return {
+        style: styles.good,
+        textStyle: styles.goodText,
+        label: "Medium Accuracy",
+        range: "60-79%",
+      };
+    if (confidence >= 40)
+      return {
+        style: styles.partial,
+        textStyle: styles.partialText,
+        label: "Low Accuracy",
+        range: "40-59%",
+      };
+    return {
+      style: styles.uncertain,
+      textStyle: styles.uncertainText,
+      label: "Uncertain",
+      range: "0-39%",
     };
   };
 
@@ -156,7 +155,7 @@ export const Badge: React.FC<BadgeProps> = (props) => {
   const confidence = (props as any).confidence || 0;
 
   return (
-    <View 
+    <View
       style={[styles.base, confidenceInfo.style]}
       accessibilityRole="text"
       accessibilityLabel={`AI confidence ${confidenceInfo.label}: ${confidence}%`}

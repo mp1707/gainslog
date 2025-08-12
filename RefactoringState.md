@@ -344,51 +344,60 @@ Notes:
 
 - path: `src/components/AppText.tsx`
 
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
-  - notes: Ensure consistent typography system usage.
+  - changeLog:
+    - 2025-08-12: Audited and kept as global typography primitive. Verified tokens and used across features. No API change.
+  - notes: Ensures consistent typography system usage.
 
 - path: `src/components/Button.tsx`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Deprecated in favor of shared atom `src/shared/ui/atoms/Button/Button.tsx`. Re-exported shared Button from `src/components/index.ts` for stable import surface. Migrated imports and deleted duplicate file.
+  - notes: Consolidated Button implementation to shared atoms.
 
 - path: `src/components/Card.tsx`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified theme integration and usages in food-logging and shared UI. Kept as global container primitive.
 
 - path: `src/components/FilterBadge.tsx`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified usage in overview. Kept component; aligned imports.
 
 - path: `src/components/ProgressRow.tsx`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified usage in daily summary. Kept component and standardized import path.
 
 - path: `src/components/SemanticBadge.tsx`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified semantic colors; confirmed separate from shared `Badge` atom. Kept component.
 
 - path: `src/components/SkeletonShimmerEffect.tsx`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified reanimated shimmer overlay. Used by skeleton cards. Kept component.
 
 - path: `src/components/index.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Consolidated barrel to export all global components and re-export shared `Button` atom.
 
 ### State Stores
 

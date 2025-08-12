@@ -9,7 +9,7 @@ import Animated, {
   withSpring,
   Easing,
 } from "react-native-reanimated";
-import { AppText } from "../../../components/AppText";
+import { AppText } from "src/components";
 import { FoodLogCardView } from "./FoodLogCardView";
 import { FoodLog } from "../../../types";
 import { useTheme } from "../../../providers/ThemeProvider";
