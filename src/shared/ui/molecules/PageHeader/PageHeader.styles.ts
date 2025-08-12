@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
-import { theme } from "../../../../theme";
+import { theme, type Colors } from "@/theme";
 
-export const createStyles = (colors: any) =>
+export const createStyles = (colors: Colors) =>
   StyleSheet.create({
     container: {
       paddingVertical: theme.spacing.md,

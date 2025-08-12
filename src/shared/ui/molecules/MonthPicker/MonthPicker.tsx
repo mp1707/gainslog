@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import { View, TouchableOpacity } from "react-native";
 import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
 import { useTheme } from "@/providers";
@@ -22,30 +22,30 @@ export function MonthPicker({
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
   // Format display text
-  const formatMonth = (date: Date): string => {
+  const formatMonth = useCallback((date: Date): string => {
     return date.toLocaleDateString("en-US", {
       month: "long",
       year: "numeric",
     });
-  };
+  }, []);
 
   // Navigate to previous month
-  const goToPreviousMonth = () => {
+  const goToPreviousMonth = useCallback(() => {
     const prevMonth = new Date(year, month - 2);
     const prevMonthString = `${prevMonth.getFullYear()}-${String(
       prevMonth.getMonth() + 1
     ).padStart(2, "0")}`;
     onMonthChange(prevMonthString);
-  };
+  }, [month, onMonthChange, year]);
 
   // Navigate to next month
-  const goToNextMonth = () => {
+  const goToNextMonth = useCallback(() => {
     const nextMonth = new Date(year, month);
     const nextMonthString = `${nextMonth.getFullYear()}-${String(
       nextMonth.getMonth() + 1
     ).padStart(2, "0")}`;
     onMonthChange(nextMonthString);
-  };
+  }, [month, onMonthChange, year]);
 
   // Check if we're at current month (don't allow future months)
   const currentMonth = new Date();
@@ -59,6 +59,9 @@ export function MonthPicker({
         style={styles.navigationArrow}
         onPress={goToPreviousMonth}
         activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel="Previous month"
+        accessibilityHint="Moves selection to the previous month"
       >
         <CaretLeftIcon
           size={16}
@@ -80,6 +83,14 @@ export function MonthPicker({
         onPress={goToNextMonth}
         disabled={isAtCurrentMonth}
         activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel="Next month"
+        accessibilityHint={
+          isAtCurrentMonth
+            ? "You are at the current month; moving forward is disabled"
+            : "Moves selection to the next month"
+        }
+        accessibilityState={{ disabled: isAtCurrentMonth }}
       >
         <CaretRightIcon
           size={16}

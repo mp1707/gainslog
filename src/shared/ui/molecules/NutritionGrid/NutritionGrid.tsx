@@ -28,8 +28,15 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
 }) => {
   const styles = useStyles();
   return (
-    <View style={[styles.section, disabled && styles.disabledSection]}>
-      <Text style={[styles.subtitle, disabled && styles.disabledSubtitle]}>
+    <View
+      style={[styles.section, disabled && styles.disabledSection]}
+      accessibilityLabel="Nutrition inputs grid"
+      accessibilityHint="Enter values or leave empty for AI estimation"
+    >
+      <Text
+        style={[styles.subtitle, disabled && styles.disabledSubtitle]}
+        accessibilityRole="text"
+      >
         Leave fields empty to have AI estimate missing values
       </Text>
 
@@ -41,6 +48,7 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
               styles.caloriesLabel,
               disabled && styles.disabledLabel,
             ]}
+            accessibilityRole="text"
           >
             Calories
           </Text>
@@ -63,6 +71,7 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
               styles.proteinLabel,
               disabled && styles.disabledLabel,
             ]}
+            accessibilityRole="text"
           >
             Protein (g)
           </Text>
@@ -85,6 +94,7 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
               styles.carbsLabel,
               disabled && styles.disabledLabel,
             ]}
+            accessibilityRole="text"
           >
             Carbs (g)
           </Text>
@@ -107,6 +117,7 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
               styles.fatLabel,
               disabled && styles.disabledLabel,
             ]}
+            accessibilityRole="text"
           >
             Fat (g)
           </Text>

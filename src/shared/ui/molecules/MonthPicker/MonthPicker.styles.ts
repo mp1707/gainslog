@@ -1,9 +1,9 @@
 import { StyleSheet } from "react-native";
-import { theme as defaultTheme } from "../../../../theme";
+import { theme as defaultTheme, type Colors, type Theme } from "@/theme";
 
 export const createStyles = (
-  colors: any,
-  themeObj: typeof defaultTheme = defaultTheme
+  colors: Colors,
+  themeObj: Theme = defaultTheme
 ) => {
   const { spacing } = themeObj;
 

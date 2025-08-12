@@ -932,56 +932,67 @@ Notes:
     - 2025-08-12: Switched theme import to `@/theme` and typed `Colors` param. Kept legacy export.
 - path: `src/shared/ui/molecules/FormField/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified barrel export. No code changes required.
 
 - path: `src/shared/ui/molecules/MacroRow/MacroRow.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified alias imports and a11y labels. No changes required.
 - path: `src/shared/ui/molecules/MacroRow/MacroRow.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized theme import to `@/theme` and typed `colors` as `Colors`.
 - path: `src/shared/ui/molecules/MacroRow/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel export verified.
 
 - path: `src/shared/ui/molecules/MonthPicker/MonthPicker.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Normalized phosphor imports, added a11y labels/hints, memoized handlers with `useCallback`.
 - path: `src/shared/ui/molecules/MonthPicker/MonthPicker.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched to `@/theme` and typed params as `Colors` and `Theme`.
 - path: `src/shared/ui/molecules/MonthPicker/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel export verified.
 
 - path: `src/shared/ui/molecules/NutritionGrid/NutritionGrid.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Added a11y roles/labels on wrapper and labels. No breaking changes.
 - path: `src/shared/ui/molecules/NutritionGrid/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel export verified.
 
 - path: `src/shared/ui/molecules/PageHeader/PageHeader.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized provider import to `@/providers/ThemeProvider` and set `accessibilityRole="header"`.
 - path: `src/shared/ui/molecules/PageHeader/PageHeader.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized theme import to `@/theme` and typed `colors` as `Colors`.
 - path: `src/shared/ui/molecules/PageHeader/index.ts`
 
   - state: open
