@@ -1,11 +1,11 @@
-import React, { useRef } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { TextInput } from '@/shared/ui/atoms';
-import { TextInputProps } from '@/types';
-import { useTheme } from '../../../../providers/ThemeProvider';
-import { createStyles } from './FormField.styles';
+import React, { useRef } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { TextInput } from "@/shared/ui/atoms";
+import { TextInputProps } from "@/types";
+import { useTheme } from "../../../../providers/ThemeProvider";
+import { createStyles } from "./FormField.styles";
 
-interface FormFieldProps extends Omit<TextInputProps, 'error'> {
+interface FormFieldProps extends Omit<TextInputProps, "error"> {
   label: string;
   required?: boolean;
   error?: string;
@@ -32,30 +32,23 @@ export const FormField: React.FC<FormFieldProps> = ({
   };
 
   return (
-    <View style={[styles.container, readOnly && styles.readOnlyContainer]}>
+    <View style={readOnly && styles.readOnlyContainer}>
       <TouchableOpacity onPress={handleLabelPress} disabled={readOnly}>
         <Text style={[styles.label, readOnly && styles.readOnlyLabel]}>
-          {label}{required && ' *'}
+          {label}
+          {required && " *"}
         </Text>
       </TouchableOpacity>
       <View style={styles.inputContainer}>
-        <TextInput 
+        <TextInput
           ref={inputRef}
-          {...textInputProps} 
+          {...textInputProps}
           error={!!error}
           disabled={readOnly}
         />
-        {children && (
-          <View style={styles.inlineElement}>
-            {children}
-          </View>
-        )}
+        {children && <View style={styles.inlineElement}>{children}</View>}
       </View>
-      {error && (
-        <Text style={styles.error}>
-          {error}
-        </Text>
-      )}
+      {error && <Text style={styles.error}>{error}</Text>}
     </View>
   );
 };

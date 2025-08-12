@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Modal, View, Text, ScrollView, KeyboardAvoidingView } from "react-native";
+import {
+  Modal,
+  View,
+  Text,
+  ScrollView,
+  KeyboardAvoidingView,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { FoodLog, ModalMode } from "../../../types";
@@ -35,7 +41,8 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   const { foodLogs } = useFoodLogStore();
 
   // Nutrition mode state - defaults to estimation
-  const [nutritionMode, setNutritionMode] = useState<NutritionMode>("estimation");
+  const [nutritionMode, setNutritionMode] =
+    useState<NutritionMode>("estimation");
 
   // Get the live log from store to reflect upload progress
   const currentLog = selectedLog
@@ -50,7 +57,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   // Handle nutrition mode toggle change
   const handleNutritionModeChange = (mode: NutritionMode) => {
     setNutritionMode(mode);
-    
+
     // Clear nutrition fields when switching from manual to estimation
     if (mode === "estimation") {
       form.clearNutritionFields();
@@ -82,9 +89,10 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   useEffect(() => {
     if (visible) {
       form.initializeForm(currentLog, mode);
-      // Reset nutrition mode to estimation for new logs
+      // Always reset nutrition mode to estimation when modal opens
+      setNutritionMode("estimation");
+      // Reset audio recording state for new logs
       if (mode === "create" && !currentLog) {
-        setNutritionMode("estimation");
         audioRecording.setBaseDescription("");
       }
     }
@@ -142,30 +150,24 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
           </View>
         )}
 
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior="padding"
-          keyboardVerticalOffset={80}
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <ScrollView
-            style={styles.content}
-            contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
-            {currentLog && <FoodImageDisplay log={currentLog} />}
+          {currentLog && <FoodImageDisplay log={currentLog} />}
 
-            <FoodLogFormFields
-              formData={form.formData}
-              currentLog={currentLog}
-              audioRecording={audioRecording}
-              nutritionMode={nutritionMode}
-              onFieldChange={form.updateField}
-              onValidationErrorClear={() => form.setValidationError("")}
-              onNutritionModeChange={handleNutritionModeChange}
-            />
-          </ScrollView>
-        </KeyboardAvoidingView>
+          <FoodLogFormFields
+            formData={form.formData}
+            currentLog={currentLog}
+            audioRecording={audioRecording}
+            nutritionMode={nutritionMode}
+            onFieldChange={form.updateField}
+            onValidationErrorClear={() => form.setValidationError("")}
+            onNutritionModeChange={handleNutritionModeChange}
+          />
+        </ScrollView>
       </SafeAreaView>
     </Modal>
   );

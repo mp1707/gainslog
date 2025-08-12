@@ -2,10 +2,6 @@ import { StyleSheet } from 'react-native';
 import { theme } from '../../../../theme';
 
 export const createStyles = (colors: any) => StyleSheet.create({
-  container: {
-    marginBottom: theme.spacing.md,
-  },
-
   readOnlyContainer: {
     opacity: 0.7,
   },

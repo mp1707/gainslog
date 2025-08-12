@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text } from 'react-native';
-import { NumericTextInput } from '@/shared/ui/atoms';
-import { styles } from './NutritionGrid.styles';
+import React from "react";
+import { View, Text } from "react-native";
+import { NumericTextInput } from "@/shared/ui/atoms";
+import { useStyles } from "./NutritionGrid.styles";
 
 interface NutritionGridProps {
   calories: string;
@@ -26,18 +26,22 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
   onFatChange,
   disabled = false,
 }) => {
+  const styles = useStyles();
   return (
     <View style={[styles.section, disabled && styles.disabledSection]}>
-      <Text style={[styles.title, disabled && styles.disabledTitle]}>
-        Nutrition (Optional)
-      </Text>
       <Text style={[styles.subtitle, disabled && styles.disabledSubtitle]}>
         Leave fields empty to have AI estimate missing values
       </Text>
-      
+
       <View style={styles.grid}>
         <View style={styles.inputGroup}>
-          <Text style={[styles.label, styles.caloriesLabel, disabled && styles.disabledLabel]}>
+          <Text
+            style={[
+              styles.label,
+              styles.caloriesLabel,
+              disabled && styles.disabledLabel,
+            ]}
+          >
             Calories
           </Text>
           <NumericTextInput
@@ -51,9 +55,15 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
             accessibilityHint="Enter calories or leave empty for AI estimation"
           />
         </View>
-        
+
         <View style={styles.inputGroup}>
-          <Text style={[styles.label, styles.proteinLabel, disabled && styles.disabledLabel]}>
+          <Text
+            style={[
+              styles.label,
+              styles.proteinLabel,
+              disabled && styles.disabledLabel,
+            ]}
+          >
             Protein (g)
           </Text>
           <NumericTextInput
@@ -67,9 +77,15 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
             accessibilityHint="Enter protein or leave empty for AI estimation"
           />
         </View>
-        
+
         <View style={styles.inputGroup}>
-          <Text style={[styles.label, styles.carbsLabel, disabled && styles.disabledLabel]}>
+          <Text
+            style={[
+              styles.label,
+              styles.carbsLabel,
+              disabled && styles.disabledLabel,
+            ]}
+          >
             Carbs (g)
           </Text>
           <NumericTextInput
@@ -83,9 +99,15 @@ export const NutritionGrid: React.FC<NutritionGridProps> = ({
             accessibilityHint="Enter carbohydrates or leave empty for AI estimation"
           />
         </View>
-        
+
         <View style={styles.inputGroup}>
-          <Text style={[styles.label, styles.fatLabel, disabled && styles.disabledLabel]}>
+          <Text
+            style={[
+              styles.label,
+              styles.fatLabel,
+              disabled && styles.disabledLabel,
+            ]}
+          >
             Fat (g)
           </Text>
           <NumericTextInput

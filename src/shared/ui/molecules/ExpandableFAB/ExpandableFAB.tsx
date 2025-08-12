@@ -15,7 +15,7 @@ import {
   CameraIcon,
   ImageIcon,
   MicrophoneIcon,
-  Star,
+  StarIcon,
 } from "phosphor-react-native";
 import { createStyles } from "./ExpandableFAB.styles";
 import { useTheme } from "src/providers/ThemeProvider";
@@ -106,7 +106,7 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
     },
     {
       icon: (
-        <Star
+        <StarIcon
           size={componentStyles.aiActionTargets.iconSize}
           color={componentStyles.aiActionTargets.iconColor}
           weight="regular"

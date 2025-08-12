@@ -1,11 +1,19 @@
-import React from 'react';
-import { SparkleIcon, PencilIcon } from 'phosphor-react-native';
-import { FormField, NutritionGrid, DescriptionSkeleton, InlineRecordButton } from '@/shared/ui';
-import { Toggle, type ToggleOption } from '@/shared/ui/atoms/Toggle';
-import { FoodLog } from '@/types';
-import { FoodLogFormData } from '../../hooks/useFoodLogForm';
-import { UseAudioRecordingReturn } from '../../hooks/useAudioRecording';
-import { NutritionMode } from '../../FoodLogModal';
+import React from "react";
+import { SparkleIcon, PencilIcon } from "phosphor-react-native";
+import {
+  FormField,
+  NutritionGrid,
+  DescriptionSkeleton,
+  InlineRecordButton,
+} from "@/shared/ui";
+import { Toggle, type ToggleOption } from "@/shared/ui/atoms/Toggle";
+import { FoodLog } from "@/types";
+import { FoodLogFormData } from "../../hooks/useFoodLogForm";
+import { UseAudioRecordingReturn } from "../../hooks/useAudioRecording";
+import { NutritionMode } from "../../FoodLogModal";
+import { View } from "react-native";
+import { useStyles } from "./FoodLogFormFields.styles";
+import { AppText } from "src/components";
 
 interface FoodLogFormFieldsProps {
   formData: FoodLogFormData;
@@ -26,15 +34,24 @@ export const FoodLogFormFields: React.FC<FoodLogFormFieldsProps> = ({
   onValidationErrorClear,
   onNutritionModeChange,
 }) => {
-  const { recordingState, startNewRecording, handleStopRecording, getCurrentTranscription } = audioRecording;
-
+  const {
+    recordingState,
+    startNewRecording,
+    handleStopRecording,
+    getCurrentTranscription,
+  } = audioRecording;
+  const styles = useStyles();
   // Use live transcription from audio hook for description field during recording
-  const displayDescription = recordingState === 'recording' 
-    ? getCurrentTranscription() 
-    : formData.description;
+  const displayDescription =
+    recordingState === "recording"
+      ? getCurrentTranscription()
+      : formData.description;
 
   // Nutrition mode toggle options
-  const nutritionModeOptions: [ToggleOption<NutritionMode>, ToggleOption<NutritionMode>] = [
+  const nutritionModeOptions: [
+    ToggleOption<NutritionMode>,
+    ToggleOption<NutritionMode>
+  ] = [
     {
       value: "estimation",
       label: "Estimation",
@@ -42,22 +59,26 @@ export const FoodLogFormFields: React.FC<FoodLogFormFieldsProps> = ({
     },
     {
       value: "manual",
-      label: "Manual", 
+      label: "Manual",
       icon: PencilIcon,
     },
   ];
 
   return (
-    <>
+    <View style={styles.container}>
       <FormField
         label="Title"
         value={formData.title}
         onChangeText={(text) => {
-          onFieldChange('title', text);
+          onFieldChange("title", text);
           onValidationErrorClear();
         }}
-        placeholder={(currentLog?.imageUrl || currentLog?.localImageUri) ? 'Enter food title (AI will generate if empty)' : 'Enter food title'}
-        readOnly={recordingState === 'recording'}
+        placeholder={
+          currentLog?.imageUrl || currentLog?.localImageUri
+            ? "Enter food title (AI will generate if empty)"
+            : "Enter food title"
+        }
+        readOnly={recordingState === "recording"}
       />
 
       {currentLog?.isTranscribing ? (
@@ -67,27 +88,29 @@ export const FoodLogFormFields: React.FC<FoodLogFormFieldsProps> = ({
           label="Description"
           value={displayDescription}
           onChangeText={(text) => {
-            onFieldChange('description', text);
+            onFieldChange("description", text);
             onValidationErrorClear();
           }}
           placeholder="Add details about preparation, ingredients, portion size, etc."
           multiline={true}
-          readOnly={recordingState === 'recording'}
+          readOnly={recordingState === "recording"}
         >
-          {recordingState === 'idle' && (
-            <InlineRecordButton 
+          {recordingState === "idle" && (
+            <InlineRecordButton
               onPress={startNewRecording}
               isRecording={false}
             />
           )}
-          {recordingState === 'recording' && (
-            <InlineRecordButton 
+          {recordingState === "recording" && (
+            <InlineRecordButton
               onPress={handleStopRecording}
               isRecording={true}
             />
           )}
         </FormField>
       )}
+
+      <AppText role="Headline">Nutrition (Optional)</AppText>
 
       {/* Nutrition mode toggle */}
       <Toggle
@@ -98,19 +121,23 @@ export const FoodLogFormFields: React.FC<FoodLogFormFieldsProps> = ({
       />
 
       {/* Show nutrition inputs only in manual mode */}
-      {nutritionMode === "manual" && (
+      {nutritionMode === "manual" ? (
         <NutritionGrid
           calories={formData.calories}
           protein={formData.protein}
           carbs={formData.carbs}
           fat={formData.fat}
-          onCaloriesChange={(value) => onFieldChange('calories', value)}
-          onProteinChange={(value) => onFieldChange('protein', value)}
-          onCarbsChange={(value) => onFieldChange('carbs', value)}
-          onFatChange={(value) => onFieldChange('fat', value)}
-          disabled={recordingState === 'recording'}
+          onCaloriesChange={(value) => onFieldChange("calories", value)}
+          onProteinChange={(value) => onFieldChange("protein", value)}
+          onCarbsChange={(value) => onFieldChange("carbs", value)}
+          onFatChange={(value) => onFieldChange("fat", value)}
+          disabled={recordingState === "recording"}
         />
+      ) : (
+        <AppText role="Body" color="secondary">
+          Let AI estimate all nutrition values for you.
+        </AppText>
       )}
-    </>
+    </View>
   );
 };
