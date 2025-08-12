@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, Text } from 'react-native';
-import { styles } from './DailyProgressSummary.styles';
-import { DailyProgress } from '../../../../types';
-import { useTheme } from '../../../../providers/ThemeProvider';
+import React from "react";
+import { View, Text } from "react-native";
+import { styles } from "./DailyProgressSummary.styles";
+import { DailyProgress } from "@/types";
+import { useTheme } from "@/providers/ThemeProvider";
 
 interface DailyProgressSummaryProps {
   progress: DailyProgress;
@@ -10,21 +10,21 @@ interface DailyProgressSummaryProps {
 
 export function DailyProgressSummary({ progress }: DailyProgressSummaryProps) {
   const { colors } = useTheme();
-  
+
   return (
     <View style={styles.container}>
       {/* Protein Progress */}
       <View style={styles.macroItem}>
         <Text style={styles.macroLabel}>Protein</Text>
         <View style={styles.progressBar}>
-          <View 
+          <View
             style={[
-              styles.progressFill, 
-              { 
+              styles.progressFill,
+              {
                 width: `${Math.min(100, progress.percentages.protein)}%`,
-                backgroundColor: colors.semantic?.protein || colors.accent
-              }
-            ]} 
+                backgroundColor: colors.semantic?.protein || colors.accent,
+              },
+            ]}
           />
         </View>
         <Text style={styles.macroValue}>

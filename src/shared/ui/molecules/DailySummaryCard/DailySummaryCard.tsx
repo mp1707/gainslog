@@ -8,7 +8,7 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { useTheme } from "@/providers/ThemeProvider";
-import { Card, AppText, ProgressRow } from "src/components";
+import { Card, AppText, ProgressRow } from "@/components";
 import { useStyles } from "./DailySummaryCard.styles";
 
 // Memoized component for better performance

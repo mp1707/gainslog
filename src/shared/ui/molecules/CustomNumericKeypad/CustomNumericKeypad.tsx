@@ -7,8 +7,8 @@ import Animated, {
   withTiming,
   Easing,
 } from "react-native-reanimated";
+import { useTheme } from "@/providers/ThemeProvider";
 import { BackspaceIcon } from "phosphor-react-native";
-import { useTheme } from "../../../../providers/ThemeProvider";
 import { createStyles } from "./CustomNumericKeypad.styles";
 
 interface CustomNumericKeypadProps {

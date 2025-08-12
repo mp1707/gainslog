@@ -1,12 +1,12 @@
-import { StyleSheet } from 'react-native';
-import { theme } from '../../../../theme';
+import { StyleSheet } from "react-native";
+import { theme } from "@/theme";
 
 const colors = theme.getColors();
 const { typography, spacing } = theme;
 
 export const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
+    flexDirection: "row",
     backgroundColor: colors.secondaryBackground,
     padding: spacing.md,
     marginHorizontal: spacing.pageMargins.horizontal,
@@ -33,7 +33,7 @@ export const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   progressFill: {
-    height: '100%',
+    height: "100%",
     borderRadius: 3,
     minWidth: 2,
   },
@@ -44,7 +44,7 @@ export const styles = StyleSheet.create({
     color: colors.primaryText,
   },
   caloriesItem: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   caloriesLabel: {
     fontSize: typography.Caption.fontSize,

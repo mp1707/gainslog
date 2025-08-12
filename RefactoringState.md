@@ -428,47 +428,53 @@ Notes:
   - state: done
   - priority: low
   - changeLog:
-    - 2025-08-12: Migrated to `react-native-svg` with `size` and `color` props; created common `IconProps`.
+    - 2025-08-12: Deleted shared icons folder in favor of `phosphor-react-native` across the app.
+    - 2025-08-12: (previous) Migrated to `react-native-svg` with `size` and `color` props; created common `IconProps`.
 
 - path: `src/shared/icons/ArrowRightIcon.tsx`
 
   - state: done
   - priority: low
   - changeLog:
-    - 2025-08-12: Migrated to `react-native-svg`; consumes shared `IconProps`.
+    - 2025-08-12: Deleted shared icons folder in favor of `phosphor-react-native` across the app.
+    - 2025-08-12: (previous) Migrated to `react-native-svg`; consumed shared `IconProps`.
 
 - path: `src/shared/icons/CalendarIcon.tsx`
 
   - state: done
   - priority: low
   - changeLog:
-    - 2025-08-12: Migrated to `react-native-svg`; standardized API.
+    - 2025-08-12: Deleted shared icons folder in favor of `phosphor-react-native` across the app.
+    - 2025-08-12: (previous) Migrated to `react-native-svg`; standardized API.
 
 - path: `src/shared/icons/CameraIcon.tsx`
 
   - state: done
   - priority: low
   - changeLog:
-    - 2025-08-12: Migrated to `react-native-svg`; standardized API.
+    - 2025-08-12: Deleted shared icons folder in favor of `phosphor-react-native` across the app.
+    - 2025-08-12: (previous) Migrated to `react-native-svg`; standardized API.
 
 - path: `src/shared/icons/PencilIcon.tsx`
 
   - state: done
   - priority: low
   - changeLog:
-    - 2025-08-12: Migrated to `react-native-svg`; standardized API.
+    - 2025-08-12: Deleted shared icons folder in favor of `phosphor-react-native` across the app.
+    - 2025-08-12: (previous) Migrated to `react-native-svg`; standardized API.
 
 - path: `src/shared/icons/SettingsIcon.tsx`
   - state: done
   - priority: low
   - changeLog:
-    - 2025-08-12: Migrated to `react-native-svg`; standardized API.
+    - 2025-08-12: Deleted shared icons folder in favor of `phosphor-react-native` across the app.
+    - 2025-08-12: (previous) Migrated to `react-native-svg`; standardized API.
 - path: `src/shared/icons/index.ts`
 
 - state: done
 - priority: low
 - changeLog:
-  - 2025-08-12: Added barrel export for all icons and shared `IconProps`.
+  - 2025-08-12: Deleted along with shared icons folder; standardized on `phosphor-react-native` icons.
 
 ### Shared UI - Atoms
 
@@ -779,78 +785,93 @@ Notes:
 ### Shared UI - Molecules & Components
 
 - path: `src/shared/ui/molecules/CalculationInfoCard/CalculationInfoCard.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized imports to aliases (`@/providers`, `@/components`). Added a11y labels remain intact. No API changes.
 - path: `src/shared/ui/molecules/CalculationInfoCard/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel verified.
 
 - path: `src/shared/ui/molecules/CalorieCalculatorModal/CalorieCalculatorModal.tsx`
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized imports to path aliases for atoms, lib, utils, types. Confirmed use of `phosphor-react-native` (`CaretLeftIcon`, `CaretRightIcon`, `GenderMaleIcon`, `GenderFemaleIcon`). Kept logic; improved a11y consistency.
 - path: `src/shared/ui/molecules/CalorieCalculatorModal/CalorieCalculatorModal.styles.ts`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized themed styles hook import to `@/providers/ThemeProvider`.
 - path: `src/shared/ui/molecules/CalorieCalculatorModal/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel verified.
 
 - path: `src/shared/ui/molecules/CustomNumericKeypad/CustomNumericKeypad.tsx`
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized provider import to `@/providers`. Confirmed `phosphor-react-native` usage for `BackspaceIcon`. A11y preserved; animations untouched.
 - path: `src/shared/ui/molecules/CustomNumericKeypad/CustomNumericKeypad.styles.ts`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched theme import to `@/theme`.
 - path: `src/shared/ui/molecules/CustomNumericKeypad/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel verified.
 
 - path: `src/shared/ui/molecules/DailyProgressSummary/DailyProgressSummary.tsx`
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized imports to `@/types` and `@/providers`. No logic changes.
 - path: `src/shared/ui/molecules/DailyProgressSummary/DailyProgressSummary.styles.ts`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized theme import to `@/theme`.
 - path: `src/shared/ui/molecules/DailyProgressSummary/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel verified.
 
 - path: `src/shared/ui/molecules/DailySummaryCard/DailySummaryCard.tsx`
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized imports to `@/components`. Kept performance and a11y optimizations.
 - path: `src/shared/ui/molecules/DailySummaryCard/DailySummaryCard.styles.ts`
   - state: open
   - priority: medium
   - changeLog: []
 - path: `src/shared/ui/molecules/DailySummaryCard/DailyMacroBars.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized `AppText` import via `@/components`. No functional changes.
 - path: `src/shared/ui/molecules/DailySummaryCard/index.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel verified.
 - path: `src/shared/ui/molecules/DailySummaryCard/useMacroPercentages.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Left as-is; already pure and typed.
 
 - path: `src/shared/ui/molecules/DescriptionSkeleton/DescriptionSkeleton.tsx`
   - state: open

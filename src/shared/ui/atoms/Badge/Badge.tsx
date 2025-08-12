@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "react-native";
-import { CameraIcon } from "@/shared/icons";
+import { CameraIcon } from "phosphor-react-native";
 import { BadgeProps } from "@/types";
 import { LoadingSpinner } from "../LoadingSpinner";
 import { AppText } from "@/components";

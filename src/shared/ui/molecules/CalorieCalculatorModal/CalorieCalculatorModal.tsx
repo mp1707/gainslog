@@ -19,9 +19,9 @@ import { Toggle, type ToggleOption } from "../../atoms/Toggle";
 import {
   CalorieCalculationCard,
   CALCULATION_METHODS,
-} from "../../atoms/CalorieCalculationCard";
-import { GoalSelectionCard } from "../../atoms/GoalSelectionCard";
-import { calculateCalorieGoals } from "../../../../utils/calculateCalories";
+} from "@/shared/ui/atoms/CalorieCalculationCard";
+import { GoalSelectionCard } from "@/shared/ui/atoms/GoalSelectionCard";
+import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import type {
   CalorieCalculationMethod,
   GoalType,
@@ -33,7 +33,7 @@ import { useStyles } from "./CalorieCalculatorModal.styles";
 import {
   getCalorieCalculatorParams,
   saveCalorieCalculatorParams,
-} from "../../../../lib/storage";
+} from "@/lib/storage";
 
 interface CalorieCalculatorModalProps {
   visible: boolean;

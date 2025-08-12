@@ -7,7 +7,7 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { useTheme } from "@/providers/ThemeProvider";
-import { AppText } from "@/components/AppText";
+import { AppText } from "@/components";
 
 interface DailyMacroBarsProps {
   caloriesPercent: number;

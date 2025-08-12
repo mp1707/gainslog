@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import { View, StyleSheet, ViewStyle, StyleProp } from "react-native";
-import { useTheme } from "../../../../providers/ThemeProvider";
-import { AppText } from "src/components";
+import { useTheme } from "@/providers/ThemeProvider";
+import { AppText } from "@/components";
 
 export type CalculationType = "calories" | "protein" | "fat" | "carbs";
 
