@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -35,7 +35,7 @@ interface CaloriesSectionProps {
   dailyProgress: DailyProgress;
 }
 
-export const CaloriesSection: React.FC<CaloriesSectionProps> = ({
+export const CaloriesSection: React.FC<CaloriesSectionProps> = React.memo(({
   dailyProgress,
 }) => {
   const { theme, colors, colorScheme } = useTheme();
@@ -63,7 +63,7 @@ export const CaloriesSection: React.FC<CaloriesSectionProps> = ({
     width: `${caloriesProgress.value}%`,
   }));
 
-  const styles = StyleSheet.create({
+  const styles = useMemo(() => StyleSheet.create({
     container: {
       padding: theme.spacing.lg,
     },
@@ -98,7 +98,7 @@ export const CaloriesSection: React.FC<CaloriesSectionProps> = ({
       color: colors.primaryText,
       marginBottom: theme.spacing.md,
     },
-  });
+  }), [theme, colors, colorScheme]);
 
   return (
     <View>
@@ -127,4 +127,4 @@ export const CaloriesSection: React.FC<CaloriesSectionProps> = ({
       )}
     </View>
   );
-};
+});

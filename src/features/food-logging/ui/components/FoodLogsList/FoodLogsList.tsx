@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { View } from 'react-native';
 import Animated, {
   Layout,
@@ -21,7 +21,7 @@ interface FoodLogsListProps {
   onAddInfo: (log: FoodLog) => void;
 }
 
-export const FoodLogsList: React.FC<FoodLogsListProps> = ({
+export const FoodLogsList: React.FC<FoodLogsListProps> = React.memo(({
   isLoadingLogs,
   foodLogs,
   onDeleteLog,
@@ -29,14 +29,14 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
 }) => {
   const { theme, colors } = useTheme();
   
-  const handleDeleteLog = async (logId: string) => {
+  const handleDeleteLog = useCallback(async (logId: string) => {
     await onDeleteLog(logId);
-  };
+  }, [onDeleteLog]);
 
-  const headerStyle = {
+  const headerStyle = useMemo(() => ({
     color: colors.primaryText,
     marginBottom: theme.spacing.md,
-  };
+  }), [colors.primaryText, theme.spacing.md]);
 
   if (isLoadingLogs) {
     return (
@@ -85,4 +85,4 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
       </View>
     </View>
   );
-};
+});

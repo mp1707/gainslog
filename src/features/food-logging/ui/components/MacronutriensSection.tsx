@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { Card } from "../../../../components/Card";
 import { AppText } from "../../../../components/AppText";
@@ -10,33 +10,33 @@ interface MacronutriensSectionProps {
   dailyProgress: DailyProgress;
 }
 
-export const MacronutriensSection: React.FC<MacronutriensSectionProps> = ({
+export const MacronutriensSection: React.FC<MacronutriensSectionProps> = React.memo(({
   dailyProgress,
 }) => {
   const { theme, colors } = useTheme();
 
-  const proteinData = {
-    current: Math.round(dailyProgress.current.protein),
-    target: dailyProgress.targets.protein,
-    unit: "g",
-    label: "Protein",
-  };
+  const { proteinData, fatData, carbsData } = useMemo(() => ({
+    proteinData: {
+      current: Math.round(dailyProgress.current.protein),
+      target: dailyProgress.targets.protein,
+      unit: "g",
+      label: "Protein",
+    },
+    fatData: {
+      current: Math.round(dailyProgress.current.fat),
+      target: dailyProgress.targets.fat,
+      unit: "g",
+      label: "Fat",
+    },
+    carbsData: {
+      current: Math.round(dailyProgress.current.carbs),
+      target: dailyProgress.targets.carbs,
+      unit: "g",
+      label: "Carbs",
+    },
+  }), [dailyProgress]);
 
-  const fatData = {
-    current: Math.round(dailyProgress.current.fat),
-    target: dailyProgress.targets.fat,
-    unit: "g",
-    label: "Fat",
-  };
-
-  const carbsData = {
-    current: Math.round(dailyProgress.current.carbs),
-    target: dailyProgress.targets.carbs,
-    unit: "g",
-    label: "Carbs",
-  };
-
-  const styles = StyleSheet.create({
+  const styles = useMemo(() => StyleSheet.create({
     container: {
       padding: theme.spacing.lg,
       flexDirection: "row",
@@ -59,7 +59,7 @@ export const MacronutriensSection: React.FC<MacronutriensSectionProps> = ({
       color: colors.primaryText,
       marginBottom: theme.spacing.md,
     },
-  });
+  }), [theme, colors]);
 
   const macroNutrientsNotDefined =
     proteinData.target === 0 && fatData.target === 0 && carbsData.target === 0;
@@ -115,4 +115,4 @@ export const MacronutriensSection: React.FC<MacronutriensSectionProps> = ({
       )}
     </View>
   );
-};
+});

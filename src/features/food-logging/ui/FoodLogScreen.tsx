@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useMemo, useCallback } from "react";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ExpandableFAB } from "@/shared/ui";
@@ -8,14 +8,12 @@ import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useDateNavigation } from "./hooks/useDateNavigation";
 import { useTabBarSpacing } from "./hooks/useTabBarSpacing";
+import { useFavoriteSelection } from "./hooks/useFavoriteSelection";
 import { DateNavigationHeader } from "./components/DateNavigationHeader";
 import { MacronutriensSection } from "./components/MacronutriensSection";
 import { CaloriesSection } from "./components/CaloriesSection";
 import { FoodLogsList } from "./components/FoodLogsList";
 import { FavoritesPickerModal } from "@/shared/ui/molecules/FavoritesPickerModal/FavoritesPickerModal";
-import { FavoriteEntry } from "@/types";
-import { generateFoodLogId } from "@/lib/storage";
-import { useState, useEffect } from "react";
 
 interface FoodLogScreenProps {
   isLoadingLogs: boolean;
@@ -31,14 +29,21 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   scrollToTop,
 }) => {
   const scrollViewRef = useRef<ScrollView>(null);
-  const {
-    getDailyProgress,
-    triggerManualLog,
-    triggerCameraCapture,
-    triggerLibraryCapture,
-    triggerAudioCapture,
-    getFilteredFoodLogs,
-  } = useFoodLogStore();
+
+  // Optimized store selectors - individual selectors to prevent object recreation
+  const foodLogs = useFoodLogStore((state) => state.foodLogs);
+  const dailyTargets = useFoodLogStore((state) => state.dailyTargets);
+
+  const triggerManualLog = useFoodLogStore((state) => state.triggerManualLog);
+  const triggerCameraCapture = useFoodLogStore(
+    (state) => state.triggerCameraCapture
+  );
+  const triggerLibraryCapture = useFoodLogStore(
+    (state) => state.triggerLibraryCapture
+  );
+  const triggerAudioCapture = useFoodLogStore(
+    (state) => state.triggerAudioCapture
+  );
 
   const { colors } = useTheme();
   const { dynamicBottomPadding } = useTabBarSpacing();
@@ -50,64 +55,90 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
     isToday,
   } = useDateNavigation();
 
-  const dailyProgress = getDailyProgress();
-  const styles = createStyles(colors, dynamicBottomPadding);
-  const filteredFoodLogs = getFilteredFoodLogs();
+  // Memoize expensive computations
+  const filteredFoodLogs = useMemo(() => {
+    return foodLogs.filter((log) => log.date === selectedDate);
+  }, [foodLogs, selectedDate]);
+
+  const dailyProgress = useMemo(() => {
+    const current = filteredFoodLogs.reduce(
+      (totals, log) => ({
+        calories: totals.calories + log.calories,
+        protein: totals.protein + log.protein,
+        carbs: totals.carbs + log.carbs,
+        fat: totals.fat + log.fat,
+      }),
+      { calories: 0, protein: 0, carbs: 0, fat: 0 }
+    );
+
+    const percentages = {
+      calories:
+        dailyTargets.calories > 0
+          ? Math.round((current.calories / dailyTargets.calories) * 100)
+          : 0,
+      protein:
+        dailyTargets.protein > 0
+          ? Math.round((current.protein / dailyTargets.protein) * 100)
+          : 0,
+      carbs:
+        dailyTargets.carbs > 0
+          ? Math.round((current.carbs / dailyTargets.carbs) * 100)
+          : 0,
+      fat:
+        dailyTargets.fat > 0
+          ? Math.round((current.fat / dailyTargets.fat) * 100)
+          : 0,
+    };
+
+    return {
+      current,
+      targets: dailyTargets,
+      percentages,
+    };
+  }, [filteredFoodLogs, dailyTargets]);
+
+  const styles = useMemo(
+    () => createStyles(colors, dynamicBottomPadding),
+    [colors, dynamicBottomPadding]
+  );
+
+  const isTodayMemo = useMemo(() => isToday(), [isToday]);
   const [isFavoritesModalVisible, setFavoritesModalVisible] =
     React.useState(false);
 
-  // Track layout for the main stats (Calories + Macros)
-  const statsLayoutRef = useRef<{ y: number; height: number }>({
-    y: 0,
-    height: 0,
-  });
-  const [miniProgress, setMiniProgress] = useState(0);
-
-  const handleManualLog = () => {
+  // Memoized event handlers to prevent child re-renders
+  const handleManualLog = useCallback(() => {
     triggerManualLog();
-  };
+  }, [triggerManualLog]);
 
-  const handleCameraLog = () => {
+  const handleCameraLog = useCallback(() => {
     triggerCameraCapture();
-  };
+  }, [triggerCameraCapture]);
 
-  const handleLibraryLog = () => {
+  const handleLibraryLog = useCallback(() => {
     triggerLibraryCapture();
-  };
+  }, [triggerLibraryCapture]);
 
-  const handleAudioLog = () => {
+  const handleAudioLog = useCallback(() => {
     triggerAudioCapture();
-  };
+  }, [triggerAudioCapture]);
 
-  const handleFavoritesLog = () => {
+  const handleFavoritesLog = useCallback(() => {
     setFavoritesModalVisible(true);
-  };
+  }, []);
 
-  const handleSelectFavorite = (fav: FavoriteEntry) => {
-    const now = new Date();
-    const id = generateFoodLogId();
-    const log: FoodLog = {
-      id,
-      userTitle: fav.title,
-      userDescription: fav.description,
-      generatedTitle: fav.title,
-      estimationConfidence: 100,
-      calories: fav.calories,
-      protein: fav.protein,
-      carbs: fav.carbs,
-      fat: fav.fat,
-      createdAt: now.toISOString(),
-      date: selectedDate,
-      needsAiEstimation: false,
-    };
-    // Add directly without AI estimation
-    // Reuse store path for persistence and state update
-    useFoodLogStore.getState().addFoodLog(log);
+  const handleCloseFavoritesModal = useCallback(() => {
     setFavoritesModalVisible(false);
-  };
+  }, []);
+
+  // Use custom hook for favorite selection logic
+  const { selectFavorite } = useFavoriteSelection({
+    selectedDate,
+    onSelectionComplete: handleCloseFavoritesModal,
+  });
 
   // Handle scroll to top when prop changes
-  useEffect(() => {
+  React.useEffect(() => {
     if (scrollToTop) {
       scrollViewRef.current?.scrollTo({ y: 0, animated: true });
     }
@@ -120,39 +151,18 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         onDateChange={handleDateChange}
         onNavigatePrevious={navigateToPreviousDay}
         onNavigateNext={navigateToNextDay}
-        isToday={isToday()}
-        miniProgress={miniProgress}
-        progress={dailyProgress}
+        isToday={isTodayMemo}
       />
 
       <ScrollView
         ref={scrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
-        onScroll={(e) => {
-          const y = e.nativeEvent.contentOffset.y;
-          const bottomOfStats =
-            statsLayoutRef.current.y + statsLayoutRef.current.height;
-          if (bottomOfStats <= 0) {
-            setMiniProgress(0);
-            return;
-          }
-          // Start fading just before stats leave the viewport
-          const fadeStart = bottomOfStats - 24; // begin slightly early
-          const fadeDistance = 80; // px over which to interpolate to 1
-          const raw = (y - fadeStart) / fadeDistance;
-          const clamped = Math.max(0, Math.min(1, raw));
-          setMiniProgress(clamped);
-        }}
         scrollEventThrottle={16}
+        removeClippedSubviews={true}
+        showsVerticalScrollIndicator={false}
       >
-        <View
-          onLayout={(e) => {
-            const { y, height } = e.nativeEvent.layout;
-            statsLayoutRef.current = { y, height };
-          }}
-          style={styles.statsContainer}
-        >
+        <View style={styles.statsContainer}>
           <CaloriesSection dailyProgress={dailyProgress} />
 
           <MacronutriensSection dailyProgress={dailyProgress} />
@@ -176,8 +186,8 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
 
       <FavoritesPickerModal
         visible={isFavoritesModalVisible}
-        onClose={() => setFavoritesModalVisible(false)}
-        onSelectFavorite={handleSelectFavorite}
+        onClose={handleCloseFavoritesModal}
+        onSelectFavorite={selectFavorite}
       />
     </SafeAreaView>
   );
