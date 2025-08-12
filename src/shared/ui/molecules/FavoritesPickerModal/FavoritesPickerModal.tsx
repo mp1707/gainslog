@@ -63,7 +63,6 @@ export const FavoritesPickerModal: React.FC<FavoritesPickerModalProps> = ({
             placeholder="Search favorites"
           />
         </View>
-
         <ScrollView
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}

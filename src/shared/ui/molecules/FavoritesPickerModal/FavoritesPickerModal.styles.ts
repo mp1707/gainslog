@@ -17,6 +17,10 @@ export const createStyles = (colors: any, theme: any) =>
       justifyContent: "space-between",
       paddingVertical: theme.spacing.md,
     },
+    searchBarContainer: {
+      paddingHorizontal: theme.spacing.pageMargins.horizontal,
+      paddingBottom: theme.spacing.md,
+    },
     closeText: {
       color: colors.accent,
     },
