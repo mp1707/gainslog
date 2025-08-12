@@ -10,59 +10,59 @@ interface ProgressRowProps {
   prevValue?: number;
   color: string;
   icon?: React.ReactNode;
+  animated?: boolean;
+  animationKey?: number | string;
 }
 
-export const ProgressRow: React.FC<ProgressRowProps> = ({
-  label,
-  value,
-  prevValue,
-  color,
-  icon,
-}) => {
-  const { colors, theme } = useTheme();
-  const styles = useMemo(() => createStyles(theme), [theme]);
+export const ProgressRow: React.FC<ProgressRowProps> = React.memo(
+  ({ label, value, prevValue, color, icon, animated = true, animationKey }) => {
+    const { colors, theme } = useTheme();
+    const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const displayPercent = Math.round(value);
-  const lbl = (
-    <View style={styles.labelWrap}>
-      {icon}
-      <AppText role="Subhead" color="secondary">
-        {label}
-      </AppText>
-    </View>
-  );
-
-  return (
-    <View style={styles.row}>
-      <View style={styles.left}>{lbl}</View>
-      <View style={styles.middle}>
-        <ProgressBar
-          value={value}
-          prevValue={prevValue}
-          color={color}
-          trackColor={colors.disabledBackground}
-          height={8}
-          borderRadius={4}
-          accessibilityLabel={`${label} progress`}
-          delayMs={
-            label === "Calories"
-              ? 0
-              : label === "Protein"
-              ? 50
-              : label === "Carbs"
-              ? 100
-              : 150
-          }
-        />
-      </View>
-      <View style={styles.right}>
-        <AppText role="Body" style={{ color: colors.primaryText }}>
-          {displayPercent}%
+    const displayPercent = Math.round(value);
+    const lbl = (
+      <View style={styles.labelWrap}>
+        {icon}
+        <AppText role="Subhead" color="secondary">
+          {label}
         </AppText>
       </View>
-    </View>
-  );
-};
+    );
+
+    return (
+      <View style={styles.row}>
+        <View style={styles.left}>{lbl}</View>
+        <View style={styles.middle}>
+          <ProgressBar
+            value={value}
+            prevValue={prevValue}
+            color={color}
+            trackColor={colors.disabledBackground}
+            height={8}
+            borderRadius={4}
+            accessibilityLabel={`${label} progress`}
+            delayMs={
+              label === "Calories"
+                ? 0
+                : label === "Protein"
+                ? 50
+                : label === "Carbs"
+                ? 100
+                : 150
+            }
+            animated={animated}
+            animationKey={animationKey}
+          />
+        </View>
+        <View style={styles.right}>
+          <AppText role="Body" style={{ color: colors.primaryText }}>
+            {displayPercent}%
+          </AppText>
+        </View>
+      </View>
+    );
+  }
+);
 
 const createStyles = (theme: any) =>
   StyleSheet.create({

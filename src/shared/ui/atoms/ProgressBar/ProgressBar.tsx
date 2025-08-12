@@ -21,6 +21,8 @@ export interface ProgressBarProps {
   borderRadius?: number;
   accessibilityLabel?: string;
   delayMs?: number;
+  animated?: boolean;
+  animationKey?: number | string;
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({
@@ -32,6 +34,8 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   borderRadius = 4,
   accessibilityLabel,
   delayMs = 0,
+  animated = true,
+  animationKey,
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(
@@ -57,6 +61,10 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
 
   // Animate progress to target
   useEffect(() => {
+    if (!animated) {
+      progress.value = targetRatio;
+      return;
+    }
     progress.value = withDelay(
       delayMs,
       withTiming(targetRatio, {
@@ -65,12 +73,13 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
       })
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [targetRatio, delayMs]);
+  }, [targetRatio, delayMs, animated, animationKey]);
 
   // Trigger shimmer when crossing 100% from below
   const crossedToOverflow =
     prevValue !== undefined && prevValue <= 100 && value > 100;
   useEffect(() => {
+    if (!animated) return;
     if (crossedToOverflow) {
       shimmerX.value = -24;
       shimmerX.value = withTiming((trackWidth || 0) + 24, {
@@ -79,10 +88,14 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [crossedToOverflow, trackWidth]);
+  }, [crossedToOverflow, trackWidth, animated, animationKey]);
 
   // Overflow pulse indicator animation
   useEffect(() => {
+    if (!animated) {
+      pulseOpacity.value = 0;
+      return;
+    }
     if (isOverflowing) {
       pulseOpacity.value = withRepeat(
         withTiming(0.6, { duration: 800, easing: Easing.inOut(Easing.quad) }),
@@ -95,7 +108,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
     }
     pulseOpacity.value = 0;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOverflowing]);
+  }, [isOverflowing, animated, animationKey]);
 
   const fillAnimatedStyle = useAnimatedStyle(() => {
     const minVisibleSliver = 2; // px
@@ -139,18 +152,31 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
         isOverflowing ? `${Math.round(value)}% over target` : undefined
       }
     >
-      <Animated.View
-        style={[styles.fill, { borderRadius }, fillAnimatedStyle]}
-      />
+      {animated ? (
+        <Animated.View
+          style={[styles.fill, { borderRadius }, fillAnimatedStyle]}
+        />
+      ) : (
+        <View
+          style={{
+            height: "100%",
+            width: trackWidth * targetRatio,
+            backgroundColor: color,
+            borderRadius,
+          }}
+        />
+      )}
 
       {/* Shimmer overlay when crossing goal */}
-      <Animated.View
-        pointerEvents="none"
-        style={[styles.shimmer, shimmerStyle]}
-      />
+      {animated && (
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.shimmer, shimmerStyle]}
+        />
+      )}
 
       {/* Overflow thin pulse at the right edge of the bar */}
-      {isOverflowing && (
+      {animated && isOverflowing && (
         <Animated.View
           pointerEvents="none"
           style={[styles.pulse, { backgroundColor: color }, overflowPulseStyle]}

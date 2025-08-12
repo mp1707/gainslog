@@ -1,32 +1,76 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ScrollView, Text, StyleSheet, Platform, View } from "react-native";
+import {
+  FlatList,
+  ScrollView,
+  Text,
+  StyleSheet,
+  Platform,
+  View,
+  ListRenderItem,
+} from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
+import {
+  useFoodLogStore,
+  selectSelectedMonth,
+  selectDailyTargets,
+  selectFoodLogs,
+} from "../../src/stores/useFoodLogStore";
 import { DailySummaryCard } from "../../src/shared/ui/molecules/DailySummaryCard";
 import { MonthPicker } from "../../src/shared/ui/molecules/MonthPicker";
 import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
 import { FilterBadge, AppText } from "src/components";
 
 export default function OverviewTab() {
-  const {
-    selectedMonth,
-    setSelectedMonth,
-    dailyTargets,
-    loadDailyTargets,
-    getDailyTotalsForMonth,
-    navigateToTodayWithDate,
-  } = useFoodLogStore();
+  // Subscribe to only the needed slices of state to avoid re-renders on unrelated changes
+  const selectedMonth = useFoodLogStore(selectSelectedMonth);
+  const setSelectedMonth = useFoodLogStore((s) => s.setSelectedMonth);
+  const dailyTargets = useFoodLogStore(selectDailyTargets);
+  const loadDailyTargets = useFoodLogStore((s) => s.loadDailyTargets);
+  const navigateToTodayWithDate = useFoodLogStore(
+    (s) => s.navigateToTodayWithDate
+  );
+  const foodLogs = useFoodLogStore(selectFoodLogs);
 
   // Load daily targets on mount
   useEffect(() => {
     loadDailyTargets();
   }, [loadDailyTargets]);
 
-  const dailyTotals = getDailyTotalsForMonth();
+  // Compute daily totals for the selected month using memoization to avoid expensive recomputation
+  const dailyTotals = useMemo(() => {
+    // Filter logs for the selected month
+    const monthlyLogs = foodLogs.filter((log) =>
+      log.date.startsWith(selectedMonth)
+    );
+
+    // Group by date and sum totals
+    const logsByDate = monthlyLogs.reduce((acc, log) => {
+      const date = log.date;
+      if (!acc[date]) acc[date] = [];
+      acc[date].push(log);
+      return acc;
+    }, {} as Record<string, typeof foodLogs>);
+
+    const totals = Object.entries(logsByDate).map(([date, logs]) => ({
+      date,
+      totals: logs.reduce(
+        (sum, l) => ({
+          calories: sum.calories + l.calories,
+          protein: sum.protein + l.protein,
+          carbs: sum.carbs + l.carbs,
+          fat: sum.fat + l.fat,
+        }),
+        { calories: 0, protein: 0, carbs: 0, fat: 0 }
+      ),
+    }));
+
+    // Sort by date desc (most recent first)
+    return totals.sort((a, b) => b.date.localeCompare(a.date));
+  }, [foodLogs, selectedMonth]);
 
   const { colors, theme } = useTheme();
   const insets = useSafeAreaInsets();
@@ -50,6 +94,16 @@ export default function OverviewTab() {
     () => createStyles(colors, theme, dynamicBottomPadding),
     [colors, theme, dynamicBottomPadding]
   );
+
+  // Animate bars only when month changes (not on initial mount)
+  const [barsAnimationKey, setBarsAnimationKey] = useState<number | null>(null);
+  const previousMonthRef = React.useRef<string>(selectedMonth);
+  useEffect(() => {
+    if (previousMonthRef.current !== selectedMonth) {
+      setBarsAnimationKey((k) => (k === null ? 1 : k + 1));
+      previousMonthRef.current = selectedMonth;
+    }
+  }, [selectedMonth]);
 
   // Nutrient filter state
   const [filters, setFilters] = useState({
@@ -103,6 +157,36 @@ export default function OverviewTab() {
     }));
   }, [dailyTotals, dailyTargets]);
 
+  const renderItem = useCallback<
+    ListRenderItem<{
+      dateIso: string;
+      calories: number;
+      protein: number;
+      carbs: number;
+      fat: number;
+    }>
+  >(
+    ({ item, index }) => (
+      <View style={styles.cardWrap}>
+        <DailySummaryCard
+          dateIso={item.dateIso}
+          calories={item.calories}
+          protein={item.protein}
+          carbs={item.carbs}
+          fat={item.fat}
+          visible={filters}
+          onPress={() => handleDayPress(item.dateIso)}
+          animateBars={Boolean(barsAnimationKey) && index < 10}
+          animationKey={barsAnimationKey ?? undefined}
+          enablePressAnimation={false}
+        />
+      </View>
+    ),
+    [filters, handleDayPress, styles.cardWrap]
+  );
+
+  const keyExtractor = useCallback((d: { dateIso: string }) => d.dateIso, []);
+
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <PageHeader>
@@ -143,32 +227,24 @@ export default function OverviewTab() {
         </ScrollView>
       </PageHeader>
 
-      <ScrollView
-        style={styles.scrollView}
+      <FlatList
+        data={transformedDailyData}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        stickyHeaderIndices={[0]}
-      >
-        <View style={styles.stickyHeaderSpacer} />
-        {transformedDailyData.map((d) => (
-          <View key={d.dateIso} style={styles.cardWrap}>
-            <DailySummaryCard
-              dateIso={d.dateIso}
-              calories={d.calories}
-              protein={d.protein}
-              carbs={d.carbs}
-              fat={d.fat}
-              visible={filters}
-              onPress={() => handleDayPress(d.dateIso)}
-            />
-          </View>
-        ))}
-        {transformedDailyData.length === 0 && (
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={30}
+        windowSize={6}
+        removeClippedSubviews
+        extraData={filters}
+        ListEmptyComponent={() => (
           <Text style={styles.emptyText}>
-            No food logs found for this month. Showing examples.
+            No food logs found for this month.
           </Text>
         )}
-      </ScrollView>
+      />
     </SafeAreaView>
   );
 }

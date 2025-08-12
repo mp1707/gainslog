@@ -20,6 +20,9 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
   fat,
   onPress,
   visible = { calories: true, protein: true, carbs: true, fat: true },
+  animateBars = true,
+  animationKey,
+  enablePressAnimation = true,
 }: {
   dateIso: string;
   calories: number;
@@ -33,6 +36,9 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
     carbs: boolean;
     fat: boolean;
   };
+  animateBars?: boolean;
+  animationKey?: number | string;
+  enablePressAnimation?: boolean;
 }) {
   const styles = useStyles();
   const { colors } = useTheme();
@@ -48,6 +54,7 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
   const pressScale = useSharedValue(1);
 
   const handlePressIn = () => {
+    if (!enablePressAnimation) return;
     pressScale.value = withTiming(0.97, {
       duration: 100,
       easing: Easing.out(Easing.quad),
@@ -55,19 +62,19 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
   };
 
   const handlePressOut = () => {
+    if (!enablePressAnimation) return;
     pressScale.value = withSpring(1.0, {
       damping: 15,
       stiffness: 400,
-      // Use native driver for better performance
       mass: 0.8,
     });
   };
 
   const containerAnimatedStyle = useAnimatedStyle(
     () => ({
-      transform: [{ scale: pressScale.value }],
+      transform: enablePressAnimation ? [{ scale: pressScale.value }] : [],
     }),
-    []
+    [enablePressAnimation]
   );
 
   // Pre-calculate colors for better performance
@@ -104,6 +111,8 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
           label="Calories"
           value={calories}
           color={semanticColors.calories}
+          animated={animateBars}
+          animationKey={animationKey}
         />
       );
     }
@@ -114,6 +123,8 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
           label="Protein"
           value={protein}
           color={semanticColors.protein}
+          animated={animateBars}
+          animationKey={animationKey}
         />
       );
     }
@@ -124,6 +135,8 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
           label="Carbs"
           value={carbs}
           color={semanticColors.carbs}
+          animated={animateBars}
+          animationKey={animationKey}
         />
       );
     }
@@ -134,6 +147,8 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
           label="Fat"
           value={fat}
           color={semanticColors.fat}
+          animated={animateBars}
+          animationKey={animationKey}
         />
       );
     }
@@ -158,7 +173,7 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
       accessibilityRole="button"
     >
       <Animated.View style={[styles.cardContainer, containerAnimatedStyle]}>
-        <Card>
+        <Card elevated={false}>
           <View style={styles.row}>
             <View style={styles.dateColumn}>
               <AppText role="Headline">{formatDate(dateIso)}</AppText>
