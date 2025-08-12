@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, StyleSheet, Platform, View } from "react-native";
 import {
   SafeAreaView,
@@ -11,11 +11,6 @@ import { MonthPicker } from "../../src/shared/ui/molecules/MonthPicker";
 import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
 import { FilterBadge } from "@/components/FilterBadge";
 import { AppText } from "@/components/AppText";
-import Animated, {
-  LinearTransition,
-  Easing,
-  ReduceMotion,
-} from "react-native-reanimated";
 
 export default function OverviewTab() {
   const {
@@ -34,13 +29,6 @@ export default function OverviewTab() {
 
   const dailyTotals = getDailyTotalsForMonth();
 
-  const handleMonthChange = (month: string) => {
-    setSelectedMonth(month);
-  };
-
-  const handleDayPress = (date: string) => {
-    navigateToTodayWithDate(date);
-  };
 
   const { colors, theme } = useTheme();
   const insets = useSafeAreaInsets();
@@ -65,15 +53,6 @@ export default function OverviewTab() {
     [colors, theme, dynamicBottomPadding]
   );
 
-  const layoutTransition = useMemo(
-    () =>
-      LinearTransition.springify()
-        .damping(22)
-        .stiffness(300)
-        .reduceMotion(ReduceMotion.System),
-    []
-  );
-
   // Nutrient filter state
   const [filters, setFilters] = useState({
     calories: true,
@@ -82,9 +61,43 @@ export default function OverviewTab() {
     fat: true,
   });
 
-  const handleToggleFilter = (key: keyof typeof filters) => {
+  // Memoized filter toggle handler to prevent unnecessary re-renders
+  const handleToggleFilter = useCallback((key: keyof typeof filters) => {
     setFilters((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+  }, []);
+
+  // Memoized month change handler
+  const handleMonthChange = useCallback((month: string) => {
+    setSelectedMonth(month);
+  }, [setSelectedMonth]);
+
+  // Memoized day press handler
+  const handleDayPress = useCallback((date: string) => {
+    navigateToTodayWithDate(date);
+  }, [navigateToTodayWithDate]);
+
+  // Memoize transformed data to prevent recalculation on every render
+  const transformedDailyData = useMemo(() => {
+    return dailyTotals.map(({ date, totals }) => ({
+      dateIso: date,
+      calories:
+        dailyTargets.calories > 0
+          ? Math.round((totals.calories / dailyTargets.calories) * 100)
+          : 0,
+      protein:
+        dailyTargets.protein > 0
+          ? Math.round((totals.protein / dailyTargets.protein) * 100)
+          : 0,
+      carbs:
+        dailyTargets.carbs > 0
+          ? Math.round((totals.carbs / dailyTargets.carbs) * 100)
+          : 0,
+      fat:
+        dailyTargets.fat > 0
+          ? Math.round((totals.fat / dailyTargets.fat) * 100)
+          : 0,
+    }));
+  }, [dailyTotals, dailyTargets]);
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
@@ -133,44 +146,20 @@ export default function OverviewTab() {
         stickyHeaderIndices={[0]}
       >
         <View style={styles.stickyHeaderSpacer} />
-        {dailyTotals
-          .map(({ date, totals }) => ({
-            dateIso: date,
-            calories:
-              dailyTargets.calories > 0
-                ? Math.round((totals.calories / dailyTargets.calories) * 100)
-                : 0,
-            protein:
-              dailyTargets.protein > 0
-                ? Math.round((totals.protein / dailyTargets.protein) * 100)
-                : 0,
-            carbs:
-              dailyTargets.carbs > 0
-                ? Math.round((totals.carbs / dailyTargets.carbs) * 100)
-                : 0,
-            fat:
-              dailyTargets.fat > 0
-                ? Math.round((totals.fat / dailyTargets.fat) * 100)
-                : 0,
-          }))
-          .map((d, idx) => (
-            <Animated.View
-              key={d.dateIso}
-              layout={layoutTransition}
-              style={styles.cardWrap}
-            >
-              <DailySummaryCard
-                dateIso={d.dateIso}
-                calories={d.calories}
-                protein={d.protein}
-                carbs={d.carbs}
-                fat={d.fat}
-                visible={filters}
-                onPress={() => handleDayPress(d.dateIso)}
-              />
-            </Animated.View>
-          ))}
-        {dailyTotals.length === 0 && (
+        {transformedDailyData.map((d) => (
+          <View key={d.dateIso} style={styles.cardWrap}>
+            <DailySummaryCard
+              dateIso={d.dateIso}
+              calories={d.calories}
+              protein={d.protein}
+              carbs={d.carbs}
+              fat={d.fat}
+              visible={filters}
+              onPress={() => handleDayPress(d.dateIso)}
+            />
+          </View>
+        ))}
+        {transformedDailyData.length === 0 && (
           <Text style={styles.emptyText}>
             No food logs found for this month. Showing examples.
           </Text>
