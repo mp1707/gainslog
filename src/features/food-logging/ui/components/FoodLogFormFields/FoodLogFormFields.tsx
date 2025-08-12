@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { SparkleIcon, PencilIcon } from "phosphor-react-native";
 import {
   FormField,
@@ -11,7 +11,7 @@ import { FoodLog } from "@/types";
 import { FoodLogFormData } from "../../hooks/useFoodLogForm";
 import { UseAudioRecordingReturn } from "../../hooks/useAudioRecording";
 import { NutritionMode } from "../../FoodLogModal";
-import { View } from "react-native";
+import { View, Keyboard } from "react-native";
 import Animated, {
   FadeIn,
   FadeOut,
@@ -32,6 +32,7 @@ interface FoodLogFormFieldsProps {
   onFieldChange: (field: keyof FoodLogFormData, value: string) => void;
   onValidationErrorClear: () => void;
   onNutritionModeChange: (mode: NutritionMode) => void;
+  titleInputRef?: any;
 }
 
 export const FoodLogFormFields: React.FC<FoodLogFormFieldsProps> = ({
@@ -42,6 +43,7 @@ export const FoodLogFormFields: React.FC<FoodLogFormFieldsProps> = ({
   onFieldChange,
   onValidationErrorClear,
   onNutritionModeChange,
+  titleInputRef,
 }) => {
   const {
     recordingState,
@@ -50,6 +52,9 @@ export const FoodLogFormFields: React.FC<FoodLogFormFieldsProps> = ({
     getCurrentTranscription,
   } = audioRecording;
   const styles = useStyles();
+  const internalTitleRef = useRef<any>(null);
+  const effectiveTitleRef = titleInputRef || internalTitleRef;
+
   // Use live transcription from audio hook for description field during recording
   const displayDescription =
     recordingState === "recording"
@@ -78,6 +83,8 @@ export const FoodLogFormFields: React.FC<FoodLogFormFieldsProps> = ({
       <FormField
         label="Title"
         value={formData.title}
+        inputRef={effectiveTitleRef}
+        autoFocus={recordingState !== "recording"}
         onChangeText={(text) => {
           onFieldChange("title", text);
           onValidationErrorClear();
@@ -125,7 +132,12 @@ export const FoodLogFormFields: React.FC<FoodLogFormFieldsProps> = ({
       <Toggle
         value={nutritionMode}
         options={nutritionModeOptions}
-        onChange={onNutritionModeChange}
+        onChange={(mode) => {
+          // Close keyboard so expanded content is visible
+          effectiveTitleRef.current?.blur?.();
+          Keyboard.dismiss();
+          onNutritionModeChange(mode);
+        }}
         accessibilityLabel="Select nutrition input mode"
       />
 

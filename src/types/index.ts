@@ -81,6 +81,7 @@ export interface TextInputProps {
   multiline?: boolean;
   keyboardType?: "default" | "numeric";
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  autoFocus?: boolean;
   error?: boolean;
   disabled?: boolean;
   style?: any; // ViewStyle but avoiding import

@@ -11,6 +11,7 @@ interface FormFieldProps extends Omit<TextInputProps, "error"> {
   error?: string;
   readOnly?: boolean;
   children?: React.ReactNode; // For inline elements like record button
+  inputRef?: any;
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
@@ -19,11 +20,13 @@ export const FormField: React.FC<FormFieldProps> = ({
   error,
   readOnly = false,
   children,
+  inputRef: externalInputRef,
   ...textInputProps
 }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
-  const inputRef = useRef<any>(null);
+  const internalRef = useRef<any>(null);
+  const inputRef = externalInputRef || internalRef;
 
   const handleLabelPress = () => {
     if (!readOnly && inputRef.current) {

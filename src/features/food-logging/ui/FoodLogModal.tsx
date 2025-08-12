@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Modal,
   View,
   Text,
   ScrollView,
   KeyboardAvoidingView,
+  InteractionManager,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -39,6 +40,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
 }) => {
   const styles = useStyles();
   const { foodLogs } = useFoodLogStore();
+  const titleInputRef = useRef<any>(null);
 
   // Nutrition mode state - defaults to estimation
   const [nutritionMode, setNutritionMode] =
@@ -83,6 +85,20 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
         audioRecording.handleStopRecording();
       }
     }
+  }, [visible, isAudioMode]);
+
+  // Focus the title input when opening the modal (non-audio mode)
+  useEffect(() => {
+    if (!visible || isAudioMode) {
+      return;
+    }
+    const task = InteractionManager.runAfterInteractions(() => {
+      // Delay slightly to allow the modal animation to finish on iOS
+      setTimeout(() => titleInputRef.current?.focus?.(), 50);
+    });
+    return () => {
+      task?.cancel?.();
+    };
   }, [visible, isAudioMode]);
 
   // Reset form when modal opens or when currentLog changes (e.g., transcription completes)
@@ -166,6 +182,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
             onFieldChange={form.updateField}
             onValidationErrorClear={() => form.setValidationError("")}
             onNutritionModeChange={handleNutritionModeChange}
+            titleInputRef={titleInputRef}
           />
         </ScrollView>
       </SafeAreaView>
