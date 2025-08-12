@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { ColorScheme, theme as defaultTheme } from "../../../../theme";
+import { ColorScheme, theme as defaultTheme } from "@/theme";
 
 export const createStyles = (
   colors: any,
@@ -16,6 +16,15 @@ export const createStyles = (
       padding: themeObj.spacing.lg,
       gap: themeObj.spacing.md,
     },
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: themeObj.spacing.lg,
+    },
+    dateColumn: {
+      flexShrink: 0,
+      width: 96,
+    },
     dateText: {
       fontSize: themeObj.typography.Title2.fontSize,
       fontWeight: themeObj.typography.Title2.fontWeight,
@@ -23,13 +32,7 @@ export const createStyles = (
       color: colors.primaryText,
       marginBottom: themeObj.spacing.md,
     },
-    badgesRow: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      alignItems: "center",
-      justifyContent: "flex-start",
-      gap: themeObj.spacing.sm,
-    },
+    // legacy badges removed in redesign
     pressOverlay: {
       position: "absolute",
       top: 0,

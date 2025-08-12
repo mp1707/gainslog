@@ -20,6 +20,8 @@
       "@/theme": ["src/theme/index"],
       "@/types/*": ["src/types/*"],
       "@/types": ["src/types/index"],
+      "@/components/*": ["src/components/*"],
+      "@/components": ["src/components/index"],
       "@/lib/*": ["src/lib/*"],
       "@/lib": ["src/lib/index"],
       "@/stores/*": ["src/stores/*"],
@@ -32,15 +34,6 @@
       "@/hooks": ["src/hooks/index"]
     }
   },
-  "include": [
-    "src/**/*",
-    "app/**/*",
-    "App.tsx",
-    "index.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build"
-  ]
+  "include": ["src/**/*", "app/**/*", "App.tsx", "index.ts"],
+  "exclude": ["node_modules", "dist", "build"]
 }
