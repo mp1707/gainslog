@@ -49,12 +49,12 @@ export const createStyles = (colors: any, bottomOffset?: number) =>
       borderRadius: theme.components.aiActionTargets.height / 2, // Circular
       alignItems: "center",
       justifyContent: "center",
-      // Enhanced shadow for more depth
-      shadowColor: "rgba(0, 0, 0, 0.25)",
-      shadowOffset: { width: 0, height: 6 },
-      shadowOpacity: 1,
-      shadowRadius: 12,
-      elevation: 8,
+      // Per style guide: do not apply shadows to buttons
+      shadowColor: "transparent",
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
     },
 
     mainFab: {
@@ -65,11 +65,11 @@ export const createStyles = (colors: any, bottomOffset?: number) =>
       alignItems: "center",
       justifyContent: "center",
       zIndex: 1001, // Ensure main FAB stays on top
-      // Enhanced shadow for premium feel
-      shadowColor: "rgba(0, 0, 0, 0.3)",
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 1,
-      shadowRadius: 16,
-      elevation: 10,
+      // Per style guide: do not apply shadows to buttons
+      shadowColor: "transparent",
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0,
+      shadowRadius: 0,
+      elevation: 0,
     },
   });

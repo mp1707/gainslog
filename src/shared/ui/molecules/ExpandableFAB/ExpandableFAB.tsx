@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { View, TouchableOpacity, Pressable } from "react-native";
 import Animated, {
   useSharedValue,
@@ -6,7 +6,8 @@ import Animated, {
   withSpring,
   withTiming,
   interpolate,
-  withDelay,
+  interpolateColor,
+  SharedValue,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import {
@@ -49,6 +50,13 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
   const styles = createStyles(colors, bottomOffset);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const AnimatedTouchableOpacity = useMemo(
+    () => Animated.createAnimatedComponent(TouchableOpacity),
+    []
+  );
+
+  const iconColor = colors.white; // Align with design system: white icon on accent background in both modes
+
   // Animation values
   const expandAnimation = useSharedValue(0);
   const rotationAnimation = useSharedValue(0);
@@ -60,7 +68,7 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
       icon: (
         <PencilIcon
           size={componentStyles.aiActionTargets.iconSize}
-          color={componentStyles.aiActionTargets.iconColor}
+          color={iconColor}
           weight="regular"
         />
       ),
@@ -72,7 +80,7 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
       icon: (
         <CameraIcon
           size={componentStyles.aiActionTargets.iconSize}
-          color={componentStyles.aiActionTargets.iconColor}
+          color={iconColor}
           weight="regular"
         />
       ),
@@ -84,7 +92,7 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
       icon: (
         <ImageIcon
           size={componentStyles.aiActionTargets.iconSize}
-          color={componentStyles.aiActionTargets.iconColor}
+          color={iconColor}
           weight="regular"
         />
       ),
@@ -96,7 +104,7 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
       icon: (
         <MicrophoneIcon
           size={componentStyles.aiActionTargets.iconSize}
-          color={componentStyles.aiActionTargets.iconColor}
+          color={iconColor}
           weight="regular"
         />
       ),
@@ -108,7 +116,7 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
       icon: (
         <StarIcon
           size={componentStyles.aiActionTargets.iconSize}
-          color={componentStyles.aiActionTargets.iconColor}
+          color={iconColor}
           weight="regular"
         />
       ),
@@ -178,6 +186,71 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
     };
   });
 
+  // Press feedback: scale down and darken on press for both Action and Main FAB
+  const createPressAnimatedStyle = (
+    pressValue: SharedValue<number>,
+    startColor: string,
+    endColor: string
+  ) =>
+    useAnimatedStyle(() => {
+      const scale = interpolate(pressValue.value, [0, 1], [1, 0.94], "clamp");
+      const backgroundColor = interpolateColor(
+        pressValue.value,
+        [0, 1],
+        [startColor, endColor]
+      );
+      return {
+        transform: [{ scale }],
+        backgroundColor,
+      };
+    });
+
+  const usePressHandlers = (
+    pressValue: SharedValue<number>
+  ): { onPressIn: () => void; onPressOut: () => void } => {
+    const onPressIn = () => {
+      pressValue.value = withTiming(1, { duration: 110 });
+    };
+    const onPressOut = () => {
+      pressValue.value = withSpring(0, {
+        damping: 18,
+        stiffness: 220,
+        mass: 0.9,
+      });
+    };
+    return { onPressIn, onPressOut };
+  };
+
+  // Reusable action button with press feedback
+  const ActionButton: React.FC<{
+    icon: React.ReactNode;
+    onPress: () => void;
+    accessibilityLabel: string;
+    accessibilityHint: string;
+  }> = ({ icon, onPress, accessibilityLabel, accessibilityHint }) => {
+    const pressValue = useSharedValue(0);
+    const animatedStyle = createPressAnimatedStyle(
+      pressValue,
+      colors.accent,
+      theme.components.buttons.primary.active.backgroundColor
+    );
+    const { onPressIn, onPressOut } = usePressHandlers(pressValue);
+    return (
+      <AnimatedTouchableOpacity
+        style={[styles.actionButton, animatedStyle]}
+        onPress={() => handleActionPress(onPress)}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
+      >
+        {icon}
+      </AnimatedTouchableOpacity>
+    );
+  };
+
   // Action button animated styles with true expanding effect
   const getActionButtonAnimatedStyle = (index: number) => {
     return useAnimatedStyle(() => {
@@ -221,14 +294,16 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
   const backdropAnimatedStyle = useAnimatedStyle(() => {
     return {
       opacity: backdropAnimation.value * 0.3,
-      pointerEvents: backdropAnimation.value > 0 ? "auto" : "none",
     };
   });
 
   return (
     <View style={styles.container}>
       {/* Backdrop */}
-      <Animated.View style={[styles.backdrop, backdropAnimatedStyle]}>
+      <Animated.View
+        style={[styles.backdrop, backdropAnimatedStyle]}
+        pointerEvents={isExpanded ? "auto" : "none"}
+      >
         <Pressable style={styles.backdropPressable} onPress={toggleFAB} />
       </Animated.View>
 
@@ -242,50 +317,59 @@ export const ExpandableFAB: React.FC<ExpandableFABProps> = ({
               getActionButtonAnimatedStyle(actionButtons.length - 1 - index), // Reverse order for bottom-up animation
             ]}
           >
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => handleActionPress(button.onPress)}
-              activeOpacity={0.8}
-              accessibilityRole="button"
+            <ActionButton
+              icon={button.icon}
+              onPress={button.onPress}
               accessibilityLabel={button.accessibilityLabel}
               accessibilityHint={button.accessibilityHint}
-            >
-              {button.icon}
-            </TouchableOpacity>
+            />
           </Animated.View>
         ))}
       </View>
 
       {/* Main FAB */}
-      <TouchableOpacity
-        style={styles.mainFab}
-        onPress={() => {
-          // Medium haptic feedback for main FAB press
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          toggleFAB();
-        }}
-        activeOpacity={0.7}
-        accessibilityRole="button"
-        accessibilityLabel={
-          isExpanded
-            ? "Close food logging options"
-            : "Open food logging options"
-        }
-        accessibilityHint={
-          isExpanded
-            ? "Closes the food logging menu"
-            : "Shows food logging options"
-        }
-        accessibilityState={{ expanded: isExpanded }}
-      >
-        <Animated.View style={mainFabAnimatedStyle}>
-          <PlusIcon
-            size={componentStyles.aiActionTargets.iconSize}
-            color={componentStyles.aiActionTargets.iconColor}
-            weight="bold"
-          />
-        </Animated.View>
-      </TouchableOpacity>
+      {(() => {
+        const mainPress = useSharedValue(0);
+        const mainPressStyle = createPressAnimatedStyle(
+          mainPress,
+          colors.accent,
+          theme.components.buttons.primary.active.backgroundColor
+        );
+        const { onPressIn, onPressOut } = usePressHandlers(mainPress);
+        return (
+          <AnimatedTouchableOpacity
+            style={[styles.mainFab, mainPressStyle]}
+            onPress={() => {
+              // Medium haptic feedback for main FAB press
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              toggleFAB();
+            }}
+            onPressIn={onPressIn}
+            onPressOut={onPressOut}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={
+              isExpanded
+                ? "Close food logging options"
+                : "Open food logging options"
+            }
+            accessibilityHint={
+              isExpanded
+                ? "Closes the food logging menu"
+                : "Shows food logging options"
+            }
+            accessibilityState={{ expanded: isExpanded }}
+          >
+            <Animated.View style={mainFabAnimatedStyle}>
+              <PlusIcon
+                size={componentStyles.aiActionTargets.iconSize}
+                color={iconColor}
+                weight="bold"
+              />
+            </Animated.View>
+          </AnimatedTouchableOpacity>
+        );
+      })()}
     </View>
   );
 };
