@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { JSX, useEffect } from "react";
 import { View, TouchableOpacity, Text } from "react-native";
 import Animated, {
   useSharedValue,
