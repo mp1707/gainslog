@@ -5,7 +5,6 @@ export const createStyles = (colors: any, theme: any) =>
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
-      paddingHorizontal: theme.spacing.pageMargins.horizontal,
     },
     searchBarContainer: {
       paddingHorizontal: theme.spacing.pageMargins.horizontal,
@@ -16,6 +15,7 @@ export const createStyles = (colors: any, theme: any) =>
       alignItems: "center",
       justifyContent: "space-between",
       paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.pageMargins.horizontal,
     },
     closeText: {
       color: colors.accent,
@@ -24,6 +24,7 @@ export const createStyles = (colors: any, theme: any) =>
       flex: 1,
     },
     scrollContent: {
+      paddingHorizontal: theme.spacing.pageMargins.horizontal,
       paddingTop: theme.spacing.md,
       paddingBottom: theme.spacing.xl,
       gap: theme.spacing.md,
