@@ -1,68 +1,53 @@
-import React from 'react';
-import { View, Text } from 'react-native';
-import { styles } from './ProgressRing.styles';
-import { useTheme } from '../../../../providers/ThemeProvider';
+import React from "react";
+import { View } from "react-native";
+import { RadialProgressBar } from "@/shared/ui/atoms";
+import { useTheme } from "@/providers/ThemeProvider";
+
+type NutritionType = "calories" | "protein" | "carbs" | "fat";
 
 interface ProgressRingProps {
-  progress: number; // 0-100
   current: number;
   target: number;
   unit: string;
   label: string;
   size?: number;
   color?: string;
-  nutritionType?: 'calories' | 'protein' | 'carbs' | 'fat';
+  nutritionType?: NutritionType;
+  strokeWidth?: number;
 }
 
 export function ProgressRing({
-  progress,
   current,
   target,
   unit,
   label,
   size = 100,
   color,
-  nutritionType
+  nutritionType,
+  strokeWidth,
 }: ProgressRingProps) {
   const { colors } = useTheme();
-  const clampedProgress = Math.max(0, Math.min(100, progress));
-  
-  // Get color based on nutrition type or fallback to accent
-  const getProgressColor = () => {
-    if (color) return color;
-    if (nutritionType && colors.semantic) {
-      return colors.semantic[nutritionType];
-    }
-    return colors.accent;
-  };
 
-  const progressColor = getProgressColor();
+  const effectiveColor =
+    color ?? (nutritionType ? colors.semantic[nutritionType] : colors.accent);
+
+  const percentage = target > 0 ? Math.round((current / target) * 100) : 0;
 
   return (
-    <View style={styles.container}>
-      <View 
-        style={[
-          styles.backgroundCircle,
-          {
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            backgroundColor: colors.secondaryBackground,
-            borderWidth: 3,
-            borderColor: colors.border,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }
-        ]}
-      >
-        <View style={styles.content}>
-          <Text style={styles.progressText}>{Math.round(clampedProgress)}%</Text>
-          <Text style={styles.labelText}>{label}</Text>
-          <Text style={styles.valuesText}>
-            {Math.round(current)}/{target}{unit}
-          </Text>
-        </View>
-      </View>
+    <View
+      accessible
+      accessibilityRole="image"
+      accessibilityLabel={`${label}: ${percentage}%`}
+    >
+      <RadialProgressBar
+        current={current}
+        target={target}
+        unit={unit}
+        label={label}
+        size={size}
+        color={effectiveColor}
+        strokeWidth={strokeWidth}
+      />
     </View>
   );
 }

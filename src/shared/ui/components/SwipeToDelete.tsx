@@ -84,7 +84,9 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
             text: "Delete",
             style: "destructive",
             onPress: () => {
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+              Haptics.notificationAsync(
+                Haptics.NotificationFeedbackType.Warning
+              );
               executeDelete();
             },
           },
@@ -254,15 +256,14 @@ export const SwipeToDelete: React.FC<SwipeToDeleteProps> = ({
           >
             <Pressable onPress={handleDelete} style={{ padding: 5 }}>
               <Animated.View style={deleteButtonStyle}>
-                <Text
-                  style={{
-                    color: "white",
-                    fontSize: 28,
-                    fontWeight: "bold",
-                  }}
-                >
-                  <FontAwesome name="trash" size={24} color="white" />
-                </Text>
+                <FontAwesome
+                  name="trash"
+                  size={24}
+                  color="white"
+                  accessibilityLabel="Delete"
+                  accessibilityHint="Deletes this item"
+                  accessible
+                />
               </Animated.View>
             </Pressable>
           </Animated.View>

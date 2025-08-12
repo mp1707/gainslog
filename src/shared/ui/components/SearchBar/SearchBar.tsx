@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import { MagnifyingGlassIcon } from "phosphor-react-native";
-import { TextInput } from "@/shared/ui";
+import { TextInput } from "@/shared/ui/atoms";
 import { useTheme } from "@/providers/ThemeProvider";
 
 interface SearchBarProps {
@@ -24,6 +24,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         alignItems: "center",
         gap: theme.spacing.sm,
       }}
+      accessibilityRole="search"
+      accessible
     >
       <MagnifyingGlassIcon size={18} color={colors.secondaryText} />
       <TextInput

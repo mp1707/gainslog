@@ -1,7 +1,7 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { useTheme } from "@/providers/ThemeProvider";
-import { AppText } from "src/components";
+import { AppText } from "@/components";
 
 interface SettingsSectionProps {
   title: string;
@@ -29,7 +29,7 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
   });
 
   return (
-    <View style={styles.section}>
+    <View style={styles.section} accessibilityRole="summary">
       <AppText role="Title2" style={styles.sectionTitle}>
         {title}
       </AppText>

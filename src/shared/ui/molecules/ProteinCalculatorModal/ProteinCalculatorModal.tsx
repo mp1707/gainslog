@@ -8,17 +8,14 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { Stepper } from "../../atoms/Stepper/Stepper";
+import { Stepper } from "@/shared/ui/atoms";
 import {
   ProteinCalculationCard,
   CALCULATION_METHODS,
 } from "../../atoms/ProteinCalculationCard";
 import type { ProteinCalculationMethod } from "@/types";
 import { useStyles } from "./ProteinCalculatorModal.styles";
-import {
-  getCalorieCalculatorParams,
-  saveCalorieCalculatorParams,
-} from "../../../../lib/storage";
+import { getCalorieCalculatorParams, saveCalorieCalculatorParams } from "@/lib";
 
 interface ProteinCalculatorModalProps {
   visible: boolean;

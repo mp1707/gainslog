@@ -7,7 +7,10 @@ interface SettingCardProps {
   style?: ViewStyle;
 }
 
-export const SettingCard: React.FC<SettingCardProps> = ({ children, style }) => {
+export const SettingCard: React.FC<SettingCardProps> = ({
+  children,
+  style,
+}) => {
   const { colors, theme } = useTheme();
 
   const styles = StyleSheet.create({
@@ -24,5 +27,9 @@ export const SettingCard: React.FC<SettingCardProps> = ({ children, style }) => 
     },
   });
 
-  return <View style={[styles.card, style]}>{children}</View>;
+  return (
+    <View style={[styles.card, style]} accessible accessibilityRole="summary">
+      {children}
+    </View>
+  );
 };

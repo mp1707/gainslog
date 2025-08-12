@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text } from "react-native";
-import { TextInput } from "../../atoms/TextInput";
+import { TextInput } from "@/shared/ui/atoms";
 import { styles } from "./TargetInput.styles";
 
 interface TargetInputProps {
@@ -19,7 +19,7 @@ export function TargetInput({
   placeholder,
 }: TargetInputProps) {
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessibilityRole="summary">
       <Text style={styles.label}>{label}</Text>
       <View style={styles.inputContainer}>
         <TextInput
@@ -27,6 +27,8 @@ export function TargetInput({
           onChangeText={onChangeText}
           keyboardType="numeric"
           placeholder={placeholder}
+          accessibilityLabel={label}
+          accessibilityHint={`Enter ${label} value`}
         />
         <Text style={styles.unit}>{unit}</Text>
       </View>

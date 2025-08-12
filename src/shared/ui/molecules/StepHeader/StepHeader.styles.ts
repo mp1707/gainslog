@@ -4,10 +4,7 @@ import { useTheme } from "@/providers/ThemeProvider";
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
 
-export const createStyles = (
-  colors: Colors,
-  themeObj: Theme,
-) => {
+export const createStyles = (colors: Colors, themeObj: Theme) => {
   const { typography, spacing } = themeObj;
 
   return StyleSheet.create({

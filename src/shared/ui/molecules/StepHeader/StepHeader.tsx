@@ -27,6 +27,7 @@ export const StepHeader: React.FC<StepHeaderProps> = ({
         completed ? "Completed" : "In progress"
       }`}
       accessibilityHint={description}
+      accessibilityRole="summary"
     >
       <View style={styles.stepTitleRow}>
         <View

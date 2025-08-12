@@ -946,7 +946,7 @@ Notes:
   - state: done
   - priority: low
   - changeLog:
-    - 2025-08-12: Standardized theme import to `@/theme` and typed `colors` as `Colors`.
+    - 2025-08-12: Standardized theme import to `@/theme` and typed `colors` as `Colors`. Normalized formatting.
 - path: `src/shared/ui/molecules/MacroRow/index.ts`
 
   - state: done
@@ -958,7 +958,7 @@ Notes:
   - state: done
   - priority: medium
   - changeLog:
-    - 2025-08-12: Normalized phosphor imports, added a11y labels/hints, memoized handlers with `useCallback`.
+    - 2025-08-12: Confirmed phosphor imports (`CaretLeftIcon`, `CaretRightIcon`), added a11y labels/hints, memoized handlers with `useCallback`.
 - path: `src/shared/ui/molecules/MonthPicker/MonthPicker.styles.ts`
   - state: done
   - priority: low
@@ -995,120 +995,141 @@ Notes:
     - 2025-08-12: Standardized theme import to `@/theme` and typed `colors` as `Colors`.
 - path: `src/shared/ui/molecules/PageHeader/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified barrel export remains correct.
 
 - path: `src/shared/ui/molecules/ProgressRing/ProgressRing.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Refactored to delegate rendering to `RadialProgressBar` atom. Standardized imports to aliases and added a11y label.
 - path: `src/shared/ui/molecules/ProgressRing/ProgressRing.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Deprecated styles file; component no longer uses local styles.
 - path: `src/shared/ui/molecules/ProgressRing/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel export verified.
 
 - path: `src/shared/ui/molecules/ProteinCalculatorModal/ProteinCalculatorModal.tsx`
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized imports to `@/shared/ui/atoms` and `@/lib`. Kept logic and added/verified a11y semantics.
 - path: `src/shared/ui/molecules/ProteinCalculatorModal/ProteinCalculatorModal.styles.ts`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched themed styles hook import to `@/providers/ThemeProvider`.
 - path: `src/shared/ui/molecules/ProteinCalculatorModal/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel export verified.
 
 - path: `src/shared/ui/molecules/SettingCard.tsx`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Added accessibility roles; kept theme usage and API.
 
 - path: `src/shared/ui/molecules/SettingsSection.tsx`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Fixed import path for `AppText` to `@/components` and added accessibility role.
 
 - path: `src/shared/ui/molecules/SkeletonCard/SkeletonCard.tsx`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: No changes needed. Confirmed alias imports and hook-based styles.
 - path: `src/shared/ui/molecules/SkeletonCard/SkeletonCard.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched themed styles hook import to `@/providers/ThemeProvider`.
 - path: `src/shared/ui/molecules/SkeletonCard/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel export verified.
 
 - path: `src/shared/ui/molecules/StepHeader/StepHeader.tsx`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Added accessibility role and confirmed themed style creation. Kept phosphor icon.
 - path: `src/shared/ui/molecules/StepHeader/StepHeader.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Confirmed types and imports; no functional changes.
 - path: `src/shared/ui/molecules/StepHeader/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel export verified.
 
 - path: `src/shared/ui/molecules/TargetInput/TargetInput.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized alias imports to `@/shared/ui/atoms`, added accessibility labels/hints.
 - path: `src/shared/ui/molecules/TargetInput/TargetInput.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Migrated to themed styles via `useThemedStyles` while keeping static export shape.
 - path: `src/shared/ui/molecules/TargetInput/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel export verified.
 
 - path: `src/shared/ui/components/SearchBar/SearchBar.tsx`
 
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched `TextInput` import to `@/shared/ui/atoms`, added accessibility role.
 
 - path: `src/shared/ui/components/SwipeToDelete.tsx`
 
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Improved a11y on delete icon; kept gesture/animation behavior.
 
 - path: `src/shared/ui/components/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel export verified (SearchBar, SwipeToDelete).
 
 - path: `src/shared/ui/index.ts`
-  - state: open
+  - state: done
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/index.ts`
-  - state: open
+  - state: done
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/molecules/index.ts`
-  - state: open
+  - state: done
   - priority: low
   - changeLog: []
 
