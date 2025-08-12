@@ -3,6 +3,7 @@
 This document is the single source of truth for our ongoing refactoring journey. Treat it as a living “save state” you update as you go. The goal is to iteratively migrate the app toward a clean, maintainable, feature-based architecture aligned with atomic design principles, while preserving functionality and performance.
 
 How to use this file
+
 - Update the state of each entry as you progress: set to done when finished, and log meaningful, incremental changes in changeLog.
 - Add new entries when new files/components are created. Remove entries only when files are deleted; in that case, keep a record of the deletion in changeLog.
 - Keep edits small and frequent. After any meaningful refactor, add a brief note to changeLog with date and what changed.
@@ -10,6 +11,7 @@ How to use this file
 - Prefer updating system-level items first (cross-cutting concerns) before deep diving into file-level changes.
 
 Legend for fields
+
 - state: open | done
 - priority: low | medium | high
 - changeLog: short, dated bullets describing edits that occurred
@@ -17,6 +19,7 @@ Legend for fields
 - dependencies: upstream/downstream modules to review when this item changes
 
 System overview
+
 - App Shell & Navigation: `App.tsx`, `app/_layout.tsx`, `app/(tabs)/*`
 - Design System & Theming: `src/theme.ts`, `design-system.json`, shared UI atoms/molecules/organisms under `src/shared/ui`
 - Features:
@@ -30,6 +33,7 @@ System overview
 - App configuration/build tooling: root configs (`app.config.ts`, `babel.config.js`, `eas.json`, `package.json`, etc.)
 
 Global cross-cutting TODOs
+
 - state: open | priority: high
   - changeLog:
     - [ ] Refactor UI to consistently follow atomic design and feature boundaries.
@@ -49,105 +53,129 @@ Global cross-cutting TODOs
 ## File-level checklist by system
 
 Notes:
+
 - All entries initially state: open unless explicitly done.
 - Add a dated bullet in changeLog on each commit that touches the item.
 
 ### Root / App Shell
 
 - path: `App.tsx`
-  - state: open
+
+  - state: done
   - priority: medium
-  - changeLog: []
-  - notes: Verify entry point consistency with `src/App.tsx`; avoid duplication, prefer a single authoritative shell.
+  - changeLog:
+    - 2025-08-12: Removed file. Consolidated entrypoint into `app/_layout.tsx` with Expo Router providers. Expo entry remains `expo-router/entry` via `package.json`.
+  - notes: Duplicate root removed; Expo Router drives navigation.
   - dependencies: `src/App.tsx`, `app/_layout.tsx`
 
 - path: `index.ts`
-  - state: open
+
+  - state: done
   - priority: low
-  - changeLog: []
-  - notes: Ensure clean export surface; confirm platform entry alignment.
+  - changeLog:
+    - 2025-08-12: Removed file. `expo-router/entry` handles registration; avoided duplicate registration.
+  - notes: Registration handled by Expo Router entry.
 
 - path: `app/_layout.tsx`
-  - state: open
+
+  - state: done
   - priority: medium
-  - changeLog: []
-  - notes: Validate navigation/container structure; ensure separation from feature screens.
+  - changeLog:
+    - 2025-08-12: Added `KeyboardProvider` and `StatusBar` here. Keeps app providers centralized. Shows loading screen until fonts load, then renders `Stack` with `(tabs)`.
+  - notes: App shell is now authoritative provider root.
 
 - path: `app/(tabs)/_layout.tsx`
-  - state: open
+
+  - state: done
   - priority: medium
-  - changeLog: []
-  - notes: Review tab navigator config and screen registration.
+  - changeLog:
+    - 2025-08-12: Verified tab config uses theme colors and hides headers; no code changes needed.
+  - notes: Screen registration correct for `index`, `overview`, `favorites`, `settings`.
 
 - path: `app/(tabs)/index.tsx`
-  - state: open
+
+  - state: done
   - priority: medium
-  - changeLog: []
-  - notes: Home/dashboard screen wiring into features.
+  - changeLog:
+    - 2025-08-12: Verified integration with Food Logging feature (screen + modal) and keyboard offset usage; no code changes.
+  - notes: Container logic remains; future refactor tracked under feature.
 
 - path: `app/(tabs)/favorites.tsx`
-  - state: open
+
+  - state: done
   - priority: low
-  - changeLog: []
-  - notes: Ensure it uses feature-level favorites and shared UI.
+  - changeLog:
+    - 2025-08-12: Verified usage of shared UI and favorites store; no code changes.
+  - notes: OK.
 
 - path: `app/(tabs)/overview.tsx`
-  - state: open
+
+  - state: done
   - priority: low
-  - changeLog: []
-  - notes: Confirm aggregation reads from stores/selectors.
+  - changeLog:
+    - 2025-08-12: Verified selectors and safe-area/tab bar spacing logic; no code changes.
+  - notes: OK.
 
 - path: `app/(tabs)/settings.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
-  - notes: Delegate to settings feature; no duplicated logic.
+  - changeLog:
+    - 2025-08-12: Verified delegation to Settings feature hooks and components; no code changes.
+  - notes: OK.
 
 ### Configuration / Tooling
 
 - path: `app.config.ts`
+
   - state: open
   - priority: low
   - changeLog: []
   - notes: Align with environment setups and asset linking.
 
 - path: `babel.config.js`
+
   - state: open
   - priority: low
   - changeLog: []
   - notes: Ensure module resolver aliases match feature-based structure.
 
 - path: `eas.json`
+
   - state: open
   - priority: low
   - changeLog: []
   - notes: Build profiles validated post-refactor.
 
 - path: `package.json`
+
   - state: open
   - priority: medium
   - changeLog: []
   - notes: Remove unused deps; enforce scripts for lint/test/typecheck.
 
 - path: `package-lock.json`
+
   - state: open
   - priority: low
   - changeLog: []
   - notes: Will change as deps evolve.
 
 - path: `tsconfig.json`
+
   - state: open
   - priority: medium
   - changeLog: []
   - notes: Path aliases, strictness settings, incremental builds.
 
 - path: `STYLE_GUIDE.md`
+
   - state: open
   - priority: low
   - changeLog: []
   - notes: Sync with refactoring principles; document conventions.
 
 - path: `CLAUDE.md`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -162,31 +190,37 @@ Notes:
 ### Assets
 
 - path: `assets/icon.png`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `assets/adaptive-icon.png`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `assets/favicon.png`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `assets/splash-icon.png`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `assets/fonts/Nunito-Regular.ttf`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `assets/fonts/Nunito-SemiBold.ttf`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -199,6 +233,7 @@ Notes:
 ### Theme / Design System
 
 - path: `design-system.json`
+
   - state: open
   - priority: medium
   - changeLog: []
@@ -221,12 +256,14 @@ Notes:
 ### Library / Services
 
 - path: `src/lib/storage.ts`
+
   - state: open
   - priority: high
   - changeLog: []
   - notes: Audit storage API surface; ensure typed keys, error handling, and SSR safety where applicable.
 
 - path: `src/lib/supabase.ts`
+
   - state: open
   - priority: high
   - changeLog: []
@@ -241,10 +278,11 @@ Notes:
 ### App Entrypoint (src)
 
 - path: `src/App.tsx`
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
-  - notes: Prevent duplication with root `App.tsx`; consolidate if both exist.
+  - changeLog:
+    - 2025-08-12: Removed file. Its `Slot` wrapper moved to `app/_layout.tsx` responsibilities under Expo Router.
+  - notes: Eliminated duplication.
 
 ### Shared Types
 
@@ -257,6 +295,7 @@ Notes:
 ### Global Hooks
 
 - path: `src/hooks/useFonts.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -270,42 +309,50 @@ Notes:
 ### Global Components
 
 - path: `src/components/AppText.tsx`
+
   - state: open
   - priority: medium
   - changeLog: []
   - notes: Ensure consistent typography system usage.
 
 - path: `src/components/Button.tsx`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `src/components/Card.tsx`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `src/components/FilterBadge.tsx`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `src/components/ProgressRow.tsx`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `src/components/SemanticBadge.tsx`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `src/components/ShimmerEffect.tsx`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `src/components/SkeletonShimmerEffect.tsx`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -318,6 +365,7 @@ Notes:
 ### State Stores
 
 - path: `src/stores/useFavoritesStore.ts`
+
   - state: open
   - priority: medium
   - changeLog: []
@@ -332,26 +380,31 @@ Notes:
 ### Shared Icons
 
 - path: `src/shared/icons/ArrowLeftIcon.tsx`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `src/shared/icons/ArrowRightIcon.tsx`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `src/shared/icons/CalendarIcon.tsx`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `src/shared/icons/CameraIcon.tsx`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `src/shared/icons/PencilIcon.tsx`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -372,6 +425,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/AnimatedCalculatorButton/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -385,6 +439,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/Badge/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -398,6 +453,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/Button/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -411,6 +467,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/CalorieCalculationCard/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -424,6 +481,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/FlowArrow/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -437,6 +495,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/GoalSelectionCard/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -446,6 +505,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/ImageSkeleton/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -459,6 +519,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/InlineRecordButton/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -468,6 +529,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/LoadingSpinner/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -481,6 +543,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/ManualEntryButton/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -494,6 +557,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/NumericTextInput/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -503,6 +567,7 @@ Notes:
   - priority: medium
   - changeLog: []
 - path: `src/shared/ui/atoms/ProgressBar/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -516,6 +581,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/ProteinCalculationCard/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -525,6 +591,7 @@ Notes:
   - priority: medium
   - changeLog: []
 - path: `src/shared/ui/atoms/RadialProgressBar/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -538,6 +605,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/Skeleton/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -547,6 +615,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/StatusIcon/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -560,6 +629,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/Stepper/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -573,6 +643,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/TextInput/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -586,6 +657,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/atoms/Toggle/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -602,6 +674,7 @@ Notes:
   - priority: medium
   - changeLog: []
 - path: `src/shared/ui/molecules/CalculationInfoCard/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -615,6 +688,7 @@ Notes:
   - priority: medium
   - changeLog: []
 - path: `src/shared/ui/molecules/CalorieCalculatorModal/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -628,6 +702,7 @@ Notes:
   - priority: medium
   - changeLog: []
 - path: `src/shared/ui/molecules/CustomNumericKeypad/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -641,6 +716,7 @@ Notes:
   - priority: medium
   - changeLog: []
 - path: `src/shared/ui/molecules/DailyProgressSummary/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -662,6 +738,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/molecules/DailySummaryCard/useMacroPercentages.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -675,6 +752,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/molecules/DescriptionSkeleton/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -688,6 +766,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/molecules/ExpandableFAB/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -697,6 +776,7 @@ Notes:
   - priority: high
   - changeLog: []
 - path: `src/shared/ui/molecules/FavoritesPickerModal/FavoritesPickerModal.styles.ts`
+
   - state: open
   - priority: medium
   - changeLog: []
@@ -710,6 +790,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/molecules/FormField/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -723,6 +804,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/molecules/MacroRow/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -736,6 +818,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/molecules/MonthPicker/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -745,6 +828,7 @@ Notes:
   - priority: medium
   - changeLog: []
 - path: `src/shared/ui/molecules/NutritionGrid/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -758,6 +842,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/molecules/PageHeader/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -771,6 +856,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/molecules/ProgressRing/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -784,16 +870,19 @@ Notes:
   - priority: medium
   - changeLog: []
 - path: `src/shared/ui/molecules/ProteinCalculatorModal/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `src/shared/ui/molecules/SettingCard.tsx`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `src/shared/ui/molecules/SettingsSection.tsx`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -807,6 +896,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/molecules/SkeletonCard/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -820,6 +910,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/molecules/StepHeader/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -833,21 +924,25 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/shared/ui/molecules/TargetInput/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `src/shared/ui/components/SearchBar/SearchBar.tsx`
+
   - state: open
   - priority: medium
   - changeLog: []
 
 - path: `src/shared/ui/components/SwipeToDelete.tsx`
+
   - state: open
   - priority: medium
   - changeLog: []
 
 - path: `src/shared/ui/components/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -868,11 +963,13 @@ Notes:
 ### Feature: Food Logging
 
 - path: `src/features/food-logging/index.ts`
+
   - state: open
   - priority: medium
   - changeLog: []
 
 - path: `src/features/food-logging/utils.ts`
+
   - state: open
   - priority: high
   - changeLog: []
@@ -899,11 +996,13 @@ Notes:
   - priority: high
   - changeLog: []
 - path: `src/features/food-logging/hooks/useUpdateFoodLog.ts`
+
   - state: open
   - priority: high
   - changeLog: []
 
 - path: `src/features/food-logging/ui/FoodLogScreen.tsx`
+
   - state: open
   - priority: high
   - changeLog: []
@@ -934,6 +1033,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/features/food-logging/ui/FoodLogScreen.styles.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -959,6 +1059,7 @@ Notes:
   - priority: high
   - changeLog: []
 - path: `src/features/food-logging/ui/hooks/useTabBarSpacing.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -968,6 +1069,7 @@ Notes:
   - priority: medium
   - changeLog: []
 - path: `src/features/food-logging/ui/components/MacronutriensSection.tsx`
+
   - state: open
   - priority: medium
   - changeLog: []
@@ -981,6 +1083,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/features/food-logging/ui/components/DateNavigationHeader/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -994,6 +1097,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/features/food-logging/ui/components/FoodImageDisplay/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -1007,6 +1111,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/features/food-logging/ui/components/FoodLogFormFields/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -1020,6 +1125,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/features/food-logging/ui/components/FoodLogsList/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -1033,11 +1139,13 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/features/food-logging/ui/components/ModalHeader/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `src/features/food-logging/ui/FavoriteCard.tsx`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -1050,6 +1158,7 @@ Notes:
 ### Feature: Image Capture
 
 - path: `src/features/image-capture/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -1059,6 +1168,7 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/features/image-capture/hooks/useImageCapture.ts`
+
   - state: open
   - priority: high
   - changeLog: []
@@ -1071,6 +1181,7 @@ Notes:
 ### Feature: Settings
 
 - path: `src/features/settings/ui/components/AccordionItem.tsx`
+
   - state: open
   - priority: low
   - changeLog: []
@@ -1084,11 +1195,13 @@ Notes:
   - priority: low
   - changeLog: []
 - path: `src/features/settings/ui/molecules/AppearanceCard/index.ts`
+
   - state: open
   - priority: low
   - changeLog: []
 
 - path: `src/features/settings/ui/molecules/NutritionAccordionContent.tsx`
+
   - state: open
   - priority: medium
   - changeLog: []
@@ -1132,6 +1245,7 @@ Notes:
 ### Utilities
 
 - path: `src/utils/calculateCalories.tsx`
+
   - state: open
   - priority: high
   - changeLog: []
@@ -1146,22 +1260,26 @@ Notes:
 ### Supabase Functions
 
 - path: `supabase/functions/image-estimation/index.ts`
+
   - state: open
   - priority: high
   - changeLog: []
   - notes: Validate input/output types; security and error handling.
 
 - path: `supabase/functions/text-estimation/index.ts`
+
   - state: open
   - priority: high
   - changeLog: []
 
 - path: `supabase/functions/transcribe-audio/index.ts`
+
   - state: open
   - priority: high
   - changeLog: []
 
 - path: `supabase/edgefunctions/image-estimation.ts`
+
   - state: open
   - priority: medium
   - changeLog: []
@@ -1188,6 +1306,6 @@ Notes:
 ---
 
 Refactoring journal (append newest first)
+
+- 2025-08-12: Root/App Shell consolidated to Expo Router. Removed `App.tsx`, `index.ts`, `src/App.tsx`. Moved providers to `app/_layout.tsx`. Added temporary type declaration for `react-native-keyboard-controller`.
 - 2025-08-12: Created initial RefactoringState.md with full inventory and global TODOs.
-
-
