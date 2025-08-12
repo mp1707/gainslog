@@ -1,21 +1,34 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Modal, View, Text, TouchableOpacity, ScrollView, KeyboardAvoidingView } from "react-native";
+import {
+  Modal,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  KeyboardAvoidingView,
+} from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { CaretLeftIcon, CaretRightIcon, GenderMaleIcon, GenderFemaleIcon } from "phosphor-react-native";
+import {
+  CaretLeftIcon,
+  CaretRightIcon,
+  GenderMaleIcon,
+  GenderFemaleIcon,
+} from "phosphor-react-native";
 import { Stepper } from "../../atoms/Stepper/Stepper";
 import { Toggle, type ToggleOption } from "../../atoms/Toggle";
 import {
   CalorieCalculationCard,
   CALCULATION_METHODS,
-  CalorieCalculationMethod,
 } from "../../atoms/CalorieCalculationCard";
-import { GoalSelectionCard, GoalType } from "../../atoms/GoalSelectionCard";
-import {
-  calculateCalorieGoals,
+import { GoalSelectionCard } from "../../atoms/GoalSelectionCard";
+import { calculateCalorieGoals } from "../../../../utils/calculateCalories";
+import type {
+  CalorieCalculationMethod,
+  GoalType,
   CalorieIntakeParams,
   ActivityLevel,
   Sex,
-} from "../../../../utils/calculateCalories";
+} from "@/types";
 import { useStyles } from "./CalorieCalculatorModal.styles";
 import {
   getCalorieCalculatorParams,
@@ -67,7 +80,6 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
     useState<ActivityLevel | null>(null);
   const [selectedGoal, setSelectedGoal] = useState<GoalType | null>(null);
   const [isParamsLoaded, setIsParamsLoaded] = useState(false);
-
 
   // Reset modal state when opened/closed
   useEffect(() => {
@@ -174,7 +186,7 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
       icon: GenderMaleIcon,
     },
     {
-      value: "female", 
+      value: "female",
       label: "Female",
       icon: GenderFemaleIcon,
     },

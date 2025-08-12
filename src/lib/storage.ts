@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FoodLog, DailyTargets, FavoriteEntry } from "../types";
-import type { CalorieIntakeParams, Sex } from "../utils/calculateCalories";
+import type { CalorieIntakeParams, Sex } from "@/types";
 
 // Centralized, typed storage keys to avoid typos and ease migrations
 export const storageKeys = {

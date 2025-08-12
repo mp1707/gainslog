@@ -2,7 +2,6 @@
 export { AppText } from './AppText';
 export { Button } from './Button';
 export { Card } from './Card';
-export { ShimmerEffect } from './ShimmerEffect';
 
 // Export types
 export type { TypographyRole } from './AppText';

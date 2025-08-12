@@ -22,6 +22,49 @@ export interface FoodLog {
   needsAiEstimation?: boolean;
 }
 
+// Domain enums and shared calculation/input types
+export type Sex = "male" | "female";
+export type ActivityLevel =
+  | "sedentary"
+  | "light"
+  | "moderate"
+  | "active"
+  | "veryactive";
+
+export interface CalorieIntakeParams {
+  sex: Sex;
+  age: number;
+  weight: number; // kilograms
+  height: number; // centimeters
+}
+
+export interface CalorieGoals {
+  loseWeight: number;
+  maintainWeight: number;
+  gainWeight: number;
+}
+
+// Goals and calculation method descriptors
+export type GoalType = "lose" | "maintain" | "gain";
+
+export interface ProteinCalculationMethod {
+  id:
+    | "optimal_growth"
+    | "dedicated_athlete"
+    | "anabolic_insurance"
+    | "max_preservation";
+  title: string;
+  description: string;
+  multiplier: number;
+}
+
+export interface CalorieCalculationMethod {
+  id: ActivityLevel;
+  title: string;
+  description: string;
+  label: string;
+}
+
 // Modal modes for food log modal
 export type ModalMode = "edit" | "create";
 

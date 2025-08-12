@@ -17,14 +17,13 @@ import {
 } from "phosphor-react-native";
 import { useTheme } from "../../../../providers/ThemeProvider";
 import { createStyles } from "./CalorieCalculationCard.styles";
-import { ActivityLevel, CalorieGoals } from "../../../../utils/calculateCalories";
+import type {
+  ActivityLevel,
+  CalorieGoals,
+  CalorieCalculationMethod,
+} from "@/types";
 
-export interface CalorieCalculationMethod {
-  id: ActivityLevel;
-  title: string;
-  description: string;
-  label: string;
-}
+// CalorieCalculationMethod type centralized in @/types
 
 interface CalorieCalculationCardProps {
   method: CalorieCalculationMethod;
@@ -72,7 +71,11 @@ const CALCULATION_METHODS: Record<ActivityLevel, CalorieCalculationMethod> = {
   },
 };
 
-const getIconForMethod = (methodId: ActivityLevel, color: string, size: number) => {
+const getIconForMethod = (
+  methodId: ActivityLevel,
+  color: string,
+  size: number
+) => {
   switch (methodId) {
     case "sedentary":
       return <HouseIcon size={size} color={color} weight="regular" />;
@@ -117,7 +120,10 @@ export const CalorieCalculationCard: React.FC<CalorieCalculationCardProps> = ({
 
   const handlePressIn = () => {
     // Press down animation - scale down
-    pressScale.value = withTiming(0.97, { duration: 150, easing: Easing.out(Easing.quad) });
+    pressScale.value = withTiming(0.97, {
+      duration: 150,
+      easing: Easing.out(Easing.quad),
+    });
   };
 
   const handlePressOut = () => {
@@ -135,7 +141,13 @@ export const CalorieCalculationCard: React.FC<CalorieCalculationCardProps> = ({
       accessibilityHint={`Calculate calories for ${method.description.toLowerCase()}`}
       accessibilityState={{ selected: isSelected }}
     >
-      <Animated.View style={[styles.container, isSelected && styles.selectedContainer, pressAnimatedStyle]}>
+      <Animated.View
+        style={[
+          styles.container,
+          isSelected && styles.selectedContainer,
+          pressAnimatedStyle,
+        ]}
+      >
         <View style={styles.content}>
           <View style={styles.header}>
             <View style={styles.iconContainer}>

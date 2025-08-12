@@ -16,17 +16,7 @@ import {
 } from "phosphor-react-native";
 import { useTheme } from "../../../../providers/ThemeProvider";
 import { createStyles } from "./ProteinCalculationCard.styles";
-
-export interface ProteinCalculationMethod {
-  id:
-    | "optimal_growth"
-    | "dedicated_athlete"
-    | "anabolic_insurance"
-    | "max_preservation";
-  title: string;
-  description: string;
-  multiplier: number;
-}
+import type { ProteinCalculationMethod } from "@/types";
 
 interface ProteinCalculationCardProps {
   method: ProteinCalculationMethod;
@@ -112,7 +102,10 @@ export const ProteinCalculationCard: React.FC<ProteinCalculationCardProps> = ({
 
   const handlePressIn = () => {
     // Press down animation - scale down
-    pressScale.value = withTiming(0.97, { duration: 150, easing: Easing.out(Easing.quad) });
+    pressScale.value = withTiming(0.97, {
+      duration: 150,
+      easing: Easing.out(Easing.quad),
+    });
   };
 
   const handlePressOut = () => {
@@ -130,33 +123,39 @@ export const ProteinCalculationCard: React.FC<ProteinCalculationCardProps> = ({
       accessibilityHint={`Calculate ${calculatedProtein}g protein per day based on ${method.description.toLowerCase()}`}
       accessibilityState={{ selected: isSelected }}
     >
-      <Animated.View style={[styles.container, isSelected && styles.selectedContainer, pressAnimatedStyle]}>
+      <Animated.View
+        style={[
+          styles.container,
+          isSelected && styles.selectedContainer,
+          pressAnimatedStyle,
+        ]}
+      >
         <View style={styles.content}>
-        <View style={styles.header}>
-          <View style={styles.iconContainer}>
-            {React.cloneElement(getIconForMethod(method.id, iconColor, 24), {
-              weight: iconWeight,
-            })}
+          <View style={styles.header}>
+            <View style={styles.iconContainer}>
+              {React.cloneElement(getIconForMethod(method.id, iconColor, 24), {
+                weight: iconWeight,
+              })}
+            </View>
+            <View style={styles.titleContainer}>
+              <Text style={[styles.title, isSelected && styles.selectedTitle]}>
+                {method.title}
+              </Text>
+              <Text style={styles.description}>{method.description}</Text>
+            </View>
           </View>
-          <View style={styles.titleContainer}>
-            <Text style={[styles.title, isSelected && styles.selectedTitle]}>
-              {method.title}
-            </Text>
-            <Text style={styles.description}>{method.description}</Text>
-          </View>
-        </View>
 
-        <View style={styles.proteinContainer}>
-          <Text
-            style={[
-              styles.proteinValue,
-              isSelected && styles.selectedProteinValue,
-            ]}
-          >
-            {calculatedProtein}g
-          </Text>
-          <Text style={styles.proteinLabel}>per day</Text>
-        </View>
+          <View style={styles.proteinContainer}>
+            <Text
+              style={[
+                styles.proteinValue,
+                isSelected && styles.selectedProteinValue,
+              ]}
+            >
+              {calculatedProtein}g
+            </Text>
+            <Text style={styles.proteinLabel}>per day</Text>
+          </View>
         </View>
       </Animated.View>
     </Pressable>

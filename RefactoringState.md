@@ -318,24 +318,27 @@ Notes:
 ### Shared Types
 
 - path: `src/types/index.ts`
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
-  - notes: Define domain types for foods, logs, nutrition estimates; aim for feature-local types and shared primitives.
+  - changeLog:
+    - 2025-08-12: Centralized shared domain types. Added `Sex`, `ActivityLevel`, `CalorieIntakeParams`, `CalorieGoals`, `GoalType`, `ProteinCalculationMethod`, `CalorieCalculationMethod`. Updated imports across store, storage, calculators, and UI to consume `@/types`.
+  - notes: UI atoms no longer declare calculation method types locally; store decoupled from UI modules.
 
 ### Global Hooks
 
 - path: `src/hooks/useFonts.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
-  - notes: Verify loading states and error handling.
+  - changeLog:
+    - 2025-08-12: Added explicit `UseFontsResult` type; improved internal typings; preserved fallback behavior on error.
+  - notes: Used by `app/_layout.tsx`. OK.
 
 - path: `src/hooks/index.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel export remains valid for `useFonts`.
 
 ### Global Components
 
@@ -371,12 +374,6 @@ Notes:
   - changeLog: []
 
 - path: `src/components/SemanticBadge.tsx`
-
-  - state: open
-  - priority: low
-  - changeLog: []
-
-- path: `src/components/ShimmerEffect.tsx`
 
   - state: open
   - priority: low

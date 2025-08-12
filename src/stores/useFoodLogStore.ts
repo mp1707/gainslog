@@ -2,10 +2,13 @@ import { create } from "zustand";
 import { Alert } from "react-native";
 import { router } from "expo-router";
 import { FoodLog, DailyTargets, DailyProgress } from "../types";
-import { ProteinCalculationMethod } from "../shared/ui/atoms/ProteinCalculationCard";
-import { CalorieCalculationMethod } from "../shared/ui/atoms/CalorieCalculationCard";
-import { CalorieIntakeParams, ActivityLevel } from "../utils/calculateCalories";
-import { GoalType } from "../shared/ui/atoms/GoalSelectionCard";
+import type {
+  ProteinCalculationMethod,
+  CalorieCalculationMethod,
+  CalorieIntakeParams,
+  ActivityLevel,
+  GoalType,
+} from "@/types";
 
 import {
   getFoodLogs,
@@ -94,11 +97,21 @@ interface FoodLogStore {
   resetDailyTargets: () => Promise<void>;
 
   // Protein calculation actions
-  setProteinCalculation: (method: ProteinCalculationMethod, bodyWeight: number, calculatedProtein: number) => void;
+  setProteinCalculation: (
+    method: ProteinCalculationMethod,
+    bodyWeight: number,
+    calculatedProtein: number
+  ) => void;
   clearProteinCalculation: () => void;
 
   // Calorie calculation actions
-  setCalorieCalculation: (method: CalorieCalculationMethod, params: CalorieIntakeParams, activityLevel: ActivityLevel, calculatedCalories: number, goalType: GoalType) => void;
+  setCalorieCalculation: (
+    method: CalorieCalculationMethod,
+    params: CalorieIntakeParams,
+    activityLevel: ActivityLevel,
+    calculatedCalories: number,
+    goalType: GoalType
+  ) => void;
   clearCalorieCalculation: () => void;
 
   // Progress calculations
@@ -342,26 +355,34 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
 
   updateDailyTargetsDebounced: (targets: DailyTargets) => {
     const currentState = get();
-    
+
     // Check if protein value was manually changed (differs from both current target and calculated value)
-    const proteinValueChanged = targets.protein !== currentState.dailyTargets.protein;
-    const proteinManuallyChanged = currentState.proteinCalculation && 
+    const proteinValueChanged =
+      targets.protein !== currentState.dailyTargets.protein;
+    const proteinManuallyChanged =
+      currentState.proteinCalculation &&
       proteinValueChanged &&
       targets.protein !== currentState.proteinCalculation.calculatedProtein;
-    
+
     // Check if calorie value was manually changed (differs from both current target and calculated value)
-    const calorieValueChanged = targets.calories !== currentState.dailyTargets.calories;
-    const calorieManuallyChanged = currentState.calorieCalculation && 
+    const calorieValueChanged =
+      targets.calories !== currentState.dailyTargets.calories;
+    const calorieManuallyChanged =
+      currentState.calorieCalculation &&
       calorieValueChanged &&
       targets.calories !== currentState.calorieCalculation.calculatedCalories;
-    
+
     // Update state immediately for responsive UI
-    set({ 
+    set({
       dailyTargets: targets,
       // Clear protein calculation only if protein was manually changed
-      proteinCalculation: proteinManuallyChanged ? null : currentState.proteinCalculation,
+      proteinCalculation: proteinManuallyChanged
+        ? null
+        : currentState.proteinCalculation,
       // Clear calorie calculation only if calorie was manually changed
-      calorieCalculation: calorieManuallyChanged ? null : currentState.calorieCalculation,
+      calorieCalculation: calorieManuallyChanged
+        ? null
+        : currentState.calorieCalculation,
     });
 
     // Clear existing timer
@@ -422,42 +443,50 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   },
 
   // Protein calculation actions
-  setProteinCalculation: (method: ProteinCalculationMethod, bodyWeight: number, calculatedProtein: number) => {
+  setProteinCalculation: (
+    method: ProteinCalculationMethod,
+    bodyWeight: number,
+    calculatedProtein: number
+  ) => {
     const proteinCalculation: ProteinCalculationSelection = {
       method,
       bodyWeight,
       calculatedProtein,
       timestamp: Date.now(),
     };
-    
+
     // Update protein target to calculated value
     const currentTargets = get().dailyTargets;
-    
+
     // Check if this is the first time protein is being set (during guided flow)
     const isCaloriesSet = currentTargets.calories > 0;
     const isProteinSet = currentTargets.protein > 0;
-    const isFirstTimeSettingProtein = !isProteinSet && isCaloriesSet && calculatedProtein > 0;
-    
+    const isFirstTimeSettingProtein =
+      !isProteinSet && isCaloriesSet && calculatedProtein > 0;
+
     let newTargets = {
       ...currentTargets,
       protein: calculatedProtein,
     };
-    
+
     // Auto-calculate Fat and Carbs when protein is first set
     if (isFirstTimeSettingProtein) {
-      const calculated = calculateMacrosFromProtein(currentTargets.calories, calculatedProtein);
+      const calculated = calculateMacrosFromProtein(
+        currentTargets.calories,
+        calculatedProtein
+      );
       newTargets = {
         ...newTargets,
         fat: calculated.fat,
         carbs: calculated.carbs,
       };
     }
-    
-    set({ 
+
+    set({
       proteinCalculation,
       dailyTargets: newTargets,
     });
-    
+
     // Save updated targets
     get().updateDailyTargetsDebounced(newTargets);
   },
@@ -467,7 +496,13 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   },
 
   // Calorie calculation actions
-  setCalorieCalculation: (method: CalorieCalculationMethod, params: CalorieIntakeParams, activityLevel: ActivityLevel, calculatedCalories: number, goalType: GoalType) => {
+  setCalorieCalculation: (
+    method: CalorieCalculationMethod,
+    params: CalorieIntakeParams,
+    activityLevel: ActivityLevel,
+    calculatedCalories: number,
+    goalType: GoalType
+  ) => {
     const calorieCalculation: CalorieCalculationSelection = {
       method,
       params,
@@ -476,7 +511,7 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
       goalType,
       timestamp: Date.now(),
     };
-    
+
     set({ calorieCalculation });
   },
 
@@ -491,10 +526,10 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
       carbs: 0,
       fat: 0,
     };
-    
+
     try {
       await saveDailyTargets(resetTargets);
-      set({ 
+      set({
         dailyTargets: resetTargets,
         proteinCalculation: null,
         calorieCalculation: null,
