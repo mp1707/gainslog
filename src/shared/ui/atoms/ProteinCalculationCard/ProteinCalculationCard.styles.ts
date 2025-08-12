@@ -1,10 +1,7 @@
-import { StyleSheet } from 'react-native';
-import { ColorScheme, theme } from '../../../../theme';
+import { StyleSheet } from "react-native";
+import { ColorScheme, theme, Colors } from "@/theme";
 
-export const createStyles = (
-  colors: any,
-  colorScheme: ColorScheme
-) => {
+export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
   const componentStyles = theme.getComponentStyles(colorScheme);
   const { typography, spacing } = theme;
 
@@ -14,24 +11,25 @@ export const createStyles = (
       padding: spacing.md,
       marginBottom: spacing.md,
       borderWidth: 2,
-      borderColor: 'transparent',
+      borderColor: "transparent",
       ...componentStyles.cards,
     },
     selectedContainer: {
       borderColor: colors.accent,
-      backgroundColor: colorScheme === 'light' 
-        ? 'rgba(138, 63, 252, 0.05)' 
-        : 'rgba(158, 102, 255, 0.1)',
+      backgroundColor:
+        colorScheme === "light"
+          ? "rgba(138, 63, 252, 0.05)"
+          : "rgba(158, 102, 255, 0.1)",
     },
     content: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
     },
     header: {
       flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
     },
     iconContainer: {
       marginRight: spacing.md,
@@ -57,7 +55,7 @@ export const createStyles = (
       lineHeight: 16,
     },
     proteinContainer: {
-      alignItems: 'flex-end',
+      alignItems: "flex-end",
     },
     proteinValue: {
       fontSize: typography.Headline.fontSize,

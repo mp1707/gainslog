@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
-import { Colors } from '../../../../theme';
+import { StyleSheet } from "react-native";
+import { Colors } from "@/theme";
 
 export const createStyles = (colors: Colors) =>
   StyleSheet.create({
@@ -10,9 +10,9 @@ export const createStyles = (colors: Colors) =>
       backgroundColor: colors.secondaryBackground,
       borderWidth: 1,
       borderColor: colors.accent,
-      justifyContent: 'center',
-      alignItems: 'center',
-      shadowColor: '#000',
+      justifyContent: "center",
+      alignItems: "center",
+      shadowColor: "#000",
       shadowOffset: {
         width: 0,
         height: 2,

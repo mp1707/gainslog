@@ -1,8 +1,8 @@
 import React, { useState, forwardRef } from "react";
 import { TouchableOpacity, View, Text } from "react-native";
 import { TextInput as RNTextInput } from "react-native";
-import { CustomNumericKeypad } from "../../molecules/CustomNumericKeypad";
-import { useTheme } from "../../../../providers/ThemeProvider";
+import { CustomNumericKeypad } from "@/shared/ui/molecules/CustomNumericKeypad";
+import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./NumericTextInput.styles";
 
 interface NumericTextInputProps {

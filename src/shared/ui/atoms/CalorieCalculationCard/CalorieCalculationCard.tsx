@@ -15,7 +15,7 @@ import {
   FlameIcon,
   LightningIcon,
 } from "phosphor-react-native";
-import { useTheme } from "../../../../providers/ThemeProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./CalorieCalculationCard.styles";
 import type {
   ActivityLevel,

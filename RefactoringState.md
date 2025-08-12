@@ -524,132 +524,159 @@ Notes:
     - 2025-08-12: Barrel export verified.
 
 - path: `src/shared/ui/atoms/CalorieCalculationCard/CalorieCalculationCard.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized `useTheme` import to `@/providers/ThemeProvider`. Left icon set (phosphor) as-is. Verified a11y props.
 - path: `src/shared/ui/atoms/CalorieCalculationCard/CalorieCalculationCard.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched to `@/theme` and typed `colors` as `Colors`.
 - path: `src/shared/ui/atoms/CalorieCalculationCard/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel verified; no change needed.
 
 - path: `src/shared/ui/atoms/FlowArrow/FlowArrow.tsx`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Kept phosphor icon import; fixed styles hook misuse by removing hook from styles file.
 - path: `src/shared/ui/atoms/FlowArrow/FlowArrow.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Removed invalid `useTheme` usage; now uses `@/theme` directly for spacing.
 - path: `src/shared/ui/atoms/FlowArrow/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel verified; no change needed.
 
 - path: `src/shared/ui/atoms/GoalSelectionCard/GoalSelectionCard.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized provider import to `@/providers/ThemeProvider`. Kept phosphor icons. Confirmed a11y.
 - path: `src/shared/ui/atoms/GoalSelectionCard/GoalSelectionCard.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched to `@/theme` and typed `colors` as `Colors`.
 - path: `src/shared/ui/atoms/GoalSelectionCard/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel verified; no change needed.
 
 - path: `src/shared/ui/atoms/ImageSkeleton/ImageSkeleton.tsx`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified shimmer animation and props; no change needed.
 - path: `src/shared/ui/atoms/ImageSkeleton/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel verified; no change needed.
 
 - path: `src/shared/ui/atoms/InlineRecordButton/InlineRecordButton.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Migrated to `@/providers/ThemeProvider`. Kept phosphor icons to match current set. A11y verified.
 - path: `src/shared/ui/atoms/InlineRecordButton/InlineRecordButton.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched to `@/theme` types for `Colors`.
 - path: `src/shared/ui/atoms/InlineRecordButton/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel verified; no change needed.
 
 - path: `src/shared/ui/atoms/LoadingSpinner/LoadingSpinner.tsx`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized `useTheme` alias and exported props type.
 - path: `src/shared/ui/atoms/LoadingSpinner/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel verified; no change needed.
 
 - path: `src/shared/ui/atoms/ManualEntryButton/ManualEntryButton.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified button import via barrel and kept component minimal.
 - path: `src/shared/ui/atoms/ManualEntryButton/ManualEntryButton.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Left minimal style object; parent controls layout.
 - path: `src/shared/ui/atoms/ManualEntryButton/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel verified; no change needed.
 
 - path: `src/shared/ui/atoms/NumericTextInput/NumericTextInput.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Updated imports to `@/shared/ui/molecules/CustomNumericKeypad` and `@/providers/ThemeProvider`.
 - path: `src/shared/ui/atoms/NumericTextInput/NumericTextInput.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched to `@/theme` and typed `colors` as `Colors`.
 - path: `src/shared/ui/atoms/NumericTextInput/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel verified; no change needed.
 
 - path: `src/shared/ui/atoms/ProgressBar/ProgressBar.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified a11y and animation logic; no code changes required.
 - path: `src/shared/ui/atoms/ProgressBar/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel verified; no change needed.
 
 - path: `src/shared/ui/atoms/ProteinCalculationCard/ProteinCalculationCard.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized provider alias. Left phosphor icons. Confirmed a11y and calculation rounding.
 - path: `src/shared/ui/atoms/ProteinCalculationCard/ProteinCalculationCard.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched to `@/theme` and typed `colors` as `Colors`.
 - path: `src/shared/ui/atoms/ProteinCalculationCard/index.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Barrel verified; no change needed.
 
 - path: `src/shared/ui/atoms/RadialProgressBar/RadialProgressBar.tsx`
   - state: open

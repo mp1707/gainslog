@@ -1,5 +1,5 @@
-import React from 'react';
-import { TouchableOpacity, ViewStyle } from 'react-native';
+import React from "react";
+import { TouchableOpacity, ViewStyle } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -7,13 +7,14 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
-} from 'react-native-reanimated';
-import { MicrophoneIcon, StopIcon } from 'phosphor-react-native';
-import * as Haptics from 'expo-haptics';
-import { createStyles } from './InlineRecordButton.styles';
-import { useTheme } from '../../../../providers/ThemeProvider';
+} from "react-native-reanimated";
+import { MicrophoneIcon, StopIcon } from "phosphor-react-native";
+import * as Haptics from "expo-haptics";
+import { createStyles } from "./InlineRecordButton.styles";
+import { useTheme } from "@/providers/ThemeProvider";
 
-const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+const AnimatedTouchableOpacity =
+  Animated.createAnimatedComponent(TouchableOpacity);
 
 interface InlineRecordButtonProps {
   onPress: () => void;
@@ -28,7 +29,7 @@ export const InlineRecordButton: React.FC<InlineRecordButtonProps> = ({
 }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
-  
+
   // Animation values
   const scale = useSharedValue(1);
   const pulseAnimation = useSharedValue(1);
@@ -52,22 +53,20 @@ export const InlineRecordButton: React.FC<InlineRecordButtonProps> = ({
   // Animated styles
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [
-        { scale: scale.value * pulseAnimation.value }
-      ],
+      transform: [{ scale: scale.value * pulseAnimation.value }],
     };
   });
 
   const handlePress = () => {
     // Haptic feedback
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    
+
     // Press animation
     scale.value = withSequence(
       withSpring(0.85, { damping: 15, stiffness: 400 }),
       withSpring(1, { damping: 15, stiffness: 400 })
     );
-    
+
     onPress();
   };
 
@@ -77,26 +76,22 @@ export const InlineRecordButton: React.FC<InlineRecordButtonProps> = ({
         styles.container,
         isRecording && styles.recording,
         animatedStyle,
-        style
+        style,
       ]}
       onPress={handlePress}
       activeOpacity={0.7}
       accessibilityRole="button"
       accessibilityLabel={isRecording ? "Stop recording" : "Start recording"}
-      accessibilityHint={isRecording ? "Tap to stop audio recording" : "Tap to start recording audio for this field"}
+      accessibilityHint={
+        isRecording
+          ? "Tap to stop audio recording"
+          : "Tap to start recording audio for this field"
+      }
     >
       {isRecording ? (
-        <StopIcon 
-          size={16} 
-          color="white"
-          weight="fill"
-        />
+        <StopIcon size={16} color="white" weight="fill" />
       ) : (
-        <MicrophoneIcon 
-          size={16} 
-          color={colors.accent} 
-          weight="regular"
-        />
+        <MicrophoneIcon size={16} color={colors.accent} weight="regular" />
       )}
     </AnimatedTouchableOpacity>
   );

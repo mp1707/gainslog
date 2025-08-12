@@ -1,8 +1,7 @@
 import { StyleSheet } from "react-native";
-import { useTheme } from "@/providers/ThemeProvider";
+import { theme } from "@/theme";
 
 export const createStyles = () => {
-  const { theme } = useTheme();
   const { spacing } = theme;
 
   return StyleSheet.create({

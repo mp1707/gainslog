@@ -9,7 +9,7 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { TrendDownIcon, EqualsIcon, TrendUpIcon } from "phosphor-react-native";
-import { useTheme } from "../../../../providers/ThemeProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./GoalSelectionCard.styles";
 import type { GoalType } from "@/types";
 

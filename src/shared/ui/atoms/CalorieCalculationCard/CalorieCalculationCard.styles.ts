@@ -1,10 +1,7 @@
-import { StyleSheet } from 'react-native';
-import { ColorScheme, theme } from '../../../../theme';
+import { StyleSheet } from "react-native";
+import { ColorScheme, theme, Colors } from "@/theme";
 
-export const createStyles = (
-  colors: any,
-  colorScheme: ColorScheme
-) => {
+export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
   const componentStyles = theme.getComponentStyles(colorScheme);
   const { typography, spacing } = theme;
 
@@ -14,21 +11,22 @@ export const createStyles = (
       padding: spacing.md,
       marginBottom: spacing.md,
       borderWidth: 2,
-      borderColor: 'transparent',
+      borderColor: "transparent",
       ...componentStyles.cards,
     },
     selectedContainer: {
       borderColor: colors.accent,
-      backgroundColor: colorScheme === 'light' 
-        ? 'rgba(138, 63, 252, 0.05)' 
-        : 'rgba(158, 102, 255, 0.1)',
+      backgroundColor:
+        colorScheme === "light"
+          ? "rgba(138, 63, 252, 0.05)"
+          : "rgba(158, 102, 255, 0.1)",
     },
     content: {
-      flexDirection: 'column',
+      flexDirection: "column",
     },
     header: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       marginBottom: spacing.md,
     },
     iconContainer: {
@@ -55,16 +53,17 @@ export const createStyles = (
       lineHeight: 16,
     },
     calorieContainer: {
-      backgroundColor: colorScheme === 'light' 
-        ? 'rgba(17, 17, 17, 0.05)' 
-        : 'rgba(242, 242, 247, 0.05)',
+      backgroundColor:
+        colorScheme === "light"
+          ? "rgba(17, 17, 17, 0.05)"
+          : "rgba(242, 242, 247, 0.05)",
       borderRadius: 8,
       padding: spacing.sm,
     },
     calorieRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
       marginBottom: spacing.xs / 2,
     },
     calorieLabel: {

@@ -1,7 +1,9 @@
 import { StyleSheet } from "react-native";
-import { theme } from "../../../../theme";
+import { theme } from "@/theme";
 
-export const createStyles = (colors: any) =>
+import type { Colors } from "@/theme";
+
+export const createStyles = (colors: Colors) =>
   StyleSheet.create({
     // Container that acts like a TextInput
     container: {
