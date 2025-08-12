@@ -11,6 +11,11 @@ import { MonthPicker } from "../../src/shared/ui/molecules/MonthPicker";
 import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
 import { FilterBadge } from "@/components/FilterBadge";
 import { AppText } from "@/components/AppText";
+import Animated, {
+  LinearTransition,
+  Easing,
+  ReduceMotion,
+} from "react-native-reanimated";
 
 export default function OverviewTab() {
   const {
@@ -58,6 +63,15 @@ export default function OverviewTab() {
   const styles = useMemo(
     () => createStyles(colors, theme, dynamicBottomPadding),
     [colors, theme, dynamicBottomPadding]
+  );
+
+  const layoutTransition = useMemo(
+    () =>
+      LinearTransition.springify()
+        .damping(22)
+        .stiffness(300)
+        .reduceMotion(ReduceMotion.System),
+    []
   );
 
   // Nutrient filter state
@@ -140,7 +154,11 @@ export default function OverviewTab() {
                 : 0,
           }))
           .map((d, idx) => (
-            <View key={d.dateIso} style={styles.cardWrap}>
+            <Animated.View
+              key={d.dateIso}
+              layout={layoutTransition}
+              style={styles.cardWrap}
+            >
               <DailySummaryCard
                 dateIso={d.dateIso}
                 calories={d.calories}
@@ -150,7 +168,7 @@ export default function OverviewTab() {
                 visible={filters}
                 onPress={() => handleDayPress(d.dateIso)}
               />
-            </View>
+            </Animated.View>
           ))}
         {dailyTotals.length === 0 && (
           <Text style={styles.emptyText}>

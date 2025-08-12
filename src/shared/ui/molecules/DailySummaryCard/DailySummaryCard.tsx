@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { View, Pressable, StyleSheet } from "react-native";
 import * as Haptics from "expo-haptics";
 import Animated, {
@@ -7,6 +7,10 @@ import Animated, {
   withTiming,
   withSpring,
   Easing,
+  LinearTransition,
+  FadeIn,
+  FadeOut,
+  ReduceMotion,
 } from "react-native-reanimated";
 import { useTheme } from "@/providers/ThemeProvider";
 import { Card } from "@/components/Card";
@@ -37,7 +41,7 @@ export function DailySummaryCard({
   };
 }) {
   const styles = useStyles();
-  const { colors } = useTheme();
+  const { colors, theme } = useTheme();
 
   // Format date like "12. Aug"
   const formatDate = (dateString: string): string => {
@@ -90,6 +94,103 @@ export function DailySummaryCard({
     parts.length ? ", " + parts.join(", ") : ""
   }`;
 
+  // Subtle layout transition for height/size changes
+  const layoutTransition = useMemo(
+    () =>
+      LinearTransition.springify()
+        .damping(22)
+        .stiffness(300)
+        .reduceMotion(ReduceMotion.System),
+    []
+  );
+
+  // Explicit height animation for the metrics column to guarantee smooth card size changes
+  const [measuredHeight, setMeasuredHeight] = useState(0);
+  const heightSV = useSharedValue(0);
+  const didInitRef = useRef(false);
+
+  useEffect(() => {
+    if (!didInitRef.current) {
+      heightSV.value = measuredHeight;
+      didInitRef.current = true;
+      return;
+    }
+    heightSV.value = withSpring(measuredHeight, {
+      damping: 22,
+      stiffness: 300,
+    });
+  }, [measuredHeight]);
+
+  const animatedHeightStyle = useAnimatedStyle(() => ({
+    height: heightSV.value,
+  }));
+
+  const renderMetricsContent = () => (
+    <>
+      {visible?.calories && (
+        <Animated.View
+          entering={FadeIn.duration(
+            theme.animations.defaultTransition.duration
+          )}
+          exiting={FadeOut.duration(
+            theme.animations.defaultTransition.duration
+          )}
+          layout={layoutTransition}
+        >
+          <ProgressRow
+            label="Calories"
+            value={calories}
+            color={caloriesColor}
+          />
+          {(visible?.protein || visible?.carbs || visible?.fat) && (
+            <View style={styles.rowGap} />
+          )}
+        </Animated.View>
+      )}
+      {visible?.protein && (
+        <Animated.View
+          entering={FadeIn.duration(
+            theme.animations.defaultTransition.duration
+          )}
+          exiting={FadeOut.duration(
+            theme.animations.defaultTransition.duration
+          )}
+          layout={layoutTransition}
+        >
+          <ProgressRow label="Protein" value={protein} color={proteinColor} />
+          {(visible?.carbs || visible?.fat) && <View style={styles.rowGap} />}
+        </Animated.View>
+      )}
+      {visible?.carbs && (
+        <Animated.View
+          entering={FadeIn.duration(
+            theme.animations.defaultTransition.duration
+          )}
+          exiting={FadeOut.duration(
+            theme.animations.defaultTransition.duration
+          )}
+          layout={layoutTransition}
+        >
+          <ProgressRow label="Carbs" value={carbs} color={carbsColor} />
+          {visible?.fat && <View style={styles.rowGap} />}
+        </Animated.View>
+      )}
+      {visible?.fat && (
+        <Animated.View
+          entering={FadeIn.duration(
+            theme.animations.defaultTransition.duration
+          )}
+          exiting={FadeOut.duration(
+            theme.animations.defaultTransition.duration
+          )}
+          layout={layoutTransition}
+        >
+          <ProgressRow label="Fat" value={fat} color={fatColor} />
+        </Animated.View>
+      )}
+    </>
+  );
+
   return (
     <Pressable
       onPress={onPress}
@@ -99,49 +200,43 @@ export function DailySummaryCard({
       accessibilityLabel={accessibility}
       accessibilityRole="button"
     >
-      <Animated.View style={[styles.cardContainer, containerAnimatedStyle]}>
-        <Card>
-          <View style={styles.row}>
-            <View style={styles.dateColumn}>
-              <AppText role="Headline">{formatDate(dateIso)}</AppText>
-            </View>
-            <View style={styles.metricsColumn}>
-              {visible?.calories && (
-                <>
-                  <ProgressRow
-                    label="Calories"
-                    value={calories}
-                    color={caloriesColor}
-                  />
-                  {(visible?.protein || visible?.carbs || visible?.fat) && (
-                    <View style={styles.rowGap} />
-                  )}
-                </>
-              )}
-              {visible?.protein && (
-                <>
-                  <ProgressRow
-                    label="Protein"
-                    value={protein}
-                    color={proteinColor}
-                  />
-                  {(visible?.carbs || visible?.fat) && (
-                    <View style={styles.rowGap} />
-                  )}
-                </>
-              )}
-              {visible?.carbs && (
-                <>
-                  <ProgressRow label="Carbs" value={carbs} color={carbsColor} />
-                  {visible?.fat && <View style={styles.rowGap} />}
-                </>
-              )}
-              {visible?.fat && (
-                <ProgressRow label="Fat" value={fat} color={fatColor} />
-              )}
-            </View>
-          </View>
-        </Card>
+      <Animated.View
+        layout={layoutTransition}
+        style={[styles.cardContainer, containerAnimatedStyle]}
+      >
+        <Animated.View layout={layoutTransition}>
+          <Card>
+            <Animated.View layout={layoutTransition} style={styles.row}>
+              <View style={styles.dateColumn}>
+                <AppText role="Headline">{formatDate(dateIso)}</AppText>
+              </View>
+              <View style={styles.metricsColumn}>
+                {/* Measuring clone (offscreen) to get natural content height */}
+                <View
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    right: 0,
+                    top: -10000,
+                    opacity: 0,
+                  }}
+                  pointerEvents="none"
+                  onLayout={(e) =>
+                    setMeasuredHeight(e.nativeEvent.layout.height)
+                  }
+                >
+                  {renderMetricsContent()}
+                </View>
+                {/* Animated visible container */}
+                <Animated.View
+                  style={[animatedHeightStyle, { overflow: "hidden" }]}
+                >
+                  {renderMetricsContent()}
+                </Animated.View>
+              </View>
+            </Animated.View>
+          </Card>
+        </Animated.View>
         <Animated.View
           style={[styles.pressOverlay, backgroundAnimatedStyle]}
           pointerEvents="none"

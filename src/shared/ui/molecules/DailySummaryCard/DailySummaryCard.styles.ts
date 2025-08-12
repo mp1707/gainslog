@@ -4,7 +4,9 @@ import { StyleSheet } from "react-native";
 export const useStyles = () =>
   useThemedStyles((colors, theme) =>
     StyleSheet.create({
-      cardContainer: {},
+      cardContainer: {
+        position: "relative",
+      },
       row: {
         flexDirection: "row",
         alignItems: "center",
