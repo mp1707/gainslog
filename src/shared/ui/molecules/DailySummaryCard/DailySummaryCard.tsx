@@ -21,6 +21,7 @@ export function DailySummaryCard({
   carbs,
   fat,
   onPress,
+  visible,
 }: {
   dateIso: string;
   calories: number;
@@ -28,6 +29,7 @@ export function DailySummaryCard({
   carbs: number;
   fat: number;
   onPress: () => void;
+  visible?: { calories: boolean; protein: boolean; carbs: boolean; fat: boolean };
 }) {
   const styles = useStyles();
   const { colors } = useTheme();
@@ -74,11 +76,19 @@ export function DailySummaryCard({
   const carbsColor = colors.semantic.carbs;
   const fatColor = colors.semantic.fat;
 
-  const accessibility = `"${formatDate(dateIso)}", Calories ${Math.round(
-    calories
-  )} percent, Protein ${Math.round(protein)} percent, Carbs ${Math.round(
-    carbs
-  )} percent, Fat ${Math.round(fat)} percent`;
+  const show = {
+    calories: visible?.calories ?? true,
+    protein: visible?.protein ?? true,
+    carbs: visible?.carbs ?? true,
+    fat: visible?.fat ?? true,
+  };
+
+  const parts: string[] = [];
+  if (show.calories) parts.push(`Calories ${Math.round(calories)} percent`);
+  if (show.protein) parts.push(`Protein ${Math.round(protein)} percent`);
+  if (show.carbs) parts.push(`Carbs ${Math.round(carbs)} percent`);
+  if (show.fat) parts.push(`Fat ${Math.round(fat)} percent`);
+  const accessibility = `"${formatDate(dateIso)}"${parts.length ? ", " + parts.join(", ") : ""}`;
 
   return (
     <Pressable
@@ -96,21 +106,25 @@ export function DailySummaryCard({
               <AppText role="Headline">{formatDate(dateIso)}</AppText>
             </View>
             <View style={styles.metricsColumn}>
-              <ProgressRow
-                label="Calories"
-                value={calories}
-                color={caloriesColor}
-              />
-              <View style={styles.rowGap} />
-              <ProgressRow
-                label="Protein"
-                value={protein}
-                color={proteinColor}
-              />
-              <View style={styles.rowGap} />
-              <ProgressRow label="Carbs" value={carbs} color={carbsColor} />
-              <View style={styles.rowGap} />
-              <ProgressRow label="Fat" value={fat} color={fatColor} />
+              {show.calories && (
+                <>
+                  <ProgressRow label="Calories" value={calories} color={caloriesColor} />
+                  {(show.protein || show.carbs || show.fat) && <View style={styles.rowGap} />}
+                </>
+              )}
+              {show.protein && (
+                <>
+                  <ProgressRow label="Protein" value={protein} color={proteinColor} />
+                  {(show.carbs || show.fat) && <View style={styles.rowGap} />}
+                </>
+              )}
+              {show.carbs && (
+                <>
+                  <ProgressRow label="Carbs" value={carbs} color={carbsColor} />
+                  {show.fat && <View style={styles.rowGap} />}
+                </>
+              )}
+              {show.fat && <ProgressRow label="Fat" value={fat} color={fatColor} />}
             </View>
           </View>
         </Card>

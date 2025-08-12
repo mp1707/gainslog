@@ -137,14 +137,15 @@ export default function OverviewTab() {
                 ? Math.round((totals.fat / dailyTargets.fat) * 100)
                 : 0,
           }))
-           .map((d, idx) => (
+          .map((d, idx) => (
             <View key={d.dateIso} style={styles.cardWrap}>
               <DailySummaryCard
                 dateIso={d.dateIso}
-                 calories={filters.calories ? d.calories : 0}
-                 protein={filters.protein ? d.protein : 0}
-                 carbs={filters.carbs ? d.carbs : 0}
-                 fat={filters.fat ? d.fat : 0}
+                 calories={d.calories}
+                 protein={d.protein}
+                 carbs={d.carbs}
+                 fat={d.fat}
+                 visible={filters}
                 onPress={() => handleDayPress(d.dateIso)}
               />
             </View>
