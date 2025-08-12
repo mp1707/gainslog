@@ -10,6 +10,7 @@ import { DailySummaryCard } from "../../src/shared/ui/molecules/DailySummaryCard
 import { MonthPicker } from "../../src/shared/ui/molecules/MonthPicker";
 import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
 import { FilterBadge } from "@/components/FilterBadge";
+import { AppText } from "@/components/AppText";
 
 export default function OverviewTab() {
   const {
@@ -83,6 +84,7 @@ export default function OverviewTab() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.legendRow}
         >
+          <AppText role="Caption">Filter: </AppText>
           <FilterBadge
             type="calories"
             label="Calories"
@@ -194,6 +196,7 @@ function createStyles(colors: any, themeObj: any, bottomPadding?: number) {
       width: "100%",
       gap: spacing.sm,
       justifyContent: "center",
+      alignItems: "center",
     },
     stickyHeaderSpacer: {
       height: spacing.sm,
