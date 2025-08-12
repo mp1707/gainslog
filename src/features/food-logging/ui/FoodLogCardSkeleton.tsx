@@ -1,9 +1,9 @@
 import React from "react";
 import { View } from "react-native";
 import { Skeleton } from "@/shared/ui/atoms";
-import { SkeletonShimmerEffect, Card } from "src/components";
-import { FoodLog } from "../../../types";
-import { useTheme } from "../../../providers/ThemeProvider";
+import { SkeletonShimmerEffect, Card } from "@/components";
+import { FoodLog } from "@/types";
+import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./FoodLogCard.styles";
 
 interface FoodLogCardSkeletonProps {

@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { Badge } from "@/shared/ui";
 import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./FoodLogCard.styles";
-import { AppText, Card } from "src/components";
+import { AppText, Card } from "@/components";
 
 interface FoodLogCardViewProps {
   title: string;

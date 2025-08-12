@@ -1,25 +1,27 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardAvoidingView } from "react-native";
-import { FoodLogScreen, FoodLogModal } from "../../src/features/food-logging";
+import { FoodLogScreen, FoodLogModal } from "@/features/food-logging";
 import {
   useFoodLogModal,
   useUpdateFoodLog,
-} from "../../src/features/food-logging/hooks";
-import { useCreateFoodLog } from "../../src/features/food-logging/hooks/useCreateFoodLog";
-import { useImageCapture } from "../../src/features/image-capture/hooks/useImageCapture";
-import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
-import { useKeyboardOffset } from "../../src/features/settings/hooks/useKeyboardOffset";
+} from "@/features/food-logging/hooks";
+import { useCreateFoodLog } from "@/features/food-logging/hooks/useCreateFoodLog";
+import { useImageCapture } from "@/features/image-capture/hooks/useImageCapture";
+import {
+  useFoodLogStore,
+  selectIsLoadingLogs,
+  selectTriggerAction,
+} from "@/stores/useFoodLogStore";
+import { useKeyboardOffset } from "@/features/settings/hooks/useKeyboardOffset";
 
 export default function TodayTab() {
   // Global store for logs & trigger state
-  const {
-    isLoadingLogs,
-    deleteFoodLogById,
-    triggerAction,
-    clearTrigger,
-    loadFoodLogs,
-  } = useFoodLogStore();
+  const isLoadingLogs = useFoodLogStore(selectIsLoadingLogs);
+  const triggerAction = useFoodLogStore(selectTriggerAction);
+  const clearTrigger = useFoodLogStore((state) => state.clearTrigger);
+  const loadFoodLogs = useFoodLogStore((state) => state.loadFoodLogs);
+  const deleteFoodLogById = useFoodLogStore((state) => state.deleteFoodLogById);
 
   const keyboardOffset = useKeyboardOffset(true); // true because we have a tab bar
 
@@ -67,7 +69,7 @@ export default function TodayTab() {
     };
 
     handle();
-  }, [triggerAction]);
+  }, [triggerAction, clearTrigger, launchCamera, launchImageLibrary, modal]);
 
   /* Modal save handler */
   const handleSave = useCallback(

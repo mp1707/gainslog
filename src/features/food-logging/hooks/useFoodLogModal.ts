@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { FoodLog, ModalMode } from '../../../types';
+import { useState } from "react";
+import { FoodLog, ModalMode } from "@/types";
 
 export interface UseFoodLogModalReturn {
   isModalVisible: boolean;
@@ -21,21 +21,23 @@ export interface UseFoodLogModalReturn {
  * Custom hook for managing food log modal state and handlers
  * Extracts modal-related logic from App.tsx for better separation of concerns
  */
-export function useFoodLogModal(onSaveClose?: () => void): UseFoodLogModalReturn {
+export function useFoodLogModal(
+  onSaveClose?: () => void
+): UseFoodLogModalReturn {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [modalMode, setModalMode] = useState<ModalMode>('edit');
+  const [modalMode, setModalMode] = useState<ModalMode>("edit");
   const [selectedLog, setSelectedLog] = useState<FoodLog | null>(null);
   const [isAudioMode, setIsAudioMode] = useState(false);
 
   const handleAddInfo = (log: FoodLog) => {
-    setModalMode('edit');
+    setModalMode("edit");
     setSelectedLog(log);
     setIsAudioMode(false);
     setIsModalVisible(true);
   };
 
   const handleManualLog = () => {
-    setModalMode('create');
+    setModalMode("create");
     setSelectedLog(null);
     setIsAudioMode(false);
     setIsModalVisible(true);
@@ -44,7 +46,7 @@ export function useFoodLogModal(onSaveClose?: () => void): UseFoodLogModalReturn
   const handleImageCaptured = (log: FoodLog) => {
     // Don't add to state yet - just open modal for user input
     // The skeleton will be added after modal closes
-    setModalMode('create');
+    setModalMode("create");
     setSelectedLog(log);
     setIsAudioMode(false);
     setIsModalVisible(true);
@@ -52,7 +54,7 @@ export function useFoodLogModal(onSaveClose?: () => void): UseFoodLogModalReturn
 
   const handleAudioTranscribed = (log: FoodLog) => {
     // Similar to image captured, but for audio transcription
-    setModalMode('create');
+    setModalMode("create");
     setSelectedLog(log);
     setIsAudioMode(true);
     setIsModalVisible(true);
@@ -60,7 +62,7 @@ export function useFoodLogModal(onSaveClose?: () => void): UseFoodLogModalReturn
 
   const handleAudioLog = () => {
     // Direct audio logging - opens modal in audio mode
-    setModalMode('create');
+    setModalMode("create");
     setSelectedLog(null);
     setIsAudioMode(true);
     setIsModalVisible(true);
@@ -70,7 +72,7 @@ export function useFoodLogModal(onSaveClose?: () => void): UseFoodLogModalReturn
     setIsModalVisible(false);
     setSelectedLog(null);
     setIsAudioMode(false);
-    
+
     // Trigger scroll to top if this was a save action
     if (wasSaved && onSaveClose) {
       onSaveClose();

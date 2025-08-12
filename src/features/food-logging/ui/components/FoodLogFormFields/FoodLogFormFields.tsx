@@ -22,7 +22,7 @@ import Animated, {
   SlideOutRight,
 } from "react-native-reanimated";
 import { useStyles } from "./FoodLogFormFields.styles";
-import { AppText } from "src/components";
+import { AppText } from "@/components";
 
 interface FoodLogFormFieldsProps {
   formData: FoodLogFormData;

@@ -9,8 +9,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { FoodLog, ModalMode } from "../../../types";
-import { useFoodLogStore } from "../../../stores/useFoodLogStore";
+import { FoodLog, ModalMode } from "@/types";
+import { useFoodLogStore, selectFoodLogs } from "@/stores/useFoodLogStore";
 import { useStyles } from "./FoodLogModal.styles";
 import { ModalHeader } from "./components/ModalHeader";
 import { FoodImageDisplay } from "./components/FoodImageDisplay";
@@ -39,7 +39,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   isAudioMode = false,
 }) => {
   const styles = useStyles();
-  const { foodLogs } = useFoodLogStore();
+  const foodLogs = useFoodLogStore(selectFoodLogs);
   const titleInputRef = useRef<any>(null);
 
   // Nutrition mode state - defaults to estimation

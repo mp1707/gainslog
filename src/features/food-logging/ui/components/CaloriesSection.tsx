@@ -6,7 +6,7 @@ import Animated, {
   withTiming,
   Easing,
 } from "react-native-reanimated";
-import { Card, AppText } from "src/components";
+import { Card, AppText } from "@/components";
 import { useTheme } from "@/providers";
 
 interface DailyProgress {

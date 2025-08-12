@@ -4,7 +4,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ExpandableFAB } from "@/shared/ui";
 import { FoodLog } from "@/types";
 import { createStyles } from "./FoodLogScreen.styles";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
+import {
+  useFoodLogStore,
+  selectDailyTargets,
+  selectFoodLogs,
+} from "@/stores/useFoodLogStore";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useDateNavigation } from "./hooks/useDateNavigation";
 import { useTabBarSpacing } from "./hooks/useTabBarSpacing";
@@ -31,8 +35,8 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   const scrollViewRef = useRef<ScrollView>(null);
 
   // Optimized store selectors - individual selectors to prevent object recreation
-  const foodLogs = useFoodLogStore((state) => state.foodLogs);
-  const dailyTargets = useFoodLogStore((state) => state.dailyTargets);
+  const foodLogs = useFoodLogStore(selectFoodLogs);
+  const dailyTargets = useFoodLogStore(selectDailyTargets);
 
   const triggerManualLog = useFoodLogStore((state) => state.triggerManualLog);
   const triggerCameraCapture = useFoodLogStore(

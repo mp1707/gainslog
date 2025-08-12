@@ -1,6 +1,6 @@
-import { Platform } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '../../../../providers/ThemeProvider';
+import { Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "@/providers/ThemeProvider";
 
 export const useTabBarSpacing = () => {
   const insets = useSafeAreaInsets();
@@ -20,7 +20,8 @@ export const useTabBarSpacing = () => {
   // Calculate dynamic bottom padding
   // Tab bar height + FAB spacing + extra clearance for comfortable scrolling
   const tabBarHeight = getTabBarHeight();
-  const dynamicBottomPadding = tabBarHeight + theme.spacing.lg + theme.spacing.md;
+  const dynamicBottomPadding =
+    tabBarHeight + theme.spacing.lg + theme.spacing.md;
 
   return {
     tabBarHeight,

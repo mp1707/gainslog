@@ -1,4 +1,4 @@
-import { NutritionMergeResult } from '@/types';
+import { NutritionMergeResult } from "@/types";
 
 /**
  * Merge user nutrition input with AI estimation data
@@ -11,23 +11,29 @@ export const mergeNutritionData = (
   userFat: string,
   aiData?: { calories: number; protein: number; carbs: number; fat: number }
 ): NutritionMergeResult => {
-  const parseUserValue = (value: string, fieldName: string): { value: number | undefined; error: string | null } => {
+  const parseUserValue = (
+    value: string,
+    fieldName: string
+  ): { value: number | undefined; error: string | null } => {
     if (!value.trim()) {
       return { value: undefined, error: null };
     }
 
     const parsed = parseFloat(value.trim());
-    
+
     if (isNaN(parsed)) {
       return { value: undefined, error: `${fieldName} must be a valid number` };
     }
-    
+
     if (parsed < 0) {
       return { value: undefined, error: `${fieldName} cannot be negative` };
     }
-    
+
     if (parsed > 10000) {
-      return { value: undefined, error: `${fieldName} value seems too high (max 10,000)` };
+      return {
+        value: undefined,
+        error: `${fieldName} value seems too high (max 10,000)`,
+      };
     }
 
     return { value: parsed, error: null };
@@ -54,10 +60,11 @@ export const mergeNutritionData = (
   };
 
   // Check if user provided all nutrition values
-  const hasAllUserValues = userValues.calories !== undefined && 
-                           userValues.protein !== undefined && 
-                           userValues.carbs !== undefined && 
-                           userValues.fat !== undefined;
+  const hasAllUserValues =
+    userValues.calories !== undefined &&
+    userValues.protein !== undefined &&
+    userValues.carbs !== undefined &&
+    userValues.fat !== undefined;
 
   return {
     // Final nutrition values (user input takes precedence)

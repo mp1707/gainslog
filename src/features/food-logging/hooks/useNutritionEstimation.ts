@@ -1,7 +1,10 @@
-import { estimateNutritionTextBased, estimateNutritionImageBased } from '../../../lib/supabase';
-import { mergeNutritionData } from '../utils';
-import { FoodLog } from '../../../types';
-import * as Haptics from 'expo-haptics';
+import {
+  estimateNutritionTextBased,
+  estimateNutritionImageBased,
+} from "@/lib/supabase";
+import { mergeNutritionData } from "../utils";
+import { FoodLog } from "@/types";
+import * as Haptics from "expo-haptics";
 
 export interface UseNutritionEstimationReturn {
   processLogWithEstimation: (
@@ -33,14 +36,14 @@ export function useNutritionEstimation(): UseNutritionEstimationReturn {
     // Show skeleton state while processing
     const skeletonLog = {
       ...log,
-      generatedTitle: log.imageUrl ? 'Processing image...' : log.generatedTitle,
+      generatedTitle: log.imageUrl ? "Processing image..." : log.generatedTitle,
       estimationConfidence: 0,
     };
     onSkeletonUpdate(skeletonLog);
 
     try {
       let estimation;
-      
+
       if (log.imageUrl) {
         // Use image-based estimation
         estimation = await estimateNutritionImageBased({
@@ -55,9 +58,9 @@ export function useNutritionEstimation(): UseNutritionEstimationReturn {
           description: log.userDescription || undefined,
         });
       }
-            
+
       // Check if the AI returned an invalid image response
-      if (estimation.generatedTitle === 'Invalid Image' && onInvalidImage) {
+      if (estimation.generatedTitle === "Invalid Image" && onInvalidImage) {
         // Handle invalid image by removing skeleton and showing toast
         onInvalidImage(log.id);
         return;
@@ -65,10 +68,10 @@ export function useNutritionEstimation(): UseNutritionEstimationReturn {
 
       // Merge AI data with user input (user input takes precedence)
       const mergedNutrition = mergeNutritionData(
-        log.userCalories?.toString() || '', 
-        log.userProtein?.toString() || '', 
-        log.userCarbs?.toString() || '', 
-        log.userFat?.toString() || '', 
+        log.userCalories?.toString() || "",
+        log.userProtein?.toString() || "",
+        log.userCarbs?.toString() || "",
+        log.userFat?.toString() || "",
         estimation
       );
 
@@ -89,10 +92,10 @@ export function useNutritionEstimation(): UseNutritionEstimationReturn {
 
       // Provide haptic feedback when estimation completes successfully
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      
+
       onFinalUpdate(finalLog);
     } catch (error) {
-      console.error('Error with AI estimation:', error);
+      console.error("Error with AI estimation:", error);
       // If AI fails, just save with user data
       const fallbackLog = { ...log, needsAiEstimation: undefined };
       onFinalUpdate(fallbackLog);

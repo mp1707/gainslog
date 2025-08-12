@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { View, Pressable, TouchableOpacity } from "react-native";
+import { Pressable, TouchableOpacity } from "react-native";
 import * as Haptics from "expo-haptics";
 import Animated, {
   useSharedValue,
@@ -9,10 +9,9 @@ import Animated, {
   withSpring,
   Easing,
 } from "react-native-reanimated";
-import { AppText } from "src/components";
 import { FoodLogCardView } from "./FoodLogCardView";
-import { FoodLog } from "../../../types";
-import { useTheme } from "../../../providers/ThemeProvider";
+import { FoodLog } from "@/types";
+import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./FoodLogCard.styles";
 import { FoodLogCardSkeleton } from "./FoodLogCardSkeleton";
 import { StarIcon } from "phosphor-react-native";

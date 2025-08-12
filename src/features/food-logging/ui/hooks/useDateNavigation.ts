@@ -1,8 +1,9 @@
-import { useCallback } from 'react';
-import { useFoodLogStore } from '../../../../stores/useFoodLogStore';
+import { useCallback } from "react";
+import { useFoodLogStore, selectSelectedDate } from "@/stores/useFoodLogStore";
 
 export const useDateNavigation = () => {
-  const { selectedDate, setSelectedDate } = useFoodLogStore();
+  const selectedDate = useFoodLogStore(selectSelectedDate);
+  const setSelectedDate = useFoodLogStore((state) => state.setSelectedDate);
 
   // Helper function to convert Date to local date string (YYYY-MM-DD)
   const dateToLocalDateString = useCallback((date: Date): string => {
@@ -12,12 +13,15 @@ export const useDateNavigation = () => {
     return `${year}-${month}-${day}`;
   }, []);
 
-  const handleDateChange = useCallback((event: any, selectedDate?: Date) => {
-    if (selectedDate) {
-      const dateString = dateToLocalDateString(selectedDate);
-      setSelectedDate(dateString);
-    }
-  }, [dateToLocalDateString, setSelectedDate]);
+  const handleDateChange = useCallback(
+    (event: any, selectedDate?: Date) => {
+      if (selectedDate) {
+        const dateString = dateToLocalDateString(selectedDate);
+        setSelectedDate(dateString);
+      }
+    },
+    [dateToLocalDateString, setSelectedDate]
+  );
 
   const navigateToPreviousDay = useCallback(() => {
     const currentDate = new Date(selectedDate);

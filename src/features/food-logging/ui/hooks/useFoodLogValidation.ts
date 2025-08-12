@@ -1,8 +1,8 @@
-import { Alert } from 'react-native';
-import { FoodLog, ModalMode } from '@/types';
-import { mergeNutritionData } from '../../utils';
-import { useFoodLogStore } from '@/stores/useFoodLogStore';
-import { FoodLogFormData } from './useFoodLogForm';
+import { Alert } from "react-native";
+import { FoodLog, ModalMode } from "@/types";
+import { mergeNutritionData } from "@/features/food-logging/utils";
+import { useFoodLogStore, selectSelectedDate } from "@/stores/useFoodLogStore";
+import { FoodLogFormData } from "./useFoodLogForm";
 
 export interface UseFoodLogValidationReturn {
   validateAndCreateLog: (
@@ -17,7 +17,7 @@ export interface UseFoodLogValidationReturn {
  * Handles validation logic and final log construction based on mode
  */
 export function useFoodLogValidation(): UseFoodLogValidationReturn {
-  const { selectedDate } = useFoodLogStore();
+  const selectedDate = useFoodLogStore(selectSelectedDate);
 
   const validateAndCreateLog = (
     formData: FoodLogFormData,
@@ -28,10 +28,16 @@ export function useFoodLogValidation(): UseFoodLogValidationReturn {
 
     // Validate required fields for create mode - either title OR description needed for non-image logs
     const isImageLog = currentLog?.imageUrl || currentLog?.localImageUri;
-    if (mode === 'create' && !isImageLog && !title.trim() && !description.trim()) {
+    if (
+      mode === "create" &&
+      !isImageLog &&
+      !title.trim() &&
+      !description.trim()
+    ) {
       return {
         isValid: false,
-        error: 'Please provide either a title or description for your food log.',
+        error:
+          "Please provide either a title or description for your food log.",
       };
     }
 
@@ -40,13 +46,16 @@ export function useFoodLogValidation(): UseFoodLogValidationReturn {
 
     // Validate nutrition input
     if (!nutritionData.isValid) {
-      Alert.alert('Validation Error', nutritionData.validationErrors.join('\n'));
+      Alert.alert(
+        "Validation Error",
+        nutritionData.validationErrors.join("\n")
+      );
       return { isValid: false };
     }
 
     let finalLog: FoodLog;
 
-    if (mode === 'edit' && currentLog) {
+    if (mode === "edit" && currentLog) {
       // Updating existing log - preserve original ID and metadata
       finalLog = {
         ...currentLog,
@@ -64,7 +73,7 @@ export function useFoodLogValidation(): UseFoodLogValidationReturn {
         // Reset confidence to trigger re-estimation
         estimationConfidence: nutritionData.needsAiEstimation ? 0 : 100,
       };
-    } else if (mode === 'create' && currentLog) {
+    } else if (mode === "create" && currentLog) {
       // Processing existing log (image log) - return log with user input for AI processing
       finalLog = {
         ...currentLog,
@@ -82,10 +91,12 @@ export function useFoodLogValidation(): UseFoodLogValidationReturn {
       };
     } else {
       // Creating completely new log (manual entry) using selected date
-      const newId = `food_log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const newId = `food_log_${Date.now()}_${Math.random()
+        .toString(36)
+        .substr(2, 9)}`;
       finalLog = {
         id: newId,
-        generatedTitle: title.trim() || 'Manual entry',
+        generatedTitle: title.trim() || "Manual entry",
         estimationConfidence: nutritionData.needsAiEstimation ? 0 : 100,
         calories: nutritionData.calories,
         protein: nutritionData.protein,

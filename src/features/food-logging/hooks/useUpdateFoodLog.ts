@@ -1,13 +1,13 @@
 import { useCallback } from "react";
 import { useNutritionEstimation } from "./useNutritionEstimation";
 import { FoodLog } from "@/types";
-import { useFoodLogStore } from "src/stores/useFoodLogStore";
+import { useFoodLogStore } from "@/stores/useFoodLogStore";
 
 /**
  * Business-logic hook that updates an existing FoodLog with new information
  * and handles AI re-estimation if needed.
- *  
- * 
+ *
+ *
  * It transparently handles optimistic UI updates and AI nutrition estimation.
  */
 export const useUpdateFoodLog = () => {

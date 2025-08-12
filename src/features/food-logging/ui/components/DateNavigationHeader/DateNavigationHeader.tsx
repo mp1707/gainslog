@@ -2,8 +2,8 @@ import React, { useMemo } from "react";
 import { View, TouchableOpacity, Platform } from "react-native";
 import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { PageHeader } from "../../../../../shared/ui";
-import { useTheme } from "../../../../../providers/ThemeProvider";
+import { PageHeader } from "@/shared/ui";
+import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./DateNavigationHeader.styles";
 
 interface DateNavigationHeaderProps {

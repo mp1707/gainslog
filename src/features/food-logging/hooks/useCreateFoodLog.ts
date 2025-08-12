@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useNutritionEstimation } from "./useNutritionEstimation";
 import { FoodLog } from "@/types";
-import { useFoodLogStore } from "src/stores/useFoodLogStore";
+import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { showInvalidImageToast } from "@/lib/toast";
 
 /**
@@ -11,8 +11,12 @@ import { showInvalidImageToast } from "@/lib/toast";
  * It transparently handles optimistic skeleton addition and AI nutrition estimation.
  */
 export const useCreateFoodLog = () => {
-  const { addFoodLogToState, updateFoodLogInState, addFoodLog, removeFoodLogFromState } =
-    useFoodLogStore();
+  const {
+    addFoodLogToState,
+    updateFoodLogInState,
+    addFoodLog,
+    removeFoodLogFromState,
+  } = useFoodLogStore();
 
   const { processLogWithEstimation } = useNutritionEstimation();
 

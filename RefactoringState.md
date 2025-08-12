@@ -99,6 +99,7 @@ Notes:
   - priority: medium
   - changeLog:
     - 2025-08-12: Verified integration with Food Logging feature (screen + modal) and keyboard offset usage; no code changes.
+    - 2025-08-12: Migrated to `@/` aliases and selector-based store usage (`selectIsLoadingLogs`, `selectTriggerAction`). Added missing effect deps.
   - notes: Container logic remains; future refactor tracked under feature.
 
 - path: `app/(tabs)/favorites.tsx`
@@ -1137,88 +1138,103 @@ Notes:
 
 - path: `src/features/food-logging/index.ts`
 
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified exports (UI, hooks, utils). No changes required.
 
 - path: `src/features/food-logging/utils.ts`
 
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
-  - notes: Extract pure utility functions; ensure test coverage.
+  - changeLog:
+    - 2025-08-12: Confirmed `mergeNutritionData` is pure and typed; standardized `@/` imports.
+  - notes: Candidate for unit tests.
 
 - path: `src/features/food-logging/hooks/index.ts`
   - state: open
   - priority: low
   - changeLog: []
 - path: `src/features/food-logging/hooks/useCreateFoodLog.ts`
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized to `@/stores` alias. No logic changes.
 - path: `src/features/food-logging/hooks/useFoodLogModal.ts`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified API and alias usage (`@/types`). No logic changes required.
 - path: `src/features/food-logging/hooks/useFoodLogs.ts`
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched to `@/stores` alias. API unchanged.
 - path: `src/features/food-logging/hooks/useNutritionEstimation.ts`
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized imports to `@/lib` and `@/types`. No logic changes.
 - path: `src/features/food-logging/hooks/useUpdateFoodLog.ts`
 
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized to `@/stores` alias. No logic changes.
 
 - path: `src/features/food-logging/ui/FoodLogScreen.tsx`
 
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
-  - notes: Split presentation vs. container; offload business logic to hooks/utils.
+  - changeLog:
+    - 2025-08-12: Migrated to selector-based store usage (`selectFoodLogs`, `selectDailyTargets`) and kept screen presentational.
+  - notes: Container logic remains in tab screen; computations memoized.
 
 - path: `src/features/food-logging/ui/FoodLogCard.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized imports to `@/providers`, `@/types`, removed unused imports, kept a11y and animations intact.
 - path: `src/features/food-logging/ui/FoodLogCard.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched theme import to `@/theme` and typed `Colors`.
 - path: `src/features/food-logging/ui/FoodLogCardSkeleton.tsx`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized imports to `@/components`, `@/types`, `@/providers`.
 - path: `src/features/food-logging/ui/FoodLogCardView.tsx`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched Card/AppText import to `@/components`.
 - path: `src/features/food-logging/ui/FoodLogModal.tsx`
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched to selector-based store read for `foodLogs` and `@/` aliases. No logic changes.
 - path: `src/features/food-logging/ui/FoodLogModal.styles.ts`
   - state: open
   - priority: low
   - changeLog: []
 - path: `src/features/food-logging/ui/FoodLogScreen.styles.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized theme import to `@/theme` and typed `Colors`.
 
 - path: `src/features/food-logging/ui/hooks/useAudioRecording.ts`
   - state: open
   - priority: medium
   - changeLog: []
 - path: `src/features/food-logging/ui/hooks/useDateNavigation.ts`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Migrated to selector-based store usage and `@/stores` alias.
 - path: `src/features/food-logging/ui/hooks/useFavoriteSelection.ts`
   - state: open
   - priority: medium
@@ -1228,29 +1244,34 @@ Notes:
   - priority: high
   - changeLog: []
 - path: `src/features/food-logging/ui/hooks/useFoodLogValidation.ts`
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched imports to `@/features/food-logging/utils` and adopted selector `selectSelectedDate` for reading state.
 - path: `src/features/food-logging/ui/hooks/useTabBarSpacing.ts`
 
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized provider import to `@/providers/ThemeProvider`.
 
 - path: `src/features/food-logging/ui/components/CaloriesSection.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched Card/AppText import to `@/components`.
 - path: `src/features/food-logging/ui/components/MacronutriensSection.tsx`
 
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified alias imports and kept RadialProgressBar usage; no logic changes.
 
 - path: `src/features/food-logging/ui/components/DateNavigationHeader/DateNavigationHeader.tsx`
-  - state: open
+  - state: done
   - priority: medium
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized provider/UI imports to `@/` aliases. No logic changes.
 - path: `src/features/food-logging/ui/components/DateNavigationHeader/DateNavigationHeader.styles.ts`
   - state: open
   - priority: low
@@ -1276,9 +1297,10 @@ Notes:
   - changeLog: []
 
 - path: `src/features/food-logging/ui/components/FoodLogFormFields/FoodLogFormFields.tsx`
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Standardized `AppText` import to `@/components`. No logic changes.
 - path: `src/features/food-logging/ui/components/FoodLogFormFields/FoodLogFormFields.styles.ts`
   - state: open
   - priority: low
@@ -1290,13 +1312,15 @@ Notes:
   - changeLog: []
 
 - path: `src/features/food-logging/ui/components/FoodLogsList/FoodLogsList.tsx`
-  - state: open
+  - state: done
   - priority: high
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Verified presentational-only; no changes needed.
 - path: `src/features/food-logging/ui/components/FoodLogsList/FoodLogsList.styles.ts`
-  - state: open
+  - state: done
   - priority: low
-  - changeLog: []
+  - changeLog:
+    - 2025-08-12: Switched theme import to `@/theme`.
 - path: `src/features/food-logging/ui/components/FoodLogsList/index.ts`
 
   - state: open

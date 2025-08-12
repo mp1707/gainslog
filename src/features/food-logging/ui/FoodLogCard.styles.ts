@@ -1,7 +1,8 @@
 import { StyleSheet } from "react-native";
-import { theme } from "../../../theme";
+import { theme } from "@/theme";
+import type { Colors } from "@/theme";
 
-export const createStyles = (colors: any) =>
+export const createStyles = (colors: Colors) =>
   StyleSheet.create({
     cardContainer: {
       position: "relative",
