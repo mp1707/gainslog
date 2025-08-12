@@ -1,14 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Modal, View, Text, TouchableOpacity, ScrollView, KeyboardAvoidingView } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  Easing,
-} from "react-native-reanimated";
+import { CaretLeftIcon, CaretRightIcon, GenderMaleIcon, GenderFemaleIcon } from "phosphor-react-native";
 import { Stepper } from "../../atoms/Stepper/Stepper";
+import { Toggle, type ToggleOption } from "../../atoms/Toggle";
 import {
   CalorieCalculationCard,
   CALCULATION_METHODS,
@@ -73,31 +68,6 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
   const [selectedGoal, setSelectedGoal] = useState<GoalType | null>(null);
   const [isParamsLoaded, setIsParamsLoaded] = useState(false);
 
-  // Animation setup for sliding toggle
-  const slideAnimation = useSharedValue(params.sex === "male" ? 0 : 1);
-
-  // Update animation when sex changes
-  useEffect(() => {
-    slideAnimation.value = withTiming(params.sex === "male" ? 0 : 1, {
-      duration: 300,
-      easing: Easing.out(Easing.quad),
-    });
-  }, [params.sex]);
-
-  // Animated style for sliding indicator
-  const animatedSliderStyle = useAnimatedStyle(() => {
-    // Calculate the available sliding space accounting for padding
-    // Container has 3pt padding on each side, slider width is 50%
-    // So the slider can move from 0 to the remaining 50% width minus 4pt offset
-    const slideDistance = slideAnimation.value * 101;
-    return {
-      transform: [
-        {
-          translateX: `${slideDistance}%`,
-        },
-      ],
-    };
-  }, []);
 
   // Reset modal state when opened/closed
   useEffect(() => {
@@ -118,13 +88,10 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
           const savedParams = await getCalorieCalculatorParams();
           const mergedParams = { ...savedParams, ...initialParams };
           setParams(mergedParams);
-          // Update animation to match loaded params
-          slideAnimation.value = mergedParams.sex === "male" ? 0 : 1;
           setIsParamsLoaded(true);
         } catch (error) {
           console.error("Failed to load saved params:", error);
           setParams(stableInitialParams);
-          slideAnimation.value = stableInitialParams.sex === "male" ? 0 : 1;
           setIsParamsLoaded(true);
         }
       }
@@ -199,12 +166,19 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
     setParams((prev) => ({ ...prev, [key]: value }));
   };
 
-  const toggleSex = () => {
-    setParams((prev) => ({
-      ...prev,
-      sex: prev.sex === "male" ? "female" : "male",
-    }));
-  };
+  // Sex toggle options
+  const sexToggleOptions: [ToggleOption<Sex>, ToggleOption<Sex>] = [
+    {
+      value: "male",
+      label: "Male",
+      icon: GenderMaleIcon,
+    },
+    {
+      value: "female", 
+      label: "Female",
+      icon: GenderFemaleIcon,
+    },
+  ];
 
   const methods = Object.values(CALCULATION_METHODS);
 
@@ -283,48 +257,12 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
                 {/* Sex Selection Card */}
                 <View style={styles.inputCard}>
                   <Text style={styles.sectionTitle}>Biological Sex</Text>
-                  <View style={styles.sexToggleContainer}>
-                    {/* Animated sliding background */}
-                    <Animated.View
-                      style={[styles.sexToggleSlider, animatedSliderStyle]}
-                    />
-
-                    {/* Static buttons with text */}
-                    <TouchableOpacity
-                      onPress={() => updateParam("sex", "male")}
-                      style={styles.sexToggleButton}
-                      accessibilityRole="button"
-                      accessibilityLabel="Select male"
-                      accessibilityState={{ selected: params.sex === "male" }}
-                    >
-                      <Text
-                        style={[
-                          styles.sexToggleButtonText,
-                          params.sex === "male" &&
-                            styles.sexToggleButtonTextSelected,
-                        ]}
-                      >
-                        Male
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => updateParam("sex", "female")}
-                      style={styles.sexToggleButton}
-                      accessibilityRole="button"
-                      accessibilityLabel="Select female"
-                      accessibilityState={{ selected: params.sex === "female" }}
-                    >
-                      <Text
-                        style={[
-                          styles.sexToggleButtonText,
-                          params.sex === "female" &&
-                            styles.sexToggleButtonTextSelected,
-                        ]}
-                      >
-                        Female
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                  <Toggle
+                    value={params.sex}
+                    options={sexToggleOptions}
+                    onChange={(value) => updateParam("sex", value)}
+                    accessibilityLabel="Select biological sex"
+                  />
                 </View>
 
                 {/* Age Input Card */}

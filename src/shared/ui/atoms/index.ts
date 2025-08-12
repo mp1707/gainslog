@@ -9,3 +9,4 @@ export { ManualEntryButton } from "./ManualEntryButton";
 export { Stepper } from "./Stepper";
 export { InlineRecordButton } from "./InlineRecordButton";
 export { StatusIcon } from "./StatusIcon";
+export { Toggle, type ToggleOption, type ToggleProps } from "./Toggle";
