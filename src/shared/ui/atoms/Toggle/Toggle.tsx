@@ -6,12 +6,13 @@ import Animated, {
   withTiming,
   Easing,
 } from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
 import { useStyles } from "./Toggle.styles";
 
 export interface ToggleOption<T> {
   value: T;
   label: string;
-  icon?: React.ComponentType<{size: number, color: string}>;
+  icon?: React.ComponentType<{ size: number; color: string }>;
 }
 
 export interface ToggleProps<T> {
@@ -54,11 +55,16 @@ export function Toggle<T>({
 
   const renderOption = (option: ToggleOption<T>, isSelected: boolean) => {
     const IconComponent = option.icon;
-    
+
     return (
       <TouchableOpacity
         key={String(option.value)}
-        onPress={() => onChange(option.value)}
+        onPress={() => {
+          if (!isSelected) {
+            Haptics.selectionAsync();
+            onChange(option.value);
+          }
+        }}
         style={styles.toggleButton}
         accessibilityRole="button"
         accessibilityLabel={`Select ${option.label}`}
@@ -68,7 +74,11 @@ export function Toggle<T>({
           {IconComponent && (
             <IconComponent
               size={20}
-              color={isSelected ? styles.toggleButtonTextSelected.color : styles.toggleButtonText.color}
+              color={
+                isSelected
+                  ? styles.toggleButtonTextSelected.color
+                  : styles.toggleButtonText.color
+              }
             />
           )}
           <Text
@@ -85,20 +95,16 @@ export function Toggle<T>({
   };
 
   return (
-    <View 
+    <View
       style={styles.toggleContainer}
       accessibilityLabel={accessibilityLabel}
       accessibilityRole="radiogroup"
     >
       {/* Animated sliding background */}
-      <Animated.View
-        style={[styles.toggleSlider, animatedSliderStyle]}
-      />
+      <Animated.View style={[styles.toggleSlider, animatedSliderStyle]} />
 
       {/* Option buttons */}
-      {options.map((option) => 
-        renderOption(option, value === option.value)
-      )}
+      {options.map((option) => renderOption(option, value === option.value))}
     </View>
   );
 }

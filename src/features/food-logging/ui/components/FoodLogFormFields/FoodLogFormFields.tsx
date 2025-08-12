@@ -12,6 +12,15 @@ import { FoodLogFormData } from "../../hooks/useFoodLogForm";
 import { UseAudioRecordingReturn } from "../../hooks/useAudioRecording";
 import { NutritionMode } from "../../FoodLogModal";
 import { View } from "react-native";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+  SlideInLeft,
+  SlideOutLeft,
+  SlideInRight,
+  SlideOutRight,
+} from "react-native-reanimated";
 import { useStyles } from "./FoodLogFormFields.styles";
 import { AppText } from "src/components";
 
@@ -120,24 +129,48 @@ export const FoodLogFormFields: React.FC<FoodLogFormFieldsProps> = ({
         accessibilityLabel="Select nutrition input mode"
       />
 
-      {/* Show nutrition inputs only in manual mode */}
-      {nutritionMode === "manual" ? (
-        <NutritionGrid
-          calories={formData.calories}
-          protein={formData.protein}
-          carbs={formData.carbs}
-          fat={formData.fat}
-          onCaloriesChange={(value) => onFieldChange("calories", value)}
-          onProteinChange={(value) => onFieldChange("protein", value)}
-          onCarbsChange={(value) => onFieldChange("carbs", value)}
-          onFatChange={(value) => onFieldChange("fat", value)}
-          disabled={recordingState === "recording"}
-        />
-      ) : (
-        <AppText role="Body" color="secondary">
-          Let AI estimate all nutrition values for you.
-        </AppText>
-      )}
+      {/* Show nutrition inputs only in manual mode with subtle enter/exit animation */}
+      <Animated.View layout={LinearTransition.duration(220)}>
+        {nutritionMode === "manual" ? (
+          <Animated.View
+            key="manual"
+            entering={SlideInLeft.duration(220)}
+            exiting={SlideOutLeft.duration(150)}
+          >
+            <Animated.View
+              entering={FadeIn.duration(220)}
+              exiting={FadeOut.duration(150)}
+            >
+              <NutritionGrid
+                calories={formData.calories}
+                protein={formData.protein}
+                carbs={formData.carbs}
+                fat={formData.fat}
+                onCaloriesChange={(value) => onFieldChange("calories", value)}
+                onProteinChange={(value) => onFieldChange("protein", value)}
+                onCarbsChange={(value) => onFieldChange("carbs", value)}
+                onFatChange={(value) => onFieldChange("fat", value)}
+                disabled={recordingState === "recording"}
+              />
+            </Animated.View>
+          </Animated.View>
+        ) : (
+          <Animated.View
+            key="estimation"
+            entering={SlideInRight.duration(220)}
+            exiting={SlideOutRight.duration(150)}
+          >
+            <Animated.View
+              entering={FadeIn.duration(220)}
+              exiting={FadeOut.duration(150)}
+            >
+              <AppText role="Body" color="secondary">
+                Let AI estimate all nutrition values for you.
+              </AppText>
+            </Animated.View>
+          </Animated.View>
+        )}
+      </Animated.View>
     </View>
   );
 };
