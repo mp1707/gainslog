@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo } from "react";
-import { ScrollView, Text, StyleSheet, Platform } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { ScrollView, Text, StyleSheet, Platform, View } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -9,7 +9,7 @@ import { useFoodLogStore } from "../../src/stores/useFoodLogStore";
 import { DailySummaryCard } from "../../src/shared/ui/molecules/DailySummaryCard";
 import { MonthPicker } from "../../src/shared/ui/molecules/MonthPicker";
 import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
-import { Badge } from "@/shared/ui";
+import { SemanticBadge } from "@/components/SemanticBadge";
 
 export default function OverviewTab() {
   const {
@@ -27,6 +27,34 @@ export default function OverviewTab() {
   }, [loadDailyTargets]);
 
   const dailyTotals = getDailyTotalsForMonth();
+
+  // Build demo data if no targets set or no logs
+  const demoData = [
+    {
+      dateIso: `${selectedMonth}-12`,
+      calories: 56,
+      protein: 48,
+      carbs: 55,
+      fat: 37,
+      prev: { calories: 40, protein: 40, carbs: 40, fat: 30 },
+    },
+    {
+      dateIso: `${selectedMonth}-11`,
+      calories: 128,
+      protein: 110,
+      carbs: 135,
+      fat: 95,
+      prev: { calories: 90, protein: 90, carbs: 100, fat: 80 },
+    },
+    {
+      dateIso: `${selectedMonth}-10`,
+      calories: 3,
+      protein: 4,
+      carbs: 2,
+      fat: 1,
+      prev: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+    },
+  ];
 
   const handleMonthChange = (month: string) => {
     setSelectedMonth(month);
@@ -62,41 +90,44 @@ export default function OverviewTab() {
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <PageHeader>
-        <MonthPicker
-          selectedMonth={selectedMonth}
-          onMonthChange={handleMonthChange}
-        />
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.legendRow}
-        >
-          <Badge variant="semantic" semanticType="calories" label="Calories" />
-          <Badge variant="semantic" semanticType="protein" label="Protein" />
-          <Badge variant="semantic" semanticType="carbs" label="Carbs" />
-          <Badge variant="semantic" semanticType="fat" label="Fat" />
+        <MonthPicker selectedMonth={selectedMonth} onMonthChange={handleMonthChange} />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.legendRow}>
+          <SemanticBadge type="calories" label="Calories" />
+          <SemanticBadge type="protein" label="Protein" />
+          <SemanticBadge type="carbs" label="Carbs" />
+          <SemanticBadge type="fat" label="Fat" />
         </ScrollView>
       </PageHeader>
 
-      {dailyTotals.length === 0 ? (
-        <Text style={styles.emptyText}>No food logs found for this month.</Text>
-      ) : (
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {dailyTotals.map(({ date, totals }) => (
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} stickyHeaderIndices={[0]}>
+        <View style={styles.stickyHeaderSpacer} />
+        {(dailyTotals.length > 0
+          ? dailyTotals.map(({ date, totals }) => ({
+              dateIso: date,
+              calories:
+                dailyTargets.calories > 0 ? Math.round((totals.calories / dailyTargets.calories) * 100) : 0,
+              protein:
+                dailyTargets.protein > 0 ? Math.round((totals.protein / dailyTargets.protein) * 100) : 0,
+              carbs: dailyTargets.carbs > 0 ? Math.round((totals.carbs / dailyTargets.carbs) * 100) : 0,
+              fat: dailyTargets.fat > 0 ? Math.round((totals.fat / dailyTargets.fat) * 100) : 0,
+            }))
+          : demoData
+        ).map((d, idx) => (
+          <View key={d.dateIso} style={styles.cardWrap}>
             <DailySummaryCard
-              key={date}
-              date={date}
-              totals={totals}
-              targets={dailyTargets}
-              onPress={() => handleDayPress(date)}
+              dateIso={d.dateIso}
+              calories={d.calories}
+              protein={d.protein}
+              carbs={d.carbs}
+              fat={d.fat}
+              prev={d.prev}
             />
-          ))}
-        </ScrollView>
-      )}
+          </View>
+        ))}
+        {dailyTotals.length === 0 && (
+          <Text style={styles.emptyText}>No food logs found for this month. Showing examples.</Text>
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -119,6 +150,9 @@ function createStyles(colors: any, themeObj: any, bottomPadding?: number) {
       paddingBottom: bottomPadding || spacing.xl,
       gap: spacing.md,
     },
+    cardWrap: {
+      width: "100%",
+    },
     emptyText: {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
@@ -132,6 +166,9 @@ function createStyles(colors: any, themeObj: any, bottomPadding?: number) {
       width: "100%",
       gap: spacing.sm,
       justifyContent: "center",
+    },
+    stickyHeaderSpacer: {
+      height: spacing.sm,
     },
   });
 }
