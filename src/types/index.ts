@@ -22,6 +22,27 @@ export interface FoodLog {
   needsAiEstimation?: boolean;
 }
 
+export interface DailyProgress {
+  current: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+  targets: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+  percentages: {
+    calories: number;
+    protein: number;
+    fat: number;
+    carbs: number;
+  };
+}
+
 // Domain enums and shared calculation/input types
 export type Sex = "male" | "female";
 export type ActivityLevel =

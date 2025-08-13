@@ -8,28 +8,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { Card, AppText } from "@/components";
 import { useTheme } from "@/providers";
-
-interface DailyProgress {
-  current: {
-    calories: number;
-    protein: number;
-    fat: number;
-    carbs: number;
-  };
-  targets: {
-    calories: number;
-    protein: number;
-    fat: number;
-    carbs: number;
-  };
-  percentages: {
-    calories: number;
-    protein: number;
-    fat: number;
-    carbs: number;
-  };
-}
-
+import { DailyProgress } from "@/types/index";
 interface CaloriesSectionProps {
   dailyProgress: DailyProgress;
 }
@@ -116,7 +95,7 @@ export const CaloriesSection: React.FC<CaloriesSectionProps> = React.memo(
         ) : (
           <Card style={styles.container}>
             <View style={styles.caloriesContent}>
-              <AppText role="Headline" style={styles.caloriesText}>
+              <AppText role="Caption" style={styles.caloriesText}>
                 {caloriesData.current} / {caloriesData.target} kcal
               </AppText>
               <View style={styles.progressBarContainer}>
