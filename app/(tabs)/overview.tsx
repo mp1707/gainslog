@@ -1,13 +1,20 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FlatList,
-  ScrollView,
   Text,
   StyleSheet,
   Platform,
   View,
   ListRenderItem,
+  TouchableOpacity,
 } from "react-native";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -22,7 +29,8 @@ import {
 import { DailySummaryCard } from "../../src/shared/ui/molecules/DailySummaryCard";
 import { MonthPicker } from "../../src/shared/ui/molecules/MonthPicker";
 import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
-import { FilterBadge, AppText } from "src/components";
+import { AppText } from "src/components";
+import { FunnelIcon } from "phosphor-react-native";
 
 export default function OverviewTab() {
   // Subscribe to only the needed slices of state with safe defaults
@@ -127,7 +135,21 @@ export default function OverviewTab() {
     [colors, theme, dynamicBottomPadding]
   );
 
-  // Removed animation state
+  // Popover animation state
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuVisibility = useSharedValue(0);
+
+  const toggleMenuOpen = useCallback(() => {
+    setIsMenuOpen((prev) => {
+      const next = !prev;
+      menuVisibility.value = withTiming(next ? 1 : 0, {
+        duration: 180,
+        easing: Easing.out(Easing.quad),
+      });
+      Haptics.selectionAsync();
+      return next;
+    });
+  }, [menuVisibility]);
 
   // Nutrient filter state
   const [filters, setFilters] = useState({
@@ -145,6 +167,7 @@ export default function OverviewTab() {
 
   // Memoized filter toggle handler to prevent unnecessary re-renders
   const handleToggleFilter = useCallback((key: keyof typeof filters) => {
+    Haptics.selectionAsync();
     setFilters((prev) => ({ ...prev, [key]: !prev[key] }));
   }, []);
 
@@ -231,40 +254,137 @@ export default function OverviewTab() {
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <PageHeader>
-        <MonthPicker
-          selectedMonth={selectedMonth}
-          onMonthChange={handleMonthChange}
-        />
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.legendRow}
+        <View style={styles.headerRow}>
+          <MonthPicker
+            selectedMonth={selectedMonth}
+            onMonthChange={handleMonthChange}
+          />
+          <TouchableOpacity
+            onPress={toggleMenuOpen}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Toggle details menu"
+            style={styles.filterButton}
+          >
+            <FunnelIcon
+              size={22}
+              color={colors.accent}
+              weight={isMenuOpen ? "fill" : "regular"}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Animated non-modal popover */}
+        <Animated.View
+          style={[
+            styles.popover,
+            useAnimatedStyle(() => ({
+              opacity: menuVisibility.value,
+              transform: [
+                {
+                  scale: withTiming(menuVisibility.value ? 1 : 0.95, {
+                    duration: 180,
+                    easing: Easing.out(Easing.quad),
+                  }),
+                },
+              ],
+            })),
+          ]}
+          pointerEvents={isMenuOpen ? "auto" : "none"}
         >
-          <FilterBadge
-            type="calories"
-            label="Calories"
-            active={filters.calories}
-            onToggle={handleToggleFilter}
-          />
-          <FilterBadge
-            type="protein"
-            label="Protein"
-            active={filters.protein}
-            onToggle={handleToggleFilter}
-          />
-          <FilterBadge
-            type="carbs"
-            label="Carbs"
-            active={filters.carbs}
-            onToggle={handleToggleFilter}
-          />
-          <FilterBadge
-            type="fat"
-            label="Fat"
-            active={filters.fat}
-            onToggle={handleToggleFilter}
-          />
-        </ScrollView>
+          <AppText role="Headline" style={styles.popoverTitle}>
+            Toggle Details
+          </AppText>
+
+          <View style={styles.menuItemRow}>
+            <AppText role="Body" style={styles.menuItemLabel}>
+              Calories
+            </AppText>
+            <TouchableOpacity
+              onPress={() => handleToggleFilter("calories")}
+              accessibilityRole="switch"
+              accessibilityState={{ checked: filters.calories }}
+              style={[
+                styles.switchTrack,
+                !filters.calories && styles.switchTrackOff,
+              ]}
+            >
+              <Animated.View
+                style={[
+                  styles.switchThumb,
+                  filters.calories
+                    ? styles.switchThumbOn
+                    : styles.switchThumbOff,
+                ]}
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.menuItemRow}>
+            <AppText role="Body" style={styles.menuItemLabel}>
+              Protein
+            </AppText>
+            <TouchableOpacity
+              onPress={() => handleToggleFilter("protein")}
+              accessibilityRole="switch"
+              accessibilityState={{ checked: filters.protein }}
+              style={[
+                styles.switchTrack,
+                !filters.protein && styles.switchTrackOff,
+              ]}
+            >
+              <Animated.View
+                style={[
+                  styles.switchThumb,
+                  filters.protein
+                    ? styles.switchThumbOn
+                    : styles.switchThumbOff,
+                ]}
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.menuItemRow}>
+            <AppText role="Body" style={styles.menuItemLabel}>
+              Carbs
+            </AppText>
+            <TouchableOpacity
+              onPress={() => handleToggleFilter("carbs")}
+              accessibilityRole="switch"
+              accessibilityState={{ checked: filters.carbs }}
+              style={[
+                styles.switchTrack,
+                !filters.carbs && styles.switchTrackOff,
+              ]}
+            >
+              <Animated.View
+                style={[
+                  styles.switchThumb,
+                  filters.carbs ? styles.switchThumbOn : styles.switchThumbOff,
+                ]}
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.menuItemRow}>
+            <AppText role="Body" style={styles.menuItemLabel}>
+              Fat
+            </AppText>
+            <TouchableOpacity
+              onPress={() => handleToggleFilter("fat")}
+              accessibilityRole="switch"
+              accessibilityState={{ checked: filters.fat }}
+              style={[
+                styles.switchTrack,
+                !filters.fat && styles.switchTrackOff,
+              ]}
+            >
+              <Animated.View
+                style={[
+                  styles.switchThumb,
+                  filters.fat ? styles.switchThumbOn : styles.switchThumbOff,
+                ]}
+              />
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
       </PageHeader>
 
       <FlatList
@@ -335,6 +455,74 @@ function createStyles(colors: any, themeObj: any, bottomPadding?: number) {
     },
     stickyHeaderSpacer: {
       height: spacing.sm,
+    },
+    headerRow: {
+      width: "100%",
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    filterButton: {
+      height: 40,
+      width: 40,
+      borderRadius: 12,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor:
+        colors.iconBadges?.background || colors.disabledBackground,
+    },
+    popover: {
+      position: "absolute",
+      right: spacing.pageMargins.horizontal,
+      top: spacing.md + 44, // below the header row
+      backgroundColor: colors.secondaryBackground,
+      borderRadius: 20,
+      padding: spacing.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+      shadowColor: "#000",
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      shadowOffset: { width: 0, height: 6 },
+      width: 240,
+      gap: spacing.sm,
+      zIndex: 200,
+      elevation: 8,
+    },
+    popoverTitle: {
+      marginBottom: spacing.xs,
+    },
+    menuItemRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    menuItemLabel: {
+      color: colors.primaryText,
+    },
+    switchTrack: {
+      width: 48,
+      height: 28,
+      borderRadius: 16,
+      backgroundColor: colors.accent,
+      padding: 3,
+      justifyContent: "center",
+    },
+    switchTrackOff: {
+      backgroundColor: colors.disabledBackground,
+    },
+    switchThumb: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      backgroundColor: colors.white,
+      transform: [{ translateX: 20 }],
+    },
+    switchThumbOff: {
+      transform: [{ translateX: 0 }],
+    },
+    switchThumbOn: {
+      transform: [{ translateX: 20 }],
     },
   });
 }

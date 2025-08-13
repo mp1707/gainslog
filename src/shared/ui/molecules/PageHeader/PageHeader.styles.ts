@@ -9,6 +9,9 @@ export const createStyles = (colors: Colors) =>
       backgroundColor: colors.secondaryBackground,
       borderBottomWidth: StyleSheet.hairlineWidth,
       borderBottomColor: colors.border,
+      position: "relative",
+      zIndex: 100,
+      elevation: 6,
     },
     content: {
       flexDirection: "column",
