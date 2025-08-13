@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Transparent background -->
+  <!-- 270-degree arc matching RadialProgressBar component -->
+  <!-- size=120, strokeWidth=12 → radius = (120-12)/2 = 54 -->
+  <!-- arcLength = (270/360) * 2π * 54 ≈ 254.47 -->
+  <!-- 85% progress = 0.85 * 254.47 ≈ 216.3 -->
+  
+  <!-- Gray background arc (full 270 degrees) -->
+  <circle
+    cx="60"
+    cy="60"
+    r="54"
+    fill="none"
+    stroke="#E6E6E6"
+    stroke-width="12"
+    stroke-linecap="round"
+    stroke-dasharray="254.47 339.29"
+    transform="rotate(135 60 60)"
+  />
+
+  <!-- Progress arc (#69F0AE) at 85% -->
+  <circle
+    cx="60"
+    cy="60"
+    r="54"
+    fill="none"
+    stroke="#69F0AE"
+    stroke-width="12"
+    stroke-linecap="round"
+    stroke-dasharray="216.3 339.29"
+    transform="rotate(135 60 60)"
+  />
+</svg>
+

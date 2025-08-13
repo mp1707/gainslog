@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 270-degree radial progress bar at 85% -->
+  <!-- Matching RadialProgressBar component exactly -->
+  <!-- Center: (60,60), Radius: 54, 270° arc starting at bottom-left -->
+  
+  <!-- Background arc (gray, full 270 degrees) -->
+  <!-- Drawn as a single arc path to avoid Figma's dash reset per quadrant -->
+  <path
+    d="M21.816 21.816 A54 54 0 1 1 21.816 98.184"
+    fill="none"
+    stroke="#E6E6E6"
+    stroke-width="12"
+    stroke-linecap="round"
+  />
+
+  <!-- Progress arc (green, 85% of 270 degrees = 229.5 degrees) -->
+  <path
+    d="M21.816 21.816 A54 54 0 1 1 113.835 55.763"
+    fill="none"
+    stroke="#69F0AE"
+    stroke-width="12"
+    stroke-linecap="round"
+  />
+</svg>
+
