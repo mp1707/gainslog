@@ -31,6 +31,8 @@ import { MonthPicker } from "../../src/shared/ui/molecules/MonthPicker";
 import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
 import { AppText } from "src/components";
 import { FunnelIcon } from "phosphor-react-native";
+import { FilterMenuModal } from "@/shared/ui/molecules";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function OverviewTab() {
   // Subscribe to only the needed slices of state with safe defaults
@@ -135,21 +137,19 @@ export default function OverviewTab() {
     [colors, theme, dynamicBottomPadding]
   );
 
-  // Popover animation state
+  // Modal state
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuVisibility = useSharedValue(0);
-
   const toggleMenuOpen = useCallback(() => {
-    setIsMenuOpen((prev) => {
-      const next = !prev;
-      menuVisibility.value = withTiming(next ? 1 : 0, {
-        duration: 180,
-        easing: Easing.out(Easing.quad),
-      });
-      Haptics.selectionAsync();
-      return next;
-    });
-  }, [menuVisibility]);
+    Haptics.selectionAsync();
+    setIsMenuOpen((prev) => !prev);
+  }, []);
+
+  // Close modal when screen loses focus (e.g., navigating away or switching tabs)
+  useFocusEffect(
+    useCallback(() => {
+      return () => setIsMenuOpen(false);
+    }, [])
+  );
 
   // Nutrient filter state
   const [filters, setFilters] = useState({
@@ -273,119 +273,14 @@ export default function OverviewTab() {
             />
           </TouchableOpacity>
         </View>
-
-        {/* Animated non-modal popover */}
-        <Animated.View
-          style={[
-            styles.popover,
-            useAnimatedStyle(() => ({
-              opacity: menuVisibility.value,
-              transform: [
-                {
-                  scale: withTiming(menuVisibility.value ? 1 : 0.95, {
-                    duration: 180,
-                    easing: Easing.out(Easing.quad),
-                  }),
-                },
-              ],
-            })),
-          ]}
-          pointerEvents={isMenuOpen ? "auto" : "none"}
-        >
-          <AppText role="Headline" style={styles.popoverTitle}>
-            Toggle Details
-          </AppText>
-
-          <View style={styles.menuItemRow}>
-            <AppText role="Body" style={styles.menuItemLabel}>
-              Calories
-            </AppText>
-            <TouchableOpacity
-              onPress={() => handleToggleFilter("calories")}
-              accessibilityRole="switch"
-              accessibilityState={{ checked: filters.calories }}
-              style={[
-                styles.switchTrack,
-                !filters.calories && styles.switchTrackOff,
-              ]}
-            >
-              <Animated.View
-                style={[
-                  styles.switchThumb,
-                  filters.calories
-                    ? styles.switchThumbOn
-                    : styles.switchThumbOff,
-                ]}
-              />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.menuItemRow}>
-            <AppText role="Body" style={styles.menuItemLabel}>
-              Protein
-            </AppText>
-            <TouchableOpacity
-              onPress={() => handleToggleFilter("protein")}
-              accessibilityRole="switch"
-              accessibilityState={{ checked: filters.protein }}
-              style={[
-                styles.switchTrack,
-                !filters.protein && styles.switchTrackOff,
-              ]}
-            >
-              <Animated.View
-                style={[
-                  styles.switchThumb,
-                  filters.protein
-                    ? styles.switchThumbOn
-                    : styles.switchThumbOff,
-                ]}
-              />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.menuItemRow}>
-            <AppText role="Body" style={styles.menuItemLabel}>
-              Carbs
-            </AppText>
-            <TouchableOpacity
-              onPress={() => handleToggleFilter("carbs")}
-              accessibilityRole="switch"
-              accessibilityState={{ checked: filters.carbs }}
-              style={[
-                styles.switchTrack,
-                !filters.carbs && styles.switchTrackOff,
-              ]}
-            >
-              <Animated.View
-                style={[
-                  styles.switchThumb,
-                  filters.carbs ? styles.switchThumbOn : styles.switchThumbOff,
-                ]}
-              />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.menuItemRow}>
-            <AppText role="Body" style={styles.menuItemLabel}>
-              Fat
-            </AppText>
-            <TouchableOpacity
-              onPress={() => handleToggleFilter("fat")}
-              accessibilityRole="switch"
-              accessibilityState={{ checked: filters.fat }}
-              style={[
-                styles.switchTrack,
-                !filters.fat && styles.switchTrackOff,
-              ]}
-            >
-              <Animated.View
-                style={[
-                  styles.switchThumb,
-                  filters.fat ? styles.switchThumbOn : styles.switchThumbOff,
-                ]}
-              />
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
       </PageHeader>
+
+      <FilterMenuModal
+        visible={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        filters={filters}
+        onToggle={handleToggleFilter}
+      />
 
       <FlatList
         data={transformedDailyData}
@@ -471,24 +366,7 @@ function createStyles(colors: any, themeObj: any, bottomPadding?: number) {
       backgroundColor:
         colors.iconBadges?.background || colors.disabledBackground,
     },
-    popover: {
-      position: "absolute",
-      right: spacing.pageMargins.horizontal,
-      top: spacing.md + 44, // below the header row
-      backgroundColor: colors.secondaryBackground,
-      borderRadius: 20,
-      padding: spacing.md,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border,
-      shadowColor: "#000",
-      shadowOpacity: 0.08,
-      shadowRadius: 12,
-      shadowOffset: { width: 0, height: 6 },
-      width: 240,
-      gap: spacing.sm,
-      zIndex: 200,
-      elevation: 8,
-    },
+    // removed popover styles (using modal)
     popoverTitle: {
       marginBottom: spacing.xs,
     },
