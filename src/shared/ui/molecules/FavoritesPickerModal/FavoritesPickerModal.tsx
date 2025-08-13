@@ -49,10 +49,11 @@ export const FavoritesPickerModal: React.FC<FavoritesPickerModalProps> = ({
           <TouchableOpacity
             onPress={onClose}
             accessibilityRole="button"
-            accessibilityLabel="Close"
+            accessibilityLabel="Cancel"
+            hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
           >
-            <AppText role="Button" style={styles.closeText}>
-              Close
+            <AppText role="Headline" style={styles.closeText}>
+              Cancel
             </AppText>
           </TouchableOpacity>
         </View>

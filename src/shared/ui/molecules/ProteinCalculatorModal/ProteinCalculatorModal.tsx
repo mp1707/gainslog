@@ -119,7 +119,12 @@ export const ProteinCalculatorModal: React.FC<ProteinCalculatorModalProps> = ({
 
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={onClose}>
+          <TouchableOpacity
+            onPress={onClose}
+            accessibilityRole="button"
+            accessibilityLabel="Cancel"
+            hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
+          >
             <Text style={styles.cancelButton}>Cancel</Text>
           </TouchableOpacity>
           <Text style={styles.title}>Protein Calculator</Text>

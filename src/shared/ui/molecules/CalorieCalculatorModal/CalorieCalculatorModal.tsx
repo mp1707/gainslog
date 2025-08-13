@@ -226,6 +226,9 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
         <View style={styles.header}>
           <TouchableOpacity
             onPress={currentStep > 0 ? handlePrevStep : onClose}
+            accessibilityRole="button"
+            accessibilityLabel={currentStep > 0 ? "Go back" : "Cancel"}
+            hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
           >
             {currentStep > 0 ? (
               <CaretLeftIcon size={24} color={styles.cancelButton.color} />

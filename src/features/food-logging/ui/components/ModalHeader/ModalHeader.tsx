@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { ModalMode } from '@/types';
-import { useStyles } from './ModalHeader.styles';
+import React from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { ModalMode } from "@/types";
+import { useStyles } from "./ModalHeader.styles";
 
 interface ModalHeaderProps {
   mode: ModalMode;
@@ -20,23 +20,22 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({
 
   return (
     <View style={styles.header}>
-      <TouchableOpacity onPress={onCancel}>
-        <Text style={styles.cancelButton}>
-          Cancel
-        </Text>
+      <TouchableOpacity
+        onPress={onCancel}
+        accessibilityRole="button"
+        accessibilityLabel="Cancel"
+        hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
+      >
+        <Text style={styles.cancelButton}>Cancel</Text>
       </TouchableOpacity>
       <Text style={styles.title}>
-        {mode === 'create' ? 'Add Food Log' : 'Edit Food Log'}
+        {mode === "create" ? "Add Food Log" : "Edit Food Log"}
       </Text>
-      <TouchableOpacity 
-        onPress={onSave}
-        disabled={isUploading}
-      >
-        <Text style={[
-          styles.saveButton,
-          isUploading && styles.saveButtonDisabled
-        ]}>
-          {isUploading ? 'Uploading...' : 'Save'}
+      <TouchableOpacity onPress={onSave} disabled={isUploading}>
+        <Text
+          style={[styles.saveButton, isUploading && styles.saveButtonDisabled]}
+        >
+          {isUploading ? "Uploading..." : "Save"}
         </Text>
       </TouchableOpacity>
     </View>
