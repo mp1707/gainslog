@@ -241,7 +241,9 @@ export const DailySummaryCard = React.memo(function DailySummaryCard({
         <Card elevated={false}>
           <View style={styles.row}>
             <View style={styles.dateColumn}>
-              <AppText role="Headline">{formattedDate}</AppText>
+              <AppText role="Subhead" style={{ color: colors.secondaryText }}>
+                {formattedDate}
+              </AppText>
             </View>
             <View style={styles.metricsColumn}>{metricsContent}</View>
           </View>

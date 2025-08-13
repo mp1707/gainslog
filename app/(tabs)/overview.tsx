@@ -240,7 +240,6 @@ export default function OverviewTab() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.legendRow}
         >
-          <AppText role="Caption">Filter: </AppText>
           <FilterBadge
             type="calories"
             label="Calories"

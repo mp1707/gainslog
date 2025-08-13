@@ -63,7 +63,7 @@ const createStyles = (theme: any) =>
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: theme.spacing.xs,
       borderRadius: theme.spacing.sm,
-      minHeight: 28,
+      minHeight: 44,
       justifyContent: "center",
       alignItems: "center",
     },

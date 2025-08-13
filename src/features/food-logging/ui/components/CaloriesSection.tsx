@@ -95,7 +95,7 @@ export const CaloriesSection: React.FC<CaloriesSectionProps> = React.memo(
         ) : (
           <Card style={styles.container}>
             <View style={styles.caloriesContent}>
-              <AppText role="Caption" style={styles.caloriesText}>
+              <AppText role="Subhead" style={{ color: colors.secondaryText }}>
                 {caloriesData.current} / {caloriesData.target} kcal
               </AppText>
               <View style={styles.progressBarContainer}>
