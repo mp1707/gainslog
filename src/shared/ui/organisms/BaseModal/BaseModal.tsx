@@ -81,12 +81,16 @@ export const BaseModal: React.FC<BaseModalProps> = ({
 
   useEffect(() => {
     if (visible) {
+      // Reset values for clean start before animating in
+      translateY.value = INITIAL_OFFSET;
+      backdropOpacity.value = 0;
       animateIn();
     } else {
       // Reset values when modal becomes invisible for clean next render
       translateY.value = INITIAL_OFFSET;
       backdropOpacity.value = 0;
     }
+    // No reset on visible = false to prevent flash during dismissal animation
   }, [visible]);
 
   const handleBackdropPress = () => {
