@@ -38,7 +38,10 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
 
     const handlePress = () => {
       if (!disabled) {
-        setIsKeypadVisible(true);
+        // Small delay to ensure smooth animation start
+        requestAnimationFrame(() => {
+          setIsKeypadVisible(true);
+        });
       }
     };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, TouchableOpacity, Text } from "react-native";
 import Animated, {
   useSharedValue,
@@ -34,35 +34,12 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
   const [displayValue, setDisplayValue] = useState(String(initialValue));
   const [hasDecimal, setHasDecimal] = useState(false);
 
-  // Button press animations - declare all shared values at top level
-  const buttonScale0 = useSharedValue(1);
-  const buttonScale1 = useSharedValue(1);
-  const buttonScale2 = useSharedValue(1);
-  const buttonScale3 = useSharedValue(1);
-  const buttonScale4 = useSharedValue(1);
-  const buttonScale5 = useSharedValue(1);
-  const buttonScale6 = useSharedValue(1);
-  const buttonScale7 = useSharedValue(1);
-  const buttonScale8 = useSharedValue(1);
-  const buttonScale9 = useSharedValue(1);
-  const buttonScale10 = useSharedValue(1);
-  const buttonScale11 = useSharedValue(1);
+  // Simplified animation system - single shared value for active button
+  const activeButtonId = useSharedValue<string | null>(null);
+  const buttonScale = useSharedValue(1);
 
-  // Create array reference after all shared values are declared
-  const buttonScales = [
-    buttonScale0,
-    buttonScale1,
-    buttonScale2,
-    buttonScale3,
-    buttonScale4,
-    buttonScale5,
-    buttonScale6,
-    buttonScale7,
-    buttonScale8,
-    buttonScale9,
-    buttonScale10,
-    buttonScale11,
-  ];
+  // Optimized spring configuration for snappy, smooth animations
+  const springConfig = { damping: 20, stiffness: 300, mass: 0.8 };
 
   // Reset state when modal becomes visible
   useEffect(() => {
@@ -73,76 +50,28 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
     }
   }, [visible, initialValue]);
 
-  // Create individual button animated styles to follow Rules of Hooks
-  const button0Style = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScales[0].value }],
-  }));
-  const button1Style = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScales[1].value }],
-  }));
-  const button2Style = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScales[2].value }],
-  }));
-  const button3Style = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScales[3].value }],
-  }));
-  const button4Style = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScales[4].value }],
-  }));
-  const button5Style = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScales[5].value }],
-  }));
-  const button6Style = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScales[6].value }],
-  }));
-  const button7Style = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScales[7].value }],
-  }));
-  const button8Style = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScales[8].value }],
-  }));
-  const button9Style = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScales[9].value }],
-  }));
-  const button10Style = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScales[10].value }],
-  }));
-  const button11Style = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScales[11].value }],
-  }));
+  // Simplified animation function
+  const animateButtonPress = useCallback((buttonId: string) => {
+    activeButtonId.value = buttonId;
+    buttonScale.value = withSpring(0.92, springConfig, () => {
+      buttonScale.value = withSpring(1, springConfig, () => {
+        activeButtonId.value = null;
+      });
+    });
+  }, [activeButtonId, buttonScale, springConfig]);
 
-  // Create array reference for easier access
-  const buttonAnimatedStyles = [
-    button0Style,
-    button1Style,
-    button2Style,
-    button3Style,
-    button4Style,
-    button5Style,
-    button6Style,
-    button7Style,
-    button8Style,
-    button9Style,
-    button10Style,
-    button11Style,
-  ];
-
-  const animateButtonPress = (index: number) => {
-    buttonScales[index].value = withSpring(
-      0.95,
-      { damping: 15, stiffness: 400 },
-      () => {
-        buttonScales[index].value = withSpring(1, {
-          damping: 15,
-          stiffness: 400,
-        });
-      }
-    );
-  };
+  // Single animated style function that applies to any button
+  const createButtonAnimatedStyle = useCallback((buttonId: string) => {
+    return useAnimatedStyle(() => ({
+      transform: [{ 
+        scale: activeButtonId.value === buttonId ? buttonScale.value : 1 
+      }],
+    }));
+  }, [activeButtonId, buttonScale]);
 
   const handleNumberPress = (digit: string) => {
-    const index = digit === "0" ? 9 : parseInt(digit) - 1;
-    animateButtonPress(index);
+    animateButtonPress(`digit-${digit}`);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     if (displayValue === "0" && digit !== ".") {
       setDisplayValue(digit);
@@ -153,7 +82,8 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
   };
 
   const handleDecimalPress = () => {
-    animateButtonPress(10); // Decimal button is at index 10
+    animateButtonPress("decimal");
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     if (!hasDecimal && displayValue.length < 5) {
       setDisplayValue((prev) => prev + ".");
@@ -162,7 +92,8 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
   };
 
   const handleBackspace = () => {
-    animateButtonPress(11); // Backspace button is at index 11
+    animateButtonPress("backspace");
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     if (displayValue.length === 1) {
       setDisplayValue("0");
@@ -186,26 +117,28 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
     return !isNaN(numValue) && numValue >= min && numValue <= max;
   };
 
-  // Digit button component
+  // Digit button component with optimized animation
   const DigitButton: React.FC<{
     digit: string;
-    index: number;
     accessibilityLabel: string;
-  }> = ({ digit, index, accessibilityLabel }) => (
-    <Animated.View
-      style={[styles.digitButtonContainer, buttonAnimatedStyles[index]]}
-    >
-      <TouchableOpacity
-        style={styles.digitButton}
-        onPress={() => handleNumberPress(digit)}
-        accessibilityRole="keyboardkey"
-        accessibilityLabel={accessibilityLabel}
-        activeOpacity={0.7}
-      >
-        <Text style={styles.digitText}>{digit}</Text>
-      </TouchableOpacity>
-    </Animated.View>
-  );
+  }> = ({ digit, accessibilityLabel }) => {
+    const buttonId = `digit-${digit}`;
+    const animatedStyle = createButtonAnimatedStyle(buttonId);
+    
+    return (
+      <Animated.View style={[styles.digitButtonContainer, animatedStyle]}>
+        <TouchableOpacity
+          style={styles.digitButton}
+          onPress={() => handleNumberPress(digit)}
+          accessibilityRole="keyboardkey"
+          accessibilityLabel={accessibilityLabel}
+          activeOpacity={1} // Let our animation handle the visual feedback
+        >
+          <Text style={styles.digitText}>{digit}</Text>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  };
 
   return (
     <BaseModal visible={visible} onClose={onClose}>
@@ -229,23 +162,23 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
         <View style={styles.keypadGrid}>
           {/* Row 1: 1, 2, 3 */}
           <View style={styles.keypadRow}>
-            <DigitButton digit="1" index={0} accessibilityLabel="1" />
-            <DigitButton digit="2" index={1} accessibilityLabel="2" />
-            <DigitButton digit="3" index={2} accessibilityLabel="3" />
+            <DigitButton digit="1" accessibilityLabel="1" />
+            <DigitButton digit="2" accessibilityLabel="2" />
+            <DigitButton digit="3" accessibilityLabel="3" />
           </View>
 
           {/* Row 2: 4, 5, 6 */}
           <View style={styles.keypadRow}>
-            <DigitButton digit="4" index={3} accessibilityLabel="4" />
-            <DigitButton digit="5" index={4} accessibilityLabel="5" />
-            <DigitButton digit="6" index={5} accessibilityLabel="6" />
+            <DigitButton digit="4" accessibilityLabel="4" />
+            <DigitButton digit="5" accessibilityLabel="5" />
+            <DigitButton digit="6" accessibilityLabel="6" />
           </View>
 
           {/* Row 3: 7, 8, 9 */}
           <View style={styles.keypadRow}>
-            <DigitButton digit="7" index={6} accessibilityLabel="7" />
-            <DigitButton digit="8" index={7} accessibilityLabel="8" />
-            <DigitButton digit="9" index={8} accessibilityLabel="9" />
+            <DigitButton digit="7" accessibilityLabel="7" />
+            <DigitButton digit="8" accessibilityLabel="8" />
+            <DigitButton digit="9" accessibilityLabel="9" />
           </View>
 
           {/* Row 4: decimal, 0, backspace */}
@@ -253,7 +186,7 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
             <Animated.View
               style={[
                 styles.digitButtonContainer,
-                buttonAnimatedStyles[10],
+                createButtonAnimatedStyle("decimal"),
               ]}
             >
               <TouchableOpacity
@@ -266,7 +199,7 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
                 accessibilityRole="keyboardkey"
                 accessibilityLabel="decimal point"
                 accessibilityState={{ disabled: hasDecimal }}
-                activeOpacity={0.7}
+                activeOpacity={1}
               >
                 <Text
                   style={[
@@ -279,12 +212,12 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
               </TouchableOpacity>
             </Animated.View>
 
-            <DigitButton digit="0" index={9} accessibilityLabel="0" />
+            <DigitButton digit="0" accessibilityLabel="0" />
 
             <Animated.View
               style={[
                 styles.digitButtonContainer,
-                buttonAnimatedStyles[11],
+                createButtonAnimatedStyle("backspace"),
               ]}
             >
               <TouchableOpacity
@@ -292,7 +225,7 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
                 onPress={handleBackspace}
                 accessibilityRole="keyboardkey"
                 accessibilityLabel="delete last digit"
-                activeOpacity={0.7}
+                activeOpacity={1}
               >
                 <BackspaceIcon
                   size={24}

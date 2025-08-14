@@ -4,6 +4,7 @@ import {
   View,
   Pressable,
   StyleSheet,
+  Dimensions,
 } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -19,6 +20,7 @@ import Animated, {
   withSpring,
   withTiming,
   runOnJS,
+  Easing,
 } from "react-native-reanimated";
 import { createStyles } from "./BaseModal.styles";
 
@@ -40,38 +42,55 @@ export const BaseModal: React.FC<BaseModalProps> = ({
   const { colors } = useTheme();
   const styles = createStyles(colors);
 
-  // Animation configuration - improved for snappier feel
-  const START_OFFSET = 280;
-  const translateY = useSharedValue(START_OFFSET);
+  // Dynamic animation configuration based on screen dimensions
+  const screenHeight = Dimensions.get('window').height;
+  const INITIAL_OFFSET = Math.min(400, screenHeight * 0.4); // Responsive to screen size
+  const DISMISS_OFFSET = screenHeight + 100; // Fully off-screen with buffer
+  
+  const translateY = useSharedValue(INITIAL_OFFSET);
   const backdropOpacity = useSharedValue(0);
   const gestureDirection = useSharedValue<"unknown" | "vertical" | "horizontal">("unknown");
 
-  // Smooth spring configuration consistent with original FilterMenuModal
-  const springConfig = { damping: 24, stiffness: 180, mass: 1 };
-  const closeThreshold = 120;
-  const fastVelocity = 800;
+  // Optimized animation configurations for different scenarios
+  const smoothSpringConfig = { damping: 28, stiffness: 200, mass: 0.9 };
+  const fastSpringConfig = { damping: 32, stiffness: 280, mass: 0.8 };
+  
+  // Smooth dismissal with timing for predictable motion
+  const dismissTimingConfig = {
+    duration: 300,
+    easing: Easing.out(Easing.cubic),
+  };
+  
+  const closeThreshold = 100;
+  const fastVelocity = 600;
 
   const animateIn = () => {
-    translateY.value = START_OFFSET;
-    backdropOpacity.value = withTiming(1, { duration: 160 });
-    translateY.value = withSpring(0, springConfig);
+    // Start from initial offset and animate in with spring
+    translateY.value = INITIAL_OFFSET;
+    backdropOpacity.value = withSpring(1, smoothSpringConfig);
+    translateY.value = withSpring(0, smoothSpringConfig);
   };
 
   const animateOutThenClose = () => {
-    backdropOpacity.value = withTiming(0, { duration: 120 });
-    translateY.value = withTiming(START_OFFSET, { duration: 180 }, () =>
-      runOnJS(onClose)()
-    );
+    // Smooth dismissal using timing animation for predictable motion
+    backdropOpacity.value = withTiming(0, dismissTimingConfig);
+    translateY.value = withTiming(DISMISS_OFFSET, dismissTimingConfig, () => {
+      runOnJS(onClose)();
+    });
   };
 
   useEffect(() => {
     if (visible) {
       animateIn();
+    } else {
+      // Reset values when modal becomes invisible for clean next render
+      translateY.value = INITIAL_OFFSET;
+      backdropOpacity.value = 0;
     }
   }, [visible]);
 
   const handleBackdropPress = () => {
-    Haptics.selectionAsync();
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     animateOutThenClose();
   };
 
@@ -98,7 +117,8 @@ export const BaseModal: React.FC<BaseModalProps> = ({
     onActive: (event) => {
       const { translationX, translationY } = event;
       if (gestureDirection.value === "unknown") {
-        if (Math.abs(translationY) > 12 || Math.abs(translationX) > 12) {
+        // More sensitive gesture detection for better responsiveness
+        if (Math.abs(translationY) > 8 || Math.abs(translationX) > 8) {
           if (Math.abs(translationY) > Math.abs(translationX)) {
             gestureDirection.value = "vertical";
             runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
@@ -108,9 +128,13 @@ export const BaseModal: React.FC<BaseModalProps> = ({
         }
       }
       if (gestureDirection.value === "vertical") {
-        // Only allow dragging downwards
+        // Only allow dragging downwards with smooth following
         if (translationY >= 0) {
           translateY.value = translationY;
+          // Provide visual feedback by adjusting backdrop opacity during swipe
+          const progress = Math.min(1, translationY / (screenHeight * 0.3));
+          const newOpacity = 1 - (progress * 0.4); // Fade backdrop as user swipes
+          backdropOpacity.value = Math.max(0.2, newOpacity);
         }
       }
     },
@@ -118,18 +142,36 @@ export const BaseModal: React.FC<BaseModalProps> = ({
       const { translationY, velocityY } = event;
       if (translationY > closeThreshold || velocityY > fastVelocity) {
         runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
-        backdropOpacity.value = withTiming(0, { duration: 120 });
-        translateY.value = withTiming(START_OFFSET, { duration: 180 }, () =>
-          runOnJS(onClose)()
-        );
+        
+        // Calculate optimal dismissal target based on current position and velocity
+        const currentPosition = translationY;
+        const momentum = velocityY * 0.1; // Factor in velocity for natural feel
+        const dismissTarget = Math.max(DISMISS_OFFSET, currentPosition + momentum);
+        
+        // Smooth continuation of swipe gesture with timing animation
+        const adjustedDuration = Math.max(200, Math.min(400, (dismissTarget - currentPosition) / 2));
+        
+        backdropOpacity.value = withTiming(0, { 
+          duration: adjustedDuration,
+          easing: Easing.out(Easing.quad) 
+        });
+        translateY.value = withTiming(dismissTarget, {
+          duration: adjustedDuration,
+          easing: Easing.out(Easing.quad)
+        }, () => {
+          runOnJS(onClose)();
+        });
       } else {
-        translateY.value = withSpring(0, springConfig);
+        // Smooth spring back to position with backdrop restoration
+        translateY.value = withSpring(0, smoothSpringConfig);
+        backdropOpacity.value = withSpring(1, smoothSpringConfig);
       }
       gestureDirection.value = "unknown";
     },
     onFail: () => {
       gestureDirection.value = "unknown";
-      translateY.value = withSpring(0, springConfig);
+      translateY.value = withSpring(0, smoothSpringConfig);
+      backdropOpacity.value = withSpring(1, smoothSpringConfig);
     },
   });
 

@@ -28,11 +28,12 @@ export const createStyles = (colors: any) =>
       paddingTop: theme.spacing.lg, // 24pt
       paddingHorizontal: theme.spacing.pageMargins.horizontal, // 20pt
       paddingBottom: theme.spacing.xl, // 32pt
+      // Optimized shadow for better animation performance
       shadowColor: colors.primaryText,
-      shadowOffset: { width: 0, height: -4 },
-      shadowOpacity: 0.1,
-      shadowRadius: 12,
-      elevation: 8,
+      shadowOffset: { width: 0, height: -2 },
+      shadowOpacity: 0.06,
+      shadowRadius: 8,
+      elevation: 4,
     },
     displayContainer: {
       alignItems: "center",
@@ -80,11 +81,8 @@ export const createStyles = (colors: any) =>
       borderColor: colors.border,
       justifyContent: "center",
       alignItems: "center",
-      shadowColor: colors.primaryText,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.05,
-      shadowRadius: 4,
-      elevation: 2,
+      // Removed shadows for better animation performance
+      // Use subtle border instead for visual hierarchy
     },
     digitText: {
       fontSize: theme.typography.Title2.fontSize, // 22pt
@@ -101,11 +99,7 @@ export const createStyles = (colors: any) =>
       borderColor: colors.accent,
       justifyContent: "center",
       alignItems: "center",
-      shadowColor: colors.primaryText,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.05,
-      shadowRadius: 4,
-      elevation: 2,
+      // Removed shadows for better animation performance
     },
     disabledButton: {
       backgroundColor: colors.disabledBackground,
@@ -143,11 +137,12 @@ export const createStyles = (colors: any) =>
       borderRadius: theme.components.buttons.cornerRadius, // 12pt
       justifyContent: "center",
       alignItems: "center",
+      // Optimized shadow for better performance
       shadowColor: colors.accent,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.2,
-      shadowRadius: 4,
-      elevation: 3,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.12,
+      shadowRadius: 2,
+      elevation: 2,
     },
     submitButtonText: {
       fontSize: theme.typography.Button.fontSize, // 17pt
