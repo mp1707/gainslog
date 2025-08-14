@@ -1,7 +1,6 @@
-import React, { useState, forwardRef } from "react";
-import { TouchableOpacity, View, Text } from "react-native";
+import React, { useState, useEffect, forwardRef } from "react";
+import { View, Text } from "react-native";
 import { TextInput as RNTextInput } from "react-native";
-import { CustomNumericKeypad } from "@/shared/ui/molecules/CustomNumericKeypad";
 import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./NumericTextInput.styles";
 
@@ -32,31 +31,70 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
     },
     ref
   ) => {
-    const [isKeypadVisible, setIsKeypadVisible] = useState(false);
+    const [inputValue, setInputValue] = useState(value);
+    const [isFocused, setIsFocused] = useState(false);
     const { colors } = useTheme();
     const styles = createStyles(colors);
 
-    const handlePress = () => {
-      if (!disabled) {
-        // Small delay to ensure smooth animation start
-        requestAnimationFrame(() => {
-          setIsKeypadVisible(true);
-        });
+    // Update inputValue when value prop changes
+    useEffect(() => {
+      if (!isFocused) {
+        setInputValue(value);
+      }
+    }, [value, isFocused]);
+
+    const clamp = (val: number) => Math.max(min, Math.min(max, val));
+
+    const handleInputChange = (text: string) => {
+      // Allow empty string, numbers, and single decimal point
+      if (text === '' || /^\d*\.?\d*$/.test(text)) {
+        setInputValue(text);
       }
     };
 
-    const handleKeypadSubmit = (newValue: number) => {
-      onChangeText(String(newValue));
-      setIsKeypadVisible(false);
+    const handleInputBlur = () => {
+      setIsFocused(false);
+      if (inputValue === '') {
+        // Keep empty if user wants it empty (for AI estimation)
+        onChangeText('');
+      } else {
+        const numValue = parseFloat(inputValue);
+        if (isNaN(numValue)) {
+          // Reset to original value if invalid
+          setInputValue(value);
+        } else {
+          const clampedValue = clamp(numValue);
+          const clampedString = String(clampedValue);
+          setInputValue(clampedString);
+          if (clampedString !== value) {
+            onChangeText(clampedString);
+          }
+        }
+      }
     };
 
-    const handleKeypadClose = () => {
-      setIsKeypadVisible(false);
+    const handleInputFocus = () => {
+      if (!disabled) {
+        setIsFocused(true);
+      }
     };
 
-    // Convert string value to number for keypad, default to 0 if empty or invalid
-    const numericValue =
-      value === "" || value === "0" ? 0 : parseFloat(value) || 0;
+    const handleSubmitEditing = () => {
+      if (inputValue === '') {
+        onChangeText('');
+      } else {
+        const numValue = parseFloat(inputValue);
+        if (!isNaN(numValue)) {
+          const clampedValue = clamp(numValue);
+          const clampedString = String(clampedValue);
+          setInputValue(clampedString);
+          if (clampedString !== value) {
+            onChangeText(clampedString);
+          }
+        }
+      }
+      setIsFocused(false);
+    };
 
     const containerStyle = [
       styles.container,
@@ -65,39 +103,35 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
     ];
 
     return (
-      <>
-        <TouchableOpacity
-          style={containerStyle}
-          onPress={handlePress}
-          disabled={disabled}
-          accessibilityRole="button"
+      <View style={containerStyle}>
+        <RNTextInput
+          ref={ref}
+          style={[
+            styles.text,
+            inputValue === '' ? styles.placeholder : styles.value,
+            disabled && styles.disabledText,
+          ]}
+          value={inputValue}
+          onChangeText={handleInputChange}
+          onBlur={handleInputBlur}
+          onFocus={handleInputFocus}
+          onSubmitEditing={handleSubmitEditing}
+          keyboardType="decimal-pad"
+          selectTextOnFocus
+          editable={!disabled}
+          placeholder={placeholder}
+          placeholderTextColor={styles.placeholder.color}
+          accessibilityRole="spinbutton"
           accessibilityLabel={accessibilityLabel || `${placeholder} input`}
-          accessibilityHint={
-            accessibilityHint || "Tap to enter a numeric value"
-          }
-          accessibilityState={{ disabled }}
-          activeOpacity={0.7}
-        >
-          <Text
-            style={[
-              styles.text,
-              value === "" ? styles.placeholder : styles.value,
-              disabled && styles.disabledText,
-            ]}
-          >
-            {value || placeholder}
-          </Text>
-        </TouchableOpacity>
-
-        <CustomNumericKeypad
-          visible={isKeypadVisible}
-          initialValue={numericValue}
-          min={min}
-          max={max}
-          onSubmit={handleKeypadSubmit}
-          onClose={handleKeypadClose}
+          accessibilityHint={accessibilityHint || "Enter a numeric value"}
+          accessibilityValue={{
+            min: min,
+            max: max,
+            now: parseFloat(value) || 0,
+            text: value || placeholder,
+          }}
         />
-      </>
+      </View>
     );
   }
 );

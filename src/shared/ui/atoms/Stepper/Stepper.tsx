@@ -33,6 +33,7 @@ export const Stepper: React.FC<StepperProps> = ({
   type = "default",
   disabled = false,
 }) => {
+  const { colorScheme } = useTheme();
   const [inputValue, setInputValue] = useState(String(value));
   const [isFocused, setIsFocused] = useState(false);
   const { colors } = useTheme();
@@ -227,7 +228,7 @@ export const Stepper: React.FC<StepperProps> = ({
             onFocus={handleInputFocus}
             onSubmitEditing={handleSubmitEditing}
             keyboardType="decimal-pad"
-            returnKeyType="done"
+            keyboardAppearance={colorScheme}
             selectTextOnFocus
             editable={!disabled}
             textAlign="center"

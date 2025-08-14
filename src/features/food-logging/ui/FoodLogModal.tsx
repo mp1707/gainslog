@@ -6,6 +6,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   InteractionManager,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -150,42 +151,48 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
       presentationStyle="pageSheet"
       onRequestClose={() => onClose(false)} // Pass false for system close
     >
-      <SafeAreaView style={styles.container}>
-        <StatusBar style="dark" />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={72} // Account for modal header height
+      >
+        <SafeAreaView style={styles.container}>
+          <StatusBar style="dark" />
 
-        <ModalHeader
-          mode={mode}
-          isUploading={currentLog?.isUploading}
-          onCancel={() => onClose(false)} // Pass false to indicate cancel
-          onSave={handleSave}
-        />
-
-        {form.validationError && (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{form.validationError}</Text>
-          </View>
-        )}
-
-        <ScrollView
-          style={styles.content}
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          {currentLog && <FoodImageDisplay log={currentLog} />}
-
-          <FoodLogFormFields
-            formData={form.formData}
-            currentLog={currentLog}
-            audioRecording={audioRecording}
-            nutritionMode={nutritionMode}
-            onFieldChange={form.updateField}
-            onValidationErrorClear={() => form.setValidationError("")}
-            onNutritionModeChange={handleNutritionModeChange}
-            titleInputRef={titleInputRef}
+          <ModalHeader
+            mode={mode}
+            isUploading={currentLog?.isUploading}
+            onCancel={() => onClose(false)} // Pass false to indicate cancel
+            onSave={handleSave}
           />
-        </ScrollView>
-      </SafeAreaView>
+
+          {form.validationError && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{form.validationError}</Text>
+            </View>
+          )}
+
+          <ScrollView
+            style={styles.content}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            {currentLog && <FoodImageDisplay log={currentLog} />}
+
+            <FoodLogFormFields
+              formData={form.formData}
+              currentLog={currentLog}
+              audioRecording={audioRecording}
+              nutritionMode={nutritionMode}
+              onFieldChange={form.updateField}
+              onValidationErrorClear={() => form.setValidationError("")}
+              onNutritionModeChange={handleNutritionModeChange}
+              titleInputRef={titleInputRef}
+            />
+          </ScrollView>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
