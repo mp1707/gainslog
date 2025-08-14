@@ -8,8 +8,8 @@ import { FavoriteEntry } from "@/types";
 import { createStyles } from "./FavoritesPickerModal.styles";
 import { AppText } from "@/components";
 import { SearchBar } from "@/shared/ui/components";
-import { FavoriteCard } from "@/features/food-logging/ui/FavoriteCard";
-import { PageHeader } from "../PageHeader";
+import { FavoriteCard } from "../FavoriteCard";
+import { PageHeader } from "@/shared/ui/molecules/PageHeader";
 
 interface FavoritesPickerModalProps {
   visible: boolean;

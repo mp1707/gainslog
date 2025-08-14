@@ -3,8 +3,8 @@ import { TouchableOpacity } from "react-native";
 import * as Haptics from "expo-haptics";
 import { StarIcon } from "phosphor-react-native";
 import { useTheme } from "@/providers/ThemeProvider";
-import { FoodLogCardView } from "./FoodLogCardView";
-import { createStyles } from "./FoodLogCard.styles";
+import { FoodLogCardView } from "../../FoodLogCardView";
+import { createStyles } from "../../FoodLogCard.styles";
 import { FavoriteEntry, FoodLog } from "@/types";
 import { useFavoritesStore } from "@/stores/useFavoritesStore";
 

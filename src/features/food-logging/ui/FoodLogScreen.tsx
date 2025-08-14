@@ -17,7 +17,7 @@ import { DateNavigationHeader } from "./components/DateNavigationHeader";
 import { MacronutriensSection } from "./components/MacronutriensSection";
 import { CaloriesSection } from "./components/CaloriesSection";
 import { FoodLogsList } from "./components/FoodLogsList";
-import { FavoritesPickerModal } from "@/shared/ui/molecules/FavoritesPickerModal/FavoritesPickerModal";
+import { FavoritesPickerModal } from "./molecules/FavoritesPickerModal";
 
 interface FoodLogScreenProps {
   isLoadingLogs: boolean;

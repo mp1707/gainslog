@@ -7,7 +7,7 @@ import { useFavoritesStore } from "@/stores/useFavoritesStore";
 import { SearchBar } from "@/shared/ui/components/SearchBar/SearchBar";
 import { FavoriteEntry } from "@/types";
 import { AppText } from "src/components";
-import { FavoriteCard } from "@/features/food-logging/ui/FavoriteCard";
+import { FavoriteCard } from "@/features/food-logging/ui/molecules/FavoriteCard";
 
 export default function FavoritesTab() {
   const { colors, theme } = useTheme();
