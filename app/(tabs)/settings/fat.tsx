@@ -12,6 +12,7 @@ import {
 import { StyleSheet } from "react-native";
 import { Card } from "src/components";
 import { NutritionAccordionContent } from "@/features/settings/ui/molecules/NutritionAccordionContent";
+import { SettingsSection } from "@/shared/ui/molecules/SettingsSection";
 
 export default function FatScreen() {
   const { loadDailyTargets, isLoadingTargets } = useFoodLogStore();
@@ -62,7 +63,11 @@ export default function FatScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <Card style={styles.card}>
+          <SettingsSection
+            title="Daily Fat Target"
+            subtitle="Adjust the percentage of total calories that come from fat"
+          >
+            <Card style={styles.card}>
             <NutritionAccordionContent
               calculationInfo={
                 fatEnabled
@@ -75,7 +80,7 @@ export default function FatScreen() {
                     }
                   : null
               }
-              stepperLabel="Fat is essential for hormone production, nutrient absorption, and long-term energy storage. A scientifically based guideline for fat intake is a proportion of 25% to 35% of total daily calories. Your specific goal determines where you should position yourself within this range: for muscle gain, 25–30% is more suitable to leave more calories available for performance-enhancing carbohydrates. For fat loss, 30–35% is beneficial, as fat supports satiety and helps stabilize hormone production during a calorie deficit. Adjust the percentage of total calories that come from fat here."
+              stepperLabel="Fat is essential for hormone production, nutrient absorption, and long-term energy storage.\n\nScientifically based guideline: 25-35% of total daily calories from fat.\n\n• Muscle gain: 25-30% (leaves more calories for performance-enhancing carbohydrates)\n• Fat loss: 30-35% (fat supports satiety and hormone production during calorie deficit)"
               stepperValue={fatPercentage}
               stepperMin={10}
               stepperMax={Math.round(maxFatPercentage)}
@@ -84,7 +89,8 @@ export default function FatScreen() {
               stepperType="fat"
               stepperDisabled={!fatEnabled}
             />
-          </Card>
+            </Card>
+          </SettingsSection>
         </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
@@ -119,7 +125,7 @@ const createStyles = (
       paddingBottom: bottomPadding || spacing.xl,
     },
     card: {
-      padding: 0, // NutritionAccordionContent handles its own padding
+      padding: spacing.lg,
     },
   });
 };

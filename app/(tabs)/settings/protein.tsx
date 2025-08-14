@@ -10,6 +10,7 @@ import { useKeyboardOffset } from "@/features/settings/hooks/useKeyboardOffset";
 import { StyleSheet } from "react-native";
 import { Card } from "src/components";
 import { NutritionAccordionContent } from "@/features/settings/ui/molecules/NutritionAccordionContent";
+import { SettingsSection } from "@/shared/ui/molecules/SettingsSection";
 
 export default function ProteinScreen() {
   const { loadDailyTargets, isLoadingTargets } = useFoodLogStore();
@@ -69,7 +70,11 @@ export default function ProteinScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <Card style={styles.card}>
+          <SettingsSection
+            title="Daily Protein Target"
+            subtitle="Set your daily protein goal based on your body weight and activity level"
+          >
+            <Card style={styles.card}>
             <NutritionAccordionContent
               calculatorType="protein"
               calculatorDescription="Protein supports muscle growth, repair, and the maintenance of body tissues. Get a personalized protein target based on your body weight."
@@ -96,7 +101,8 @@ export default function ProteinScreen() {
               stepperType="protein"
               stepperDisabled={!proteinEnabled}
             />
-          </Card>
+            </Card>
+          </SettingsSection>
         </ScrollView>
 
         <ProteinCalculatorModal
@@ -138,7 +144,7 @@ const createStyles = (
       paddingBottom: bottomPadding || spacing.xl,
     },
     card: {
-      padding: 0, // NutritionAccordionContent handles its own padding
+      padding: spacing.lg,
     },
   });
 };

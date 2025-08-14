@@ -10,6 +10,7 @@ import { useKeyboardOffset } from "@/features/settings/hooks/useKeyboardOffset";
 import { StyleSheet } from "react-native";
 import { Card } from "src/components";
 import { NutritionAccordionContent } from "@/features/settings/ui/molecules/NutritionAccordionContent";
+import { SettingsSection } from "@/shared/ui/molecules/SettingsSection";
 
 export default function CaloriesScreen() {
   const { loadDailyTargets, isLoadingTargets } = useFoodLogStore();
@@ -66,7 +67,11 @@ export default function CaloriesScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <Card style={styles.card}>
+          <SettingsSection
+            title="Daily Calorie Target"
+            subtitle="Set your daily calorie goal using our calculator or manually adjust the target below"
+          >
+            <Card style={styles.card}>
             <NutritionAccordionContent
               calculatorType="calories"
               calculatorDescription="Calories provide the body with energy to perform all physical and mental activities. Get a personalized calories target based on your body and goals. (Recommended)"
@@ -100,7 +105,8 @@ export default function CaloriesScreen() {
               stepperType="calories"
               stepperDisabled={false}
             />
-          </Card>
+            </Card>
+          </SettingsSection>
         </ScrollView>
 
         <CalorieCalculatorModal
@@ -141,7 +147,7 @@ const createStyles = (
       paddingBottom: bottomPadding || spacing.xl,
     },
     card: {
-      padding: 0, // NutritionAccordionContent handles its own padding
+      padding: spacing.lg,
     },
   });
 };

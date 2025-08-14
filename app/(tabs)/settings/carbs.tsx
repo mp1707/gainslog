@@ -12,6 +12,7 @@ import {
 import { StyleSheet } from "react-native";
 import { Card, AppText } from "src/components";
 import { CalculationInfoCard } from "@/shared/ui/molecules/CalculationInfoCard";
+import { SettingsSection } from "@/shared/ui/molecules/SettingsSection";
 
 export default function CarbsScreen() {
   const { loadDailyTargets, isLoadingTargets } = useFoodLogStore();
@@ -62,25 +63,38 @@ export default function CarbsScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <Card style={styles.card}>
-            {carbsEnabled && (
-              <View style={styles.carbsInfoContainer}>
-                <AppText role="Caption">
-                  Carbohydrates serve as the body's main source of quick and
-                  efficient energy. (You need them for hard workouts!)
-                </AppText>
-                <CalculationInfoCard
-                  type="carbs"
-                  highlightText={`Target: ${Math.round(carbsGrams)} g`}
-                  description={`${Math.round(
-                    ((carbsGrams * 4) /
-                      Math.max(dailyTargets.calories, 1)) *
-                      100
-                  )}% of calories. Remaining calories go to carbohydrates.`}
-                />
-              </View>
-            )}
-          </Card>
+          <SettingsSection
+            title="Daily Carbohydrate Target"
+            subtitle="Your carbohydrate target is automatically calculated from remaining calories"
+          >
+            <Card style={styles.card}>
+              {carbsEnabled ? (
+                <View style={styles.carbsInfoContainer}>
+                  <AppText role="Body" color="secondary" style={styles.descriptionText}>
+                    Carbohydrates serve as the body's main source of quick and efficient energy. They're essential for hard workouts and optimal performance!
+                  </AppText>
+                  <CalculationInfoCard
+                    type="carbs"
+                    highlightText={`Target: ${Math.round(carbsGrams)} g`}
+                    description={`${Math.round(
+                      ((carbsGrams * 4) /
+                        Math.max(dailyTargets.calories, 1)) *
+                        100
+                    )}% of total calories. Remaining calories after protein and fat go to carbohydrates.`}
+                  />
+                  <AppText role="Body" color="secondary" style={styles.infoText}>
+                    Your carbohydrate target updates automatically when you adjust your protein and fat targets.
+                  </AppText>
+                </View>
+              ) : (
+                <View style={styles.disabledContainer}>
+                  <AppText role="Body" color="secondary" style={styles.disabledText}>
+                    Set your protein target first to view your carbohydrate goal.
+                  </AppText>
+                </View>
+              )}
+            </Card>
+          </SettingsSection>
         </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
@@ -115,11 +129,23 @@ const createStyles = (
       paddingBottom: bottomPadding || spacing.xl,
     },
     card: {
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.lg,
+      padding: spacing.lg,
     },
     carbsInfoContainer: {
-      gap: spacing.md,
+      gap: spacing.lg,
+    },
+    descriptionText: {
+      marginBottom: spacing.sm,
+    },
+    infoText: {
+      marginTop: spacing.sm,
+    },
+    disabledContainer: {
+      alignItems: 'center',
+      paddingVertical: spacing.lg,
+    },
+    disabledText: {
+      textAlign: 'center',
     },
   });
 };
