@@ -33,10 +33,6 @@ export default function FatScreen() {
     [colors, themeObj, keyboardOffset]
   );
 
-  useEffect(() => {
-    loadDailyTargets();
-  }, [loadDailyTargets]);
-
   const fatEnabled = isCaloriesSet && isProteinSet;
 
   // Calculate values for display

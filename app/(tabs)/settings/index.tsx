@@ -1,5 +1,11 @@
-import React, { useEffect, useMemo } from "react";
-import { View, ScrollView, KeyboardAvoidingView, TouchableOpacity, Alert } from "react-native";
+import React, { useMemo } from "react";
+import {
+  View,
+  ScrollView,
+  KeyboardAvoidingView,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useTheme } from "@/providers";
@@ -57,10 +63,6 @@ export default function SettingsTab() {
     [colors, themeObj, keyboardOffset]
   );
 
-  useEffect(() => {
-    loadDailyTargets();
-  }, [loadDailyTargets]);
-
   const caloriesEnabled = true;
   const proteinEnabled = isCaloriesSet;
   const fatEnabled = isCaloriesSet && isProteinSet;
@@ -110,14 +112,18 @@ export default function SettingsTab() {
   const { fatGrams, carbsGrams } = calculateMacroValues();
 
   // Determine next step for guidance icon
-  const nextStep = !isCaloriesSet ? "calories" : !isProteinSet ? "protein" : null;
+  const nextStep = !isCaloriesSet
+    ? "calories"
+    : !isProteinSet
+    ? "protein"
+    : null;
 
   return (
-    <KeyboardAvoidingView
-      behavior="padding"
-      style={{ flex: 1 }}
-    >
-      <SafeAreaView style={styles.container} edges={["left", "right"]}>
+    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+      <SafeAreaView
+        style={styles.container}
+        edges={["left", "right", "bottom", "top"]}
+      >
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -138,8 +144,13 @@ export default function SettingsTab() {
             <Card>
               {/* Calories Setting Card */}
               <TouchableOpacity
-                style={[styles.settingCard, { opacity: caloriesEnabled ? 1 : 0.5 }]}
-                onPress={() => handleNavigateToSetting("calories", caloriesEnabled)}
+                style={[
+                  styles.settingCard,
+                  { opacity: caloriesEnabled ? 1 : 0.5 },
+                ]}
+                onPress={() =>
+                  handleNavigateToSetting("calories", caloriesEnabled)
+                }
                 disabled={!caloriesEnabled}
                 accessibilityRole="button"
                 accessibilityLabel="Calories setting"
@@ -168,9 +179,9 @@ export default function SettingsTab() {
                         : "Next step: set calories"
                     }
                   />
-                  <CaretRightIcon 
-                    size={16} 
-                    color={colors.secondaryText} 
+                  <CaretRightIcon
+                    size={16}
+                    color={colors.secondaryText}
                     style={{ marginLeft: 8 }}
                   />
                 </View>
@@ -178,8 +189,14 @@ export default function SettingsTab() {
 
               {/* Protein Setting Card */}
               <TouchableOpacity
-                style={[styles.settingCard, styles.settingCardWithBorder, { opacity: proteinEnabled ? 1 : 0.5 }]}
-                onPress={() => handleNavigateToSetting("protein", proteinEnabled)}
+                style={[
+                  styles.settingCard,
+                  styles.settingCardWithBorder,
+                  { opacity: proteinEnabled ? 1 : 0.5 },
+                ]}
+                onPress={() =>
+                  handleNavigateToSetting("protein", proteinEnabled)
+                }
                 disabled={!proteinEnabled}
                 accessibilityRole="button"
                 accessibilityLabel="Protein setting"
@@ -215,9 +232,9 @@ export default function SettingsTab() {
                       accessibilityLabel="Next step: set protein"
                     />
                   ) : null}
-                  <CaretRightIcon 
-                    size={16} 
-                    color={colors.secondaryText} 
+                  <CaretRightIcon
+                    size={16}
+                    color={colors.secondaryText}
                     style={{ marginLeft: 8 }}
                   />
                 </View>
@@ -225,7 +242,11 @@ export default function SettingsTab() {
 
               {/* Fat Setting Card */}
               <TouchableOpacity
-                style={[styles.settingCard, styles.settingCardWithBorder, { opacity: fatEnabled ? 1 : 0.5 }]}
+                style={[
+                  styles.settingCard,
+                  styles.settingCardWithBorder,
+                  { opacity: fatEnabled ? 1 : 0.5 },
+                ]}
                 onPress={() => handleNavigateToSetting("fat", fatEnabled)}
                 disabled={!fatEnabled}
                 accessibilityRole="button"
@@ -242,7 +263,9 @@ export default function SettingsTab() {
                   </AppText>
                   <AppText role="Caption" color="secondary">
                     {fatEnabled
-                      ? `Target: ${Math.round(fatGrams)} g (${fatPercentage}% of total calories)`
+                      ? `Target: ${Math.round(
+                          fatGrams
+                        )} g (${fatPercentage}% of total calories)`
                       : "Set protein first"}
                   </AppText>
                 </View>
@@ -253,9 +276,9 @@ export default function SettingsTab() {
                       accessibilityLabel="Fat target ready"
                     />
                   )}
-                  <CaretRightIcon 
-                    size={16} 
-                    color={colors.secondaryText} 
+                  <CaretRightIcon
+                    size={16}
+                    color={colors.secondaryText}
                     style={{ marginLeft: 8 }}
                   />
                 </View>
@@ -263,7 +286,11 @@ export default function SettingsTab() {
 
               {/* Carbs Setting Card */}
               <TouchableOpacity
-                style={[styles.settingCard, styles.settingCardWithBorder, { opacity: carbsEnabled ? 1 : 0.5 }]}
+                style={[
+                  styles.settingCard,
+                  styles.settingCardWithBorder,
+                  { opacity: carbsEnabled ? 1 : 0.5 },
+                ]}
                 onPress={() => handleNavigateToSetting("carbs", carbsEnabled)}
                 disabled={!carbsEnabled}
                 accessibilityRole="button"
@@ -291,9 +318,9 @@ export default function SettingsTab() {
                       accessibilityLabel="Carb target ready"
                     />
                   )}
-                  <CaretRightIcon 
-                    size={16} 
-                    color={colors.secondaryText} 
+                  <CaretRightIcon
+                    size={16}
+                    color={colors.secondaryText}
                     style={{ marginLeft: 8 }}
                   />
                 </View>

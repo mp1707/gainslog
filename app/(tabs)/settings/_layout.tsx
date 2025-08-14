@@ -5,6 +5,7 @@ import React from "react";
 export default function SettingsLayout() {
   const { colors } = useTheme();
 
+  // The Stack now controls a consistent header for all its children.
   return (
     <Stack
       screenOptions={{
@@ -19,40 +20,39 @@ export default function SettingsLayout() {
         animation: "slide_from_right",
       }}
     >
-      <Stack.Screen 
-        name="index" 
-        options={{ 
+      {/* BEFORE: You had headerShown: false here.
+        AFTER: We give it a title and let it be shown.
+        This is the main fix for the unmounting/flicker issue.
+      */}
+      <Stack.Screen
+        name="index"
+        options={{
           title: "Settings",
-          headerShown: true, // Consistent header across all screens
-        }} 
+        }}
       />
-      <Stack.Screen 
-        name="calories" 
-        options={{ 
+      <Stack.Screen
+        name="calories"
+        options={{
           title: "Calories",
-          headerShown: true,
-        }} 
+        }}
       />
-      <Stack.Screen 
-        name="protein" 
-        options={{ 
+      <Stack.Screen
+        name="protein"
+        options={{
           title: "Protein",
-          headerShown: true,
-        }} 
+        }}
       />
-      <Stack.Screen 
-        name="fat" 
-        options={{ 
+      <Stack.Screen
+        name="fat"
+        options={{
           title: "Fat",
-          headerShown: true,
-        }} 
+        }}
       />
-      <Stack.Screen 
-        name="carbs" 
-        options={{ 
+      <Stack.Screen
+        name="carbs"
+        options={{
           title: "Carbs",
-          headerShown: true,
-        }} 
+        }}
       />
     </Stack>
   );

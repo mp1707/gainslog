@@ -32,10 +32,6 @@ export default function CarbsScreen() {
     [colors, themeObj, keyboardOffset]
   );
 
-  useEffect(() => {
-    loadDailyTargets();
-  }, [loadDailyTargets]);
-
   const carbsEnabled = isCaloriesSet && isProteinSet;
 
   // Calculate carbs value

@@ -39,10 +39,6 @@ export default function CaloriesScreen() {
     [colors, themeObj, keyboardOffset]
   );
 
-  useEffect(() => {
-    loadDailyTargets();
-  }, [loadDailyTargets]);
-
   // Nutrition configuration for calories
   const caloriesConfig = {
     key: "calories" as const,

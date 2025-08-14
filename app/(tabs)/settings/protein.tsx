@@ -18,11 +18,8 @@ export default function ProteinScreen() {
 
   // Use extracted hooks
   const nutritionCalculations = useNutritionCalculations();
-  const {
-    dailyTargets,
-    isCaloriesSet,
-    handleTargetChange,
-  } = nutritionCalculations;
+  const { dailyTargets, isCaloriesSet, handleTargetChange } =
+    nutritionCalculations;
 
   const {
     isProteinCalculatorVisible,
@@ -40,10 +37,6 @@ export default function ProteinScreen() {
     [colors, themeObj, keyboardOffset]
   );
 
-  useEffect(() => {
-    loadDailyTargets();
-  }, [loadDailyTargets]);
-
   // Nutrition configuration for protein
   const proteinConfig = {
     key: "protein" as const,
@@ -58,7 +51,10 @@ export default function ProteinScreen() {
 
   if (isLoadingTargets) {
     return (
-      <SafeAreaView style={[styles.container, styles.centered]} edges={["left", "right"]}>
+      <SafeAreaView
+        style={[styles.container, styles.centered]}
+        edges={["left", "right"]}
+      >
         {/* Loading state handled by parent navigation */}
       </SafeAreaView>
     );
@@ -94,7 +90,9 @@ export default function ProteinScreen() {
               stepperMin={proteinConfig.min}
               stepperMax={proteinConfig.max}
               stepperStep={proteinConfig.step}
-              onStepperChange={(newValue) => handleTargetChange("protein", newValue)}
+              onStepperChange={(newValue) =>
+                handleTargetChange("protein", newValue)
+              }
               stepperType="protein"
               stepperDisabled={!proteinEnabled}
             />
