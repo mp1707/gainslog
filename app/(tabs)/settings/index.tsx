@@ -98,7 +98,7 @@ export default function SettingsTab() {
     return (
       <SafeAreaView
         style={[styles.container, styles.centered]}
-        edges={["top", "left", "right"]}
+        edges={["left", "right"]}
       >
         <AppText role="Body" color="secondary">
           Loading settings...
@@ -117,7 +117,7 @@ export default function SettingsTab() {
       behavior="padding"
       style={{ flex: 1 }}
     >
-      <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+      <SafeAreaView style={styles.container} edges={["left", "right"]}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}

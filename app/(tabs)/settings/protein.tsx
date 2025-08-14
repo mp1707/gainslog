@@ -58,7 +58,7 @@ export default function ProteinScreen() {
 
   if (isLoadingTargets) {
     return (
-      <SafeAreaView style={[styles.container, styles.centered]} edges={["top", "left", "right"]}>
+      <SafeAreaView style={[styles.container, styles.centered]} edges={["left", "right"]}>
         {/* Loading state handled by parent navigation */}
       </SafeAreaView>
     );
@@ -66,7 +66,7 @@ export default function ProteinScreen() {
 
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-      <SafeAreaView style={styles.container} edges={["left", "right", "bottom"]}>
+      <SafeAreaView style={styles.container} edges={["left", "right"]}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
