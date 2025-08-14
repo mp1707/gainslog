@@ -28,6 +28,7 @@ export default function SettingsLayout() {
         name="index"
         options={{
           title: "Settings",
+          headerShown: false,
         }}
       />
       <Stack.Screen
