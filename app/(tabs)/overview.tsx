@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import {
   FlatList,
   Text,
@@ -6,15 +6,7 @@ import {
   Platform,
   View,
   ListRenderItem,
-  TouchableOpacity,
 } from "react-native";
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
-import * as Haptics from "expo-haptics";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -29,10 +21,6 @@ import {
 import { DailySummaryCard } from "../../src/shared/ui/molecules/DailySummaryCard";
 import { MonthPicker } from "../../src/shared/ui/molecules/MonthPicker";
 import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
-import { AppText } from "src/components";
-import { FunnelIcon } from "phosphor-react-native";
-import { FilterMenuModal } from "@/shared/ui/molecules";
-import { useFocusEffect } from "@react-navigation/native";
 
 export default function OverviewTab() {
   // Subscribe to only the needed slices of state with safe defaults
@@ -137,39 +125,6 @@ export default function OverviewTab() {
     [colors, theme, dynamicBottomPadding]
   );
 
-  // Modal state
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const toggleMenuOpen = useCallback(() => {
-    Haptics.selectionAsync();
-    setIsMenuOpen((prev) => !prev);
-  }, []);
-
-  // Close modal when screen loses focus (e.g., navigating away or switching tabs)
-  useFocusEffect(
-    useCallback(() => {
-      return () => setIsMenuOpen(false);
-    }, [])
-  );
-
-  // Nutrient filter state
-  const [filters, setFilters] = useState({
-    calories: true,
-    protein: true,
-    carbs: true,
-    fat: true,
-  });
-
-  // Memoized filter object for stable reference
-  const memoizedFilters = useMemo(
-    () => filters,
-    [filters.calories, filters.protein, filters.carbs, filters.fat]
-  );
-
-  // Memoized filter toggle handler to prevent unnecessary re-renders
-  const handleToggleFilter = useCallback((key: keyof typeof filters) => {
-    Haptics.selectionAsync();
-    setFilters((prev) => ({ ...prev, [key]: !prev[key] }));
-  }, []);
 
   // Memoized month change handler
   const handleMonthChange = useCallback(
@@ -239,12 +194,11 @@ export default function OverviewTab() {
           protein={item.protein}
           carbs={item.carbs}
           fat={item.fat}
-          visible={memoizedFilters}
           onPress={() => handleDayPress(item.dateIso)}
         />
       </View>
     ),
-    [memoizedFilters, handleDayPress, styles.cardWrap]
+    [handleDayPress, styles.cardWrap]
   );
 
   const keyExtractor = useCallback((d: { dateIso: string }) => d.dateIso, []);
@@ -254,33 +208,11 @@ export default function OverviewTab() {
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <PageHeader>
-        <View style={styles.headerRow}>
-          <MonthPicker
-            selectedMonth={selectedMonth}
-            onMonthChange={handleMonthChange}
-          />
-          <TouchableOpacity
-            onPress={toggleMenuOpen}
-            activeOpacity={0.7}
-            accessibilityRole="button"
-            accessibilityLabel="Toggle details menu"
-            style={styles.filterButton}
-          >
-            <FunnelIcon
-              size={22}
-              color={colors.accent}
-              weight={isMenuOpen ? "fill" : "regular"}
-            />
-          </TouchableOpacity>
-        </View>
+        <MonthPicker
+          selectedMonth={selectedMonth}
+          onMonthChange={handleMonthChange}
+        />
       </PageHeader>
-
-      <FilterMenuModal
-        visible={isMenuOpen}
-        onClose={() => setIsMenuOpen(false)}
-        filters={filters}
-        onToggle={handleToggleFilter}
-      />
 
       <FlatList
         data={transformedDailyData}
@@ -301,7 +233,6 @@ export default function OverviewTab() {
           minIndexForVisible: 0,
           autoscrollToTopThreshold: 10,
         }}
-        extraData={memoizedFilters}
         ListEmptyComponent={() => (
           <Text style={styles.emptyText}>
             No food logs found for this month.
@@ -350,57 +281,6 @@ function createStyles(colors: any, themeObj: any, bottomPadding?: number) {
     },
     stickyHeaderSpacer: {
       height: spacing.sm,
-    },
-    headerRow: {
-      width: "100%",
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-    },
-    filterButton: {
-      height: 40,
-      width: 40,
-      borderRadius: 12,
-      alignItems: "center",
-      justifyContent: "center",
-      backgroundColor:
-        colors.iconBadges?.background || colors.disabledBackground,
-    },
-    // removed popover styles (using modal)
-    popoverTitle: {
-      marginBottom: spacing.xs,
-    },
-    menuItemRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-    },
-    menuItemLabel: {
-      color: colors.primaryText,
-    },
-    switchTrack: {
-      width: 48,
-      height: 28,
-      borderRadius: 16,
-      backgroundColor: colors.accent,
-      padding: 3,
-      justifyContent: "center",
-    },
-    switchTrackOff: {
-      backgroundColor: colors.disabledBackground,
-    },
-    switchThumb: {
-      width: 22,
-      height: 22,
-      borderRadius: 11,
-      backgroundColor: colors.white,
-      transform: [{ translateX: 20 }],
-    },
-    switchThumbOff: {
-      transform: [{ translateX: 0 }],
-    },
-    switchThumbOn: {
-      transform: [{ translateX: 20 }],
     },
   });
 }

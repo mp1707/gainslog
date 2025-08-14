@@ -7,4 +7,3 @@ export { ExpandableFAB } from "./ExpandableFAB";
 export { DescriptionSkeleton } from "./DescriptionSkeleton";
 export { CalculationInfoCard } from "./CalculationInfoCard";
 export { FavoritesPickerModal } from "./FavoritesPickerModal/FavoritesPickerModal";
-export { FilterMenuModal } from "./FilterMenuModal/FilterMenuModal";
