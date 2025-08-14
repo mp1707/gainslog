@@ -66,6 +66,7 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: "Settings",
+          headerShown: false, // Let the stack handle the header
           tabBarIcon: ({ color, focused, size }) => (
             <GearSixIcon
               color={color}
