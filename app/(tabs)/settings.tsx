@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, KeyboardAvoidingView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
@@ -160,271 +160,278 @@ export default function SettingsTab() {
     : null;
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        <SettingsSection
-          title="Appearance"
-          subtitle="Customize the visual appearance of your app"
-        >
-          <AppearanceCard />
-        </SettingsSection>
+    <KeyboardAvoidingView
+      behavior="padding"
+      style={{ flex: 1 }}
 
-        <SettingsSection
-          title="Nutrition Tracking"
-          subtitle="Set up your daily targets"
+    >
+      <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <Card>
-            <AccordionItem
-              title="Calories"
-              subtitle={
-                isCaloriesSet
-                  ? `Target: ${dailyTargets.calories} kcal`
-                  : "Set target"
-              }
-              accessibilityLabel="Calories"
-              rightAccessory={
-                <StatusIcon
-                  type={isCaloriesSet ? "completed" : "next"}
-                  accessibilityLabel={
-                    isCaloriesSet
-                      ? "Calorie target completed"
-                      : "Next step: set calories"
-                  }
-                />
-              }
-              disabled={!caloriesEnabled}
-              expanded={expandedStep === "calories"}
-              onToggle={() =>
-                setExpandedStep((prev) =>
-                  prev === "calories" ? null : "calories"
-                )
-              }
-              isFirst
-            >
-              <NutritionAccordionContent
-                calculatorType="calories"
-                calculatorDescription="Calories provide the body with energy to perform all physical and mental activities. Get a personalized calories target based on your body and goals. (Recommended)"
-                onCalculatorPress={() => setIsCalorieCalculatorVisible(true)}
-                calculationInfo={
-                  calorieCalculation
-                    ? {
-                        type: "calories",
-                        headerTitle:
-                          calorieCalculation.goalType === "lose"
-                            ? "Lose Weight"
-                            : calorieCalculation.goalType === "maintain"
-                            ? "Maintain Weight"
-                            : "Gain Weight",
-                        headerSubtitle: `${
-                          calorieCalculation.params.sex === "male"
-                            ? "Male"
-                            : "Female"
-                        }, ${calorieCalculation.params.age} years, ${
-                          calorieCalculation.params.weight
-                        }kg, ${calorieCalculation.params.height}cm`,
-                        highlightText: `Activity Level: ${calorieCalculation.method.label}`,
-                        description: calorieCalculation.method.description,
-                      }
-                    : null
-                }
-                stepperLabel="Or set your own target below."
-                stepperValue={dailyTargets.calories}
-                stepperMin={nutritionConfigs[0].min}
-                stepperMax={nutritionConfigs[0].max}
-                stepperStep={nutritionConfigs[0].step}
-                onStepperChange={(newValue) =>
-                  handleTargetChange("calories", newValue)
-                }
-                stepperType="calories"
-                stepperDisabled={false}
-              />
-            </AccordionItem>
+          <SettingsSection
+            title="Appearance"
+            subtitle="Customize the visual appearance of your app"
+          >
+            <AppearanceCard />
+          </SettingsSection>
 
-            <AccordionItem
-              title="Protein"
-              subtitle={
-                proteinEnabled
-                  ? isProteinSet
-                    ? `Target: ${dailyTargets.protein} g`
+          <SettingsSection
+            title="Nutrition Tracking"
+            subtitle="Set up your daily targets"
+          >
+            <Card>
+              <AccordionItem
+                title="Calories"
+                subtitle={
+                  isCaloriesSet
+                    ? `Target: ${dailyTargets.calories} kcal`
                     : "Set target"
-                  : "Set calories first"
-              }
-              accessibilityLabel="Protein target"
-              rightAccessory={
-                isProteinSet ? (
-                  <StatusIcon
-                    type="completed"
-                    accessibilityLabel="Protein target completed"
-                  />
-                ) : nextStep === "protein" ? (
-                  <StatusIcon
-                    type="next"
-                    accessibilityLabel="Next step: set protein"
-                  />
-                ) : null
-              }
-              disabled={!proteinEnabled}
-              expanded={expandedStep === "protein"}
-              onToggle={() =>
-                setExpandedStep((prev) =>
-                  prev === "protein" ? null : "protein"
-                )
-              }
-            >
-              <NutritionAccordionContent
-                calculatorType="protein"
-                calculatorDescription="Protein supports muscle growth, repair, and the maintenance of body tissues. Get a personalized protein target based on your body weight."
-                onCalculatorPress={() => setIsProteinCalculatorVisible(true)}
-                calculationInfo={
-                  proteinCalculation
-                    ? {
-                        type: "protein",
-                        headerTitle: proteinCalculation.method.title,
-                        headerSubtitle: `${proteinCalculation.bodyWeight}kg body weight`,
-                        highlightText: `Recommended: ${proteinCalculation.calculatedProtein}g daily`,
-                        description: proteinCalculation.method.description,
-                      }
-                    : null
                 }
-                stepperLabel="Set your own target below."
-                stepperValue={dailyTargets.protein}
-                stepperMin={nutritionConfigs[1].min}
-                stepperMax={nutritionConfigs[1].max}
-                stepperStep={nutritionConfigs[1].step}
-                onStepperChange={(newValue) =>
-                  handleTargetChange("protein", newValue)
+                accessibilityLabel="Calories"
+                rightAccessory={
+                  <StatusIcon
+                    type={isCaloriesSet ? "completed" : "next"}
+                    accessibilityLabel={
+                      isCaloriesSet
+                        ? "Calorie target completed"
+                        : "Next step: set calories"
+                    }
+                  />
                 }
-                stepperType="protein"
-                stepperDisabled={!proteinEnabled}
-              />
-            </AccordionItem>
+                disabled={!caloriesEnabled}
+                expanded={expandedStep === "calories"}
+                onToggle={() =>
+                  setExpandedStep((prev) =>
+                    prev === "calories" ? null : "calories"
+                  )
+                }
+                isFirst
+              >
+                <NutritionAccordionContent
+                  calculatorType="calories"
+                  calculatorDescription="Calories provide the body with energy to perform all physical and mental activities. Get a personalized calories target based on your body and goals. (Recommended)"
+                  onCalculatorPress={() => setIsCalorieCalculatorVisible(true)}
+                  calculationInfo={
+                    calorieCalculation
+                      ? {
+                          type: "calories",
+                          headerTitle:
+                            calorieCalculation.goalType === "lose"
+                              ? "Lose Weight"
+                              : calorieCalculation.goalType === "maintain"
+                              ? "Maintain Weight"
+                              : "Gain Weight",
+                          headerSubtitle: `${
+                            calorieCalculation.params.sex === "male"
+                              ? "Male"
+                              : "Female"
+                          }, ${calorieCalculation.params.age} years, ${
+                            calorieCalculation.params.weight
+                          }kg, ${calorieCalculation.params.height}cm`,
+                          highlightText: `Activity Level: ${calorieCalculation.method.label}`,
+                          description: calorieCalculation.method.description,
+                        }
+                      : null
+                  }
+                  stepperLabel="Or set your own target below."
+                  stepperValue={dailyTargets.calories}
+                  stepperMin={nutritionConfigs[0].min}
+                  stepperMax={nutritionConfigs[0].max}
+                  stepperStep={nutritionConfigs[0].step}
+                  onStepperChange={(newValue) =>
+                    handleTargetChange("calories", newValue)
+                  }
+                  stepperType="calories"
+                  stepperDisabled={false}
+                />
+              </AccordionItem>
 
-            <AccordionItem
-              title="Fat"
-              subtitle={
-                fatEnabled
-                  ? `Target: ${Math.round(
-                      fatGrams
-                    )} g (${fatPercentage}% of total calories)`
-                  : "Set protein first"
-              }
-              accessibilityLabel="Fat target"
-              rightAccessory={
-                fatEnabled ? (
-                  <StatusIcon
-                    type="completed"
-                    accessibilityLabel="Fat target ready"
-                  />
-                ) : null
-              }
-              disabled={!fatEnabled}
-              expanded={expandedStep === "fat"}
-              onToggle={() =>
-                setExpandedStep((prev) => (prev === "fat" ? null : "fat"))
-              }
-            >
-              <NutritionAccordionContent
-                calculationInfo={
+              <AccordionItem
+                title="Protein"
+                subtitle={
+                  proteinEnabled
+                    ? isProteinSet
+                      ? `Target: ${dailyTargets.protein} g`
+                      : "Set target"
+                    : "Set calories first"
+                }
+                accessibilityLabel="Protein target"
+                rightAccessory={
+                  isProteinSet ? (
+                    <StatusIcon
+                      type="completed"
+                      accessibilityLabel="Protein target completed"
+                    />
+                  ) : nextStep === "protein" ? (
+                    <StatusIcon
+                      type="next"
+                      accessibilityLabel="Next step: set protein"
+                    />
+                  ) : null
+                }
+                disabled={!proteinEnabled}
+                expanded={expandedStep === "protein"}
+                onToggle={() =>
+                  setExpandedStep((prev) =>
+                    prev === "protein" ? null : "protein"
+                  )
+                }
+              >
+                <NutritionAccordionContent
+                  calculatorType="protein"
+                  calculatorDescription="Protein supports muscle growth, repair, and the maintenance of body tissues. Get a personalized protein target based on your body weight."
+                  onCalculatorPress={() => setIsProteinCalculatorVisible(true)}
+                  calculationInfo={
+                    proteinCalculation
+                      ? {
+                          type: "protein",
+                          headerTitle: proteinCalculation.method.title,
+                          headerSubtitle: `${proteinCalculation.bodyWeight}kg body weight`,
+                          highlightText: `Recommended: ${proteinCalculation.calculatedProtein}g daily`,
+                          description: proteinCalculation.method.description,
+                        }
+                      : null
+                  }
+                  stepperLabel="Set your own target below."
+                  stepperValue={dailyTargets.protein}
+                  stepperMin={nutritionConfigs[1].min}
+                  stepperMax={nutritionConfigs[1].max}
+                  stepperStep={nutritionConfigs[1].step}
+                  onStepperChange={(newValue) =>
+                    handleTargetChange("protein", newValue)
+                  }
+                  stepperType="protein"
+                  stepperDisabled={!proteinEnabled}
+                />
+              </AccordionItem>
+
+              <AccordionItem
+                title="Fat"
+                subtitle={
                   fatEnabled
-                    ? {
-                        type: "fat",
-                        highlightText: `Current: ${Math.round(
-                          fatGrams
-                        )} g • ${fatPercentage}%`,
-                        description: `Maximum allowed based on your protein and calories: ${Math.round(
-                          maxFatPercentage
-                        )}%`,
-                      }
-                    : null
+                    ? `Target: ${Math.round(
+                        fatGrams
+                      )} g (${fatPercentage}% of total calories)`
+                    : "Set protein first"
                 }
-                stepperLabel="Fat is essential for hormone production, nutrient absorption, and long-term energy storage. A scientifically based guideline for fat intake is a proportion of 25% to 35% of total daily calories. Your specific goal determines where you should position yourself within this range: for muscle gain, 25–30% is more suitable to leave more calories available for performance-enhancing carbohydrates. For fat loss, 30–35% is beneficial, as fat supports satiety and helps stabilize hormone production during a calorie deficit. Adjust the percentage of total calories that come from fat here. "
-                stepperValue={fatPercentage}
-                stepperMin={10}
-                stepperMax={Math.round(maxFatPercentage)}
-                stepperStep={1}
-                onStepperChange={handleFatPercentageChange}
-                stepperType="fat"
-                stepperDisabled={!fatEnabled}
-              />
-            </AccordionItem>
+                accessibilityLabel="Fat target"
+                rightAccessory={
+                  fatEnabled ? (
+                    <StatusIcon
+                      type="completed"
+                      accessibilityLabel="Fat target ready"
+                    />
+                  ) : null
+                }
+                disabled={!fatEnabled}
+                expanded={expandedStep === "fat"}
+                onToggle={() =>
+                  setExpandedStep((prev) => (prev === "fat" ? null : "fat"))
+                }
+              >
+                <NutritionAccordionContent
+                  calculationInfo={
+                    fatEnabled
+                      ? {
+                          type: "fat",
+                          highlightText: `Current: ${Math.round(
+                            fatGrams
+                          )} g • ${fatPercentage}%`,
+                          description: `Maximum allowed based on your protein and calories: ${Math.round(
+                            maxFatPercentage
+                          )}%`,
+                        }
+                      : null
+                  }
+                  stepperLabel="Fat is essential for hormone production, nutrient absorption, and long-term energy storage. A scientifically based guideline for fat intake is a proportion of 25% to 35% of total daily calories. Your specific goal determines where you should position yourself within this range: for muscle gain, 25–30% is more suitable to leave more calories available for performance-enhancing carbohydrates. For fat loss, 30–35% is beneficial, as fat supports satiety and helps stabilize hormone production during a calorie deficit. Adjust the percentage of total calories that come from fat here. "
+                  stepperValue={fatPercentage}
+                  stepperMin={10}
+                  stepperMax={Math.round(maxFatPercentage)}
+                  stepperStep={1}
+                  onStepperChange={handleFatPercentageChange}
+                  stepperType="fat"
+                  stepperDisabled={!fatEnabled}
+                />
+              </AccordionItem>
 
-            <AccordionItem
-              title="Carbs"
-              subtitle={
-                carbsEnabled
-                  ? `Target: ${Math.round(carbsGrams)} g (rest of calories)`
-                  : "Set protein first"
-              }
-              accessibilityLabel="Carb target"
-              rightAccessory={
-                carbsEnabled ? (
-                  <StatusIcon
-                    type="completed"
-                    accessibilityLabel="Carb target ready"
-                  />
-                ) : null
-              }
-              disabled={!carbsEnabled}
-              expanded={expandedStep === "carbs"}
-              onToggle={() =>
-                setExpandedStep((prev) => (prev === "carbs" ? null : "carbs"))
-              }
-            >
-              {carbsEnabled && (
-                <View style={styles.carbsInfoContainer}>
-                  <AppText role="Caption">
-                    Carbohydrates serve as the body’s main source of quick and
-                    efficient energy. (You need them for hard workouts!)
-                  </AppText>
-                  <CalculationInfoCard
-                    type="carbs"
-                    highlightText={`Target: ${Math.round(carbsGrams)} g`}
-                    description={`${Math.round(
-                      ((carbsGrams * 4) / Math.max(dailyTargets.calories, 1)) *
-                        100
-                    )}% of calories. Remaining calories go to carbohydrates.`}
-                  />
-                </View>
-              )}
-            </AccordionItem>
-          </Card>
+              <AccordionItem
+                title="Carbs"
+                subtitle={
+                  carbsEnabled
+                    ? `Target: ${Math.round(carbsGrams)} g (rest of calories)`
+                    : "Set protein first"
+                }
+                accessibilityLabel="Carb target"
+                rightAccessory={
+                  carbsEnabled ? (
+                    <StatusIcon
+                      type="completed"
+                      accessibilityLabel="Carb target ready"
+                    />
+                  ) : null
+                }
+                disabled={!carbsEnabled}
+                expanded={expandedStep === "carbs"}
+                onToggle={() =>
+                  setExpandedStep((prev) => (prev === "carbs" ? null : "carbs"))
+                }
+              >
+                {carbsEnabled && (
+                  <View style={styles.carbsInfoContainer}>
+                    <AppText role="Caption">
+                      Carbohydrates serve as the body’s main source of quick and
+                      efficient energy. (You need them for hard workouts!)
+                    </AppText>
+                    <CalculationInfoCard
+                      type="carbs"
+                      highlightText={`Target: ${Math.round(carbsGrams)} g`}
+                      description={`${Math.round(
+                        ((carbsGrams * 4) /
+                          Math.max(dailyTargets.calories, 1)) *
+                          100
+                      )}% of calories. Remaining calories go to carbohydrates.`}
+                    />
+                  </View>
+                )}
+              </AccordionItem>
+            </Card>
 
-          <View style={styles.resetButtonContainer}>
-            <Button
-              onPress={handleResetTargets}
-              variant="destructive"
-              size="medium"
-              shape="round"
-              accessibilityLabel="Reset daily targets"
-              accessibilityHint="Resets all nutrition targets to zero and clears saved calculations"
-              style={styles.resetButton}
-            >
-              <AppText role="Button" color="white">
-                Reset daily targets
-              </AppText>
-            </Button>
-          </View>
-        </SettingsSection>
-      </ScrollView>
+            <View style={styles.resetButtonContainer}>
+              <Button
+                onPress={handleResetTargets}
+                variant="destructive"
+                size="medium"
+                shape="round"
+                accessibilityLabel="Reset daily targets"
+                accessibilityHint="Resets all nutrition targets to zero and clears saved calculations"
+                style={styles.resetButton}
+              >
+                <AppText role="Button" color="white">
+                  Reset daily targets
+                </AppText>
+              </Button>
+            </View>
+          </SettingsSection>
+        </ScrollView>
 
-      <ProteinCalculatorModal
-        visible={isProteinCalculatorVisible}
-        onClose={() => setIsProteinCalculatorVisible(false)}
-        onSelectMethod={handleProteinCalculationSelect}
-        initialBodyWeight={proteinCalculation?.bodyWeight}
-      />
+        <ProteinCalculatorModal
+          visible={isProteinCalculatorVisible}
+          onClose={() => setIsProteinCalculatorVisible(false)}
+          onSelectMethod={handleProteinCalculationSelect}
+          initialBodyWeight={proteinCalculation?.bodyWeight}
+        />
 
-      <CalorieCalculatorModal
-        visible={isCalorieCalculatorVisible}
-        onClose={() => setIsCalorieCalculatorVisible(false)}
-        onSelectGoal={handleCalorieGoalSelect}
-      />
-    </SafeAreaView>
+        <CalorieCalculatorModal
+          visible={isCalorieCalculatorVisible}
+          onClose={() => setIsCalorieCalculatorVisible(false)}
+          onSelectGoal={handleCalorieGoalSelect}
+        />
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 

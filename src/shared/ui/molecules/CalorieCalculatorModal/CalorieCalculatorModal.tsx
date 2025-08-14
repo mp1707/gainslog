@@ -219,38 +219,39 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <View style={styles.container}>
-        <StatusBar style="dark" />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior="padding"
+        keyboardVerticalOffset={73}
+      >
+        <View style={styles.container}>
+          <StatusBar style="dark" />
 
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={currentStep > 0 ? handlePrevStep : onClose}
-            accessibilityRole="button"
-            accessibilityLabel={currentStep > 0 ? "Go back" : "Cancel"}
-            hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
-          >
-            {currentStep > 0 ? (
-              <CaretLeftIcon size={24} color={styles.cancelButton.color} />
-            ) : (
-              <Text style={styles.cancelButton}>Cancel</Text>
-            )}
-          </TouchableOpacity>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>{getStepTitle()}</Text>
-            <Text style={styles.stepIndicator}>
-              Step {currentStep + 1} of 3
-            </Text>
+          {/* Header */}
+          <View style={styles.header}>
+            <TouchableOpacity
+              onPress={currentStep > 0 ? handlePrevStep : onClose}
+              accessibilityRole="button"
+              accessibilityLabel={currentStep > 0 ? "Go back" : "Cancel"}
+              hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
+            >
+              {currentStep > 0 ? (
+                <CaretLeftIcon size={24} color={styles.cancelButton.color} />
+              ) : (
+                <Text style={styles.cancelButton}>Cancel</Text>
+              )}
+            </TouchableOpacity>
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>{getStepTitle()}</Text>
+              <Text style={styles.stepIndicator}>
+                Step {currentStep + 1} of 3
+              </Text>
+            </View>
+            <View style={styles.headerSpacer} />
           </View>
-          <View style={styles.headerSpacer} />
-        </View>
 
-        {/* Content */}
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior="padding"
-          keyboardVerticalOffset={0}
-        >
+          {/* Content */}
+
           <ScrollView
             style={styles.content}
             contentContainerStyle={[
@@ -418,8 +419,8 @@ export const CalorieCalculatorModal: React.FC<CalorieCalculatorModalProps> = ({
               </Text>
             </View>
           </ScrollView>
-        </KeyboardAvoidingView>
-      </View>
+        </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
