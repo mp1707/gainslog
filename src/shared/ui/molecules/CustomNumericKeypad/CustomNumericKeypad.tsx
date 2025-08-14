@@ -1,19 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { View, TouchableOpacity, Text, Modal } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withTiming,
-  Easing,
 } from "react-native-reanimated";
 import { useTheme } from "@/providers/ThemeProvider";
 import { BackspaceIcon } from "phosphor-react-native";
+import { BaseModal } from "@/shared/ui/organisms/BaseModal";
 import { createStyles } from "./CustomNumericKeypad.styles";
-import {
-  PanGestureHandler,
-  GestureHandlerRootView,
-} from "react-native-gesture-handler";
 import * as Haptics from "expo-haptics";
 
 interface CustomNumericKeypadProps {
@@ -38,14 +33,6 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
 
   const [displayValue, setDisplayValue] = useState(String(initialValue));
   const [hasDecimal, setHasDecimal] = useState(false);
-
-  // Animation values - consistent with FilterMenuModal
-  const START_OFFSET = 280;
-  const backdropOpacity = useSharedValue(0);
-  const keypadTranslateY = useSharedValue(START_OFFSET);
-  const gestureDirection = useSharedValue<
-    "unknown" | "vertical" | "horizontal"
-  >("unknown");
 
   // Button press animations - declare all shared values at top level
   const buttonScale0 = useSharedValue(1);
@@ -83,86 +70,8 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
       const initialStr = String(initialValue);
       setDisplayValue(initialStr);
       setHasDecimal(initialStr.includes("."));
-
-      // Animate in (subtle)
-      backdropOpacity.value = withTiming(1, {
-        duration: 160,
-        easing: Easing.out(Easing.quad),
-      });
-      keypadTranslateY.value = withSpring(0, {
-        damping: 24,
-        stiffness: 180,
-        mass: 1,
-      });
-    } else {
-      // Animate out
-      backdropOpacity.value = withTiming(0, {
-        duration: 120,
-        easing: Easing.in(Easing.quad),
-      });
-      keypadTranslateY.value = withTiming(START_OFFSET, {
-        duration: 180,
-        easing: Easing.in(Easing.quad),
-      });
     }
-  }, [visible]);
-
-  // Always create animated styles - moved outside of conditional logic
-  const animatedBackdropStyle = useAnimatedStyle(() => ({
-    opacity: backdropOpacity.value,
-  }));
-
-  const animatedKeypadStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: keypadTranslateY.value }],
-  }));
-
-  // Swipe down to close
-  const gestureHandler = {
-    onGestureEvent: (e: any) => {},
-  } as any; // placeholder to satisfy TS before defining handler below
-
-  const onGesture = (event: any) => {
-    const { translationX, translationY } = event;
-    if (gestureDirection.value === "unknown") {
-      if (Math.abs(translationY) > 12 || Math.abs(translationX) > 12) {
-        if (Math.abs(translationY) > Math.abs(translationX)) {
-          gestureDirection.value = "vertical";
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        } else {
-          gestureDirection.value = "horizontal";
-        }
-      }
-    }
-    if (gestureDirection.value === "vertical") {
-      if (translationY >= 0) {
-        keypadTranslateY.value = translationY;
-      }
-    }
-  };
-
-  const onGestureEnd = (event: any) => {
-    const { translationY, velocityY } = event;
-    const closeThreshold = 120;
-    const fastVelocity = 800;
-    if (translationY > closeThreshold || velocityY > fastVelocity) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      backdropOpacity.value = withTiming(0, { duration: 120 });
-      keypadTranslateY.value = withTiming(
-        START_OFFSET,
-        { duration: 180 },
-        () => {
-          onClose();
-        }
-      );
-    } else {
-      keypadTranslateY.value = withSpring(0, {
-        damping: 24,
-        stiffness: 180,
-        mass: 1,
-      });
-    }
-    gestureDirection.value = "unknown";
-  };
+  }, [visible, initialValue]);
 
   // Create individual button animated styles to follow Rules of Hooks
   const button0Style = useAnimatedStyle(() => ({
@@ -269,12 +178,7 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
     const numValue = parseFloat(displayValue);
     if (!isNaN(numValue) && numValue >= min && numValue <= max) {
       onSubmit(numValue);
-      onClose();
     }
-  };
-
-  const handleClose = () => {
-    onClose();
   };
 
   const isValidValue = () => {
@@ -304,162 +208,137 @@ export const CustomNumericKeypad: React.FC<CustomNumericKeypadProps> = ({
   );
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="none"
-      onRequestClose={handleClose}
-    >
-      {visible && (
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <Animated.View style={[styles.backdrop, animatedBackdropStyle]}>
-            <TouchableOpacity
-              style={styles.backdropTouchable}
-              onPress={handleClose}
-              activeOpacity={1}
-              accessibilityRole="button"
-              accessibilityLabel="Close keypad"
-            />
-          </Animated.View>
-          {/* Bottom underlay to prevent visual gap during bounce overshoot */}
-          <View pointerEvents="none" style={styles.bottomUnderlay} />
+    <BaseModal visible={visible} onClose={onClose}>
+      <View style={styles.keypadContainer}>
+        {/* Display */}
+        <View style={styles.displayContainer}>
+          <Text
+            style={styles.displayText}
+            accessibilityRole="text"
+            accessibilityLabel={`Current value: ${displayValue}`}
+            accessibilityLiveRegion="polite"
+          >
+            {displayValue}
+          </Text>
+          <Text style={styles.rangeText}>
+            {min} - {max}
+          </Text>
+        </View>
 
-          <PanGestureHandler onGestureEvent={onGesture} onEnded={onGestureEnd}>
+        {/* Keypad Grid */}
+        <View style={styles.keypadGrid}>
+          {/* Row 1: 1, 2, 3 */}
+          <View style={styles.keypadRow}>
+            <DigitButton digit="1" index={0} accessibilityLabel="1" />
+            <DigitButton digit="2" index={1} accessibilityLabel="2" />
+            <DigitButton digit="3" index={2} accessibilityLabel="3" />
+          </View>
+
+          {/* Row 2: 4, 5, 6 */}
+          <View style={styles.keypadRow}>
+            <DigitButton digit="4" index={3} accessibilityLabel="4" />
+            <DigitButton digit="5" index={4} accessibilityLabel="5" />
+            <DigitButton digit="6" index={5} accessibilityLabel="6" />
+          </View>
+
+          {/* Row 3: 7, 8, 9 */}
+          <View style={styles.keypadRow}>
+            <DigitButton digit="7" index={6} accessibilityLabel="7" />
+            <DigitButton digit="8" index={7} accessibilityLabel="8" />
+            <DigitButton digit="9" index={8} accessibilityLabel="9" />
+          </View>
+
+          {/* Row 4: decimal, 0, backspace */}
+          <View style={styles.keypadRow}>
             <Animated.View
-              style={[styles.keypadContainer, animatedKeypadStyle]}
+              style={[
+                styles.digitButtonContainer,
+                buttonAnimatedStyles[10],
+              ]}
             >
-              {/* Display */}
-              <View style={styles.displayContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.digitButton,
+                  !hasDecimal ? {} : styles.disabledButton,
+                ]}
+                onPress={handleDecimalPress}
+                disabled={hasDecimal}
+                accessibilityRole="keyboardkey"
+                accessibilityLabel="decimal point"
+                accessibilityState={{ disabled: hasDecimal }}
+                activeOpacity={0.7}
+              >
                 <Text
-                  style={styles.displayText}
-                  accessibilityRole="text"
-                  accessibilityLabel={`Current value: ${displayValue}`}
-                  accessibilityLiveRegion="polite"
-                >
-                  {displayValue}
-                </Text>
-                <Text style={styles.rangeText}>
-                  {min} - {max}
-                </Text>
-              </View>
-
-              {/* Keypad Grid */}
-              <View style={styles.keypadGrid}>
-                {/* Row 1: 1, 2, 3 */}
-                <View style={styles.keypadRow}>
-                  <DigitButton digit="1" index={0} accessibilityLabel="1" />
-                  <DigitButton digit="2" index={1} accessibilityLabel="2" />
-                  <DigitButton digit="3" index={2} accessibilityLabel="3" />
-                </View>
-
-                {/* Row 2: 4, 5, 6 */}
-                <View style={styles.keypadRow}>
-                  <DigitButton digit="4" index={3} accessibilityLabel="4" />
-                  <DigitButton digit="5" index={4} accessibilityLabel="5" />
-                  <DigitButton digit="6" index={5} accessibilityLabel="6" />
-                </View>
-
-                {/* Row 3: 7, 8, 9 */}
-                <View style={styles.keypadRow}>
-                  <DigitButton digit="7" index={6} accessibilityLabel="7" />
-                  <DigitButton digit="8" index={7} accessibilityLabel="8" />
-                  <DigitButton digit="9" index={8} accessibilityLabel="9" />
-                </View>
-
-                {/* Row 4: decimal, 0, backspace */}
-                <View style={styles.keypadRow}>
-                  <Animated.View
-                    style={[
-                      styles.digitButtonContainer,
-                      buttonAnimatedStyles[10],
-                    ]}
-                  >
-                    <TouchableOpacity
-                      style={[
-                        styles.digitButton,
-                        !hasDecimal ? {} : styles.disabledButton,
-                      ]}
-                      onPress={handleDecimalPress}
-                      disabled={hasDecimal}
-                      accessibilityRole="keyboardkey"
-                      accessibilityLabel="decimal point"
-                      accessibilityState={{ disabled: hasDecimal }}
-                      activeOpacity={0.7}
-                    >
-                      <Text
-                        style={[
-                          styles.digitText,
-                          hasDecimal ? styles.disabledText : {},
-                        ]}
-                      >
-                        .
-                      </Text>
-                    </TouchableOpacity>
-                  </Animated.View>
-
-                  <DigitButton digit="0" index={9} accessibilityLabel="0" />
-
-                  <Animated.View
-                    style={[
-                      styles.digitButtonContainer,
-                      buttonAnimatedStyles[11],
-                    ]}
-                  >
-                    <TouchableOpacity
-                      style={styles.actionButton}
-                      onPress={handleBackspace}
-                      accessibilityRole="keyboardkey"
-                      accessibilityLabel="delete last digit"
-                      activeOpacity={0.7}
-                    >
-                      <BackspaceIcon
-                        size={24}
-                        color={colors.accent}
-                        weight="regular"
-                      />
-                    </TouchableOpacity>
-                  </Animated.View>
-                </View>
-              </View>
-
-              {/* Action Buttons */}
-              <View style={styles.actionRow}>
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={handleClose}
-                  accessibilityRole="button"
-                  accessibilityLabel="Cancel"
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
                   style={[
-                    styles.submitButton,
-                    !isValidValue() ? styles.submitButtonDisabled : {},
+                    styles.digitText,
+                    hasDecimal ? styles.disabledText : {},
                   ]}
-                  onPress={handleSubmit}
-                  disabled={!isValidValue()}
-                  accessibilityRole="button"
-                  accessibilityLabel="confirm value"
-                  accessibilityState={{ disabled: !isValidValue() }}
-                  activeOpacity={0.7}
                 >
-                  <Text
-                    style={[
-                      styles.submitButtonText,
-                      !isValidValue() ? styles.submitButtonTextDisabled : {},
-                    ]}
-                  >
-                    Done
-                  </Text>
-                </TouchableOpacity>
-              </View>
+                  .
+                </Text>
+              </TouchableOpacity>
             </Animated.View>
-          </PanGestureHandler>
-        </GestureHandlerRootView>
-      )}
-    </Modal>
+
+            <DigitButton digit="0" index={9} accessibilityLabel="0" />
+
+            <Animated.View
+              style={[
+                styles.digitButtonContainer,
+                buttonAnimatedStyles[11],
+              ]}
+            >
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={handleBackspace}
+                accessibilityRole="keyboardkey"
+                accessibilityLabel="delete last digit"
+                activeOpacity={0.7}
+              >
+                <BackspaceIcon
+                  size={24}
+                  color={colors.accent}
+                  weight="regular"
+                />
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
+        </View>
+
+        {/* Action Buttons */}
+        <View style={styles.actionRow}>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={onClose}
+            accessibilityRole="button"
+            accessibilityLabel="Cancel"
+            activeOpacity={0.7}
+          >
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.submitButton,
+              !isValidValue() ? styles.submitButtonDisabled : {},
+            ]}
+            onPress={handleSubmit}
+            disabled={!isValidValue()}
+            accessibilityRole="button"
+            accessibilityLabel="confirm value"
+            accessibilityState={{ disabled: !isValidValue() }}
+            activeOpacity={0.7}
+          >
+            <Text
+              style={[
+                styles.submitButtonText,
+                !isValidValue() ? styles.submitButtonTextDisabled : {},
+              ]}
+            >
+              Done
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </BaseModal>
   );
 };
