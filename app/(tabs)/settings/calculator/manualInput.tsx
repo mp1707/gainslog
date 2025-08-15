@@ -1,22 +1,22 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   View,
-  KeyboardAvoidingView,
-  TouchableOpacity,
   Text,
   Alert,
   TextInput as RNTextInput,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { NumericTextInput } from "@/shared/ui/atoms/NumericTextInput";
+import { 
+  CalculatorScreenLayout, 
+  CalculatorInputAccessory, 
+  CalculatorHeader 
+} from "@/shared/ui/components";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import { StyleSheet } from "react-native";
 
 export default function ManualCalorieInputScreen() {
@@ -38,6 +38,7 @@ export default function ManualCalorieInputScreen() {
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const inputRef = useRef<RNTextInput>(null);
+  const inputAccessoryViewID = "calorieInputAccessory";
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -52,6 +53,15 @@ export default function ManualCalorieInputScreen() {
       setCalorieInput(dailyTargets.calories.toString());
     }
   }, [dailyTargets?.calories]);
+
+  // Auto-focus input when screen mounts
+  useEffect(() => {
+    const focusTimer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100); // Small delay to ensure component is fully mounted
+
+    return () => clearTimeout(focusTimer);
+  }, []);
 
 
   const updateCalories = (calorieText: string) => {
@@ -90,6 +100,8 @@ export default function ManualCalorieInputScreen() {
     // Update selected calories from input
     setSelectedCalories(calories);
 
+    // Dismiss keyboard first, then continue
+    inputRef.current?.blur();
     setIsLoading(true);
 
     try {
@@ -129,62 +141,56 @@ export default function ManualCalorieInputScreen() {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        {/* Content */}
-        <View style={styles.content}>
-          <Text style={styles.subtitle}>Enter your daily calorie goal</Text>
-          <Text style={styles.description}>
-            Set your target calories per day. You can always adjust this later
-            in settings.
-          </Text>
+    <CalculatorScreenLayout
+      currentStep={1}
+      totalSteps={1}
+      progressLabel="Manual calorie input"
+    >
+      <CalculatorHeader
+        title="Enter your daily calorie goal"
+        description="Set your target calories per day. You can always adjust this later in settings."
+      />
 
-          <View style={styles.inputSection}>
-            <View style={styles.inputContainer}>
-              <NumericTextInput
-                ref={inputRef}
-                style={styles.calorieInput}
-                value={calorieInput}
-                onChangeText={updateCalories}
-                min={1000}
-                max={5000}
-                placeholder="2000"
-                accessibilityLabel="Calorie input"
-                accessibilityHint="Enter your daily calorie goal between 1000 and 5000"
-              />
-              <Text style={styles.unitText}>calories</Text>
-            </View>
-
-            <Text style={styles.selectedText}>
-              per day
-            </Text>
-          </View>
-
-          {/* Save Button */}
-          <View style={styles.navigationContainer}>
-            <TouchableOpacity
-              style={[
-                styles.saveButton,
-                (isLoading || !isValidCalories()) && styles.saveButtonDisabled,
-              ]}
-              onPress={handleSave}
-              disabled={isLoading || !isValidCalories()}
-              accessibilityRole="button"
-              accessibilityLabel={
-                isLoading
-                  ? "Saving calorie goal..."
-                  : "Save calorie goal and finish setup"
-              }
-            >
-              <Text style={styles.saveButtonText}>
-                {isLoading ? "Saving..." : "Save Goal"}
-              </Text>
-              {!isLoading && <CaretRightIcon size={20} color="#FFFFFF" />}
-            </TouchableOpacity>
-          </View>
+      <View style={styles.inputSection}>
+        <View style={styles.inputContainer}>
+          <NumericTextInput
+            ref={inputRef}
+            value={calorieInput}
+            onChangeText={updateCalories}
+            min={1000}
+            max={5000}
+            placeholder="2000"
+            accessibilityLabel="Calorie input"
+            accessibilityHint="Enter your daily calorie goal between 1000 and 5000"
+            inputAccessoryViewID={inputAccessoryViewID}
+            extraLarge
+            borderless
+            integerOnly
+          />
+          <Text style={styles.unitText}>calories</Text>
         </View>
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+
+        <Text style={styles.selectedText}>
+          per day
+        </Text>
+      </View>
+
+      {/* Spacer to push content up and provide consistent spacing */}
+      <View style={styles.spacer} />
+
+      {/* Input Accessory View */}
+      <CalculatorInputAccessory
+        nativeID={inputAccessoryViewID}
+        isValid={isValidCalories() && !isLoading}
+        onContinue={handleSave}
+        buttonText={isLoading ? "Saving..." : "Save Goal"}
+        accessibilityLabel={
+          isLoading
+            ? "Saving calorie goal..."
+            : "Save calorie goal and finish setup"
+        }
+      />
+    </CalculatorScreenLayout>
   );
 }
 
@@ -195,55 +201,17 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
   const { spacing, typography } = themeObj;
 
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.primaryBackground,
-    },
-    progressContainer: {
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.md,
-      paddingBottom: spacing.lg,
-    },
-    content: {
-      flex: 1,
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      justifyContent: "space-between",
-    },
-    subtitle: {
-      fontSize: typography.Title2.fontSize,
-      fontFamily: typography.Title2.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
-      marginBottom: spacing.md,
-    },
-    description: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-      textAlign: "center",
-      lineHeight: 22,
-      marginBottom: spacing.lg,
-    },
     inputSection: {
-      flex: 1,
-      justifyContent: "center",
       alignItems: "center",
     },
     inputContainer: {
       flexDirection: "row",
       alignItems: "baseline",
       justifyContent: "center",
-      marginBottom: spacing.md,
-    },
-    calorieInput: {
-      fontSize: typography.Title1.fontSize,
-      fontFamily: typography.Title1.fontFamily,
-      textAlign: "center",
-      minWidth: 140,
     },
     unitText: {
-      fontSize: typography.Title1.fontSize,
-      fontFamily: typography.Title1.fontFamily,
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
       color: colors.secondaryText,
       marginLeft: spacing.sm,
     },
@@ -253,29 +221,11 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       color: colors.primaryText,
       textAlign: "center",
       fontWeight: "600",
+      marginTop: spacing.md,
     },
-    navigationContainer: {
-      paddingBottom: spacing.xl,
-    },
-    saveButton: {
-      backgroundColor: colors.accent,
-      borderRadius: themeObj.components.buttons.cornerRadius,
-      paddingVertical: spacing.md,
-      paddingHorizontal: spacing.lg,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    saveButtonDisabled: {
-      backgroundColor: colors.border,
-      opacity: 0.6,
-    },
-    saveButtonText: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: "#FFFFFF",
-      fontWeight: "600",
-      marginRight: spacing.sm,
+    spacer: {
+      flex: 1,
+      minHeight: spacing.xxl * 2, // Ensure minimum spacing
     },
   });
 };
