@@ -23,26 +23,26 @@ export default function CalculatorLayout() {
       <Stack.Screen
         name="sex"
         options={{
-          title: "Select Sex",
+          title: "",
           headerLeft: () => null,
         }}
       />
       <Stack.Screen
         name="age"
         options={{
-          title: "Select Age",
+          title: "",
         }}
       />
       <Stack.Screen
         name="weight"
         options={{
-          title: "Select Weight",
+          title: "",
         }}
       />
       <Stack.Screen
         name="height"
         options={{
-          title: "Select Height",
+          title: "",
         }}
       />
       <Stack.Screen
@@ -54,7 +54,7 @@ export default function CalculatorLayout() {
       <Stack.Screen
         name="goals"
         options={{
-          title: "Select Goals",
+          title: "",
         }}
       />
       <Stack.Screen

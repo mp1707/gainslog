@@ -8,33 +8,31 @@ export const useStyles = () =>
         flexDirection: "row",
         borderRadius: 12,
         overflow: "hidden",
-        borderWidth: 1.5,
-        borderColor: colors.accent,
         position: "relative",
         minHeight: 46,
-        padding: 4, // 3pt padding creates breathing room between slider and border
+        backgroundColor: colors.disabledBackground,
       },
 
       toggleSlider: {
         position: "absolute",
-        top: 3, // Matches container padding
-        left: 3, // Matches container padding
+        top: 0,
+        left: 0,
         width: "50%",
-        height: 43,
+        height: "100%",
         backgroundColor: colors.accent,
-        borderRadius: 8, // Smaller radius for better proportions
+        borderRadius: 12,
         zIndex: 1,
       },
 
       toggleButton: {
         flex: 1,
         paddingHorizontal: theme.spacing.md,
-        paddingVertical: theme.spacing.sm + 2, // 10pt vertical padding
+        paddingVertical: theme.spacing.sm + 2,
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: "transparent",
         zIndex: 2,
-        minHeight: 40, // Reduced to account for container padding
+        minHeight: 46,
       },
 
       toggleButtonContent: {
@@ -48,7 +46,7 @@ export const useStyles = () =>
         fontSize: theme.typography.Body.fontSize,
         fontFamily: theme.typography.Body.fontFamily,
         fontWeight: theme.typography.Body.fontWeight,
-        color: colors.accent,
+        color: colors.primaryText,
       },
 
       toggleButtonTextSelected: {
