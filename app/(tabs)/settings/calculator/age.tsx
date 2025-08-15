@@ -161,7 +161,7 @@ const AgeSelectionScreen = React.memo(function AgeSelectionScreen() {
       {/* Content */}
       <View style={styles.content}>
         <View style={styles.textSection}>
-          <Text style={styles.subtitle}>What is your age?</Text>
+          <Text style={styles.subtitle}>How old are you?</Text>
           <Text style={styles.description}>
             Your age helps determine your baseline metabolic rate.
           </Text>

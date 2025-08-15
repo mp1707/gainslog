@@ -23,11 +23,8 @@ import {
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { Toggle, type ToggleOption } from "@/shared/ui/atoms/Toggle";
 import type { CalorieIntakeParams } from "@/types";
 import { StyleSheet } from "react-native";
-
-type WeightUnit = "kg" | "lbs";
 
 const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
@@ -42,11 +39,8 @@ const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
     }
   );
 
-  const [weightUnit, setWeightUnit] = useState<WeightUnit>("kg");
   const [weightInput, setWeightInput] = useState<string>(
-    weightUnit === "kg"
-      ? localParams.weight.toString()
-      : Math.round(localParams.weight * 2.205).toString()
+    localParams.weight.toString()
   );
   const inputRef = useRef<RNTextInput>(null);
   const inputAccessoryViewID = "weightInputAccessory";
@@ -60,22 +54,9 @@ const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
   useEffect(() => {
     if (calculatorParams) {
       setLocalParams(calculatorParams);
-      const displayWeight =
-        weightUnit === "kg"
-          ? calculatorParams.weight
-          : Math.round(calculatorParams.weight * 2.205);
-      setWeightInput(displayWeight.toString());
+      setWeightInput(calculatorParams.weight.toString());
     }
-  }, [calculatorParams, weightUnit]);
-
-  // Update weight input when unit changes
-  useEffect(() => {
-    const displayWeight =
-      weightUnit === "kg"
-        ? localParams.weight
-        : Math.round(localParams.weight * 2.205);
-    setWeightInput(displayWeight.toString());
-  }, [weightUnit, localParams.weight]);
+  }, [calculatorParams]);
 
   // Auto-focus input when screen mounts - wait for animation to fully complete
   useEffect(() => {
@@ -101,17 +82,15 @@ const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
 
       const weight = parseFloat(weightText);
       if (!isNaN(weight) && weight > 0) {
-        // Always store in kg
-        const weightInKg = weightUnit === "lbs" ? weight / 2.205 : weight;
         const newParams = {
           ...localParams,
-          weight: Math.round(weightInKg * 10) / 10,
+          weight: Math.round(weight * 10) / 10,
         };
         setLocalParams(newParams);
         setCalculatorParams(newParams);
       }
     },
-    [weightUnit, localParams, setCalculatorParams]
+    [localParams, setCalculatorParams]
   );
 
   const handleContinue = useCallback(async () => {
@@ -129,49 +108,11 @@ const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
   const isValidWeight = useCallback(() => {
     if (weightInput === "") return false;
     const weight = parseFloat(weightInput);
-    const minWeight = weightUnit === "kg" ? 30 : 66;
-    const maxWeight = weightUnit === "kg" ? 300 : 661;
-    return !isNaN(weight) && weight >= minWeight && weight <= maxWeight;
-  }, [weightInput, weightUnit]);
+    return !isNaN(weight) && weight >= 30 && weight <= 300;
+  }, [weightInput]);
 
-  // Get dynamic min/max based on current unit
-  const getWeightConstraints = () => {
-    if (weightUnit === "kg") {
-      return { min: 30, max: 300 };
-    } else {
-      return { min: 66, max: 661 };
-    }
-  };
-
-  const { min: weightMin, max: weightMax } = getWeightConstraints();
-
-  // Weight unit toggle options
-  const weightUnitOptions: [
-    ToggleOption<WeightUnit>,
-    ToggleOption<WeightUnit>
-  ] = [
-    {
-      value: "kg",
-      label: "kg",
-    },
-    {
-      value: "lbs",
-      label: "lbs",
-    },
-  ];
-
-  // Get conversion text
-  const getConversionText = () => {
-    if (weightUnit === "kg") {
-      return `${localParams.weight}kg = ${Math.round(
-        localParams.weight * 2.205
-      )}lbs`;
-    } else {
-      return `${Math.round(localParams.weight * 2.205)}lbs = ${
-        localParams.weight
-      }kg`;
-    }
-  };
+  const weightMin = 30;
+  const weightMax = 300;
 
   return (
     <CalculatorScreenLayout
@@ -180,19 +121,9 @@ const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
       progressLabel="Calculator progress: step 3 of 6"
     >
       <CalculatorHeader
-        title="What is your weight?"
+        title="How much do you weigh?"
         description="Your weight is used to calculate your daily calorie needs."
-      >
-        <Toggle
-          value={weightUnit}
-          options={weightUnitOptions}
-          onChange={(unit) => {
-            setWeightUnit(unit);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          }}
-          accessibilityLabel="Select weight unit"
-        />
-      </CalculatorHeader>
+      />
 
       <View style={styles.inputSection}>
         <View style={styles.inputContainer}>
@@ -202,17 +133,15 @@ const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
             onChangeText={updateWeight}
             min={weightMin}
             max={weightMax}
-            placeholder={weightUnit === "kg" ? "70" : "155"}
+            placeholder="70"
             accessibilityLabel="Weight input"
-            accessibilityHint={`Enter your weight in ${weightUnit} between ${weightMin} and ${weightMax}`}
+            accessibilityHint={`Enter your weight in kg between ${weightMin} and ${weightMax}`}
             inputAccessoryViewID={inputAccessoryViewID}
             extraLarge
             borderless
           />
-          <Text style={styles.unitText}>{weightUnit}</Text>
+          <Text style={styles.unitText}>kg</Text>
         </View>
-
-        <Text style={styles.conversionText}>{getConversionText()}</Text>
       </View>
 
       {/* Spacer to push content up and provide consistent spacing */}

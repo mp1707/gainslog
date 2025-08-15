@@ -23,11 +23,8 @@ import {
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { Toggle, type ToggleOption } from "@/shared/ui/atoms/Toggle";
 import type { CalorieIntakeParams } from "@/types";
 import { StyleSheet } from "react-native";
-
-type HeightUnit = "cm" | "ft";
 
 const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
@@ -42,11 +39,8 @@ const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
     }
   );
 
-  const [heightUnit, setHeightUnit] = useState<HeightUnit>("cm");
   const [heightInput, setHeightInput] = useState<string>(
-    heightUnit === "cm"
-      ? localParams.height.toString()
-      : (localParams.height / 30.48).toFixed(1)
+    localParams.height.toString()
   );
   const inputRef = useRef<RNTextInput>(null);
   const inputAccessoryViewID = "heightInputAccessory";
@@ -60,26 +54,9 @@ const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
   useEffect(() => {
     if (calculatorParams) {
       setLocalParams(calculatorParams);
-      const displayHeight =
-        heightUnit === "cm"
-          ? calculatorParams.height
-          : calculatorParams.height / 30.48;
-      setHeightInput(
-        heightUnit === "cm"
-          ? displayHeight.toString()
-          : displayHeight.toFixed(1)
-      );
+      setHeightInput(calculatorParams.height.toString());
     }
-  }, [calculatorParams, heightUnit]);
-
-  // Update height input when unit changes
-  useEffect(() => {
-    const displayHeight =
-      heightUnit === "cm" ? localParams.height : localParams.height / 30.48;
-    setHeightInput(
-      heightUnit === "cm" ? displayHeight.toString() : displayHeight.toFixed(1)
-    );
-  }, [heightUnit, localParams.height]);
+  }, [calculatorParams]);
 
   // Auto-focus input when screen mounts - wait for animation to fully complete
   useEffect(() => {
@@ -105,14 +82,12 @@ const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
 
       const height = parseFloat(heightText);
       if (!isNaN(height) && height > 0) {
-        // Always store in cm
-        const heightInCm = heightUnit === "ft" ? height * 30.48 : height;
-        const newParams = { ...localParams, height: Math.round(heightInCm) };
+        const newParams = { ...localParams, height: Math.round(height) };
         setLocalParams(newParams);
         setCalculatorParams(newParams);
       }
     },
-    [heightUnit, localParams, setCalculatorParams]
+    [localParams, setCalculatorParams]
   );
 
   const handleContinue = useCallback(async () => {
@@ -130,56 +105,11 @@ const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
   const isValidHeight = useCallback(() => {
     if (heightInput === "") return false;
     const height = parseFloat(heightInput);
-    const minHeight = heightUnit === "cm" ? 100 : 3.3;
-    const maxHeight = heightUnit === "cm" ? 250 : 8.2;
-    return !isNaN(height) && height >= minHeight && height <= maxHeight;
-  }, [heightInput, heightUnit]);
+    return !isNaN(height) && height >= 100 && height <= 250;
+  }, [heightInput]);
 
-  // Get dynamic min/max based on current unit
-  const getHeightConstraints = () => {
-    if (heightUnit === "cm") {
-      return { min: 100, max: 250 };
-    } else {
-      return { min: 3.3, max: 8.2 }; // feet
-    }
-  };
-
-  const { min: heightMin, max: heightMax } = getHeightConstraints();
-
-  // Height unit toggle options
-  const heightUnitOptions: [
-    ToggleOption<HeightUnit>,
-    ToggleOption<HeightUnit>
-  ] = [
-    {
-      value: "cm",
-      label: "cm",
-    },
-    {
-      value: "ft",
-      label: "ft",
-    },
-  ];
-
-  // Format height display for ft unit
-  const formatHeightDisplay = (heightInFeet: number) => {
-    const feet = Math.floor(heightInFeet);
-    const inches = Math.round((heightInFeet - feet) * 12);
-    return `${feet}'${inches}"`;
-  };
-
-  // Get conversion text
-  const getConversionText = () => {
-    if (heightUnit === "cm") {
-      const feet = Math.floor(localParams.height / 30.48);
-      const inches = Math.round((localParams.height % 30.48) / 2.54);
-      return `${localParams.height}cm = ${feet}'${inches}"`;
-    } else {
-      return `${formatHeightDisplay(localParams.height / 30.48)} = ${
-        localParams.height
-      }cm`;
-    }
-  };
+  const heightMin = 100;
+  const heightMax = 250;
 
   return (
     <CalculatorScreenLayout
@@ -188,19 +118,9 @@ const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
       progressLabel="Calculator progress: step 4 of 6"
     >
       <CalculatorHeader
-        title="What is your height?"
+        title="How tall are you?"
         description="Your height is used to calculate your daily calorie needs."
-      >
-        <Toggle
-          value={heightUnit}
-          options={heightUnitOptions}
-          onChange={(unit) => {
-            setHeightUnit(unit);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          }}
-          accessibilityLabel="Select height unit"
-        />
-      </CalculatorHeader>
+      />
 
       <View style={styles.inputSection}>
         <View style={styles.inputContainer}>
@@ -210,17 +130,15 @@ const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
             onChangeText={updateHeight}
             min={heightMin}
             max={heightMax}
-            placeholder={heightUnit === "cm" ? "175" : "5.8"}
+            placeholder="175"
             accessibilityLabel="Height input"
-            accessibilityHint={`Enter your height in ${heightUnit} between ${heightMin} and ${heightMax}`}
+            accessibilityHint={`Enter your height in cm between ${heightMin} and ${heightMax}`}
             inputAccessoryViewID={inputAccessoryViewID}
             extraLarge
             borderless
           />
-          <Text style={styles.unitText}>{heightUnit}</Text>
+          <Text style={styles.unitText}>cm</Text>
         </View>
-
-        <Text style={styles.conversionText}>{getConversionText()}</Text>
       </View>
 
       {/* Spacer to push content up and provide consistent spacing */}
