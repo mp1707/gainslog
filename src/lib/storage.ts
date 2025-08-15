@@ -174,7 +174,6 @@ export const getColorSchemePreference = async (): Promise<
 
 // Default calorie calculator parameters
 const DEFAULT_CALORIE_CALCULATOR_PARAMS: CalorieIntakeParams = {
-  sex: "male" as Sex,
   age: 30,
   weight: 70,
   height: 170,

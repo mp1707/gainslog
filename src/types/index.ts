@@ -53,7 +53,7 @@ export type ActivityLevel =
   | "veryactive";
 
 export interface CalorieIntakeParams {
-  sex: Sex;
+  sex?: Sex;
   age: number;
   weight: number; // kilograms
   height: number; // centimeters

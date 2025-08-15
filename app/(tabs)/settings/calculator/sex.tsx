@@ -26,7 +26,6 @@ export default function SexSelectionScreen() {
   // Create stable initial params to prevent re-renders
   const stableInitialParams = useMemo(
     () => ({
-      sex: "male" as Sex,
       age: 30,
       weight: 85,
       height: 175,
@@ -34,8 +33,8 @@ export default function SexSelectionScreen() {
     []
   );
 
-  const [localParams, setLocalParams] = useState<CalorieIntakeParams>(
-    calculatorParams || stableInitialParams
+  const [localParams, setLocalParams] = useState<CalorieIntakeParams | null>(
+    calculatorParams
   );
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -48,22 +47,36 @@ export default function SexSelectionScreen() {
   useEffect(() => {
     const loadSavedParams = async () => {
       try {
+        // If store has been explicitly cleared (calculatorParams is null),
+        // start fresh without loading old AsyncStorage data
+        if (calculatorParams === null) {
+          setLocalParams(null);
+          setIsLoaded(true);
+          return;
+        }
+        
+        // If we have store params, use them
+        if (calculatorParams) {
+          setLocalParams(calculatorParams);
+          setIsLoaded(true);
+          return;
+        }
+        
+        // Otherwise, load from AsyncStorage for fresh app launches
         const savedParams = await getCalorieCalculatorParams();
-        const paramsToUse = calculatorParams || savedParams;
-        setLocalParams(paramsToUse);
-        setCalculatorParams(paramsToUse);
+        setLocalParams(savedParams);
+        setCalculatorParams(savedParams);
         setIsLoaded(true);
       } catch (error) {
         console.error("Failed to load saved params:", error);
-        const defaultParams = calculatorParams || stableInitialParams;
-        setLocalParams(defaultParams);
-        setCalculatorParams(defaultParams);
+        // Start with no selection on error
+        setLocalParams(null);
         setIsLoaded(true);
       }
     };
 
     loadSavedParams();
-  }, [calculatorParams, setCalculatorParams, stableInitialParams]);
+  }, [calculatorParams, setCalculatorParams]);
 
   // Update local params when store changes
   useEffect(() => {
@@ -73,7 +86,7 @@ export default function SexSelectionScreen() {
   }, [calculatorParams]);
 
   const handleSexSelect = async (sex: Sex) => {
-    const newParams = { ...localParams, sex };
+    const newParams = { ...stableInitialParams, ...localParams, sex };
     setLocalParams(newParams);
     setCalculatorParams(newParams);
 
@@ -88,10 +101,6 @@ export default function SexSelectionScreen() {
   const handleManualInput = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push("/settings/calculator/manualInput");
-  };
-
-  const handleBack = () => {
-    router.back();
   };
 
   if (!isLoaded) {
@@ -132,7 +141,7 @@ export default function SexSelectionScreen() {
                 description="Biological male"
                 icon={GenderMaleIcon}
                 iconColor="#4A90E2"
-                isSelected={localParams.sex === "male"}
+                isSelected={localParams?.sex === "male"}
                 onSelect={() => handleSexSelect("male")}
                 accessibilityLabel="Select male as biological sex"
                 accessibilityHint="This will help calculate your calorie needs and advance to the next step"
@@ -143,7 +152,7 @@ export default function SexSelectionScreen() {
                 description="Biological female"
                 icon={GenderFemaleIcon}
                 iconColor="#E24A90"
-                isSelected={localParams.sex === "female"}
+                isSelected={localParams?.sex === "female"}
                 onSelect={() => handleSexSelect("female")}
                 accessibilityLabel="Select female as biological sex"
                 accessibilityHint="This will help calculate your calorie needs and advance to the next step"
