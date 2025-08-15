@@ -1,29 +1,28 @@
 module.exports = function (api) {
   api.cache(true);
   return {
-    presets: ['babel-preset-expo'],
+    presets: ["babel-preset-expo"],
     plugins: [
-      'expo-router/babel',
       [
-        'module-resolver',
+        "module-resolver",
         {
-          root: ['./src'],
+          root: ["./src"],
           alias: {
-            '@/app-providers': './src/app-providers',
-            '@/features': './src/features',
-            '@/shared': './src/shared',
-            '@/theme': './src/theme',
-            '@/types': './src/types',
-            '@/lib': './src/lib',
-            '@/stores': './src/stores',
-            '@/utils': './src/utils',
-            '@/providers': './src/providers',
-            '@/hooks': './src/hooks',
-            '@/theme': './src/theme',
+            "@/app-providers": "./src/app-providers",
+            "@/features": "./src/features",
+            "@/shared": "./src/shared",
+            "@/theme": "./src/theme",
+            "@/types": "./src/types",
+            "@/lib": "./src/lib",
+            "@/stores": "./src/stores",
+            "@/utils": "./src/utils",
+            "@/providers": "./src/providers",
+            "@/hooks": "./src/hooks",
+            "@/theme": "./src/theme",
           },
         },
       ],
-      'react-native-reanimated/plugin',
+      "react-native-reanimated/plugin",
     ],
   };
 };

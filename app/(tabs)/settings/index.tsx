@@ -95,7 +95,7 @@ export default function SettingsTab() {
     
     // Navigate to new calculator modal for calories, otherwise use normal navigation
     if (settingName === "calories") {
-      router.push("/settings/calculator/step1-personal-info");
+      router.push("/settings/calculator/sex");
     } else {
       router.push(`/settings/${settingName}`);
     }

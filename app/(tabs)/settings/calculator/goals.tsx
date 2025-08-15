@@ -161,7 +161,7 @@ export default function Step3GoalsScreen() {
           </TouchableOpacity>
           <View style={styles.titleContainer}>
             <Text style={styles.title}>Choose Your Goal</Text>
-            <Text style={styles.stepIndicator}>Step 3 of 3</Text>
+            <Text style={styles.stepIndicator}>Step 6 of 6</Text>
           </View>
           <View style={styles.headerSpacer} />
         </View>

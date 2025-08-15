@@ -1,34 +1,35 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
-  ScrollView,
   KeyboardAvoidingView,
   TouchableOpacity,
   Text,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { Picker } from "@react-native-picker/picker";
 import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import {
-  CalorieCalculationCard,
-  CALCULATION_METHODS,
-} from "@/shared/ui/atoms/CalorieCalculationCard";
-import type { CalorieCalculationMethod, ActivityLevel } from "@/types";
+import type { CalorieIntakeParams } from "@/types";
 import { StyleSheet } from "react-native";
 
-export default function Step2ActivityLevelScreen() {
+export default function AgeSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
   const {
-    calculatorActivityLevel,
-    setCalculatorActivityLevel,
+    calculatorParams,
+    setCalculatorParams,
   } = useFoodLogStore();
 
-  const [selectedActivityLevel, setSelectedActivityLevel] = useState<ActivityLevel | null>(
-    calculatorActivityLevel
+  const [localParams, setLocalParams] = useState<CalorieIntakeParams>(
+    calculatorParams || {
+      sex: "male",
+      age: 30,
+      weight: 85,
+      height: 175,
+    }
   );
 
   const styles = useMemo(
@@ -36,24 +37,30 @@ export default function Step2ActivityLevelScreen() {
     [colors, themeObj]
   );
 
-  const handleActivityLevelSelect = (method: CalorieCalculationMethod) => {
-    setSelectedActivityLevel(method.id);
-    setCalculatorActivityLevel(method.id);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  // Update local params when store changes
+  useEffect(() => {
+    if (calculatorParams) {
+      setLocalParams(calculatorParams);
+    }
+  }, [calculatorParams]);
+
+  const updateAge = (age: number) => {
+    const newParams = { ...localParams, age };
+    setLocalParams(newParams);
+    setCalculatorParams(newParams);
   };
 
   const handleContinue = async () => {
-    if (!selectedActivityLevel) return;
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push("/settings/calculator/step3-goals");
+    router.push("/settings/calculator/weight");
   };
 
   const handleBack = () => {
     router.back();
   };
 
-  const methods = Object.values(CALCULATION_METHODS);
-  const canProceed = selectedActivityLevel !== null;
+  // Generate age items from 13 to 120
+  const ageItems = Array.from({ length: 108 }, (_, i) => i + 13);
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
@@ -69,63 +76,49 @@ export default function Step2ActivityLevelScreen() {
             <CaretLeftIcon size={24} color={colors.accent} />
           </TouchableOpacity>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Activity Level</Text>
-            <Text style={styles.stepIndicator}>Step 2 of 3</Text>
+            <Text style={styles.title}>Age</Text>
+            <Text style={styles.stepIndicator}>Step 2 of 6</Text>
           </View>
           <View style={styles.headerSpacer} />
         </View>
 
         {/* Content */}
-        <ScrollView
-          style={styles.content}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
+        <View style={styles.content}>
           <Text style={styles.subtitle}>
-            Select the option that best matches your lifestyle and exercise routine.
+            What is your age?
+          </Text>
+          <Text style={styles.description}>
+            Your age helps determine your baseline metabolic rate.
           </Text>
 
-          <View style={styles.methodsSection}>
-            {methods.map((method) => (
-              <CalorieCalculationCard
-                key={method.id}
-                method={method}
-                isSelected={selectedActivityLevel === method.id}
-                onSelect={handleActivityLevelSelect}
-                showCalorieGoals={false}
-              />
-            ))}
+          <View style={styles.pickerSection}>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={localParams.age}
+                onValueChange={updateAge}
+                style={styles.picker}
+                itemStyle={styles.pickerItem}
+              >
+                {ageItems.map((age) => (
+                  <Picker.Item key={age} label={`${age} years`} value={age} />
+                ))}
+              </Picker>
+            </View>
           </View>
 
           {/* Continue Button */}
           <View style={styles.navigationContainer}>
             <TouchableOpacity
-              style={[
-                styles.continueButton,
-                !canProceed && styles.continueButtonDisabled,
-              ]}
+              style={styles.continueButton}
               onPress={handleContinue}
-              disabled={!canProceed}
               accessibilityRole="button"
-              accessibilityLabel="Continue to final step"
-              accessibilityState={{ disabled: !canProceed }}
+              accessibilityLabel="Continue to weight selection"
             >
-              <Text
-                style={[
-                  styles.continueButtonText,
-                  !canProceed && styles.continueButtonTextDisabled,
-                ]}
-              >
-                Continue
-              </Text>
-              <CaretRightIcon
-                size={20}
-                color={canProceed ? "#FFFFFF" : colors.disabledText}
-              />
+              <Text style={styles.continueButtonText}>Continue</Text>
+              <CaretRightIcon size={20} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
-        </ScrollView>
+        </View>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -172,26 +165,49 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     content: {
       flex: 1,
-    },
-    scrollContent: {
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.lg,
-      paddingBottom: 100,
+      paddingTop: spacing.xl,
+      justifyContent: "space-between",
     },
     subtitle: {
+      fontSize: typography.Title2.fontSize,
+      fontFamily: typography.Title2.fontFamily,
+      color: colors.primaryText,
+      textAlign: "center",
+      marginBottom: spacing.md,
+    },
+    description: {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
       textAlign: "center",
       lineHeight: 22,
-      marginBottom: spacing.lg,
+      marginBottom: spacing.xl,
     },
-    methodsSection: {
-      marginBottom: spacing.lg,
+    pickerSection: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    pickerContainer: {
+      backgroundColor: colors.secondaryBackground,
+      borderRadius: themeObj.components.buttons.cornerRadius,
+      borderWidth: 1,
+      borderColor: colors.border,
+      overflow: "hidden",
+      width: "80%",
+      maxWidth: 280,
+    },
+    picker: {
+      height: 200,
+      color: colors.primaryText,
+    },
+    pickerItem: {
+      fontSize: typography.Body.fontSize,
+      color: colors.primaryText,
     },
     navigationContainer: {
-      marginTop: spacing.xl,
-      marginBottom: spacing.lg,
+      paddingBottom: spacing.xl,
     },
     continueButton: {
       backgroundColor: colors.accent,
@@ -202,18 +218,12 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       alignItems: "center",
       justifyContent: "center",
     },
-    continueButtonDisabled: {
-      backgroundColor: colors.disabledBackground,
-    },
     continueButtonText: {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
       color: "#FFFFFF",
       fontWeight: "600",
       marginRight: spacing.sm,
-    },
-    continueButtonTextDisabled: {
-      color: colors.disabledText,
     },
   });
 };

@@ -20,19 +20,37 @@ export default function CalculatorLayout() {
       }}
     >
       <Stack.Screen
-        name="step1-personal-info"
+        name="sex"
         options={{
-          title: "Personal Information",
+          title: "Biological Sex",
         }}
       />
       <Stack.Screen
-        name="step2-activity-level"
+        name="age"
+        options={{
+          title: "Age",
+        }}
+      />
+      <Stack.Screen
+        name="weight"
+        options={{
+          title: "Weight",
+        }}
+      />
+      <Stack.Screen
+        name="height"
+        options={{
+          title: "Height",
+        }}
+      />
+      <Stack.Screen
+        name="activity-level"
         options={{
           title: "Activity Level",
         }}
       />
       <Stack.Screen
-        name="step3-goals"
+        name="goals"
         options={{
           title: "Choose Your Goal",
         }}
