@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
 import {
   View,
   TouchableOpacity,
@@ -57,27 +63,30 @@ const AgeSelectionScreen = React.memo(function AgeSelectionScreen() {
       const focusTimer = setTimeout(() => {
         inputRef.current?.focus();
       }, 400); // 400ms total delay for smooth animation completion
-      
+
       return () => clearTimeout(focusTimer);
     });
 
     return () => handle.cancel();
   }, []);
 
-  const updateAge = useCallback((ageText: string) => {
-    setAgeInput(ageText);
-    
-    if (ageText === '') {
-      return; // Allow empty input
-    }
-    
-    const age = parseInt(ageText, 10);
-    if (!isNaN(age)) {
-      const newParams = { ...localParams, age };
-      setLocalParams(newParams);
-      setCalculatorParams(newParams);
-    }
-  }, [localParams, setCalculatorParams]);
+  const updateAge = useCallback(
+    (ageText: string) => {
+      setAgeInput(ageText);
+
+      if (ageText === "") {
+        return; // Allow empty input
+      }
+
+      const age = parseInt(ageText, 10);
+      if (!isNaN(age)) {
+        const newParams = { ...localParams, age };
+        setLocalParams(newParams);
+        setCalculatorParams(newParams);
+      }
+    },
+    [localParams, setCalculatorParams]
+  );
 
   const handleContinue = useCallback(async () => {
     const age = parseInt(ageInput, 10);
@@ -92,7 +101,7 @@ const AgeSelectionScreen = React.memo(function AgeSelectionScreen() {
   }, [ageInput]);
 
   const isValidAge = useCallback(() => {
-    if (ageInput === '') return false;
+    if (ageInput === "") return false;
     const age = parseInt(ageInput, 10);
     return !isNaN(age) && age >= 13 && age <= 120;
   }, [ageInput]);
@@ -114,7 +123,7 @@ const AgeSelectionScreen = React.memo(function AgeSelectionScreen() {
               accessibilityRole="button"
               accessibilityLabel="Continue to weight selection"
             >
-              <Text 
+              <Text
                 style={[
                   styles.accessoryContinueButtonText,
                   !isValid && styles.accessoryContinueButtonTextDisabled,
@@ -122,16 +131,22 @@ const AgeSelectionScreen = React.memo(function AgeSelectionScreen() {
               >
                 Continue
               </Text>
-              <CaretRightIcon 
-                size={20} 
-                color={isValid ? "#FFFFFF" : colors.disabledText} 
+              <CaretRightIcon
+                size={20}
+                color={isValid ? "#FFFFFF" : colors.disabledText}
               />
             </TouchableOpacity>
           </View>
         </View>
       </InputAccessoryView>
     );
-  }, [isValidAge(), inputAccessoryViewID, styles, handleContinue, colors.disabledText]);
+  }, [
+    isValidAge(),
+    inputAccessoryViewID,
+    styles,
+    handleContinue,
+    colors.disabledText,
+  ]);
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>

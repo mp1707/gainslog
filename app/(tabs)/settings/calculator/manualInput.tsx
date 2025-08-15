@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
 import {
   View,
   Text,
@@ -10,195 +16,201 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 
 import { NumericTextInput } from "@/shared/ui/atoms/NumericTextInput";
-import { 
-  CalculatorScreenLayout, 
-  CalculatorInputAccessory, 
-  CalculatorHeader 
+import {
+  CalculatorScreenLayout,
+  CalculatorInputAccessory,
+  CalculatorHeader,
 } from "@/shared/ui/components";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { StyleSheet } from "react-native";
 
-const ManualCalorieInputScreen = React.memo(function ManualCalorieInputScreen() {
-  const { colors, theme: themeObj } = useTheme();
-  const { dailyTargets, updateDailyTargets, clearCalculatorData } =
-    useFoodLogStore();
+const ManualCalorieInputScreen = React.memo(
+  function ManualCalorieInputScreen() {
+    const { colors, theme: themeObj } = useTheme();
+    const { dailyTargets, updateDailyTargets, clearCalculatorData } =
+      useFoodLogStore();
 
-  // Use current calorie target as starting value, default to 2000
-  const [selectedCalories, setSelectedCalories] = useState<number>(
-    dailyTargets?.calories && dailyTargets.calories > 0
-      ? dailyTargets.calories
-      : 2000
-  );
-  const [calorieInput, setCalorieInput] = useState<string>(
-    (dailyTargets?.calories && dailyTargets.calories > 0
-      ? dailyTargets.calories
-      : 2000
-    ).toString()
-  );
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const inputRef = useRef<RNTextInput>(null);
-  const inputAccessoryViewID = "calorieInputAccessory";
+    // Use current calorie target as starting value, default to 2000
+    const [selectedCalories, setSelectedCalories] = useState<number>(
+      dailyTargets?.calories && dailyTargets.calories > 0
+        ? dailyTargets.calories
+        : 2000
+    );
+    const [calorieInput, setCalorieInput] = useState<string>(
+      (dailyTargets?.calories && dailyTargets.calories > 0
+        ? dailyTargets.calories
+        : 2000
+      ).toString()
+    );
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const inputRef = useRef<RNTextInput>(null);
+    const inputAccessoryViewID = "calorieInputAccessory";
 
-  const styles = useMemo(
-    () => createStyles(colors, themeObj),
-    [colors, themeObj]
-  );
+    const styles = useMemo(
+      () => createStyles(colors, themeObj),
+      [colors, themeObj]
+    );
 
+    useEffect(() => {
+      // Update selected calories if daily targets change
+      if (dailyTargets?.calories && dailyTargets.calories > 0) {
+        setSelectedCalories(dailyTargets.calories);
+        setCalorieInput(dailyTargets.calories.toString());
+      }
+    }, [dailyTargets?.calories]);
 
-  useEffect(() => {
-    // Update selected calories if daily targets change
-    if (dailyTargets?.calories && dailyTargets.calories > 0) {
-      setSelectedCalories(dailyTargets.calories);
-      setCalorieInput(dailyTargets.calories.toString());
-    }
-  }, [dailyTargets?.calories]);
+    // Auto-focus input when screen mounts - wait for animation to fully complete
+    useEffect(() => {
+      const handle = InteractionManager.runAfterInteractions(() => {
+        // Additional delay to ensure navigation animation is visually complete
+        const focusTimer = setTimeout(() => {
+          inputRef.current?.focus();
+        }, 400); // 400ms total delay for smooth animation completion
 
-  // Auto-focus input when screen mounts - wait for animation to fully complete
-  useEffect(() => {
-    const handle = InteractionManager.runAfterInteractions(() => {
-      // Additional delay to ensure navigation animation is visually complete
-      const focusTimer = setTimeout(() => {
-        inputRef.current?.focus();
-      }, 400); // 400ms total delay for smooth animation completion
-      
-      return () => clearTimeout(focusTimer);
-    });
+        return () => clearTimeout(focusTimer);
+      });
 
-    return () => handle.cancel();
-  }, []);
+      return () => handle.cancel();
+    }, []);
 
+    const updateCalories = useCallback((calorieText: string) => {
+      setCalorieInput(calorieText);
 
-  const updateCalories = useCallback((calorieText: string) => {
-    setCalorieInput(calorieText);
-    
-    if (calorieText === '') {
-      return; // Allow empty input
-    }
-    
-    const calories = parseInt(calorieText, 10);
-    if (!isNaN(calories)) {
+      if (calorieText === "") {
+        return; // Allow empty input
+      }
+
+      const calories = parseInt(calorieText, 10);
+      if (!isNaN(calories)) {
+        setSelectedCalories(calories);
+      }
+    }, []);
+
+    const isValidCalories = useCallback(() => {
+      if (calorieInput === "") return false;
+      const calories = parseInt(calorieInput, 10);
+      return !isNaN(calories) && calories >= 1000 && calories <= 5000;
+    }, [calorieInput]);
+
+    const handleSave = useCallback(async () => {
+      // Prevent multiple rapid saves
+      if (isLoading) return;
+
+      // Validate input
+      const calories = parseInt(calorieInput, 10);
+      if (isNaN(calories) || calories < 1000 || calories > 5000) {
+        Alert.alert(
+          "Invalid Calorie Value",
+          "Please enter a calorie value between 1000 and 5000."
+        );
+        return;
+      }
+
+      // Update selected calories from input
       setSelectedCalories(calories);
-    }
-  }, []);
 
-  const isValidCalories = useCallback(() => {
-    if (calorieInput === '') return false;
-    const calories = parseInt(calorieInput, 10);
-    return !isNaN(calories) && calories >= 1000 && calories <= 5000;
-  }, [calorieInput]);
+      // Dismiss keyboard first, then continue
+      inputRef.current?.blur();
+      setIsLoading(true);
 
-  const handleSave = useCallback(async () => {
-    // Prevent multiple rapid saves
-    if (isLoading) return;
+      try {
+        // Provide haptic feedback
+        await Haptics.notificationAsync(
+          Haptics.NotificationFeedbackType.Success
+        );
 
-    // Validate input
-    const calories = parseInt(calorieInput, 10);
-    if (isNaN(calories) || calories < 1000 || calories > 5000) {
-      Alert.alert(
-        "Invalid Calorie Value",
-        "Please enter a calorie value between 1000 and 5000."
-      );
-      return;
-    }
+        // Ensure we have valid daily targets to update
+        const currentTargets = dailyTargets || {
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fat: 0,
+        };
 
-    // Update selected calories from input
-    setSelectedCalories(calories);
+        // Update the daily targets with the manually entered calories
+        const newTargets = {
+          ...currentTargets,
+          calories: calories,
+        };
 
-    // Dismiss keyboard first, then continue
-    inputRef.current?.blur();
-    setIsLoading(true);
+        await updateDailyTargets(newTargets);
 
-    try {
-      // Provide haptic feedback
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        // Clear calculator data since we're skipping the flow
+        clearCalculatorData();
 
-      // Ensure we have valid daily targets to update
-      const currentTargets = dailyTargets || {
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-        fat: 0,
-      };
+        // Navigate back to settings
+        router.replace("/settings");
+      } catch (error) {
+        console.error("Error saving manual calorie target:", error);
+        Alert.alert(
+          "Save Failed",
+          "Failed to save your calorie target. Please check your connection and try again."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    }, [
+      isLoading,
+      calorieInput,
+      dailyTargets,
+      updateDailyTargets,
+      clearCalculatorData,
+    ]);
 
-      // Update the daily targets with the manually entered calories
-      const newTargets = {
-        ...currentTargets,
-        calories: calories,
-      };
+    return (
+      <CalculatorScreenLayout
+        currentStep={1}
+        totalSteps={1}
+        progressLabel="Manual calorie input"
+      >
+        <CalculatorHeader
+          title="Enter your daily calorie goal"
+          description="Set your target calories per day. You can always adjust this later in settings."
+        />
 
-      await updateDailyTargets(newTargets);
+        <View style={styles.inputSection}>
+          <View style={styles.inputContainer}>
+            <NumericTextInput
+              ref={inputRef}
+              value={calorieInput}
+              onChangeText={updateCalories}
+              min={1000}
+              max={5000}
+              placeholder="2000"
+              accessibilityLabel="Calorie input"
+              accessibilityHint="Enter your daily calorie goal between 1000 and 5000"
+              inputAccessoryViewID={inputAccessoryViewID}
+              extraLarge
+              borderless
+              integerOnly
+            />
+            <Text style={styles.unitText}>calories</Text>
+          </View>
 
-      // Clear calculator data since we're skipping the flow
-      clearCalculatorData();
-
-      // Navigate back to settings
-      router.replace("/settings");
-    } catch (error) {
-      console.error("Error saving manual calorie target:", error);
-      Alert.alert(
-        "Save Failed",
-        "Failed to save your calorie target. Please check your connection and try again."
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isLoading, calorieInput, dailyTargets, updateDailyTargets, clearCalculatorData]);
-
-  return (
-    <CalculatorScreenLayout
-      currentStep={1}
-      totalSteps={1}
-      progressLabel="Manual calorie input"
-    >
-      <CalculatorHeader
-        title="Enter your daily calorie goal"
-        description="Set your target calories per day. You can always adjust this later in settings."
-      />
-
-      <View style={styles.inputSection}>
-        <View style={styles.inputContainer}>
-          <NumericTextInput
-            ref={inputRef}
-            value={calorieInput}
-            onChangeText={updateCalories}
-            min={1000}
-            max={5000}
-            placeholder="2000"
-            accessibilityLabel="Calorie input"
-            accessibilityHint="Enter your daily calorie goal between 1000 and 5000"
-            inputAccessoryViewID={inputAccessoryViewID}
-            extraLarge
-            borderless
-            integerOnly
-          />
-          <Text style={styles.unitText}>calories</Text>
+          <Text style={styles.selectedText}>per day</Text>
         </View>
 
-        <Text style={styles.selectedText}>
-          per day
-        </Text>
-      </View>
+        {/* Spacer to push content up and provide consistent spacing */}
+        <View style={styles.spacer} />
 
-      {/* Spacer to push content up and provide consistent spacing */}
-      <View style={styles.spacer} />
-
-      {/* Input Accessory View */}
-      <CalculatorInputAccessory
-        nativeID={inputAccessoryViewID}
-        isValid={isValidCalories() && !isLoading}
-        onContinue={handleSave}
-        buttonText={isLoading ? "Saving..." : "Save Goal"}
-        accessibilityLabel={
-          isLoading
-            ? "Saving calorie goal..."
-            : "Save calorie goal and finish setup"
-        }
-      />
-    </CalculatorScreenLayout>
-  );
-});
+        {/* Input Accessory View */}
+        <CalculatorInputAccessory
+          nativeID={inputAccessoryViewID}
+          isValid={isValidCalories() && !isLoading}
+          onContinue={handleSave}
+          buttonText={isLoading ? "Saving..." : "Save Goal"}
+          accessibilityLabel={
+            isLoading
+              ? "Saving calorie goal..."
+              : "Save calorie goal and finish setup"
+          }
+        />
+      </CalculatorScreenLayout>
+    );
+  }
+);
 
 export default ManualCalorieInputScreen;
 

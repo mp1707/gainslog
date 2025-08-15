@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
 import {
   View,
   Text,
@@ -9,10 +15,10 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 
 import { NumericTextInput } from "@/shared/ui/atoms/NumericTextInput";
-import { 
-  CalculatorScreenLayout, 
-  CalculatorInputAccessory, 
-  CalculatorHeader 
+import {
+  CalculatorScreenLayout,
+  CalculatorInputAccessory,
+  CalculatorHeader,
 } from "@/shared/ui/components";
 
 import { useTheme } from "@/providers";
@@ -25,10 +31,7 @@ type HeightUnit = "cm" | "ft";
 
 const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const {
-    calculatorParams,
-    setCalculatorParams,
-  } = useFoodLogStore();
+  const { calculatorParams, setCalculatorParams } = useFoodLogStore();
 
   const [localParams, setLocalParams] = useState<CalorieIntakeParams>(
     calculatorParams || {
@@ -41,7 +44,7 @@ const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
 
   const [heightUnit, setHeightUnit] = useState<HeightUnit>("cm");
   const [heightInput, setHeightInput] = useState<string>(
-    heightUnit === "cm" 
+    heightUnit === "cm"
       ? localParams.height.toString()
       : (localParams.height / 30.48).toFixed(1)
   );
@@ -57,20 +60,25 @@ const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
   useEffect(() => {
     if (calculatorParams) {
       setLocalParams(calculatorParams);
-      const displayHeight = heightUnit === "cm" 
-        ? calculatorParams.height
-        : (calculatorParams.height / 30.48);
-      setHeightInput(heightUnit === "cm" ? displayHeight.toString() : displayHeight.toFixed(1));
+      const displayHeight =
+        heightUnit === "cm"
+          ? calculatorParams.height
+          : calculatorParams.height / 30.48;
+      setHeightInput(
+        heightUnit === "cm"
+          ? displayHeight.toString()
+          : displayHeight.toFixed(1)
+      );
     }
   }, [calculatorParams, heightUnit]);
 
-
   // Update height input when unit changes
   useEffect(() => {
-    const displayHeight = heightUnit === "cm" 
-      ? localParams.height
-      : (localParams.height / 30.48);
-    setHeightInput(heightUnit === "cm" ? displayHeight.toString() : displayHeight.toFixed(1));
+    const displayHeight =
+      heightUnit === "cm" ? localParams.height : localParams.height / 30.48;
+    setHeightInput(
+      heightUnit === "cm" ? displayHeight.toString() : displayHeight.toFixed(1)
+    );
   }, [heightUnit, localParams.height]);
 
   // Auto-focus input when screen mounts - wait for animation to fully complete
@@ -80,36 +88,39 @@ const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
       const focusTimer = setTimeout(() => {
         inputRef.current?.focus();
       }, 400); // 400ms total delay for smooth animation completion
-      
+
       return () => clearTimeout(focusTimer);
     });
 
     return () => handle.cancel();
   }, []);
 
-  const updateHeight = useCallback((heightText: string) => {
-    setHeightInput(heightText);
-    
-    if (heightText === '') {
-      return; // Allow empty input
-    }
-    
-    const height = parseFloat(heightText);
-    if (!isNaN(height) && height > 0) {
-      // Always store in cm
-      const heightInCm = heightUnit === "ft" ? height * 30.48 : height;
-      const newParams = { ...localParams, height: Math.round(heightInCm) };
-      setLocalParams(newParams);
-      setCalculatorParams(newParams);
-    }
-  }, [heightUnit, localParams, setCalculatorParams]);
+  const updateHeight = useCallback(
+    (heightText: string) => {
+      setHeightInput(heightText);
+
+      if (heightText === "") {
+        return; // Allow empty input
+      }
+
+      const height = parseFloat(heightText);
+      if (!isNaN(height) && height > 0) {
+        // Always store in cm
+        const heightInCm = heightUnit === "ft" ? height * 30.48 : height;
+        const newParams = { ...localParams, height: Math.round(heightInCm) };
+        setLocalParams(newParams);
+        setCalculatorParams(newParams);
+      }
+    },
+    [heightUnit, localParams, setCalculatorParams]
+  );
 
   const handleContinue = useCallback(async () => {
     const height = parseFloat(heightInput);
     if (isNaN(height) || height <= 0) {
       return;
     }
-    
+
     // Dismiss keyboard first, then navigate
     inputRef.current?.blur();
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -117,7 +128,7 @@ const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
   }, [heightInput]);
 
   const isValidHeight = useCallback(() => {
-    if (heightInput === '') return false;
+    if (heightInput === "") return false;
     const height = parseFloat(heightInput);
     const minHeight = heightUnit === "cm" ? 100 : 3.3;
     const maxHeight = heightUnit === "cm" ? 250 : 8.2;
@@ -135,9 +146,11 @@ const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
 
   const { min: heightMin, max: heightMax } = getHeightConstraints();
 
-
   // Height unit toggle options
-  const heightUnitOptions: [ToggleOption<HeightUnit>, ToggleOption<HeightUnit>] = [
+  const heightUnitOptions: [
+    ToggleOption<HeightUnit>,
+    ToggleOption<HeightUnit>
+  ] = [
     {
       value: "cm",
       label: "cm",
@@ -162,7 +175,9 @@ const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
       const inches = Math.round((localParams.height % 30.48) / 2.54);
       return `${localParams.height}cm = ${feet}'${inches}"`;
     } else {
-      return `${formatHeightDisplay(localParams.height / 30.48)} = ${localParams.height}cm`;
+      return `${formatHeightDisplay(localParams.height / 30.48)} = ${
+        localParams.height
+      }cm`;
     }
   };
 
@@ -204,10 +219,8 @@ const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
           />
           <Text style={styles.unitText}>{heightUnit}</Text>
         </View>
-        
-        <Text style={styles.conversionText}>
-          {getConversionText()}
-        </Text>
+
+        <Text style={styles.conversionText}>{getConversionText()}</Text>
       </View>
 
       {/* Spacer to push content up and provide consistent spacing */}

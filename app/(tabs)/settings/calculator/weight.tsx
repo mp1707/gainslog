@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
 import {
   View,
   Text,
@@ -9,10 +15,10 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 
 import { NumericTextInput } from "@/shared/ui/atoms/NumericTextInput";
-import { 
-  CalculatorScreenLayout, 
-  CalculatorInputAccessory, 
-  CalculatorHeader 
+import {
+  CalculatorScreenLayout,
+  CalculatorInputAccessory,
+  CalculatorHeader,
 } from "@/shared/ui/components";
 
 import { useTheme } from "@/providers";
@@ -25,10 +31,7 @@ type WeightUnit = "kg" | "lbs";
 
 const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const {
-    calculatorParams,
-    setCalculatorParams,
-  } = useFoodLogStore();
+  const { calculatorParams, setCalculatorParams } = useFoodLogStore();
 
   const [localParams, setLocalParams] = useState<CalorieIntakeParams>(
     calculatorParams || {
@@ -41,7 +44,7 @@ const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
 
   const [weightUnit, setWeightUnit] = useState<WeightUnit>("kg");
   const [weightInput, setWeightInput] = useState<string>(
-    weightUnit === "kg" 
+    weightUnit === "kg"
       ? localParams.weight.toString()
       : Math.round(localParams.weight * 2.205).toString()
   );
@@ -57,19 +60,20 @@ const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
   useEffect(() => {
     if (calculatorParams) {
       setLocalParams(calculatorParams);
-      const displayWeight = weightUnit === "kg" 
-        ? calculatorParams.weight
-        : Math.round(calculatorParams.weight * 2.205);
+      const displayWeight =
+        weightUnit === "kg"
+          ? calculatorParams.weight
+          : Math.round(calculatorParams.weight * 2.205);
       setWeightInput(displayWeight.toString());
     }
   }, [calculatorParams, weightUnit]);
 
-
   // Update weight input when unit changes
   useEffect(() => {
-    const displayWeight = weightUnit === "kg" 
-      ? localParams.weight
-      : Math.round(localParams.weight * 2.205);
+    const displayWeight =
+      weightUnit === "kg"
+        ? localParams.weight
+        : Math.round(localParams.weight * 2.205);
     setWeightInput(displayWeight.toString());
   }, [weightUnit, localParams.weight]);
 
@@ -80,36 +84,42 @@ const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
       const focusTimer = setTimeout(() => {
         inputRef.current?.focus();
       }, 400); // 400ms total delay for smooth animation completion
-      
+
       return () => clearTimeout(focusTimer);
     });
 
     return () => handle.cancel();
   }, []);
 
-  const updateWeight = useCallback((weightText: string) => {
-    setWeightInput(weightText);
-    
-    if (weightText === '') {
-      return; // Allow empty input
-    }
-    
-    const weight = parseFloat(weightText);
-    if (!isNaN(weight) && weight > 0) {
-      // Always store in kg
-      const weightInKg = weightUnit === "lbs" ? weight / 2.205 : weight;
-      const newParams = { ...localParams, weight: Math.round(weightInKg * 10) / 10 };
-      setLocalParams(newParams);
-      setCalculatorParams(newParams);
-    }
-  }, [weightUnit, localParams, setCalculatorParams]);
+  const updateWeight = useCallback(
+    (weightText: string) => {
+      setWeightInput(weightText);
+
+      if (weightText === "") {
+        return; // Allow empty input
+      }
+
+      const weight = parseFloat(weightText);
+      if (!isNaN(weight) && weight > 0) {
+        // Always store in kg
+        const weightInKg = weightUnit === "lbs" ? weight / 2.205 : weight;
+        const newParams = {
+          ...localParams,
+          weight: Math.round(weightInKg * 10) / 10,
+        };
+        setLocalParams(newParams);
+        setCalculatorParams(newParams);
+      }
+    },
+    [weightUnit, localParams, setCalculatorParams]
+  );
 
   const handleContinue = useCallback(async () => {
     const weight = parseFloat(weightInput);
     if (isNaN(weight) || weight <= 0) {
       return;
     }
-    
+
     // Dismiss keyboard first, then navigate
     inputRef.current?.blur();
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -117,7 +127,7 @@ const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
   }, [weightInput]);
 
   const isValidWeight = useCallback(() => {
-    if (weightInput === '') return false;
+    if (weightInput === "") return false;
     const weight = parseFloat(weightInput);
     const minWeight = weightUnit === "kg" ? 30 : 66;
     const maxWeight = weightUnit === "kg" ? 300 : 661;
@@ -135,9 +145,11 @@ const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
 
   const { min: weightMin, max: weightMax } = getWeightConstraints();
 
-
   // Weight unit toggle options
-  const weightUnitOptions: [ToggleOption<WeightUnit>, ToggleOption<WeightUnit>] = [
+  const weightUnitOptions: [
+    ToggleOption<WeightUnit>,
+    ToggleOption<WeightUnit>
+  ] = [
     {
       value: "kg",
       label: "kg",
@@ -151,9 +163,13 @@ const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
   // Get conversion text
   const getConversionText = () => {
     if (weightUnit === "kg") {
-      return `${localParams.weight}kg = ${Math.round(localParams.weight * 2.205)}lbs`;
+      return `${localParams.weight}kg = ${Math.round(
+        localParams.weight * 2.205
+      )}lbs`;
     } else {
-      return `${Math.round(localParams.weight * 2.205)}lbs = ${localParams.weight}kg`;
+      return `${Math.round(localParams.weight * 2.205)}lbs = ${
+        localParams.weight
+      }kg`;
     }
   };
 
@@ -195,10 +211,8 @@ const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
           />
           <Text style={styles.unitText}>{weightUnit}</Text>
         </View>
-        
-        <Text style={styles.conversionText}>
-          {getConversionText()}
-        </Text>
+
+        <Text style={styles.conversionText}>{getConversionText()}</Text>
       </View>
 
       {/* Spacer to push content up and provide consistent spacing */}
