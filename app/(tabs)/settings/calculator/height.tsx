@@ -73,10 +73,15 @@ const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
     setHeightInput(heightUnit === "cm" ? displayHeight.toString() : displayHeight.toFixed(1));
   }, [heightUnit, localParams.height]);
 
-  // Auto-focus input when screen mounts - after navigation animation completes
+  // Auto-focus input when screen mounts - wait for animation to fully complete
   useEffect(() => {
     const handle = InteractionManager.runAfterInteractions(() => {
-      inputRef.current?.focus();
+      // Additional delay to ensure navigation animation is visually complete
+      const focusTimer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 400); // 400ms total delay for smooth animation completion
+      
+      return () => clearTimeout(focusTimer);
     });
 
     return () => handle.cancel();
