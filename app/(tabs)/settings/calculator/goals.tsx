@@ -99,9 +99,9 @@ export default function Step3GoalsScreen() {
         goalType
       );
 
-      // Clear calculator data and navigate back
+      // Clear calculator data and navigate back to settings
       clearCalculatorData();
-      router.back();
+      router.replace("/settings");
     } catch (error) {
       console.error("Error saving calorie target:", error);
       Alert.alert("Error", "Failed to save calorie target. Please try again.");
@@ -114,7 +114,7 @@ export default function Step3GoalsScreen() {
         <Text style={styles.errorText}>
           Missing calculation data. Please start over.
         </Text>
-        <Button onPress={() => router.back()} style={styles.backButton}>
+        <Button onPress={() => router.replace("/settings")} style={styles.backButton}>
           Go Back
         </Button>
       </SafeAreaView>

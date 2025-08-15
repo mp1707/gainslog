@@ -18,7 +18,6 @@ export default function CalculatorLayout() {
         },
         headerShadowVisible: false,
         animation: "slide_from_right",
-        headerBackTitleVisible: false,
       }}
     >
       <Stack.Screen
