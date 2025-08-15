@@ -97,6 +97,7 @@ export default function Step3GoalsScreen() {
     }
   };
 
+
   if (!calculatorParams || !calculatorActivityLevel || !calorieGoals) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={["left", "right"]}>
@@ -113,12 +114,11 @@ export default function Step3GoalsScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        {/* Progress Bar */}
         <View style={styles.progressContainer}>
           <ProgressBar
             totalSteps={6}
             currentStep={6}
-            accessibilityLabel="Calculator progress: step 6 of 6"
+            accessibilityLabel={`Calculator progress: step 6 of 6`}
           />
         </View>
 
@@ -129,9 +129,14 @@ export default function Step3GoalsScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.subtitle}>
-            Choose your calorie goal based on what you want to achieve.
-          </Text>
+          <View style={styles.textSection}>
+            <Text style={styles.subtitle}>
+              Choose your calorie goal
+            </Text>
+            <Text style={styles.description}>
+              Select the goal that best matches what you want to achieve.
+            </Text>
+          </View>
 
           <View style={styles.goalsSection}>
             <GoalSelectionCard
@@ -155,7 +160,6 @@ export default function Step3GoalsScreen() {
               onSelect={handleGoalSelect}
             />
           </View>
-
 
           {/* Footer Note */}
           <View style={styles.footer}>
@@ -186,11 +190,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       justifyContent: "center",
       alignItems: "center",
     },
-    progressContainer: {
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.md,
-      paddingBottom: spacing.lg,
-    },
     errorText: {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
@@ -209,13 +208,22 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       paddingTop: spacing.lg,
       paddingBottom: 100,
     },
+    textSection: {
+      marginBottom: spacing.xl,
+    },
     subtitle: {
+      fontSize: typography.Title2.fontSize,
+      fontFamily: typography.Title2.fontFamily,
+      color: colors.primaryText,
+      textAlign: "center",
+      marginBottom: spacing.md,
+    },
+    description: {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
       textAlign: "center",
       lineHeight: 22,
-      marginBottom: spacing.lg,
     },
     goalsSection: {
       marginBottom: spacing.lg,
@@ -232,6 +240,9 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       color: colors.secondaryText,
       textAlign: "center",
       lineHeight: 18,
+    },
+    progressContainer: {
+      padding: themeObj.spacing.md,
     },
   });
 };

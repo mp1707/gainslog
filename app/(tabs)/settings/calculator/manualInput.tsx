@@ -19,15 +19,14 @@ import { StyleSheet } from "react-native";
 
 export default function ManualCalorieInputScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const {
-    dailyTargets,
-    updateDailyTargets,
-    clearCalculatorData,
-  } = useFoodLogStore();
+  const { dailyTargets, updateDailyTargets, clearCalculatorData } =
+    useFoodLogStore();
 
   // Use current calorie target as starting value, default to 2000
   const [selectedCalories, setSelectedCalories] = useState<number>(
-    (dailyTargets?.calories && dailyTargets.calories > 0) ? dailyTargets.calories : 2000
+    dailyTargets?.calories && dailyTargets.calories > 0
+      ? dailyTargets.calories
+      : 2000
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -53,9 +52,13 @@ export default function ManualCalorieInputScreen() {
     if (isLoading) return;
 
     // Validate input
-    if (!selectedCalories || selectedCalories < 1000 || selectedCalories > 5000) {
+    if (
+      !selectedCalories ||
+      selectedCalories < 1000 ||
+      selectedCalories > 5000
+    ) {
       Alert.alert(
-        "Invalid Calorie Value", 
+        "Invalid Calorie Value",
         "Please select a calorie value between 1000 and 5000."
       );
       return;
@@ -76,22 +79,22 @@ export default function ManualCalorieInputScreen() {
       };
 
       // Update the daily targets with the manually entered calories
-      const newTargets = { 
-        ...currentTargets, 
-        calories: selectedCalories 
+      const newTargets = {
+        ...currentTargets,
+        calories: selectedCalories,
       };
-      
+
       await updateDailyTargets(newTargets);
 
       // Clear calculator data since we're skipping the flow
       clearCalculatorData();
-      
+
       // Navigate back to settings
       router.replace("/settings");
     } catch (error) {
       console.error("Error saving manual calorie target:", error);
       Alert.alert(
-        "Save Failed", 
+        "Save Failed",
         "Failed to save your calorie target. Please check your connection and try again."
       );
     } finally {
@@ -102,22 +105,12 @@ export default function ManualCalorieInputScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        {/* Progress Bar */}
-        <View style={styles.progressContainer}>
-          <ProgressBar
-            totalSteps={6}
-            currentStep={6}
-            accessibilityLabel="Calculator progress: step 6 of 6"
-          />
-        </View>
-
         {/* Content */}
         <View style={styles.content}>
-          <Text style={styles.subtitle}>
-            Enter your daily calorie goal
-          </Text>
+          <Text style={styles.subtitle}>Enter your daily calorie goal</Text>
           <Text style={styles.description}>
-            Set your target calories per day. You can always adjust this later in settings.
+            Set your target calories per day. You can always adjust this later
+            in settings.
           </Text>
 
           <View style={styles.pickerSection}>
@@ -126,7 +119,11 @@ export default function ManualCalorieInputScreen() {
                 selectedValue={selectedCalories}
                 onValueChange={(value: number) => {
                   // Validate picker value
-                  if (typeof value === 'number' && value >= 1000 && value <= 5000) {
+                  if (
+                    typeof value === "number" &&
+                    value >= 1000 &&
+                    value <= 5000
+                  ) {
                     setSelectedCalories(value);
                   }
                 }}
@@ -134,15 +131,15 @@ export default function ManualCalorieInputScreen() {
                 itemStyle={styles.pickerItem}
               >
                 {calorieOptions.map((calories) => (
-                  <Picker.Item 
-                    key={calories} 
-                    label={`${calories} calories`} 
-                    value={calories} 
+                  <Picker.Item
+                    key={calories}
+                    label={`${calories} calories`}
+                    value={calories}
                   />
                 ))}
               </Picker>
             </View>
-            
+
             <Text style={styles.selectedText}>
               {selectedCalories} calories per day
             </Text>
@@ -153,12 +150,16 @@ export default function ManualCalorieInputScreen() {
             <TouchableOpacity
               style={[
                 styles.saveButton,
-                isLoading && styles.saveButtonDisabled
+                isLoading && styles.saveButtonDisabled,
               ]}
               onPress={handleSave}
               disabled={isLoading}
               accessibilityRole="button"
-              accessibilityLabel={isLoading ? "Saving calorie goal..." : "Save calorie goal and finish setup"}
+              accessibilityLabel={
+                isLoading
+                  ? "Saving calorie goal..."
+                  : "Save calorie goal and finish setup"
+              }
             >
               <Text style={styles.saveButtonText}>
                 {isLoading ? "Saving..." : "Save Goal"}

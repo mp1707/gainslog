@@ -63,23 +63,24 @@ export default function AgeSelectionScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        {/* Progress Bar */}
         <View style={styles.progressContainer}>
           <ProgressBar
             totalSteps={6}
             currentStep={2}
-            accessibilityLabel="Calculator progress: step 2 of 6"
+            accessibilityLabel={`Calculator progress: step 2 of 6`}
           />
         </View>
 
         {/* Content */}
         <View style={styles.content}>
-          <Text style={styles.subtitle}>
-            What is your age?
-          </Text>
-          <Text style={styles.description}>
-            Your age helps determine your baseline metabolic rate.
-          </Text>
+          <View style={styles.textSection}>
+            <Text style={styles.subtitle}>
+              What is your age?
+            </Text>
+            <Text style={styles.description}>
+              Your age helps determine your baseline metabolic rate.
+            </Text>
+          </View>
 
           <View style={styles.pickerSection}>
             <View style={styles.pickerContainer}>
@@ -96,7 +97,6 @@ export default function AgeSelectionScreen() {
             </View>
           </View>
 
-          {/* Continue Button */}
           <View style={styles.navigationContainer}>
             <TouchableOpacity
               style={styles.continueButton}
@@ -125,15 +125,13 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       flex: 1,
       backgroundColor: colors.primaryBackground,
     },
-    progressContainer: {
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.md,
-      paddingBottom: spacing.lg,
-    },
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
       justifyContent: "space-between",
+    },
+    textSection: {
+      paddingTop: spacing.lg,
     },
     subtitle: {
       fontSize: typography.Title2.fontSize,
@@ -148,12 +146,12 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       color: colors.secondaryText,
       textAlign: "center",
       lineHeight: 22,
-      marginBottom: spacing.xl,
     },
     pickerSection: {
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
+      paddingVertical: spacing.xl,
     },
     pickerContainer: {
       backgroundColor: colors.secondaryBackground,
@@ -190,6 +188,9 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       color: "#FFFFFF",
       fontWeight: "600",
       marginRight: spacing.sm,
+    },
+    progressContainer: {
+      padding: themeObj.spacing.md,
     },
   });
 };

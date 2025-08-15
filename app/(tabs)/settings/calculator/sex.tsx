@@ -13,18 +13,15 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
-import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import type { CalorieIntakeParams, Sex } from "@/types";
 import { getCalorieCalculatorParams } from "@/lib/storage";
 import { StyleSheet } from "react-native";
+import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 
 export default function SexSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const {
-    calculatorParams,
-    setCalculatorParams,
-    clearCalculatorData,
-  } = useFoodLogStore();
+  const { calculatorParams, setCalculatorParams, clearCalculatorData } =
+    useFoodLogStore();
 
   // Create stable initial params to prevent re-renders
   const stableInitialParams = useMemo(
@@ -79,9 +76,9 @@ export default function SexSelectionScreen() {
     const newParams = { ...localParams, sex };
     setLocalParams(newParams);
     setCalculatorParams(newParams);
-    
+
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    
+
     // Auto-advance to next screen after a short delay for visual feedback
     setTimeout(() => {
       router.push("/settings/calculator/age");
@@ -93,9 +90,16 @@ export default function SexSelectionScreen() {
     router.push("/settings/calculator/manualInput");
   };
 
+  const handleBack = () => {
+    router.back();
+  };
+
   if (!isLoaded) {
     return (
-      <SafeAreaView style={[styles.container, styles.centered]} edges={["left", "right"]}>
+      <SafeAreaView
+        style={[styles.container, styles.centered]}
+        edges={["left", "right"]}
+      >
         <Text style={styles.loadingText}>Loading...</Text>
       </SafeAreaView>
     );
@@ -104,53 +108,52 @@ export default function SexSelectionScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        {/* Progress Bar */}
         <View style={styles.progressContainer}>
           <ProgressBar
             totalSteps={6}
             currentStep={1}
-            accessibilityLabel="Calculator progress: step 1 of 6"
+            accessibilityLabel={`Calculator progress: step 1 of 6`}
           />
         </View>
 
         {/* Content */}
         <View style={styles.content}>
-          <Text style={styles.subtitle}>
-            What is your biological sex?
-          </Text>
-          <Text style={styles.description}>
-            This helps us calculate your daily calorie needs more accurately.
-          </Text>
-
-          <View style={styles.optionsContainer}>
-            <SelectionCard
-              title="Male"
-              description="Biological male"
-              icon={GenderMaleIcon}
-              iconColor="#4A90E2"
-              isSelected={localParams.sex === "male"}
-              onSelect={() => handleSexSelect("male")}
-              accessibilityLabel="Select male as biological sex"
-              accessibilityHint="This will help calculate your calorie needs and advance to the next step"
-            />
-
-            <SelectionCard
-              title="Female"
-              description="Biological female"
-              icon={GenderFemaleIcon}
-              iconColor="#E24A90"
-              isSelected={localParams.sex === "female"}
-              onSelect={() => handleSexSelect("female")}
-              accessibilityLabel="Select female as biological sex"
-              accessibilityHint="This will help calculate your calorie needs and advance to the next step"
-            />
+          <View style={styles.textSection}>
+            <Text style={styles.subtitle}>What is your biological sex?</Text>
+            <Text style={styles.description}>
+              This helps us calculate your daily calorie needs more accurately.
+            </Text>
           </View>
 
-          {/* Separator */}
-          <View style={styles.separator} />
+          <View style={styles.selectionSection}>
+            <View style={styles.optionsContainer}>
+              <SelectionCard
+                title="Male"
+                description="Biological male"
+                icon={GenderMaleIcon}
+                iconColor="#4A90E2"
+                isSelected={localParams.sex === "male"}
+                onSelect={() => handleSexSelect("male")}
+                accessibilityLabel="Select male as biological sex"
+                accessibilityHint="This will help calculate your calorie needs and advance to the next step"
+              />
 
-          {/* Manual Input Option */}
-          <View style={styles.manualInputContainer}>
+              <SelectionCard
+                title="Female"
+                description="Biological female"
+                icon={GenderFemaleIcon}
+                iconColor="#E24A90"
+                isSelected={localParams.sex === "female"}
+                onSelect={() => handleSexSelect("female")}
+                accessibilityLabel="Select female as biological sex"
+                accessibilityHint="This will help calculate your calorie needs and advance to the next step"
+              />
+            </View>
+
+            {/* Separator */}
+            <View style={styles.separator} />
+
+            {/* Manual Input Option */}
             <TouchableOpacity
               style={styles.manualInputButton}
               onPress={handleManualInput}
@@ -187,15 +190,14 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
     },
-    progressContainer: {
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.md,
-      paddingBottom: spacing.lg,
-    },
     content: {
       flex: 1,
+      paddingTop: spacing.lg,
       paddingHorizontal: spacing.pageMargins.horizontal,
       justifyContent: "center",
+    },
+    textSection: {
+      marginBottom: spacing.md,
     },
     subtitle: {
       fontSize: typography.Title2.fontSize,
@@ -210,20 +212,20 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       color: colors.secondaryText,
       textAlign: "center",
       lineHeight: 22,
-      marginBottom: spacing.xl,
+    },
+    selectionSection: {
+      flex: 1,
+      justifyContent: "center",
     },
     optionsContainer: {
-      paddingBottom: spacing.xl,
+      gap: spacing.md,
+      marginBottom: spacing.xl,
     },
     separator: {
       height: 1,
       backgroundColor: colors.border,
-      marginHorizontal: spacing.lg,
-      marginVertical: spacing.lg,
-    },
-    manualInputContainer: {
-      paddingHorizontal: spacing.lg,
-      paddingBottom: spacing.xl,
+      marginHorizontal: spacing.xl,
+      marginBottom: spacing.xl,
     },
     manualInputButton: {
       paddingVertical: spacing.md,
@@ -233,12 +235,16 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       borderColor: colors.border,
       backgroundColor: colors.secondaryBackground,
       alignItems: "center",
+      marginHorizontal: spacing.lg,
     },
     manualInputText: {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
       fontWeight: "500",
+    },
+    progressContainer: {
+      padding: themeObj.spacing.md,
     },
   });
 };

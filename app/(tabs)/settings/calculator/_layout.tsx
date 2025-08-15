@@ -57,6 +57,12 @@ export default function CalculatorLayout() {
           title: "Select Goals",
         }}
       />
+      <Stack.Screen
+        name="manualInput"
+        options={{
+          title: "",
+        }}
+      />
     </Stack>
   );
 }

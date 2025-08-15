@@ -48,17 +48,17 @@ export default function Step2ActivityLevelScreen() {
     }, 300);
   };
 
+
   const methods = Object.values(CALCULATION_METHODS);
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        {/* Progress Bar */}
         <View style={styles.progressContainer}>
           <ProgressBar
             totalSteps={6}
             currentStep={5}
-            accessibilityLabel="Calculator progress: step 5 of 6"
+            accessibilityLabel={`Calculator progress: step 5 of 6`}
           />
         </View>
 
@@ -69,9 +69,14 @@ export default function Step2ActivityLevelScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.subtitle}>
-            Select the option that best matches your lifestyle and exercise routine.
-          </Text>
+          <View style={styles.textSection}>
+            <Text style={styles.subtitle}>
+              Choose your activity level
+            </Text>
+            <Text style={styles.description}>
+              Select the option that best matches your lifestyle and exercise routine.
+            </Text>
+          </View>
 
           <View style={styles.methodsSection}>
             {methods.map((method) => (
@@ -84,7 +89,6 @@ export default function Step2ActivityLevelScreen() {
               />
             ))}
           </View>
-
         </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
@@ -102,11 +106,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       flex: 1,
       backgroundColor: colors.primaryBackground,
     },
-    progressContainer: {
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.md,
-      paddingBottom: spacing.lg,
-    },
     content: {
       flex: 1,
     },
@@ -115,16 +114,28 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       paddingTop: spacing.lg,
       paddingBottom: 100,
     },
+    textSection: {
+      marginBottom: spacing.xl,
+    },
     subtitle: {
+      fontSize: typography.Title2.fontSize,
+      fontFamily: typography.Title2.fontFamily,
+      color: colors.primaryText,
+      textAlign: "center",
+      marginBottom: spacing.md,
+    },
+    description: {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
       textAlign: "center",
       lineHeight: 22,
-      marginBottom: spacing.lg,
     },
     methodsSection: {
       marginBottom: spacing.lg,
+    },
+    progressContainer: {
+      padding: themeObj.spacing.md,
     },
   });
 };
