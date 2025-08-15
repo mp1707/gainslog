@@ -1,11 +1,10 @@
 import React, { useEffect, useMemo } from "react";
-import { View, ScrollView, KeyboardAvoidingView } from "react-native";
+import { View, ScrollView, KeyboardAvoidingView, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { CalorieCalculatorModal } from "@/shared/ui/molecules/CalorieCalculatorModal";
 import { useNutritionCalculations } from "@/features/settings/hooks/useNutritionCalculations";
-import { useSettingsModals } from "@/features/settings/hooks/useSettingsModals";
 import { useKeyboardOffset } from "@/features/settings/hooks/useKeyboardOffset";
 import { StyleSheet } from "react-native";
 import { Card } from "src/components";
@@ -13,7 +12,7 @@ import { NutritionAccordionContent } from "@/features/settings/ui/molecules/Nutr
 import { SettingsSection } from "@/shared/ui/molecules/SettingsSection";
 
 export default function CaloriesScreen() {
-  const { loadDailyTargets, isLoadingTargets } = useFoodLogStore();
+  const { loadDailyTargets, isLoadingTargets, calorieCalculation } = useFoodLogStore();
   const { colors, theme: themeObj } = useTheme();
   const keyboardOffset = useKeyboardOffset(true);
 
@@ -23,17 +22,6 @@ export default function CaloriesScreen() {
     dailyTargets,
     handleTargetChange,
   } = nutritionCalculations;
-
-  const {
-    isCalorieCalculatorVisible,
-    setIsCalorieCalculatorVisible,
-    calorieCalculation,
-    handleCalorieGoalSelect,
-  } = useSettingsModals(
-    handleTargetChange,
-    () => {}, // No navigation callbacks needed here
-    () => {}
-  );
 
   const styles = useMemo(
     () => createStyles(colors, themeObj, keyboardOffset),
@@ -75,7 +63,7 @@ export default function CaloriesScreen() {
             <NutritionAccordionContent
               calculatorType="calories"
               calculatorDescription="Calories provide the body with energy to perform all physical and mental activities. Get a personalized calories target based on your body and goals. (Recommended)"
-              onCalculatorPress={() => setIsCalorieCalculatorVisible(true)}
+              onCalculatorPress={() => router.push("/settings/calorie-calculator")}
               calculationInfo={
                 calorieCalculation
                   ? {
@@ -108,12 +96,6 @@ export default function CaloriesScreen() {
             </Card>
           </SettingsSection>
         </ScrollView>
-
-        <CalorieCalculatorModal
-          visible={isCalorieCalculatorVisible}
-          onClose={() => setIsCalorieCalculatorVisible(false)}
-          onSelectGoal={handleCalorieGoalSelect}
-        />
       </SafeAreaView>
     </KeyboardAvoidingView>
   );

@@ -13,7 +13,6 @@ import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { Button } from "@/shared/ui/atoms/Button";
 import { StatusIcon } from "@/shared/ui/atoms/StatusIcon";
 import { ProteinCalculatorModal } from "@/shared/ui/molecules/ProteinCalculatorModal";
-import { CalorieCalculatorModal } from "@/shared/ui/molecules/CalorieCalculatorModal";
 import { AppearanceCard } from "@/features/settings/ui/molecules/AppearanceCard";
 import { useNutritionCalculations } from "@/features/settings/hooks/useNutritionCalculations";
 import { useSettingsModals } from "@/features/settings/hooks/useSettingsModals";
@@ -352,11 +351,6 @@ export default function SettingsTab() {
           initialBodyWeight={proteinCalculation?.bodyWeight}
         />
 
-        <CalorieCalculatorModal
-          visible={isCalorieCalculatorVisible}
-          onClose={() => setIsCalorieCalculatorVisible(false)}
-          onSelectGoal={handleCalorieGoalSelect}
-        />
       </SafeAreaView>
     </KeyboardAvoidingView>
   );

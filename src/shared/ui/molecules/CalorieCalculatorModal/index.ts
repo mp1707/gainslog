@@ -1,1 +1,0 @@
-export { CalorieCalculatorModal } from './CalorieCalculatorModal';

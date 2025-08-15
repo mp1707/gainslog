@@ -55,6 +55,13 @@ export default function SettingsLayout() {
           title: "Carbs",
         }}
       />
+      <Stack.Screen
+        name="calorie-calculator"
+        options={{
+          title: "Calculate Target",
+
+        }}
+      />
     </Stack>
   );
 }
