@@ -5,13 +5,13 @@ import {
   TouchableOpacity,
   Text,
   TextInput as RNTextInput,
+  InputAccessoryView,
+  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
-
-import { NumericTextInput } from "@/shared/ui/atoms/NumericTextInput";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
@@ -34,6 +34,8 @@ export default function AgeSelectionScreen() {
 
   const [ageInput, setAgeInput] = useState<string>(localParams.age.toString());
   const inputRef = useRef<RNTextInput>(null);
+  const buttonOpacity = useRef(new Animated.Value(0.6)).current;
+  const INPUT_ACCESSORY_VIEW_ID = "ageInputAccessory";
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -47,6 +49,24 @@ export default function AgeSelectionScreen() {
       setAgeInput(calculatorParams.age.toString());
     }
   }, [calculatorParams]);
+
+  // Auto-focus input on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Animate button opacity based on validity
+  useEffect(() => {
+    const isValid = isValidAge();
+    Animated.timing(buttonOpacity, {
+      toValue: isValid ? 1 : 0.6,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  }, [ageInput, buttonOpacity]);
 
   const updateAge = (ageText: string) => {
     setAgeInput(ageText);
@@ -76,7 +96,7 @@ export default function AgeSelectionScreen() {
   const isValidAge = () => {
     if (ageInput === '') return false;
     const age = parseInt(ageInput, 10);
-    return !isNaN(age) && age >= 13 && age <= 120;
+    return !isNaN(age) && age >= 10 && age <= 120;
   };
 
   return (
@@ -101,36 +121,50 @@ export default function AgeSelectionScreen() {
 
           <View style={styles.inputSection}>
             <View style={styles.inputContainer}>
-              <NumericTextInput
-                ref={inputRef}
-                style={styles.ageInput}
-                value={ageInput}
-                onChangeText={updateAge}
-                min={13}
-                max={120}
-                placeholder="30"
-                accessibilityLabel="Age input"
-                accessibilityHint="Enter your age between 13 and 120 years"
-              />
+              <Text style={styles.ageDisplay}>
+                {ageInput || "0"}
+              </Text>
               <Text style={styles.unitText}>years</Text>
             </View>
+            
+            {/* Hidden TextInput for keyboard control */}
+            <RNTextInput
+              ref={inputRef}
+              style={styles.hiddenInput}
+              value={ageInput}
+              onChangeText={updateAge}
+              keyboardType="number-pad"
+              inputAccessoryViewID={INPUT_ACCESSORY_VIEW_ID}
+              accessibilityLabel="Age input"
+              accessibilityHint="Enter your age between 10 and 120 years"
+            />
           </View>
 
-          <View style={styles.navigationContainer}>
-            <TouchableOpacity
-              style={[
-                styles.continueButton,
-                !isValidAge() && styles.continueButtonDisabled,
-              ]}
-              onPress={handleContinue}
-              disabled={!isValidAge()}
-              accessibilityRole="button"
-              accessibilityLabel="Continue to weight selection"
-            >
-              <Text style={styles.continueButtonText}>Continue</Text>
-              <CaretRightIcon size={20} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
+          {/* Input Accessory View */}
+          <InputAccessoryView nativeID={INPUT_ACCESSORY_VIEW_ID}>
+            <View style={styles.accessoryContainer}>
+              <Animated.View
+                style={[
+                  styles.accessoryButton,
+                  { opacity: buttonOpacity },
+                ]}
+              >
+                <TouchableOpacity
+                  style={[
+                    styles.continueButton,
+                    !isValidAge() && styles.continueButtonDisabled,
+                  ]}
+                  onPress={handleContinue}
+                  disabled={!isValidAge()}
+                  accessibilityRole="button"
+                  accessibilityLabel="Continue to weight selection"
+                >
+                  <Text style={styles.continueButtonText}>Continue</Text>
+                  <CaretRightIcon size={20} color="#FFFFFF" />
+                </TouchableOpacity>
+              </Animated.View>
+            </View>
+          </InputAccessoryView>
         </View>
       </SafeAreaView>
     </KeyboardAvoidingView>
@@ -181,20 +215,38 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       alignItems: "baseline",
       justifyContent: "center",
     },
-    ageInput: {
-      fontSize: typography.Title1.fontSize,
+    ageDisplay: {
+      fontSize: 56,
       fontFamily: typography.Title1.fontFamily,
+      fontWeight: "700",
+      color: colors.primaryText,
       textAlign: "center",
       minWidth: 120,
     },
     unitText: {
-      fontSize: typography.Title1.fontSize,
-      fontFamily: typography.Title1.fontFamily,
+      fontSize: 20,
+      fontFamily: typography.Subhead.fontFamily,
+      fontWeight: "400",
       color: colors.secondaryText,
-      marginLeft: spacing.sm,
+      marginLeft: spacing.md,
+      marginTop: 8,
     },
-    navigationContainer: {
-      paddingBottom: spacing.xl,
+    hiddenInput: {
+      position: "absolute",
+      opacity: 0,
+      width: 1,
+      height: 1,
+    },
+    accessoryContainer: {
+      backgroundColor: colors.secondaryBackground,
+      borderTopWidth: 0.5,
+      borderTopColor: colors.border,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      alignItems: "flex-end",
+    },
+    accessoryButton: {
+      minWidth: 100,
     },
     continueButton: {
       backgroundColor: colors.accent,
