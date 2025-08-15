@@ -13,7 +13,7 @@ export const createStyles = (colors: Colors, colorScheme: "light" | "dark") =>
       flexDirection: "row",
       alignItems: "center",
       minHeight: 100,
-      shadowColor: colorScheme === "light" ? "rgba(0, 0, 0, 0.1)" : "transparent",
+      shadowColor: colorScheme === "light" ? "rgba(158, 102, 255, 0.1)" : "transparent",
       shadowOffset: {
         width: 0,
         height: 2,

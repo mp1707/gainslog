@@ -36,6 +36,7 @@ export default function SexSelectionScreen() {
   const [localParams, setLocalParams] = useState<CalorieIntakeParams | null>(
     calculatorParams
   );
+  const [selectedSex, setSelectedSex] = useState<Sex | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   const styles = useMemo(
@@ -86,6 +87,7 @@ export default function SexSelectionScreen() {
   }, [calculatorParams]);
 
   const handleSexSelect = async (sex: Sex) => {
+    setSelectedSex(sex);
     const newParams = { ...stableInitialParams, ...localParams, sex };
     setLocalParams(newParams);
     setCalculatorParams(newParams);
@@ -140,8 +142,8 @@ export default function SexSelectionScreen() {
                 title="Male"
                 description="Biological male"
                 icon={GenderMaleIcon}
-                iconColor="#4A90E2"
-                isSelected={localParams?.sex === "male"}
+                iconColor={selectedSex === "male" ? colors.accent : "#4A90E2"}
+                isSelected={selectedSex === "male"}
                 onSelect={() => handleSexSelect("male")}
                 accessibilityLabel="Select male as biological sex"
                 accessibilityHint="This will help calculate your calorie needs and advance to the next step"
@@ -151,8 +153,8 @@ export default function SexSelectionScreen() {
                 title="Female"
                 description="Biological female"
                 icon={GenderFemaleIcon}
-                iconColor="#E24A90"
-                isSelected={localParams?.sex === "female"}
+                iconColor={selectedSex === "female" ? colors.accent : "#E24A90"}
+                isSelected={selectedSex === "female"}
                 onSelect={() => handleSexSelect("female")}
                 accessibilityLabel="Select female as biological sex"
                 accessibilityHint="This will help calculate your calorie needs and advance to the next step"

@@ -37,7 +37,6 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
   const styles = createStyles(colors, colorScheme);
 
   const displayIconColor = isSelected ? colors.accent : iconColor;
-  const iconWeight = isSelected ? "fill" : "regular";
 
   // Press animation shared values
   const pressScale = useSharedValue(1);
@@ -84,7 +83,7 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
           <IconComponent
             size={32}
             color={displayIconColor}
-            weight={iconWeight}
+            weight="bold"
           />
         </View>
         
