@@ -20,7 +20,7 @@ import type { CalorieIntakeParams } from "@/types";
 import { StyleSheet } from "react-native";
 
 export default function AgeSelectionScreen() {
-  const { colors, theme: themeObj } = useTheme();
+  const { colors, theme: themeObj, colorScheme } = useTheme();
   const { calculatorParams, setCalculatorParams } = useFoodLogStore();
 
   const [localParams, setLocalParams] = useState<CalorieIntakeParams>(
@@ -70,11 +70,11 @@ export default function AgeSelectionScreen() {
 
   const updateAge = (ageText: string) => {
     setAgeInput(ageText);
-    
-    if (ageText === '') {
+
+    if (ageText === "") {
       return; // Allow empty input
     }
-    
+
     const age = parseInt(ageText, 10);
     if (!isNaN(age)) {
       const newParams = { ...localParams, age };
@@ -94,7 +94,7 @@ export default function AgeSelectionScreen() {
   };
 
   const isValidAge = () => {
-    if (ageInput === '') return false;
+    if (ageInput === "") return false;
     const age = parseInt(ageInput, 10);
     return !isNaN(age) && age >= 10 && age <= 120;
   };
@@ -121,33 +121,26 @@ export default function AgeSelectionScreen() {
 
           <View style={styles.inputSection}>
             <View style={styles.inputContainer}>
-              <Text style={styles.ageDisplay}>
-                {ageInput || "0"}
-              </Text>
+              <RNTextInput
+                ref={inputRef}
+                style={styles.ageDisplay}
+                value={ageInput}
+                onChangeText={updateAge}
+                keyboardType="number-pad"
+                keyboardAppearance={colorScheme}
+                inputAccessoryViewID={INPUT_ACCESSORY_VIEW_ID}
+                accessibilityLabel="Age input"
+                accessibilityHint="Enter your age between 10 and 120 years"
+              />
               <Text style={styles.unitText}>years</Text>
             </View>
-            
-            {/* Hidden TextInput for keyboard control */}
-            <RNTextInput
-              ref={inputRef}
-              style={styles.hiddenInput}
-              value={ageInput}
-              onChangeText={updateAge}
-              keyboardType="number-pad"
-              inputAccessoryViewID={INPUT_ACCESSORY_VIEW_ID}
-              accessibilityLabel="Age input"
-              accessibilityHint="Enter your age between 10 and 120 years"
-            />
           </View>
 
           {/* Input Accessory View */}
           <InputAccessoryView nativeID={INPUT_ACCESSORY_VIEW_ID}>
             <View style={styles.accessoryContainer}>
               <Animated.View
-                style={[
-                  styles.accessoryButton,
-                  { opacity: buttonOpacity },
-                ]}
+                style={[styles.accessoryButton, { opacity: buttonOpacity }]}
               >
                 <TouchableOpacity
                   style={[
@@ -159,8 +152,20 @@ export default function AgeSelectionScreen() {
                   accessibilityRole="button"
                   accessibilityLabel="Continue to weight selection"
                 >
-                  <Text style={styles.continueButtonText}>Continue</Text>
-                  <CaretRightIcon size={20} color="#FFFFFF" />
+                  <Text
+                    style={[
+                      styles.continueButtonText,
+                      isValidAge()
+                        ? styles.continueButtonTextActive
+                        : styles.continueButtonTextDisabled,
+                    ]}
+                  >
+                    Continue
+                  </Text>
+                  <CaretRightIcon
+                    size={20}
+                    color={isValidAge() ? "#FFFFFF" : colors.secondaryText}
+                  />
                 </TouchableOpacity>
               </Animated.View>
             </View>
@@ -185,7 +190,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
-      justifyContent: "space-between",
+      alignItems: "flex-start",
     },
     textSection: {
       paddingTop: spacing.lg,
@@ -205,14 +210,15 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       lineHeight: 22,
     },
     inputSection: {
-      flex: 1,
       justifyContent: "center",
       alignItems: "center",
       paddingVertical: spacing.xl,
+      width: "100%",
     },
     inputContainer: {
       flexDirection: "row",
       alignItems: "baseline",
+
       justifyContent: "center",
     },
     ageDisplay: {
@@ -228,14 +234,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontFamily: typography.Subhead.fontFamily,
       fontWeight: "400",
       color: colors.secondaryText,
-      marginLeft: spacing.md,
-      marginTop: 8,
-    },
-    hiddenInput: {
-      position: "absolute",
-      opacity: 0,
-      width: 1,
-      height: 1,
+      // marginLeft: spacing.md,
     },
     accessoryContainer: {
       backgroundColor: colors.secondaryBackground,
@@ -260,9 +259,15 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     continueButtonText: {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
-      color: "#FFFFFF",
       fontWeight: "600",
       marginRight: spacing.sm,
+      color: colors.primaryBackground,
+    },
+    continueButtonTextActive: {
+      color: colors.primaryBackground,
+    },
+    continueButtonTextDisabled: {
+      color: colors.secondaryText,
     },
     continueButtonDisabled: {
       backgroundColor: colors.disabledBackground,
