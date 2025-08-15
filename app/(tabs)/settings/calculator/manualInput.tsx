@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
   View,
   Text,
   Alert,
   TextInput as RNTextInput,
+  InteractionManager,
 } from "react-native";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
@@ -19,7 +20,7 @@ import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { StyleSheet } from "react-native";
 
-export default function ManualCalorieInputScreen() {
+const ManualCalorieInputScreen = React.memo(function ManualCalorieInputScreen() {
   const { colors, theme: themeObj } = useTheme();
   const { dailyTargets, updateDailyTargets, clearCalculatorData } =
     useFoodLogStore();
@@ -54,17 +55,17 @@ export default function ManualCalorieInputScreen() {
     }
   }, [dailyTargets?.calories]);
 
-  // Auto-focus input when screen mounts
+  // Auto-focus input when screen mounts - after navigation animation completes
   useEffect(() => {
-    const focusTimer = setTimeout(() => {
+    const handle = InteractionManager.runAfterInteractions(() => {
       inputRef.current?.focus();
-    }, 100); // Small delay to ensure component is fully mounted
+    });
 
-    return () => clearTimeout(focusTimer);
+    return () => handle.cancel();
   }, []);
 
 
-  const updateCalories = (calorieText: string) => {
+  const updateCalories = useCallback((calorieText: string) => {
     setCalorieInput(calorieText);
     
     if (calorieText === '') {
@@ -75,15 +76,15 @@ export default function ManualCalorieInputScreen() {
     if (!isNaN(calories)) {
       setSelectedCalories(calories);
     }
-  };
+  }, []);
 
-  const isValidCalories = () => {
+  const isValidCalories = useCallback(() => {
     if (calorieInput === '') return false;
     const calories = parseInt(calorieInput, 10);
     return !isNaN(calories) && calories >= 1000 && calories <= 5000;
-  };
+  }, [calorieInput]);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     // Prevent multiple rapid saves
     if (isLoading) return;
 
@@ -138,7 +139,7 @@ export default function ManualCalorieInputScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isLoading, calorieInput, dailyTargets, updateDailyTargets, clearCalculatorData]);
 
   return (
     <CalculatorScreenLayout
@@ -192,7 +193,9 @@ export default function ManualCalorieInputScreen() {
       />
     </CalculatorScreenLayout>
   );
-}
+});
+
+export default ManualCalorieInputScreen;
 
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];

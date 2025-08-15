@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
   View,
   TouchableOpacity,
   Text,
   TextInput as RNTextInput,
   InputAccessoryView,
+  InteractionManager,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -19,7 +20,7 @@ import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import type { CalorieIntakeParams } from "@/types";
 import { StyleSheet } from "react-native";
 
-export default function AgeSelectionScreen() {
+const AgeSelectionScreen = React.memo(function AgeSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
   const { calculatorParams, setCalculatorParams } = useFoodLogStore();
 
@@ -49,16 +50,16 @@ export default function AgeSelectionScreen() {
     }
   }, [calculatorParams]);
 
-  // Auto-focus input when screen mounts
+  // Auto-focus input when screen mounts - after navigation animation completes
   useEffect(() => {
-    const focusTimer = setTimeout(() => {
+    const handle = InteractionManager.runAfterInteractions(() => {
       inputRef.current?.focus();
-    }, 100); // Small delay to ensure component is fully mounted
+    });
 
-    return () => clearTimeout(focusTimer);
+    return () => handle.cancel();
   }, []);
 
-  const updateAge = (ageText: string) => {
+  const updateAge = useCallback((ageText: string) => {
     setAgeInput(ageText);
     
     if (ageText === '') {
@@ -71,9 +72,9 @@ export default function AgeSelectionScreen() {
       setLocalParams(newParams);
       setCalculatorParams(newParams);
     }
-  };
+  }, [localParams, setCalculatorParams]);
 
-  const handleContinue = async () => {
+  const handleContinue = useCallback(async () => {
     const age = parseInt(ageInput, 10);
     if (isNaN(age) || age < 13 || age > 120) {
       return;
@@ -83,46 +84,49 @@ export default function AgeSelectionScreen() {
     inputRef.current?.blur();
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push("/settings/calculator/weight");
-  };
+  }, [ageInput]);
 
-  const isValidAge = () => {
+  const isValidAge = useCallback(() => {
     if (ageInput === '') return false;
     const age = parseInt(ageInput, 10);
     return !isNaN(age) && age >= 13 && age <= 120;
-  };
+  }, [ageInput]);
 
-  // InputAccessoryView component
-  const renderInputAccessory = () => (
-    <InputAccessoryView nativeID={inputAccessoryViewID}>
-      <View style={styles.inputAccessoryContainer}>
-        <View style={styles.inputAccessoryContent}>
-          <TouchableOpacity
-            style={[
-              styles.accessoryContinueButton,
-              !isValidAge() && styles.accessoryContinueButtonDisabled,
-            ]}
-            onPress={handleContinue}
-            disabled={!isValidAge()}
-            accessibilityRole="button"
-            accessibilityLabel="Continue to weight selection"
-          >
-            <Text 
+  // Memoized InputAccessoryView component
+  const renderInputAccessory = useMemo(() => {
+    const isValid = isValidAge();
+    return (
+      <InputAccessoryView nativeID={inputAccessoryViewID}>
+        <View style={styles.inputAccessoryContainer}>
+          <View style={styles.inputAccessoryContent}>
+            <TouchableOpacity
               style={[
-                styles.accessoryContinueButtonText,
-                !isValidAge() && styles.accessoryContinueButtonTextDisabled,
+                styles.accessoryContinueButton,
+                !isValid && styles.accessoryContinueButtonDisabled,
               ]}
+              onPress={handleContinue}
+              disabled={!isValid}
+              accessibilityRole="button"
+              accessibilityLabel="Continue to weight selection"
             >
-              Continue
-            </Text>
-            <CaretRightIcon 
-              size={20} 
-              color={isValidAge() ? "#FFFFFF" : colors.disabledText} 
-            />
-          </TouchableOpacity>
+              <Text 
+                style={[
+                  styles.accessoryContinueButtonText,
+                  !isValid && styles.accessoryContinueButtonTextDisabled,
+                ]}
+              >
+                Continue
+              </Text>
+              <CaretRightIcon 
+                size={20} 
+                color={isValid ? "#FFFFFF" : colors.disabledText} 
+              />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </InputAccessoryView>
-  );
+      </InputAccessoryView>
+    );
+  }, [isValidAge(), inputAccessoryViewID, styles, handleContinue, colors.disabledText]);
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
@@ -168,10 +172,12 @@ export default function AgeSelectionScreen() {
       </View>
 
       {/* Input Accessory View */}
-      {renderInputAccessory()}
+      {renderInputAccessory}
     </SafeAreaView>
   );
-}
+});
+
+export default AgeSelectionScreen;
 
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];

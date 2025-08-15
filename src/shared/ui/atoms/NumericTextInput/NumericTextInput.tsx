@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef } from "react";
+import React, { useState, useEffect, forwardRef, useCallback, useMemo } from "react";
 import { View, Text } from "react-native";
 import { TextInput as RNTextInput } from "react-native";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -21,7 +21,7 @@ interface NumericTextInputProps {
   integerOnly?: boolean;
 }
 
-export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
+export const NumericTextInput = React.memo(forwardRef<RNTextInput, NumericTextInputProps>(
   (
     {
       value,
@@ -41,11 +41,15 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
     },
     ref
   ) => {
-    const { colorScheme } = useTheme();
+    const { colorScheme, colors } = useTheme();
     const [inputValue, setInputValue] = useState(value);
     const [isFocused, setIsFocused] = useState(false);
-    const { colors } = useTheme();
-    const styles = createStyles(colors, { large, extraLarge, borderless });
+    
+    // Memoize styles to prevent recreation on every render
+    const styles = useMemo(
+      () => createStyles(colors, { large, extraLarge, borderless }),
+      [colors, large, extraLarge, borderless]
+    );
 
     // Update inputValue when value prop changes
     useEffect(() => {
@@ -54,17 +58,23 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
       }
     }, [value, isFocused]);
 
-    const clamp = (val: number) => Math.max(min, Math.min(max, val));
+    // Memoize clamp function to prevent recreation
+    const clamp = useCallback((val: number) => Math.max(min, Math.min(max, val)), [min, max]);
 
-    const handleInputChange = (text: string) => {
+    // Memoize regex to prevent recreation
+    const validationRegex = useMemo(
+      () => integerOnly ? /^\d*$/ : /^\d*\.?\d*$/,
+      [integerOnly]
+    );
+
+    const handleInputChange = useCallback((text: string) => {
       // Allow empty string and numbers based on integerOnly setting
-      const regex = integerOnly ? /^\d*$/ : /^\d*\.?\d*$/;
-      if (text === '' || regex.test(text)) {
+      if (text === '' || validationRegex.test(text)) {
         setInputValue(text);
       }
-    };
+    }, [validationRegex]);
 
-    const handleInputBlur = () => {
+    const handleInputBlur = useCallback(() => {
       setIsFocused(false);
       if (inputValue === '') {
         // Keep empty if user wants it empty (for AI estimation)
@@ -83,15 +93,15 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
           }
         }
       }
-    };
+    }, [inputValue, value, clamp, integerOnly, onChangeText]);
 
-    const handleInputFocus = () => {
+    const handleInputFocus = useCallback(() => {
       if (!disabled) {
         setIsFocused(true);
       }
-    };
+    }, [disabled]);
 
-    const handleSubmitEditing = () => {
+    const handleSubmitEditing = useCallback(() => {
       if (inputValue === '') {
         onChangeText('');
       } else {
@@ -106,23 +116,34 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
         }
       }
       setIsFocused(false);
-    };
+    }, [inputValue, clamp, integerOnly, value, onChangeText]);
 
-    const containerStyle = [
+    // Memoize style arrays to prevent recreation
+    const containerStyle = useMemo(() => [
       styles.container,
       disabled && styles.disabled,
       style,
-    ];
+    ], [styles.container, styles.disabled, disabled, style]);
+
+    const textInputStyle = useMemo(() => [
+      styles.text,
+      inputValue === '' ? styles.placeholder : styles.value,
+      disabled && styles.disabledText,
+    ], [styles.text, styles.placeholder, styles.value, styles.disabledText, inputValue, disabled]);
+
+    // Memoize accessibility value to prevent recreation
+    const accessibilityValue = useMemo(() => ({
+      min: min,
+      max: max,
+      now: parseFloat(value) || 0,
+      text: value || placeholder,
+    }), [min, max, value, placeholder]);
 
     return (
       <View style={containerStyle}>
         <RNTextInput
           ref={ref}
-          style={[
-            styles.text,
-            inputValue === '' ? styles.placeholder : styles.value,
-            disabled && styles.disabledText,
-          ]}
+          style={textInputStyle}
           value={inputValue}
           onChangeText={handleInputChange}
           onBlur={handleInputBlur}
@@ -138,16 +159,11 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
           accessibilityRole="spinbutton"
           accessibilityLabel={accessibilityLabel || `${placeholder} input`}
           accessibilityHint={accessibilityHint || "Enter a numeric value"}
-          accessibilityValue={{
-            min: min,
-            max: max,
-            now: parseFloat(value) || 0,
-            text: value || placeholder,
-          }}
+          accessibilityValue={accessibilityValue}
         />
       </View>
     );
   }
-);
+));
 
 NumericTextInput.displayName = "NumericTextInput";

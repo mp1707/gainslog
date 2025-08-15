@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
   View,
   Text,
   TextInput as RNTextInput,
+  InteractionManager,
 } from "react-native";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
@@ -22,7 +23,7 @@ import { StyleSheet } from "react-native";
 
 type HeightUnit = "cm" | "ft";
 
-export default function HeightSelectionScreen() {
+const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
   const {
     calculatorParams,
@@ -72,16 +73,16 @@ export default function HeightSelectionScreen() {
     setHeightInput(heightUnit === "cm" ? displayHeight.toString() : displayHeight.toFixed(1));
   }, [heightUnit, localParams.height]);
 
-  // Auto-focus input when screen mounts
+  // Auto-focus input when screen mounts - after navigation animation completes
   useEffect(() => {
-    const focusTimer = setTimeout(() => {
+    const handle = InteractionManager.runAfterInteractions(() => {
       inputRef.current?.focus();
-    }, 100); // Small delay to ensure component is fully mounted
+    });
 
-    return () => clearTimeout(focusTimer);
+    return () => handle.cancel();
   }, []);
 
-  const updateHeight = (heightText: string) => {
+  const updateHeight = useCallback((heightText: string) => {
     setHeightInput(heightText);
     
     if (heightText === '') {
@@ -96,9 +97,9 @@ export default function HeightSelectionScreen() {
       setLocalParams(newParams);
       setCalculatorParams(newParams);
     }
-  };
+  }, [heightUnit, localParams, setCalculatorParams]);
 
-  const handleContinue = async () => {
+  const handleContinue = useCallback(async () => {
     const height = parseFloat(heightInput);
     if (isNaN(height) || height <= 0) {
       return;
@@ -108,15 +109,15 @@ export default function HeightSelectionScreen() {
     inputRef.current?.blur();
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push("/settings/calculator/activity-level");
-  };
+  }, [heightInput]);
 
-  const isValidHeight = () => {
+  const isValidHeight = useCallback(() => {
     if (heightInput === '') return false;
     const height = parseFloat(heightInput);
     const minHeight = heightUnit === "cm" ? 100 : 3.3;
     const maxHeight = heightUnit === "cm" ? 250 : 8.2;
     return !isNaN(height) && height >= minHeight && height <= maxHeight;
-  };
+  }, [heightInput, heightUnit]);
 
   // Get dynamic min/max based on current unit
   const getHeightConstraints = () => {
@@ -216,7 +217,9 @@ export default function HeightSelectionScreen() {
       />
     </CalculatorScreenLayout>
   );
-}
+});
+
+export default HeightSelectionScreen;
 
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];

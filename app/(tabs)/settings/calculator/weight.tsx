@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
   View,
   Text,
   TextInput as RNTextInput,
+  InteractionManager,
 } from "react-native";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
@@ -22,7 +23,7 @@ import { StyleSheet } from "react-native";
 
 type WeightUnit = "kg" | "lbs";
 
-export default function WeightSelectionScreen() {
+const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
   const {
     calculatorParams,
@@ -72,16 +73,16 @@ export default function WeightSelectionScreen() {
     setWeightInput(displayWeight.toString());
   }, [weightUnit, localParams.weight]);
 
-  // Auto-focus input when screen mounts
+  // Auto-focus input when screen mounts - after navigation animation completes
   useEffect(() => {
-    const focusTimer = setTimeout(() => {
+    const handle = InteractionManager.runAfterInteractions(() => {
       inputRef.current?.focus();
-    }, 100); // Small delay to ensure component is fully mounted
+    });
 
-    return () => clearTimeout(focusTimer);
+    return () => handle.cancel();
   }, []);
 
-  const updateWeight = (weightText: string) => {
+  const updateWeight = useCallback((weightText: string) => {
     setWeightInput(weightText);
     
     if (weightText === '') {
@@ -96,9 +97,9 @@ export default function WeightSelectionScreen() {
       setLocalParams(newParams);
       setCalculatorParams(newParams);
     }
-  };
+  }, [weightUnit, localParams, setCalculatorParams]);
 
-  const handleContinue = async () => {
+  const handleContinue = useCallback(async () => {
     const weight = parseFloat(weightInput);
     if (isNaN(weight) || weight <= 0) {
       return;
@@ -108,15 +109,15 @@ export default function WeightSelectionScreen() {
     inputRef.current?.blur();
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push("/settings/calculator/height");
-  };
+  }, [weightInput]);
 
-  const isValidWeight = () => {
+  const isValidWeight = useCallback(() => {
     if (weightInput === '') return false;
     const weight = parseFloat(weightInput);
     const minWeight = weightUnit === "kg" ? 30 : 66;
     const maxWeight = weightUnit === "kg" ? 300 : 661;
     return !isNaN(weight) && weight >= minWeight && weight <= maxWeight;
-  };
+  }, [weightInput, weightUnit]);
 
   // Get dynamic min/max based on current unit
   const getWeightConstraints = () => {
@@ -207,7 +208,9 @@ export default function WeightSelectionScreen() {
       />
     </CalculatorScreenLayout>
   );
-}
+});
+
+export default WeightSelectionScreen;
 
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
