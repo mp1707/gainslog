@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Alert } from "react-native";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import type { ProteinCalculationMethod } from "@/types";
-import { CALCULATION_METHODS } from "@/shared/ui/atoms/CalorieCalculationCard";
+import { CALCULATION_METHODS } from "@/shared/constants/calculationMethods";
 import type { GoalType } from "@/types";
 import type { CalorieIntakeParams, ActivityLevel } from "@/types";
 

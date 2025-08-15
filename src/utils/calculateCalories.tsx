@@ -40,6 +40,10 @@ export function calculateCalorieGoals(
   activityLevel: ActivityLevel
 ): CalorieGoals {
   const { sex, age, weight, height } = params;
+  
+  if (!sex) {
+    throw new Error("Sex parameter is required for calorie calculation");
+  }
 
   // 1. Calculate Resting Metabolic Rate (RMR) using Mifflin-St Jeor
   let rmr: number;

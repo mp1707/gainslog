@@ -12,42 +12,38 @@ import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import {
-  CalorieCalculationCard,
-  CALCULATION_METHODS,
-} from "@/shared/ui/atoms/CalorieCalculationCard";
+import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
+import { CALCULATION_METHODS } from "@/shared/constants/calculationMethods";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import type { CalorieCalculationMethod, ActivityLevel } from "@/types";
 import { StyleSheet } from "react-native";
 
 export default function Step2ActivityLevelScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const {
-    calculatorActivityLevel,
-    setCalculatorActivityLevel,
-  } = useFoodLogStore();
+  const { calculatorActivityLevel, setCalculatorActivityLevel } =
+    useFoodLogStore();
 
-  const [selectedActivityLevel, setSelectedActivityLevel] = useState<ActivityLevel | null>(
-    calculatorActivityLevel
-  );
+  const [selectedActivityLevel, setSelectedActivityLevel] =
+    useState<ActivityLevel | null>(calculatorActivityLevel);
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
     [colors, themeObj]
   );
 
-  const handleActivityLevelSelect = async (method: CalorieCalculationMethod) => {
+  const handleActivityLevelSelect = async (
+    method: CalorieCalculationMethod
+  ) => {
     setSelectedActivityLevel(method.id);
     setCalculatorActivityLevel(method.id);
-    
+
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    
+
     // Auto-advance to next screen after a short delay for visual feedback
     setTimeout(() => {
       router.push("/settings/calculator/goals");
     }, 300);
   };
-
 
   const methods = Object.values(CALCULATION_METHODS);
 
@@ -70,22 +66,24 @@ export default function Step2ActivityLevelScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.textSection}>
-            <Text style={styles.subtitle}>
-              Choose your activity level
-            </Text>
+            <Text style={styles.subtitle}>Choose your activity level</Text>
             <Text style={styles.description}>
-              Select the option that best matches your lifestyle and exercise routine.
+              Select the option that best matches your lifestyle and exercise
+              routine.
             </Text>
           </View>
 
           <View style={styles.methodsSection}>
             {methods.map((method) => (
-              <CalorieCalculationCard
+              <SelectionCard
                 key={method.id}
-                method={method}
+                title={method.title}
+                description={method.description}
+                iconType={`activity-${method.id}` as any}
                 isSelected={selectedActivityLevel === method.id}
-                onSelect={handleActivityLevelSelect}
-                showCalorieGoals={false}
+                onSelect={() => handleActivityLevelSelect(method)}
+                accessibilityLabel={`${method.title} activity level`}
+                accessibilityHint={`Calculate calories for ${method.description.toLowerCase()}`}
               />
             ))}
           </View>

@@ -55,14 +55,14 @@ export default function SexSelectionScreen() {
           setIsLoaded(true);
           return;
         }
-        
+
         // If we have store params, use them
         if (calculatorParams) {
           setLocalParams(calculatorParams);
           setIsLoaded(true);
           return;
         }
-        
+
         // Otherwise, load from AsyncStorage for fresh app launches
         const savedParams = await getCalorieCalculatorParams();
         setLocalParams(savedParams);
@@ -142,7 +142,7 @@ export default function SexSelectionScreen() {
                 title="Male"
                 description="Biological male"
                 icon={GenderMaleIcon}
-                iconColor={selectedSex === "male" ? colors.accent : "#4A90E2"}
+                iconColor="#4A90E2"
                 isSelected={selectedSex === "male"}
                 onSelect={() => handleSexSelect("male")}
                 accessibilityLabel="Select male as biological sex"
@@ -153,7 +153,7 @@ export default function SexSelectionScreen() {
                 title="Female"
                 description="Biological female"
                 icon={GenderFemaleIcon}
-                iconColor={selectedSex === "female" ? colors.accent : "#E24A90"}
+                iconColor="#E24A90"
                 isSelected={selectedSex === "female"}
                 onSelect={() => handleSexSelect("female")}
                 accessibilityLabel="Select female as biological sex"

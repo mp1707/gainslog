@@ -3,7 +3,6 @@ import {
   View,
   ScrollView,
   KeyboardAvoidingView,
-  TouchableOpacity,
   Text,
   Alert,
 } from "react-native";
@@ -13,8 +12,8 @@ import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { GoalSelectionCard } from "@/shared/ui/atoms/GoalSelectionCard";
-import { CALCULATION_METHODS } from "@/shared/ui/atoms/CalorieCalculationCard";
+import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
+import { CALCULATION_METHODS } from "@/shared/constants/calculationMethods";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { Button } from "@/shared/ui/atoms/Button";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
@@ -50,14 +49,17 @@ export default function Step3GoalsScreen() {
   const handleGoalSelect = async (goalType: GoalType) => {
     setSelectedGoal(goalType);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    
+
     // Auto-save the selected goal and complete the flow
     await handleSaveTarget(goalType);
   };
 
   const handleSaveTarget = async (goalType: GoalType) => {
     if (!calculatorParams || !calculatorActivityLevel || !calorieGoals) {
-      Alert.alert("Error", "Missing calculation parameters. Please start over.");
+      Alert.alert(
+        "Error",
+        "Missing calculation parameters. Please start over."
+      );
       return;
     }
 
@@ -97,14 +99,19 @@ export default function Step3GoalsScreen() {
     }
   };
 
-
   if (!calculatorParams || !calculatorActivityLevel || !calorieGoals) {
     return (
-      <SafeAreaView style={[styles.container, styles.centered]} edges={["left", "right"]}>
+      <SafeAreaView
+        style={[styles.container, styles.centered]}
+        edges={["left", "right"]}
+      >
         <Text style={styles.errorText}>
           Missing calculation data. Please start over.
         </Text>
-        <Button onPress={() => router.replace("/settings")} style={styles.backButton}>
+        <Button
+          onPress={() => router.replace("/settings")}
+          style={styles.backButton}
+        >
           Go Back
         </Button>
       </SafeAreaView>
@@ -130,34 +137,53 @@ export default function Step3GoalsScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.textSection}>
-            <Text style={styles.subtitle}>
-              Choose your calorie goal
-            </Text>
+            <Text style={styles.subtitle}>Choose your calorie goal</Text>
             <Text style={styles.description}>
               Select the goal that best matches what you want to achieve.
             </Text>
           </View>
 
           <View style={styles.goalsSection}>
-            <GoalSelectionCard
-              goalType="lose"
-              calories={calorieGoals.loseWeight}
+            <SelectionCard
+              title="Lose Weight"
+              description="Create a calorie deficit to lose weight gradually"
+              iconType="goal-lose"
               isSelected={selectedGoal === "lose"}
-              onSelect={handleGoalSelect}
+              onSelect={() => handleGoalSelect("lose")}
+              content={{
+                type: "single-calorie",
+                calories: calorieGoals.loseWeight,
+              }}
+              accessibilityLabel="Lose Weight goal"
+              accessibilityHint={`Set ${calorieGoals.loseWeight} calories as your daily goal to create a calorie deficit to lose weight gradually`}
             />
 
-            <GoalSelectionCard
-              goalType="maintain"
-              calories={calorieGoals.maintainWeight}
+            <SelectionCard
+              title="Maintain Weight"
+              description="Eat at maintenance calories to stay at current weight"
+              iconType="goal-maintain"
               isSelected={selectedGoal === "maintain"}
-              onSelect={handleGoalSelect}
+              onSelect={() => handleGoalSelect("maintain")}
+              content={{
+                type: "single-calorie",
+                calories: calorieGoals.maintainWeight,
+              }}
+              accessibilityLabel="Maintain Weight goal"
+              accessibilityHint={`Set ${calorieGoals.maintainWeight} calories as your daily goal to eat at maintenance calories to stay at current weight`}
             />
 
-            <GoalSelectionCard
-              goalType="gain"
-              calories={calorieGoals.gainWeight}
+            <SelectionCard
+              title="Gain Weight"
+              description="Create a calorie surplus to gain weight gradually"
+              iconType="goal-gain"
               isSelected={selectedGoal === "gain"}
-              onSelect={handleGoalSelect}
+              onSelect={() => handleGoalSelect("gain")}
+              content={{
+                type: "single-calorie",
+                calories: calorieGoals.gainWeight,
+              }}
+              accessibilityLabel="Gain Weight goal"
+              accessibilityHint={`Set ${calorieGoals.gainWeight} calories as your daily goal to create a calorie surplus to gain weight gradually`}
             />
           </View>
 
