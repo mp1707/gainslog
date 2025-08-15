@@ -8,11 +8,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Picker } from "@react-native-picker/picker";
-import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
+import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
+import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import type { CalorieIntakeParams } from "@/types";
 import { StyleSheet } from "react-native";
 
@@ -55,9 +56,6 @@ export default function AgeSelectionScreen() {
     router.push("/settings/calculator/weight");
   };
 
-  const handleBack = () => {
-    router.back();
-  };
 
   // Generate age items from 13 to 120
   const ageItems = Array.from({ length: 108 }, (_, i) => i + 13);
@@ -65,21 +63,13 @@ export default function AgeSelectionScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={handleBack}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-            hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
-          >
-            <CaretLeftIcon size={24} color={colors.accent} />
-          </TouchableOpacity>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>Age</Text>
-            <Text style={styles.stepIndicator}>Step 2 of 6</Text>
-          </View>
-          <View style={styles.headerSpacer} />
+        {/* Progress Bar */}
+        <View style={styles.progressContainer}>
+          <ProgressBar
+            totalSteps={6}
+            currentStep={2}
+            accessibilityLabel="Calculator progress: step 2 of 6"
+          />
         </View>
 
         {/* Content */}
@@ -135,38 +125,14 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       flex: 1,
       backgroundColor: colors.primaryBackground,
     },
-    header: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
+    progressContainer: {
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingVertical: spacing.md,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    titleContainer: {
-      flex: 1,
-      alignItems: "center",
-    },
-    title: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
-    },
-    stepIndicator: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
-      color: colors.secondaryText,
-      marginTop: 2,
-    },
-    headerSpacer: {
-      width: 24, // Same width as back button
+      paddingTop: spacing.md,
+      paddingBottom: spacing.lg,
     },
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.xl,
       justifyContent: "space-between",
     },
     subtitle: {

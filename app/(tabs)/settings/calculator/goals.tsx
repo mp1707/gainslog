@@ -5,12 +5,10 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
   Text,
-  TextInput,
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { CaretLeftIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
@@ -19,6 +17,7 @@ import { GoalSelectionCard } from "@/shared/ui/atoms/GoalSelectionCard";
 import { CALCULATION_METHODS } from "@/shared/ui/atoms/CalorieCalculationCard";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { Button } from "@/shared/ui/atoms/Button";
+import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import type { GoalType } from "@/types";
 import { StyleSheet } from "react-native";
 
@@ -34,8 +33,6 @@ export default function Step3GoalsScreen() {
   } = useFoodLogStore();
 
   const [selectedGoal, setSelectedGoal] = useState<GoalType | null>(null);
-  const [showManualAdjust, setShowManualAdjust] = useState(false);
-  const [manualCalories, setManualCalories] = useState("");
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -50,9 +47,12 @@ export default function Step3GoalsScreen() {
     return calculateCalorieGoals(calculatorParams, calculatorActivityLevel);
   }, [calculatorParams, calculatorActivityLevel]);
 
-  const handleGoalSelect = (goalType: GoalType) => {
+  const handleGoalSelect = async (goalType: GoalType) => {
     setSelectedGoal(goalType);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
+    // Auto-save the selected goal and complete the flow
+    await handleSaveTarget(goalType, false);
   };
 
   const handleSaveTarget = async (goalType: GoalType, useManualValue = false) => {
@@ -108,31 +108,6 @@ export default function Step3GoalsScreen() {
     }
   };
 
-  const handleBack = () => {
-    router.back();
-  };
-
-  const handleManualAdjust = () => {
-    if (!selectedGoal || !calorieGoals) return;
-
-    const baseCalories =
-      calorieGoals[
-        selectedGoal === "lose"
-          ? "loseWeight"
-          : selectedGoal === "maintain"
-          ? "maintainWeight"
-          : "gainWeight"
-      ];
-
-    setManualCalories(String(baseCalories));
-    setShowManualAdjust(true);
-  };
-
-  const handleManualSave = () => {
-    if (!selectedGoal) return;
-    handleSaveTarget(selectedGoal, true);
-  };
-
   if (!calculatorParams || !calculatorActivityLevel || !calorieGoals) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={["left", "right"]}>
@@ -149,21 +124,13 @@ export default function Step3GoalsScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={handleBack}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-            hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
-          >
-            <CaretLeftIcon size={24} color={colors.accent} />
-          </TouchableOpacity>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>Choose Your Goal</Text>
-            <Text style={styles.stepIndicator}>Step 6 of 6</Text>
-          </View>
-          <View style={styles.headerSpacer} />
+        {/* Progress Bar */}
+        <View style={styles.progressContainer}>
+          <ProgressBar
+            totalSteps={6}
+            currentStep={6}
+            accessibilityLabel="Calculator progress: step 6 of 6"
+          />
         </View>
 
         {/* Content */}
@@ -200,60 +167,6 @@ export default function Step3GoalsScreen() {
             />
           </View>
 
-          {/* Manual Adjustment Section */}
-          {selectedGoal && !showManualAdjust && (
-            <View style={styles.manualSection}>
-              <Button
-                onPress={handleManualAdjust}
-                variant="secondary"
-                size="medium"
-                style={styles.manualButton}
-              >
-                Manually Adjust Target
-              </Button>
-            </View>
-          )}
-
-          {/* Manual Input */}
-          {showManualAdjust && (
-            <View style={styles.manualInputCard}>
-              <Text style={styles.manualTitle}>Manual Calorie Target</Text>
-              <Text style={styles.manualSubtitle}>
-                Enter your preferred daily calorie target (1000-5000 kcal)
-              </Text>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.manualInput}
-                  value={manualCalories}
-                  onChangeText={setManualCalories}
-                  placeholder="2000"
-                  placeholderTextColor={colors.secondaryText}
-                  keyboardType="numeric"
-                  maxLength={4}
-                  selectTextOnFocus
-                />
-                <Text style={styles.inputUnit}>kcal</Text>
-              </View>
-              <View style={styles.manualButtons}>
-                <Button
-                  onPress={() => setShowManualAdjust(false)}
-                  variant="secondary"
-                  size="medium"
-                  style={styles.manualCancelButton}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onPress={handleManualSave}
-                  variant="primary"
-                  size="medium"
-                  style={styles.manualSaveButton}
-                >
-                  Save Target
-                </Button>
-              </View>
-            </View>
-          )}
 
           {/* Footer Note */}
           <View style={styles.footer}>
@@ -284,6 +197,11 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       justifyContent: "center",
       alignItems: "center",
     },
+    progressContainer: {
+      paddingHorizontal: spacing.pageMargins.horizontal,
+      paddingTop: spacing.md,
+      paddingBottom: spacing.lg,
+    },
     errorText: {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
@@ -293,34 +211,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     backButton: {
       minWidth: 120,
-    },
-    header: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingVertical: spacing.md,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    titleContainer: {
-      flex: 1,
-      alignItems: "center",
-    },
-    title: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
-    },
-    stepIndicator: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
-      color: colors.secondaryText,
-      marginTop: 2,
-    },
-    headerSpacer: {
-      width: 24, // Same width as back button
     },
     content: {
       flex: 1,
@@ -340,71 +230,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     goalsSection: {
       marginBottom: spacing.lg,
-    },
-    manualSection: {
-      alignItems: "center",
-      marginBottom: spacing.lg,
-    },
-    manualButton: {
-      minWidth: 200,
-    },
-    manualInputCard: {
-      backgroundColor: colors.secondaryBackground,
-      borderRadius: themeObj.components.cards.cornerRadius,
-      padding: spacing.lg,
-      marginBottom: spacing.lg,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    manualTitle: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      color: colors.primaryText,
-      marginBottom: spacing.sm,
-      textAlign: "center",
-    },
-    manualSubtitle: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-      textAlign: "center",
-      marginBottom: spacing.lg,
-    },
-    inputContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      marginBottom: spacing.lg,
-    },
-    manualInput: {
-      backgroundColor: colors.primaryBackground,
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: themeObj.components.buttons.cornerRadius,
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
-      minWidth: 80,
-      marginRight: spacing.sm,
-    },
-    inputUnit: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.primaryText,
-    },
-    manualButtons: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      gap: spacing.md,
-    },
-    manualCancelButton: {
-      flex: 1,
-    },
-    manualSaveButton: {
-      flex: 1,
     },
     footer: {
       marginTop: spacing.xl,

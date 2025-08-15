@@ -8,12 +8,13 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Picker } from "@react-native-picker/picker";
-import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
+import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { Toggle, type ToggleOption } from "@/shared/ui/atoms/Toggle";
+import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import type { CalorieIntakeParams } from "@/types";
 import { StyleSheet } from "react-native";
 
@@ -60,10 +61,6 @@ export default function HeightSelectionScreen() {
   const handleContinue = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push("/settings/calculator/activity-level");
-  };
-
-  const handleBack = () => {
-    router.back();
   };
 
   // Height unit toggle options
@@ -134,21 +131,13 @@ export default function HeightSelectionScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={handleBack}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-            hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
-          >
-            <CaretLeftIcon size={24} color={colors.accent} />
-          </TouchableOpacity>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>Height</Text>
-            <Text style={styles.stepIndicator}>Step 4 of 6</Text>
-          </View>
-          <View style={styles.headerSpacer} />
+        {/* Progress Bar */}
+        <View style={styles.progressContainer}>
+          <ProgressBar
+            totalSteps={6}
+            currentStep={4}
+            accessibilityLabel="Calculator progress: step 4 of 6"
+          />
         </View>
 
         {/* Content */}
@@ -225,38 +214,14 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       flex: 1,
       backgroundColor: colors.primaryBackground,
     },
-    header: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
+    progressContainer: {
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingVertical: spacing.md,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    titleContainer: {
-      flex: 1,
-      alignItems: "center",
-    },
-    title: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
-    },
-    stepIndicator: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
-      color: colors.secondaryText,
-      marginTop: 2,
-    },
-    headerSpacer: {
-      width: 24, // Same width as back button
+      paddingTop: spacing.md,
+      paddingBottom: spacing.lg,
     },
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.xl,
       justifyContent: "space-between",
     },
     subtitle: {

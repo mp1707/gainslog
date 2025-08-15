@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
@@ -17,6 +16,7 @@ import {
   CalorieCalculationCard,
   CALCULATION_METHODS,
 } from "@/shared/ui/atoms/CalorieCalculationCard";
+import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import type { CalorieCalculationMethod, ActivityLevel } from "@/types";
 import { StyleSheet } from "react-native";
 
@@ -36,43 +36,30 @@ export default function Step2ActivityLevelScreen() {
     [colors, themeObj]
   );
 
-  const handleActivityLevelSelect = (method: CalorieCalculationMethod) => {
+  const handleActivityLevelSelect = async (method: CalorieCalculationMethod) => {
     setSelectedActivityLevel(method.id);
     setCalculatorActivityLevel(method.id);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  };
-
-  const handleContinue = async () => {
-    if (!selectedActivityLevel) return;
+    
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push("/settings/calculator/goals");
-  };
-
-  const handleBack = () => {
-    router.back();
+    
+    // Auto-advance to next screen after a short delay for visual feedback
+    setTimeout(() => {
+      router.push("/settings/calculator/goals");
+    }, 300);
   };
 
   const methods = Object.values(CALCULATION_METHODS);
-  const canProceed = selectedActivityLevel !== null;
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={handleBack}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-            hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
-          >
-            <CaretLeftIcon size={24} color={colors.accent} />
-          </TouchableOpacity>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>Activity Level</Text>
-            <Text style={styles.stepIndicator}>Step 5 of 6</Text>
-          </View>
-          <View style={styles.headerSpacer} />
+        {/* Progress Bar */}
+        <View style={styles.progressContainer}>
+          <ProgressBar
+            totalSteps={6}
+            currentStep={5}
+            accessibilityLabel="Calculator progress: step 5 of 6"
+          />
         </View>
 
         {/* Content */}
@@ -98,33 +85,6 @@ export default function Step2ActivityLevelScreen() {
             ))}
           </View>
 
-          {/* Continue Button */}
-          <View style={styles.navigationContainer}>
-            <TouchableOpacity
-              style={[
-                styles.continueButton,
-                !canProceed && styles.continueButtonDisabled,
-              ]}
-              onPress={handleContinue}
-              disabled={!canProceed}
-              accessibilityRole="button"
-              accessibilityLabel="Continue to final step"
-              accessibilityState={{ disabled: !canProceed }}
-            >
-              <Text
-                style={[
-                  styles.continueButtonText,
-                  !canProceed && styles.continueButtonTextDisabled,
-                ]}
-              >
-                Continue
-              </Text>
-              <CaretRightIcon
-                size={20}
-                color={canProceed ? "#FFFFFF" : colors.disabledText}
-              />
-            </TouchableOpacity>
-          </View>
         </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
@@ -142,33 +102,10 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       flex: 1,
       backgroundColor: colors.primaryBackground,
     },
-    header: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
+    progressContainer: {
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingVertical: spacing.md,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    titleContainer: {
-      flex: 1,
-      alignItems: "center",
-    },
-    title: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
-    },
-    stepIndicator: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
-      color: colors.secondaryText,
-      marginTop: 2,
-    },
-    headerSpacer: {
-      width: 24, // Same width as back button
+      paddingTop: spacing.md,
+      paddingBottom: spacing.lg,
     },
     content: {
       flex: 1,
@@ -188,32 +125,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     methodsSection: {
       marginBottom: spacing.lg,
-    },
-    navigationContainer: {
-      marginTop: spacing.xl,
-      marginBottom: spacing.lg,
-    },
-    continueButton: {
-      backgroundColor: colors.accent,
-      borderRadius: themeObj.components.buttons.cornerRadius,
-      paddingVertical: spacing.md,
-      paddingHorizontal: spacing.lg,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    continueButtonDisabled: {
-      backgroundColor: colors.disabledBackground,
-    },
-    continueButtonText: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: "#FFFFFF",
-      fontWeight: "600",
-      marginRight: spacing.sm,
-    },
-    continueButtonTextDisabled: {
-      color: colors.disabledText,
     },
   });
 };

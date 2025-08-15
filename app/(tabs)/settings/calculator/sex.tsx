@@ -13,6 +13,7 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
+import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import type { CalorieIntakeParams, Sex } from "@/types";
 import { getCalorieCalculatorParams } from "@/lib/storage";
 import { StyleSheet } from "react-native";
@@ -87,11 +88,6 @@ export default function SexSelectionScreen() {
     }, 300);
   };
 
-  const handleCancel = () => {
-    clearCalculatorData();
-    router.back();
-  };
-
   if (!isLoaded) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={["left", "right"]}>
@@ -103,21 +99,13 @@ export default function SexSelectionScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={handleCancel}
-            accessibilityRole="button"
-            accessibilityLabel="Cancel"
-            hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
-          >
-            <Text style={styles.cancelButton}>Cancel</Text>
-          </TouchableOpacity>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>Biological Sex</Text>
-            <Text style={styles.stepIndicator}>Step 1 of 6</Text>
-          </View>
-          <View style={styles.headerSpacer} />
+        {/* Progress Bar */}
+        <View style={styles.progressContainer}>
+          <ProgressBar
+            totalSteps={6}
+            currentStep={1}
+            accessibilityLabel="Calculator progress: step 1 of 6"
+          />
         </View>
 
         {/* Content */}
@@ -178,43 +166,14 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
     },
-    header: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
+    progressContainer: {
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingVertical: spacing.md,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    cancelButton: {
-      color: colors.accent,
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-    },
-    titleContainer: {
-      flex: 1,
-      alignItems: "center",
-    },
-    title: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
-    },
-    stepIndicator: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
-      color: colors.secondaryText,
-      marginTop: 2,
-    },
-    headerSpacer: {
-      width: 60, // Same width as cancel button area
+      paddingTop: spacing.md,
+      paddingBottom: spacing.lg,
     },
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.xl,
       justifyContent: "center",
     },
     subtitle: {
