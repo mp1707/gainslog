@@ -52,34 +52,23 @@ export default function Step3GoalsScreen() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     
     // Auto-save the selected goal and complete the flow
-    await handleSaveTarget(goalType, false);
+    await handleSaveTarget(goalType);
   };
 
-  const handleSaveTarget = async (goalType: GoalType, useManualValue = false) => {
+  const handleSaveTarget = async (goalType: GoalType) => {
     if (!calculatorParams || !calculatorActivityLevel || !calorieGoals) {
       Alert.alert("Error", "Missing calculation parameters. Please start over.");
       return;
     }
 
-    let calories: number;
-
-    if (useManualValue) {
-      const manualValue = parseFloat(manualCalories);
-      if (isNaN(manualValue) || manualValue < 1000 || manualValue > 5000) {
-        Alert.alert("Invalid Input", "Please enter a calorie value between 1000 and 5000.");
-        return;
-      }
-      calories = manualValue;
-    } else {
-      calories =
-        calorieGoals[
-          goalType === "lose"
-            ? "loseWeight"
-            : goalType === "maintain"
-            ? "maintainWeight"
-            : "gainWeight"
-        ];
-    }
+    const calories =
+      calorieGoals[
+        goalType === "lose"
+          ? "loseWeight"
+          : goalType === "maintain"
+          ? "maintainWeight"
+          : "gainWeight"
+      ];
 
     try {
       // Provide success haptic feedback

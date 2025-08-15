@@ -88,6 +88,11 @@ export default function SexSelectionScreen() {
     }, 300);
   };
 
+  const handleManualInput = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push("/settings/calculator/manualInput");
+  };
+
   if (!isLoaded) {
     return (
       <SafeAreaView style={[styles.container, styles.centered]} edges={["left", "right"]}>
@@ -139,6 +144,22 @@ export default function SexSelectionScreen() {
               accessibilityLabel="Select female as biological sex"
               accessibilityHint="This will help calculate your calorie needs and advance to the next step"
             />
+          </View>
+
+          {/* Separator */}
+          <View style={styles.separator} />
+
+          {/* Manual Input Option */}
+          <View style={styles.manualInputContainer}>
+            <TouchableOpacity
+              style={styles.manualInputButton}
+              onPress={handleManualInput}
+              accessibilityRole="button"
+              accessibilityLabel="Enter your own calorie value"
+              accessibilityHint="Skip the calculator and enter your daily calorie goal manually"
+            >
+              <Text style={styles.manualInputText}>Enter own value</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </SafeAreaView>
@@ -193,6 +214,31 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     optionsContainer: {
       paddingBottom: spacing.xl,
+    },
+    separator: {
+      height: 1,
+      backgroundColor: colors.border,
+      marginHorizontal: spacing.lg,
+      marginVertical: spacing.lg,
+    },
+    manualInputContainer: {
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.xl,
+    },
+    manualInputButton: {
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      borderRadius: themeObj.components.buttons.cornerRadius,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.secondaryBackground,
+      alignItems: "center",
+    },
+    manualInputText: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      color: colors.secondaryText,
+      fontWeight: "500",
     },
   });
 };
