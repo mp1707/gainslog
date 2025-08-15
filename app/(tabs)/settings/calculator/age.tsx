@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   View,
-  KeyboardAvoidingView,
   TouchableOpacity,
   Text,
   TextInput as RNTextInput,
+  InputAccessoryView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -34,6 +34,7 @@ export default function AgeSelectionScreen() {
 
   const [ageInput, setAgeInput] = useState<string>(localParams.age.toString());
   const inputRef = useRef<RNTextInput>(null);
+  const inputAccessoryViewID = "ageInputAccessory";
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -69,6 +70,8 @@ export default function AgeSelectionScreen() {
       return;
     }
 
+    // Dismiss keyboard first, then navigate
+    inputRef.current?.blur();
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push("/settings/calculator/weight");
   };
@@ -79,61 +82,83 @@ export default function AgeSelectionScreen() {
     return !isNaN(age) && age >= 13 && age <= 120;
   };
 
-  return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        <View style={styles.progressContainer}>
-          <ProgressBar
-            totalSteps={6}
-            currentStep={2}
-            accessibilityLabel={`Calculator progress: step 2 of 6`}
-          />
-        </View>
-
-        {/* Content */}
-        <View style={styles.content}>
-          <View style={styles.textSection}>
-            <Text style={styles.subtitle}>What is your age?</Text>
-            <Text style={styles.description}>
-              Your age helps determine your baseline metabolic rate.
-            </Text>
-          </View>
-
-          <View style={styles.inputSection}>
-            <View style={styles.inputContainer}>
-              <NumericTextInput
-                ref={inputRef}
-                style={styles.ageInput}
-                value={ageInput}
-                onChangeText={updateAge}
-                min={13}
-                max={120}
-                placeholder="30"
-                accessibilityLabel="Age input"
-                accessibilityHint="Enter your age between 13 and 120 years"
-              />
-              <Text style={styles.unitText}>years</Text>
-            </View>
-          </View>
-
-          <View style={styles.navigationContainer}>
-            <TouchableOpacity
+  // InputAccessoryView component
+  const renderInputAccessory = () => (
+    <InputAccessoryView nativeID={inputAccessoryViewID}>
+      <View style={styles.inputAccessoryContainer}>
+        <View style={styles.inputAccessoryContent}>
+          <TouchableOpacity
+            style={[
+              styles.accessoryContinueButton,
+              !isValidAge() && styles.accessoryContinueButtonDisabled,
+            ]}
+            onPress={handleContinue}
+            disabled={!isValidAge()}
+            accessibilityRole="button"
+            accessibilityLabel="Continue to weight selection"
+          >
+            <Text 
               style={[
-                styles.continueButton,
-                !isValidAge() && styles.continueButtonDisabled,
+                styles.accessoryContinueButtonText,
+                !isValidAge() && styles.accessoryContinueButtonTextDisabled,
               ]}
-              onPress={handleContinue}
-              disabled={!isValidAge()}
-              accessibilityRole="button"
-              accessibilityLabel="Continue to weight selection"
             >
-              <Text style={styles.continueButtonText}>Continue</Text>
-              <CaretRightIcon size={20} color="#FFFFFF" />
-            </TouchableOpacity>
+              Continue
+            </Text>
+            <CaretRightIcon 
+              size={20} 
+              color={isValidAge() ? "#FFFFFF" : colors.disabledText} 
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </InputAccessoryView>
+  );
+
+  return (
+    <SafeAreaView style={styles.container} edges={["left", "right"]}>
+      <View style={styles.progressContainer}>
+        <ProgressBar
+          totalSteps={6}
+          currentStep={2}
+          accessibilityLabel={`Calculator progress: step 2 of 6`}
+        />
+      </View>
+
+      {/* Content */}
+      <View style={styles.content}>
+        <View style={styles.textSection}>
+          <Text style={styles.subtitle}>What is your age?</Text>
+          <Text style={styles.description}>
+            Your age helps determine your baseline metabolic rate.
+          </Text>
+        </View>
+
+        <View style={styles.inputSection}>
+          <View style={styles.inputContainer}>
+            <NumericTextInput
+              ref={inputRef}
+              style={styles.ageInput}
+              value={ageInput}
+              onChangeText={updateAge}
+              min={13}
+              max={120}
+              placeholder="30"
+              accessibilityLabel="Age input"
+              accessibilityHint="Enter your age between 13 and 120 years"
+              inputAccessoryViewID={inputAccessoryViewID}
+            />
+            <Text style={styles.unitText}>years</Text>
           </View>
         </View>
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+
+        {/* Spacer to push content up and provide consistent spacing */}
+        <View style={styles.spacer} />
+      </View>
+
+      {/* Input Accessory View */}
+      {renderInputAccessory()}
+    </SafeAreaView>
   );
 }
 
@@ -151,10 +176,12 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
-      justifyContent: "space-between",
+      justifyContent: "flex-start",
+      alignItems: "stretch",
     },
     textSection: {
       paddingTop: spacing.lg,
+      marginBottom: spacing.xxl,
     },
     subtitle: {
       fontSize: typography.Title2.fontSize,
@@ -171,10 +198,8 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       lineHeight: 22,
     },
     inputSection: {
-      flex: 1,
-      justifyContent: "center",
       alignItems: "center",
-      paddingVertical: spacing.xl,
+      paddingVertical: spacing.xxl,
     },
     inputContainer: {
       flexDirection: "row",
@@ -193,10 +218,25 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       color: colors.secondaryText,
       marginLeft: spacing.sm,
     },
-    navigationContainer: {
-      paddingBottom: spacing.xl,
+    spacer: {
+      flex: 1,
+      minHeight: spacing.xxl * 2, // Ensure minimum spacing
     },
-    continueButton: {
+    progressContainer: {
+      padding: spacing.md,
+    },
+    // InputAccessoryView styles
+    inputAccessoryContainer: {
+      backgroundColor: colors.secondaryBackground,
+      borderTopWidth: 0.5,
+      borderTopColor: colors.border,
+    },
+    inputAccessoryContent: {
+      paddingHorizontal: spacing.pageMargins.horizontal,
+      paddingVertical: spacing.md,
+      paddingBottom: spacing.lg, // Extra padding for safe area
+    },
+    accessoryContinueButton: {
       backgroundColor: colors.accent,
       borderRadius: themeObj.components.buttons.cornerRadius,
       paddingVertical: spacing.md,
@@ -204,20 +244,20 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
+      minHeight: 50, // iOS standard button height
     },
-    continueButtonText: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
+    accessoryContinueButtonText: {
+      fontSize: typography.Button.fontSize,
+      fontFamily: typography.Button.fontFamily,
       color: "#FFFFFF",
       fontWeight: "600",
       marginRight: spacing.sm,
     },
-    continueButtonDisabled: {
+    accessoryContinueButtonDisabled: {
       backgroundColor: colors.disabledBackground,
-      opacity: 0.6,
     },
-    progressContainer: {
-      padding: themeObj.spacing.md,
+    accessoryContinueButtonTextDisabled: {
+      color: colors.disabledText,
     },
   });
 };

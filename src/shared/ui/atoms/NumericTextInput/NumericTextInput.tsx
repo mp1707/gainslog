@@ -14,6 +14,7 @@ interface NumericTextInputProps {
   accessibilityLabel?: string;
   accessibilityHint?: string;
   style?: any;
+  inputAccessoryViewID?: string;
 }
 
 export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
@@ -28,6 +29,7 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
       accessibilityLabel,
       accessibilityHint,
       style,
+      inputAccessoryViewID,
     },
     ref
   ) => {
@@ -123,6 +125,7 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
           editable={!disabled}
           placeholder={placeholder}
           placeholderTextColor={styles.placeholder.color}
+          inputAccessoryViewID={inputAccessoryViewID}
           accessibilityRole="spinbutton"
           accessibilityLabel={accessibilityLabel || `${placeholder} input`}
           accessibilityHint={accessibilityHint || "Enter a numeric value"}
