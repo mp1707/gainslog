@@ -92,7 +92,13 @@ export default function SettingsTab() {
       );
       return;
     }
-    router.push(`/settings/${settingName}`);
+    
+    // Navigate to new calculator modal for calories, otherwise use normal navigation
+    if (settingName === "calories") {
+      router.push("/settings/calculator/step1-personal-info");
+    } else {
+      router.push(`/settings/${settingName}`);
+    }
   };
 
   if (isLoadingTargets) {

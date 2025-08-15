@@ -61,6 +61,10 @@ interface FoodLogStore {
   // Calorie calculation state
   calorieCalculation: CalorieCalculationSelection | null;
 
+  // Calculator modal state
+  calculatorParams: CalorieIntakeParams | null;
+  calculatorActivityLevel: ActivityLevel | null;
+
   // Data actions
   loadFoodLogs: () => Promise<void>;
   addFoodLog: (log: FoodLog) => Promise<void>;
@@ -114,6 +118,11 @@ interface FoodLogStore {
     goalType: GoalType
   ) => void;
   clearCalorieCalculation: () => void;
+
+  // Calculator modal actions
+  setCalculatorParams: (params: CalorieIntakeParams) => void;
+  setCalculatorActivityLevel: (level: ActivityLevel) => void;
+  clearCalculatorData: () => void;
 }
 
 // Helper function to get today's date in ISO format (YYYY-MM-DD) in local timezone
@@ -163,6 +172,9 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   proteinCalculation: null,
   // Calorie calculation initial state
   calorieCalculation: null,
+  // Calculator modal initial state
+  calculatorParams: null,
+  calculatorActivityLevel: null,
 
   // Data actions
   loadFoodLogs: async () => {
@@ -476,6 +488,19 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
     set({ calorieCalculation: null });
   },
 
+  // Calculator modal actions
+  setCalculatorParams: (params: CalorieIntakeParams) => {
+    set({ calculatorParams: params });
+  },
+
+  setCalculatorActivityLevel: (level: ActivityLevel) => {
+    set({ calculatorActivityLevel: level });
+  },
+
+  clearCalculatorData: () => {
+    set({ calculatorParams: null, calculatorActivityLevel: null });
+  },
+
   resetDailyTargets: async () => {
     const resetTargets: DailyTargets = {
       calories: 0,
@@ -490,6 +515,8 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
         dailyTargets: resetTargets,
         proteinCalculation: null,
         calorieCalculation: null,
+        calculatorParams: null,
+        calculatorActivityLevel: null,
       });
     } catch (error) {
       console.error("Error resetting daily targets:", error);
@@ -515,6 +542,10 @@ export const selectProteinCalculation = (state: FoodLogStore) =>
   state.proteinCalculation;
 export const selectCalorieCalculation = (state: FoodLogStore) =>
   state.calorieCalculation;
+export const selectCalculatorParams = (state: FoodLogStore) =>
+  state.calculatorParams;
+export const selectCalculatorActivityLevel = (state: FoodLogStore) =>
+  state.calculatorActivityLevel;
 export const selectFilteredFoodLogs = (state: FoodLogStore) =>
   state.getFilteredFoodLogs();
 export const selectMonthlyFoodLogs = (state: FoodLogStore) =>

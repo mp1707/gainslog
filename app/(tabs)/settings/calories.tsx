@@ -63,7 +63,7 @@ export default function CaloriesScreen() {
             <NutritionAccordionContent
               calculatorType="calories"
               calculatorDescription="Calories provide the body with energy to perform all physical and mental activities. Get a personalized calories target based on your body and goals. (Recommended)"
-              onCalculatorPress={() => router.push("/settings/calorie-calculator")}
+              onCalculatorPress={() => router.push("/settings/calculator/step1-personal-info")}
               calculationInfo={
                 calorieCalculation
                   ? {

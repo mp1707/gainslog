@@ -56,10 +56,10 @@ export default function SettingsLayout() {
         }}
       />
       <Stack.Screen
-        name="calorie-calculator"
+        name="calculator"
         options={{
-          title: "Calculate Target",
-
+          headerShown: false,
+          presentation: "modal",
         }}
       />
     </Stack>
