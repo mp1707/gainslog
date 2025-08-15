@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   View,
   KeyboardAvoidingView,
   TouchableOpacity,
   Text,
+  TextInput as RNTextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { Picker } from "@react-native-picker/picker";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
+
+import { NumericTextInput } from "@/shared/ui/atoms/NumericTextInput";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
@@ -37,6 +39,12 @@ export default function HeightSelectionScreen() {
   );
 
   const [heightUnit, setHeightUnit] = useState<HeightUnit>("cm");
+  const [heightInput, setHeightInput] = useState<string>(
+    heightUnit === "cm" 
+      ? localParams.height.toString()
+      : (localParams.height / 30.48).toFixed(1)
+  );
+  const inputRef = useRef<RNTextInput>(null);
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -47,21 +55,67 @@ export default function HeightSelectionScreen() {
   useEffect(() => {
     if (calculatorParams) {
       setLocalParams(calculatorParams);
+      const displayHeight = heightUnit === "cm" 
+        ? calculatorParams.height
+        : (calculatorParams.height / 30.48);
+      setHeightInput(heightUnit === "cm" ? displayHeight.toString() : displayHeight.toFixed(1));
     }
-  }, [calculatorParams]);
+  }, [calculatorParams, heightUnit]);
 
-  const updateHeight = (height: number) => {
-    // Always store in cm
-    const heightInCm = heightUnit === "ft" ? height * 30.48 : height;
-    const newParams = { ...localParams, height: Math.round(heightInCm) };
-    setLocalParams(newParams);
-    setCalculatorParams(newParams);
+
+  // Update height input when unit changes
+  useEffect(() => {
+    const displayHeight = heightUnit === "cm" 
+      ? localParams.height
+      : (localParams.height / 30.48);
+    setHeightInput(heightUnit === "cm" ? displayHeight.toString() : displayHeight.toFixed(1));
+  }, [heightUnit, localParams.height]);
+
+  const updateHeight = (heightText: string) => {
+    setHeightInput(heightText);
+    
+    if (heightText === '') {
+      return; // Allow empty input
+    }
+    
+    const height = parseFloat(heightText);
+    if (!isNaN(height) && height > 0) {
+      // Always store in cm
+      const heightInCm = heightUnit === "ft" ? height * 30.48 : height;
+      const newParams = { ...localParams, height: Math.round(heightInCm) };
+      setLocalParams(newParams);
+      setCalculatorParams(newParams);
+    }
   };
 
   const handleContinue = async () => {
+    const height = parseFloat(heightInput);
+    if (isNaN(height) || height <= 0) {
+      return;
+    }
+    
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push("/settings/calculator/activity-level");
   };
+
+  const isValidHeight = () => {
+    if (heightInput === '') return false;
+    const height = parseFloat(heightInput);
+    const minHeight = heightUnit === "cm" ? 100 : 3.3;
+    const maxHeight = heightUnit === "cm" ? 250 : 8.2;
+    return !isNaN(height) && height >= minHeight && height <= maxHeight;
+  };
+
+  // Get dynamic min/max based on current unit
+  const getHeightConstraints = () => {
+    if (heightUnit === "cm") {
+      return { min: 100, max: 250 };
+    } else {
+      return { min: 3.3, max: 8.2 }; // feet
+    }
+  };
+
+  const { min: heightMin, max: heightMax } = getHeightConstraints();
 
 
   // Height unit toggle options
@@ -75,41 +129,6 @@ export default function HeightSelectionScreen() {
       label: "ft",
     },
   ];
-
-  // Generate height items based on unit
-  const getHeightItems = () => {
-    if (heightUnit === "cm") {
-      return Array.from({ length: 151 }, (_, i) => i + 100); // 100-250 cm
-    } else {
-      // Generate feet values from 3'3" to 8'2" (100-250 cm equivalent)
-      const items = [];
-      for (let feet = 3; feet <= 8; feet++) {
-        const startInches = feet === 3 ? 3 : 0;
-        const endInches = feet === 8 ? 2 : 11;
-        for (let inches = startInches; inches <= endInches; inches++) {
-          const totalInches = feet * 12 + inches;
-          const heightInFeet = totalInches / 12;
-          if (heightInFeet >= 3.25 && heightInFeet <= 8.17) { // 100-250 cm range
-            items.push(heightInFeet);
-          }
-        }
-      }
-      return items;
-    }
-  };
-
-  const heightItems = getHeightItems();
-
-  // Get display height based on unit
-  const getDisplayHeight = () => {
-    if (heightUnit === "cm") {
-      return localParams.height;
-    } else {
-      return Math.round((localParams.height / 30.48) * 12) / 12; // Convert to feet with 1-inch precision
-    }
-  };
-
-  const displayHeight = getDisplayHeight();
 
   // Format height display for ft unit
   const formatHeightDisplay = (heightInFeet: number) => {
@@ -164,22 +183,20 @@ export default function HeightSelectionScreen() {
             </View>
           </View>
 
-          <View style={styles.pickerSection}>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={displayHeight}
-                onValueChange={updateHeight}
-                style={styles.picker}
-                itemStyle={styles.pickerItem}
-              >
-                {heightItems.map((height) => (
-                  <Picker.Item 
-                    key={height} 
-                    label={heightUnit === "cm" ? `${height} cm` : formatHeightDisplay(height)}
-                    value={height} 
-                  />
-                ))}
-              </Picker>
+          <View style={styles.inputSection}>
+            <View style={styles.inputContainer}>
+              <NumericTextInput
+                ref={inputRef}
+                style={styles.heightInput}
+                value={heightInput}
+                onChangeText={updateHeight}
+                min={heightMin}
+                max={heightMax}
+                placeholder={heightUnit === "cm" ? "175" : "5.8"}
+                accessibilityLabel="Height input"
+                accessibilityHint={`Enter your height in ${heightUnit} between ${heightMin} and ${heightMax}`}
+              />
+              <Text style={styles.unitText}>{heightUnit}</Text>
             </View>
             
             <Text style={styles.conversionText}>
@@ -189,8 +206,12 @@ export default function HeightSelectionScreen() {
 
           <View style={styles.navigationContainer}>
             <TouchableOpacity
-              style={styles.continueButton}
+              style={[
+                styles.continueButton,
+                !isValidHeight() && styles.continueButtonDisabled,
+              ]}
               onPress={handleContinue}
+              disabled={!isValidHeight()}
               accessibilityRole="button"
               accessibilityLabel="Continue to activity level selection"
             >
@@ -241,29 +262,29 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     unitToggleContainer: {
       alignItems: "center",
     },
-    pickerSection: {
+    inputSection: {
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
       paddingVertical: spacing.xl,
     },
-    pickerContainer: {
-      backgroundColor: colors.secondaryBackground,
-      borderRadius: themeObj.components.buttons.cornerRadius,
-      borderWidth: 1,
-      borderColor: colors.border,
-      overflow: "hidden",
-      width: "80%",
-      maxWidth: 280,
+    inputContainer: {
+      flexDirection: "row",
+      alignItems: "baseline",
+      justifyContent: "center",
       marginBottom: spacing.md,
     },
-    picker: {
-      height: 200,
-      color: colors.primaryText,
+    heightInput: {
+      fontSize: typography.Title1.fontSize,
+      fontFamily: typography.Title1.fontFamily,
+      textAlign: "center",
+      minWidth: 120,
     },
-    pickerItem: {
-      fontSize: typography.Body.fontSize,
-      color: colors.primaryText,
+    unitText: {
+      fontSize: typography.Title1.fontSize,
+      fontFamily: typography.Title1.fontFamily,
+      color: colors.secondaryText,
+      marginLeft: spacing.sm,
     },
     conversionText: {
       fontSize: typography.Caption.fontSize,
@@ -292,6 +313,10 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     progressContainer: {
       padding: themeObj.spacing.md,
+    },
+    continueButtonDisabled: {
+      backgroundColor: colors.disabledBackground,
+      opacity: 0.6,
     },
   });
 };

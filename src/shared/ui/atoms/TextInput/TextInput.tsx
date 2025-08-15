@@ -25,7 +25,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
     ref
   ) => {
     const [isFocused, setIsFocused] = useState(false);
-    const { colors } = useTheme();
+    const { colors, colorScheme } = useTheme();
     const styles = createStyles(colors);
 
     // Get base styles
@@ -76,6 +76,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
         onFocus={handleFocus}
         onBlur={handleBlur}
         placeholder={placeholder}
+        keyboardAppearance={colorScheme}
         multiline={multiline}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}

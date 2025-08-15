@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   View,
   KeyboardAvoidingView,
   TouchableOpacity,
   Text,
+  TextInput as RNTextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { Picker } from "@react-native-picker/picker";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
+
+import { NumericTextInput } from "@/shared/ui/atoms/NumericTextInput";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
@@ -19,10 +21,7 @@ import { StyleSheet } from "react-native";
 
 export default function AgeSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const {
-    calculatorParams,
-    setCalculatorParams,
-  } = useFoodLogStore();
+  const { calculatorParams, setCalculatorParams } = useFoodLogStore();
 
   const [localParams, setLocalParams] = useState<CalorieIntakeParams>(
     calculatorParams || {
@@ -33,6 +32,9 @@ export default function AgeSelectionScreen() {
     }
   );
 
+  const [ageInput, setAgeInput] = useState<string>(localParams.age.toString());
+  const inputRef = useRef<RNTextInput>(null);
+
   const styles = useMemo(
     () => createStyles(colors, themeObj),
     [colors, themeObj]
@@ -42,23 +44,40 @@ export default function AgeSelectionScreen() {
   useEffect(() => {
     if (calculatorParams) {
       setLocalParams(calculatorParams);
+      setAgeInput(calculatorParams.age.toString());
     }
   }, [calculatorParams]);
 
-  const updateAge = (age: number) => {
-    const newParams = { ...localParams, age };
-    setLocalParams(newParams);
-    setCalculatorParams(newParams);
+  const updateAge = (ageText: string) => {
+    setAgeInput(ageText);
+    
+    if (ageText === '') {
+      return; // Allow empty input
+    }
+    
+    const age = parseInt(ageText, 10);
+    if (!isNaN(age)) {
+      const newParams = { ...localParams, age };
+      setLocalParams(newParams);
+      setCalculatorParams(newParams);
+    }
   };
 
   const handleContinue = async () => {
+    const age = parseInt(ageInput, 10);
+    if (isNaN(age) || age < 13 || age > 120) {
+      return;
+    }
+
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push("/settings/calculator/weight");
   };
 
-
-  // Generate age items from 13 to 120
-  const ageItems = Array.from({ length: 108 }, (_, i) => i + 13);
+  const isValidAge = () => {
+    if (ageInput === '') return false;
+    const age = parseInt(ageInput, 10);
+    return !isNaN(age) && age >= 13 && age <= 120;
+  };
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
@@ -74,33 +93,37 @@ export default function AgeSelectionScreen() {
         {/* Content */}
         <View style={styles.content}>
           <View style={styles.textSection}>
-            <Text style={styles.subtitle}>
-              What is your age?
-            </Text>
+            <Text style={styles.subtitle}>What is your age?</Text>
             <Text style={styles.description}>
               Your age helps determine your baseline metabolic rate.
             </Text>
           </View>
 
-          <View style={styles.pickerSection}>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={localParams.age}
-                onValueChange={updateAge}
-                style={styles.picker}
-                itemStyle={styles.pickerItem}
-              >
-                {ageItems.map((age) => (
-                  <Picker.Item key={age} label={`${age} years`} value={age} />
-                ))}
-              </Picker>
+          <View style={styles.inputSection}>
+            <View style={styles.inputContainer}>
+              <NumericTextInput
+                ref={inputRef}
+                style={styles.ageInput}
+                value={ageInput}
+                onChangeText={updateAge}
+                min={13}
+                max={120}
+                placeholder="30"
+                accessibilityLabel="Age input"
+                accessibilityHint="Enter your age between 13 and 120 years"
+              />
+              <Text style={styles.unitText}>years</Text>
             </View>
           </View>
 
           <View style={styles.navigationContainer}>
             <TouchableOpacity
-              style={styles.continueButton}
+              style={[
+                styles.continueButton,
+                !isValidAge() && styles.continueButtonDisabled,
+              ]}
               onPress={handleContinue}
+              disabled={!isValidAge()}
               accessibilityRole="button"
               accessibilityLabel="Continue to weight selection"
             >
@@ -147,28 +170,28 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       textAlign: "center",
       lineHeight: 22,
     },
-    pickerSection: {
+    inputSection: {
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
       paddingVertical: spacing.xl,
     },
-    pickerContainer: {
-      backgroundColor: colors.secondaryBackground,
-      borderRadius: themeObj.components.buttons.cornerRadius,
-      borderWidth: 1,
-      borderColor: colors.border,
-      overflow: "hidden",
-      width: "80%",
-      maxWidth: 280,
+    inputContainer: {
+      flexDirection: "row",
+      alignItems: "baseline",
+      justifyContent: "center",
     },
-    picker: {
-      height: 200,
-      color: colors.primaryText,
+    ageInput: {
+      fontSize: typography.Title1.fontSize,
+      fontFamily: typography.Title1.fontFamily,
+      textAlign: "center",
+      minWidth: 120,
     },
-    pickerItem: {
-      fontSize: typography.Body.fontSize,
-      color: colors.primaryText,
+    unitText: {
+      fontSize: typography.Title1.fontSize,
+      fontFamily: typography.Title1.fontFamily,
+      color: colors.secondaryText,
+      marginLeft: spacing.sm,
     },
     navigationContainer: {
       paddingBottom: spacing.xl,
@@ -188,6 +211,10 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       color: "#FFFFFF",
       fontWeight: "600",
       marginRight: spacing.sm,
+    },
+    continueButtonDisabled: {
+      backgroundColor: colors.disabledBackground,
+      opacity: 0.6,
     },
     progressContainer: {
       padding: themeObj.spacing.md,

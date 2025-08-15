@@ -31,6 +31,7 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
     },
     ref
   ) => {
+    const { colorScheme } = useTheme();
     const [inputValue, setInputValue] = useState(value);
     const [isFocused, setIsFocused] = useState(false);
     const { colors } = useTheme();
@@ -117,6 +118,7 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
           onFocus={handleInputFocus}
           onSubmitEditing={handleSubmitEditing}
           keyboardType="decimal-pad"
+          keyboardAppearance={colorScheme}
           selectTextOnFocus
           editable={!disabled}
           placeholder={placeholder}

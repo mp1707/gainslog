@@ -152,7 +152,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
       onRequestClose={() => onClose(false)} // Pass false for system close
     >
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={72} // Account for modal header height
       >

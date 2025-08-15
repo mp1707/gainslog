@@ -1,16 +1,18 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   View,
   KeyboardAvoidingView,
   TouchableOpacity,
   Text,
   Alert,
+  TextInput as RNTextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { Picker } from "@react-native-picker/picker";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
+
+import { NumericTextInput } from "@/shared/ui/atoms/NumericTextInput";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
@@ -28,41 +30,65 @@ export default function ManualCalorieInputScreen() {
       ? dailyTargets.calories
       : 2000
   );
+  const [calorieInput, setCalorieInput] = useState<string>(
+    (dailyTargets?.calories && dailyTargets.calories > 0
+      ? dailyTargets.calories
+      : 2000
+    ).toString()
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const inputRef = useRef<RNTextInput>(null);
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
     [colors, themeObj]
   );
 
-  // Generate calorie options (1000-5000 in 50-calorie increments)
-  const calorieOptions = useMemo(() => {
-    return Array.from({ length: 81 }, (_, i) => 1000 + i * 50); // 1000, 1050, 1100, ..., 5000
-  }, []);
 
   useEffect(() => {
     // Update selected calories if daily targets change
     if (dailyTargets?.calories && dailyTargets.calories > 0) {
       setSelectedCalories(dailyTargets.calories);
+      setCalorieInput(dailyTargets.calories.toString());
     }
   }, [dailyTargets?.calories]);
+
+
+  const updateCalories = (calorieText: string) => {
+    setCalorieInput(calorieText);
+    
+    if (calorieText === '') {
+      return; // Allow empty input
+    }
+    
+    const calories = parseInt(calorieText, 10);
+    if (!isNaN(calories)) {
+      setSelectedCalories(calories);
+    }
+  };
+
+  const isValidCalories = () => {
+    if (calorieInput === '') return false;
+    const calories = parseInt(calorieInput, 10);
+    return !isNaN(calories) && calories >= 1000 && calories <= 5000;
+  };
 
   const handleSave = async () => {
     // Prevent multiple rapid saves
     if (isLoading) return;
 
     // Validate input
-    if (
-      !selectedCalories ||
-      selectedCalories < 1000 ||
-      selectedCalories > 5000
-    ) {
+    const calories = parseInt(calorieInput, 10);
+    if (isNaN(calories) || calories < 1000 || calories > 5000) {
       Alert.alert(
         "Invalid Calorie Value",
-        "Please select a calorie value between 1000 and 5000."
+        "Please enter a calorie value between 1000 and 5000."
       );
       return;
     }
+
+    // Update selected calories from input
+    setSelectedCalories(calories);
 
     setIsLoading(true);
 
@@ -81,7 +107,7 @@ export default function ManualCalorieInputScreen() {
       // Update the daily targets with the manually entered calories
       const newTargets = {
         ...currentTargets,
-        calories: selectedCalories,
+        calories: calories,
       };
 
       await updateDailyTargets(newTargets);
@@ -113,35 +139,24 @@ export default function ManualCalorieInputScreen() {
             in settings.
           </Text>
 
-          <View style={styles.pickerSection}>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={selectedCalories}
-                onValueChange={(value: number) => {
-                  // Validate picker value
-                  if (
-                    typeof value === "number" &&
-                    value >= 1000 &&
-                    value <= 5000
-                  ) {
-                    setSelectedCalories(value);
-                  }
-                }}
-                style={styles.picker}
-                itemStyle={styles.pickerItem}
-              >
-                {calorieOptions.map((calories) => (
-                  <Picker.Item
-                    key={calories}
-                    label={`${calories} calories`}
-                    value={calories}
-                  />
-                ))}
-              </Picker>
+          <View style={styles.inputSection}>
+            <View style={styles.inputContainer}>
+              <NumericTextInput
+                ref={inputRef}
+                style={styles.calorieInput}
+                value={calorieInput}
+                onChangeText={updateCalories}
+                min={1000}
+                max={5000}
+                placeholder="2000"
+                accessibilityLabel="Calorie input"
+                accessibilityHint="Enter your daily calorie goal between 1000 and 5000"
+              />
+              <Text style={styles.unitText}>calories</Text>
             </View>
 
             <Text style={styles.selectedText}>
-              {selectedCalories} calories per day
+              per day
             </Text>
           </View>
 
@@ -150,10 +165,10 @@ export default function ManualCalorieInputScreen() {
             <TouchableOpacity
               style={[
                 styles.saveButton,
-                isLoading && styles.saveButtonDisabled,
+                (isLoading || !isValidCalories()) && styles.saveButtonDisabled,
               ]}
               onPress={handleSave}
-              disabled={isLoading}
+              disabled={isLoading || !isValidCalories()}
               accessibilityRole="button"
               accessibilityLabel={
                 isLoading
@@ -209,28 +224,28 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       lineHeight: 22,
       marginBottom: spacing.lg,
     },
-    pickerSection: {
+    inputSection: {
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
     },
-    pickerContainer: {
-      backgroundColor: colors.secondaryBackground,
-      borderRadius: themeObj.components.buttons.cornerRadius,
-      borderWidth: 1,
-      borderColor: colors.border,
-      overflow: "hidden",
-      width: "80%",
-      maxWidth: 280,
+    inputContainer: {
+      flexDirection: "row",
+      alignItems: "baseline",
+      justifyContent: "center",
       marginBottom: spacing.md,
     },
-    picker: {
-      height: 200,
-      color: colors.primaryText,
+    calorieInput: {
+      fontSize: typography.Title1.fontSize,
+      fontFamily: typography.Title1.fontFamily,
+      textAlign: "center",
+      minWidth: 140,
     },
-    pickerItem: {
-      fontSize: typography.Body.fontSize,
-      color: colors.primaryText,
+    unitText: {
+      fontSize: typography.Title1.fontSize,
+      fontFamily: typography.Title1.fontFamily,
+      color: colors.secondaryText,
+      marginLeft: spacing.sm,
     },
     selectedText: {
       fontSize: typography.Headline.fontSize,
