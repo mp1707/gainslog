@@ -15,6 +15,9 @@ interface NumericTextInputProps {
   accessibilityHint?: string;
   style?: any;
   inputAccessoryViewID?: string;
+  large?: boolean;
+  borderless?: boolean;
+  integerOnly?: boolean;
 }
 
 export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
@@ -30,6 +33,9 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
       accessibilityHint,
       style,
       inputAccessoryViewID,
+      large = false,
+      borderless = false,
+      integerOnly = false,
     },
     ref
   ) => {
@@ -37,7 +43,7 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
     const [inputValue, setInputValue] = useState(value);
     const [isFocused, setIsFocused] = useState(false);
     const { colors } = useTheme();
-    const styles = createStyles(colors);
+    const styles = createStyles(colors, { large, borderless });
 
     // Update inputValue when value prop changes
     useEffect(() => {
@@ -49,8 +55,9 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
     const clamp = (val: number) => Math.max(min, Math.min(max, val));
 
     const handleInputChange = (text: string) => {
-      // Allow empty string, numbers, and single decimal point
-      if (text === '' || /^\d*\.?\d*$/.test(text)) {
+      // Allow empty string and numbers based on integerOnly setting
+      const regex = integerOnly ? /^\d*$/ : /^\d*\.?\d*$/;
+      if (text === '' || regex.test(text)) {
         setInputValue(text);
       }
     };
@@ -67,7 +74,7 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
           setInputValue(value);
         } else {
           const clampedValue = clamp(numValue);
-          const clampedString = String(clampedValue);
+          const clampedString = integerOnly ? String(Math.floor(clampedValue)) : String(clampedValue);
           setInputValue(clampedString);
           if (clampedString !== value) {
             onChangeText(clampedString);
@@ -89,7 +96,7 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
         const numValue = parseFloat(inputValue);
         if (!isNaN(numValue)) {
           const clampedValue = clamp(numValue);
-          const clampedString = String(clampedValue);
+          const clampedString = integerOnly ? String(Math.floor(clampedValue)) : String(clampedValue);
           setInputValue(clampedString);
           if (clampedString !== value) {
             onChangeText(clampedString);

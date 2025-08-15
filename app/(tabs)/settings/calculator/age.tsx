@@ -138,7 +138,6 @@ export default function AgeSelectionScreen() {
           <View style={styles.inputContainer}>
             <NumericTextInput
               ref={inputRef}
-              style={styles.ageInput}
               value={ageInput}
               onChangeText={updateAge}
               min={13}
@@ -147,6 +146,9 @@ export default function AgeSelectionScreen() {
               accessibilityLabel="Age input"
               accessibilityHint="Enter your age between 13 and 120 years"
               inputAccessoryViewID={inputAccessoryViewID}
+              large
+              borderless
+              integerOnly
             />
             <Text style={styles.unitText}>years</Text>
           </View>
@@ -205,12 +207,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       flexDirection: "row",
       alignItems: "baseline",
       justifyContent: "center",
-    },
-    ageInput: {
-      fontSize: typography.Title1.fontSize,
-      fontFamily: typography.Title1.fontFamily,
-      textAlign: "center",
-      minWidth: 120,
     },
     unitText: {
       fontSize: typography.Title1.fontSize,

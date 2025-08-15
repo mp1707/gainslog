@@ -3,29 +3,40 @@ import { theme } from "@/theme";
 
 import type { Colors } from "@/theme";
 
-export const createStyles = (colors: Colors) =>
-  StyleSheet.create({
+interface StyleOptions {
+  large?: boolean;
+  borderless?: boolean;
+}
+
+export const createStyles = (colors: Colors, options: StyleOptions = {}) => {
+  const { large = false, borderless = false } = options;
+  
+  return StyleSheet.create({
     // Container that acts like a TextInput
     container: {
-      backgroundColor: colors.secondaryBackground,
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: theme.spacing.sm,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
+      backgroundColor: borderless ? 'transparent' : colors.secondaryBackground,
+      borderWidth: borderless ? 0 : 1,
+      borderColor: borderless ? 'transparent' : colors.border,
+      borderRadius: borderless ? 0 : theme.spacing.sm,
+      paddingHorizontal: large ? theme.spacing.sm : theme.spacing.md,
+      paddingVertical: large ? theme.spacing.md : theme.spacing.sm,
       minHeight: 44, // Minimum touch target
       justifyContent: "center",
     },
 
     // Disabled state
     disabled: {
-      backgroundColor: colors.disabledBackground,
-      borderColor: colors.border,
+      backgroundColor: borderless ? 'transparent' : colors.disabledBackground,
+      borderColor: borderless ? 'transparent' : colors.border,
       opacity: 0.6,
     },
 
     // Text styling
-    text: {
+    text: large ? {
+      fontSize: theme.typography.Title1.fontSize,
+      fontWeight: theme.typography.Title1.fontWeight,
+      fontFamily: theme.typography.Title1.fontFamily,
+    } : {
       fontSize: theme.typography.Body.fontSize,
       fontWeight: theme.typography.Body.fontWeight,
       fontFamily: theme.typography.Body.fontFamily,
@@ -46,6 +57,7 @@ export const createStyles = (colors: Colors) =>
       color: colors.disabledText,
     },
   });
+};
 
 // Legacy export for compatibility
 export const styles = createStyles(theme.getColors());
