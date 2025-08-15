@@ -5,11 +5,12 @@ import type { Colors } from "@/theme";
 
 interface StyleOptions {
   large?: boolean;
+  extraLarge?: boolean;
   borderless?: boolean;
 }
 
 export const createStyles = (colors: Colors, options: StyleOptions = {}) => {
-  const { large = false, borderless = false } = options;
+  const { large = false, extraLarge = false, borderless = false } = options;
   
   return StyleSheet.create({
     // Container that acts like a TextInput
@@ -32,7 +33,11 @@ export const createStyles = (colors: Colors, options: StyleOptions = {}) => {
     },
 
     // Text styling
-    text: large ? {
+    text: extraLarge ? {
+      fontSize: 36,
+      fontWeight: theme.typography.Title1.fontWeight,
+      fontFamily: theme.typography.Title1.fontFamily,
+    } : large ? {
       fontSize: theme.typography.Title1.fontSize,
       fontWeight: theme.typography.Title1.fontWeight,
       fontFamily: theme.typography.Title1.fontFamily,

@@ -16,6 +16,7 @@ interface NumericTextInputProps {
   style?: any;
   inputAccessoryViewID?: string;
   large?: boolean;
+  extraLarge?: boolean;
   borderless?: boolean;
   integerOnly?: boolean;
 }
@@ -34,6 +35,7 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
       style,
       inputAccessoryViewID,
       large = false,
+      extraLarge = false,
       borderless = false,
       integerOnly = false,
     },
@@ -43,7 +45,7 @@ export const NumericTextInput = forwardRef<RNTextInput, NumericTextInputProps>(
     const [inputValue, setInputValue] = useState(value);
     const [isFocused, setIsFocused] = useState(false);
     const { colors } = useTheme();
-    const styles = createStyles(colors, { large, borderless });
+    const styles = createStyles(colors, { large, extraLarge, borderless });
 
     // Update inputValue when value prop changes
     useEffect(() => {

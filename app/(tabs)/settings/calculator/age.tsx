@@ -49,6 +49,15 @@ export default function AgeSelectionScreen() {
     }
   }, [calculatorParams]);
 
+  // Auto-focus input when screen mounts
+  useEffect(() => {
+    const focusTimer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100); // Small delay to ensure component is fully mounted
+
+    return () => clearTimeout(focusTimer);
+  }, []);
+
   const updateAge = (ageText: string) => {
     setAgeInput(ageText);
     
@@ -146,7 +155,7 @@ export default function AgeSelectionScreen() {
               accessibilityLabel="Age input"
               accessibilityHint="Enter your age between 13 and 120 years"
               inputAccessoryViewID={inputAccessoryViewID}
-              large
+              extraLarge
               borderless
               integerOnly
             />
@@ -180,17 +189,17 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       paddingHorizontal: spacing.pageMargins.horizontal,
       justifyContent: "flex-start",
       alignItems: "stretch",
+      gap: spacing.xxl,
     },
     textSection: {
       paddingTop: spacing.lg,
-      marginBottom: spacing.xxl,
+      gap: spacing.sm,
     },
     subtitle: {
       fontSize: typography.Title2.fontSize,
       fontFamily: typography.Title2.fontFamily,
       color: colors.primaryText,
       textAlign: "center",
-      marginBottom: spacing.md,
     },
     description: {
       fontSize: typography.Body.fontSize,
@@ -201,7 +210,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     inputSection: {
       alignItems: "center",
-      paddingVertical: spacing.xxl,
     },
     inputContainer: {
       flexDirection: "row",
@@ -209,8 +217,8 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       justifyContent: "center",
     },
     unitText: {
-      fontSize: typography.Title1.fontSize,
-      fontFamily: typography.Title1.fontFamily,
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
       color: colors.secondaryText,
       marginLeft: spacing.sm,
     },
