@@ -21,11 +21,11 @@ const AgeSelectionScreen = () => {
     [colors, themeObj]
   );
 
-  const [age, setAge] = useState<number>(calculatorParams?.age || 30);
+  const [age, setAge] = useState<number>(calculatorParams?.age ?? 30);
 
   // Update age when store changes
   useEffect(() => {
-    if (calculatorParams?.age) {
+    if (calculatorParams?.age !== undefined) {
       setAge(calculatorParams.age);
     }
   }, [calculatorParams?.age]);
@@ -38,10 +38,10 @@ const AgeSelectionScreen = () => {
 
       const updatedParams = {
         ...calculatorParams,
-        sex: calculatorParams?.sex || "male",
+        sex: calculatorParams?.sex ?? "male",
         age: newAge,
-        weight: calculatorParams?.weight || 85,
-        height: calculatorParams?.height || 175,
+        weight: calculatorParams?.weight ?? 85,
+        height: calculatorParams?.height ?? 175,
       };
       setCalculatorParams(updatedParams);
     }

@@ -48,9 +48,10 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
     const loadSavedParams = async () => {
       try {
         // If store has been explicitly cleared (calculatorParams is null),
-        // start fresh without loading old AsyncStorage data
+        // we should still try to load from AsyncStorage to show previous values
         if (calculatorParams === null) {
-          setLocalParams(null);
+          const savedParams = await getCalorieCalculatorParams();
+          setLocalParams(savedParams);
           setIsLoaded(true);
           return;
         }
@@ -87,7 +88,11 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
 
   const handleSexSelect = useCallback(async (sex: Sex) => {
     setSelectedSex(sex);
-    const newParams = { ...stableInitialParams, ...localParams, sex };
+    const newParams = { 
+      ...stableInitialParams, 
+      ...localParams, 
+      sex 
+    };
     setLocalParams(newParams);
     setCalculatorParams(newParams);
 

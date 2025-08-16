@@ -17,6 +17,7 @@ import { CALCULATION_METHODS } from "@/shared/constants/calculationMethods";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { Button } from "@/shared/ui/atoms/Button";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
+import { saveCalorieCalculatorParams } from "@/lib/storage";
 import type { GoalType } from "@/types";
 import { StyleSheet } from "react-native";
 
@@ -89,6 +90,9 @@ export default function Step3GoalsScreen() {
         calories,
         goalType
       );
+
+      // Save calculator params to AsyncStorage for future use
+      await saveCalorieCalculatorParams(calculatorParams);
 
       // Clear calculator data and navigate back to settings
       clearCalculatorData();

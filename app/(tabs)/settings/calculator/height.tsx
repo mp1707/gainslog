@@ -21,11 +21,11 @@ const HeightSelectionScreen = () => {
     [colors, themeObj]
   );
 
-  const [height, setHeight] = useState<number>(calculatorParams?.height || 175);
+  const [height, setHeight] = useState<number>(calculatorParams?.height ?? 175);
 
   // Update height when store changes
   useEffect(() => {
-    if (calculatorParams?.height) {
+    if (calculatorParams?.height !== undefined) {
       setHeight(calculatorParams.height);
     }
   }, [calculatorParams?.height]);
@@ -38,9 +38,9 @@ const HeightSelectionScreen = () => {
 
       const updatedParams = {
         ...calculatorParams,
-        sex: calculatorParams?.sex || "male",
-        age: calculatorParams?.age || 30,
-        weight: calculatorParams?.weight || 70,
+        sex: calculatorParams?.sex ?? "male",
+        age: calculatorParams?.age ?? 30,
+        weight: calculatorParams?.weight ?? 70,
         height: newHeight,
       };
       setCalculatorParams(updatedParams);

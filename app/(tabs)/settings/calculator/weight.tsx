@@ -21,11 +21,11 @@ const WeightSelectionScreen = () => {
     [colors, themeObj]
   );
 
-  const [weight, setWeight] = useState<number>(calculatorParams?.weight || 70);
+  const [weight, setWeight] = useState<number>(calculatorParams?.weight ?? 70);
 
   // Update weight when store changes
   useEffect(() => {
-    if (calculatorParams?.weight) {
+    if (calculatorParams?.weight !== undefined) {
       setWeight(calculatorParams.weight);
     }
   }, [calculatorParams?.weight]);
@@ -38,10 +38,10 @@ const WeightSelectionScreen = () => {
 
       const updatedParams = {
         ...calculatorParams,
-        sex: calculatorParams?.sex || "male",
-        age: calculatorParams?.age || 30,
+        sex: calculatorParams?.sex ?? "male",
+        age: calculatorParams?.age ?? 30,
         weight: newWeight,
-        height: calculatorParams?.height || 175,
+        height: calculatorParams?.height ?? 175,
       };
       setCalculatorParams(updatedParams);
     }

@@ -9,12 +9,13 @@ import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import { CalculatorInputAccessory } from "@/shared/ui";
+import { saveCalorieCalculatorParams } from "@/lib/storage";
 
 const inputAccessoryViewID = "calories-input-accessory";
 
 const ManualCalorieInputScreen = () => {
   const { colors, theme: themeObj } = useTheme();
-  const { dailyTargets, updateDailyTargets, clearCalculatorData } = useFoodLogStore();
+  const { dailyTargets, updateDailyTargets, calculatorParams, clearCalculatorData } = useFoodLogStore();
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -66,6 +67,12 @@ const ManualCalorieInputScreen = () => {
       };
 
       await updateDailyTargets(newTargets);
+      
+      // Save existing calculator params to AsyncStorage if they exist
+      if (calculatorParams) {
+        await saveCalorieCalculatorParams(calculatorParams);
+      }
+      
       clearCalculatorData();
       router.replace("/settings");
     } catch (error) {
