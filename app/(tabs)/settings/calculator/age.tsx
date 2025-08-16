@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { View, TouchableOpacity, Text, TextInput, Platform, StyleSheet } from "react-native";
+import { View, TouchableOpacity, Text, TextInput, Platform, StyleSheet, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { CaretRightIcon } from "phosphor-react-native";
@@ -31,11 +31,8 @@ const AgeSelectionScreen = () => {
   }, [calculatorParams?.age]);
 
   const handleAgeChange = (ageText: string) => {
-    if (ageText === "") {
-      return;
-    }
-
-    const newAge = parseInt(ageText, 10);
+    const newAge = ageText === "" ? 0 : parseInt(ageText, 10);
+    
     if (!isNaN(newAge)) {
       setAge(newAge);
 
@@ -51,6 +48,11 @@ const AgeSelectionScreen = () => {
 
   const handleContinue = async () => {
     if (age < 13 || age > 120) {
+      Alert.alert(
+        "Invalid Age",
+        "Please enter a valid age between 13 and 120 years.",
+        [{ text: "OK" }]
+      );
       return;
     }
 
@@ -58,7 +60,6 @@ const AgeSelectionScreen = () => {
     router.push("/settings/calculator/weight");
   };
 
-  const isValidAge = age >= 13 && age <= 120;
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
@@ -81,7 +82,7 @@ const AgeSelectionScreen = () => {
         <View style={styles.inputSection}>
           <View style={styles.inputContainer}>
             <TextInput
-              value={age.toString()}
+              value={age === 0 ? "" : age.toString()}
               onChangeText={handleAgeChange}
               placeholder="30"
               keyboardType="number-pad"
@@ -100,26 +101,17 @@ const AgeSelectionScreen = () => {
         <View style={styles.spacer} />
 
         <TouchableOpacity
-          style={[
-            styles.continueButton,
-            !isValidAge && styles.continueButtonDisabled,
-          ]}
+          style={styles.continueButton}
           onPress={handleContinue}
-          disabled={!isValidAge}
           accessibilityRole="button"
           accessibilityLabel="Continue to weight selection"
         >
-          <Text
-            style={[
-              styles.continueButtonText,
-              !isValidAge && styles.continueButtonTextDisabled,
-            ]}
-          >
+          <Text style={styles.continueButtonText}>
             Continue
           </Text>
           <CaretRightIcon
             size={20}
-            color={isValidAge ? colors.white : colors.disabledText}
+            color={colors.white}
           />
         </TouchableOpacity>
       </View>
@@ -128,7 +120,7 @@ const AgeSelectionScreen = () => {
       {Platform.OS === 'ios' && (
         <CalculatorInputAccessory
           nativeID={inputAccessoryViewID}
-          isValid={isValidAge}
+          isValid={true}
           onContinue={handleContinue}
           accessibilityLabel="Continue to weight selection"
         />
@@ -213,12 +205,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       color: colors.white,
       fontWeight: "600",
       marginRight: spacing.sm,
-    },
-    continueButtonDisabled: {
-      backgroundColor: colors.disabledBackground,
-    },
-    continueButtonTextDisabled: {
-      color: colors.disabledText,
     },
     ageInput: {
       fontSize: 48,
