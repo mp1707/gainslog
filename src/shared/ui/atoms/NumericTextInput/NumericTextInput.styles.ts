@@ -12,7 +12,8 @@ interface StyleOptions {
 export const createStyles = (colors: Colors, options: StyleOptions = {}) => {
   const { large = false, extraLarge = false, borderless = false } = options;
   
-  return StyleSheet.create({
+  try {
+    return StyleSheet.create({
     // Container that acts like a TextInput
     container: {
       backgroundColor: borderless ? 'transparent' : colors.secondaryBackground,
@@ -62,7 +63,50 @@ export const createStyles = (colors: Colors, options: StyleOptions = {}) => {
       color: colors.disabledText,
     },
   });
+  } catch (error) {
+    console.error("[NumericTextInput.styles] Error creating styles:", error);
+    // Return fallback styles
+    return StyleSheet.create({
+      container: {
+        backgroundColor: borderless ? 'transparent' : '#FFFFFF',
+        borderWidth: borderless ? 0 : 1,
+        borderColor: borderless ? 'transparent' : '#EAEAEA',
+        borderRadius: borderless ? 0 : 8,
+        paddingHorizontal: large ? 8 : 16,
+        paddingVertical: large ? 16 : 8,
+        minHeight: 44,
+        justifyContent: "center",
+      },
+      disabled: {
+        backgroundColor: borderless ? 'transparent' : '#F0F0F0',
+        borderColor: borderless ? 'transparent' : '#EAEAEA',
+        opacity: 0.6,
+      },
+      text: extraLarge ? {
+        fontSize: 36,
+        fontWeight: '700',
+        fontFamily: 'Nunito-Bold',
+      } : large ? {
+        fontSize: 28,
+        fontWeight: '700',
+        fontFamily: 'Nunito-Bold',
+      } : {
+        fontSize: 17,
+        fontWeight: '400',
+        fontFamily: 'Nunito-Regular',
+      },
+      value: {
+        color: '#111111',
+      },
+      placeholder: {
+        color: '#8A8A8E',
+      },
+      disabledText: {
+        color: '#999999',
+      },
+    });
+  }
 };
 
-// Legacy export for compatibility
-export const styles = createStyles(theme.getColors());
+// Legacy export removed - was causing crashes due to static theme.getColors() call at module load time
+// Components should use createStyles(colors, options) with ThemeProvider colors instead

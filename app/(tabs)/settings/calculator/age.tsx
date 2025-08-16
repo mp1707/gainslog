@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { View, TouchableOpacity, Text } from "react-native";
+import { View, TouchableOpacity, Text, TextInput, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
-import { NumericTextInput } from "@/shared/ui/atoms/NumericTextInput";
-
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import { StyleSheet } from "react-native";
+import { CalculatorInputAccessory } from "@/shared/ui";
+
+const inputAccessoryViewID = "age-input-accessory";
 
 const AgeSelectionScreen = () => {
-  const { colors, theme: themeObj } = useTheme();
+  const { colors } = useTheme();
   const { calculatorParams, setCalculatorParams } = useFoodLogStore();
 
   const [age, setAge] = useState<number>(calculatorParams?.age || 30);
@@ -33,7 +34,7 @@ const AgeSelectionScreen = () => {
     const newAge = parseInt(ageText, 10);
     if (!isNaN(newAge)) {
       setAge(newAge);
-      
+
       const updatedParams = {
         sex: calculatorParams?.sex || "male",
         age: newAge,
@@ -75,17 +76,17 @@ const AgeSelectionScreen = () => {
 
         <View style={styles.inputSection}>
           <View style={styles.inputContainer}>
-            <NumericTextInput
+            <TextInput
               value={age.toString()}
               onChangeText={handleAgeChange}
-              min={13}
-              max={120}
               placeholder="30"
+              keyboardType="number-pad"
+              style={styles.ageInput}
               accessibilityLabel="Age input"
               accessibilityHint="Enter your age between 13 and 120 years"
-              extraLarge
-              borderless
-              integerOnly
+              accessibilityRole="spinbutton"
+              inputAccessoryViewID={inputAccessoryViewID}
+              selectTextOnFocus
               autoFocus
             />
             <Text style={styles.unitText}>years</Text>
@@ -118,8 +119,18 @@ const AgeSelectionScreen = () => {
           />
         </TouchableOpacity>
       </View>
+
+      {/* Input Accessory View - iOS only */}
+      {Platform.OS === 'ios' && (
+        <CalculatorInputAccessory
+          nativeID={inputAccessoryViewID}
+          isValid={isValidAge}
+          onContinue={handleContinue}
+          accessibilityLabel="Continue to weight selection"
+        />
+      )}
     </SafeAreaView>
-  );
+  )
 };
 
 export default AgeSelectionScreen;
@@ -198,5 +209,16 @@ const styles = StyleSheet.create({
   },
   continueButtonTextDisabled: {
     color: "#999999",
+  },
+  ageInput: {
+    fontSize: 48,
+    fontFamily: "Nunito-Bold",
+    color: "#000000",
+    textAlign: "center",
+    minWidth: 120,
+    backgroundColor: "transparent",
+    borderWidth: 0,
+    padding: 0,
+    margin: 0,
   },
 });
