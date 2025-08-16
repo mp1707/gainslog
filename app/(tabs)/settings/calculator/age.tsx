@@ -1,18 +1,5 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useRef,
-  useCallback,
-} from "react";
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  TextInput as RNTextInput,
-  InputAccessoryView,
-  InteractionManager,
-} from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, TouchableOpacity, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { CaretRightIcon } from "phosphor-react-native";
@@ -23,130 +10,50 @@ import { NumericTextInput } from "@/shared/ui/atoms/NumericTextInput";
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
-import type { CalorieIntakeParams } from "@/types";
 import { StyleSheet } from "react-native";
 
-const AgeSelectionScreen = React.memo(function AgeSelectionScreen() {
+const AgeSelectionScreen = () => {
   const { colors, theme: themeObj } = useTheme();
   const { calculatorParams, setCalculatorParams } = useFoodLogStore();
 
-  const [localParams, setLocalParams] = useState<CalorieIntakeParams>(
-    calculatorParams || {
-      sex: "male",
-      age: 30,
-      weight: 85,
-      height: 175,
-    }
-  );
+  const [age, setAge] = useState<number>(calculatorParams?.age || 30);
 
-  const [ageInput, setAgeInput] = useState<string>(localParams.age.toString());
-  const inputRef = useRef<RNTextInput>(null);
-  const inputAccessoryViewID = "ageInputAccessory";
-
-  const styles = useMemo(
-    () => createStyles(colors, themeObj),
-    [colors, themeObj]
-  );
-
-  // Update local params when store changes
+  // Update age when store changes
   useEffect(() => {
-    if (calculatorParams) {
-      setLocalParams(calculatorParams);
-      setAgeInput(calculatorParams.age.toString());
+    if (calculatorParams?.age) {
+      setAge(calculatorParams.age);
     }
-  }, [calculatorParams]);
+  }, [calculatorParams?.age]);
 
-  // Auto-focus input when screen mounts - wait for animation to fully complete
-  useEffect(() => {
-    const handle = InteractionManager.runAfterInteractions(() => {
-      // Additional delay to ensure navigation animation is visually complete
-      const focusTimer = setTimeout(() => {
-        inputRef.current?.focus();
-      }, 400); // 400ms total delay for smooth animation completion
-
-      return () => clearTimeout(focusTimer);
-    });
-
-    return () => handle.cancel();
-  }, []);
-
-  const updateAge = useCallback(
-    (ageText: string) => {
-      setAgeInput(ageText);
-
-      if (ageText === "") {
-        return; // Allow empty input
-      }
-
-      const age = parseInt(ageText, 10);
-      if (!isNaN(age)) {
-        const newParams = { ...localParams, age };
-        setLocalParams(newParams);
-        setCalculatorParams(newParams);
-      }
-    },
-    [localParams, setCalculatorParams]
-  );
-
-  const handleContinue = useCallback(async () => {
-    const age = parseInt(ageInput, 10);
-    if (isNaN(age) || age < 13 || age > 120) {
+  const handleAgeChange = (ageText: string) => {
+    if (ageText === "") {
       return;
     }
 
-    // Dismiss keyboard first, then navigate
-    inputRef.current?.blur();
+    const newAge = parseInt(ageText, 10);
+    if (!isNaN(newAge)) {
+      setAge(newAge);
+      
+      const updatedParams = {
+        sex: calculatorParams?.sex || "male",
+        age: newAge,
+        weight: calculatorParams?.weight || 85,
+        height: calculatorParams?.height || 175,
+      };
+      setCalculatorParams(updatedParams);
+    }
+  };
+
+  const handleContinue = async () => {
+    if (age < 13 || age > 120) {
+      return;
+    }
+
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push("/settings/calculator/weight");
-  }, [ageInput]);
+  };
 
-  const isValidAge = useCallback(() => {
-    if (ageInput === "") return false;
-    const age = parseInt(ageInput, 10);
-    return !isNaN(age) && age >= 13 && age <= 120;
-  }, [ageInput]);
-
-  // Memoized InputAccessoryView component
-  const renderInputAccessory = useMemo(() => {
-    const isValid = isValidAge();
-    return (
-      <InputAccessoryView nativeID={inputAccessoryViewID}>
-        <View style={styles.inputAccessoryContainer}>
-          <View style={styles.inputAccessoryContent}>
-            <TouchableOpacity
-              style={[
-                styles.accessoryContinueButton,
-                !isValid && styles.accessoryContinueButtonDisabled,
-              ]}
-              onPress={handleContinue}
-              disabled={!isValid}
-              accessibilityRole="button"
-              accessibilityLabel="Continue to weight selection"
-            >
-              <Text
-                style={[
-                  styles.accessoryContinueButtonText,
-                  !isValid && styles.accessoryContinueButtonTextDisabled,
-                ]}
-              >
-                Continue
-              </Text>
-              <CaretRightIcon
-                size={20}
-                color={isValid ? "#FFFFFF" : colors.disabledText}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </InputAccessoryView>
-    );
-  }, [
-    isValidAge(),
-    inputAccessoryViewID,
-    styles,
-    handleContinue,
-    colors.disabledText,
-  ]);
+  const isValidAge = age >= 13 && age <= 120;
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
@@ -158,7 +65,6 @@ const AgeSelectionScreen = React.memo(function AgeSelectionScreen() {
         />
       </View>
 
-      {/* Content */}
       <View style={styles.content}>
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>How old are you?</Text>
@@ -170,124 +76,127 @@ const AgeSelectionScreen = React.memo(function AgeSelectionScreen() {
         <View style={styles.inputSection}>
           <View style={styles.inputContainer}>
             <NumericTextInput
-              ref={inputRef}
-              value={ageInput}
-              onChangeText={updateAge}
+              value={age.toString()}
+              onChangeText={handleAgeChange}
               min={13}
               max={120}
               placeholder="30"
               accessibilityLabel="Age input"
               accessibilityHint="Enter your age between 13 and 120 years"
-              inputAccessoryViewID={inputAccessoryViewID}
               extraLarge
               borderless
               integerOnly
+              autoFocus
             />
             <Text style={styles.unitText}>years</Text>
           </View>
         </View>
 
-        {/* Spacer to push content up and provide consistent spacing */}
         <View style={styles.spacer} />
-      </View>
 
-      {/* Input Accessory View */}
-      {renderInputAccessory}
+        <TouchableOpacity
+          style={[
+            styles.continueButton,
+            !isValidAge && styles.continueButtonDisabled,
+          ]}
+          onPress={handleContinue}
+          disabled={!isValidAge}
+          accessibilityRole="button"
+          accessibilityLabel="Continue to weight selection"
+        >
+          <Text
+            style={[
+              styles.continueButtonText,
+              !isValidAge && styles.continueButtonTextDisabled,
+            ]}
+          >
+            Continue
+          </Text>
+          <CaretRightIcon
+            size={20}
+            color={isValidAge ? "#FFFFFF" : colors.disabledText}
+          />
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
-});
+};
 
 export default AgeSelectionScreen;
 
-type Colors = ReturnType<typeof useTheme>["colors"];
-type Theme = ReturnType<typeof useTheme>["theme"];
-
-const createStyles = (colors: Colors, themeObj: Theme) => {
-  const { spacing, typography } = themeObj;
-
-  return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.primaryBackground,
-    },
-    content: {
-      flex: 1,
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      justifyContent: "flex-start",
-      alignItems: "stretch",
-      gap: spacing.xxl,
-    },
-    textSection: {
-      paddingTop: spacing.lg,
-      gap: spacing.sm,
-    },
-    subtitle: {
-      fontSize: typography.Title2.fontSize,
-      fontFamily: typography.Title2.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
-    },
-    description: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-      textAlign: "center",
-      lineHeight: 22,
-    },
-    inputSection: {
-      alignItems: "center",
-    },
-    inputContainer: {
-      flexDirection: "row",
-      alignItems: "baseline",
-      justifyContent: "center",
-    },
-    unitText: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      color: colors.secondaryText,
-      marginLeft: spacing.sm,
-    },
-    spacer: {
-      flex: 1,
-      minHeight: spacing.xxl * 2, // Ensure minimum spacing
-    },
-    progressContainer: {
-      padding: spacing.md,
-    },
-    // InputAccessoryView styles
-    inputAccessoryContainer: {
-      backgroundColor: colors.secondaryBackground,
-      borderTopWidth: 0.5,
-      borderTopColor: colors.border,
-    },
-    inputAccessoryContent: {
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingVertical: spacing.md,
-      paddingBottom: spacing.lg, // Extra padding for safe area
-    },
-    accessoryContinueButton: {
-      backgroundColor: colors.accent,
-      borderRadius: themeObj.components.buttons.cornerRadius,
-      paddingVertical: spacing.md,
-      paddingHorizontal: spacing.lg,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      minHeight: 50, // iOS standard button height
-    },
-    accessoryContinueButtonText: {
-      fontSize: typography.Button.fontSize,
-      fontFamily: typography.Button.fontFamily,
-      color: "#FFFFFF",
-      fontWeight: "600",
-      marginRight: spacing.sm,
-    },
-    accessoryContinueButtonDisabled: {
-      backgroundColor: colors.disabledBackground,
-    },
-    accessoryContinueButtonTextDisabled: {
-      color: colors.disabledText,
-    },
-  });
-};
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F9F9F9",
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
+    justifyContent: "flex-start",
+    alignItems: "stretch",
+    gap: 32,
+  },
+  textSection: {
+    paddingTop: 24,
+    gap: 8,
+  },
+  subtitle: {
+    fontSize: 22,
+    fontFamily: "Nunito-Bold",
+    color: "#000000",
+    textAlign: "center",
+  },
+  description: {
+    fontSize: 17,
+    fontFamily: "Nunito-Regular",
+    color: "#666666",
+    textAlign: "center",
+    lineHeight: 22,
+  },
+  inputSection: {
+    alignItems: "center",
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    justifyContent: "center",
+  },
+  unitText: {
+    fontSize: 17,
+    fontFamily: "Nunito-SemiBold",
+    color: "#666666",
+    marginLeft: 8,
+  },
+  spacer: {
+    flex: 1,
+    minHeight: 64,
+  },
+  progressContainer: {
+    padding: 16,
+  },
+  continueButton: {
+    backgroundColor: "#FF7A5A",
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 50,
+    marginHorizontal: 20,
+    marginBottom: 24,
+  },
+  continueButtonText: {
+    fontSize: 17,
+    fontFamily: "Nunito-SemiBold",
+    color: "#FFFFFF",
+    fontWeight: "600",
+    marginRight: 8,
+  },
+  continueButtonDisabled: {
+    backgroundColor: "#E0E0E0",
+  },
+  continueButtonTextDisabled: {
+    color: "#999999",
+  },
+});

@@ -19,6 +19,7 @@ interface NumericTextInputProps {
   extraLarge?: boolean;
   borderless?: boolean;
   integerOnly?: boolean;
+  autoFocus?: boolean;
 }
 
 export const NumericTextInput = React.memo(forwardRef<RNTextInput, NumericTextInputProps>(
@@ -38,6 +39,7 @@ export const NumericTextInput = React.memo(forwardRef<RNTextInput, NumericTextIn
       extraLarge = false,
       borderless = false,
       integerOnly = false,
+      autoFocus = false,
     },
     ref
   ) => {
@@ -51,12 +53,12 @@ export const NumericTextInput = React.memo(forwardRef<RNTextInput, NumericTextIn
       [colors, large, extraLarge, borderless]
     );
 
-    // Update inputValue when value prop changes
+    // Update inputValue when value prop changes (prevent infinite loops)
     useEffect(() => {
-      if (!isFocused) {
+      if (!isFocused && value !== inputValue) {
         setInputValue(value);
       }
-    }, [value, isFocused]);
+    }, [value, isFocused, inputValue]);
 
     // Memoize clamp function to prevent recreation
     const clamp = useCallback((val: number) => Math.max(min, Math.min(max, val)), [min, max]);
@@ -71,8 +73,10 @@ export const NumericTextInput = React.memo(forwardRef<RNTextInput, NumericTextIn
       // Allow empty string and numbers based on integerOnly setting
       if (text === '' || validationRegex.test(text)) {
         setInputValue(text);
+        // Call parent's onChangeText immediately during typing
+        onChangeText(text);
       }
-    }, [validationRegex]);
+    }, [validationRegex, onChangeText]);
 
     const handleInputBlur = useCallback(() => {
       setIsFocused(false);
@@ -123,13 +127,13 @@ export const NumericTextInput = React.memo(forwardRef<RNTextInput, NumericTextIn
       styles.container,
       disabled && styles.disabled,
       style,
-    ], [styles.container, styles.disabled, disabled, style]);
+    ], [styles, disabled, style]);
 
     const textInputStyle = useMemo(() => [
       styles.text,
       inputValue === '' ? styles.placeholder : styles.value,
       disabled && styles.disabledText,
-    ], [styles.text, styles.placeholder, styles.value, styles.disabledText, inputValue, disabled]);
+    ], [styles, inputValue, disabled]);
 
     // Memoize accessibility value to prevent recreation
     const accessibilityValue = useMemo(() => ({
@@ -160,6 +164,7 @@ export const NumericTextInput = React.memo(forwardRef<RNTextInput, NumericTextIn
           accessibilityLabel={accessibilityLabel || `${placeholder} input`}
           accessibilityHint={accessibilityHint || "Enter a numeric value"}
           accessibilityValue={accessibilityValue}
+          autoFocus={autoFocus}
         />
       </View>
     );
