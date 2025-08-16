@@ -12,10 +12,8 @@ import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { Button } from "@/shared/ui/atoms/Button";
 import { StatusIcon } from "@/shared/ui/atoms/StatusIcon";
-import { ProteinCalculatorModal } from "@/shared/ui/molecules/ProteinCalculatorModal";
 import { AppearanceCard } from "@/features/settings/ui/molecules/AppearanceCard";
 import { useNutritionCalculations } from "@/features/settings/hooks/useNutritionCalculations";
-import { useSettingsModals } from "@/features/settings/hooks/useSettingsModals";
 import { useKeyboardOffset } from "@/features/settings/hooks/useKeyboardOffset";
 import {
   calculateFatGramsFromPercentage,
@@ -33,32 +31,16 @@ export default function SettingsTab() {
 
   // Use extracted hooks
   const nutritionCalculations = useNutritionCalculations();
-  const {
-    dailyTargets,
-    fatPercentage,
-    isCaloriesSet,
-    isProteinSet,
-    handleTargetChange,
-  } = nutritionCalculations;
+  const { dailyTargets, fatPercentage, isCaloriesSet, isProteinSet } =
+    nutritionCalculations;
 
-  const {
-    isProteinCalculatorVisible,
-    setIsProteinCalculatorVisible,
-    proteinCalculation,
-    handleProteinCalculationSelect,
-    handleResetTargets,
-  } = useSettingsModals(
-    handleTargetChange,
-    () => {}, // No need for step expansion callbacks in navigation mode
-    () => {}
-  );
+  const { resetDailyTargets } = useFoodLogStore();
 
   const styles = useMemo(
     () => createStyles(colors, themeObj, keyboardOffset),
     [colors, themeObj, keyboardOffset]
   );
 
-  const caloriesEnabled = true;
   const proteinEnabled = isCaloriesSet;
   const fatEnabled = isCaloriesSet && isProteinSet;
   const carbsEnabled = isCaloriesSet && isProteinSet;
@@ -76,25 +58,6 @@ export default function SettingsTab() {
     );
 
     return { fatGrams, carbsGrams };
-  };
-
-  const handleNavigateToSetting = (settingName: string, enabled: boolean) => {
-    if (!enabled) {
-      const prerequisite = settingName === "protein" ? "calories" : "protein";
-      Alert.alert(
-        `${settingName.charAt(0).toUpperCase() + settingName.slice(1)} Setting`,
-        `Please set your ${prerequisite} target first.`,
-        [{ text: "OK" }]
-      );
-      return;
-    }
-
-    // Navigate to new calculator modal for calories, otherwise use normal navigation
-    if (settingName === "calories") {
-      router.push("/settings/calorieCalculator/sex");
-    } else {
-      router.push(`/settings/${settingName}`);
-    }
   };
 
   if (isLoadingTargets) {
@@ -145,14 +108,10 @@ export default function SettingsTab() {
             <Card>
               {/* Calories Setting Card */}
               <TouchableOpacity
-                style={[
-                  styles.settingCard,
-                  { opacity: caloriesEnabled ? 1 : 0.5 },
-                ]}
+                style={styles.settingCard}
                 onPress={() =>
-                  handleNavigateToSetting("calories", caloriesEnabled)
+                  router.navigate("/settings/calorieCalculator/sex")
                 }
-                disabled={!caloriesEnabled}
                 accessibilityRole="button"
                 accessibilityLabel="Calories setting"
                 accessibilityHint={
@@ -195,9 +154,7 @@ export default function SettingsTab() {
                   styles.settingCardWithBorder,
                   { opacity: proteinEnabled ? 1 : 0.5 },
                 ]}
-                onPress={() =>
-                  handleNavigateToSetting("protein", proteinEnabled)
-                }
+                onPress={() => router.navigate("/settings/protein")}
                 disabled={!proteinEnabled}
                 accessibilityRole="button"
                 accessibilityLabel="Protein setting"
@@ -248,7 +205,7 @@ export default function SettingsTab() {
                   styles.settingCardWithBorder,
                   { opacity: fatEnabled ? 1 : 0.5 },
                 ]}
-                onPress={() => handleNavigateToSetting("fat", fatEnabled)}
+                onPress={() => router.navigate("/settings/fat")}
                 disabled={!fatEnabled}
                 accessibilityRole="button"
                 accessibilityLabel="Fat setting"
@@ -292,7 +249,7 @@ export default function SettingsTab() {
                   styles.settingCardWithBorder,
                   { opacity: carbsEnabled ? 1 : 0.5 },
                 ]}
-                onPress={() => handleNavigateToSetting("carbs", carbsEnabled)}
+                onPress={() => router.navigate("/settings/carbs")}
                 disabled={!carbsEnabled}
                 accessibilityRole="button"
                 accessibilityLabel="Carbs setting"
@@ -330,7 +287,7 @@ export default function SettingsTab() {
 
             <View style={styles.resetButtonContainer}>
               <Button
-                onPress={handleResetTargets}
+                onPress={() => resetTargets(resetDailyTargets)}
                 variant="destructive"
                 size="medium"
                 shape="round"
@@ -345,17 +302,38 @@ export default function SettingsTab() {
             </View>
           </SettingsSection>
         </ScrollView>
-
-        <ProteinCalculatorModal
-          visible={isProteinCalculatorVisible}
-          onClose={() => setIsProteinCalculatorVisible(false)}
-          onSelectMethod={handleProteinCalculationSelect}
-          initialBodyWeight={proteinCalculation?.bodyWeight}
-        />
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
 }
+
+const resetTargets = (resetDailyTargets: () => Promise<void>) => {
+  Alert.alert(
+    "Reset Daily Targets",
+    "This will reset all your daily nutrition targets to zero and clear any saved calculations. This action cannot be undone.\\n\\nAre you sure you want to continue?",
+    [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Reset",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await resetDailyTargets();
+            Alert.alert(
+              "Success",
+              "Daily targets have been reset successfully."
+            );
+          } catch (error) {
+            // Error is already handled in the store
+          }
+        },
+      },
+    ]
+  );
+};
 
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
