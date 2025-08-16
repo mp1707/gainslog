@@ -41,7 +41,7 @@ export default function Step2ActivityLevelScreen() {
 
     // Auto-advance to next screen after a short delay for visual feedback
     setTimeout(() => {
-      router.push("/settings/calculator/goals");
+      router.push("/settings/calorieCalculator/goals");
     }, 300);
   };
 

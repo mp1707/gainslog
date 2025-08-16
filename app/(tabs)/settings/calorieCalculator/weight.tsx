@@ -9,129 +9,106 @@ import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import { CalculatorInputAccessory } from "@/shared/ui";
-import { saveCalorieCalculatorParams } from "@/lib/storage";
 
-const inputAccessoryViewID = "calories-input-accessory";
+const inputAccessoryViewID = "weight-input-accessory";
 
-const ManualCalorieInputScreen = () => {
-  const { colors, theme: themeObj } = useTheme();
-  const { dailyTargets, updateDailyTargets, calculatorParams, clearCalculatorData } = useFoodLogStore();
+const WeightSelectionScreen = () => {
+  const { colors, theme: themeObj, colorScheme } = useTheme();
+  const { calculatorParams, setCalculatorParams } = useFoodLogStore();
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
     [colors, themeObj]
   );
 
-  const [calories, setCalories] = useState<number>(
-    (dailyTargets?.calories && dailyTargets.calories > 0) ? dailyTargets.calories : 2000
-  );
+  const [weight, setWeight] = useState<number>(calculatorParams?.weight ?? 70);
 
-  // Update calories when store changes
+  // Update weight when store changes
   useEffect(() => {
-    if (dailyTargets?.calories && dailyTargets.calories > 0) {
-      setCalories(dailyTargets.calories);
+    if (calculatorParams?.weight !== undefined) {
+      setWeight(calculatorParams.weight);
     }
-  }, [dailyTargets?.calories]);
+  }, [calculatorParams?.weight]);
 
-  const handleCaloriesChange = (caloriesText: string) => {
-    const newCalories = caloriesText === "" ? 0 : parseInt(caloriesText, 10);
+  const handleWeightChange = (weightText: string) => {
+    const newWeight = weightText === "" ? 0 : parseFloat(weightText);
     
-    if (!isNaN(newCalories)) {
-      setCalories(newCalories);
+    if (!isNaN(newWeight)) {
+      setWeight(newWeight);
+
+      const updatedParams = {
+        ...calculatorParams,
+        sex: calculatorParams?.sex ?? "male",
+        age: calculatorParams?.age ?? 30,
+        weight: newWeight,
+        height: calculatorParams?.height ?? 175,
+      };
+      setCalculatorParams(updatedParams);
     }
   };
 
-  const handleSave = async () => {
-    if (calories < 1000 || calories > 5000) {
+  const handleContinue = async () => {
+    if (weight < 30 || weight > 300) {
       Alert.alert(
-        "Invalid Calorie Value",
-        "Please enter a calorie value between 1000 and 5000.",
+        "Invalid Weight",
+        "Please enter a valid weight between 30 and 300 kg.",
         [{ text: "OK" }]
       );
       return;
     }
 
-    try {
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
-      const currentTargets = dailyTargets || {
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-        fat: 0,
-      };
-
-      const newTargets = {
-        ...currentTargets,
-        calories: calories,
-      };
-
-      await updateDailyTargets(newTargets);
-      
-      // Save existing calculator params to AsyncStorage if they exist
-      if (calculatorParams) {
-        await saveCalorieCalculatorParams(calculatorParams);
-      }
-      
-      clearCalculatorData();
-      router.replace("/settings");
-    } catch (error) {
-      console.error("Error saving manual calorie target:", error);
-      Alert.alert(
-        "Save Failed",
-        "Failed to save your calorie target. Please check your connection and try again."
-      );
-    }
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    router.push("/settings/calorieCalculator/height");
   };
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <View style={styles.progressContainer}>
         <ProgressBar
-          totalSteps={1}
-          currentStep={1}
-          accessibilityLabel="Manual calorie input"
+          totalSteps={6}
+          currentStep={3}
+          accessibilityLabel={`Calculator progress: step 3 of 6`}
         />
       </View>
 
       <View style={styles.content}>
         <View style={styles.textSection}>
-          <Text style={styles.subtitle}>Enter your daily calorie goal</Text>
+          <Text style={styles.subtitle}>How much do you weigh?</Text>
           <Text style={styles.description}>
-            Set your target calories per day. You can always adjust this later in settings.
+            Your weight is used to calculate your daily calorie needs.
           </Text>
         </View>
 
         <View style={styles.inputSection}>
           <View style={styles.inputContainer}>
             <TextInput
-              value={calories === 0 ? "" : calories.toString()}
-              onChangeText={handleCaloriesChange}
-              placeholder="2000"
-              keyboardType="number-pad"
-              style={styles.caloriesInput}
-              accessibilityLabel="Calorie input"
-              accessibilityHint="Enter your daily calorie goal between 1000 and 5000"
+              value={weight === 0 ? "" : weight.toString()}
+              onChangeText={handleWeightChange}
+              placeholder="70"
+              keyboardType="numeric"
+              keyboardAppearance={colorScheme}
+              style={styles.weightInput}
+              accessibilityLabel="Weight input"
+              accessibilityHint="Enter your weight between 30 and 300 kg"
               accessibilityRole="spinbutton"
               inputAccessoryViewID={inputAccessoryViewID}
               selectTextOnFocus
               autoFocus
             />
-            <Text style={styles.unitText}>calories</Text>
+            <Text style={styles.unitText}>kg</Text>
           </View>
-          <Text style={styles.selectedText}>per day</Text>
         </View>
 
         <View style={styles.spacer} />
 
         <TouchableOpacity
           style={styles.continueButton}
-          onPress={handleSave}
+          onPress={handleContinue}
           accessibilityRole="button"
-          accessibilityLabel="Save calorie goal and finish setup"
+          accessibilityLabel="Continue to height selection"
         >
           <Text style={styles.continueButtonText}>
-            Save Goal
+            Continue
           </Text>
           <CaretRightIcon
             size={20}
@@ -145,16 +122,15 @@ const ManualCalorieInputScreen = () => {
         <CalculatorInputAccessory
           nativeID={inputAccessoryViewID}
           isValid={true}
-          onContinue={handleSave}
-          buttonText="Save Goal"
-          accessibilityLabel="Save calorie goal and finish setup"
+          onContinue={handleContinue}
+          accessibilityLabel="Continue to height selection"
         />
       )}
     </SafeAreaView>
   )
 };
 
-export default ManualCalorieInputScreen;
+export default WeightSelectionScreen;
 
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
@@ -205,14 +181,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       color: colors.secondaryText,
       marginLeft: spacing.sm,
     },
-    selectedText: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
-      fontWeight: "600",
-      marginTop: spacing.md,
-    },
     spacer: {
       flex: 1,
       minHeight: 64,
@@ -239,7 +207,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontWeight: "600",
       marginRight: spacing.sm,
     },
-    caloriesInput: {
+    weightInput: {
       fontSize: 48,
       fontFamily: typography.Title1.fontFamily,
       color: colors.primaryText,

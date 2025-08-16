@@ -10,10 +10,10 @@ import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import { CalculatorInputAccessory } from "@/shared/ui";
 
-const inputAccessoryViewID = "height-input-accessory";
+const inputAccessoryViewID = "age-input-accessory";
 
-const HeightSelectionScreen = () => {
-  const { colors, theme: themeObj } = useTheme();
+const AgeSelectionScreen = () => {
+  const { colors, theme: themeObj, colorScheme } = useTheme();
   const { calculatorParams, setCalculatorParams } = useFoodLogStore();
 
   const styles = useMemo(
@@ -21,80 +21,82 @@ const HeightSelectionScreen = () => {
     [colors, themeObj]
   );
 
-  const [height, setHeight] = useState<number>(calculatorParams?.height ?? 175);
+  const [age, setAge] = useState<number>(calculatorParams?.age ?? 30);
 
-  // Update height when store changes
+  // Update age when store changes
   useEffect(() => {
-    if (calculatorParams?.height !== undefined) {
-      setHeight(calculatorParams.height);
+    if (calculatorParams?.age !== undefined) {
+      setAge(calculatorParams.age);
     }
-  }, [calculatorParams?.height]);
+  }, [calculatorParams?.age]);
 
-  const handleHeightChange = (heightText: string) => {
-    const newHeight = heightText === "" ? 0 : parseFloat(heightText);
+  const handleAgeChange = (ageText: string) => {
+    const newAge = ageText === "" ? 0 : parseInt(ageText, 10);
     
-    if (!isNaN(newHeight)) {
-      setHeight(newHeight);
+    if (!isNaN(newAge)) { 
+      setAge(newAge);
 
       const updatedParams = {
         ...calculatorParams,
         sex: calculatorParams?.sex ?? "male",
-        age: calculatorParams?.age ?? 30,
-        weight: calculatorParams?.weight ?? 70,
-        height: newHeight,
+        age: newAge,
+        weight: calculatorParams?.weight ?? 85,
+        height: calculatorParams?.height ?? 175,
       };
       setCalculatorParams(updatedParams);
     }
   };
 
   const handleContinue = async () => {
-    if (height < 100 || height > 250) {
+    if (age < 13 || age > 120) {
       Alert.alert(
-        "Invalid Height",
-        "Please enter a valid height between 100 and 250 cm.",
+        "Invalid Age",
+        "Please enter a valid age between 13 and 120 years.",
         [{ text: "OK" }]
       );
       return;
     }
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push("/settings/calculator/activity-level");
+    router.push("/settings/calorieCalculator/weight");
   };
+
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <View style={styles.progressContainer}>
         <ProgressBar
           totalSteps={6}
-          currentStep={4}
-          accessibilityLabel={`Calculator progress: step 4 of 6`}
+          currentStep={2}
+          accessibilityLabel={`Calculator progress: step 2 of 6`}
         />
       </View>
 
       <View style={styles.content}>
         <View style={styles.textSection}>
-          <Text style={styles.subtitle}>How tall are you?</Text>
+          <Text style={styles.subtitle}>How old are you?</Text>
           <Text style={styles.description}>
-            Your height is used to calculate your daily calorie needs.
+            Your age helps determine your baseline metabolic rate.
           </Text>
         </View>
 
         <View style={styles.inputSection}>
           <View style={styles.inputContainer}>
             <TextInput
-              value={height === 0 ? "" : height.toString()}
-              onChangeText={handleHeightChange}
-              placeholder="175"
-              keyboardType="numeric"
-              style={styles.heightInput}
-              accessibilityLabel="Height input"
-              accessibilityHint="Enter your height between 100 and 250 cm"
+              value={age === 0 ? "" : age.toString()}
+              onChangeText={handleAgeChange}
+              placeholder="30"
+              keyboardType="number-pad"
+              keyboardAppearance={colorScheme}
+              style={styles.ageInput}
+              accessibilityLabel="Age input"
+              accessibilityHint="Enter your age between 13 and 120 years"
               accessibilityRole="spinbutton"
               inputAccessoryViewID={inputAccessoryViewID}
               selectTextOnFocus
               autoFocus
             />
-            <Text style={styles.unitText}>cm</Text>
+            <Text style={styles.unitText}>years</Text>
           </View>
         </View>
 
@@ -104,7 +106,7 @@ const HeightSelectionScreen = () => {
           style={styles.continueButton}
           onPress={handleContinue}
           accessibilityRole="button"
-          accessibilityLabel="Continue to activity level selection"
+          accessibilityLabel="Continue to weight selection"
         >
           <Text style={styles.continueButtonText}>
             Continue
@@ -122,14 +124,14 @@ const HeightSelectionScreen = () => {
           nativeID={inputAccessoryViewID}
           isValid={true}
           onContinue={handleContinue}
-          accessibilityLabel="Continue to activity level selection"
+          accessibilityLabel="Continue to weight selection"
         />
       )}
     </SafeAreaView>
   )
 };
 
-export default HeightSelectionScreen;
+export default AgeSelectionScreen;
 
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
@@ -206,7 +208,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontWeight: "600",
       marginRight: spacing.sm,
     },
-    heightInput: {
+    ageInput: {
       fontSize: 48,
       fontFamily: typography.Title1.fontFamily,
       color: colors.primaryText,

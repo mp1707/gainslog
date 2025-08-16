@@ -24,7 +24,6 @@ export default function CalculatorLayout() {
         name="sex"
         options={{
           title: "",
-          headerLeft: () => null,
         }}
       />
       <Stack.Screen

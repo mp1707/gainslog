@@ -4,7 +4,7 @@ import { router } from "expo-router";
 // Redirect to step 1 if someone navigates directly to /calculator
 export default function CalculatorIndexScreen() {
   useEffect(() => {
-    router.replace("/settings/calculator/sex");
+    router.replace("/settings/calorieCalculator/sex");
   }, []);
 
   return null;

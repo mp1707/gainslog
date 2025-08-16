@@ -10,10 +10,10 @@ import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import { CalculatorInputAccessory } from "@/shared/ui";
 
-const inputAccessoryViewID = "weight-input-accessory";
+const inputAccessoryViewID = "height-input-accessory";
 
-const WeightSelectionScreen = () => {
-  const { colors, theme: themeObj } = useTheme();
+const HeightSelectionScreen = () => {
+  const { colors, theme: themeObj, colorScheme } = useTheme();
   const { calculatorParams, setCalculatorParams } = useFoodLogStore();
 
   const styles = useMemo(
@@ -21,44 +21,44 @@ const WeightSelectionScreen = () => {
     [colors, themeObj]
   );
 
-  const [weight, setWeight] = useState<number>(calculatorParams?.weight ?? 70);
+  const [height, setHeight] = useState<number>(calculatorParams?.height ?? 175);
 
-  // Update weight when store changes
+  // Update height when store changes
   useEffect(() => {
-    if (calculatorParams?.weight !== undefined) {
-      setWeight(calculatorParams.weight);
+    if (calculatorParams?.height !== undefined) {
+      setHeight(calculatorParams.height);
     }
-  }, [calculatorParams?.weight]);
+  }, [calculatorParams?.height]);
 
-  const handleWeightChange = (weightText: string) => {
-    const newWeight = weightText === "" ? 0 : parseFloat(weightText);
+  const handleHeightChange = (heightText: string) => {
+    const newHeight = heightText === "" ? 0 : parseFloat(heightText);
     
-    if (!isNaN(newWeight)) {
-      setWeight(newWeight);
+    if (!isNaN(newHeight)) {
+      setHeight(newHeight);
 
       const updatedParams = {
         ...calculatorParams,
         sex: calculatorParams?.sex ?? "male",
         age: calculatorParams?.age ?? 30,
-        weight: newWeight,
-        height: calculatorParams?.height ?? 175,
+        weight: calculatorParams?.weight ?? 70,
+        height: newHeight,
       };
       setCalculatorParams(updatedParams);
     }
   };
 
   const handleContinue = async () => {
-    if (weight < 30 || weight > 300) {
+    if (height < 100 || height > 250) {
       Alert.alert(
-        "Invalid Weight",
-        "Please enter a valid weight between 30 and 300 kg.",
+        "Invalid Height",
+        "Please enter a valid height between 100 and 250 cm.",
         [{ text: "OK" }]
       );
       return;
     }
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push("/settings/calculator/height");
+    router.push("/settings/calorieCalculator/activity-level");
   };
 
   return (
@@ -66,35 +66,36 @@ const WeightSelectionScreen = () => {
       <View style={styles.progressContainer}>
         <ProgressBar
           totalSteps={6}
-          currentStep={3}
-          accessibilityLabel={`Calculator progress: step 3 of 6`}
+          currentStep={4}
+          accessibilityLabel={`Calculator progress: step 4 of 6`}
         />
       </View>
 
       <View style={styles.content}>
         <View style={styles.textSection}>
-          <Text style={styles.subtitle}>How much do you weigh?</Text>
+          <Text style={styles.subtitle}>How tall are you?</Text>
           <Text style={styles.description}>
-            Your weight is used to calculate your daily calorie needs.
+            Your height is used to calculate your daily calorie needs.
           </Text>
         </View>
 
         <View style={styles.inputSection}>
           <View style={styles.inputContainer}>
             <TextInput
-              value={weight === 0 ? "" : weight.toString()}
-              onChangeText={handleWeightChange}
-              placeholder="70"
+              value={height === 0 ? "" : height.toString()}
+              onChangeText={handleHeightChange}
+              placeholder="175"
               keyboardType="numeric"
-              style={styles.weightInput}
-              accessibilityLabel="Weight input"
-              accessibilityHint="Enter your weight between 30 and 300 kg"
+              keyboardAppearance={colorScheme}
+              style={styles.heightInput}
+              accessibilityLabel="Height input"
+              accessibilityHint="Enter your height between 100 and 250 cm"
               accessibilityRole="spinbutton"
               inputAccessoryViewID={inputAccessoryViewID}
               selectTextOnFocus
               autoFocus
             />
-            <Text style={styles.unitText}>kg</Text>
+            <Text style={styles.unitText}>cm</Text>
           </View>
         </View>
 
@@ -104,7 +105,7 @@ const WeightSelectionScreen = () => {
           style={styles.continueButton}
           onPress={handleContinue}
           accessibilityRole="button"
-          accessibilityLabel="Continue to height selection"
+          accessibilityLabel="Continue to activity level selection"
         >
           <Text style={styles.continueButtonText}>
             Continue
@@ -122,14 +123,14 @@ const WeightSelectionScreen = () => {
           nativeID={inputAccessoryViewID}
           isValid={true}
           onContinue={handleContinue}
-          accessibilityLabel="Continue to height selection"
+          accessibilityLabel="Continue to activity level selection"
         />
       )}
     </SafeAreaView>
   )
 };
 
-export default WeightSelectionScreen;
+export default HeightSelectionScreen;
 
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
@@ -206,7 +207,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontWeight: "600",
       marginRight: spacing.sm,
     },
-    weightInput: {
+    heightInput: {
       fontSize: 48,
       fontFamily: typography.Title1.fontFamily,
       color: colors.primaryText,

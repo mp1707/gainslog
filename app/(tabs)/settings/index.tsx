@@ -27,7 +27,7 @@ import { SettingsSection } from "@/shared/ui/molecules/SettingsSection";
 import { CaretRightIcon } from "phosphor-react-native";
 
 export default function SettingsTab() {
-  const { loadDailyTargets, isLoadingTargets } = useFoodLogStore();
+  const { isLoadingTargets } = useFoodLogStore();
   const { colors, theme: themeObj } = useTheme();
   const keyboardOffset = useKeyboardOffset(true); // true because we have a tab bar
 
@@ -44,12 +44,8 @@ export default function SettingsTab() {
   const {
     isProteinCalculatorVisible,
     setIsProteinCalculatorVisible,
-    isCalorieCalculatorVisible,
-    setIsCalorieCalculatorVisible,
     proteinCalculation,
-    calorieCalculation,
     handleProteinCalculationSelect,
-    handleCalorieGoalSelect,
     handleResetTargets,
   } = useSettingsModals(
     handleTargetChange,
@@ -92,10 +88,10 @@ export default function SettingsTab() {
       );
       return;
     }
-    
+
     // Navigate to new calculator modal for calories, otherwise use normal navigation
     if (settingName === "calories") {
-      router.push("/settings/calculator/sex");
+      router.push("/settings/calorieCalculator/sex");
     } else {
       router.push(`/settings/${settingName}`);
     }
@@ -356,7 +352,6 @@ export default function SettingsTab() {
           onSelectMethod={handleProteinCalculationSelect}
           initialBodyWeight={proteinCalculation?.bodyWeight}
         />
-
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
