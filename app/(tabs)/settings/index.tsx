@@ -112,7 +112,9 @@ export default function SettingsTab() {
               <TouchableOpacity
                 style={styles.settingCard}
                 onPress={() =>
-                  safeNavigate("/settings/calorieCalculator/sex")
+                  isCaloriesSet
+                    ? safeNavigate("/settings/calorieCalculator/editCalories")
+                    : safeNavigate("/settings/calorieCalculator/sex")
                 }
                 disabled={isNavigating}
                 accessibilityRole="button"

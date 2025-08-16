@@ -62,6 +62,13 @@ export default function CalculatorLayout() {
           title: "",
         }}
       />
+      <Stack.Screen
+        name="editCalories"
+        options={{
+          title: "",
+          presentation: "modal",
+        }}
+      />
     </Stack>
   );
 }

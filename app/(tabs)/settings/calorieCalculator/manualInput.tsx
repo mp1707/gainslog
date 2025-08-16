@@ -86,14 +86,6 @@ const ManualCalorieInputScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
-      <View style={styles.progressContainer}>
-        <ProgressBar
-          totalSteps={1}
-          currentStep={1}
-          accessibilityLabel="Manual calorie input"
-        />
-      </View>
-
       <View style={styles.content}>
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Enter your daily calorie goal</Text>

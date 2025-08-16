@@ -1,11 +1,11 @@
-import { useRouter, useNavigation } from 'expo-router';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useRouter, useNavigation } from "expo-router";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 /**
  * Navigation guard hook to prevent multiple rapid navigation calls.
  * Uses core navigation events (blur, beforeRemove) to safely re-enable navigation after completion.
  * Includes timeout fallback for edge cases.
- * 
+ *
  * @returns Object with safeNavigate function and isNavigating state
  */
 export function useNavigationGuard() {
@@ -17,10 +17,9 @@ export function useNavigationGuard() {
 
   // Unified unlock function called by all events
   const unlockNavigation = useCallback(() => {
-    console.log('[NavigationGuard] Unlocking navigation');
     lockedRef.current = false;
     setIsNavigating(false);
-    
+
     // Clear timeout if it exists
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -30,13 +29,14 @@ export function useNavigationGuard() {
 
   useEffect(() => {
     // Listen to navigation events that can indicate completion
-    const unsubscribeBeforeRemove = navigation.addListener('beforeRemove', () => {
-      console.log('[NavigationGuard] beforeRemove event fired');
-      unlockNavigation();
-    });
+    const unsubscribeBeforeRemove = navigation.addListener(
+      "beforeRemove",
+      () => {
+        unlockNavigation();
+      }
+    );
 
-    const unsubscribeBlur = navigation.addListener('blur', () => {
-      console.log('[NavigationGuard] blur event fired');
+    const unsubscribeBlur = navigation.addListener("blur", () => {
       unlockNavigation();
     });
 
@@ -54,54 +54,54 @@ export function useNavigationGuard() {
    * Safe navigation function that prevents multiple rapid calls.
    * Uses router.navigate (idempotent) to avoid duplicate screens.
    * Includes 1-second timeout fallback for edge cases.
-   * 
+   *
    * @param route - The route to navigate to
    */
-  const safeNavigate = useCallback((route: string) => {
-    if (lockedRef.current) {
-      console.log('[NavigationGuard] Navigation blocked - already navigating');
-      return;
-    }
-    
-    console.log('[NavigationGuard] Locking navigation and navigating to:', route);
-    lockedRef.current = true;
-    setIsNavigating(true);
-    
-    // Set 1-second timeout fallback
-    timeoutRef.current = setTimeout(() => {
-      console.log('[NavigationGuard] Timeout fallback triggered - unlocking navigation');
-      unlockNavigation();
-    }, 1000);
-    
-    router.navigate(route);
-  }, [router, unlockNavigation]);
+  const safeNavigate = useCallback(
+    (route: string) => {
+      if (lockedRef.current) {
+        return;
+      }
+
+      lockedRef.current = true;
+      setIsNavigating(true);
+
+      // Set 1-second timeout fallback
+      timeoutRef.current = setTimeout(() => {
+        unlockNavigation();
+      }, 1000);
+
+      router.navigate(route);
+    },
+    [router, unlockNavigation]
+  );
 
   /**
    * Safe push function for cases where you specifically need push behavior.
    * Note: This can still create duplicate screens if called rapidly,
    * but will prevent multiple rapid calls.
    * Includes 1-second timeout fallback for edge cases.
-   * 
+   *
    * @param route - The route to push to
    */
-  const safePush = useCallback((route: string) => {
-    if (lockedRef.current) {
-      console.log('[NavigationGuard] Push blocked - already navigating');
-      return;
-    }
-    
-    console.log('[NavigationGuard] Locking navigation and pushing to:', route);
-    lockedRef.current = true;
-    setIsNavigating(true);
-    
-    // Set 1-second timeout fallback
-    timeoutRef.current = setTimeout(() => {
-      console.log('[NavigationGuard] Timeout fallback triggered - unlocking navigation');
-      unlockNavigation();
-    }, 1000);
-    
-    router.push(route);
-  }, [router, unlockNavigation]);
+  const safePush = useCallback(
+    (route: string) => {
+      if (lockedRef.current) {
+        return;
+      }
+
+      lockedRef.current = true;
+      setIsNavigating(true);
+
+      // Set 1-second timeout fallback
+      timeoutRef.current = setTimeout(() => {
+        unlockNavigation();
+      }, 1000);
+
+      router.push(route);
+    },
+    [router, unlockNavigation]
+  );
 
   return {
     safeNavigate,
