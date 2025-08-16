@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { View, TouchableOpacity, Text, TextInput, Platform } from "react-native";
+import React, { useState, useEffect, useMemo } from "react";
+import { View, TouchableOpacity, Text, TextInput, Platform, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { CaretRightIcon } from "phosphor-react-native";
@@ -8,14 +8,18 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
-import { StyleSheet } from "react-native";
 import { CalculatorInputAccessory } from "@/shared/ui";
 
 const inputAccessoryViewID = "age-input-accessory";
 
 const AgeSelectionScreen = () => {
-  const { colors } = useTheme();
+  const { colors, theme: themeObj } = useTheme();
   const { calculatorParams, setCalculatorParams } = useFoodLogStore();
+
+  const styles = useMemo(
+    () => createStyles(colors, themeObj),
+    [colors, themeObj]
+  );
 
   const [age, setAge] = useState<number>(calculatorParams?.age || 30);
 
@@ -115,7 +119,7 @@ const AgeSelectionScreen = () => {
           </Text>
           <CaretRightIcon
             size={20}
-            color={isValidAge ? "#FFFFFF" : colors.disabledText}
+            color={isValidAge ? colors.white : colors.disabledText}
           />
         </TouchableOpacity>
       </View>
@@ -135,90 +139,97 @@ const AgeSelectionScreen = () => {
 
 export default AgeSelectionScreen;
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F9F9F9",
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    justifyContent: "flex-start",
-    alignItems: "stretch",
-    gap: 32,
-  },
-  textSection: {
-    paddingTop: 24,
-    gap: 8,
-  },
-  subtitle: {
-    fontSize: 22,
-    fontFamily: "Nunito-Bold",
-    color: "#000000",
-    textAlign: "center",
-  },
-  description: {
-    fontSize: 17,
-    fontFamily: "Nunito-Regular",
-    color: "#666666",
-    textAlign: "center",
-    lineHeight: 22,
-  },
-  inputSection: {
-    alignItems: "center",
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    justifyContent: "center",
-  },
-  unitText: {
-    fontSize: 17,
-    fontFamily: "Nunito-SemiBold",
-    color: "#666666",
-    marginLeft: 8,
-  },
-  spacer: {
-    flex: 1,
-    minHeight: 64,
-  },
-  progressContainer: {
-    padding: 16,
-  },
-  continueButton: {
-    backgroundColor: "#FF7A5A",
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 50,
-    marginHorizontal: 20,
-    marginBottom: 24,
-  },
-  continueButtonText: {
-    fontSize: 17,
-    fontFamily: "Nunito-SemiBold",
-    color: "#FFFFFF",
-    fontWeight: "600",
-    marginRight: 8,
-  },
-  continueButtonDisabled: {
-    backgroundColor: "#E0E0E0",
-  },
-  continueButtonTextDisabled: {
-    color: "#999999",
-  },
-  ageInput: {
-    fontSize: 48,
-    fontFamily: "Nunito-Bold",
-    color: "#000000",
-    textAlign: "center",
-    minWidth: 120,
-    backgroundColor: "transparent",
-    borderWidth: 0,
-    padding: 0,
-    margin: 0,
-  },
-});
+type Colors = ReturnType<typeof useTheme>["colors"];
+type Theme = ReturnType<typeof useTheme>["theme"];
+
+const createStyles = (colors: Colors, themeObj: Theme) => {
+  const { spacing, typography, components } = themeObj;
+
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.primaryBackground,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: spacing.pageMargins.horizontal,
+      justifyContent: "flex-start",
+      alignItems: "stretch",
+      gap: spacing.xxl,
+    },
+    textSection: {
+      paddingTop: spacing.lg,
+      gap: spacing.sm,
+    },
+    subtitle: {
+      fontSize: typography.Title2.fontSize,
+      fontFamily: typography.Title2.fontFamily,
+      color: colors.primaryText,
+      textAlign: "center",
+    },
+    description: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      color: colors.secondaryText,
+      textAlign: "center",
+      lineHeight: 22,
+    },
+    inputSection: {
+      alignItems: "center",
+    },
+    inputContainer: {
+      flexDirection: "row",
+      alignItems: "baseline",
+      justifyContent: "center",
+    },
+    unitText: {
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
+      color: colors.secondaryText,
+      marginLeft: spacing.sm,
+    },
+    spacer: {
+      flex: 1,
+      minHeight: 64,
+    },
+    progressContainer: {
+      padding: spacing.md,
+    },
+    continueButton: {
+      backgroundColor: colors.accent,
+      borderRadius: components.buttons.cornerRadius,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: 50,
+      marginHorizontal: spacing.pageMargins.horizontal,
+      marginBottom: spacing.lg,
+    },
+    continueButtonText: {
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
+      color: colors.white,
+      fontWeight: "600",
+      marginRight: spacing.sm,
+    },
+    continueButtonDisabled: {
+      backgroundColor: colors.disabledBackground,
+    },
+    continueButtonTextDisabled: {
+      color: colors.disabledText,
+    },
+    ageInput: {
+      fontSize: 48,
+      fontFamily: typography.Title1.fontFamily,
+      color: colors.primaryText,
+      textAlign: "center",
+      minWidth: 120,
+      backgroundColor: "transparent",
+      borderWidth: 0,
+      padding: 0,
+      margin: 0,
+    },
+  });
+};
