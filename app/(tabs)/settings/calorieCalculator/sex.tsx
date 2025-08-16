@@ -12,6 +12,7 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
+import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
 import type { CalorieIntakeParams, Sex } from "@/types";
 import { getCalorieCalculatorParams } from "@/lib/storage";
 import { StyleSheet } from "react-native";
@@ -21,6 +22,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
   const { calculatorParams, setCalculatorParams, clearCalculatorData } =
     useFoodLogStore();
+  const { safeNavigate, isNavigating } = useNavigationGuard();
 
   // Create stable initial params to prevent re-renders
   const stableInitialParams = useMemo(
@@ -100,14 +102,14 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
 
     // Auto-advance to next screen after a short delay for visual feedback
     setTimeout(() => {
-      router.push("/settings/calorieCalculator/age");
+      safeNavigate("/settings/calorieCalculator/age");
     }, 300);
-  }, [stableInitialParams, localParams, setCalculatorParams]);
+  }, [stableInitialParams, localParams, setCalculatorParams, safeNavigate]);
 
   const handleManualInput = useCallback(async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push("/settings/calorieCalculator/manualInput");
-  }, []);
+    safeNavigate("/settings/calorieCalculator/manualInput");
+  }, [safeNavigate]);
 
   if (!isLoaded) {
     return (
@@ -171,6 +173,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
           <TouchableOpacity
             style={styles.manualInputButton}
             onPress={handleManualInput}
+            disabled={isNavigating}
             accessibilityRole="button"
             accessibilityLabel="Enter your own calorie value"
             accessibilityHint="Skip the calculator and enter your daily calorie goal manually"

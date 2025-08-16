@@ -8,6 +8,7 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
+import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
 import { CalculatorInputAccessory } from "@/shared/ui";
 
 const inputAccessoryViewID = "height-input-accessory";
@@ -15,6 +16,7 @@ const inputAccessoryViewID = "height-input-accessory";
 const HeightSelectionScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const { calculatorParams, setCalculatorParams } = useFoodLogStore();
+  const { safeNavigate, isNavigating } = useNavigationGuard();
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -58,7 +60,7 @@ const HeightSelectionScreen = () => {
     }
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push("/settings/calorieCalculator/activity-level");
+    safeNavigate("/settings/calorieCalculator/activity-level");
   };
 
   return (
@@ -104,6 +106,7 @@ const HeightSelectionScreen = () => {
         <TouchableOpacity
           style={styles.continueButton}
           onPress={handleContinue}
+          disabled={isNavigating}
           accessibilityRole="button"
           accessibilityLabel="Continue to activity level selection"
         >

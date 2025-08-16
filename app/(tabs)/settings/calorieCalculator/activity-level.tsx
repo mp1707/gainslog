@@ -13,6 +13,7 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
+import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
 import { CALCULATION_METHODS } from "@/shared/constants/calculationMethods";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import type { CalorieCalculationMethod, ActivityLevel } from "@/types";
@@ -22,6 +23,7 @@ export default function Step2ActivityLevelScreen() {
   const { colors, theme: themeObj } = useTheme();
   const { calculatorActivityLevel, setCalculatorActivityLevel } =
     useFoodLogStore();
+  const { safeNavigate } = useNavigationGuard();
 
   const [selectedActivityLevel, setSelectedActivityLevel] =
     useState<ActivityLevel | null>(calculatorActivityLevel);
@@ -41,7 +43,7 @@ export default function Step2ActivityLevelScreen() {
 
     // Auto-advance to next screen after a short delay for visual feedback
     setTimeout(() => {
-      router.push("/settings/calorieCalculator/goals");
+      safeNavigate("/settings/calorieCalculator/goals");
     }, 300);
   };
 

@@ -13,6 +13,7 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
+import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
 import { CALCULATION_METHODS } from "@/shared/constants/calculationMethods";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { Button } from "@/shared/ui/atoms/Button";
@@ -31,6 +32,7 @@ export default function Step3GoalsScreen() {
     setCalorieCalculation,
     clearCalculatorData,
   } = useFoodLogStore();
+  const { safeNavigate, isNavigating } = useNavigationGuard();
 
   const [selectedGoal, setSelectedGoal] = useState<GoalType | null>(null);
 
@@ -96,7 +98,7 @@ export default function Step3GoalsScreen() {
 
       // Clear calculator data and navigate back to settings
       clearCalculatorData();
-      router.replace("/settings");
+      safeNavigate("/settings");
     } catch (error) {
       console.error("Error saving calorie target:", error);
       Alert.alert("Error", "Failed to save calorie target. Please try again.");
@@ -113,7 +115,8 @@ export default function Step3GoalsScreen() {
           Missing calculation data. Please start over.
         </Text>
         <Button
-          onPress={() => router.replace("/settings")}
+          onPress={() => safeNavigate("/settings")}
+          disabled={isNavigating}
           style={styles.backButton}
         >
           Go Back

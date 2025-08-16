@@ -8,6 +8,7 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
+import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
 import { CalculatorInputAccessory } from "@/shared/ui";
 
 const inputAccessoryViewID = "age-input-accessory";
@@ -15,6 +16,7 @@ const inputAccessoryViewID = "age-input-accessory";
 const AgeSelectionScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const { calculatorParams, setCalculatorParams } = useFoodLogStore();
+  const { safeNavigate, isNavigating } = useNavigationGuard();
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -58,7 +60,7 @@ const AgeSelectionScreen = () => {
     }
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push("/settings/calorieCalculator/weight");
+    safeNavigate("/settings/calorieCalculator/weight");
   };
 
 
@@ -105,6 +107,7 @@ const AgeSelectionScreen = () => {
         <TouchableOpacity
           style={styles.continueButton}
           onPress={handleContinue}
+          disabled={isNavigating}
           accessibilityRole="button"
           accessibilityLabel="Continue to weight selection"
         >

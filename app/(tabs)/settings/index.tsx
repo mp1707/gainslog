@@ -15,6 +15,7 @@ import { StatusIcon } from "@/shared/ui/atoms/StatusIcon";
 import { AppearanceCard } from "@/features/settings/ui/molecules/AppearanceCard";
 import { useNutritionCalculations } from "@/features/settings/hooks/useNutritionCalculations";
 import { useKeyboardOffset } from "@/features/settings/hooks/useKeyboardOffset";
+import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
 import {
   calculateFatGramsFromPercentage,
   calculateCarbsFromMacros,
@@ -28,6 +29,7 @@ export default function SettingsTab() {
   const { isLoadingTargets } = useFoodLogStore();
   const { colors, theme: themeObj } = useTheme();
   const keyboardOffset = useKeyboardOffset(true); // true because we have a tab bar
+  const { safeNavigate, isNavigating } = useNavigationGuard();
 
   // Use extracted hooks
   const nutritionCalculations = useNutritionCalculations();
@@ -110,8 +112,9 @@ export default function SettingsTab() {
               <TouchableOpacity
                 style={styles.settingCard}
                 onPress={() =>
-                  router.navigate("/settings/calorieCalculator/sex")
+                  safeNavigate("/settings/calorieCalculator/sex")
                 }
+                disabled={isNavigating}
                 accessibilityRole="button"
                 accessibilityLabel="Calories setting"
                 accessibilityHint={
@@ -154,8 +157,8 @@ export default function SettingsTab() {
                   styles.settingCardWithBorder,
                   { opacity: proteinEnabled ? 1 : 0.5 },
                 ]}
-                onPress={() => router.navigate("/settings/protein")}
-                disabled={!proteinEnabled}
+                onPress={() => safeNavigate("/settings/protein")}
+                disabled={!proteinEnabled || isNavigating}
                 accessibilityRole="button"
                 accessibilityLabel="Protein setting"
                 accessibilityHint={
@@ -205,8 +208,8 @@ export default function SettingsTab() {
                   styles.settingCardWithBorder,
                   { opacity: fatEnabled ? 1 : 0.5 },
                 ]}
-                onPress={() => router.navigate("/settings/fat")}
-                disabled={!fatEnabled}
+                onPress={() => safeNavigate("/settings/fat")}
+                disabled={!fatEnabled || isNavigating}
                 accessibilityRole="button"
                 accessibilityLabel="Fat setting"
                 accessibilityHint={
@@ -249,8 +252,8 @@ export default function SettingsTab() {
                   styles.settingCardWithBorder,
                   { opacity: carbsEnabled ? 1 : 0.5 },
                 ]}
-                onPress={() => router.navigate("/settings/carbs")}
-                disabled={!carbsEnabled}
+                onPress={() => safeNavigate("/settings/carbs")}
+                disabled={!carbsEnabled || isNavigating}
                 accessibilityRole="button"
                 accessibilityLabel="Carbs setting"
                 accessibilityHint={
