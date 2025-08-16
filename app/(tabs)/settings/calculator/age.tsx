@@ -37,6 +37,7 @@ const AgeSelectionScreen = () => {
       setAge(newAge);
 
       const updatedParams = {
+        ...calculatorParams,
         sex: calculatorParams?.sex || "male",
         age: newAge,
         weight: calculatorParams?.weight || 85,

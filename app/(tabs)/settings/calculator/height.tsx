@@ -1,159 +1,133 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useRef,
-  useCallback,
-} from "react";
-import {
-  View,
-  Text,
-  TextInput as RNTextInput,
-  InteractionManager,
-} from "react-native";
+import React, { useState, useEffect, useMemo } from "react";
+import { View, TouchableOpacity, Text, TextInput, Platform, StyleSheet, Alert } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
-
-import { NumericTextInput } from "@/shared/ui/atoms/NumericTextInput";
-import {
-  CalculatorScreenLayout,
-  CalculatorInputAccessory,
-  CalculatorHeader,
-} from "@/shared/ui/components";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import type { CalorieIntakeParams } from "@/types";
-import { StyleSheet } from "react-native";
+import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
+import { CalculatorInputAccessory } from "@/shared/ui";
 
-const HeightSelectionScreen = React.memo(function HeightSelectionScreen() {
+const inputAccessoryViewID = "height-input-accessory";
+
+const HeightSelectionScreen = () => {
   const { colors, theme: themeObj } = useTheme();
   const { calculatorParams, setCalculatorParams } = useFoodLogStore();
-
-  const [localParams, setLocalParams] = useState<CalorieIntakeParams>(
-    calculatorParams || {
-      sex: "male",
-      age: 30,
-      weight: 85,
-      height: 175,
-    }
-  );
-
-  const [heightInput, setHeightInput] = useState<string>(
-    localParams.height.toString()
-  );
-  const inputRef = useRef<RNTextInput>(null);
-  const inputAccessoryViewID = "heightInputAccessory";
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
     [colors, themeObj]
   );
 
-  // Update local params when store changes
+  const [height, setHeight] = useState<number>(calculatorParams?.height || 175);
+
+  // Update height when store changes
   useEffect(() => {
-    if (calculatorParams) {
-      setLocalParams(calculatorParams);
-      setHeightInput(calculatorParams.height.toString());
+    if (calculatorParams?.height) {
+      setHeight(calculatorParams.height);
     }
-  }, [calculatorParams]);
+  }, [calculatorParams?.height]);
 
-  // Auto-focus input when screen mounts - wait for animation to fully complete
-  useEffect(() => {
-    const handle = InteractionManager.runAfterInteractions(() => {
-      // Additional delay to ensure navigation animation is visually complete
-      const focusTimer = setTimeout(() => {
-        inputRef.current?.focus();
-      }, 400); // 400ms total delay for smooth animation completion
+  const handleHeightChange = (heightText: string) => {
+    const newHeight = heightText === "" ? 0 : parseFloat(heightText);
+    
+    if (!isNaN(newHeight)) {
+      setHeight(newHeight);
 
-      return () => clearTimeout(focusTimer);
-    });
+      const updatedParams = {
+        ...calculatorParams,
+        sex: calculatorParams?.sex || "male",
+        age: calculatorParams?.age || 30,
+        weight: calculatorParams?.weight || 70,
+        height: newHeight,
+      };
+      setCalculatorParams(updatedParams);
+    }
+  };
 
-    return () => handle.cancel();
-  }, []);
-
-  const updateHeight = useCallback(
-    (heightText: string) => {
-      setHeightInput(heightText);
-
-      if (heightText === "") {
-        return; // Allow empty input
-      }
-
-      const height = parseFloat(heightText);
-      if (!isNaN(height) && height > 0) {
-        const newParams = { ...localParams, height: Math.round(height) };
-        setLocalParams(newParams);
-        setCalculatorParams(newParams);
-      }
-    },
-    [localParams, setCalculatorParams]
-  );
-
-  const handleContinue = useCallback(async () => {
-    const height = parseFloat(heightInput);
-    if (isNaN(height) || height <= 0) {
+  const handleContinue = async () => {
+    if (height < 100 || height > 250) {
+      Alert.alert(
+        "Invalid Height",
+        "Please enter a valid height between 100 and 250 cm.",
+        [{ text: "OK" }]
+      );
       return;
     }
 
-    // Dismiss keyboard first, then navigate
-    inputRef.current?.blur();
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push("/settings/calculator/activity-level");
-  }, [heightInput]);
-
-  const isValidHeight = useCallback(() => {
-    if (heightInput === "") return false;
-    const height = parseFloat(heightInput);
-    return !isNaN(height) && height >= 100 && height <= 250;
-  }, [heightInput]);
-
-  const heightMin = 100;
-  const heightMax = 250;
+  };
 
   return (
-    <CalculatorScreenLayout
-      currentStep={4}
-      totalSteps={6}
-      progressLabel="Calculator progress: step 4 of 6"
-    >
-      <CalculatorHeader
-        title="How tall are you?"
-        description="Your height is used to calculate your daily calorie needs."
-      />
-
-      <View style={styles.inputSection}>
-        <View style={styles.inputContainer}>
-          <NumericTextInput
-            ref={inputRef}
-            value={heightInput}
-            onChangeText={updateHeight}
-            min={heightMin}
-            max={heightMax}
-            placeholder="175"
-            accessibilityLabel="Height input"
-            accessibilityHint={`Enter your height in cm between ${heightMin} and ${heightMax}`}
-            inputAccessoryViewID={inputAccessoryViewID}
-            extraLarge
-            borderless
-          />
-          <Text style={styles.unitText}>cm</Text>
-        </View>
+    <SafeAreaView style={styles.container} edges={["left", "right"]}>
+      <View style={styles.progressContainer}>
+        <ProgressBar
+          totalSteps={6}
+          currentStep={4}
+          accessibilityLabel={`Calculator progress: step 4 of 6`}
+        />
       </View>
 
-      {/* Spacer to push content up and provide consistent spacing */}
-      <View style={styles.spacer} />
+      <View style={styles.content}>
+        <View style={styles.textSection}>
+          <Text style={styles.subtitle}>How tall are you?</Text>
+          <Text style={styles.description}>
+            Your height is used to calculate your daily calorie needs.
+          </Text>
+        </View>
 
-      {/* Input Accessory View */}
-      <CalculatorInputAccessory
-        nativeID={inputAccessoryViewID}
-        isValid={isValidHeight()}
-        onContinue={handleContinue}
-        accessibilityLabel="Continue to activity level selection"
-      />
-    </CalculatorScreenLayout>
-  );
-});
+        <View style={styles.inputSection}>
+          <View style={styles.inputContainer}>
+            <TextInput
+              value={height === 0 ? "" : height.toString()}
+              onChangeText={handleHeightChange}
+              placeholder="175"
+              keyboardType="numeric"
+              style={styles.heightInput}
+              accessibilityLabel="Height input"
+              accessibilityHint="Enter your height between 100 and 250 cm"
+              accessibilityRole="spinbutton"
+              inputAccessoryViewID={inputAccessoryViewID}
+              selectTextOnFocus
+              autoFocus
+            />
+            <Text style={styles.unitText}>cm</Text>
+          </View>
+        </View>
+
+        <View style={styles.spacer} />
+
+        <TouchableOpacity
+          style={styles.continueButton}
+          onPress={handleContinue}
+          accessibilityRole="button"
+          accessibilityLabel="Continue to activity level selection"
+        >
+          <Text style={styles.continueButtonText}>
+            Continue
+          </Text>
+          <CaretRightIcon
+            size={20}
+            color={colors.white}
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* Input Accessory View - iOS only */}
+      {Platform.OS === 'ios' && (
+        <CalculatorInputAccessory
+          nativeID={inputAccessoryViewID}
+          isValid={true}
+          onContinue={handleContinue}
+          accessibilityLabel="Continue to activity level selection"
+        />
+      )}
+    </SafeAreaView>
+  )
+};
 
 export default HeightSelectionScreen;
 
@@ -161,9 +135,37 @@ type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
 
 const createStyles = (colors: Colors, themeObj: Theme) => {
-  const { spacing, typography } = themeObj;
+  const { spacing, typography, components } = themeObj;
 
   return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.primaryBackground,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: spacing.pageMargins.horizontal,
+      justifyContent: "flex-start",
+      alignItems: "stretch",
+      gap: spacing.xxl,
+    },
+    textSection: {
+      paddingTop: spacing.lg,
+      gap: spacing.sm,
+    },
+    subtitle: {
+      fontSize: typography.Title2.fontSize,
+      fontFamily: typography.Title2.fontFamily,
+      color: colors.primaryText,
+      textAlign: "center",
+    },
+    description: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      color: colors.secondaryText,
+      textAlign: "center",
+      lineHeight: 22,
+    },
     inputSection: {
       alignItems: "center",
     },
@@ -178,16 +180,42 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       color: colors.secondaryText,
       marginLeft: spacing.sm,
     },
-    conversionText: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
-      color: colors.secondaryText,
-      textAlign: "center",
-      marginTop: spacing.md,
-    },
     spacer: {
       flex: 1,
-      minHeight: spacing.xxl * 2, // Ensure minimum spacing
+      minHeight: 64,
+    },
+    progressContainer: {
+      padding: spacing.md,
+    },
+    continueButton: {
+      backgroundColor: colors.accent,
+      borderRadius: components.buttons.cornerRadius,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: 50,
+      marginHorizontal: spacing.pageMargins.horizontal,
+      marginBottom: spacing.lg,
+    },
+    continueButtonText: {
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
+      color: colors.white,
+      fontWeight: "600",
+      marginRight: spacing.sm,
+    },
+    heightInput: {
+      fontSize: 48,
+      fontFamily: typography.Title1.fontFamily,
+      color: colors.primaryText,
+      textAlign: "center",
+      minWidth: 120,
+      backgroundColor: "transparent",
+      borderWidth: 0,
+      padding: 0,
+      margin: 0,
     },
   });
 };

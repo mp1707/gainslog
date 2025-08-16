@@ -1,216 +1,151 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useRef,
-  useCallback,
-} from "react";
-import {
-  View,
-  Text,
-  Alert,
-  TextInput as RNTextInput,
-  InteractionManager,
-} from "react-native";
+import React, { useState, useEffect, useMemo } from "react";
+import { View, TouchableOpacity, Text, TextInput, Platform, StyleSheet, Alert } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
-
-import { NumericTextInput } from "@/shared/ui/atoms/NumericTextInput";
-import {
-  CalculatorScreenLayout,
-  CalculatorInputAccessory,
-  CalculatorHeader,
-} from "@/shared/ui/components";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { StyleSheet } from "react-native";
+import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
+import { CalculatorInputAccessory } from "@/shared/ui";
 
-const ManualCalorieInputScreen = React.memo(
-  function ManualCalorieInputScreen() {
-    const { colors, theme: themeObj } = useTheme();
-    const { dailyTargets, updateDailyTargets, clearCalculatorData } =
-      useFoodLogStore();
+const inputAccessoryViewID = "calories-input-accessory";
 
-    // Use current calorie target as starting value, default to 2000
-    const [selectedCalories, setSelectedCalories] = useState<number>(
-      dailyTargets?.calories && dailyTargets.calories > 0
-        ? dailyTargets.calories
-        : 2000
-    );
-    const [calorieInput, setCalorieInput] = useState<string>(
-      (dailyTargets?.calories && dailyTargets.calories > 0
-        ? dailyTargets.calories
-        : 2000
-      ).toString()
-    );
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const inputRef = useRef<RNTextInput>(null);
-    const inputAccessoryViewID = "calorieInputAccessory";
+const ManualCalorieInputScreen = () => {
+  const { colors, theme: themeObj } = useTheme();
+  const { dailyTargets, updateDailyTargets, clearCalculatorData } = useFoodLogStore();
 
-    const styles = useMemo(
-      () => createStyles(colors, themeObj),
-      [colors, themeObj]
-    );
+  const styles = useMemo(
+    () => createStyles(colors, themeObj),
+    [colors, themeObj]
+  );
 
-    useEffect(() => {
-      // Update selected calories if daily targets change
-      if (dailyTargets?.calories && dailyTargets.calories > 0) {
-        setSelectedCalories(dailyTargets.calories);
-        setCalorieInput(dailyTargets.calories.toString());
-      }
-    }, [dailyTargets?.calories]);
+  const [calories, setCalories] = useState<number>(
+    (dailyTargets?.calories && dailyTargets.calories > 0) ? dailyTargets.calories : 2000
+  );
 
-    // Auto-focus input when screen mounts - wait for animation to fully complete
-    useEffect(() => {
-      const handle = InteractionManager.runAfterInteractions(() => {
-        // Additional delay to ensure navigation animation is visually complete
-        const focusTimer = setTimeout(() => {
-          inputRef.current?.focus();
-        }, 400); // 400ms total delay for smooth animation completion
+  // Update calories when store changes
+  useEffect(() => {
+    if (dailyTargets?.calories && dailyTargets.calories > 0) {
+      setCalories(dailyTargets.calories);
+    }
+  }, [dailyTargets?.calories]);
 
-        return () => clearTimeout(focusTimer);
-      });
+  const handleCaloriesChange = (caloriesText: string) => {
+    const newCalories = caloriesText === "" ? 0 : parseInt(caloriesText, 10);
+    
+    if (!isNaN(newCalories)) {
+      setCalories(newCalories);
+    }
+  };
 
-      return () => handle.cancel();
-    }, []);
+  const handleSave = async () => {
+    if (calories < 1000 || calories > 5000) {
+      Alert.alert(
+        "Invalid Calorie Value",
+        "Please enter a calorie value between 1000 and 5000.",
+        [{ text: "OK" }]
+      );
+      return;
+    }
 
-    const updateCalories = useCallback((calorieText: string) => {
-      setCalorieInput(calorieText);
+    try {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-      if (calorieText === "") {
-        return; // Allow empty input
-      }
+      const currentTargets = dailyTargets || {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+      };
 
-      const calories = parseInt(calorieText, 10);
-      if (!isNaN(calories)) {
-        setSelectedCalories(calories);
-      }
-    }, []);
+      const newTargets = {
+        ...currentTargets,
+        calories: calories,
+      };
 
-    const isValidCalories = useCallback(() => {
-      if (calorieInput === "") return false;
-      const calories = parseInt(calorieInput, 10);
-      return !isNaN(calories) && calories >= 1000 && calories <= 5000;
-    }, [calorieInput]);
+      await updateDailyTargets(newTargets);
+      clearCalculatorData();
+      router.replace("/settings");
+    } catch (error) {
+      console.error("Error saving manual calorie target:", error);
+      Alert.alert(
+        "Save Failed",
+        "Failed to save your calorie target. Please check your connection and try again."
+      );
+    }
+  };
 
-    const handleSave = useCallback(async () => {
-      // Prevent multiple rapid saves
-      if (isLoading) return;
-
-      // Validate input
-      const calories = parseInt(calorieInput, 10);
-      if (isNaN(calories) || calories < 1000 || calories > 5000) {
-        Alert.alert(
-          "Invalid Calorie Value",
-          "Please enter a calorie value between 1000 and 5000."
-        );
-        return;
-      }
-
-      // Update selected calories from input
-      setSelectedCalories(calories);
-
-      // Dismiss keyboard first, then continue
-      inputRef.current?.blur();
-      setIsLoading(true);
-
-      try {
-        // Provide haptic feedback
-        await Haptics.notificationAsync(
-          Haptics.NotificationFeedbackType.Success
-        );
-
-        // Ensure we have valid daily targets to update
-        const currentTargets = dailyTargets || {
-          calories: 0,
-          protein: 0,
-          carbs: 0,
-          fat: 0,
-        };
-
-        // Update the daily targets with the manually entered calories
-        const newTargets = {
-          ...currentTargets,
-          calories: calories,
-        };
-
-        await updateDailyTargets(newTargets);
-
-        // Clear calculator data since we're skipping the flow
-        clearCalculatorData();
-
-        // Navigate back to settings
-        router.replace("/settings");
-      } catch (error) {
-        console.error("Error saving manual calorie target:", error);
-        Alert.alert(
-          "Save Failed",
-          "Failed to save your calorie target. Please check your connection and try again."
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    }, [
-      isLoading,
-      calorieInput,
-      dailyTargets,
-      updateDailyTargets,
-      clearCalculatorData,
-    ]);
-
-    return (
-      <CalculatorScreenLayout
-        currentStep={1}
-        totalSteps={1}
-        progressLabel="Manual calorie input"
-      >
-        <CalculatorHeader
-          title="Enter your daily calorie goal"
-          description="Set your target calories per day. You can always adjust this later in settings."
+  return (
+    <SafeAreaView style={styles.container} edges={["left", "right"]}>
+      <View style={styles.progressContainer}>
+        <ProgressBar
+          totalSteps={1}
+          currentStep={1}
+          accessibilityLabel="Manual calorie input"
         />
+      </View>
+
+      <View style={styles.content}>
+        <View style={styles.textSection}>
+          <Text style={styles.subtitle}>Enter your daily calorie goal</Text>
+          <Text style={styles.description}>
+            Set your target calories per day. You can always adjust this later in settings.
+          </Text>
+        </View>
 
         <View style={styles.inputSection}>
           <View style={styles.inputContainer}>
-            <NumericTextInput
-              ref={inputRef}
-              value={calorieInput}
-              onChangeText={updateCalories}
-              min={1000}
-              max={5000}
+            <TextInput
+              value={calories === 0 ? "" : calories.toString()}
+              onChangeText={handleCaloriesChange}
               placeholder="2000"
+              keyboardType="number-pad"
+              style={styles.caloriesInput}
               accessibilityLabel="Calorie input"
               accessibilityHint="Enter your daily calorie goal between 1000 and 5000"
+              accessibilityRole="spinbutton"
               inputAccessoryViewID={inputAccessoryViewID}
-              extraLarge
-              borderless
-              integerOnly
+              selectTextOnFocus
+              autoFocus
             />
             <Text style={styles.unitText}>calories</Text>
           </View>
-
           <Text style={styles.selectedText}>per day</Text>
         </View>
 
-        {/* Spacer to push content up and provide consistent spacing */}
         <View style={styles.spacer} />
 
-        {/* Input Accessory View */}
+        <TouchableOpacity
+          style={styles.continueButton}
+          onPress={handleSave}
+          accessibilityRole="button"
+          accessibilityLabel="Save calorie goal and finish setup"
+        >
+          <Text style={styles.continueButtonText}>
+            Save Goal
+          </Text>
+          <CaretRightIcon
+            size={20}
+            color={colors.white}
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* Input Accessory View - iOS only */}
+      {Platform.OS === 'ios' && (
         <CalculatorInputAccessory
           nativeID={inputAccessoryViewID}
-          isValid={isValidCalories() && !isLoading}
+          isValid={true}
           onContinue={handleSave}
-          buttonText={isLoading ? "Saving..." : "Save Goal"}
-          accessibilityLabel={
-            isLoading
-              ? "Saving calorie goal..."
-              : "Save calorie goal and finish setup"
-          }
+          buttonText="Save Goal"
+          accessibilityLabel="Save calorie goal and finish setup"
         />
-      </CalculatorScreenLayout>
-    );
-  }
-);
+      )}
+    </SafeAreaView>
+  )
+};
 
 export default ManualCalorieInputScreen;
 
@@ -218,9 +153,37 @@ type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
 
 const createStyles = (colors: Colors, themeObj: Theme) => {
-  const { spacing, typography } = themeObj;
+  const { spacing, typography, components } = themeObj;
 
   return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.primaryBackground,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: spacing.pageMargins.horizontal,
+      justifyContent: "flex-start",
+      alignItems: "stretch",
+      gap: spacing.xxl,
+    },
+    textSection: {
+      paddingTop: spacing.lg,
+      gap: spacing.sm,
+    },
+    subtitle: {
+      fontSize: typography.Title2.fontSize,
+      fontFamily: typography.Title2.fontFamily,
+      color: colors.primaryText,
+      textAlign: "center",
+    },
+    description: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      color: colors.secondaryText,
+      textAlign: "center",
+      lineHeight: 22,
+    },
     inputSection: {
       alignItems: "center",
     },
@@ -245,7 +208,40 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     spacer: {
       flex: 1,
-      minHeight: spacing.xxl * 2, // Ensure minimum spacing
+      minHeight: 64,
+    },
+    progressContainer: {
+      padding: spacing.md,
+    },
+    continueButton: {
+      backgroundColor: colors.accent,
+      borderRadius: components.buttons.cornerRadius,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: 50,
+      marginHorizontal: spacing.pageMargins.horizontal,
+      marginBottom: spacing.lg,
+    },
+    continueButtonText: {
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
+      color: colors.white,
+      fontWeight: "600",
+      marginRight: spacing.sm,
+    },
+    caloriesInput: {
+      fontSize: 48,
+      fontFamily: typography.Title1.fontFamily,
+      color: colors.primaryText,
+      textAlign: "center",
+      minWidth: 120,
+      backgroundColor: "transparent",
+      borderWidth: 0,
+      padding: 0,
+      margin: 0,
     },
   });
 };

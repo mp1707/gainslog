@@ -1,162 +1,133 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useRef,
-  useCallback,
-} from "react";
-import {
-  View,
-  Text,
-  TextInput as RNTextInput,
-  InteractionManager,
-} from "react-native";
+import React, { useState, useEffect, useMemo } from "react";
+import { View, TouchableOpacity, Text, TextInput, Platform, StyleSheet, Alert } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
-
-import { NumericTextInput } from "@/shared/ui/atoms/NumericTextInput";
-import {
-  CalculatorScreenLayout,
-  CalculatorInputAccessory,
-  CalculatorHeader,
-} from "@/shared/ui/components";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import type { CalorieIntakeParams } from "@/types";
-import { StyleSheet } from "react-native";
+import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
+import { CalculatorInputAccessory } from "@/shared/ui";
 
-const WeightSelectionScreen = React.memo(function WeightSelectionScreen() {
+const inputAccessoryViewID = "weight-input-accessory";
+
+const WeightSelectionScreen = () => {
   const { colors, theme: themeObj } = useTheme();
   const { calculatorParams, setCalculatorParams } = useFoodLogStore();
-
-  const [localParams, setLocalParams] = useState<CalorieIntakeParams>(
-    calculatorParams || {
-      sex: "male",
-      age: 30,
-      weight: 85,
-      height: 175,
-    }
-  );
-
-  const [weightInput, setWeightInput] = useState<string>(
-    localParams.weight.toString()
-  );
-  const inputRef = useRef<RNTextInput>(null);
-  const inputAccessoryViewID = "weightInputAccessory";
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
     [colors, themeObj]
   );
 
-  // Update local params when store changes
+  const [weight, setWeight] = useState<number>(calculatorParams?.weight || 70);
+
+  // Update weight when store changes
   useEffect(() => {
-    if (calculatorParams) {
-      setLocalParams(calculatorParams);
-      setWeightInput(calculatorParams.weight.toString());
+    if (calculatorParams?.weight) {
+      setWeight(calculatorParams.weight);
     }
-  }, [calculatorParams]);
+  }, [calculatorParams?.weight]);
 
-  // Auto-focus input when screen mounts - wait for animation to fully complete
-  useEffect(() => {
-    const handle = InteractionManager.runAfterInteractions(() => {
-      // Additional delay to ensure navigation animation is visually complete
-      const focusTimer = setTimeout(() => {
-        inputRef.current?.focus();
-      }, 400); // 400ms total delay for smooth animation completion
+  const handleWeightChange = (weightText: string) => {
+    const newWeight = weightText === "" ? 0 : parseFloat(weightText);
+    
+    if (!isNaN(newWeight)) {
+      setWeight(newWeight);
 
-      return () => clearTimeout(focusTimer);
-    });
+      const updatedParams = {
+        ...calculatorParams,
+        sex: calculatorParams?.sex || "male",
+        age: calculatorParams?.age || 30,
+        weight: newWeight,
+        height: calculatorParams?.height || 175,
+      };
+      setCalculatorParams(updatedParams);
+    }
+  };
 
-    return () => handle.cancel();
-  }, []);
-
-  const updateWeight = useCallback(
-    (weightText: string) => {
-      setWeightInput(weightText);
-
-      if (weightText === "") {
-        return; // Allow empty input
-      }
-
-      const weight = parseFloat(weightText);
-      if (!isNaN(weight) && weight > 0) {
-        const newParams = {
-          ...localParams,
-          weight: Math.round(weight * 10) / 10,
-        };
-        setLocalParams(newParams);
-        setCalculatorParams(newParams);
-      }
-    },
-    [localParams, setCalculatorParams]
-  );
-
-  const handleContinue = useCallback(async () => {
-    const weight = parseFloat(weightInput);
-    if (isNaN(weight) || weight <= 0) {
+  const handleContinue = async () => {
+    if (weight < 30 || weight > 300) {
+      Alert.alert(
+        "Invalid Weight",
+        "Please enter a valid weight between 30 and 300 kg.",
+        [{ text: "OK" }]
+      );
       return;
     }
 
-    // Dismiss keyboard first, then navigate
-    inputRef.current?.blur();
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push("/settings/calculator/height");
-  }, [weightInput]);
-
-  const isValidWeight = useCallback(() => {
-    if (weightInput === "") return false;
-    const weight = parseFloat(weightInput);
-    return !isNaN(weight) && weight >= 30 && weight <= 300;
-  }, [weightInput]);
-
-  const weightMin = 30;
-  const weightMax = 300;
+  };
 
   return (
-    <CalculatorScreenLayout
-      currentStep={3}
-      totalSteps={6}
-      progressLabel="Calculator progress: step 3 of 6"
-    >
-      <CalculatorHeader
-        title="How much do you weigh?"
-        description="Your weight is used to calculate your daily calorie needs."
-      />
-
-      <View style={styles.inputSection}>
-        <View style={styles.inputContainer}>
-          <NumericTextInput
-            ref={inputRef}
-            value={weightInput}
-            onChangeText={updateWeight}
-            min={weightMin}
-            max={weightMax}
-            placeholder="70"
-            accessibilityLabel="Weight input"
-            accessibilityHint={`Enter your weight in kg between ${weightMin} and ${weightMax}`}
-            inputAccessoryViewID={inputAccessoryViewID}
-            extraLarge
-            borderless
-          />
-          <Text style={styles.unitText}>kg</Text>
-        </View>
+    <SafeAreaView style={styles.container} edges={["left", "right"]}>
+      <View style={styles.progressContainer}>
+        <ProgressBar
+          totalSteps={6}
+          currentStep={3}
+          accessibilityLabel={`Calculator progress: step 3 of 6`}
+        />
       </View>
 
-      {/* Spacer to push content up and provide consistent spacing */}
-      <View style={styles.spacer} />
+      <View style={styles.content}>
+        <View style={styles.textSection}>
+          <Text style={styles.subtitle}>How much do you weigh?</Text>
+          <Text style={styles.description}>
+            Your weight is used to calculate your daily calorie needs.
+          </Text>
+        </View>
 
-      {/* Input Accessory View */}
-      <CalculatorInputAccessory
-        nativeID={inputAccessoryViewID}
-        isValid={isValidWeight()}
-        onContinue={handleContinue}
-        accessibilityLabel="Continue to height selection"
-      />
-    </CalculatorScreenLayout>
-  );
-});
+        <View style={styles.inputSection}>
+          <View style={styles.inputContainer}>
+            <TextInput
+              value={weight === 0 ? "" : weight.toString()}
+              onChangeText={handleWeightChange}
+              placeholder="70"
+              keyboardType="numeric"
+              style={styles.weightInput}
+              accessibilityLabel="Weight input"
+              accessibilityHint="Enter your weight between 30 and 300 kg"
+              accessibilityRole="spinbutton"
+              inputAccessoryViewID={inputAccessoryViewID}
+              selectTextOnFocus
+              autoFocus
+            />
+            <Text style={styles.unitText}>kg</Text>
+          </View>
+        </View>
+
+        <View style={styles.spacer} />
+
+        <TouchableOpacity
+          style={styles.continueButton}
+          onPress={handleContinue}
+          accessibilityRole="button"
+          accessibilityLabel="Continue to height selection"
+        >
+          <Text style={styles.continueButtonText}>
+            Continue
+          </Text>
+          <CaretRightIcon
+            size={20}
+            color={colors.white}
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* Input Accessory View - iOS only */}
+      {Platform.OS === 'ios' && (
+        <CalculatorInputAccessory
+          nativeID={inputAccessoryViewID}
+          isValid={true}
+          onContinue={handleContinue}
+          accessibilityLabel="Continue to height selection"
+        />
+      )}
+    </SafeAreaView>
+  )
+};
 
 export default WeightSelectionScreen;
 
@@ -164,9 +135,37 @@ type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
 
 const createStyles = (colors: Colors, themeObj: Theme) => {
-  const { spacing, typography } = themeObj;
+  const { spacing, typography, components } = themeObj;
 
   return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.primaryBackground,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: spacing.pageMargins.horizontal,
+      justifyContent: "flex-start",
+      alignItems: "stretch",
+      gap: spacing.xxl,
+    },
+    textSection: {
+      paddingTop: spacing.lg,
+      gap: spacing.sm,
+    },
+    subtitle: {
+      fontSize: typography.Title2.fontSize,
+      fontFamily: typography.Title2.fontFamily,
+      color: colors.primaryText,
+      textAlign: "center",
+    },
+    description: {
+      fontSize: typography.Body.fontSize,
+      fontFamily: typography.Body.fontFamily,
+      color: colors.secondaryText,
+      textAlign: "center",
+      lineHeight: 22,
+    },
     inputSection: {
       alignItems: "center",
     },
@@ -181,16 +180,42 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       color: colors.secondaryText,
       marginLeft: spacing.sm,
     },
-    conversionText: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
-      color: colors.secondaryText,
-      textAlign: "center",
-      marginTop: spacing.md,
-    },
     spacer: {
       flex: 1,
-      minHeight: spacing.xxl * 2, // Ensure minimum spacing
+      minHeight: 64,
+    },
+    progressContainer: {
+      padding: spacing.md,
+    },
+    continueButton: {
+      backgroundColor: colors.accent,
+      borderRadius: components.buttons.cornerRadius,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.lg,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: 50,
+      marginHorizontal: spacing.pageMargins.horizontal,
+      marginBottom: spacing.lg,
+    },
+    continueButtonText: {
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
+      color: colors.white,
+      fontWeight: "600",
+      marginRight: spacing.sm,
+    },
+    weightInput: {
+      fontSize: 48,
+      fontFamily: typography.Title1.fontFamily,
+      color: colors.primaryText,
+      textAlign: "center",
+      minWidth: 120,
+      backgroundColor: "transparent",
+      borderWidth: 0,
+      padding: 0,
+      margin: 0,
     },
   });
 };
