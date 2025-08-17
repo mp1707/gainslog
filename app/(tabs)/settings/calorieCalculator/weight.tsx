@@ -1,9 +1,18 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { View, TouchableOpacity, Text, TextInput, Platform, StyleSheet, Alert } from "react-native";
+import React, { useState, useMemo, useRef, useCallback } from "react";
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  TextInput,
+  Platform,
+  StyleSheet,
+  Alert,
+  InteractionManager,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
+import { useFocusEffect } from "@react-navigation/native";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
@@ -24,17 +33,19 @@ const WeightSelectionScreen = () => {
   );
 
   const [weight, setWeight] = useState<number>(calculatorParams?.weight ?? 70);
+  const inputRef = useRef<TextInput>(null);
 
-  // Update weight when store changes
-  useEffect(() => {
-    if (calculatorParams?.weight !== undefined) {
-      setWeight(calculatorParams.weight);
-    }
-  }, [calculatorParams?.weight]);
+  useFocusEffect(
+    useCallback(() => {
+      const task = InteractionManager.runAfterInteractions(() => {
+        requestAnimationFrame(() => inputRef.current?.focus());
+      });
+      return () => task.cancel();
+    }, [])
+  );
 
   const handleWeightChange = (weightText: string) => {
     const newWeight = weightText === "" ? 0 : parseFloat(weightText);
-    
     if (!isNaN(newWeight)) {
       setWeight(newWeight);
 
@@ -53,7 +64,7 @@ const WeightSelectionScreen = () => {
     if (weight < 30 || weight > 300) {
       Alert.alert(
         "Invalid Weight",
-        "Please enter a valid weight between 30 and 300 kg.",
+        "Please enter a weight between 30 and 300 kg.",
         [{ text: "OK" }]
       );
       return;
@@ -66,36 +77,29 @@ const WeightSelectionScreen = () => {
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <View style={styles.progressContainer}>
-        <ProgressBar
-          totalSteps={6}
-          currentStep={3}
-          accessibilityLabel={`Calculator progress: step 3 of 6`}
-        />
+        <ProgressBar totalSteps={6} currentStep={3} />
       </View>
 
       <View style={styles.content}>
         <View style={styles.textSection}>
-          <Text style={styles.subtitle}>How much do you weigh?</Text>
+          <Text style={styles.subtitle}>What’s your weight?</Text>
           <Text style={styles.description}>
-            Your weight is used to calculate your daily calorie needs.
+            Your weight is important for calculating your calorie needs.
           </Text>
         </View>
 
         <View style={styles.inputSection}>
           <View style={styles.inputContainer}>
             <TextInput
+              ref={inputRef}
               value={weight === 0 ? "" : weight.toString()}
               onChangeText={handleWeightChange}
               placeholder="70"
               keyboardType="numeric"
               keyboardAppearance={colorScheme}
               style={styles.weightInput}
-              accessibilityLabel="Weight input"
-              accessibilityHint="Enter your weight between 30 and 300 kg"
-              accessibilityRole="spinbutton"
               inputAccessoryViewID={inputAccessoryViewID}
               selectTextOnFocus
-              autoFocus
             />
             <Text style={styles.unitText}>kg</Text>
           </View>
@@ -103,60 +107,43 @@ const WeightSelectionScreen = () => {
 
         <View style={styles.spacer} />
 
-        <TouchableOpacity
-          style={styles.continueButton}
-          onPress={handleContinue}
-          disabled={isNavigating}
-          accessibilityRole="button"
-          accessibilityLabel="Continue to height selection"
-        >
-          <Text style={styles.continueButtonText}>
-            Continue
-          </Text>
-          <CaretRightIcon
-            size={20}
-            color={colors.white}
-          />
-        </TouchableOpacity>
+        {Platform.OS === "android" && (
+          <TouchableOpacity
+            style={styles.continueButton}
+            onPress={handleContinue}
+            disabled={isNavigating}
+          >
+            <Text style={styles.continueButtonText}>Continue</Text>
+            <CaretRightIcon size={20} color={colors.white} />
+          </TouchableOpacity>
+        )}
       </View>
 
-      {/* Input Accessory View - iOS only */}
-      {Platform.OS === 'ios' && (
+      {Platform.OS === "ios" && (
         <CalculatorInputAccessory
+          accessibilityLabel="Continue"
           nativeID={inputAccessoryViewID}
           isValid={true}
           onContinue={handleContinue}
-          accessibilityLabel="Continue to height selection"
         />
       )}
     </SafeAreaView>
-  )
+  );
 };
 
 export default WeightSelectionScreen;
 
-type Colors = ReturnType<typeof useTheme>["colors"];
-type Theme = ReturnType<typeof useTheme>["theme"];
-
-const createStyles = (colors: Colors, themeObj: Theme) => {
+const createStyles = (colors: any, themeObj: any) => {
   const { spacing, typography, components } = themeObj;
-
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.primaryBackground,
-    },
+    container: { flex: 1, backgroundColor: colors.primaryBackground },
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
       justifyContent: "flex-start",
-      alignItems: "stretch",
       gap: spacing.xxl,
     },
-    textSection: {
-      paddingTop: spacing.lg,
-      gap: spacing.sm,
-    },
+    textSection: { paddingTop: spacing.lg, gap: spacing.sm },
     subtitle: {
       fontSize: typography.Title2.fontSize,
       fontFamily: typography.Title2.fontFamily,
@@ -170,9 +157,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       textAlign: "center",
       lineHeight: 22,
     },
-    inputSection: {
-      alignItems: "center",
-    },
+    inputSection: { alignItems: "center" },
     inputContainer: {
       flexDirection: "row",
       alignItems: "baseline",
@@ -184,13 +169,8 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       color: colors.secondaryText,
       marginLeft: spacing.sm,
     },
-    spacer: {
-      flex: 1,
-      minHeight: 64,
-    },
-    progressContainer: {
-      padding: spacing.md,
-    },
+    spacer: { flex: 1, minHeight: 64 },
+    progressContainer: { padding: spacing.md },
     continueButton: {
       backgroundColor: colors.accent,
       borderRadius: components.buttons.cornerRadius,
@@ -215,11 +195,8 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontFamily: typography.Title1.fontFamily,
       color: colors.primaryText,
       textAlign: "center",
-      minWidth: 120,
+      minWidth: 100,
       backgroundColor: "transparent",
-      borderWidth: 0,
-      padding: 0,
-      margin: 0,
     },
   });
 };
