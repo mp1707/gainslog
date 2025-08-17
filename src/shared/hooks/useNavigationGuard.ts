@@ -52,13 +52,13 @@ export function useNavigationGuard() {
 
   /**
    * Safe navigation function that prevents multiple rapid calls.
-   * Uses router.navigate (idempotent) to avoid duplicate screens.
+   * Uses router.navigate (idempotent) or router.replace based on replace flag.
    * Includes 1-second timeout fallback for edge cases.
    *
-   * @param route - The route to navigate to
+   * @param options - Navigation options with route and optional replace flag
    */
   const safeNavigate = useCallback(
-    (route: string) => {
+    ({ route, replace = false }: { route: string; replace?: boolean }) => {
       if (lockedRef.current) {
         return;
       }
@@ -71,7 +71,11 @@ export function useNavigationGuard() {
         unlockNavigation();
       }, 1000);
 
-      router.navigate(route);
+      if (replace) {
+        router.replace(route);
+      } else {
+        router.navigate(route);
+      }
     },
     [router, unlockNavigation]
   );

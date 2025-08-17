@@ -113,8 +113,8 @@ export default function SettingsTab() {
                 style={styles.settingCard}
                 onPress={() =>
                   isCaloriesSet
-                    ? safeNavigate("/settings/calorieCalculator/editCalories")
-                    : safeNavigate("/settings/calorieCalculator/sex")
+                    ? safeNavigate({ route: "/settings/calorieCalculator/editCalories" })
+                    : safeNavigate({ route: "/settings/calorieCalculator/sex" })
                 }
                 disabled={isNavigating}
                 accessibilityRole="button"
@@ -159,7 +159,7 @@ export default function SettingsTab() {
                   styles.settingCardWithBorder,
                   { opacity: proteinEnabled ? 1 : 0.5 },
                 ]}
-                onPress={() => safeNavigate("/settings/protein")}
+                onPress={() => safeNavigate({ route: "/settings/protein" })}
                 disabled={!proteinEnabled || isNavigating}
                 accessibilityRole="button"
                 accessibilityLabel="Protein setting"
@@ -210,7 +210,7 @@ export default function SettingsTab() {
                   styles.settingCardWithBorder,
                   { opacity: fatEnabled ? 1 : 0.5 },
                 ]}
-                onPress={() => safeNavigate("/settings/fat")}
+                onPress={() => safeNavigate({ route: "/settings/fat" })}
                 disabled={!fatEnabled || isNavigating}
                 accessibilityRole="button"
                 accessibilityLabel="Fat setting"
@@ -254,7 +254,7 @@ export default function SettingsTab() {
                   styles.settingCardWithBorder,
                   { opacity: carbsEnabled ? 1 : 0.5 },
                 ]}
-                onPress={() => safeNavigate("/settings/carbs")}
+                onPress={() => safeNavigate({ route: "/settings/carbs" })}
                 disabled={!carbsEnabled || isNavigating}
                 accessibilityRole="button"
                 accessibilityLabel="Carbs setting"

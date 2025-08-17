@@ -60,7 +60,7 @@ const WeightSelectionScreen = () => {
     }
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    safeNavigate("/settings/calorieCalculator/height");
+    safeNavigate({ route: "/settings/calorieCalculator/height" });
   };
 
   return (
