@@ -22,12 +22,11 @@ import type { Icon, IconWeight } from "phosphor-react-native";
 
 import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./SelectionCard.styles";
-import type { CalorieGoals, ActivityLevel, GoalType } from "@/types";
+import type { CalorieGoals } from "@/types";
 
 interface IconConfig {
   component: Icon;
   color: string;
-  weight: IconWeight;
 }
 
 export interface SelectionCardProps {
@@ -76,55 +75,46 @@ const getPredefinedIcon = (
       return {
         component: TrendDownIcon,
         color: isSelected ? accentColor : "#FF6B6B",
-        weight,
       };
     case "goal-maintain":
       return {
         component: EqualsIcon,
         color: isSelected ? accentColor : "#4ECDC4",
-        weight,
       };
     case "goal-gain":
       return {
         component: TrendUpIcon,
         color: isSelected ? accentColor : "#45B7D1",
-        weight,
       };
     case "activity-sedentary":
       return {
         component: HouseIcon,
         color: isSelected ? accentColor : "#8A8A8E",
-        weight,
       };
     case "activity-light":
       return {
         component: PersonIcon,
         color: isSelected ? accentColor : "#8A8A8E",
-        weight,
       };
     case "activity-moderate":
       return {
         component: BicycleIcon,
         color: isSelected ? accentColor : "#8A8A8E",
-        weight,
       };
     case "activity-active":
       return {
         component: FlameIcon,
         color: isSelected ? accentColor : "#8A8A8E",
-        weight,
       };
     case "activity-veryactive":
       return {
         component: LightningIcon,
         color: isSelected ? accentColor : "#8A8A8E",
-        weight,
       };
     default:
       return {
         component: PersonIcon,
         color: isSelected ? accentColor : "#8A8A8E",
-        weight,
       };
   }
 };
@@ -146,7 +136,6 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
 
   // Determine if this is a simple or complex layout
   const isSimpleLayout = !content && CustomIcon;
-  const isComplexLayout = !isSimpleLayout;
 
   // Press animation shared values
   const pressScale = useSharedValue(1);
@@ -163,7 +152,6 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
     iconConfig = {
       component: CustomIcon,
       color: isSelected ? colors.accent : iconColor,
-      weight: "bold",
     };
   } else if (iconType) {
     // Predefined icon type
@@ -173,7 +161,6 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
     iconConfig = {
       component: PersonIcon,
       color: isSelected ? colors.accent : colors.secondaryText,
-      weight: "regular",
     };
   }
 
@@ -216,11 +203,7 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
           // Simple layout: icon container + text
           <>
             <View style={styles.simpleIconContainer}>
-              <IconComponent
-                size={32}
-                color={iconConfig.color}
-                weight={iconConfig.weight}
-              />
+              <IconComponent size={32} color={iconConfig.color} />
             </View>
             <View style={styles.simpleTextContainer}>
               <Text
@@ -243,11 +226,7 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
           <View style={styles.complexContent}>
             <View style={styles.complexHeader}>
               <View style={styles.complexIconContainer}>
-                <IconComponent
-                  size={24}
-                  color={iconConfig.color}
-                  weight={iconConfig.weight}
-                />
+                <IconComponent size={24} color={iconConfig.color} />
               </View>
               <View style={styles.complexTextContainer}>
                 <Text

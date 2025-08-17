@@ -52,7 +52,7 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
               title="Edit Current Value"
               description="Manually adjust your current calorie target"
               icon={PencilIcon}
-              iconColor="#4A90E2"
+              iconColor={colors.semantic.protein}
               isSelected={false}
               onSelect={handleEditCurrent}
               accessibilityLabel="Edit current calorie value manually"
@@ -63,7 +63,7 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
               title="Start Fresh Calculation"
               description="Recalculate your calories from the beginning"
               icon={CalculatorIcon}
-              iconColor="#FF7A5A"
+              iconColor={colors.accent}
               isSelected={false}
               onSelect={handleStartFresh}
               accessibilityLabel="Start fresh calorie calculation"
@@ -114,7 +114,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
       textAlign: "center",
-      lineHeight: 22,
+      lineHeight: 24,
     },
     selectionSection: {
       alignItems: "stretch",
