@@ -9,14 +9,76 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
+import {
+  ChartLineUpIcon,
+  BarbellIcon,
+  ShieldCheckIcon,
+  TrophyIcon,
+} from "phosphor-react-native";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { Button } from "@/shared/ui/atoms/Button";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
-import { ProteinCalculationCard, CALCULATION_METHODS } from "@/shared/ui/atoms/ProteinCalculationCard";
+import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
 import type { ProteinCalculationMethod } from "@/types";
 import { StyleSheet } from "react-native";
+
+// Protein calculation methods with their configurations
+const CALCULATION_METHODS: Record<string, ProteinCalculationMethod> = {
+  optimal_growth: {
+    id: "optimal_growth",
+    title: "1.6 g/kg - Optimal Growth",
+    description:
+      "The evidence-based point of diminishing returns for maximizing muscle growth in a caloric surplus or maintenance.",
+    multiplier: 1.6,
+  },
+  dedicated_athlete: {
+    id: "dedicated_athlete",
+    title: "2.0 g/kg - Dedicated Athlete",
+    description:
+      "A robust target for dedicated athletes to optimize all training adaptations and ensure consistent muscle growth.",
+    multiplier: 2.0,
+  },
+  anabolic_insurance: {
+    id: "anabolic_insurance",
+    title: "2.2 g/kg - Anabolic Insurance",
+    description:
+      "The upper-end target to ensure protein is never a limiting factor. Ideal for advanced athletes.",
+    multiplier: 2.2,
+  },
+  max_preservation: {
+    id: "max_preservation",
+    title: "3.0 g/kg - Max Preservation",
+    description:
+      "A very high intake to maximize muscle retention during a significant or prolonged caloric deficit (cutting).",
+    multiplier: 3.0,
+  },
+};
+
+// Icon mapping for protein calculation methods
+const getIconForMethod = (methodId: string) => {
+  switch (methodId) {
+    case "optimal_growth":
+      return ChartLineUpIcon;
+    case "dedicated_athlete":
+      return BarbellIcon;
+    case "anabolic_insurance":
+      return ShieldCheckIcon;
+    case "max_preservation":
+      return TrophyIcon;
+    default:
+      return ChartLineUpIcon;
+  }
+};
+
+// Calculate protein intake (convert kg to grams, round to nearest 5)
+const calculateProteinIntake = (
+  bodyWeight: number,
+  multiplier: number
+): number => {
+  return bodyWeight > 0 ? Math.round((bodyWeight * multiplier) / 5) * 5 : 0;
+};
 
 export default function ProteinGoalsScreen() {
   const { colors, theme: themeObj } = useTheme();
@@ -29,7 +91,8 @@ export default function ProteinGoalsScreen() {
   } = useFoodLogStore();
   const { safeDismissTo, safeReplace } = useNavigationGuard();
 
-  const [selectedMethod, setSelectedMethod] = useState<ProteinCalculationMethod | null>(null);
+  const [selectedMethod, setSelectedMethod] =
+    useState<ProteinCalculationMethod | null>(null);
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -48,14 +111,12 @@ export default function ProteinGoalsScreen() {
 
   const handleSaveTarget = async (method: ProteinCalculationMethod) => {
     if (!calculatorParams?.weight || bodyWeight <= 0) {
-      Alert.alert(
-        "Error",
-        "Missing weight information. Please start over."
-      );
+      Alert.alert("Error", "Missing weight information. Please start over.");
       return;
     }
 
-    const calculatedProtein = Math.round((bodyWeight * method.multiplier) / 5) * 5;
+    const calculatedProtein =
+      Math.round((bodyWeight * method.multiplier) / 5) * 5;
 
     try {
       // Provide success haptic feedback
@@ -104,14 +165,6 @@ export default function ProteinGoalsScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        <View style={styles.progressContainer}>
-          <ProgressBar
-            totalSteps={2}
-            currentStep={2}
-            accessibilityLabel={`Calculator progress: step 2 of 2`}
-          />
-        </View>
-
         {/* Content */}
         <ScrollView
           style={styles.content}
@@ -130,15 +183,32 @@ export default function ProteinGoalsScreen() {
           </View>
 
           <View style={styles.methodsSection}>
-            {methods.map((method) => (
-              <ProteinCalculationCard
-                key={method.id}
-                method={method}
-                bodyWeight={bodyWeight}
-                isSelected={selectedMethod?.id === method.id}
-                onSelect={handleMethodSelect}
-              />
-            ))}
+            {methods.map((method) => {
+              const calculatedProtein = calculateProteinIntake(
+                bodyWeight,
+                method.multiplier
+              );
+              const IconComponent = getIconForMethod(method.id);
+
+              return (
+                <SelectionCard
+                  key={method.id}
+                  title={method.title}
+                  description={method.description}
+                  icon={IconComponent}
+                  iconColor={colors.primaryText}
+                  isSelected={selectedMethod?.id === method.id}
+                  onSelect={() => handleMethodSelect(method)}
+                  dailyTarget={{
+                    value: calculatedProtein,
+                    unit: "g",
+                    label: "Daily Target",
+                  }}
+                  accessibilityLabel={`${method.title} protein calculation method`}
+                  accessibilityHint={`Calculate ${calculatedProtein}g protein per day based on ${method.description.toLowerCase()}`}
+                />
+              );
+            })}
           </View>
 
           {/* Footer Note */}

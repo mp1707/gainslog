@@ -90,10 +90,6 @@ const ProteinWeightSelectionScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
-      <View style={styles.progressContainer}>
-        <ProgressBar totalSteps={2} currentStep={1} />
-      </View>
-
       <View style={styles.content}>
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>What's your weight?</Text>

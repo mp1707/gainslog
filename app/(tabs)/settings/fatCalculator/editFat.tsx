@@ -79,13 +79,13 @@ const EditFatScreen = React.memo(function EditFatScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Fat Target</Text>
-          <Text style={styles.description}>
-            Your current target is {Math.round(fatGrams)}g ({fatPercentage}% of
-            calories).
+          <Text style={styles.fatInfo}>
+            Your current target is: {Math.round(fatGrams)}g ({fatPercentage}%
+            of calories).
           </Text>
         </View>
-{/* Interactive Card Section */}
-<SelectionCard
+        {/* Interactive Card Section */}
+        <SelectionCard
           title="Edit Current Value"
           description="Manually adjust your fat target"
           icon={PencilSimpleIcon}
@@ -126,8 +126,6 @@ const EditFatScreen = React.memo(function EditFatScreen() {
             </Text>
           </View>
         </View>
-
-        
       </ScrollView>
     </SafeAreaView>
   );
@@ -158,20 +156,20 @@ const createStyles = (
     },
     textSection: {
       paddingTop: spacing.lg,
-      gap: spacing.md,
     },
     subtitle: {
       fontSize: typography.Title2.fontSize,
       fontFamily: typography.Title2.fontFamily,
       color: colors.primaryText,
       textAlign: "center",
+      marginBottom: spacing.sm,
     },
-    description: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
+    fatInfo: {
+      fontSize: typography.Subhead.fontSize,
+      fontFamily: typography.Subhead.fontFamily,
+      color: colors.accent,
       textAlign: "center",
-      lineHeight: 24,
+      fontWeight: "600",
       marginBottom: spacing.sm,
     },
     infoCard: {
