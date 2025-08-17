@@ -88,7 +88,7 @@ export default function SettingsTab() {
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <SafeAreaView
         style={styles.container}
-        edges={["left", "right", "bottom", "top"]}
+        edges={["left", "right", "top"]}
       >
         <ScrollView
           style={styles.scrollView}
