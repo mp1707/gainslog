@@ -7,7 +7,7 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
@@ -27,6 +27,7 @@ export default function ProteinGoalsScreen() {
     setProteinCalculation,
     clearProteinCalculatorData,
   } = useFoodLogStore();
+  const { safeDismissTo, safeReplace } = useNavigationGuard();
 
   const [selectedMethod, setSelectedMethod] = useState<ProteinCalculationMethod | null>(null);
 
@@ -71,7 +72,7 @@ export default function ProteinGoalsScreen() {
       clearProteinCalculatorData();
 
       // Go back to close the modal and return to settings
-      router.dismissTo("/settings");
+      safeDismissTo("/settings");
     } catch (error) {
       console.error("Error saving protein target:", error);
       Alert.alert("Error", "Failed to save protein target. Please try again.");
@@ -88,7 +89,7 @@ export default function ProteinGoalsScreen() {
           Missing weight data. Please start over.
         </Text>
         <Button
-          onPress={() => router.replace("/settings")}
+          onPress={() => safeReplace("/settings")}
           disabled={false}
           style={styles.backButton}
         >

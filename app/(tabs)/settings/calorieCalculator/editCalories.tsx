@@ -16,7 +16,7 @@ import { StyleSheet } from "react-native";
 const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
   const { colors, theme: themeObj } = useTheme();
   const { dailyTargets } = useFoodLogStore();
-  const { safeNavigate, isNavigating } = useNavigationGuard();
+  const { safeReplace, isNavigating } = useNavigationGuard();
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -27,13 +27,13 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
 
   const handleEditCurrent = useCallback(async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    safeNavigate({ route: "/settings/calorieCalculator/manualInput", replace: true });
-  }, [safeNavigate]);
+    safeReplace("/settings/calorieCalculator/manualInput");
+  }, [safeReplace]);
 
   const handleStartFresh = useCallback(async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    safeNavigate({ route: "/settings/calorieCalculator/sex", replace: true });
-  }, [safeNavigate]);
+    safeReplace("/settings/calorieCalculator/sex");
+  }, [safeReplace]);
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>

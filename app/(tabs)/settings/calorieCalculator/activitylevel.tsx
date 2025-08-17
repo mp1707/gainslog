@@ -50,7 +50,7 @@ export default function Step2ActivityLevelScreen() {
 
     // Auto-advance to next screen after a short delay for visual feedback
     setTimeout(() => {
-      safeNavigate({ route: "/settings/calorieCalculator/goals" });
+      safeNavigate("/settings/calorieCalculator/goals");
     }, 300);
   };
 

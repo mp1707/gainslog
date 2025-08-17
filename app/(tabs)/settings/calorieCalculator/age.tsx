@@ -63,7 +63,7 @@ const AgeSelectionScreen = () => {
     if (age < 15 || age > 100) return;
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    safeNavigate({ route: "/settings/calorieCalculator/weight" });
+    safeNavigate("/settings/calorieCalculator/weight");
   };
 
   const handleAgeChange = (text: string) => {

@@ -1,11 +1,13 @@
 import { useEffect } from "react";
-import { router } from "expo-router";
+import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
 
 // Redirect to step 1 if someone navigates directly to /proteinCalculator
 export default function ProteinCalculatorIndexScreen() {
+  const { safeReplace } = useNavigationGuard();
+
   useEffect(() => {
-    router.replace("/settings/proteinCalculator/weight");
-  }, []);
+    safeReplace("/settings/proteinCalculator/weight");
+  }, [safeReplace]);
 
   return null;
 }

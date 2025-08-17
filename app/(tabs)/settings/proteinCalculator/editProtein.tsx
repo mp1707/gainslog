@@ -16,7 +16,7 @@ import { StyleSheet } from "react-native";
 const EditProteinScreen = React.memo(function EditProteinScreen() {
   const { colors, theme: themeObj } = useTheme();
   const { dailyTargets, clearProteinCalculatorData } = useFoodLogStore();
-  const { safeNavigate } = useNavigationGuard();
+  const { safeReplace } = useNavigationGuard();
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -27,14 +27,14 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
 
   const handleEditCurrent = useCallback(async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    safeNavigate({ route: "/settings/proteinCalculator/manualInput", replace: true });
-  }, [safeNavigate]);
+    safeReplace("/settings/proteinCalculator/manualInput");
+  }, [safeReplace]);
 
   const handleStartFresh = useCallback(async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     clearProteinCalculatorData();
-    safeNavigate({ route: "/settings/proteinCalculator/weight", replace: true });
-  }, [safeNavigate, clearProteinCalculatorData]);
+    safeReplace("/settings/proteinCalculator/weight");
+  }, [safeReplace, clearProteinCalculatorData]);
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>

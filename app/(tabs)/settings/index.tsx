@@ -113,8 +113,8 @@ export default function SettingsTab() {
                 style={styles.settingCard}
                 onPress={() =>
                   isCaloriesSet
-                    ? safeNavigate({ route: "/settings/calorieCalculator/editCalories" })
-                    : safeNavigate({ route: "/settings/calorieCalculator/sex" })
+                    ? safeNavigate("/settings/calorieCalculator/editCalories")
+                    : safeNavigate("/settings/calorieCalculator/sex")
                 }
                 disabled={isNavigating}
                 accessibilityRole="button"
@@ -161,8 +161,8 @@ export default function SettingsTab() {
                 ]}
                 onPress={() =>
                   isProteinSet
-                    ? safeNavigate({ route: "/settings/proteinCalculator/editProtein" })
-                    : safeNavigate({ route: "/settings/proteinCalculator/weight" })
+                    ? safeNavigate("/settings/proteinCalculator/editProtein")
+                    : safeNavigate("/settings/proteinCalculator/weight")
                 }
                 disabled={!proteinEnabled || isNavigating}
                 accessibilityRole="button"
@@ -214,7 +214,7 @@ export default function SettingsTab() {
                   styles.settingCardWithBorder,
                   { opacity: fatEnabled ? 1 : 0.5 },
                 ]}
-                onPress={() => safeNavigate({ route: "/settings/fat" })}
+                onPress={() => safeNavigate("/settings/fat")}
                 disabled={!fatEnabled || isNavigating}
                 accessibilityRole="button"
                 accessibilityLabel="Fat setting"
@@ -258,7 +258,7 @@ export default function SettingsTab() {
                   styles.settingCardWithBorder,
                   { opacity: carbsEnabled ? 1 : 0.5 },
                 ]}
-                onPress={() => safeNavigate({ route: "/settings/carbs" })}
+                onPress={() => safeNavigate("/settings/carbs")}
                 disabled={!carbsEnabled || isNavigating}
                 accessibilityRole="button"
                 accessibilityLabel="Carbs setting"

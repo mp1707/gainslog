@@ -7,7 +7,7 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
 import { TrendDownIcon, EqualsIcon, TrendUpIcon } from "phosphor-react-native";
 
@@ -31,6 +31,7 @@ export default function Step3GoalsScreen() {
     updateDailyTargets,
     setCalorieCalculation,
   } = useFoodLogStore();
+  const { safeDismissTo, safeReplace } = useNavigationGuard();
 
   const [selectedGoal, setSelectedGoal] = useState<GoalType | null>(null);
 
@@ -95,7 +96,7 @@ export default function Step3GoalsScreen() {
       await saveCalorieCalculatorParams(calculatorParams);
 
       // Go back to close the modal and return to settings
-      router.dismissTo("/settings");
+      safeDismissTo("/settings");
     } catch (error) {
       console.error("Error saving calorie target:", error);
       Alert.alert("Error", "Failed to save calorie target. Please try again.");
@@ -112,7 +113,7 @@ export default function Step3GoalsScreen() {
           Missing calculation data. Please start over.
         </Text>
         <Button
-          onPress={() => router.replace("/settings")}
+          onPress={() => safeReplace("/settings")}
           disabled={false}
           style={styles.backButton}
         >

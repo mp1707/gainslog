@@ -17,7 +17,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
-import { router } from "expo-router";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
@@ -31,7 +30,7 @@ const inputAccessoryViewID = "protein-input-accessory";
 const ManualProteinInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const { dailyTargets, updateDailyTargets, proteinCalculatorParams, clearProteinCalculatorData } = useFoodLogStore();
-  const { safeNavigate, isNavigating } = useNavigationGuard();
+  const { safeDismissTo, isNavigating } = useNavigationGuard();
 
   const [protein, setProtein] = useState<number>(
     (dailyTargets?.protein && dailyTargets.protein > 0) ? dailyTargets.protein : 100
@@ -97,7 +96,7 @@ const ManualProteinInputScreen = () => {
 
       await updateDailyTargets(newTargets);
       
-      router.dismissTo("/settings");
+      safeDismissTo("/settings");
     } catch (error) {
       console.error("Error saving manual protein target:", error);
       Alert.alert(

@@ -1,14 +1,15 @@
 import { Stack } from "expo-router";
-import { router } from "expo-router";
+import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
 import { useTheme } from "@/providers";
 import { CancelButton } from "@/shared/ui/atoms/CancelButton";
 import React from "react";
 
 export default function CalculatorLayout() {
   const { colors } = useTheme();
+  const { safeDismissTo } = useNavigationGuard();
 
   const handleCancel = () => {
-    router.dismissTo("/settings");
+    safeDismissTo("/settings");
   };
 
   return (
@@ -52,7 +53,7 @@ export default function CalculatorLayout() {
         }}
       />
       <Stack.Screen
-        name="activity-level"
+        name="activitylevel"
         options={{
           title: "Activity Level",
         }}

@@ -85,7 +85,7 @@ const ProteinWeightSelectionScreen = () => {
     setCalculatorParams(updatedParams);
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    safeNavigate({ route: "/settings/proteinCalculator/goals" });
+    safeNavigate("/settings/proteinCalculator/goals");
   };
 
   return (

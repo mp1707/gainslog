@@ -17,7 +17,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { InteractionManager } from "react-native";
-import { router } from "expo-router";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
@@ -37,7 +36,7 @@ const ManualCalorieInputScreen = () => {
     calculatorParams,
     clearCalculatorData,
   } = useFoodLogStore();
-  const { safeNavigate, isNavigating } = useNavigationGuard();
+  const { safeDismissTo, isNavigating } = useNavigationGuard();
 
   const [calories, setCalories] = useState<number>(
     dailyTargets?.calories && dailyTargets.calories > 0
@@ -110,7 +109,7 @@ const ManualCalorieInputScreen = () => {
         await saveCalorieCalculatorParams(calculatorParams);
       }
 
-      router.dismissTo("/settings");
+      safeDismissTo("/settings");
     } catch (error) {
       console.error("Error saving manual calorie target:", error);
       Alert.alert(

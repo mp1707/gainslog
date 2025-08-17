@@ -97,14 +97,14 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
 
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-      safeNavigate({ route: "/settings/calorieCalculator/age" });
+      safeNavigate("/settings/calorieCalculator/age");
     },
     [stableInitialParams, localParams, setCalculatorParams, safeNavigate]
   );
 
   const handleManualInput = useCallback(async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    safeNavigate({ route: "/settings/calorieCalculator/manualInput" });
+    safeNavigate("/settings/calorieCalculator/manualInput");
   }, [safeNavigate]);
 
   if (!isLoaded) {

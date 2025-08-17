@@ -1,11 +1,13 @@
 import { useEffect } from "react";
-import { router } from "expo-router";
+import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
 
 // Redirect to step 1 if someone navigates directly to /calculator
 export default function CalculatorIndexScreen() {
+  const { safeReplace } = useNavigationGuard();
+
   useEffect(() => {
-    router.replace("/settings/calorieCalculator/sex");
-  }, []);
+    safeReplace("/settings/calorieCalculator/sex");
+  }, [safeReplace]);
 
   return null;
 }
