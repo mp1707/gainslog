@@ -159,7 +159,11 @@ export default function SettingsTab() {
                   styles.settingCardWithBorder,
                   { opacity: proteinEnabled ? 1 : 0.5 },
                 ]}
-                onPress={() => safeNavigate({ route: "/settings/protein" })}
+                onPress={() =>
+                  isProteinSet
+                    ? safeNavigate({ route: "/settings/proteinCalculator/editProtein" })
+                    : safeNavigate({ route: "/settings/proteinCalculator/weight" })
+                }
                 disabled={!proteinEnabled || isNavigating}
                 accessibilityRole="button"
                 accessibilityLabel="Protein setting"

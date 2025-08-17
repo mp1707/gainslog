@@ -1,61 +1,39 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useRef,
-  useCallback,
-} from "react";
+import React, { useState, useMemo, useRef, useCallback } from "react";
 import {
   View,
+  TouchableOpacity,
   Text,
   TextInput,
-  TouchableOpacity,
-  StyleSheet,
   Platform,
+  StyleSheet,
   Alert,
+  InteractionManager,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect } from "@react-navigation/native";
-import { InteractionManager } from "react-native";
-import { router } from "expo-router";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
+import { useFocusEffect } from "@react-navigation/native";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { CalculatorInputAccessory } from "@/shared/ui";
+import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
-import { saveCalorieCalculatorParams } from "@/lib/storage";
+import { CalculatorInputAccessory } from "@/shared/ui";
 
-const inputAccessoryViewID = "calories-input-accessory";
+const inputAccessoryViewID = "protein-weight-input-accessory";
 
-const ManualCalorieInputScreen = () => {
+const ProteinWeightSelectionScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const {
-    dailyTargets,
-    updateDailyTargets,
-    calculatorParams,
-    clearCalculatorData,
-  } = useFoodLogStore();
+  const { calculatorParams, setCalculatorParams } = useFoodLogStore();
   const { safeNavigate, isNavigating } = useNavigationGuard();
-
-  const [calories, setCalories] = useState<number>(
-    dailyTargets?.calories && dailyTargets.calories > 0
-      ? dailyTargets.calories
-      : 2000
-  );
-  const inputRef = useRef<TextInput>(null);
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
     [colors, themeObj]
   );
 
-  useEffect(() => {
-    if (dailyTargets?.calories && dailyTargets.calories > 0) {
-      setCalories(dailyTargets.calories);
-    }
-  }, [dailyTargets?.calories]);
+  const [weight, setWeight] = useState<number>(calculatorParams?.weight ?? 70);
+  const inputRef = useRef<TextInput>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -70,65 +48,57 @@ const ManualCalorieInputScreen = () => {
     }, [])
   );
 
-  const handleCaloriesChange = (caloriesText: string) => {
-    const newCalories = caloriesText === "" ? 0 : parseInt(caloriesText, 10);
+  const handleWeightChange = (weightText: string) => {
+    const newWeight = weightText === "" ? 0 : parseFloat(weightText);
+    if (!isNaN(newWeight)) {
+      setWeight(newWeight);
 
-    if (!isNaN(newCalories)) {
-      setCalories(newCalories);
+      const updatedParams = {
+        ...calculatorParams,
+        sex: calculatorParams?.sex ?? "male",
+        age: calculatorParams?.age ?? 30,
+        weight: newWeight,
+        height: calculatorParams?.height ?? 175,
+      };
+      setCalculatorParams(updatedParams);
     }
   };
 
-  const handleSave = async () => {
-    if (calories < 1000 || calories > 5000) {
+  const handleContinue = async () => {
+    if (weight < 30 || weight > 300) {
       Alert.alert(
-        "Invalid Calorie Value",
-        "Please enter a calorie value between 1000 and 5000.",
+        "Invalid Weight",
+        "Please enter a weight between 30 and 300 kg.",
         [{ text: "OK" }]
       );
       return;
     }
 
-    try {
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    // Ensure calculatorParams weight is set before navigation
+    const updatedParams = {
+      ...calculatorParams,
+      sex: calculatorParams?.sex ?? "male",
+      age: calculatorParams?.age ?? 30,
+      weight: weight,
+      height: calculatorParams?.height ?? 175,
+    };
+    setCalculatorParams(updatedParams);
 
-      const currentTargets = dailyTargets || {
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-        fat: 0,
-      };
-
-      const newTargets = {
-        ...currentTargets,
-        calories: calories,
-      };
-
-      await updateDailyTargets(newTargets);
-
-      // Save existing calculator params to AsyncStorage if they exist
-      if (calculatorParams) {
-        await saveCalorieCalculatorParams(calculatorParams);
-      }
-
-      clearCalculatorData();
-      router.dismissTo("/settings");
-    } catch (error) {
-      console.error("Error saving manual calorie target:", error);
-      Alert.alert(
-        "Save Failed",
-        "Failed to save your calorie target. Please check your connection and try again."
-      );
-    }
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    safeNavigate({ route: "/settings/proteinCalculator/goals" });
   };
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
+      <View style={styles.progressContainer}>
+        <ProgressBar totalSteps={2} currentStep={1} />
+      </View>
+
       <View style={styles.content}>
         <View style={styles.textSection}>
-          <Text style={styles.subtitle}>Enter your daily calorie goal</Text>
+          <Text style={styles.subtitle}>What's your weight?</Text>
           <Text style={styles.description}>
-            Set your target calories per day. You can always adjust this later
-            in settings.
+            Your weight is needed to calculate personalized protein recommendations.
           </Text>
         </View>
 
@@ -136,19 +106,17 @@ const ManualCalorieInputScreen = () => {
           <View style={styles.inputContainer}>
             <TextInput
               ref={inputRef}
-              value={calories === 0 ? "" : calories.toString()}
-              onChangeText={handleCaloriesChange}
-              placeholder="2000"
-              keyboardType="number-pad"
+              value={weight === 0 ? "" : weight.toString()}
+              onChangeText={handleWeightChange}
+              placeholder="70"
+              keyboardType="numeric"
               keyboardAppearance={colorScheme}
-              style={styles.caloriesInput}
-              accessibilityLabel="Calorie input"
+              style={styles.weightInput}
               inputAccessoryViewID={inputAccessoryViewID}
               selectTextOnFocus
             />
-            <Text style={styles.unitText}>calories</Text>
+            <Text style={styles.unitText}>kg</Text>
           </View>
-          <Text style={styles.selectedText}>per day</Text>
         </View>
 
         <View style={styles.spacer} />
@@ -156,10 +124,10 @@ const ManualCalorieInputScreen = () => {
         {Platform.OS === "android" && (
           <TouchableOpacity
             style={styles.continueButton}
-            onPress={handleSave}
+            onPress={handleContinue}
             disabled={isNavigating}
           >
-            <Text style={styles.continueButtonText}>Save Goal</Text>
+            <Text style={styles.continueButtonText}>Continue</Text>
             <CaretRightIcon size={20} color={colors.white} />
           </TouchableOpacity>
         )}
@@ -167,18 +135,17 @@ const ManualCalorieInputScreen = () => {
 
       {Platform.OS === "ios" && (
         <CalculatorInputAccessory
-          accessibilityLabel="Save Goal"
+          accessibilityLabel="Continue"
           nativeID={inputAccessoryViewID}
-          isValid={calories >= 1000 && calories <= 5000}
-          onContinue={handleSave}
-          buttonText="Save Goal"
+          isValid={true}
+          onContinue={handleContinue}
         />
       )}
     </SafeAreaView>
   );
 };
 
-export default ManualCalorieInputScreen;
+export default ProteinWeightSelectionScreen;
 
 const createStyles = (colors: any, themeObj: any) => {
   const { spacing, typography, components } = themeObj;
@@ -187,6 +154,7 @@ const createStyles = (colors: any, themeObj: any) => {
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
+      justifyContent: "flex-start",
       gap: spacing.xxl,
     },
     textSection: { paddingTop: spacing.lg, gap: spacing.sm },
@@ -201,6 +169,7 @@ const createStyles = (colors: any, themeObj: any) => {
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
       textAlign: "center",
+      lineHeight: 22,
     },
     inputSection: { alignItems: "center" },
     inputContainer: {
@@ -214,15 +183,8 @@ const createStyles = (colors: any, themeObj: any) => {
       color: colors.secondaryText,
       marginLeft: spacing.sm,
     },
-    selectedText: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
-      fontWeight: "600",
-      marginTop: spacing.md,
-    },
-    spacer: { flex: 1 },
+    spacer: { flex: 1, minHeight: 64 },
+    progressContainer: { padding: spacing.md },
     continueButton: {
       backgroundColor: colors.accent,
       borderRadius: components.buttons.cornerRadius,
@@ -239,14 +201,16 @@ const createStyles = (colors: any, themeObj: any) => {
       fontSize: typography.Headline.fontSize,
       fontFamily: typography.Headline.fontFamily,
       color: colors.white,
+      fontWeight: "600",
       marginRight: spacing.sm,
     },
-    caloriesInput: {
+    weightInput: {
       fontSize: 48,
       fontFamily: typography.Title1.fontFamily,
       color: colors.primaryText,
       textAlign: "center",
       minWidth: 100,
+      backgroundColor: "transparent",
     },
   });
 };

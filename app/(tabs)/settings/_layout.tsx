@@ -38,12 +38,6 @@ export default function SettingsLayout() {
         }}
       />
       <Stack.Screen
-        name="protein"
-        options={{
-          title: "Protein",
-        }}
-      />
-      <Stack.Screen
         name="fat"
         options={{
           title: "Fat",
@@ -57,6 +51,13 @@ export default function SettingsLayout() {
       />
       <Stack.Screen
         name="calorieCalculator"
+        options={{
+          headerShown: false,
+          presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="proteinCalculator"
         options={{
           headerShown: false,
           presentation: "modal",

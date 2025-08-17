@@ -13,10 +13,10 @@ import {
   StyleSheet,
   Platform,
   Alert,
+  InteractionManager,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
-import { InteractionManager } from "react-native";
 import { router } from "expo-router";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
@@ -25,24 +25,16 @@ import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { CalculatorInputAccessory } from "@/shared/ui";
 import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
-import { saveCalorieCalculatorParams } from "@/lib/storage";
 
-const inputAccessoryViewID = "calories-input-accessory";
+const inputAccessoryViewID = "protein-input-accessory";
 
-const ManualCalorieInputScreen = () => {
+const ManualProteinInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const {
-    dailyTargets,
-    updateDailyTargets,
-    calculatorParams,
-    clearCalculatorData,
-  } = useFoodLogStore();
+  const { dailyTargets, updateDailyTargets, proteinCalculatorParams, clearProteinCalculatorData } = useFoodLogStore();
   const { safeNavigate, isNavigating } = useNavigationGuard();
 
-  const [calories, setCalories] = useState<number>(
-    dailyTargets?.calories && dailyTargets.calories > 0
-      ? dailyTargets.calories
-      : 2000
+  const [protein, setProtein] = useState<number>(
+    (dailyTargets?.protein && dailyTargets.protein > 0) ? dailyTargets.protein : 100
   );
   const inputRef = useRef<TextInput>(null);
 
@@ -52,10 +44,10 @@ const ManualCalorieInputScreen = () => {
   );
 
   useEffect(() => {
-    if (dailyTargets?.calories && dailyTargets.calories > 0) {
-      setCalories(dailyTargets.calories);
+    if (dailyTargets?.protein && dailyTargets.protein > 0) {
+      setProtein(dailyTargets.protein);
     }
-  }, [dailyTargets?.calories]);
+  }, [dailyTargets?.protein]);
 
   useFocusEffect(
     useCallback(() => {
@@ -70,19 +62,19 @@ const ManualCalorieInputScreen = () => {
     }, [])
   );
 
-  const handleCaloriesChange = (caloriesText: string) => {
-    const newCalories = caloriesText === "" ? 0 : parseInt(caloriesText, 10);
-
-    if (!isNaN(newCalories)) {
-      setCalories(newCalories);
+  const handleProteinChange = (proteinText: string) => {
+    const newProtein = proteinText === "" ? 0 : parseInt(proteinText, 10);
+    
+    if (!isNaN(newProtein)) {
+      setProtein(newProtein);
     }
   };
 
   const handleSave = async () => {
-    if (calories < 1000 || calories > 5000) {
+    if (protein < 50 || protein > 500) {
       Alert.alert(
-        "Invalid Calorie Value",
-        "Please enter a calorie value between 1000 and 5000.",
+        "Invalid Protein Value",
+        "Please enter a protein value between 50 and 500 grams.",
         [{ text: "OK" }]
       );
       return;
@@ -100,23 +92,18 @@ const ManualCalorieInputScreen = () => {
 
       const newTargets = {
         ...currentTargets,
-        calories: calories,
+        protein: protein,
       };
 
       await updateDailyTargets(newTargets);
-
-      // Save existing calculator params to AsyncStorage if they exist
-      if (calculatorParams) {
-        await saveCalorieCalculatorParams(calculatorParams);
-      }
-
-      clearCalculatorData();
+      
+      clearProteinCalculatorData();
       router.dismissTo("/settings");
     } catch (error) {
-      console.error("Error saving manual calorie target:", error);
+      console.error("Error saving manual protein target:", error);
       Alert.alert(
         "Save Failed",
-        "Failed to save your calorie target. Please check your connection and try again."
+        "Failed to save your protein target. Please check your connection and try again."
       );
     }
   };
@@ -125,10 +112,9 @@ const ManualCalorieInputScreen = () => {
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <View style={styles.content}>
         <View style={styles.textSection}>
-          <Text style={styles.subtitle}>Enter your daily calorie goal</Text>
+          <Text style={styles.subtitle}>Enter your daily protein goal</Text>
           <Text style={styles.description}>
-            Set your target calories per day. You can always adjust this later
-            in settings.
+            Set your target protein per day. You can always adjust this later in settings.
           </Text>
         </View>
 
@@ -136,17 +122,17 @@ const ManualCalorieInputScreen = () => {
           <View style={styles.inputContainer}>
             <TextInput
               ref={inputRef}
-              value={calories === 0 ? "" : calories.toString()}
-              onChangeText={handleCaloriesChange}
-              placeholder="2000"
+              value={protein === 0 ? "" : protein.toString()}
+              onChangeText={handleProteinChange}
+              placeholder="100"
               keyboardType="number-pad"
               keyboardAppearance={colorScheme}
-              style={styles.caloriesInput}
-              accessibilityLabel="Calorie input"
+              style={styles.proteinInput}
+              accessibilityLabel="Protein input"
               inputAccessoryViewID={inputAccessoryViewID}
               selectTextOnFocus
             />
-            <Text style={styles.unitText}>calories</Text>
+            <Text style={styles.unitText}>grams</Text>
           </View>
           <Text style={styles.selectedText}>per day</Text>
         </View>
@@ -169,16 +155,16 @@ const ManualCalorieInputScreen = () => {
         <CalculatorInputAccessory
           accessibilityLabel="Save Goal"
           nativeID={inputAccessoryViewID}
-          isValid={calories >= 1000 && calories <= 5000}
+          isValid={protein >= 50 && protein <= 500}
           onContinue={handleSave}
           buttonText="Save Goal"
         />
       )}
     </SafeAreaView>
-  );
+  )
 };
 
-export default ManualCalorieInputScreen;
+export default ManualProteinInputScreen;
 
 const createStyles = (colors: any, themeObj: any) => {
   const { spacing, typography, components } = themeObj;
@@ -241,7 +227,7 @@ const createStyles = (colors: any, themeObj: any) => {
       color: colors.white,
       marginRight: spacing.sm,
     },
-    caloriesInput: {
+    proteinInput: {
       fontSize: 48,
       fontFamily: typography.Title1.fontFamily,
       color: colors.primaryText,

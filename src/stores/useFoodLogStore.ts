@@ -39,6 +39,10 @@ interface CalorieCalculationSelection {
   timestamp: number;
 }
 
+interface ProteinCalculatorParams {
+  bodyWeight: number;
+}
+
 interface FoodLogStore {
   // Data state
   foodLogs: FoodLog[];
@@ -64,6 +68,9 @@ interface FoodLogStore {
   // Calculator modal state
   calculatorParams: CalorieIntakeParams | null;
   calculatorActivityLevel: ActivityLevel | null;
+
+  // Protein calculator modal state
+  proteinCalculatorParams: ProteinCalculatorParams | null;
 
   // Data actions
   loadFoodLogs: () => Promise<void>;
@@ -123,6 +130,10 @@ interface FoodLogStore {
   setCalculatorParams: (params: CalorieIntakeParams) => void;
   setCalculatorActivityLevel: (level: ActivityLevel) => void;
   clearCalculatorData: () => void;
+
+  // Protein calculator modal actions
+  setProteinCalculatorParams: (params: ProteinCalculatorParams) => void;
+  clearProteinCalculatorData: () => void;
 }
 
 // Helper function to get today's date in ISO format (YYYY-MM-DD) in local timezone
@@ -175,6 +186,8 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   // Calculator modal initial state
   calculatorParams: null,
   calculatorActivityLevel: null,
+  // Protein calculator modal initial state
+  proteinCalculatorParams: null,
 
   // Data actions
   loadFoodLogs: async () => {
@@ -501,6 +514,14 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
     set({ calculatorParams: null, calculatorActivityLevel: null });
   },
 
+  // Protein calculator modal actions
+  setProteinCalculatorParams: (params: ProteinCalculatorParams) => {
+    set({ proteinCalculatorParams: params });
+  },
+  clearProteinCalculatorData: () => {
+    set({ proteinCalculatorParams: null });
+  },
+
   resetDailyTargets: async () => {
     const resetTargets: DailyTargets = {
       calories: 0,
@@ -527,7 +548,7 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
 }));
 
 // Export types for components that need them
-export type { ActionType, ProteinCalculationSelection };
+export type { ActionType, ProteinCalculationSelection, ProteinCalculatorParams };
 
 // Memoizable selectors for component-level subscription
 export const selectFoodLogs = (state: FoodLogStore) => state.foodLogs;
@@ -546,6 +567,8 @@ export const selectCalculatorParams = (state: FoodLogStore) =>
   state.calculatorParams;
 export const selectCalculatorActivityLevel = (state: FoodLogStore) =>
   state.calculatorActivityLevel;
+export const selectProteinCalculatorParams = (state: FoodLogStore) =>
+  state.proteinCalculatorParams;
 export const selectFilteredFoodLogs = (state: FoodLogStore) =>
   state.getFilteredFoodLogs();
 export const selectMonthlyFoodLogs = (state: FoodLogStore) =>
