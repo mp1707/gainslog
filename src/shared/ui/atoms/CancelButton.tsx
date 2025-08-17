@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet } from 'react-native';
-import { X } from 'phosphor-react-native';
+import { XIcon} from 'phosphor-react-native';
 import { useTheme } from '@/providers';
 
 interface CancelButtonProps {
@@ -24,7 +24,6 @@ export const CancelButton: React.FC<CancelButtonProps> = ({
       backgroundColor: 'transparent',
       justifyContent: 'center',
       alignItems: 'center',
-      // marginRight: theme.spacing.sm,
     },
     buttonPressed: {
       backgroundColor: colors.disabledBackground,
@@ -43,7 +42,7 @@ export const CancelButton: React.FC<CancelButtonProps> = ({
       accessibilityHint={accessibilityHint}
       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
     >
-      <X
+      <XIcon
         size={20}
         color={colors.secondaryText}
         weight="regular"

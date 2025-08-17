@@ -8,7 +8,7 @@ export default function CalculatorLayout() {
   const { colors } = useTheme();
 
   const handleCancel = () => {
-    router.replace("/settings");
+    router.dismissTo("/settings");
   };
 
   return (

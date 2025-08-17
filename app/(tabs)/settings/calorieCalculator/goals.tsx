@@ -94,7 +94,7 @@ export default function Step3GoalsScreen() {
       await saveCalorieCalculatorParams(calculatorParams);
 
       // Go back to close the modal and return to settings
-      router.replace("/settings");
+      router.dismissTo("/settings");
     } catch (error) {
       console.error("Error saving calorie target:", error);
       Alert.alert("Error", "Failed to save calorie target. Please try again.");
