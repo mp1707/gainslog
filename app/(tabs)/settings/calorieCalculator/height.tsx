@@ -1,7 +1,22 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { View, TouchableOpacity, Text, TextInput, Platform, StyleSheet, Alert } from "react-native";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
+import { InteractionManager } from "react-native";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
@@ -18,19 +33,28 @@ const HeightSelectionScreen = () => {
   const { calculatorParams, setCalculatorParams } = useFoodLogStore();
   const { safeNavigate, isNavigating } = useNavigationGuard();
 
+  const [height, setHeight] = useState<number>(calculatorParams?.height ?? 175);
+  const inputRef = useRef<TextInput>(null);
+
   const styles = useMemo(
     () => createStyles(colors, themeObj),
     [colors, themeObj]
   );
 
-  const [height, setHeight] = useState<number>(calculatorParams?.height ?? 175);
-
-  // Update height when store changes
   useEffect(() => {
     if (calculatorParams?.height !== undefined) {
       setHeight(calculatorParams.height);
     }
   }, [calculatorParams?.height]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const task = InteractionManager.runAfterInteractions(() => {
+        requestAnimationFrame(() => inputRef.current?.focus());
+      });
+      return () => task.cancel();
+    }, [])
+  );
 
   const handleHeightChange = (heightText: string) => {
     const newHeight = heightText === "" ? 0 : parseFloat(heightText);
@@ -84,6 +108,7 @@ const HeightSelectionScreen = () => {
         <View style={styles.inputSection}>
           <View style={styles.inputContainer}>
             <TextInput
+              ref={inputRef}
               value={height === 0 ? "" : height.toString()}
               onChangeText={handleHeightChange}
               placeholder="175"
@@ -91,11 +116,8 @@ const HeightSelectionScreen = () => {
               keyboardAppearance={colorScheme}
               style={styles.heightInput}
               accessibilityLabel="Height input"
-              accessibilityHint="Enter your height between 100 and 250 cm"
-              accessibilityRole="spinbutton"
               inputAccessoryViewID={inputAccessoryViewID}
               selectTextOnFocus
-              autoFocus
             />
             <Text style={styles.unitText}>cm</Text>
           </View>
@@ -103,30 +125,24 @@ const HeightSelectionScreen = () => {
 
         <View style={styles.spacer} />
 
-        <TouchableOpacity
-          style={styles.continueButton}
-          onPress={handleContinue}
-          disabled={isNavigating}
-          accessibilityRole="button"
-          accessibilityLabel="Continue to activity level selection"
-        >
-          <Text style={styles.continueButtonText}>
-            Continue
-          </Text>
-          <CaretRightIcon
-            size={20}
-            color={colors.white}
-          />
-        </TouchableOpacity>
+        {Platform.OS === "android" && (
+          <TouchableOpacity
+            style={styles.continueButton}
+            onPress={handleContinue}
+            disabled={isNavigating}
+          >
+            <Text style={styles.continueButtonText}>Continue</Text>
+            <CaretRightIcon size={20} color={colors.white} />
+          </TouchableOpacity>
+        )}
       </View>
 
-      {/* Input Accessory View - iOS only */}
-      {Platform.OS === 'ios' && (
+      {Platform.OS === "ios" && (
         <CalculatorInputAccessory
+          accessibilityLabel="Continue"
           nativeID={inputAccessoryViewID}
-          isValid={true}
+          isValid={height >= 100 && height <= 250}
           onContinue={handleContinue}
-          accessibilityLabel="Continue to activity level selection"
         />
       )}
     </SafeAreaView>
@@ -135,28 +151,17 @@ const HeightSelectionScreen = () => {
 
 export default HeightSelectionScreen;
 
-type Colors = ReturnType<typeof useTheme>["colors"];
-type Theme = ReturnType<typeof useTheme>["theme"];
-
-const createStyles = (colors: Colors, themeObj: Theme) => {
+const createStyles = (colors: any, themeObj: any) => {
   const { spacing, typography, components } = themeObj;
-
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.primaryBackground,
-    },
+    container: { flex: 1, backgroundColor: colors.primaryBackground },
+    progressContainer: { padding: spacing.md },
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
-      justifyContent: "flex-start",
-      alignItems: "stretch",
       gap: spacing.xxl,
     },
-    textSection: {
-      paddingTop: spacing.lg,
-      gap: spacing.sm,
-    },
+    textSection: { paddingTop: spacing.lg, gap: spacing.sm },
     subtitle: {
       fontSize: typography.Title2.fontSize,
       fontFamily: typography.Title2.fontFamily,
@@ -168,11 +173,8 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
       textAlign: "center",
-      lineHeight: 22,
     },
-    inputSection: {
-      alignItems: "center",
-    },
+    inputSection: { alignItems: "center" },
     inputContainer: {
       flexDirection: "row",
       alignItems: "baseline",
@@ -184,13 +186,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       color: colors.secondaryText,
       marginLeft: spacing.sm,
     },
-    spacer: {
-      flex: 1,
-      minHeight: 64,
-    },
-    progressContainer: {
-      padding: spacing.md,
-    },
+    spacer: { flex: 1 },
     continueButton: {
       backgroundColor: colors.accent,
       borderRadius: components.buttons.cornerRadius,
@@ -207,7 +203,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontSize: typography.Headline.fontSize,
       fontFamily: typography.Headline.fontFamily,
       color: colors.white,
-      fontWeight: "600",
       marginRight: spacing.sm,
     },
     heightInput: {
@@ -215,11 +210,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontFamily: typography.Title1.fontFamily,
       color: colors.primaryText,
       textAlign: "center",
-      minWidth: 120,
-      backgroundColor: "transparent",
-      borderWidth: 0,
-      padding: 0,
-      margin: 0,
+      minWidth: 100,
     },
   });
 };
