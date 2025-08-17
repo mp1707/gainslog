@@ -49,7 +49,11 @@ const AgeSelectionScreen = () => {
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
-        requestAnimationFrame(() => inputRef.current?.focus());
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            inputRef.current?.focus();
+          }, 600);
+        });
       });
       return () => task.cancel();
     }, [])

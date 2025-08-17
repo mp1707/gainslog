@@ -7,7 +7,6 @@ import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import { CalculatorInputAccessory } from "@/shared/ui";
 import { saveCalorieCalculatorParams } from "@/lib/storage";
 

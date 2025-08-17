@@ -1,9 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import {
-  View,
-  TouchableOpacity,
-  Text,
-} from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { GenderMaleIcon, GenderFemaleIcon } from "phosphor-react-native";
@@ -88,23 +84,23 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
     }
   }, [calculatorParams]);
 
-  const handleSexSelect = useCallback(async (sex: Sex) => {
-    setSelectedSex(sex);
-    const newParams = { 
-      ...stableInitialParams, 
-      ...localParams, 
-      sex 
-    };
-    setLocalParams(newParams);
-    setCalculatorParams(newParams);
+  const handleSexSelect = useCallback(
+    async (sex: Sex) => {
+      setSelectedSex(sex);
+      const newParams = {
+        ...stableInitialParams,
+        ...localParams,
+        sex,
+      };
+      setLocalParams(newParams);
+      setCalculatorParams(newParams);
 
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-    // Auto-advance to next screen after a short delay for visual feedback
-    setTimeout(() => {
       safeNavigate({ route: "/settings/calorieCalculator/age" });
-    }, 300);
-  }, [stableInitialParams, localParams, setCalculatorParams, safeNavigate]);
+    },
+    [stableInitialParams, localParams, setCalculatorParams, safeNavigate]
+  );
 
   const handleManualInput = useCallback(async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
