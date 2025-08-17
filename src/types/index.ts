@@ -59,6 +59,10 @@ export interface CalorieIntakeParams {
   height: number; // centimeters
 }
 
+export interface FatCalculatorParams {
+  fatPercentage: number; // percentage of total calories
+}
+
 export interface CalorieGoals {
   loseWeight: number;
   maintainWeight: number;

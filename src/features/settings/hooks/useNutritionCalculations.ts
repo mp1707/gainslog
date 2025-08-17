@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import {
   calculateMacrosFromProtein,
@@ -10,10 +10,18 @@ export const useNutritionCalculations = () => {
   const {
     dailyTargets,
     updateDailyTargetsDebounced,
+    fatCalculatorParams,
+    setFatCalculatorParams,
+    loadFatCalculatorParams,
   } = useFoodLogStore();
 
-  // Fat percentage state for new flow
-  const [fatPercentage, setFatPercentage] = useState(30);
+  // Load fat calculator params on mount
+  useEffect(() => {
+    loadFatCalculatorParams();
+  }, [loadFatCalculatorParams]);
+
+  // Get fat percentage from store with fallback
+  const fatPercentage = fatCalculatorParams?.fatPercentage ?? 30;
 
   // Flow state logic
   const isCaloriesSet = dailyTargets.calories > 0;
@@ -40,7 +48,7 @@ export const useNutritionCalculations = () => {
         currentTargets.calories,
         value
       );
-      setFatPercentage(calculated.fatPercentage);
+      setFatCalculatorParams({ fatPercentage: calculated.fatPercentage });
       newTargets = {
         ...newTargets,
         fat: calculated.fat,
@@ -80,7 +88,7 @@ export const useNutritionCalculations = () => {
   };
 
   const handleFatPercentageChange = (newPercentage: number) => {
-    setFatPercentage(newPercentage);
+    setFatCalculatorParams({ fatPercentage: newPercentage });
     const newFatGrams = calculateFatGramsFromPercentage(
       dailyTargets.calories,
       newPercentage
@@ -105,6 +113,5 @@ export const useNutritionCalculations = () => {
     isProteinSet,
     handleTargetChange,
     handleFatPercentageChange,
-    setFatPercentage,
   };
 };

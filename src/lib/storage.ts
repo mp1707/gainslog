@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FoodLog, DailyTargets, FavoriteEntry } from "../types";
-import type { CalorieIntakeParams, Sex } from "@/types";
+import type { CalorieIntakeParams, FatCalculatorParams, Sex } from "@/types";
 
 // Centralized, typed storage keys to avoid typos and ease migrations
 export const storageKeys = {
@@ -8,6 +8,7 @@ export const storageKeys = {
   DAILY_TARGETS: "daily_targets",
   COLOR_SCHEME: "color_scheme",
   CALORIE_CALCULATOR_PARAMS: "calorie_calculator_params",
+  FAT_CALCULATOR_PARAMS: "fat_calculator_params",
   FAVORITE_ENTRIES: "favorite_entries",
 } as const;
 
@@ -15,6 +16,7 @@ const FOOD_LOGS_KEY = storageKeys.FOOD_LOGS;
 const DAILY_TARGETS_KEY = storageKeys.DAILY_TARGETS;
 const COLOR_SCHEME_KEY = storageKeys.COLOR_SCHEME;
 const CALORIE_CALCULATOR_PARAMS_KEY = storageKeys.CALORIE_CALCULATOR_PARAMS;
+const FAT_CALCULATOR_PARAMS_KEY = storageKeys.FAT_CALCULATOR_PARAMS;
 const FAVORITE_ENTRIES_KEY = storageKeys.FAVORITE_ENTRIES;
 
 /**
@@ -214,6 +216,44 @@ export const getCalorieCalculatorParams =
       return DEFAULT_CALORIE_CALCULATOR_PARAMS;
     }
   };
+
+// Default fat calculator parameters
+const DEFAULT_FAT_CALCULATOR_PARAMS: FatCalculatorParams = {
+  fatPercentage: 30,
+};
+
+/**
+ * Save fat calculator parameters to AsyncStorage
+ */
+export const saveFatCalculatorParams = async (
+  params: FatCalculatorParams
+): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(
+      FAT_CALCULATOR_PARAMS_KEY,
+      JSON.stringify(params)
+    );
+  } catch (error) {
+    console.error("Error saving fat calculator params:", error);
+    throw new Error("Failed to save fat calculator params");
+  }
+};
+
+/**
+ * Get fat calculator parameters from AsyncStorage
+ */
+export const getFatCalculatorParams = async (): Promise<FatCalculatorParams> => {
+  try {
+    const paramsJson = await AsyncStorage.getItem(FAT_CALCULATOR_PARAMS_KEY);
+    if (!paramsJson) {
+      return DEFAULT_FAT_CALCULATOR_PARAMS;
+    }
+    return JSON.parse(paramsJson) as FatCalculatorParams;
+  } catch (error) {
+    console.error("Error getting fat calculator params:", error);
+    return DEFAULT_FAT_CALCULATOR_PARAMS;
+  }
+};
 
 /**
  * Save protein calculator body weight to AsyncStorage

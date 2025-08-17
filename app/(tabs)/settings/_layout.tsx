@@ -63,6 +63,13 @@ export default function SettingsLayout() {
           presentation: "modal",
         }}
       />
+      <Stack.Screen
+        name="fatCalculator"
+        options={{
+          headerShown: false,
+          presentation: "modal",
+        }}
+      />
     </Stack>
   );
 }

@@ -214,7 +214,7 @@ export default function SettingsTab() {
                   styles.settingCardWithBorder,
                   { opacity: fatEnabled ? 1 : 0.5 },
                 ]}
-                onPress={() => safeNavigate("/settings/fat")}
+                onPress={() => safeNavigate("/settings/fatCalculator/editFat")}
                 disabled={!fatEnabled || isNavigating}
                 accessibilityRole="button"
                 accessibilityLabel="Fat setting"

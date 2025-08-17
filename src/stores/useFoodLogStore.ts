@@ -7,6 +7,7 @@ import type {
   ProteinCalculationMethod,
   CalorieCalculationMethod,
   CalorieIntakeParams,
+  FatCalculatorParams,
   ActivityLevel,
   GoalType,
 } from "@/types";
@@ -18,6 +19,9 @@ import {
   deleteFoodLog,
   getDailyTargets,
   saveDailyTargets,
+  saveCalorieCalculatorParams,
+  getFatCalculatorParams,
+  saveFatCalculatorParams,
 } from "@/lib/storage";
 import { calculateMacrosFromProtein } from "@/utils/nutritionCalculations";
 
@@ -71,6 +75,9 @@ interface FoodLogStore {
 
   // Protein calculator modal state
   proteinCalculatorParams: ProteinCalculatorParams | null;
+
+  // Fat calculator modal state
+  fatCalculatorParams: FatCalculatorParams | null;
 
   // Data actions
   loadFoodLogs: () => Promise<void>;
@@ -127,13 +134,17 @@ interface FoodLogStore {
   clearCalorieCalculation: () => void;
 
   // Calculator modal actions
-  setCalculatorParams: (params: CalorieIntakeParams) => void;
+  setCalculatorParams: (params: CalorieIntakeParams) => Promise<void>;
   setCalculatorActivityLevel: (level: ActivityLevel) => void;
   clearCalculatorData: () => void;
 
   // Protein calculator modal actions
   setProteinCalculatorParams: (params: ProteinCalculatorParams) => void;
   clearProteinCalculatorData: () => void;
+
+  // Fat calculator modal actions
+  setFatCalculatorParams: (params: FatCalculatorParams) => Promise<void>;
+  loadFatCalculatorParams: () => Promise<void>;
 }
 
 // Helper function to get today's date in ISO format (YYYY-MM-DD) in local timezone
@@ -188,6 +199,8 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   calculatorActivityLevel: null,
   // Protein calculator modal initial state
   proteinCalculatorParams: null,
+  // Fat calculator modal initial state
+  fatCalculatorParams: null,
 
   // Data actions
   loadFoodLogs: async () => {
@@ -502,8 +515,13 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   },
 
   // Calculator modal actions
-  setCalculatorParams: (params: CalorieIntakeParams) => {
+  setCalculatorParams: async (params: CalorieIntakeParams) => {
     set({ calculatorParams: params });
+    try {
+      await saveCalorieCalculatorParams(params);
+    } catch (error) {
+      console.error("Error saving calorie calculator params:", error);
+    }
   },
 
   setCalculatorActivityLevel: (level: ActivityLevel) => {
@@ -520,6 +538,25 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   },
   clearProteinCalculatorData: () => {
     set({ proteinCalculatorParams: null });
+  },
+
+  // Fat calculator modal actions
+  setFatCalculatorParams: async (params: FatCalculatorParams) => {
+    set({ fatCalculatorParams: params });
+    try {
+      await saveFatCalculatorParams(params);
+    } catch (error) {
+      console.error("Error saving fat calculator params:", error);
+    }
+  },
+
+  loadFatCalculatorParams: async () => {
+    try {
+      const params = await getFatCalculatorParams();
+      set({ fatCalculatorParams: params });
+    } catch (error) {
+      console.error("Error loading fat calculator params:", error);
+    }
   },
 
   resetDailyTargets: async () => {
