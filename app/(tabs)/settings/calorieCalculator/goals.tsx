@@ -156,9 +156,10 @@ export default function Step3GoalsScreen() {
               iconColor={colors.error}
               isSelected={selectedGoal === "lose"}
               onSelect={() => handleGoalSelect("lose")}
-              content={{
-                type: "single-calorie",
-                calories: calorieGoals.loseWeight,
+              dailyTarget={{
+                value: calorieGoals.loseWeight,
+                unit: "kcal",
+                label: "Daily Target",
               }}
               accessibilityLabel="Lose Weight goal"
               accessibilityHint={`Set ${calorieGoals.loseWeight} calories as your daily goal to create a calorie deficit to lose weight gradually`}
@@ -171,9 +172,10 @@ export default function Step3GoalsScreen() {
               iconColor={colors.success}
               isSelected={selectedGoal === "maintain"}
               onSelect={() => handleGoalSelect("maintain")}
-              content={{
-                type: "single-calorie",
-                calories: calorieGoals.maintainWeight,
+              dailyTarget={{
+                value: calorieGoals.maintainWeight,
+                unit: "kcal",
+                label: "Daily Target",
               }}
               accessibilityLabel="Maintain Weight goal"
               accessibilityHint={`Set ${calorieGoals.maintainWeight} calories as your daily goal to eat at maintenance calories to stay at current weight`}
@@ -186,9 +188,10 @@ export default function Step3GoalsScreen() {
               iconColor={colors.semantic.protein}
               isSelected={selectedGoal === "gain"}
               onSelect={() => handleGoalSelect("gain")}
-              content={{
-                type: "single-calorie",
-                calories: calorieGoals.gainWeight,
+              dailyTarget={{
+                value: calorieGoals.gainWeight,
+                unit: "kcal",
+                label: "Daily Target",
               }}
               accessibilityLabel="Gain Weight goal"
               accessibilityHint={`Set ${calorieGoals.gainWeight} calories as your daily goal to create a calorie surplus to gain weight gradually`}

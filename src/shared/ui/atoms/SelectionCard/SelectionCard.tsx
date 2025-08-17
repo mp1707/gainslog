@@ -12,7 +12,6 @@ import type { Icon } from "phosphor-react-native";
 
 import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./SelectionCard.styles";
-import type { CalorieGoals } from "@/types";
 
 export interface SelectionCardProps {
   // Core functionality
@@ -26,11 +25,10 @@ export interface SelectionCardProps {
   iconColor: string;
 
   // Optional content section
-  content?: {
-    type: "single-calorie" | "multiple-calories";
-    calories?: number;
-    calorieGoals?: CalorieGoals;
-    showAllGoals?: boolean;
+  dailyTarget?: {
+    value: number;
+    unit: string;
+    label: string;
   };
 
   // Accessibility
@@ -46,15 +44,12 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
   description,
   icon,
   iconColor,
-  content,
+  dailyTarget,
   accessibilityLabel,
   accessibilityHint,
 }) => {
   const { colors, colorScheme } = useTheme();
   const styles = createStyles(colors, colorScheme);
-
-  // Determine if this is a simple or complex layout
-  const isSimpleLayout = !content && icon;
 
   // Press animation shared values
   const pressScale = useSharedValue(1);
@@ -97,112 +92,43 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
     >
       <Animated.View
         style={[
-          isSimpleLayout ? styles.simpleCard : styles.complexCard,
+          styles.card,
           isSelected && styles.selectedCard,
           pressAnimatedStyle,
         ]}
       >
-        {isSimpleLayout ? (
-          // Simple layout: icon container + text
-          <>
-            <View style={styles.simpleIconContainer}>
-              <IconComponent size={32} color={finalIconColor} />
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <View style={styles.iconContainer}>
+              <IconComponent size={24} color={finalIconColor} />
             </View>
-            <View style={styles.simpleTextContainer}>
+            <View style={styles.textContainer}>
               <Text
-                style={[styles.simpleTitle, isSelected && styles.selectedTitle]}
+                style={[
+                  styles.title,
+                  isSelected && styles.selectedTitle,
+                ]}
               >
                 {title}
               </Text>
+              <Text style={styles.description}>{description}</Text>
+            </View>
+          </View>
+
+          {dailyTarget && (
+            <View style={styles.targetSection}>
+              <Text style={styles.targetLabel}>{dailyTarget.label}:</Text>
               <Text
                 style={[
-                  styles.simpleDescription,
-                  isSelected && styles.selectedDescription,
+                  styles.targetValue,
+                  isSelected && styles.selectedTargetValue,
                 ]}
               >
-                {description}
+                {dailyTarget.value} {dailyTarget.unit}
               </Text>
             </View>
-          </>
-        ) : (
-          // Complex layout: header + optional content
-          <View style={styles.complexContent}>
-            <View style={styles.complexHeader}>
-              <View style={styles.complexIconContainer}>
-                <IconComponent size={24} color={finalIconColor} />
-              </View>
-              <View style={styles.complexTextContainer}>
-                <Text
-                  style={[
-                    styles.complexTitle,
-                    isSelected && styles.selectedTitle,
-                  ]}
-                >
-                  {title}
-                </Text>
-                <Text style={styles.complexDescription}>{description}</Text>
-              </View>
-            </View>
-
-            {content && (
-              <View style={styles.contentSection}>
-                {content.type === "single-calorie" && content.calories && (
-                  <View style={styles.singleCalorieContainer}>
-                    <Text style={styles.calorieLabel}>Daily Target:</Text>
-                    <Text
-                      style={[
-                        styles.calorieValue,
-                        isSelected && styles.selectedCalorieValue,
-                      ]}
-                    >
-                      {content.calories} kcal
-                    </Text>
-                  </View>
-                )}
-
-                {content.type === "multiple-calories" &&
-                  content.calorieGoals &&
-                  content.showAllGoals && (
-                    <View style={styles.multipleCaloriesContainer}>
-                      <View style={styles.calorieRow}>
-                        <Text style={styles.calorieLabel}>Lose:</Text>
-                        <Text
-                          style={[
-                            styles.calorieValue,
-                            isSelected && styles.selectedCalorieValue,
-                          ]}
-                        >
-                          {content.calorieGoals.loseWeight} kcal
-                        </Text>
-                      </View>
-                      <View style={styles.calorieRow}>
-                        <Text style={styles.calorieLabel}>Maintain:</Text>
-                        <Text
-                          style={[
-                            styles.calorieValue,
-                            isSelected && styles.selectedCalorieValue,
-                          ]}
-                        >
-                          {content.calorieGoals.maintainWeight} kcal
-                        </Text>
-                      </View>
-                      <View style={styles.calorieRow}>
-                        <Text style={styles.calorieLabel}>Gain:</Text>
-                        <Text
-                          style={[
-                            styles.calorieValue,
-                            isSelected && styles.selectedCalorieValue,
-                          ]}
-                        >
-                          {content.calorieGoals.gainWeight} kcal
-                        </Text>
-                      </View>
-                    </View>
-                  )}
-              </View>
-            )}
-          </View>
-        )}
+          )}
+        </View>
       </Animated.View>
     </Pressable>
   );
