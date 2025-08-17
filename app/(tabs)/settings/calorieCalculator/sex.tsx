@@ -161,21 +161,6 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
               accessibilityHint="This will help calculate your calorie needs and advance to the next step"
             />
           </View>
-
-          {/* Separator */}
-          <View style={styles.separator} />
-
-          {/* Manual Input Option */}
-          <TouchableOpacity
-            style={styles.manualInputButton}
-            onPress={handleManualInput}
-            disabled={isNavigating}
-            accessibilityRole="button"
-            accessibilityLabel="Enter your own calorie value"
-            accessibilityHint="Skip the calculator and enter your daily calorie goal manually"
-          >
-            <Text style={styles.manualInputText}>Enter own value</Text>
-          </TouchableOpacity>
         </View>
 
         {/* Spacer to push content up and provide consistent spacing */}

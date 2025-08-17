@@ -1,6 +1,22 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { View, TouchableOpacity, Text, TextInput, Platform, StyleSheet, Alert } from "react-native";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
+import { InteractionManager } from "react-native";
 import { router } from "expo-router";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
@@ -8,6 +24,7 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { CalculatorInputAccessory } from "@/shared/ui";
+import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
 import { saveCalorieCalculatorParams } from "@/lib/storage";
 
 const inputAccessoryViewID = "calories-input-accessory";
@@ -15,22 +32,36 @@ const inputAccessoryViewID = "calories-input-accessory";
 const ManualCalorieInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const { dailyTargets, updateDailyTargets, calculatorParams, clearCalculatorData } = useFoodLogStore();
+  const { safeNavigate, isNavigating } = useNavigationGuard();
+
+  const [calories, setCalories] = useState<number>(
+    (dailyTargets?.calories && dailyTargets.calories > 0) ? dailyTargets.calories : 2000
+  );
+  const inputRef = useRef<TextInput>(null);
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
     [colors, themeObj]
   );
 
-  const [calories, setCalories] = useState<number>(
-    (dailyTargets?.calories && dailyTargets.calories > 0) ? dailyTargets.calories : 2000
-  );
-
-  // Update calories when store changes
   useEffect(() => {
     if (dailyTargets?.calories && dailyTargets.calories > 0) {
       setCalories(dailyTargets.calories);
     }
   }, [dailyTargets?.calories]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const task = InteractionManager.runAfterInteractions(() => {
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            inputRef.current?.focus();
+          }, 600);
+        });
+      });
+      return () => task.cancel();
+    }, [])
+  );
 
   const handleCaloriesChange = (caloriesText: string) => {
     const newCalories = caloriesText === "" ? 0 : parseInt(caloriesText, 10);
@@ -73,7 +104,7 @@ const ManualCalorieInputScreen = () => {
       }
       
       clearCalculatorData();
-      router.replace("/settings");
+      safeNavigate({ route: "/settings", replace: true });
     } catch (error) {
       console.error("Error saving manual calorie target:", error);
       Alert.alert(
@@ -96,6 +127,7 @@ const ManualCalorieInputScreen = () => {
         <View style={styles.inputSection}>
           <View style={styles.inputContainer}>
             <TextInput
+              ref={inputRef}
               value={calories === 0 ? "" : calories.toString()}
               onChangeText={handleCaloriesChange}
               placeholder="2000"
@@ -103,11 +135,8 @@ const ManualCalorieInputScreen = () => {
               keyboardAppearance={colorScheme}
               style={styles.caloriesInput}
               accessibilityLabel="Calorie input"
-              accessibilityHint="Enter your daily calorie goal between 1000 and 5000"
-              accessibilityRole="spinbutton"
               inputAccessoryViewID={inputAccessoryViewID}
               selectTextOnFocus
-              autoFocus
             />
             <Text style={styles.unitText}>calories</Text>
           </View>
@@ -116,30 +145,25 @@ const ManualCalorieInputScreen = () => {
 
         <View style={styles.spacer} />
 
-        <TouchableOpacity
-          style={styles.continueButton}
-          onPress={handleSave}
-          accessibilityRole="button"
-          accessibilityLabel="Save calorie goal and finish setup"
-        >
-          <Text style={styles.continueButtonText}>
-            Save Goal
-          </Text>
-          <CaretRightIcon
-            size={20}
-            color={colors.white}
-          />
-        </TouchableOpacity>
+        {Platform.OS === "android" && (
+          <TouchableOpacity
+            style={styles.continueButton}
+            onPress={handleSave}
+            disabled={isNavigating}
+          >
+            <Text style={styles.continueButtonText}>Save Goal</Text>
+            <CaretRightIcon size={20} color={colors.white} />
+          </TouchableOpacity>
+        )}
       </View>
 
-      {/* Input Accessory View - iOS only */}
-      {Platform.OS === 'ios' && (
+      {Platform.OS === "ios" && (
         <CalculatorInputAccessory
+          accessibilityLabel="Save Goal"
           nativeID={inputAccessoryViewID}
-          isValid={true}
+          isValid={calories >= 1000 && calories <= 5000}
           onContinue={handleSave}
           buttonText="Save Goal"
-          accessibilityLabel="Save calorie goal and finish setup"
         />
       )}
     </SafeAreaView>
@@ -148,28 +172,16 @@ const ManualCalorieInputScreen = () => {
 
 export default ManualCalorieInputScreen;
 
-type Colors = ReturnType<typeof useTheme>["colors"];
-type Theme = ReturnType<typeof useTheme>["theme"];
-
-const createStyles = (colors: Colors, themeObj: Theme) => {
+const createStyles = (colors: any, themeObj: any) => {
   const { spacing, typography, components } = themeObj;
-
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.primaryBackground,
-    },
+    container: { flex: 1, backgroundColor: colors.primaryBackground },
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
-      justifyContent: "flex-start",
-      alignItems: "stretch",
       gap: spacing.xxl,
     },
-    textSection: {
-      paddingTop: spacing.lg,
-      gap: spacing.sm,
-    },
+    textSection: { paddingTop: spacing.lg, gap: spacing.sm },
     subtitle: {
       fontSize: typography.Title2.fontSize,
       fontFamily: typography.Title2.fontFamily,
@@ -181,11 +193,8 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
       textAlign: "center",
-      lineHeight: 22,
     },
-    inputSection: {
-      alignItems: "center",
-    },
+    inputSection: { alignItems: "center" },
     inputContainer: {
       flexDirection: "row",
       alignItems: "baseline",
@@ -205,13 +214,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontWeight: "600",
       marginTop: spacing.md,
     },
-    spacer: {
-      flex: 1,
-      minHeight: 64,
-    },
-    progressContainer: {
-      padding: spacing.md,
-    },
+    spacer: { flex: 1 },
     continueButton: {
       backgroundColor: colors.accent,
       borderRadius: components.buttons.cornerRadius,
@@ -228,7 +231,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontSize: typography.Headline.fontSize,
       fontFamily: typography.Headline.fontFamily,
       color: colors.white,
-      fontWeight: "600",
       marginRight: spacing.sm,
     },
     caloriesInput: {
@@ -236,11 +238,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontFamily: typography.Title1.fontFamily,
       color: colors.primaryText,
       textAlign: "center",
-      minWidth: 120,
-      backgroundColor: "transparent",
-      borderWidth: 0,
-      padding: 0,
-      margin: 0,
+      minWidth: 100,
     },
   });
 };
