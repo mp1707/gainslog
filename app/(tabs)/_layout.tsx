@@ -4,25 +4,48 @@ import {
   ForkKnifeIcon,
   GearSixIcon,
   StarIcon,
+  PlusIcon,
+  XIcon,
 } from "phosphor-react-native";
 import { useTheme } from "@/providers";
-import React from "react";
+import { NewLogButton } from "@/shared/ui/organisms/NewLogButton";
+import { useFoodLogStore } from "@/stores/useFoodLogStore";
+import React, { useState, useCallback } from "react";
 
 export default function TabLayout() {
   const { colors } = useTheme();
+  const [isSheetVisible, setSheetVisible] = useState(false);
+  const [isFavoritesModalVisible, setFavoritesModalVisible] = useState(false);
+
+  const openSheet = useCallback(() => {
+    setSheetVisible(true);
+  }, []);
+
+  const closeSheet = useCallback(() => {
+    setSheetVisible(false);
+  }, []);
+
+  const handleFavoritesLog = useCallback(() => {
+    setFavoritesModalVisible(true);
+  }, []);
+
+  const handleCloseFavoritesModal = useCallback(() => {
+    setFavoritesModalVisible(false);
+  }, []);
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: colors.secondaryText,
-        tabBarStyle: {
-          backgroundColor: colors.primaryBackground,
-          borderTopColor: colors.border,
-        },
-      }}
-    >
+    <>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: colors.accent,
+          tabBarInactiveTintColor: colors.secondaryText,
+          tabBarStyle: {
+            backgroundColor: colors.primaryBackground,
+            borderTopColor: colors.border,
+          },
+        }}
+      >
       <Tabs.Screen
         name="index"
         options={{
@@ -76,6 +99,44 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="new-log"
+        options={{
+          title: "New",
+          tabBarIcon: ({ color, size }) => (
+            isSheetVisible ? (
+              <XIcon
+                color={color}
+                size={size ?? 24}
+                weight="bold"
+              />
+            ) : (
+              <PlusIcon
+                color={color}
+                size={size ?? 24}
+                weight="bold"
+              />
+            )
+          ),
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault(); // Prevent navigation
+            if (isSheetVisible) {
+              closeSheet();
+            } else {
+              openSheet();
+            }
+          },
+        }}
+      />
     </Tabs>
+    
+    <NewLogButton 
+      visible={isSheetVisible} 
+      onClose={closeSheet} 
+      onFavoritesLog={handleFavoritesLog} 
+    />
+  </>
   );
 }

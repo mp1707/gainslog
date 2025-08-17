@@ -1,7 +1,6 @@
 import React, { useRef, useMemo, useCallback } from "react";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ExpandableFAB } from "@/shared/ui";
 import { FoodLog } from "@/types";
 import { createStyles } from "./FoodLogScreen.styles";
 import {
@@ -38,16 +37,6 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   const foodLogs = useFoodLogStore(selectFoodLogs);
   const dailyTargets = useFoodLogStore(selectDailyTargets);
 
-  const triggerManualLog = useFoodLogStore((state) => state.triggerManualLog);
-  const triggerCameraCapture = useFoodLogStore(
-    (state) => state.triggerCameraCapture
-  );
-  const triggerLibraryCapture = useFoodLogStore(
-    (state) => state.triggerLibraryCapture
-  );
-  const triggerAudioCapture = useFoodLogStore(
-    (state) => state.triggerAudioCapture
-  );
 
   const { colors } = useTheme();
   const { dynamicBottomPadding } = useTabBarSpacing();
@@ -110,23 +99,6 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   const [isFavoritesModalVisible, setFavoritesModalVisible] =
     React.useState(false);
 
-  // Memoized event handlers to prevent child re-renders
-  const handleManualLog = useCallback(() => {
-    triggerManualLog();
-  }, [triggerManualLog]);
-
-  const handleCameraLog = useCallback(() => {
-    triggerCameraCapture();
-  }, [triggerCameraCapture]);
-
-  const handleLibraryLog = useCallback(() => {
-    triggerLibraryCapture();
-  }, [triggerLibraryCapture]);
-
-  const handleAudioLog = useCallback(() => {
-    triggerAudioCapture();
-  }, [triggerAudioCapture]);
-
   const handleFavoritesLog = useCallback(() => {
     setFavoritesModalVisible(true);
   }, []);
@@ -180,13 +152,6 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         />
       </ScrollView>
 
-      <ExpandableFAB
-        onManualLog={handleManualLog}
-        onCameraLog={handleCameraLog}
-        onLibraryLog={handleLibraryLog}
-        onAudioLog={handleAudioLog}
-        onFavoritesLog={handleFavoritesLog}
-      />
 
       <FavoritesPickerModal
         visible={isFavoritesModalVisible}
