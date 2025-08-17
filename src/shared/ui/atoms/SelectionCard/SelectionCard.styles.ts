@@ -13,7 +13,6 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
       borderWidth: 2,
       borderColor: colors.border,
       padding: spacing.lg,
-      marginBottom: spacing.md,
       flexDirection: "row",
       alignItems: "center",
       minHeight: 100,
@@ -26,7 +25,6 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
       borderWidth: 2,
       borderColor: "transparent",
       padding: spacing.md,
-      marginBottom: spacing.md,
     },
 
     // Selected state

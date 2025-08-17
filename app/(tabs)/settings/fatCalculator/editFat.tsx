@@ -1,10 +1,11 @@
 import React, { useMemo, useCallback } from "react";
-import {
-  View,
-  Text,
-} from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { PencilIcon } from "phosphor-react-native";
+import {
+  FireIcon,
+  LightningIcon,
+  PencilSimpleIcon,
+} from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
@@ -16,26 +17,56 @@ import {
   calculateFatGramsFromPercentage,
   calculateMaxFatPercentage,
 } from "@/utils/nutritionCalculations";
-import { StyleSheet } from "react-native";
+import type { ColorScheme, Theme } from "@/theme";
+
+// GuidelineRow Component: No changes needed here, as it inherits styles from the parent.
+const GuidelineRow = ({
+  label,
+  range,
+  description,
+  Icon,
+}: {
+  label: string;
+  range: string;
+  description: string;
+  Icon: React.ElementType;
+}) => {
+  const { colors, theme, colorScheme } = useTheme();
+  const styles = createStyles(colors, theme, colorScheme);
+
+  return (
+    <View style={styles.guidelineRow}>
+      <Icon size={24} color={colors.secondaryText} weight={"regular"} />
+      <View style={styles.guidelineTextContainer}>
+        <Text style={styles.guidelineLabel}>
+          {label} ({range})
+        </Text>
+        <Text style={styles.guidelineDescription}>{description}</Text>
+      </View>
+    </View>
+  );
+};
 
 const EditFatScreen = React.memo(function EditFatScreen() {
-  const { colors, theme: themeObj } = useTheme();
+  const { colors, theme: themeObj, colorScheme } = useTheme();
   const { dailyTargets } = useFoodLogStore();
   const { safeReplace } = useNavigationGuard();
   const { fatPercentage } = useNutritionCalculations();
 
   const styles = useMemo(
-    () => createStyles(colors, themeObj),
-    [colors, themeObj]
+    () => createStyles(colors, themeObj, colorScheme),
+    [colors, themeObj, colorScheme]
   );
 
-  const fatGrams = calculateFatGramsFromPercentage(
-    dailyTargets.calories,
-    fatPercentage
+  const fatGrams = useMemo(
+    () => calculateFatGramsFromPercentage(dailyTargets.calories, fatPercentage),
+    [dailyTargets.calories, fatPercentage]
   );
-  const maxFatPercentage = calculateMaxFatPercentage(
-    dailyTargets.calories,
-    dailyTargets.protein
+
+  const maxFatPercentage = useMemo(
+    () =>
+      calculateMaxFatPercentage(dailyTargets.calories, dailyTargets.protein),
+    [dailyTargets.calories, dailyTargets.protein]
   );
 
   const handleEditCurrent = useCallback(async () => {
@@ -44,45 +75,60 @@ const EditFatScreen = React.memo(function EditFatScreen() {
   }, [safeReplace]);
 
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right"]}>
-      {/* Content */}
-      <View style={styles.content}>
+    <SafeAreaView style={styles.container} edges={["left", "right", "bottom"]}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Fat Target</Text>
           <Text style={styles.description}>
-            Your current target is {Math.round(fatGrams)}g fat ({fatPercentage}% of total calories).
-          </Text>
-          <Text style={styles.educationalText}>
-            Fat is essential for hormone production, nutrient absorption, and long-term energy storage.
-            {"\n\n"}
-            Scientifically based guideline: 25-35% of total daily calories from fat.
-            {"\n\n"}
-            • Muscle gain: 25-30% (leaves more calories for performance-enhancing carbohydrates)
-            {"\n"}
-            • Fat loss: 30-35% (fat supports satiety and hormone production during calorie deficit)
-            {"\n\n"}
-            Maximum allowed based on your protein and calories: {Math.round(maxFatPercentage)}%
+            Your current target is {Math.round(fatGrams)}g ({fatPercentage}% of
+            calories).
           </Text>
         </View>
+{/* Interactive Card Section */}
+<SelectionCard
+          title="Edit Current Value"
+          description="Manually adjust your fat target"
+          icon={PencilSimpleIcon}
+          iconColor={colors.accent}
+          isSelected={false}
+          onSelect={handleEditCurrent}
+          accessibilityLabel="Edit current fat value manually"
+          accessibilityHint="Opens a screen to manually input your fat percentage"
+        />
+        {/* Informational Card */}
+        <View style={styles.infoCard}>
+          <Text style={styles.cardHeader}>
+            Fat is essential for hormone production, nutrient absorption, and
+            long-term energy storage.
+          </Text>
 
-        <View style={styles.selectionSection}>
-          <View style={styles.optionsContainer}>
-            <SelectionCard
-              title="Edit Current Value"
-              description="Manually adjust your current fat target"
-              icon={PencilIcon}
-              iconColor={colors.accent}
-              isSelected={false}
-              onSelect={handleEditCurrent}
-              accessibilityLabel="Edit current fat value manually"
-              accessibilityHint="Opens manual input screen with your current fat percentage pre-filled"
+          <View style={styles.guidelineSection}>
+            <Text style={styles.guidelineTitle}>
+              Scientifically Based Guidelines
+            </Text>
+            <GuidelineRow
+              label="Muscle Gain"
+              range="25-30%"
+              description="Leaves more calories for carbohydrates"
+              Icon={LightningIcon}
             />
+            <GuidelineRow
+              label="Fat Loss"
+              range="30-35%"
+              description="Supports satiety during a calorie deficit"
+              Icon={FireIcon}
+            />
+          </View>
+
+          <View style={styles.cardFooter}>
+            <Text style={styles.footerText}>
+              Max allowed based on your targets: {Math.round(maxFatPercentage)}%
+            </Text>
           </View>
         </View>
 
-        {/* Spacer to push content up and provide consistent spacing */}
-        <View style={styles.spacer} />
-      </View>
+        
+      </ScrollView>
     </SafeAreaView>
   );
 });
@@ -90,26 +136,29 @@ const EditFatScreen = React.memo(function EditFatScreen() {
 export default EditFatScreen;
 
 type Colors = ReturnType<typeof useTheme>["colors"];
-type Theme = ReturnType<typeof useTheme>["theme"];
 
-const createStyles = (colors: Colors, themeObj: Theme) => {
-  const { spacing, typography } = themeObj;
+const createStyles = (
+  colors: Colors,
+  themeObj: Theme,
+  colorScheme: ColorScheme
+) => {
+  const { spacing, typography, getComponentStyles } = themeObj;
+  // The 'colors' object is already theme-aware, so we pass its scheme to getComponentStyles
+  const componentStyles = getComponentStyles(colorScheme);
 
   return StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
     },
-    content: {
-      flex: 1,
+    scrollContent: {
       paddingHorizontal: spacing.pageMargins.horizontal,
-      justifyContent: "flex-start",
-      alignItems: "stretch",
-      gap: spacing.xxl,
+      paddingBottom: spacing.xxl, // Ensures space at the bottom for better scrolling
+      gap: spacing.md,
     },
     textSection: {
       paddingTop: spacing.lg,
-      gap: spacing.sm,
+      gap: spacing.md,
     },
     subtitle: {
       fontSize: typography.Title2.fontSize,
@@ -123,24 +172,64 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       color: colors.secondaryText,
       textAlign: "center",
       lineHeight: 24,
+      marginBottom: spacing.sm,
     },
-    educationalText: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
+    infoCard: {
+      ...componentStyles.cards,
+      borderRadius: componentStyles.cards.cornerRadius,
+      borderWidth: 2,
+      borderColor: colors.border,
+      padding: spacing.lg,
+    },
+    cardHeader: {
+      ...typography.Body,
+      color: colors.primaryText,
+      lineHeight: typography.Body.fontSize * 1.5,
+      marginBottom: spacing.lg,
+    },
+    guidelineSection: {
+      gap: spacing.sm,
+    },
+    guidelineTitle: {
+      ...typography.Subhead,
       color: colors.secondaryText,
-      textAlign: "left",
-      lineHeight: 18,
-      marginTop: spacing.md,
+      fontWeight: "600",
+      marginBottom: spacing.xs,
     },
-    selectionSection: {
-      alignItems: "stretch",
-    },
-    optionsContainer: {
+    // Guideline Row styling
+    guidelineRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      padding: spacing.md,
+      backgroundColor: colors.primaryBackground,
+      // Consistent corner radius with other interactive elements
+      borderRadius: themeObj.components.buttons.cornerRadius,
       gap: spacing.md,
     },
-    spacer: {
+    guidelineTextContainer: {
       flex: 1,
-      minHeight: spacing.xxl * 2, // Ensure minimum spacing
+      gap: spacing.xs / 2, // Small gap between label and description
+    },
+    guidelineLabel: {
+      ...typography.Subhead,
+      fontWeight: "600",
+      color: colors.primaryText,
+    },
+    guidelineDescription: {
+      ...typography.Caption,
+      color: colors.secondaryText,
+    },
+    // Card Footer styling
+    cardFooter: {
+      borderTopWidth: 1,
+      borderColor: colors.border,
+      marginTop: spacing.lg,
+      paddingTop: spacing.lg,
+    },
+    footerText: {
+      ...typography.Caption,
+      color: colors.secondaryText,
+      textAlign: "center",
     },
   });
 };

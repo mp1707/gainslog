@@ -118,6 +118,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     selectionSection: {
       alignItems: "stretch",
+      gap: spacing.md,
     },
     optionsContainer: {
       gap: spacing.md,

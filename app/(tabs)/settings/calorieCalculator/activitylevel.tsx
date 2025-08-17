@@ -161,6 +161,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     methodsSection: {
       marginBottom: spacing.lg,
+      gap: spacing.md,
     },
     progressContainer: {
       padding: themeObj.spacing.md,

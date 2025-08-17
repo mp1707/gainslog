@@ -94,7 +94,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       backgroundColor: colors.primaryBackground,
     },
     content: {
-      flex: 1,
+      // flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
       justifyContent: "flex-start",
       alignItems: "stretch",

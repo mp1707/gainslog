@@ -9,7 +9,6 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
     container: {
       borderRadius: theme.components.cards.cornerRadius,
       padding: spacing.md,
-      marginBottom: spacing.md,
       borderWidth: 2,
       borderColor: "transparent",
       ...componentStyles.cards,

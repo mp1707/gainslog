@@ -261,6 +261,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     goalsSection: {
       marginBottom: spacing.lg,
+      gap: spacing.md,
     },
     footer: {
       marginTop: spacing.xl,
