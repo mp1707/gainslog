@@ -9,6 +9,13 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
+import {
+  HouseIcon,
+  PersonIcon,
+  BicycleIcon,
+  FlameIcon,
+  LightningIcon,
+} from "phosphor-react-native";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
@@ -76,18 +83,39 @@ export default function Step2ActivityLevelScreen() {
           </View>
 
           <View style={styles.methodsSection}>
-            {methods.map((method) => (
-              <SelectionCard
-                key={method.id}
-                title={method.title}
-                description={method.description}
-                iconType={`activity-${method.id}` as any}
-                isSelected={selectedActivityLevel === method.id}
-                onSelect={() => handleActivityLevelSelect(method)}
-                accessibilityLabel={`${method.title} activity level`}
-                accessibilityHint={`Calculate calories for ${method.description.toLowerCase()}`}
-              />
-            ))}
+            {methods.map((method) => {
+              // Map activity level to appropriate icon
+              const getIcon = (id: string) => {
+                switch (id) {
+                  case "sedentary":
+                    return HouseIcon;
+                  case "light":
+                    return PersonIcon;
+                  case "moderate":
+                    return BicycleIcon;
+                  case "active":
+                    return FlameIcon;
+                  case "veryactive":
+                    return LightningIcon;
+                  default:
+                    return PersonIcon;
+                }
+              };
+
+              return (
+                <SelectionCard
+                  key={method.id}
+                  title={method.title}
+                  description={method.description}
+                  icon={getIcon(method.id)}
+                  iconColor={colors.secondaryText}
+                  isSelected={selectedActivityLevel === method.id}
+                  onSelect={() => handleActivityLevelSelect(method)}
+                  accessibilityLabel={`${method.title} activity level`}
+                  accessibilityHint={`Calculate calories for ${method.description.toLowerCase()}`}
+                />
+              );
+            })}
           </View>
         </ScrollView>
       </SafeAreaView>

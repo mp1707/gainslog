@@ -8,26 +8,11 @@ import Animated, {
   withSpring,
   Easing,
 } from "react-native-reanimated";
-import {
-  TrendDownIcon,
-  EqualsIcon,
-  TrendUpIcon,
-  HouseIcon,
-  PersonIcon,
-  BicycleIcon,
-  FlameIcon,
-  LightningIcon,
-} from "phosphor-react-native";
-import type { Icon, IconWeight } from "phosphor-react-native";
+import type { Icon } from "phosphor-react-native";
 
 import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./SelectionCard.styles";
 import type { CalorieGoals } from "@/types";
-
-interface IconConfig {
-  component: Icon;
-  color: string;
-}
 
 export interface SelectionCardProps {
   // Core functionality
@@ -36,18 +21,9 @@ export interface SelectionCardProps {
   title: string;
   description: string;
 
-  // Icon options (either custom or predefined)
-  icon?: Icon;
-  iconColor?: string;
-  iconType?:
-    | "goal-lose"
-    | "goal-maintain"
-    | "goal-gain"
-    | "activity-sedentary"
-    | "activity-light"
-    | "activity-moderate"
-    | "activity-active"
-    | "activity-veryactive";
+  // Icon (required)
+  icon: Icon;
+  iconColor: string;
 
   // Optional content section
   content?: {
@@ -62,71 +38,14 @@ export interface SelectionCardProps {
   accessibilityHint?: string;
 }
 
-// Predefined icon configurations
-const getPredefinedIcon = (
-  iconType: string,
-  isSelected: boolean,
-  accentColor: string
-): IconConfig => {
-  const weight: IconWeight = isSelected ? "fill" : "regular";
-
-  switch (iconType) {
-    case "goal-lose":
-      return {
-        component: TrendDownIcon,
-        color: isSelected ? accentColor : "#FF6B6B",
-      };
-    case "goal-maintain":
-      return {
-        component: EqualsIcon,
-        color: isSelected ? accentColor : "#4ECDC4",
-      };
-    case "goal-gain":
-      return {
-        component: TrendUpIcon,
-        color: isSelected ? accentColor : "#45B7D1",
-      };
-    case "activity-sedentary":
-      return {
-        component: HouseIcon,
-        color: isSelected ? accentColor : "#8A8A8E",
-      };
-    case "activity-light":
-      return {
-        component: PersonIcon,
-        color: isSelected ? accentColor : "#8A8A8E",
-      };
-    case "activity-moderate":
-      return {
-        component: BicycleIcon,
-        color: isSelected ? accentColor : "#8A8A8E",
-      };
-    case "activity-active":
-      return {
-        component: FlameIcon,
-        color: isSelected ? accentColor : "#8A8A8E",
-      };
-    case "activity-veryactive":
-      return {
-        component: LightningIcon,
-        color: isSelected ? accentColor : "#8A8A8E",
-      };
-    default:
-      return {
-        component: PersonIcon,
-        color: isSelected ? accentColor : "#8A8A8E",
-      };
-  }
-};
 
 export const SelectionCard: React.FC<SelectionCardProps> = ({
   isSelected,
   onSelect,
   title,
   description,
-  icon: CustomIcon,
+  icon,
   iconColor,
-  iconType,
   content,
   accessibilityLabel,
   accessibilityHint,
@@ -135,7 +54,7 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
   const styles = createStyles(colors, colorScheme);
 
   // Determine if this is a simple or complex layout
-  const isSimpleLayout = !content && CustomIcon;
+  const isSimpleLayout = !content && icon;
 
   // Press animation shared values
   const pressScale = useSharedValue(1);
@@ -145,24 +64,8 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
     transform: [{ scale: pressScale.value }],
   }));
 
-  // Determine icon configuration
-  let iconConfig: IconConfig;
-  if (CustomIcon && iconColor) {
-    // Custom icon provided
-    iconConfig = {
-      component: CustomIcon,
-      color: isSelected ? colors.accent : iconColor,
-    };
-  } else if (iconType) {
-    // Predefined icon type
-    iconConfig = getPredefinedIcon(iconType, isSelected, colors.accent);
-  } else {
-    // Fallback
-    iconConfig = {
-      component: PersonIcon,
-      color: isSelected ? colors.accent : colors.secondaryText,
-    };
-  }
+  // Icon configuration
+  const finalIconColor = isSelected ? colors.accent : iconColor;
 
   const handlePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -180,7 +83,7 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
     pressScale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
   };
 
-  const IconComponent = iconConfig.component;
+  const IconComponent = icon;
 
   return (
     <Pressable
@@ -203,7 +106,7 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
           // Simple layout: icon container + text
           <>
             <View style={styles.simpleIconContainer}>
-              <IconComponent size={32} color={iconConfig.color} />
+              <IconComponent size={32} color={finalIconColor} />
             </View>
             <View style={styles.simpleTextContainer}>
               <Text
@@ -226,7 +129,7 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
           <View style={styles.complexContent}>
             <View style={styles.complexHeader}>
               <View style={styles.complexIconContainer}>
-                <IconComponent size={24} color={iconConfig.color} />
+                <IconComponent size={24} color={finalIconColor} />
               </View>
               <View style={styles.complexTextContainer}>
                 <Text

@@ -9,6 +9,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
+import { TrendDownIcon, EqualsIcon, TrendUpIcon } from "phosphor-react-native";
 
 import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
@@ -150,7 +151,8 @@ export default function Step3GoalsScreen() {
             <SelectionCard
               title="Lose Weight"
               description="Create a calorie deficit to lose weight gradually"
-              iconType="goal-lose"
+              icon={TrendDownIcon}
+              iconColor={colors.error}
               isSelected={selectedGoal === "lose"}
               onSelect={() => handleGoalSelect("lose")}
               content={{
@@ -164,7 +166,8 @@ export default function Step3GoalsScreen() {
             <SelectionCard
               title="Maintain Weight"
               description="Eat at maintenance calories to stay at current weight"
-              iconType="goal-maintain"
+              icon={EqualsIcon}
+              iconColor={colors.success}
               isSelected={selectedGoal === "maintain"}
               onSelect={() => handleGoalSelect("maintain")}
               content={{
@@ -178,7 +181,8 @@ export default function Step3GoalsScreen() {
             <SelectionCard
               title="Gain Weight"
               description="Create a calorie surplus to gain weight gradually"
-              iconType="goal-gain"
+              icon={TrendUpIcon}
+              iconColor={colors.semantic.protein}
               isSelected={selectedGoal === "gain"}
               onSelect={() => handleGoalSelect("gain")}
               content={{
