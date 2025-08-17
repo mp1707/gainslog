@@ -1,9 +1,15 @@
 import { Stack } from "expo-router";
+import { router } from "expo-router";
 import { useTheme } from "@/providers";
+import { CancelButton } from "@/shared/ui/atoms/CancelButton";
 import React from "react";
 
 export default function CalculatorLayout() {
   const { colors } = useTheme();
+
+  const handleCancel = () => {
+    router.replace("/settings");
+  };
 
   return (
     <Stack
@@ -18,6 +24,7 @@ export default function CalculatorLayout() {
         },
         headerShadowVisible: false,
         animation: "slide_from_right",
+        headerRight: () => <CancelButton onPress={handleCancel} />,
       }}
     >
       <Stack.Screen
@@ -66,7 +73,7 @@ export default function CalculatorLayout() {
         name="editCalories"
         options={{
           title: "",
-          presentation: "modal",
+          // presentation: "modal",
         }}
       />
     </Stack>
