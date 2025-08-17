@@ -23,6 +23,8 @@ interface FoodLogScreenProps {
   onDeleteLog: (logId: string) => Promise<void>;
   onAddInfo: (log: FoodLog) => void;
   scrollToTop?: boolean;
+  isFavoritesModalVisible?: boolean;
+  onCloseFavoritesModal?: () => void;
 }
 
 export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
@@ -30,6 +32,8 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   onDeleteLog,
   onAddInfo,
   scrollToTop,
+  isFavoritesModalVisible = false,
+  onCloseFavoritesModal,
 }) => {
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -96,21 +100,11 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   );
 
   const isTodayMemo = useMemo(() => isToday(), [isToday]);
-  const [isFavoritesModalVisible, setFavoritesModalVisible] =
-    React.useState(false);
-
-  const handleFavoritesLog = useCallback(() => {
-    setFavoritesModalVisible(true);
-  }, []);
-
-  const handleCloseFavoritesModal = useCallback(() => {
-    setFavoritesModalVisible(false);
-  }, []);
 
   // Use custom hook for favorite selection logic
   const { selectFavorite } = useFavoriteSelection({
     selectedDate,
-    onSelectionComplete: handleCloseFavoritesModal,
+    onSelectionComplete: onCloseFavoritesModal || (() => {}),
   });
 
   // Handle scroll to top when prop changes
@@ -155,7 +149,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
 
       <FavoritesPickerModal
         visible={isFavoritesModalVisible}
-        onClose={handleCloseFavoritesModal}
+        onClose={onCloseFavoritesModal || (() => {})}
         onSelectFavorite={selectFavorite}
       />
     </SafeAreaView>

@@ -10,6 +10,7 @@ import {
 } from "phosphor-react-native";
 import { BaseModal } from "@/shared/ui/organisms/BaseModal";
 import { useTheme } from "@/providers/ThemeProvider";
+import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
 import { createStyles } from "./NewLogSheet.styles";
 
 interface NewLogSheetProps {
@@ -41,6 +42,7 @@ export const NewLogSheet: React.FC<NewLogSheetProps> = ({
   onFavoritesLog,
 }) => {
   const { colors } = useTheme();
+  const { safeNavigate, isNavigating } = useNavigationGuard();
   const styles = createStyles(colors);
   
   // State to trigger smooth close animation
@@ -137,10 +139,19 @@ export const NewLogSheet: React.FC<NewLogSheetProps> = ({
   ];
 
   const handleActionPress = (action: () => void) => {
+    // Prevent multiple rapid taps
+    if (isNavigating) return;
+    
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     
-    // Store the action to execute after animation completes
-    pendingActionRef.current = action;
+    // Store the action to execute after navigation and animation complete
+    pendingActionRef.current = () => {
+      // Navigate to index tab first, then execute action after delay
+      safeNavigate("/");
+      setTimeout(() => {
+        action();
+      }, 250); // Allow time for navigation to complete
+    };
     
     // Trigger smooth close animation
     setShouldAnimateOut(true);

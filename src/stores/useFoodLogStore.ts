@@ -25,7 +25,7 @@ import {
 } from "@/lib/storage";
 import { calculateMacrosFromProtein } from "@/utils/nutritionCalculations";
 
-type ActionType = "manual" | "camera" | "library" | "audio" | null;
+type ActionType = "manual" | "camera" | "library" | "audio" | "favorites" | null;
 
 interface ProteinCalculationSelection {
   method: ProteinCalculationMethod;
@@ -95,6 +95,7 @@ interface FoodLogStore {
   triggerCameraCapture: () => void;
   triggerLibraryCapture: () => void;
   triggerAudioCapture: () => void;
+  triggerFavorites: () => void;
   setTriggerAction: (action: ActionType) => void;
   clearTrigger: () => void;
 
@@ -312,6 +313,7 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   triggerCameraCapture: () => set({ triggerAction: "camera" }),
   triggerLibraryCapture: () => set({ triggerAction: "library" }),
   triggerAudioCapture: () => set({ triggerAction: "audio" }),
+  triggerFavorites: () => set({ triggerAction: "favorites" }),
   setTriggerAction: (action: ActionType) => set({ triggerAction: action }),
   clearTrigger: () => set({ triggerAction: null }),
 

@@ -6,12 +6,15 @@ export interface UseFoodLogModalReturn {
   modalMode: ModalMode;
   selectedLog: FoodLog | null;
   isAudioMode: boolean;
+  isFavoritesModalVisible: boolean;
   handleAddInfo: (log: FoodLog) => void;
   handleManualLog: () => void;
   handleImageCaptured: (log: FoodLog) => void;
   handleAudioTranscribed: (log: FoodLog) => void;
   handleAudioLog: () => void;
+  handleFavoritesLog: () => void;
   handleModalClose: (wasSaved?: boolean) => void;
+  handleFavoritesModalClose: () => void;
   setSelectedLog: (log: FoodLog | null) => void;
   setModalMode: (mode: ModalMode) => void;
   setIsModalVisible: (visible: boolean) => void;
@@ -28,6 +31,7 @@ export function useFoodLogModal(
   const [modalMode, setModalMode] = useState<ModalMode>("edit");
   const [selectedLog, setSelectedLog] = useState<FoodLog | null>(null);
   const [isAudioMode, setIsAudioMode] = useState(false);
+  const [isFavoritesModalVisible, setIsFavoritesModalVisible] = useState(false);
 
   const handleAddInfo = (log: FoodLog) => {
     setModalMode("edit");
@@ -73,6 +77,14 @@ export function useFoodLogModal(
     setIsModalVisible(true);
   };
 
+  const handleFavoritesLog = () => {
+    setIsFavoritesModalVisible(true);
+  };
+
+  const handleFavoritesModalClose = () => {
+    setIsFavoritesModalVisible(false);
+  };
+
   const handleModalClose = (wasSaved?: boolean) => {
     setIsModalVisible(false);
     setSelectedLog(null);
@@ -89,12 +101,15 @@ export function useFoodLogModal(
     modalMode,
     selectedLog,
     isAudioMode,
+    isFavoritesModalVisible,
     handleAddInfo,
     handleManualLog,
     handleImageCaptured,
     handleAudioTranscribed,
     handleAudioLog,
+    handleFavoritesLog,
     handleModalClose,
+    handleFavoritesModalClose,
     setSelectedLog,
     setModalMode,
     setIsModalVisible,

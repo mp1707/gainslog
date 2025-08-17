@@ -69,6 +69,9 @@ export default function TodayTab() {
       } else if (triggerAction === "audio") {
         // Directly open FoodLogModal in audio mode
         modal.handleAudioLog();
+      } else if (triggerAction === "favorites") {
+        // Open favorites modal in FoodLogScreen
+        modal.handleFavoritesLog();
       }
       clearTrigger();
     };
@@ -112,6 +115,8 @@ export default function TodayTab() {
           onDeleteLog={deleteFoodLogById}
           onAddInfo={modal.handleAddInfo}
           scrollToTop={shouldScrollToTop}
+          isFavoritesModalVisible={modal.isFavoritesModalVisible}
+          onCloseFavoritesModal={modal.handleFavoritesModalClose}
         />
       </KeyboardAvoidingView>
 

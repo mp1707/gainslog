@@ -13,6 +13,7 @@ export const NewLogButton: React.FC<NewLogButtonProps> = ({
   onClose,
   onFavoritesLog,
 }) => {
+  
   // Store action triggers
   const triggerManualLog = useFoodLogStore((state) => state.triggerManualLog);
   const triggerCameraCapture = useFoodLogStore(
@@ -24,6 +25,7 @@ export const NewLogButton: React.FC<NewLogButtonProps> = ({
   const triggerAudioCapture = useFoodLogStore(
     (state) => state.triggerAudioCapture
   );
+  const triggerFavorites = useFoodLogStore((state) => state.triggerFavorites);
 
   // Memoized handlers
   const handleManualLog = useCallback(() => {
@@ -42,6 +44,10 @@ export const NewLogButton: React.FC<NewLogButtonProps> = ({
     triggerAudioCapture();
   }, [triggerAudioCapture]);
 
+  const handleFavoritesLog = useCallback(() => {
+    triggerFavorites();
+  }, [triggerFavorites]);
+
   return (
     <NewLogSheet
       visible={visible}
@@ -50,7 +56,7 @@ export const NewLogButton: React.FC<NewLogButtonProps> = ({
       onCameraLog={handleCameraLog}
       onLibraryLog={handleLibraryLog}
       onAudioLog={handleAudioLog}
-      onFavoritesLog={onFavoritesLog}
+      onFavoritesLog={handleFavoritesLog}
     />
   );
 };
