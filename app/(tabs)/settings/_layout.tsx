@@ -1,10 +1,15 @@
 import { Stack } from "expo-router";
 import { useTheme } from "@/providers";
 import React from "react";
+import { CancelButton } from "@/shared/ui/atoms/CancelButton";
+import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
 
 export default function SettingsLayout() {
+  const { safeDismissTo } = useNavigationGuard();
   const { colors } = useTheme();
-
+  const handleCancel = () => {
+    safeDismissTo("/settings");
+  };
   // The Stack now controls a consistent header for all its children.
   return (
     <Stack
@@ -18,6 +23,7 @@ export default function SettingsLayout() {
         },
         headerShadowVisible: false,
         animation: "slide_from_right",
+        headerRight: () => <CancelButton onPress={handleCancel} />,
       }}
     >
       {/* BEFORE: You had headerShown: false here.
@@ -46,7 +52,9 @@ export default function SettingsLayout() {
       <Stack.Screen
         name="carbs"
         options={{
-          title: "Carbs",
+          title: "",
+          presentation: "modal",
+
         }}
       />
       <Stack.Screen
