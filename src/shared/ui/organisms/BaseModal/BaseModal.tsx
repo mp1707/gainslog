@@ -29,6 +29,8 @@ export interface BaseModalProps {
   onClose: () => void;
   children: ReactNode;
   onRequestClose?: () => void;
+  onAnimationComplete?: () => void;
+  animateOut?: boolean;
   testID?: string;
 }
 
@@ -37,6 +39,8 @@ export const BaseModal: React.FC<BaseModalProps> = ({
   onClose,
   children,
   onRequestClose,
+  onAnimationComplete,
+  animateOut,
   testID,
 }) => {
   const { colors } = useTheme();
@@ -75,6 +79,9 @@ export const BaseModal: React.FC<BaseModalProps> = ({
     // Smooth dismissal using timing animation for predictable motion
     backdropOpacity.value = withTiming(0, dismissTimingConfig);
     translateY.value = withTiming(DISMISS_OFFSET, dismissTimingConfig, () => {
+      if (onAnimationComplete) {
+        runOnJS(onAnimationComplete)();
+      }
       runOnJS(onClose)();
     });
   };
@@ -92,6 +99,13 @@ export const BaseModal: React.FC<BaseModalProps> = ({
     }
     // No reset on visible = false to prevent flash during dismissal animation
   }, [visible]);
+
+  // Handle programmatic animate out request
+  useEffect(() => {
+    if (animateOut && visible) {
+      animateOutThenClose();
+    }
+  }, [animateOut, visible]);
 
   const handleBackdropPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

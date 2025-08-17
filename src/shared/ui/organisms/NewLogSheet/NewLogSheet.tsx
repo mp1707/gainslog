@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import * as Haptics from "expo-haptics";
 import {
@@ -42,9 +42,26 @@ export const NewLogSheet: React.FC<NewLogSheetProps> = ({
 }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
+  
+  // State to trigger smooth close animation
+  const [shouldAnimateOut, setShouldAnimateOut] = useState(false);
+  // Ref to store the pending action to execute after animation
+  const pendingActionRef = useRef<(() => void) | null>(null);
 
   const iconColor = colors.white;
   const iconSize = 24;
+
+  // Handle animation completion - execute pending action with delay
+  const handleAnimationComplete = () => {
+    if (pendingActionRef.current) {
+      // Execute the action after a brief delay for smooth transition
+      setTimeout(() => {
+        pendingActionRef.current?.();
+        pendingActionRef.current = null;
+        setShouldAnimateOut(false);
+      }, 120); // Maintain existing 120ms delay between modals
+    }
+  };
 
   const actions: ActionItem[] = [
     {
@@ -121,12 +138,21 @@ export const NewLogSheet: React.FC<NewLogSheetProps> = ({
 
   const handleActionPress = (action: () => void) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    onClose();
-    setTimeout(action, 120);
+    
+    // Store the action to execute after animation completes
+    pendingActionRef.current = action;
+    
+    // Trigger smooth close animation
+    setShouldAnimateOut(true);
   };
 
   return (
-    <BaseModal visible={visible} onClose={onClose}>
+    <BaseModal 
+      visible={visible} 
+      onClose={onClose}
+      onAnimationComplete={handleAnimationComplete}
+      animateOut={shouldAnimateOut}
+    >
       <View style={styles.container}>
         <View style={styles.handle} />
         
