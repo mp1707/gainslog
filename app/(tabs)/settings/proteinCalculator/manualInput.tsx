@@ -97,7 +97,6 @@ const ManualProteinInputScreen = () => {
 
       await updateDailyTargets(newTargets);
       
-      clearProteinCalculatorData();
       router.dismissTo("/settings");
     } catch (error) {
       console.error("Error saving manual protein target:", error);

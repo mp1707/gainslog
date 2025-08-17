@@ -110,7 +110,6 @@ const ManualCalorieInputScreen = () => {
         await saveCalorieCalculatorParams(calculatorParams);
       }
 
-      clearCalculatorData();
       router.dismissTo("/settings");
     } catch (error) {
       console.error("Error saving manual calorie target:", error);
