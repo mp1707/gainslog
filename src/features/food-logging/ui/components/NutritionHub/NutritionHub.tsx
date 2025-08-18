@@ -1,17 +1,24 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo } from "react";
 import { View } from "react-native";
+import Svg from "react-native-svg";
 import { useTheme } from "@/providers/ThemeProvider";
 import { DailyProgress } from "@/types";
 import { ActivityRing } from "./ActivityRing";
 import { CentralDisplay } from "./CentralDisplay";
 import { createStyles } from "./NutritionHub.styles";
-import Svg from "react-native-svg";
 
 interface NutritionHubProps {
   dailyProgress: DailyProgress;
   size?: number;
   showCenterContent?: boolean;
 }
+
+const RING_DEFINITIONS = [
+  { id: "calories", unit: "kcal" },
+  { id: "protein", unit: "g" },
+  { id: "carbs", unit: "g" },
+  { id: "fat", unit: "g" },
+];
 
 export const NutritionHub: React.FC<NutritionHubProps> = React.memo(
   ({ dailyProgress, size = 300, showCenterContent = true }) => {
@@ -31,116 +38,67 @@ export const NutritionHub: React.FC<NutritionHubProps> = React.memo(
       [colors.semantic, colors.accent]
     );
 
-    const {
-      current: {
-        calories: cCal = 0,
-        protein: cProt = 0,
-        carbs: cCarbs = 0,
-        fat: cFat = 0,
-      },
-      targets: {
-        calories: tCal = 2000,
-        protein: tProt = 150,
-        carbs: tCarbs = 250,
-        fat: tFat = 67,
-      },
-      percentages: {
-        calories: pCal = 0,
-        protein: pProt = 0,
-        carbs: pCarbs = 0,
-        fat: pFat = 0,
-      },
-    } = dailyProgress;
+    // Destructuring for easier access. The `React.memo` HOC will prevent re-renders
+    // if the parent component passes a stable `dailyProgress` object reference.
+    const { current, targets, percentages } = dailyProgress;
 
-    const ringConfig = useMemo(() => {
+    // Memoize the rendered rings. This is the core optimization.
+    // The map function will only re-run if the underlying data changes.
+    // Since `ActivityRing` is also memoized, React will only re-render the specific
+    // ring whose props have actually changed.
+    const renderedRings = useMemo(() => {
       const strokeWidth = 18;
       const spacing = 6;
       const baseRadius = size / 2 - strokeWidth / 2;
 
-      return [
-        {
-          id: "calories",
-          current: cCal,
-          target: tCal,
-          percentage: pCal,
-          color: ringColors.calories,
-          radius: baseRadius,
-        },
-        {
-          id: "protein",
-          current: cProt,
-          target: tProt,
-          percentage: pProt,
-          color: ringColors.protein,
-          radius: baseRadius - (strokeWidth + spacing),
-        },
-        {
-          id: "carbs",
-          current: cCarbs,
-          target: tCarbs,
-          percentage: pCarbs,
-          color: ringColors.carbs,
-          radius: baseRadius - 2 * (strokeWidth + spacing),
-        },
-        {
-          id: "fat",
-          current: cFat,
-          target: tFat,
-          percentage: pFat,
-          color: ringColors.fat,
-          radius: baseRadius - 3 * (strokeWidth + spacing),
-        },
-      ].map((r) => ({
-        ...r,
-        strokeWidth,
-        label: r.id[0].toUpperCase() + r.id.slice(1),
-        unit: r.id === "calories" ? "kcal" : "g",
-      }));
-    }, [
-      cCal,
-      cProt,
-      cCarbs,
-      cFat,
-      tCal,
-      tProt,
-      tCarbs,
-      tFat,
-      pCal,
-      pProt,
-      pCarbs,
-      pFat,
-      size,
-      ringColors,
-    ]);
+      return RING_DEFINITIONS.map((ringDef, index) => {
+        const nutrient = ringDef.id as keyof typeof current;
 
+        // The target for a given ring could be 0, which is a valid state.
+        const target = targets[nutrient] ?? 0;
+        if (target <= 0) return null;
+
+        return (
+          <ActivityRing
+            key={ringDef.id}
+            size={size}
+            animationDelay={index * 100}
+            radius={baseRadius - index * (strokeWidth + spacing)}
+            strokeWidth={strokeWidth}
+            color={ringColors[nutrient]}
+            percentage={percentages[nutrient] ?? 0}
+            label={nutrient.charAt(0).toUpperCase() + nutrient.slice(1)}
+            target={target}
+          />
+        );
+      });
+    }, [size, ringColors, percentages, targets]);
+
+    // This check is now simpler and more direct.
     const hasValidTargets = useMemo(
-      () => ringConfig.some((r) => r.target > 0),
-      [ringConfig]
+      () => Object.values(targets).some((t) => t > 0),
+      [targets]
     );
 
-    const renderRing = useCallback(
-      (ring: any, index: number) => (
-        <ActivityRing
-          key={ring.id}
-          {...ring}
-          size={size}
-          animationDelay={index * 100}
-        />
-      ),
-      [size]
-    );
-
-    if (!hasValidTargets) return null;
+    if (!hasValidTargets) {
+      return null;
+    }
 
     return (
       <View style={styles.container}>
         <View style={styles.ringsContainer}>
+          {/* SVG stacking order is determined by render order. First element is at the bottom.
+              This order correctly places the largest ring (calories) behind the others. */}
           <Svg width={size} height={size}>
-            {ringConfig.map(renderRing)}
+            {renderedRings}
           </Svg>
           {showCenterContent && (
             <View style={styles.centerContent}>
-              <CentralDisplay current={cCal} target={tCal} percentage={pCal} />
+              <CentralDisplay
+                current={current.calories ?? 0}
+                target={targets.calories ?? 0}
+                percentage={percentages.calories ?? 0}
+              />
             </View>
           )}
         </View>
