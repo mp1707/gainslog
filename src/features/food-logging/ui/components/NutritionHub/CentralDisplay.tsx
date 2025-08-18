@@ -59,8 +59,8 @@ export const CentralDisplay: React.FC<CentralDisplayProps> = React.memo(({
     container: {
       alignItems: 'center',
       justifyContent: 'center',
-      width: 80,
-      height: 80,
+      width: 120,
+      height: 120,
     },
     currentValue: {
       color: colors.primaryText,

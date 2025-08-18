@@ -13,27 +13,32 @@ interface NutritionHubProps {
 
 export const NutritionHub: React.FC<NutritionHubProps> = React.memo(({
   dailyProgress,
-  size = 200,
+  size = 300,
   showCenterContent = true,
 }) => {
   const { colors, theme } = useTheme();
 
+
   // Ring configuration from outermost to innermost
   const ringConfig = useMemo(() => {
-    const strokeWidth = Math.max(theme.components.progressBars.height, 4);
-    const ringSpacing = 4;
+    const strokeWidth = 18; // Wider rings that fit nicely around center content
+    const ringSpacing = 6; // Balanced spacing for visual hierarchy
     
-    // Ensure safe radius calculations
-    const baseRadius = Math.max((size - strokeWidth) / 2, strokeWidth + ringSpacing);
+    // Calculate radii to center rings around the 120px center content area
+    // Start from the outermost ring and work inward
+    const centerContentRadius = 60; // Half of 120px center content
+    const baseRadius = (size / 2) - strokeWidth / 2; // Start from edge, account for stroke width
     
     return [
       {
         id: 'calories',
         current: Math.max(0, dailyProgress.current.calories || 0),
-        target: Math.max(0, dailyProgress.targets.calories || 0),
-        percentage: Math.min(100, Math.max(0, dailyProgress.percentages.calories || 0)),
+        target: Math.max(0, dailyProgress.targets.calories || 2000), // Fallback target for testing
+        percentage: dailyProgress.targets.calories > 0 
+          ? Math.min(100, Math.max(0, dailyProgress.percentages.calories || 0))
+          : 75, // Test value
         color: colors.semantic?.calories || colors.accent,
-        radius: Math.max(baseRadius - 0 * (strokeWidth + ringSpacing), strokeWidth),
+        radius: baseRadius, // Outermost ring
         strokeWidth,
         label: 'Calories',
         unit: 'kcal',
@@ -41,10 +46,12 @@ export const NutritionHub: React.FC<NutritionHubProps> = React.memo(({
       {
         id: 'protein',
         current: Math.max(0, dailyProgress.current.protein || 0),
-        target: Math.max(0, dailyProgress.targets.protein || 0),
-        percentage: Math.min(100, Math.max(0, dailyProgress.percentages.protein || 0)),
+        target: Math.max(0, dailyProgress.targets.protein || 150), // Fallback target for testing
+        percentage: dailyProgress.targets.protein > 0 
+          ? Math.min(100, Math.max(0, dailyProgress.percentages.protein || 0))
+          : 60, // Test value
         color: colors.semantic?.protein || colors.accent,
-        radius: Math.max(baseRadius - 1 * (strokeWidth + ringSpacing), strokeWidth),
+        radius: baseRadius - (strokeWidth + ringSpacing), // Second ring
         strokeWidth,
         label: 'Protein',
         unit: 'g',
@@ -52,10 +59,12 @@ export const NutritionHub: React.FC<NutritionHubProps> = React.memo(({
       {
         id: 'carbs',
         current: Math.max(0, dailyProgress.current.carbs || 0),
-        target: Math.max(0, dailyProgress.targets.carbs || 0),
-        percentage: Math.min(100, Math.max(0, dailyProgress.percentages.carbs || 0)),
+        target: Math.max(0, dailyProgress.targets.carbs || 250), // Fallback target for testing
+        percentage: dailyProgress.targets.carbs > 0 
+          ? Math.min(100, Math.max(0, dailyProgress.percentages.carbs || 0))
+          : 45, // Test value
         color: colors.semantic?.carbs || colors.accent,
-        radius: Math.max(baseRadius - 2 * (strokeWidth + ringSpacing), strokeWidth),
+        radius: baseRadius - 2 * (strokeWidth + ringSpacing), // Third ring
         strokeWidth,
         label: 'Carbs',
         unit: 'g',
@@ -63,10 +72,12 @@ export const NutritionHub: React.FC<NutritionHubProps> = React.memo(({
       {
         id: 'fat',
         current: Math.max(0, dailyProgress.current.fat || 0),
-        target: Math.max(0, dailyProgress.targets.fat || 0),
-        percentage: Math.min(100, Math.max(0, dailyProgress.percentages.fat || 0)),
+        target: Math.max(0, dailyProgress.targets.fat || 67), // Fallback target for testing
+        percentage: dailyProgress.targets.fat > 0 
+          ? Math.min(100, Math.max(0, dailyProgress.percentages.fat || 0))
+          : 30, // Test value
         color: colors.semantic?.fat || colors.accent,
-        radius: Math.max(baseRadius - 3 * (strokeWidth + ringSpacing), strokeWidth),
+        radius: Math.max(baseRadius - 3 * (strokeWidth + ringSpacing), centerContentRadius + 10), // Innermost ring, ensure it's outside center content
         strokeWidth,
         label: 'Fat',
         unit: 'g',
