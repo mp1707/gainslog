@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import Svg, { Circle, G } from "react-native-svg";
 import Animated, {
   useSharedValue,
@@ -34,10 +34,22 @@ export const ActivityRing: React.FC<ActivityRingProps> = React.memo(({
   const { colors } = useTheme();
   const progress = useSharedValue(0);
   
-  const center = size / 2;
-  const circumference = 2 * Math.PI * Math.max(radius, 1);
+  // Memoize expensive calculations
+  const geometryValues = useMemo(() => {
+    const center = size / 2;
+    const safeRadius = Math.max(radius, 1);
+    const circumference = 2 * Math.PI * safeRadius;
+    const clampedPercentage = Math.min(100, Math.max(0, isNaN(percentage) ? 0 : percentage));
+    
+    return {
+      center,
+      circumference,
+      clampedPercentage,
+      safeRadius,
+    };
+  }, [size, radius, percentage]);
   
-  const clampedPercentage = Math.min(100, Math.max(0, isNaN(percentage) ? 0 : percentage));
+  const { center, circumference, clampedPercentage, safeRadius } = geometryValues;
   
   useEffect(() => {
     progress.value = withDelay(
@@ -48,16 +60,16 @@ export const ActivityRing: React.FC<ActivityRingProps> = React.memo(({
         mass: 1,
       })
     );
-  }, [clampedPercentage, animationDelay]);
+  }, [clampedPercentage, animationDelay, progress]);
 
   const animatedProps = useAnimatedProps(() => {
     const progressLength = (circumference * progress.value) / 100;
     return {
       strokeDasharray: `${progressLength} ${circumference}`,
     };
-  });
+  }, [circumference]);
   
-  if (target <= 0 || radius <= 0) {
+  if (target <= 0 || safeRadius <= 1) {
     return null;
   }
 
@@ -70,7 +82,7 @@ export const ActivityRing: React.FC<ActivityRingProps> = React.memo(({
       <Circle
         cx={center}
         cy={center}
-        r={radius}
+        r={safeRadius}
         stroke={colors.disabledBackground}
         strokeWidth={strokeWidth}
         fill="transparent"
@@ -82,7 +94,7 @@ export const ActivityRing: React.FC<ActivityRingProps> = React.memo(({
       <AnimatedCircle
         cx={center}
         cy={center}
-        r={radius}
+        r={safeRadius}
         stroke={color}
         strokeWidth={strokeWidth}
         fill="transparent"

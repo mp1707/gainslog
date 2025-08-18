@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { View, StyleSheet } from "react-native";
+import { View } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -9,6 +9,7 @@ import Animated, {
 // Make sure to adjust these import paths to match your project structure
 import { AppText } from "@/components/AppText";
 import { useTheme } from "@/providers/ThemeProvider";
+import { createStyles } from "./CentralDisplay.styles";
 
 interface CentralDisplayProps {
   current: number;
@@ -23,43 +24,34 @@ export const CentralDisplay: React.FC<CentralDisplayProps> = React.memo(({
 }) => {
   const { colors, theme } = useTheme();
 
-  // Ensure all values are valid numbers before use
-  const safeCurrentValue = isNaN(current) ? 0 : Math.max(0, current);
-  const safeTargetValue = isNaN(target) ? 0 : Math.max(0, target);
-  const safePercentage = isNaN(percentage) ? 0 : Math.min(100, Math.max(0, percentage));
+  // Memoize safe value calculations to avoid repeated computations
+  const safeValues = useMemo(() => {
+    const safeCurrentValue = isNaN(current) ? 0 : Math.max(0, current);
+    const safeTargetValue = isNaN(target) ? 0 : Math.max(0, target);
+    const safePercentage = isNaN(percentage) ? 0 : Math.min(100, Math.max(0, percentage));
+    
+    return {
+      current: safeCurrentValue,
+      target: safeTargetValue,
+      percentage: safePercentage,
+    };
+  }, [current, target, percentage]);
 
   const containerAnimatedStyle = useAnimatedStyle(() => {
     return {
       opacity: withTiming(1, { duration: 300 }),
       transform: [{ scale: withTiming(1, { duration: 300, easing: Easing.out(Easing.quad) }) }],
     };
-  });
+  }, []);
 
-  const styles = useMemo(() => StyleSheet.create({
-    container: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: 150, // Increased size for better readability
-      height: 150,
-    },
-    currentValue: {
-      color: colors.primaryText,
-      textAlign: 'center',
-    },
-    targetInfo: {
-      color: colors.secondaryText,
-      textAlign: 'center',
-      marginTop: 2,
-    },
-    percentageText: {
-      color: colors.semantic?.calories || colors.accent,
-      textAlign: 'center',
-      fontWeight: '600',
-      marginTop: 4,
-    },
-  }), [colors, theme]);
+  const percentageColor = useMemo(() => 
+    colors.semantic?.calories || colors.accent
+  , [colors.semantic, colors.accent]);
 
-  if (safeTargetValue <= 0) {
+  const styles = useMemo(() => createStyles(colors, theme, percentageColor), [colors, theme, percentageColor]);
+
+
+  if (safeValues.target <= 0) {
     return (
       <Animated.View style={[styles.container, containerAnimatedStyle]}>
         <AppText role="Caption" style={styles.targetInfo}>
@@ -69,20 +61,17 @@ export const CentralDisplay: React.FC<CentralDisplayProps> = React.memo(({
     );
   }
 
-  // NOTE: For animating the number text itself, you would typically use
-  // a more complex setup with an Animated.TextInput, but for simplicity
-  // and performance, showing the final value is often sufficient.
   return (
     <Animated.View style={[styles.container, containerAnimatedStyle]}>
       <AppText role="Title2" style={styles.currentValue}>
-        {Math.round(safeCurrentValue)}
+        {Math.round(safeValues.current)}
       </AppText>
       <AppText role="Caption" style={styles.targetInfo}>
-        of {safeTargetValue} kcal
+        of {safeValues.target} kcal
       </AppText>
-      {safePercentage > 0 && (
+      {safeValues.percentage > 0 && (
         <AppText role="Caption" style={styles.percentageText}>
-          {Math.round(safePercentage)}%
+          {Math.round(safeValues.percentage)}%
         </AppText>
       )}
     </Animated.View>

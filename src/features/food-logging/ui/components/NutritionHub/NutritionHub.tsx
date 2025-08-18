@@ -1,10 +1,11 @@
 import React, { useMemo } from "react";
-import { View, StyleSheet } from "react-native";
+import { View } from "react-native";
 // Make sure to adjust these import paths to match your project structure
 import { useTheme } from "@/providers/ThemeProvider"; 
 import { DailyProgress } from "@/types";
 import { ActivityRing } from "./ActivityRing";
 import { CentralDisplay } from "./CentralDisplay";
+import { createStyles } from "./NutritionHub.styles";
 import Svg from "react-native-svg";
 
 interface NutritionHubProps {
@@ -19,6 +20,15 @@ export const NutritionHub: React.FC<NutritionHubProps> = React.memo(({
   showCenterContent = true,
 }) => {
   const { colors, theme } = useTheme();
+  const styles = useMemo(() => createStyles(colors, theme, size), [colors, theme, size]);
+
+  // Memoize color calculations to avoid repeated object access
+  const ringColors = useMemo(() => ({
+    calories: colors.semantic?.calories || colors.accent,
+    protein: colors.semantic?.protein || colors.accent,
+    carbs: colors.semantic?.carbs || colors.accent,
+    fat: colors.semantic?.fat || colors.accent,
+  }), [colors.semantic, colors.accent]);
 
   // Ring configuration from outermost to innermost
   const ringConfig = useMemo(() => {
@@ -32,7 +42,7 @@ export const NutritionHub: React.FC<NutritionHubProps> = React.memo(({
         current: dailyProgress.current.calories || 0,
         target: dailyProgress.targets.calories || 2000,
         percentage: dailyProgress.percentages.calories || 0,
-        color: colors.semantic?.calories || colors.accent,
+        color: ringColors.calories,
         radius: baseRadius,
         strokeWidth,
         label: 'Calories',
@@ -43,7 +53,7 @@ export const NutritionHub: React.FC<NutritionHubProps> = React.memo(({
         current: dailyProgress.current.protein || 0,
         target: dailyProgress.targets.protein || 150,
         percentage: dailyProgress.percentages.protein || 0,
-        color: colors.semantic?.protein || colors.accent,
+        color: ringColors.protein,
         radius: baseRadius - (strokeWidth + ringSpacing),
         strokeWidth,
         label: 'Protein',
@@ -54,7 +64,7 @@ export const NutritionHub: React.FC<NutritionHubProps> = React.memo(({
         current: dailyProgress.current.carbs || 0,
         target: dailyProgress.targets.carbs || 250,
         percentage: dailyProgress.percentages.carbs || 0,
-        color: colors.semantic?.carbs || colors.accent,
+        color: ringColors.carbs,
         radius: baseRadius - 2 * (strokeWidth + ringSpacing),
         strokeWidth,
         label: 'Carbs',
@@ -65,32 +75,15 @@ export const NutritionHub: React.FC<NutritionHubProps> = React.memo(({
         current: dailyProgress.current.fat || 0,
         target: dailyProgress.targets.fat || 67,
         percentage: dailyProgress.percentages.fat || 0,
-        color: colors.semantic?.fat || colors.accent,
+        color: ringColors.fat,
         radius: baseRadius - 3 * (strokeWidth + ringSpacing),
         strokeWidth,
         label: 'Fat',
         unit: 'g',
       },
     ];
-  }, [dailyProgress, size, colors, theme]);
+  }, [dailyProgress, size, ringColors]);
 
-  const styles = useMemo(() => StyleSheet.create({
-    container: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: theme.spacing.lg,
-    },
-    ringsContainer: {
-      position: 'relative',
-      width: size,
-      height: size,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    centerContent: {
-      position: 'absolute',
-    },
-  }), [size, theme]);
 
   const hasValidTargets = useMemo(() => {
     return ringConfig.some(ring => ring.target > 0);
