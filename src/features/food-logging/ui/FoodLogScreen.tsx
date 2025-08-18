@@ -17,6 +17,7 @@ import { MacronutriensSection } from "./components/MacronutriensSection";
 import { CaloriesSection } from "./components/CaloriesSection";
 import { FoodLogsList } from "./components/FoodLogsList";
 import { FavoritesPickerModal } from "./molecules/FavoritesPickerModal";
+import { NutritionHub } from "./components/NutritionHub";
 
 interface FoodLogScreenProps {
   isLoadingLogs: boolean;
@@ -133,6 +134,8 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.statsContainer}>
+          <NutritionHub dailyProgress={dailyProgress} />
+
           <CaloriesSection dailyProgress={dailyProgress} />
 
           <MacronutriensSection dailyProgress={dailyProgress} />
