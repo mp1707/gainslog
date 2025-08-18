@@ -94,8 +94,8 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
       return;
     }
     const task = InteractionManager.runAfterInteractions(() => {
-      // Delay slightly to allow the modal animation to finish on iOS
-      setTimeout(() => titleInputRef.current?.focus?.(), 50);
+      // Delay to allow the modal animation and keyboard layout to fully settle
+      setTimeout(() => titleInputRef.current?.focus?.(), 250);
     });
     return () => {
       task?.cancel?.();
