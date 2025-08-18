@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useCallback } from "react";
+import React, { useRef, useMemo } from "react";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FoodLog } from "@/types";
@@ -13,8 +13,6 @@ import { useDateNavigation } from "./hooks/useDateNavigation";
 import { useTabBarSpacing } from "./hooks/useTabBarSpacing";
 import { useFavoriteSelection } from "./hooks/useFavoriteSelection";
 import { DateNavigationHeader } from "./components/DateNavigationHeader";
-import { MacronutriensSection } from "./components/MacronutriensSection";
-import { CaloriesSection } from "./components/CaloriesSection";
 import { FoodLogsList } from "./components/FoodLogsList";
 import { FavoritesPickerModal } from "./molecules/FavoritesPickerModal";
 import { NutritionHub } from "./components/NutritionHub";
@@ -38,10 +36,8 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
 }) => {
   const scrollViewRef = useRef<ScrollView>(null);
 
-  // Optimized store selectors - individual selectors to prevent object recreation
   const foodLogs = useFoodLogStore(selectFoodLogs);
   const dailyTargets = useFoodLogStore(selectDailyTargets);
-
 
   const { colors } = useTheme();
   const { dynamicBottomPadding } = useTabBarSpacing();
@@ -53,13 +49,13 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
     isToday,
   } = useDateNavigation();
 
-  // Memoize expensive computations
   const filteredFoodLogs = useMemo(() => {
     return foodLogs.filter((log) => log.date === selectedDate);
   }, [foodLogs, selectedDate]);
 
-  const dailyProgress = useMemo(() => {
-    const current = filteredFoodLogs.reduce(
+  // Compute totals once
+  const currentTotals = useMemo(() => {
+    return filteredFoodLogs.reduce(
       (totals, log) => ({
         calories: totals.calories + log.calories,
         protein: totals.protein + log.protein,
@@ -68,32 +64,28 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
       }),
       { calories: 0, protein: 0, carbs: 0, fat: 0 }
     );
+  }, [filteredFoodLogs]);
 
-    const percentages = {
+  const percentages = useMemo(() => {
+    return {
       calories:
         dailyTargets.calories > 0
-          ? Math.round((current.calories / dailyTargets.calories) * 100)
+          ? Math.round((currentTotals.calories / dailyTargets.calories) * 100)
           : 0,
       protein:
         dailyTargets.protein > 0
-          ? Math.round((current.protein / dailyTargets.protein) * 100)
+          ? Math.round((currentTotals.protein / dailyTargets.protein) * 100)
           : 0,
       carbs:
         dailyTargets.carbs > 0
-          ? Math.round((current.carbs / dailyTargets.carbs) * 100)
+          ? Math.round((currentTotals.carbs / dailyTargets.carbs) * 100)
           : 0,
       fat:
         dailyTargets.fat > 0
-          ? Math.round((current.fat / dailyTargets.fat) * 100)
+          ? Math.round((currentTotals.fat / dailyTargets.fat) * 100)
           : 0,
     };
-
-    return {
-      current,
-      targets: dailyTargets,
-      percentages,
-    };
-  }, [filteredFoodLogs, dailyTargets]);
+  }, [currentTotals, dailyTargets]);
 
   const styles = useMemo(
     () => createStyles(colors, dynamicBottomPadding),
@@ -102,13 +94,11 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
 
   const isTodayMemo = useMemo(() => isToday(), [isToday]);
 
-  // Use custom hook for favorite selection logic
   const { selectFavorite } = useFavoriteSelection({
     selectedDate,
     onSelectionComplete: onCloseFavoritesModal || (() => {}),
   });
 
-  // Handle scroll to top when prop changes
   React.useEffect(() => {
     if (scrollToTop) {
       scrollViewRef.current?.scrollTo({ y: 0, animated: true });
@@ -124,7 +114,13 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         onNavigateNext={navigateToNextDay}
         isToday={isTodayMemo}
       />
-
+      <View style={styles.statsContainer}>
+        <NutritionHub
+          current={currentTotals}
+          targets={dailyTargets}
+          percentages={percentages}
+        />
+      </View>
       <ScrollView
         ref={scrollViewRef}
         style={styles.scrollView}
@@ -133,14 +129,6 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         removeClippedSubviews={true}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.statsContainer}>
-          <NutritionHub dailyProgress={dailyProgress} />
-
-          {/* <CaloriesSection dailyProgress={dailyProgress} />
-
-          <MacronutriensSection dailyProgress={dailyProgress} /> */}
-        </View>
-
         <FoodLogsList
           isLoadingLogs={isLoadingLogs}
           foodLogs={filteredFoodLogs}
@@ -148,7 +136,6 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
           onAddInfo={onAddInfo}
         />
       </ScrollView>
-
 
       <FavoritesPickerModal
         visible={isFavoritesModalVisible}

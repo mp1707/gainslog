@@ -3,8 +3,9 @@ import Svg, { Circle, G } from "react-native-svg";
 import Animated, {
   useSharedValue,
   useAnimatedProps,
-  withSpring,
+  withTiming,
   withDelay,
+  Easing,
 } from "react-native-reanimated";
 import { useTheme } from "@/providers/ThemeProvider";
 
@@ -35,35 +36,25 @@ export const ActivityRing: React.FC<ActivityRingProps> = React.memo(
     const { colors } = useTheme();
     const progress = useSharedValue(0);
 
-    // Memoize expensive calculations
-    const geometryValues = useMemo(() => {
-      const center = size / 2;
-      const safeRadius = Math.max(radius, 1);
-      const circumference = 2 * Math.PI * safeRadius;
-      const clampedPercentage = Math.min(
-        100,
-        Math.max(0, isNaN(percentage) ? 0 : percentage)
-      );
-
-      return {
-        center,
-        circumference,
-        clampedPercentage,
-        safeRadius,
-      };
-    }, [size, radius, percentage]);
-
     const { center, circumference, clampedPercentage, safeRadius } =
-      geometryValues;
+      useMemo(() => {
+        const center = size / 2;
+        const safeRadius = Math.max(radius, 1);
+        const circumference = 2 * Math.PI * safeRadius;
+        const clampedPercentage = Math.min(
+          100,
+          Math.max(0, isNaN(percentage) ? 0 : percentage)
+        );
+        return { center, circumference, clampedPercentage, safeRadius };
+      }, [size, radius, percentage]);
 
     useEffect(() => {
       if (progress.value !== clampedPercentage) {
         progress.value = withDelay(
           animationDelay,
-          withSpring(clampedPercentage, {
-            damping: 15,
-            stiffness: 100,
-            mass: 1,
+          withTiming(clampedPercentage, {
+            duration: 500,
+            easing: Easing.bezier(0.25, 1, 0.5, 1),
           })
         );
       }
@@ -71,14 +62,10 @@ export const ActivityRing: React.FC<ActivityRingProps> = React.memo(
 
     const animatedProps = useAnimatedProps(() => {
       const progressLength = (circumference * progress.value) / 100;
-      return {
-        strokeDasharray: `${progressLength} ${circumference}`,
-      };
+      return { strokeDasharray: `${progressLength} ${circumference}` };
     }, [circumference]);
 
-    if (target <= 0 || safeRadius <= 1) {
-      return null;
-    }
+    if (target <= 0 || safeRadius <= 1) return null;
 
     return (
       <G
@@ -87,7 +74,6 @@ export const ActivityRing: React.FC<ActivityRingProps> = React.memo(
           clampedPercentage
         )}% of daily goal completed`}
       >
-        {/* Background track */}
         <Circle
           cx={center}
           cy={center}
@@ -98,8 +84,6 @@ export const ActivityRing: React.FC<ActivityRingProps> = React.memo(
           strokeLinecap="round"
           opacity={0.5}
         />
-
-        {/* Progress ring */}
         <AnimatedCircle
           cx={center}
           cy={center}
@@ -109,7 +93,6 @@ export const ActivityRing: React.FC<ActivityRingProps> = React.memo(
           fill="transparent"
           strokeLinecap="round"
           animatedProps={animatedProps}
-          // Start from top (12 o'clock position)
           rotation="-90"
           origin={`${center}, ${center}`}
         />
