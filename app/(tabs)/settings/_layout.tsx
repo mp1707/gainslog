@@ -38,26 +38,6 @@ export default function SettingsLayout() {
         }}
       />
       <Stack.Screen
-        name="calories"
-        options={{
-          title: "Calories",
-        }}
-      />
-      <Stack.Screen
-        name="fat"
-        options={{
-          title: "Fat",
-        }}
-      />
-      <Stack.Screen
-        name="carbs"
-        options={{
-          title: "",
-          presentation: "modal",
-
-        }}
-      />
-      <Stack.Screen
         name="calorieCalculator"
         options={{
           headerShown: false,
