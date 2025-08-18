@@ -136,9 +136,9 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         <View style={styles.statsContainer}>
           <NutritionHub dailyProgress={dailyProgress} />
 
-          <CaloriesSection dailyProgress={dailyProgress} />
+          {/* <CaloriesSection dailyProgress={dailyProgress} />
 
-          <MacronutriensSection dailyProgress={dailyProgress} />
+          <MacronutriensSection dailyProgress={dailyProgress} /> */}
         </View>
 
         <FoodLogsList
