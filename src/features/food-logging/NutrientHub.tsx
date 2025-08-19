@@ -3,8 +3,8 @@ import { View, Dimensions } from 'react-native';
 import { Canvas, Circle, Path, Skia, Group } from '@shopify/react-native-skia';
 import Animated, {
   useSharedValue,
-  useDerivedValue,
   withSpring,
+  useDerivedValue,
 } from 'react-native-reanimated';
 import { theme } from '@/theme';
 
@@ -19,7 +19,6 @@ interface NutrientPercentages {
 interface NutrientHubProps {
   percentages: NutrientPercentages;
 }
-
 
 // Ring configuration - from outermost to innermost
 const RING_CONFIG = [
@@ -36,7 +35,7 @@ const RING_SPACING = 8;
 /**
  * NutrientHub - A high-performance React Native component that displays
  * four concentric animated rings representing daily nutritional progress.
- * 
+ *
  * Features:
  * - Four concentric rings (Calories, Protein, Carbs, Fat)
  * - Smooth spring animations on the UI thread
@@ -45,50 +44,27 @@ const RING_SPACING = 8;
  * - Optimized for 60fps performance
  */
 export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages }) => {
-  // Get screen dimensions for responsive sizing
   const screenWidth = Dimensions.get('window').width;
-  const containerSize = screenWidth - 40; // 20px margin on each side
+  const containerSize = screenWidth - 40;
   const center = containerSize / 2;
 
-  // Calculate ring radii based on container size
   const outerRadius = center - STROKE_WIDTH / 2;
-  const ringRadii = useMemo(() => {
-    return RING_CONFIG.map((_, index) => 
-      outerRadius - (index * (STROKE_WIDTH + RING_SPACING))
-    );
-  }, [outerRadius]);
+  const ringRadii = useMemo(() =>
+    RING_CONFIG.map(
+      (_, index) => outerRadius - index * (STROKE_WIDTH + RING_SPACING)
+    ),
+    [outerRadius]
+  );
 
-  // Shared values for animations - mapped by nutrient key
-  const progressValues = useMemo(() => ({
-    calories: useSharedValue(0),
-    protein: useSharedValue(0),
-    carbs: useSharedValue(0),
-    fat: useSharedValue(0),
-  }), []);
+  // Use a single shared value object to hold all progress values
+  const progress = useSharedValue({
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  });
 
-  // Get current color scheme colors
-  const colors = theme.getColors();
-  
-  // Map nutrition colors from theme
-  const ringColors = useMemo(() => ({
-    calories: colors.semantic.calories,
-    protein: colors.semantic.protein,
-    carbs: colors.semantic.carbs,
-    fat: colors.semantic.fat,
-  }), [colors]);
-
-  const ringBackgroundColor = colors.disabledBackground;
-
-  // Create paths for each ring
-  const ringPaths = useMemo(() => {
-    return ringRadii.map(radius => {
-      const path = Skia.Path.Make();
-      path.addCircle(center, center, radius);
-      return path;
-    });
-  }, [ringRadii, center]);
-
-  // Animate to new percentage values when prop changes
+  // Animate to new percentage values when props change
   useEffect(() => {
     const springConfig = {
       damping: 15,
@@ -97,40 +73,52 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages }) => {
     };
 
     // Animate each nutrient's progress with spring physics
-    Object.entries(percentages).forEach(([nutrient, percentage]) => {
-      if (progressValues[nutrient as keyof typeof progressValues]) {
-        progressValues[nutrient as keyof typeof progressValues].value = withSpring(
-          Math.min(100, Math.max(0, percentage)) / 100, 
-          springConfig
-        );
-      }
-    });
-  }, [percentages, progressValues]);
+    progress.value = withSpring({
+        calories: Math.min(1, Math.max(0, (percentages.calories || 0) / 100)),
+        protein: Math.min(1, Math.max(0, (percentages.protein || 0) / 100)),
+        carbs: Math.min(1, Math.max(0, (percentages.carbs || 0) / 100)),
+        fat: Math.min(1, Math.max(0, (percentages.fat || 0) / 100)),
+    }, springConfig);
+  }, [percentages, progress]);
 
-  // Create derived values for animated props - mapped by nutrient key
-  const animatedProps = useMemo(() => {
-    return Object.fromEntries(
-      Object.entries(progressValues).map(([nutrient, progressValue]) => [
-        nutrient,
-        useDerivedValue(() => ({
-          start: 0,
-          end: progressValue.value,
-        }))
-      ])
-    );
-  }, [progressValues]);
 
-  // Render individual ring component
+  const colors = theme.getColors();
+  const ringColors = useMemo(() => ({
+    calories: colors.semantic.calories,
+    protein: colors.semantic.protein,
+    carbs: colors.semantic.carbs,
+    fat: colors.semantic.fat,
+  }), [colors]);
+  const ringBackgroundColor = colors.disabledBackground;
+
+  const ringPaths = useMemo(() =>
+    ringRadii.map(radius => {
+      const path = Skia.Path.Make();
+      path.addCircle(center, center, radius);
+      return path;
+    }),
+    [ringRadii, center]
+  );
+
+  // Create derived values for the 'end' prop of each progress path
+  const animatedPathEnd = {
+    calories: useDerivedValue(() => progress.value.calories),
+    protein: useDerivedValue(() => progress.value.protein),
+    carbs: useDerivedValue(() => progress.value.carbs),
+    fat: useDerivedValue(() => progress.value.fat),
+  };
+
+
   const renderRing = (ringIndex: number) => {
     const config = RING_CONFIG[ringIndex];
     const radius = ringRadii[ringIndex];
     const path = ringPaths[ringIndex];
     const color = ringColors[config.colorKey];
-    const ringAnimatedProps = animatedProps[config.key];
+    // Directly use the derived value for the corresponding nutrient
+    const animatedEnd = animatedPathEnd[config.key];
 
     return (
       <React.Fragment key={config.key}>
-        {/* Background circle - shows full ring capacity */}
         <Circle
           cx={center}
           cy={center}
@@ -141,73 +129,36 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages }) => {
           strokeCap="round"
           opacity={0.3}
         />
-        
-        {/* Animated progress ring */}
         <Path
           path={path}
           color={color}
           style="stroke"
           strokeWidth={STROKE_WIDTH}
           strokeCap="round"
-          start={ringAnimatedProps.value.start}
-          end={ringAnimatedProps.value.end}
+          start={0}
+          // ✨ FIX: Pass the derived value object directly to the 'end' prop
+          end={animatedEnd}
         />
       </React.Fragment>
     );
   };
 
   return (
-    <View style={{ 
-      width: containerSize, 
-      height: containerSize, 
-      alignSelf: 'center',
-      justifyContent: 'center',
-      alignItems: 'center'
-    }}>
-      <Canvas style={{ width: containerSize, height: containerSize }}>
-        {/* Rotate the entire group to start from top (12 o'clock position) */}
+    <View
+      style={{
+        width: containerSize,
+        height: containerSize,
+        alignSelf: 'center',
+      }}
+    >
+      <Canvas style={{ flex: 1 }}>
         <Group
           transform={[{ rotate: -Math.PI / 2 }]}
           origin={{ x: center, y: center }}
         >
-          {/* Render all rings from outermost to innermost */}
           {RING_CONFIG.map((_, index) => renderRing(index))}
         </Group>
       </Canvas>
     </View>
   );
 };
-
-/*
-SAMPLE USAGE:
-
-import { NutrientHub } from '@/features/food-logging/NutrientHub';
-
-const MyScreen = () => {
-  const nutritionData = {
-    calories: 75,  // 75% of daily calorie goal
-    protein: 60,   // 60% of daily protein goal
-    carbs: 85,     // 85% of daily carb goal
-    fat: 40        // 40% of daily fat goal
-  };
-
-  return (
-    <View style={{ flex: 1, justifyContent: 'center' }}>
-      <NutrientHub percentages={nutritionData} />
-    </View>
-  );
-};
-
-PERFORMANCE NOTES:
-- All animations run on the UI thread via react-native-reanimated
-- Uses shared values and derived values for optimal performance
-- Canvas rendering is hardware-accelerated via react-native-skia
-- Component automatically adapts to screen width with proper margins
-- Spring animations provide natural, satisfying motion with slight overshoot
-
-DESIGN SYSTEM INTEGRATION:
-- Colors automatically adapt to light/dark mode via theme system
-- Uses semantic nutrition colors from theme.colors.semantic
-- Ring background uses theme.colors.disabledBackground
-- Follows 8pt grid spacing system from project standards
-*/

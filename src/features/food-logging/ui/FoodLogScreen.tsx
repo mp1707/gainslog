@@ -124,12 +124,8 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
           percentages={percentages}
         /> */}
         <NutrientHub
-          percentages={{
-            calories: 100,
-            protein: 100,
-            carbs: 100,
-            fat: 100,
-          }}
+          key={selectedDate}
+          percentages={percentages}
         />
       </View>
       <ScrollView
