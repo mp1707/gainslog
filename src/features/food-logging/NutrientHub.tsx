@@ -1,16 +1,16 @@
-import React, { useMemo, useEffect } from 'react';
-import { Dimensions } from 'react-native';
-import { Canvas, Circle, Path, Skia, Group } from '@shopify/react-native-skia';
+import React, { useMemo, useEffect } from "react";
+import { Dimensions, View, Text } from "react-native";
+import { Canvas, Circle, Path, Skia, Group } from "@shopify/react-native-skia";
 import Animated, {
   useSharedValue,
   withSpring,
   withDelay,
   useDerivedValue,
-} from 'react-native-reanimated';
-import { theme } from '@/theme';
+} from "react-native-reanimated";
+import { theme } from "@/theme";
 
 // TypeScript interface for component props
-interface NutrientPercentages {
+interface NutrientValues {
   calories: number;
   protein: number;
   carbs: number;
@@ -18,19 +18,21 @@ interface NutrientPercentages {
 }
 
 interface NutrientHubProps {
-  percentages: NutrientPercentages;
+  percentages: NutrientValues;
+  targets: NutrientValues;
+  totals: NutrientValues;
 }
 
 // Ring configuration - from outermost to innermost
 const RING_CONFIG = [
-  { key: 'calories', colorKey: 'calories' as const },
-  { key: 'protein', colorKey: 'protein' as const },
-  { key: 'carbs', colorKey: 'carbs' as const },
-  { key: 'fat', colorKey: 'fat' as const },
+  { key: "calories", colorKey: "calories" as const },
+  { key: "protein", colorKey: "protein" as const },
+  { key: "carbs", colorKey: "carbs" as const },
+  { key: "fat", colorKey: "fat" as const },
 ] as const;
 
 // Component constants
-const STROKE_WIDTH = 30;
+const STROKE_WIDTHS = [32, 26, 20, 14]; // From outermost to innermost
 const RING_SPACING = 8;
 
 /**
@@ -44,18 +46,26 @@ const RING_SPACING = 8;
  * - Clockwise fill animation from top position
  * - Optimized for 60fps performance
  */
-export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages }) => {
-  const screenWidth = Dimensions.get('window').width;
-  const containerSize = screenWidth - 100;
+export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages, targets, totals }) => {
+  const screenWidth = Dimensions.get("window").width;
+  const containerSize = screenWidth * 0.7;
   const center = containerSize / 2;
 
-  const outerRadius = center - STROKE_WIDTH / 2;
-  const ringRadii = useMemo(() =>
-    RING_CONFIG.map(
-      (_, index) => outerRadius - index * (STROKE_WIDTH + RING_SPACING)
-    ),
-    [outerRadius]
-  );
+  const outerRadius = center - STROKE_WIDTHS[0] / 2;
+  const ringRadii = useMemo(() => {
+    const radii = [];
+    let currentRadius = outerRadius;
+    
+    for (let i = 0; i < RING_CONFIG.length; i++) {
+      radii.push(currentRadius);
+      if (i < RING_CONFIG.length - 1) {
+        // Move to next ring: half current stroke + spacing + half next stroke
+        currentRadius -= (STROKE_WIDTHS[i] / 2 + RING_SPACING + STROKE_WIDTHS[i + 1] / 2);
+      }
+    }
+    
+    return radii;
+  }, [outerRadius]);
 
   // Use shared values for progress and scale animations
   const progress = useSharedValue({
@@ -118,10 +128,22 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages }) => {
     };
 
     progress.value = {
-      calories: withDelay(delays.calories, withSpring(targetValues.calories, springConfigs.calories)),
-      protein: withDelay(delays.protein, withSpring(targetValues.protein, springConfigs.protein)),
-      carbs: withDelay(delays.carbs, withSpring(targetValues.carbs, springConfigs.carbs)),
-      fat: withDelay(delays.fat, withSpring(targetValues.fat, springConfigs.fat)),
+      calories: withDelay(
+        delays.calories,
+        withSpring(targetValues.calories, springConfigs.calories)
+      ),
+      protein: withDelay(
+        delays.protein,
+        withSpring(targetValues.protein, springConfigs.protein)
+      ),
+      carbs: withDelay(
+        delays.carbs,
+        withSpring(targetValues.carbs, springConfigs.carbs)
+      ),
+      fat: withDelay(
+        delays.fat,
+        withSpring(targetValues.fat, springConfigs.fat)
+      ),
     };
 
     // Add subtle scale animation for enhanced visual feedback
@@ -130,7 +152,7 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages }) => {
       stiffness: 300,
       mass: 0.8,
     });
-    
+
     // Return to normal scale after brief pause
     setTimeout(() => {
       scale.value = withSpring(1, {
@@ -141,22 +163,49 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages }) => {
     }, 150);
   }, [percentages, progress, scale]);
 
-
   const colors = theme.getColors();
-  const ringColors = useMemo(() => ({
-    calories: colors.semantic.calories,
-    protein: colors.semantic.protein,
-    carbs: colors.semantic.carbs,
-    fat: colors.semantic.fat,
-  }), [colors]);
+  const ringColors = useMemo(
+    () => ({
+      calories: colors.semantic.calories,
+      protein: colors.semantic.protein,
+      carbs: colors.semantic.carbs,
+      fat: colors.semantic.fat,
+    }),
+    [colors]
+  );
   const ringBackgroundColor = colors.disabledBackground;
 
-  const ringPaths = useMemo(() =>
-    ringRadii.map(radius => {
-      const path = Skia.Path.Make();
-      path.addCircle(center, center, radius);
-      return path;
-    }),
+  // Calculate label positions around the outer ring (diagonal watch positions)
+  const labelRadius = outerRadius + 45; // Position labels outside the outer ring
+  const labelPositions = useMemo(() => {
+    const positions: { nutrient: string; x: number; y: number; angle: number; rotation: number }[] = [];
+    const nutrients = ['calories', 'protein', 'carbs', 'fat'];
+    const angles = [45, 135, 225, 315]; // Diagonal positions: top-right, bottom-right, bottom-left, top-left
+    const rotations = [25, -25, 25, -25]; // Tasteful text rotations for watch-like appearance
+    
+    nutrients.forEach((nutrient, index) => {
+      const angle = (angles[index] * Math.PI) / 180;
+      const x = center + labelRadius * Math.cos(angle);
+      const y = center + labelRadius * Math.sin(angle);
+      positions.push({
+        nutrient,
+        x,
+        y,
+        angle: angles[index],
+        rotation: rotations[index]
+      });
+    });
+    
+    return positions;
+  }, [center, labelRadius]);
+
+  const ringPaths = useMemo(
+    () =>
+      ringRadii.map((radius) => {
+        const path = Skia.Path.Make();
+        path.addCircle(center, center, radius);
+        return path;
+      }),
     [ringRadii, center]
   );
 
@@ -168,12 +217,12 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages }) => {
     fat: useDerivedValue(() => progress.value.fat),
   };
 
-
   const renderRing = (ringIndex: number) => {
     const config = RING_CONFIG[ringIndex];
     const radius = ringRadii[ringIndex];
     const path = ringPaths[ringIndex];
     const color = ringColors[config.colorKey];
+    const strokeWidth = STROKE_WIDTHS[ringIndex];
     // Directly use the derived value for the corresponding nutrient
     const animatedEnd = animatedPathEnd[config.key];
 
@@ -185,7 +234,7 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages }) => {
           r={radius}
           color={ringBackgroundColor}
           style="stroke"
-          strokeWidth={STROKE_WIDTH}
+          strokeWidth={strokeWidth}
           strokeCap="round"
           opacity={0.3}
         />
@@ -193,7 +242,7 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages }) => {
           path={path}
           color={color}
           style="stroke"
-          strokeWidth={STROKE_WIDTH}
+          strokeWidth={strokeWidth}
           strokeCap="round"
           start={0}
           // ✨ FIX: Pass the derived value object directly to the 'end' prop
@@ -203,30 +252,67 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages }) => {
     );
   };
 
+  // Helper function to format label text
+  const formatLabel = (nutrient: string) => {
+    const nutrientKey = nutrient as keyof NutrientValues;
+    const total = Math.round(totals[nutrientKey]);
+    const target = Math.round(targets[nutrientKey]);
+    const capitalizedNutrient = nutrient.charAt(0).toUpperCase() + nutrient.slice(1);
+    return `${capitalizedNutrient}: ${total}/${target}`;
+  };
+
   // Apply scale animation to the entire component
   const animatedStyle = useDerivedValue(() => ({
     transform: [{ scale: scale.value }],
   }));
 
   return (
-    <Animated.View
-      style={[
-        {
-          width: containerSize,
-          height: containerSize,
-          alignSelf: 'center',
-        },
-        animatedStyle,
-      ]}
-    >
-      <Canvas style={{ flex: 1 }}>
-        <Group
-          transform={[{ rotate: -Math.PI / 2 }]}
-          origin={{ x: center, y: center }}
-        >
-          {RING_CONFIG.map((_, index) => renderRing(index))}
-        </Group>
-      </Canvas>
-    </Animated.View>
+    <View style={{ alignSelf: "center" }}>
+      <Animated.View
+        style={[
+          {
+            width: containerSize,
+            height: containerSize,
+          },
+          animatedStyle,
+        ]}
+      >
+        <Canvas style={{ flex: 1 }}>
+          <Group
+            transform={[{ rotate: -Math.PI / 2 }]}
+            origin={{ x: center, y: center }}
+          >
+            {RING_CONFIG.map((_, index) => renderRing(index))}
+          </Group>
+        </Canvas>
+        
+        {/* Watch-style labels positioned around the outer ring */}
+        {labelPositions.map((position) => {
+          const adjustedX = position.x - 30; // Offset to center text horizontally
+          const adjustedY = position.y - 8; // Offset to center text vertically
+          
+          return (
+            <Text
+              key={position.nutrient}
+              style={[
+                theme.typography.Body,
+                {
+                  position: 'absolute',
+                  left: adjustedX,
+                  top: adjustedY,
+                  color: colors.primaryText,
+                  fontSize: 11,
+                  fontWeight: '500',
+                  textAlign: 'center',
+                  width: 60,
+                },
+              ]}
+            >
+              {formatLabel(position.nutrient)}
+            </Text>
+          );
+        })}
+      </Animated.View>
+    </View>
   );
 };

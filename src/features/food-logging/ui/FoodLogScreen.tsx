@@ -126,6 +126,8 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         <NutrientHub
           key={selectedDate}
           percentages={percentages}
+          targets={dailyTargets}
+          totals={currentTotals}
         />
       </View>
       <ScrollView
