@@ -4,7 +4,7 @@ import { Skeleton } from "@/shared/ui/atoms";
 import { SkeletonShimmerEffect, Card } from "@/components";
 import { FoodLog } from "@/types";
 import { useTheme } from "@/providers/ThemeProvider";
-import { createStyles } from "./FoodLogCard.styles";
+import { createStyles } from "./components/FoodLogCard/FoodLogCard.styles";
 
 interface FoodLogCardSkeletonProps {
   foodLog: FoodLog;

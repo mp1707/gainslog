@@ -9,13 +9,13 @@ import Animated, {
   withSpring,
   Easing,
 } from "react-native-reanimated";
-import { FoodLogCardView } from "./FoodLogCardView";
 import { FoodLog } from "@/types";
 import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./FoodLogCard.styles";
-import { FoodLogCardSkeleton } from "./FoodLogCardSkeleton";
+import { FoodLogCardSkeleton } from "../../FoodLogCardSkeleton";
 import { StarIcon } from "phosphor-react-native";
 import { useFavoritesStore } from "@/stores/useFavoritesStore";
+import { FoodLogCardView } from "../../FoodLogCardView";
 
 interface FoodLogCardProps {
   foodLog: FoodLog;

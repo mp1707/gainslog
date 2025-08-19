@@ -62,6 +62,7 @@ export const createStyles = (colors: Colors) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
+      gap: theme.spacing.sm,
     },
     // Macro badges container
     macroRowContainer: {

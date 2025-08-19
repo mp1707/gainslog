@@ -5,6 +5,7 @@ export { LoadingSpinner } from "./LoadingSpinner";
 export { Skeleton } from "./Skeleton";
 export { ImageSkeleton } from "./ImageSkeleton";
 export { Badge } from "./Badge";
+export { CompactMacroSummary } from "./CompactMacroSummary";
 export { ManualEntryButton } from "./ManualEntryButton";
 export { Stepper } from "./Stepper";
 export { InlineRecordButton } from "./InlineRecordButton";

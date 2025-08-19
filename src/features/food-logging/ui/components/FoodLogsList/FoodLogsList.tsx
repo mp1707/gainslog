@@ -3,10 +3,10 @@ import { View } from "react-native";
 import Animated, { Layout, FadeInUp } from "react-native-reanimated";
 import { SwipeToDelete, SkeletonCard } from "../../../../../shared/ui";
 import { AppText } from "@/components/AppText";
-import { FoodLogCard } from "../../FoodLogCard";
 import { FoodLog } from "@/types";
 import { useTheme } from "@/providers";
 import { styles } from "./FoodLogsList.styles";
+import { FoodLogCard } from "../FoodLogCard";
 
 interface FoodLogsListProps {
   isLoadingLogs: boolean;
