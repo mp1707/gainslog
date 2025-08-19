@@ -105,6 +105,7 @@ export const createStyles = (colors: Colors) =>
       justifyContent: "space-between",
       alignItems: "center",
       minWidth: 80,
+      gap: theme.spacing.xs,
     },
     
     macroLabel: {

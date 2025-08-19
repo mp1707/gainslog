@@ -47,14 +47,12 @@ export const createStyles = (colors: Colors) =>
 
     badgeTitle: {
       ...theme.typography.Caption,
-      fontWeight: "600",
       marginBottom: 1,
     },
 
     badgeValue: {
       ...theme.typography.Caption,
-      color: colors.secondaryText,
-      fontSize: 11,
+      color: colors.primaryText,
     },
 
     compactBadgeTitle: {
