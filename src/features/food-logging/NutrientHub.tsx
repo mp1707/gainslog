@@ -8,6 +8,8 @@ import Animated, {
   useDerivedValue,
 } from "react-native-reanimated";
 import { theme } from "@/theme";
+import { useTheme } from "@/providers/ThemeProvider";
+import { createStyles } from "./NutrientHub.styles";
 
 // TypeScript interface for component props
 interface NutrientValues {
@@ -46,7 +48,13 @@ const RING_SPACING = 8;
  * - Clockwise fill animation from top position
  * - Optimized for 60fps performance
  */
-export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages, targets, totals }) => {
+export const NutrientHub: React.FC<NutrientHubProps> = ({
+  percentages,
+  targets,
+  totals,
+}) => {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const screenWidth = Dimensions.get("window").width;
   const containerSize = screenWidth * 0.7;
   const center = containerSize / 2;
@@ -55,15 +63,16 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages, targets, 
   const ringRadii = useMemo(() => {
     const radii = [];
     let currentRadius = outerRadius;
-    
+
     for (let i = 0; i < RING_CONFIG.length; i++) {
       radii.push(currentRadius);
       if (i < RING_CONFIG.length - 1) {
         // Move to next ring: half current stroke + spacing + half next stroke
-        currentRadius -= (STROKE_WIDTHS[i] / 2 + RING_SPACING + STROKE_WIDTHS[i + 1] / 2);
+        currentRadius -=
+          STROKE_WIDTHS[i] / 2 + RING_SPACING + STROKE_WIDTHS[i + 1] / 2;
       }
     }
-    
+
     return radii;
   }, [outerRadius]);
 
@@ -163,7 +172,6 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages, targets, 
     }, 150);
   }, [percentages, progress, scale]);
 
-  const colors = theme.getColors();
   const ringColors = useMemo(
     () => ({
       calories: colors.semantic.calories,
@@ -174,30 +182,6 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages, targets, 
     [colors]
   );
   const ringBackgroundColor = colors.disabledBackground;
-
-  // Calculate label positions around the outer ring (diagonal watch positions)
-  const labelRadius = outerRadius + 45; // Position labels outside the outer ring
-  const labelPositions = useMemo(() => {
-    const positions: { nutrient: string; x: number; y: number; angle: number; rotation: number }[] = [];
-    const nutrients = ['calories', 'protein', 'carbs', 'fat'];
-    const angles = [45, 135, 225, 315]; // Diagonal positions: top-right, bottom-right, bottom-left, top-left
-    const rotations = [25, -25, 25, -25]; // Tasteful text rotations for watch-like appearance
-    
-    nutrients.forEach((nutrient, index) => {
-      const angle = (angles[index] * Math.PI) / 180;
-      const x = center + labelRadius * Math.cos(angle);
-      const y = center + labelRadius * Math.sin(angle);
-      positions.push({
-        nutrient,
-        x,
-        y,
-        angle: angles[index],
-        rotation: rotations[index]
-      });
-    });
-    
-    return positions;
-  }, [center, labelRadius]);
 
   const ringPaths = useMemo(
     () =>
@@ -252,13 +236,21 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages, targets, 
     );
   };
 
-  // Helper function to format label text
-  const formatLabel = (nutrient: string) => {
-    const nutrientKey = nutrient as keyof NutrientValues;
+  // Helper function to get nutrient display info for badges
+  const getNutrientInfo = (nutrientKey: keyof NutrientValues) => {
     const total = Math.round(totals[nutrientKey]);
     const target = Math.round(targets[nutrientKey]);
-    const capitalizedNutrient = nutrient.charAt(0).toUpperCase() + nutrient.slice(1);
-    return `${capitalizedNutrient}: ${total}/${target}`;
+    const names = {
+      calories: "Cal",
+      protein: "Protein",
+      carbs: "Carbs",
+      fat: "Fat",
+    };
+    return {
+      name: names[nutrientKey],
+      value: `${total}/${target}`,
+      colors: colors.semanticBadges[nutrientKey],
+    };
   };
 
   // Apply scale animation to the entire component
@@ -267,17 +259,19 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages, targets, 
   }));
 
   return (
-    <View style={{ alignSelf: "center" }}>
+    <View style={styles.container}>
       <Animated.View
         style={[
-          {
-            width: containerSize,
-            height: containerSize,
-          },
+          styles.animatedContainer,
           animatedStyle,
         ]}
       >
-        <Canvas style={{ flex: 1 }}>
+        <Canvas
+          style={{
+            width: containerSize,
+            height: containerSize,
+          }}
+        >
           <Group
             transform={[{ rotate: -Math.PI / 2 }]}
             origin={{ x: center, y: center }}
@@ -285,33 +279,34 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages, targets, 
             {RING_CONFIG.map((_, index) => renderRing(index))}
           </Group>
         </Canvas>
-        
-        {/* Watch-style labels positioned around the outer ring */}
-        {labelPositions.map((position) => {
-          const adjustedX = position.x - 30; // Offset to center text horizontally
-          const adjustedY = position.y - 8; // Offset to center text vertically
-          
-          return (
-            <Text
-              key={position.nutrient}
-              style={[
-                theme.typography.Body,
-                {
-                  position: 'absolute',
-                  left: adjustedX,
-                  top: adjustedY,
-                  color: colors.primaryText,
-                  fontSize: 11,
-                  fontWeight: '500',
-                  textAlign: 'center',
-                  width: 60,
-                },
-              ]}
-            >
-              {formatLabel(position.nutrient)}
-            </Text>
-          );
-        })}
+
+        {/* Compact badge legend below the rings */}
+        <View style={styles.badgeLegend}>
+          {RING_CONFIG.map((config) => {
+            const info = getNutrientInfo(config.key);
+            return (
+              <View
+                key={config.key}
+                style={[
+                  styles.badge,
+                  { backgroundColor: info.colors.background }
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.badgeTitle,
+                    { color: info.colors.text }
+                  ]}
+                >
+                  {info.name}
+                </Text>
+                <Text style={styles.badgeValue}>
+                  {info.value}
+                </Text>
+              </View>
+            );
+          })}
+        </View>
       </Animated.View>
     </View>
   );

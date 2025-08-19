@@ -6,65 +6,65 @@ const SPACING_UNIT = 8;
 
 // Color palettes
 const lightColors = {
-  accent: "#6200EA",
+  // Core UI Colors
   primaryBackground: "#F9F9F9",
   secondaryBackground: "#FFFFFF",
-  primaryText: "#111111",
-  secondaryText: "#8A8A8E",
+  primaryText: "#1A1A1A",
+  secondaryText: "#8E8E93",
   border: "#EAEAEA",
   white: "#FFFFFF",
-  disabledBackground: "rgba(17, 17, 17, 0.1)",
-  disabledText: "rgba(17, 17, 17, 0.4)",
-  recording: "#FF3B30", // iOS system red for recording/stop states
-  // Semantic colors for nutrition data visualization (v1.4.0 - Vibrancy Harmonized)
+  disabledBackground: "rgba(26, 26, 26, 0.1)",
+  disabledText: "rgba(26, 26, 26, 0.4)",
+
+  // Main Accent & System Colors
+  accent: "#C2185B", // A striking magenta for a bold accent
+  recording: "#FF3D00",
+  error: "#FF3D00",
+  warning: "#FFAB00",
+  success: "#00BFA5",
+
+  // Semantic Colors for Nutrition Data
   semantic: {
-    // Change: Brighter, more energetic green to match the accent's vibrancy.
-    calories: "#60E0B0",
-    // Change: More saturated, "digital" blue that feels more active and less corporate.
-    protein: "#60B0F0",
-    // Change: Slightly adjusted for harmony with the new palette.
-    carbs: "#F080A0",
-    // Change: Kept a strong yellow, ensuring it feels distinct from the new orange.
-    fat: "#E04060",
+    calories: "#2DCEC4", // A vibrant, clean teal
+    protein: "#4F86F7", // A rich, popping blue
+    carbs: "#FF6B6B", // A warm, energetic coral
+    fat: "#FFC107", // A bright, saturated amber
   },
-  // Semantic badge colors with proper backgrounds and text
+
+  // Semi-transparent colors for badges/backgrounds
   semanticBadges: {
     calories: {
-      background: "rgba(0, 200, 83, 0.15)",
-      text: "#00C853",
+      background: "rgba(45, 206, 196, 0.15)",
+      text: "#2DCEC4",
     },
     protein: {
-      background: "rgba(41, 98, 255, 0.15)",
-      text: "#2962FF",
+      background: "rgba(79, 134, 247, 0.15)",
+      text: "#4F86F7",
     },
     carbs: {
-      background: "rgba(255, 109, 0, 0.15)",
-      text: "#FF6D00",
+      background: "rgba(255, 107, 107, 0.15)",
+      text: "#FF6B6B",
     },
     fat: {
-      background: "rgba(253, 184, 19, 0.15)",
-      text: "#FDB813",
+      background: "rgba(255, 193, 7, 0.15)",
+      text: "#FFC107",
     },
   },
-  // State colors - harmonized with the new vibrant palette
-  // Change: Using a deep, clear red that fits the palette.
-  error: "#D50000",
-  errorBackground: "rgba(213, 0, 0, 0.1)",
-  // Change: A vibrant amber that stands out clearly.
-  warning: "#FFAB00",
+
+  // State background colors
+  errorBackground: "rgba(255, 61, 0, 0.1)",
   warningBackground: "rgba(255, 171, 0, 0.1)",
-  // Change: A distinct teal/green for success messages, preventing confusion with the 'calories' green.
-  success: "#00BFA5",
   successBackground: "rgba(0, 191, 165, 0.1)",
+
   // Icon badge colors
   iconBadge: {
-    background: "rgba(98, 0, 234, 0.15)",
-    iconColor: "#6200EA",
+    background: "rgba(194, 24, 91, 0.15)",
+    iconColor: "#C2185B",
   },
 } as const;
 
 const darkColors = {
-  accent: "#7C4DFF",
+  // Core UI Colors
   primaryBackground: "#000000",
   secondaryBackground: "#1C1C1E",
   primaryText: "#F2F2F7",
@@ -73,51 +73,51 @@ const darkColors = {
   white: "#FFFFFF",
   disabledBackground: "rgba(242, 242, 247, 0.15)",
   disabledText: "rgba(242, 242, 247, 0.4)",
-  recording: "#FF453A", // Lighter red for dark mode
-  // Semantic colors for nutrition data visualization (v1.4.0 - Vibrancy Harmonized)
+
+  // Main Accent & System Colors
+  accent: "#F06292", // A brighter magenta for dark mode
+  recording: "#FF665A",
+  error: "#FF665A",
+  warning: "#FFD54F",
+  success: "#4DF2DE",
+
+  // Semantic Colors for Nutrition Data
   semantic: {
-    // Change: Brighter, more neon-like green for better pop on dark backgrounds.
-    calories: "#69F0AE",
-    // Change: A vivid light blue that pairs well with the accent.
-    protein: "#40C4FF",
-    // Change: Adjusted to a slightly more saturated light orange.
-    carbs: "#FFAB40",
-    // Change: A bright, clear yellow.
+    calories: "#44EBD4",
+    protein: "#6A9BFF",
+    carbs: "#FF8A8A",
     fat: "#FFD740",
   },
-  // Semantic badge colors with proper backgrounds and text
+
+  // Semi-transparent colors for badges/backgrounds
   semanticBadges: {
     calories: {
-      background: "rgba(105, 240, 174, 0.15)",
-      text: "#69F0AE",
+      background: "rgba(68, 235, 212, 0.15)",
+      text: "#44EBD4",
     },
     protein: {
-      background: "rgba(64, 196, 255, 0.15)",
-      text: "#40C4FF",
+      background: "rgba(106, 155, 255, 0.15)",
+      text: "#6A9BFF",
     },
     carbs: {
-      background: "rgba(255, 171, 64, 0.15)",
-      text: "#FFAB40",
+      background: "rgba(255, 138, 138, 0.15)",
+      text: "#FF8A8A",
     },
     fat: {
       background: "rgba(255, 215, 64, 0.15)",
       text: "#FFD740",
     },
   },
-  // State colors - optimized and harmonized for dark mode
-  // Change: A clearer, more vibrant red for errors.
-  error: "#FF5252",
-  errorBackground: "rgba(255, 82, 82, 0.15)",
-  // Change: Consistent amber color for warnings.
-  warning: "#FFAB40",
-  warningBackground: "rgba(255, 171, 64, 0.15)",
-  // Change: A bright and friendly teal for success.
-  success: "#64FFDA",
-  successBackground: "rgba(100, 255, 218, 0.15)",
+
+  // State background colors
+  errorBackground: "rgba(255, 102, 90, 0.15)",
+  warningBackground: "rgba(255, 213, 79, 0.15)",
+  successBackground: "rgba(77, 242, 222, 0.15)",
+
   // Icon badge colors
   iconBadge: {
-    background: "rgba(124, 77, 255, 0.15)",
-    iconColor: "#7C4DFF",
+    background: "rgba(240, 98, 146, 0.15)",
+    iconColor: "#F06292",
   },
 } as const;
 
