@@ -136,7 +136,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         removeClippedSubviews={true}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.statsContainer}>
+        {/* <View style={styles.statsContainer}>
           <CaloriesSection
             current={currentTotals}
             targets={dailyTargets}
@@ -147,7 +147,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
             targets={dailyTargets}
             percentages={percentages}
           />
-        </View>
+        </View> */}
         <FoodLogsList
           isLoadingLogs={isLoadingLogs}
           foodLogs={filteredFoodLogs}

@@ -17,6 +17,7 @@ export const createStyles = (colors: Colors, bottomPadding?: number) =>
     },
     statsContainer: {
       gap: theme.spacing.md,
+      padding: theme.spacing.pageMargins.horizontal,
     },
 
     scrollContent: {

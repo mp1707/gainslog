@@ -1,9 +1,10 @@
 import React, { useMemo, useEffect } from 'react';
-import { View, Dimensions } from 'react-native';
+import { Dimensions } from 'react-native';
 import { Canvas, Circle, Path, Skia, Group } from '@shopify/react-native-skia';
 import Animated, {
   useSharedValue,
   withSpring,
+  withDelay,
   useDerivedValue,
 } from 'react-native-reanimated';
 import { theme } from '@/theme';
@@ -29,7 +30,7 @@ const RING_CONFIG = [
 ] as const;
 
 // Component constants
-const STROKE_WIDTH = 10;
+const STROKE_WIDTH = 30;
 const RING_SPACING = 8;
 
 /**
@@ -45,7 +46,7 @@ const RING_SPACING = 8;
  */
 export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages }) => {
   const screenWidth = Dimensions.get('window').width;
-  const containerSize = screenWidth - 40;
+  const containerSize = screenWidth - 100;
   const center = containerSize / 2;
 
   const outerRadius = center - STROKE_WIDTH / 2;
@@ -56,7 +57,7 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages }) => {
     [outerRadius]
   );
 
-  // Use a single shared value object to hold all progress values
+  // Use shared values for progress and scale animations
   const progress = useSharedValue({
     calories: 0,
     protein: 0,
@@ -64,22 +65,81 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages }) => {
     fat: 0,
   });
 
+  const scale = useSharedValue(1);
+
   // Animate to new percentage values when props change
   useEffect(() => {
-    const springConfig = {
-      damping: 15,
-      stiffness: 150,
-      mass: 1,
+    // Nutrient-specific spring configurations for satisfying animations
+    const springConfigs = {
+      calories: {
+        damping: 10,
+        stiffness: 400,
+        mass: 0.8,
+        restSpeedThreshold: 0.001,
+        restDisplacementThreshold: 0.001,
+      },
+      protein: {
+        damping: 12,
+        stiffness: 300,
+        mass: 1,
+        restSpeedThreshold: 0.001,
+        restDisplacementThreshold: 0.001,
+      },
+      carbs: {
+        damping: 8,
+        stiffness: 350,
+        mass: 0.9,
+        restSpeedThreshold: 0.001,
+        restDisplacementThreshold: 0.001,
+      },
+      fat: {
+        damping: 14,
+        stiffness: 280,
+        mass: 1.1,
+        restSpeedThreshold: 0.001,
+        restDisplacementThreshold: 0.001,
+      },
     };
 
-    // Animate each nutrient's progress with spring physics
-    progress.value = withSpring({
-        calories: Math.min(1, Math.max(0, (percentages.calories || 0) / 100)),
-        protein: Math.min(1, Math.max(0, (percentages.protein || 0) / 100)),
-        carbs: Math.min(1, Math.max(0, (percentages.carbs || 0) / 100)),
-        fat: Math.min(1, Math.max(0, (percentages.fat || 0) / 100)),
-    }, springConfig);
-  }, [percentages, progress]);
+    // Staggered animation timing for cascading effect
+    const delays = {
+      calories: 0,
+      protein: 100,
+      carbs: 200,
+      fat: 300,
+    };
+
+    // Animate each nutrient with its own spring config and delay
+    const targetValues = {
+      calories: Math.min(1, Math.max(0, (percentages.calories || 0) / 100)),
+      protein: Math.min(1, Math.max(0, (percentages.protein || 0) / 100)),
+      carbs: Math.min(1, Math.max(0, (percentages.carbs || 0) / 100)),
+      fat: Math.min(1, Math.max(0, (percentages.fat || 0) / 100)),
+    };
+
+    progress.value = {
+      calories: withDelay(delays.calories, withSpring(targetValues.calories, springConfigs.calories)),
+      protein: withDelay(delays.protein, withSpring(targetValues.protein, springConfigs.protein)),
+      carbs: withDelay(delays.carbs, withSpring(targetValues.carbs, springConfigs.carbs)),
+      fat: withDelay(delays.fat, withSpring(targetValues.fat, springConfigs.fat)),
+    };
+
+    // Add subtle scale animation for enhanced visual feedback
+    scale.value = withSpring(1.02, {
+      damping: 12,
+      stiffness: 300,
+      mass: 0.8,
+    });
+    
+    // Return to normal scale after brief pause
+    setTimeout(() => {
+      scale.value = withSpring(1, {
+        damping: 15,
+        stiffness: 200,
+        mass: 1,
+      });
+    }, 150);
+  }, [percentages, progress, scale]);
 
 
   const colors = theme.getColors();
@@ -143,13 +203,21 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages }) => {
     );
   };
 
+  // Apply scale animation to the entire component
+  const animatedStyle = useDerivedValue(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
   return (
-    <View
-      style={{
-        width: containerSize,
-        height: containerSize,
-        alignSelf: 'center',
-      }}
+    <Animated.View
+      style={[
+        {
+          width: containerSize,
+          height: containerSize,
+          alignSelf: 'center',
+        },
+        animatedStyle,
+      ]}
     >
       <Canvas style={{ flex: 1 }}>
         <Group
@@ -159,6 +227,6 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({ percentages }) => {
           {RING_CONFIG.map((_, index) => renderRing(index))}
         </Group>
       </Canvas>
-    </View>
+    </Animated.View>
   );
 };
