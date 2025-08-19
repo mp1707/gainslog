@@ -3,9 +3,10 @@ import { View, Pressable, TouchableOpacity } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
+  withSpring,
+  withDelay,
   interpolate,
-  Easing,
+  runOnJS,
 } from "react-native-reanimated";
 import { CaretDownIcon, PencilSimpleIcon } from "phosphor-react-native";
 import { Badge } from "@/shared/ui";
@@ -49,35 +50,86 @@ export const FoodLogCardView: React.FC<FoodLogCardViewProps> = ({
   // Animation shared values
   const expandAnimation = useSharedValue(0);
   const chevronRotation = useSharedValue(0);
+  const cardScale = useSharedValue(1);
+  const macroStagger1 = useSharedValue(0);
+  const macroStagger2 = useSharedValue(0);
+  const macroStagger3 = useSharedValue(0);
+  const cardElevation = useSharedValue(0);
 
   const handleExpand = () => {
     const newExpandedState = !expanded;
+    
+    // Haptic feedback with proper timing
+    runOnJS(() => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    })();
+    
     setExpanded(newExpandedState);
 
-    // Animate expansion
-    expandAnimation.value = withTiming(newExpandedState ? 1 : 0, {
-      duration: 300,
-      easing: Easing.out(Easing.quad),
+    // Spring-based expansion animation (iOS-style)
+    expandAnimation.value = withSpring(newExpandedState ? 1 : 0, {
+      damping: 15,
+      stiffness: 150,
+      mass: 1,
     });
 
-    // Animate chevron rotation
-    chevronRotation.value = withTiming(newExpandedState ? 1 : 0, {
-      duration: 300,
-      easing: Easing.out(Easing.quad),
+    // Chevron rotation with spring bounce
+    chevronRotation.value = withSpring(newExpandedState ? 1 : 0, {
+      damping: 12,
+      stiffness: 200,
     });
 
-    // Haptic feedback
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Card elevation animation
+    cardElevation.value = withSpring(newExpandedState ? 1 : 0, {
+      damping: 20,
+      stiffness: 100,
+    });
+
+    // Staggered macro detail animations (only when expanding)
+    if (newExpandedState) {
+      macroStagger1.value = withDelay(100, withSpring(1, { damping: 15, stiffness: 300 }));
+      macroStagger2.value = withDelay(150, withSpring(1, { damping: 15, stiffness: 300 }));
+      macroStagger3.value = withDelay(200, withSpring(1, { damping: 15, stiffness: 300 }));
+    } else {
+      // Reset stagger animations immediately when collapsing
+      macroStagger1.value = 0;
+      macroStagger2.value = 0;
+      macroStagger3.value = 0;
+    }
   };
 
   const handleEdit = () => {
     if (onEdit) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       onEdit();
     }
   };
 
+  const handlePressIn = () => {
+    cardScale.value = withSpring(0.95, {
+      damping: 25,
+      stiffness: 400,
+    });
+  };
+
+  const handlePressOut = () => {
+    cardScale.value = withSpring(1, {
+      damping: 25,
+      stiffness: 400,
+    });
+  };
+
   // Animated styles
+  const cardAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: cardScale.value }],
+    shadowOpacity: interpolate(cardElevation.value, [0, 1], [0.1, 0.2]),
+    shadowRadius: interpolate(cardElevation.value, [0, 1], [8, 12]),
+    shadowOffset: {
+      width: 0,
+      height: interpolate(cardElevation.value, [0, 1], [2, 4]),
+    },
+  }));
+
   const chevronAnimatedStyle = useAnimatedStyle(() => ({
     transform: [
       { rotate: `${interpolate(chevronRotation.value, [0, 1], [0, 180])}deg` },
@@ -85,19 +137,59 @@ export const FoodLogCardView: React.FC<FoodLogCardViewProps> = ({
   }));
 
   const macroContentStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(expandAnimation.value, [0, 0.5, 1], [1, 0, 1]),
+    opacity: interpolate(expandAnimation.value, [0, 0.3, 1], [1, 0.3, 1]),
+  }));
+
+  // Individual macro row animations with stagger
+  const macroRow1Style = useAnimatedStyle(() => ({
+    opacity: macroStagger1.value,
+    transform: [
+      {
+        translateX: interpolate(macroStagger1.value, [0, 1], [20, 0]),
+      },
+      {
+        scale: interpolate(macroStagger1.value, [0, 1], [0.8, 1]),
+      },
+    ],
+  }));
+
+  const macroRow2Style = useAnimatedStyle(() => ({
+    opacity: macroStagger2.value,
+    transform: [
+      {
+        translateX: interpolate(macroStagger2.value, [0, 1], [20, 0]),
+      },
+      {
+        scale: interpolate(macroStagger2.value, [0, 1], [0.8, 1]),
+      },
+    ],
+  }));
+
+  const macroRow3Style = useAnimatedStyle(() => ({
+    opacity: macroStagger3.value,
+    transform: [
+      {
+        translateX: interpolate(macroStagger3.value, [0, 1], [20, 0]),
+      },
+      {
+        scale: interpolate(macroStagger3.value, [0, 1], [0.8, 1]),
+      },
+    ],
   }));
 
   return (
-    <Card style={styles.card}>
-      <Pressable
-        onPress={handleExpand}
-        accessibilityRole="button"
-        accessibilityLabel={`${
-          expanded ? "Collapse" : "Expand"
-        } nutrition details for ${title}`}
-        accessibilityHint="Tap to toggle detailed macro breakdown"
-      >
+    <Animated.View style={[cardAnimatedStyle]}>
+      <Card style={styles.card}>
+        <Pressable
+          onPress={handleExpand}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          accessibilityRole="button"
+          accessibilityLabel={`${
+            expanded ? "Collapse" : "Expand"
+          } nutrition details for ${title}`}
+          accessibilityHint="Tap to toggle detailed macro breakdown"
+        >
         <View style={styles.topSection}>
           <View style={styles.titleSection}>
             <AppText role="Headline" style={styles.title}>
@@ -152,7 +244,7 @@ export const FoodLogCardView: React.FC<FoodLogCardViewProps> = ({
             <Animated.View style={macroContentStyle}>
               {expanded ? (
                 <View style={styles.detailedMacros}>
-                  <View style={styles.macroRow}>
+                  <Animated.View style={[styles.macroRow, macroRow1Style]}>
                     <AppText
                       role="Body"
                       style={[
@@ -171,8 +263,8 @@ export const FoodLogCardView: React.FC<FoodLogCardViewProps> = ({
                     >
                       {protein}g
                     </AppText>
-                  </View>
-                  <View style={styles.macroRow}>
+                  </Animated.View>
+                  <Animated.View style={[styles.macroRow, macroRow2Style]}>
                     <AppText
                       role="Body"
                       style={[
@@ -191,8 +283,8 @@ export const FoodLogCardView: React.FC<FoodLogCardViewProps> = ({
                     >
                       {carbs}g
                     </AppText>
-                  </View>
-                  <View style={styles.macroRow}>
+                  </Animated.View>
+                  <Animated.View style={[styles.macroRow, macroRow3Style]}>
                     <AppText
                       role="Body"
                       style={[
@@ -211,7 +303,7 @@ export const FoodLogCardView: React.FC<FoodLogCardViewProps> = ({
                     >
                       {fat}g
                     </AppText>
-                  </View>
+                  </Animated.View>
                 </View>
               ) : (
                 <CompactMacroSummary
@@ -232,7 +324,8 @@ export const FoodLogCardView: React.FC<FoodLogCardViewProps> = ({
             />
           </Animated.View>
         </View>
-      </Pressable>
-    </Card>
+        </Pressable>
+      </Card>
+    </Animated.View>
   );
 };

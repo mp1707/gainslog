@@ -1,5 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View } from "react-native";
+import Animated, {
+  useSharedValue,
+  withSpring,
+  withDelay,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./CompactMacroSummary.styles";
 
@@ -16,6 +22,37 @@ export const CompactMacroSummary: React.FC<CompactMacroSummaryProps> = ({
 }) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
+  
+  // Animation values for dot entrance
+  const proteinScale = useSharedValue(0);
+  const carbsScale = useSharedValue(0);
+  const fatScale = useSharedValue(0);
+  
+  // Trigger entrance animations on mount
+  useEffect(() => {
+    // Staggered entrance animations with spring physics
+    proteinScale.value = withDelay(
+      50,
+      withSpring(1, {
+        damping: 12,
+        stiffness: 300,
+      })
+    );
+    carbsScale.value = withDelay(
+      100,
+      withSpring(1, {
+        damping: 12,
+        stiffness: 300,
+      })
+    );
+    fatScale.value = withDelay(
+      150,
+      withSpring(1, {
+        damping: 12,
+        stiffness: 300,
+      })
+    );
+  }, [protein, carbs, fat]); // Re-animate when values change
 
   // Define dot size constraints
   const minSize = 6;
@@ -40,6 +77,19 @@ export const CompactMacroSummary: React.FC<CompactMacroSummaryProps> = ({
     height: size,
     borderRadius: size / 2,
   });
+  
+  // Animated styles for each dot
+  const proteinDotStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: proteinScale.value }],
+  }));
+  
+  const carbsDotStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: carbsScale.value }],
+  }));
+  
+  const fatDotStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: fatScale.value }],
+  }));
 
   return (
     <View 
@@ -47,25 +97,28 @@ export const CompactMacroSummary: React.FC<CompactMacroSummaryProps> = ({
       accessibilityRole="image"
       accessibilityLabel={`Macro nutrients: ${protein}g protein, ${carbs}g carbs, ${fat}g fat`}
     >
-      <View 
+      <Animated.View 
         style={[
           styles.dot, 
           styles.proteinDot, 
-          createDotStyle(proteinSize)
+          createDotStyle(proteinSize),
+          proteinDotStyle
         ]} 
       />
-      <View 
+      <Animated.View 
         style={[
           styles.dot, 
           styles.carbsDot, 
-          createDotStyle(carbsSize)
+          createDotStyle(carbsSize),
+          carbsDotStyle
         ]} 
       />
-      <View 
+      <Animated.View 
         style={[
           styles.dot, 
           styles.fatDot, 
-          createDotStyle(fatSize)
+          createDotStyle(fatSize),
+          fatDotStyle
         ]} 
       />
     </View>
