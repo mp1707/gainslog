@@ -39,9 +39,6 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
   const cardScale = useSharedValue(1);
   const prevConfidence = useRef(foodLog.estimationConfidence);
 
-  // Press animation shared values
-  const pressScale = useSharedValue(1);
-  const pressFlashOpacity = useSharedValue(0);
 
   // Get color based on confidence level (matching Badge component logic)
   const getConfidenceColor = (confidence: number): string => {
@@ -86,13 +83,7 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
   }));
 
   const cardAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: cardScale.value * pressScale.value }],
-  }));
-
-  // Press animation styles
-  const pressFlashAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: pressFlashOpacity.value,
-    backgroundColor: colors.primaryText,
+    transform: [{ scale: cardScale.value }],
   }));
 
   const handleCardPress = () => {
@@ -100,96 +91,57 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
     onAddInfo(foodLog);
   };
 
-  const handlePressIn = () => {
-    // Press down animation - scale down and flash
-    pressScale.value = withTiming(0.97, {
-      duration: 150,
-      easing: Easing.out(Easing.quad),
-    });
-    pressFlashOpacity.value = withTiming(0.08, {
-      duration: 150,
-      easing: Easing.out(Easing.quad),
-    });
-  };
-
-  const handlePressOut = () => {
-    // Release animation - spring back and fade flash
-    pressScale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
-    pressFlashOpacity.value = withTiming(0, {
-      duration: 300,
-      easing: Easing.out(Easing.quad),
-    });
-  };
 
   return (
-    <Pressable
-      onPress={handleCardPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      accessibilityRole="button"
-      accessibilityLabel={`Food log: ${
-        foodLog.userTitle || foodLog.generatedTitle
-      }`}
-      accessibilityHint="Tap to edit or add more information"
-      android_ripple={{ color: "rgba(138, 63, 252, 0.1)" }}
-    >
-      <Animated.View style={[styles.cardContainer, cardAnimatedStyle]}>
-        {isLoading ? (
-          <FoodLogCardSkeleton foodLog={foodLog} />
-        ) : (
-          <>
-            <FoodLogCardView
-              title={foodLog.userTitle || foodLog.generatedTitle}
-              description={foodLog.userDescription}
-              calories={foodLog.calories}
-              protein={foodLog.protein}
-              carbs={foodLog.carbs}
-              fat={foodLog.fat}
-              showImageIcon={Boolean(foodLog.imageUrl || foodLog.localImageUri)}
-              confidence={foodLog.estimationConfidence}
-              showConfidence
-              accessoryRight={
-                <TouchableOpacity
-                  onPress={async () => {
-                    Haptics.selectionAsync();
-                    await toggleForLog(foodLog);
-                  }}
-                  style={styles.favoriteButton}
-                  accessibilityRole="button"
-                  accessibilityLabel={
-                    favorite ? "Remove favorite" : "Add to favorites"
-                  }
-                  accessibilityHint={
-                    favorite
-                      ? "Removes this entry from your favorites"
-                      : "Adds this entry to your favorites"
-                  }
-                  onPressIn={handlePressIn}
-                  onPressOut={handlePressOut}
-                >
-                  {favorite ? (
-                    <StarIcon size={20} color="#FDB813" weight="fill" />
-                  ) : (
-                    <StarIcon size={20} color="#FDB813" weight="regular" />
-                  )}
-                </TouchableOpacity>
-              }
-            />
+    <Animated.View style={[styles.cardContainer, cardAnimatedStyle]}>
+      {isLoading ? (
+        <FoodLogCardSkeleton foodLog={foodLog} />
+      ) : (
+        <>
+          <FoodLogCardView
+            title={foodLog.userTitle || foodLog.generatedTitle}
+            description={foodLog.userDescription}
+            calories={foodLog.calories}
+            protein={foodLog.protein}
+            carbs={foodLog.carbs}
+            fat={foodLog.fat}
+            showImageIcon={Boolean(foodLog.imageUrl || foodLog.localImageUri)}
+            confidence={foodLog.estimationConfidence}
+            showConfidence
+            onEdit={handleCardPress}
+            accessoryRight={
+              <TouchableOpacity
+                onPress={async () => {
+                  Haptics.selectionAsync();
+                  await toggleForLog(foodLog);
+                }}
+                style={styles.favoriteButton}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  favorite ? "Remove favorite" : "Add to favorites"
+                }
+                accessibilityHint={
+                  favorite
+                    ? "Removes this entry from your favorites"
+                    : "Adds this entry to your favorites"
+                }
+              >
+                {favorite ? (
+                  <StarIcon size={20} color="#FDB813" weight="fill" />
+                ) : (
+                  <StarIcon size={20} color="#FDB813" weight="regular" />
+                )}
+              </TouchableOpacity>
+            }
+          />
 
-            {/* Flash overlay for success animation */}
-            <Animated.View
-              style={[styles.flashOverlay, flashAnimatedStyle]}
-              pointerEvents="none"
-            />
-
-            {/* Press flash overlay for press feedback */}
-            <Animated.View
-              style={[styles.flashOverlay, pressFlashAnimatedStyle]}
-              pointerEvents="none"
-            />
-          </>
-        )}
-      </Animated.View>
-    </Pressable>
+          {/* Flash overlay for success animation */}
+          <Animated.View
+            style={[styles.flashOverlay, flashAnimatedStyle]}
+            pointerEvents="none"
+          />
+        </>
+      )}
+    </Animated.View>
   );
 };

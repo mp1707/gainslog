@@ -61,7 +61,7 @@ export const createStyles = (colors: Colors) =>
     bottomSection: {
       flexDirection: "row",
       justifyContent: "space-between",
-      alignItems: "center",
+      alignItems: "flex-end",
       gap: theme.spacing.sm,
     },
     // Macro badges container
@@ -72,6 +72,47 @@ export const createStyles = (colors: Colors) =>
       gap: theme.spacing.sm,
       flexWrap: "wrap",
       flex: 1,
+    },
+    
+    // Edit button styles
+    editButton: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    
+    // Chevron container
+    chevronContainer: {
+      marginLeft: theme.spacing.xs,
+      justifyContent: "center",
+      alignItems: "center",
+      position: "absolute",
+      right: 0,
+      left: 0,
+      bottom: -10,
+    },
+    
+    // Detailed macros styles
+    detailedMacros: {
+      flexDirection: "column",
+      gap: theme.spacing.xs,
+    },
+    
+    macroRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      minWidth: 80,
+    },
+    
+    macroLabel: {
+      ...theme.typography.Caption,
+    },
+    
+    macroValue: {
+      ...theme.typography.Caption,
     },
   });
 
