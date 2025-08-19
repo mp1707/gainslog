@@ -19,13 +19,13 @@ const lightColors = {
   // Semantic colors for nutrition data visualization (v1.4.0 - Vibrancy Harmonized)
   semantic: {
     // Change: Brighter, more energetic green to match the accent's vibrancy.
-    calories: "#00C853",
+    calories: "#60E0B0",
     // Change: More saturated, "digital" blue that feels more active and less corporate.
-    protein: "#2962FF",
+    protein: "#60B0F0",
     // Change: Slightly adjusted for harmony with the new palette.
-    carbs: "#FF6D00",
+    carbs: "#F080A0",
     // Change: Kept a strong yellow, ensuring it feels distinct from the new orange.
-    fat: "#FDB813",
+    fat: "#E04060",
   },
   // Semantic badge colors with proper backgrounds and text
   semanticBadges: {

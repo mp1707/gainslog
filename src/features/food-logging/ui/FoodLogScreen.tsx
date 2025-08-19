@@ -18,6 +18,7 @@ import { FavoritesPickerModal } from "./molecules/FavoritesPickerModal";
 import { NutritionHub } from "./components/NutritionHub";
 import { CaloriesSection } from "./components/CaloriesSection";
 import { MacronutriensSection } from "./components/MacronutriensSection";
+import { NutrientHub } from "../NutrientHub";
 
 interface FoodLogScreenProps {
   isLoadingLogs: boolean;
@@ -122,6 +123,14 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
           targets={dailyTargets}
           percentages={percentages}
         /> */}
+        <NutrientHub
+          percentages={{
+            calories: 100,
+            protein: 100,
+            carbs: 100,
+            fat: 100,
+          }}
+        />
       </View>
       <ScrollView
         ref={scrollViewRef}

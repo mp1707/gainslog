@@ -60,6 +60,7 @@ export const NutritionHub: React.FC<NutritionHubProps> = React.memo(
             percentage={percentages[nutrient] ?? 0}
             label={nutrient.charAt(0).toUpperCase() + nutrient.slice(1)}
             target={target}
+            disabledBackgroundColor={colors.disabledBackground}
           />
         );
       });

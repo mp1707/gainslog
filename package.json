@@ -19,7 +19,6 @@
     "@react-native-picker/picker": "2.11.1",
     "@shopify/react-native-skia": "^2.2.3",
     "@supabase/supabase-js": "^2.52.0",
-    "expo": "~53.0.20",
     "expo-audio": "^0.4.8",
     "expo-dev-client": "~5.2.4",
     "expo-font": "^13.3.2",
@@ -46,6 +45,7 @@
     "@babel/core": "^7.25.2",
     "@types/react": "~19.0.10",
     "babel-plugin-module-resolver": "^5.0.2",
+    "expo": "^53.0.20",
     "typescript": "~5.8.3"
   },
   "private": true

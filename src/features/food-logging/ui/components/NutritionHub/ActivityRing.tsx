@@ -12,7 +12,6 @@ import Animated, {
   withDelay,
   Easing,
 } from "react-native-reanimated";
-import { useTheme } from "@/providers/ThemeProvider";
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
@@ -25,6 +24,7 @@ interface ActivityRingProps {
   label: string;
   target: number;
   animationDelay?: number;
+  disabledBackgroundColor: string;
 }
 
 export const ActivityRing: React.FC<ActivityRingProps> = React.memo(
@@ -37,8 +37,8 @@ export const ActivityRing: React.FC<ActivityRingProps> = React.memo(
     label,
     target,
     animationDelay = 0,
+    disabledBackgroundColor,
   }) => {
-    const { colors } = useTheme();
     const progress = useSharedValue(0);
 
     const { center, clampedPercentage, safeRadius, circlePath } =
@@ -89,7 +89,7 @@ export const ActivityRing: React.FC<ActivityRingProps> = React.memo(
           cx={center}
           cy={center}
           r={safeRadius}
-          color={colors.disabledBackground}
+          color={disabledBackgroundColor}
           style="stroke"
           strokeWidth={strokeWidth}
           strokeCap="round"
