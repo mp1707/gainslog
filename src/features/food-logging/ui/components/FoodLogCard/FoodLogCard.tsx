@@ -105,7 +105,6 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
             protein={foodLog.protein}
             carbs={foodLog.carbs}
             fat={foodLog.fat}
-            showImageIcon={Boolean(foodLog.imageUrl || foodLog.localImageUri)}
             confidence={foodLog.estimationConfidence}
             showConfidence
             onEdit={handleCardPress}

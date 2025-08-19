@@ -46,7 +46,6 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({ entry }) => {
       carbs={entry.carbs}
       fat={entry.fat}
       showConfidence={false}
-      showImageIcon={false}
       accessoryRight={
         <TouchableOpacity
           onPress={handleRemoveFavorite}
