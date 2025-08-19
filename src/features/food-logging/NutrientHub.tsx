@@ -6,6 +6,12 @@ import Animated, {
   withSpring,
   withDelay,
   useDerivedValue,
+  useAnimatedStyle,
+  useAnimatedReaction,
+  interpolate,
+  Extrapolate,
+  SharedValue,
+  runOnJS,
 } from "react-native-reanimated";
 import { theme } from "@/theme";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -23,6 +29,7 @@ interface NutrientHubProps {
   percentages: NutrientValues;
   targets: NutrientValues;
   totals: NutrientValues;
+  scrollY?: SharedValue<number>;
 }
 
 // Ring configuration - from outermost to innermost
@@ -52,6 +59,7 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
   percentages,
   targets,
   totals,
+  scrollY,
 }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
@@ -85,6 +93,35 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
   });
 
   const scale = useSharedValue(1);
+  
+  // Binary animation state with hysteresis
+  const compactModeValue = useSharedValue(0);
+
+  // Hysteresis-based scroll detection for snappy animation
+  const animationProgress = useDerivedValue(() => {
+    if (!scrollY) return compactModeValue.value;
+    
+    const scrollY_val = scrollY.value;
+    
+    // Hysteresis thresholds: enter compact at 50px, exit at 20px
+    if (scrollY_val > 50 && compactModeValue.value === 0) {
+      // Snap to compact mode
+      compactModeValue.value = withSpring(1, {
+        damping: 15,
+        stiffness: 400,
+        mass: 0.6,
+      });
+    } else if (scrollY_val < 20 && compactModeValue.value === 1) {
+      // Snap to normal mode
+      compactModeValue.value = withSpring(0, {
+        damping: 15,
+        stiffness: 400,
+        mass: 0.6,
+      });
+    }
+    
+    return compactModeValue.value;
+  });
 
   // Animate to new percentage values when props change
   useEffect(() => {
@@ -240,12 +277,20 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
   const getNutrientInfo = (nutrientKey: keyof NutrientValues) => {
     const total = Math.round(totals[nutrientKey]);
     const target = Math.round(targets[nutrientKey]);
-    const names = {
+    
+    // Use different labels for compact vs normal mode
+    const names = isCompactMode ? {
+      calories: "Cal",
+      protein: "Prot",
+      carbs: "Carb",
+      fat: "Fat",
+    } : {
       calories: "Cal",
       protein: "Protein",
       carbs: "Carbs",
       fat: "Fat",
     };
+    
     return {
       name: names[nutrientKey],
       value: `${total}/${target}`,
@@ -253,60 +298,135 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
     };
   };
 
-  // Apply scale animation to the entire component
-  const animatedStyle = useDerivedValue(() => ({
-    transform: [{ scale: scale.value }],
-  }));
+  // Create a regular state for layout mode to avoid Reanimated layout property issues
+  const [isCompactMode, setIsCompactMode] = React.useState(false);
+
+  // Monitor animation progress and update layout mode using useAnimatedReaction
+  useAnimatedReaction(
+    () => compactModeValue.value,
+    (currentValue) => {
+      const shouldBeCompact = currentValue > 0.5;
+      runOnJS(setIsCompactMode)(shouldBeCompact);
+    }
+  );
+
+  // Animated styles using only transform properties (Reanimated compatible)
+  const animatedContainerStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+
+  const animatedRingStyle = useAnimatedStyle(() => {
+    // Much smaller ring for ultra-compact mode
+    const ringScale = interpolate(animationProgress.value, [0, 1], [1, 0.42]);
+    const translateX = interpolate(animationProgress.value, [0, 1], [0, screenWidth * 0.12]);
+    
+    return {
+      transform: [
+        { scale: ringScale },
+        { translateX: translateX }
+      ],
+    };
+  });
+
+  const animatedBadgeStyle = useAnimatedStyle(() => {
+    const translateX = interpolate(animationProgress.value, [0, 1], [0, -screenWidth * 0.15]);
+    // Remove opacity animation for cleaner snapping
+    
+    return {
+      transform: [{ translateX: translateX }],
+    };
+  });
+
+  // Dynamic styles based on compact mode
+  const containerLayoutStyle = isCompactMode ? {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 8, // Tighter spacing for ultra-compact mode
+    height: containerSize * 0.42 + 10, // Constrain height to ring size + small margin
+  } : {
+    flexDirection: 'column' as const,
+    alignItems: 'center' as const,
+    gap: 0,
+  };
+
+  const badgeLayoutStyle = isCompactMode ? {
+    // 2x2 grid layout for compact mode
+    flexDirection: 'row' as const,
+    flexWrap: 'wrap' as const,
+    width: 130, // Fixed width for 2x2 grid
+    marginTop: 0,
+    gap: 4, // Tight spacing for compact look
+  } : {
+    flexDirection: 'row' as const,
+    width: '100%' as const,
+    marginTop: theme.spacing.md,
+    flexWrap: 'wrap' as const,
+    gap: theme.spacing.sm,
+  };
 
   return (
     <View style={styles.container}>
       <Animated.View
         style={[
           styles.animatedContainer,
-          animatedStyle,
+          animatedContainerStyle,
+          containerLayoutStyle,
         ]}
       >
-        <Canvas
-          style={{
-            width: containerSize,
-            height: containerSize,
-          }}
-        >
-          <Group
-            transform={[{ rotate: -Math.PI / 2 }]}
-            origin={{ x: center, y: center }}
+        {/* Ring Canvas */}
+        <Animated.View style={animatedRingStyle}>
+          <Canvas
+            style={{
+              width: containerSize,
+              height: containerSize,
+            }}
           >
-            {RING_CONFIG.map((_, index) => renderRing(index))}
-          </Group>
-        </Canvas>
+            <Group
+              transform={[{ rotate: -Math.PI / 2 }]}
+              origin={{ x: center, y: center }}
+            >
+              {RING_CONFIG.map((_, index) => renderRing(index))}
+            </Group>
+          </Canvas>
+        </Animated.View>
 
-        {/* Compact badge legend below the rings */}
-        <View style={styles.badgeLegend}>
+        {/* Badge legend */}
+        <Animated.View style={[
+          styles.badgeLegend, 
+          animatedBadgeStyle,
+          badgeLayoutStyle
+        ]}>
           {RING_CONFIG.map((config) => {
             const info = getNutrientInfo(config.key);
+            const badgeStyle = isCompactMode ? styles.compactBadge : styles.badge;
+            const titleStyle = isCompactMode ? styles.compactBadgeTitle : styles.badgeTitle;
+            const valueStyle = isCompactMode ? styles.compactBadgeValue : styles.badgeValue;
+            
             return (
               <View
                 key={config.key}
                 style={[
-                  styles.badge,
+                  badgeStyle,
                   { backgroundColor: info.colors.background }
                 ]}
               >
                 <Text
                   style={[
-                    styles.badgeTitle,
+                    titleStyle,
                     { color: info.colors.text }
                   ]}
                 >
                   {info.name}
                 </Text>
-                <Text style={styles.badgeValue}>
+                <Text style={valueStyle}>
                   {info.value}
                 </Text>
               </View>
             );
           })}
-        </View>
+        </Animated.View>
       </Animated.View>
     </View>
   );

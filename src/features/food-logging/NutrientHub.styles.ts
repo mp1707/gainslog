@@ -22,11 +22,26 @@ export const createStyles = (colors: Colors) =>
       gap: theme.spacing.sm,
     },
 
+    compactBadgeLegend: {
+      flexDirection: "column",
+      width: "auto",
+      marginTop: 0,
+      gap: theme.spacing.xs,
+    },
+
     badge: {
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: theme.spacing.xs,
       borderRadius: 6,
       minWidth: 70,
+      alignItems: "center",
+    },
+
+    compactBadge: {
+      paddingHorizontal: 6,
+      paddingVertical: 3,
+      borderRadius: 4,
+      width: 62, // Fixed width for 2x2 grid
       alignItems: "center",
     },
 
@@ -40,6 +55,19 @@ export const createStyles = (colors: Colors) =>
       ...theme.typography.Caption,
       color: colors.secondaryText,
       fontSize: 11,
+    },
+
+    compactBadgeTitle: {
+      ...theme.typography.Caption,
+      fontWeight: "600",
+      fontSize: 10,
+      marginBottom: 1,
+    },
+
+    compactBadgeValue: {
+      ...theme.typography.Caption,
+      color: colors.secondaryText,
+      fontSize: 9,
     },
   });
 

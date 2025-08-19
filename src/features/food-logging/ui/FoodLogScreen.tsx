@@ -1,6 +1,7 @@
 import React, { useRef, useMemo } from "react";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Animated, { useSharedValue } from "react-native-reanimated";
 import { FoodLog } from "@/types";
 import { createStyles } from "./FoodLogScreen.styles";
 import {
@@ -38,6 +39,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   onCloseFavoritesModal,
 }) => {
   const scrollViewRef = useRef<ScrollView>(null);
+  const scrollY = useSharedValue(0);
 
   const foodLogs = useFoodLogStore(selectFoodLogs);
   const dailyTargets = useFoodLogStore(selectDailyTargets);
@@ -108,6 +110,11 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
     }
   }, [scrollToTop]);
 
+  const handleScroll = (event: any) => {
+    const newScrollY = event.nativeEvent.contentOffset.y;
+    scrollY.value = newScrollY;
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <DateNavigationHeader
@@ -128,6 +135,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
           percentages={percentages}
           targets={dailyTargets}
           totals={currentTotals}
+          scrollY={scrollY}
         />
       </View>
       <ScrollView
@@ -137,6 +145,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         scrollEventThrottle={16}
         removeClippedSubviews={true}
         showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
       >
         {/* <View style={styles.statsContainer}>
           <CaloriesSection
