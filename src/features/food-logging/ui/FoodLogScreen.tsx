@@ -16,6 +16,8 @@ import { DateNavigationHeader } from "./components/DateNavigationHeader";
 import { FoodLogsList } from "./components/FoodLogsList";
 import { FavoritesPickerModal } from "./molecules/FavoritesPickerModal";
 import { NutritionHub } from "./components/NutritionHub";
+import { CaloriesSection } from "./components/CaloriesSection";
+import { MacronutriensSection } from "./components/MacronutriensSection";
 
 interface FoodLogScreenProps {
   isLoadingLogs: boolean;
@@ -115,11 +117,11 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         isToday={isTodayMemo}
       />
       <View style={styles.statsContainer}>
-        <NutritionHub
+        {/* <NutritionHub
           current={currentTotals}
           targets={dailyTargets}
           percentages={percentages}
-        />
+        /> */}
       </View>
       <ScrollView
         ref={scrollViewRef}
@@ -129,6 +131,18 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         removeClippedSubviews={true}
         showsVerticalScrollIndicator={false}
       >
+        <View style={styles.statsContainer}>
+          <CaloriesSection
+            current={currentTotals}
+            targets={dailyTargets}
+            percentages={percentages}
+          />
+          <MacronutriensSection
+            current={currentTotals}
+            targets={dailyTargets}
+            percentages={percentages}
+          />
+        </View>
         <FoodLogsList
           isLoadingLogs={isLoadingLogs}
           foodLogs={filteredFoodLogs}

@@ -1,5 +1,10 @@
 import React, { useEffect, useMemo } from "react";
-import Svg, { Circle, G } from "react-native-svg";
+import {
+  Circle,
+  Group,
+  Path,
+  Skia,
+} from "@shopify/react-native-skia";
 import Animated, {
   useSharedValue,
   useAnimatedProps,
@@ -9,7 +14,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "@/providers/ThemeProvider";
 
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 interface ActivityRingProps {
   percentage: number;
@@ -36,16 +41,20 @@ export const ActivityRing: React.FC<ActivityRingProps> = React.memo(
     const { colors } = useTheme();
     const progress = useSharedValue(0);
 
-    const { center, circumference, clampedPercentage, safeRadius } =
+    const { center, clampedPercentage, safeRadius, circlePath } =
       useMemo(() => {
         const center = size / 2;
         const safeRadius = Math.max(radius, 1);
-        const circumference = 2 * Math.PI * safeRadius;
         const clampedPercentage = Math.min(
           100,
           Math.max(0, isNaN(percentage) ? 0 : percentage)
         );
-        return { center, circumference, clampedPercentage, safeRadius };
+        
+        // Create a circle path for Skia
+        const circlePath = Skia.Path.Make();
+        circlePath.addCircle(center, center, safeRadius);
+        
+        return { center, clampedPercentage, safeRadius, circlePath };
       }, [size, radius, percentage]);
 
     useEffect(() => {
@@ -61,42 +70,42 @@ export const ActivityRing: React.FC<ActivityRingProps> = React.memo(
     }, [clampedPercentage, animationDelay]);
 
     const animatedProps = useAnimatedProps(() => {
-      const progressLength = (circumference * progress.value) / 100;
-      return { strokeDasharray: `${progressLength} ${circumference}` };
-    }, [circumference]);
+      const progressRatio = progress.value / 100;
+      return { 
+        start: 0,
+        end: progressRatio
+      };
+    });
 
     if (target <= 0 || safeRadius <= 1) return null;
 
     return (
-      <G
-        accessibilityRole="image"
-        accessibilityLabel={`${label}: ${Math.round(
-          clampedPercentage
-        )}% of daily goal completed`}
+      <Group
+        transform={[{ rotate: -Math.PI / 2 }]}
+        origin={{ x: center, y: center }}
       >
+        {/* Background circle */}
         <Circle
           cx={center}
           cy={center}
           r={safeRadius}
-          stroke={colors.disabledBackground}
+          color={colors.disabledBackground}
+          style="stroke"
           strokeWidth={strokeWidth}
-          fill="transparent"
-          strokeLinecap="round"
+          strokeCap="round"
           opacity={0.5}
         />
-        <AnimatedCircle
-          cx={center}
-          cy={center}
-          r={safeRadius}
-          stroke={color}
+        
+        {/* Progress arc */}
+        <AnimatedPath
+          path={circlePath}
+          color={color}
+          style="stroke"
           strokeWidth={strokeWidth}
-          fill="transparent"
-          strokeLinecap="round"
+          strokeCap="round"
           animatedProps={animatedProps}
-          rotation="-90"
-          origin={`${center}, ${center}`}
         />
-      </G>
+      </Group>
     );
   }
 );

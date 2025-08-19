@@ -7,35 +7,42 @@ import { DailyProgress } from "@/types/index";
 import { Card } from "@/components/Card";
 
 interface MacronutriensSectionProps {
-  dailyProgress: DailyProgress;
+  current: { calories: number; protein: number; carbs: number; fat: number };
+  targets: { calories: number; protein: number; carbs: number; fat: number };
+  percentages: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
 }
 
 export const MacronutriensSection: React.FC<MacronutriensSectionProps> =
-  React.memo(({ dailyProgress }) => {
+  React.memo(({ current, targets }) => {
     const { theme, colors } = useTheme();
 
     const { proteinData, fatData, carbsData } = useMemo(
       () => ({
         proteinData: {
-          current: Math.round(dailyProgress.current.protein),
-          target: dailyProgress.targets.protein,
+          current: Math.round(current.protein),
+          target: targets.protein,
           unit: "g",
           label: "Protein",
         },
         fatData: {
-          current: Math.round(dailyProgress.current.fat),
-          target: dailyProgress.targets.fat,
+          current: Math.round(current.fat),
+          target: targets.fat,
           unit: "g",
           label: "Fat",
         },
         carbsData: {
-          current: Math.round(dailyProgress.current.carbs),
-          target: dailyProgress.targets.carbs,
+          current: Math.round(current.carbs),
+          target: targets.carbs,
           unit: "g",
           label: "Carbs",
         },
       }),
-      [dailyProgress]
+      [current, targets]
     );
 
     const styles = useMemo(

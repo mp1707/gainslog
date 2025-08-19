@@ -10,16 +10,20 @@ import { Card, AppText } from "@/components";
 import { useTheme } from "@/providers";
 import { DailyProgress } from "@/types/index";
 interface CaloriesSectionProps {
-  dailyProgress: DailyProgress;
+  current: { calories: number };
+  targets: { calories: number };
+  percentages: {
+    calories: number;
+  };
 }
 
 export const CaloriesSection: React.FC<CaloriesSectionProps> = React.memo(
-  ({ dailyProgress }) => {
+  ({ current, targets, percentages }) => {
     const { theme, colors, colorScheme } = useTheme();
 
     const caloriesData = {
-      current: Math.round(dailyProgress.current.calories),
-      target: dailyProgress.targets.calories,
+      current: Math.round(current.calories),
+      target: targets.calories,
     };
 
     // Animated style for calories progress bar with design system timing
@@ -27,14 +31,11 @@ export const CaloriesSection: React.FC<CaloriesSectionProps> = React.memo(
 
     // Update progress with motivational moment animation
     useEffect(() => {
-      caloriesProgress.value = withTiming(
-        Math.min(100, dailyProgress.percentages.calories),
-        {
-          duration: 500,
-          easing: Easing.bezier(0.25, 1, 0.5, 1),
-        }
-      );
-    }, [dailyProgress.percentages.calories]);
+      caloriesProgress.value = withTiming(Math.min(100, percentages.calories), {
+        duration: 500,
+        easing: Easing.bezier(0.25, 1, 0.5, 1),
+      });
+    }, [percentages.calories]);
 
     const caloriesAnimatedStyle = useAnimatedStyle(() => ({
       width: `${caloriesProgress.value}%`,

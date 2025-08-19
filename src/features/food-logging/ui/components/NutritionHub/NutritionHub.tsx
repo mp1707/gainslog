@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { View } from "react-native";
-import Svg from "react-native-svg";
+import { Canvas } from "@shopify/react-native-skia";
 import { useTheme } from "@/providers/ThemeProvider";
 import { ActivityRing } from "./ActivityRing";
 import { CentralDisplay } from "./CentralDisplay";
@@ -75,7 +75,9 @@ export const NutritionHub: React.FC<NutritionHubProps> = React.memo(
     return (
       <View style={styles.container}>
         <View style={styles.ringsContainer}>
-          <Svg width={size} height={size}>{renderedRings}</Svg>
+          <Canvas style={{ width: size, height: size }}>
+            {renderedRings}
+          </Canvas>
           {showCenterContent && (
             <View style={styles.centerContent}>
               <CentralDisplay
