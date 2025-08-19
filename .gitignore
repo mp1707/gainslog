@@ -53,3 +53,4 @@ build/
 
 # other stuff
 .notes/
+credentials.json
