@@ -1,11 +1,14 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions, Platform } from "react-native";
 import { theme } from "@/theme";
 import type { Colors } from "@/theme";
 
 export const createStyles = (colors: Colors) =>
   StyleSheet.create({
-    container: {
+    cardContainer: {
       alignSelf: "center",
+      // Updated to give more vertical space in the container
+      minHeight: Dimensions.get("window").width * 0.7 + theme.spacing.xl * 2,
+      width: "100%",
     },
 
     animatedContainer: {
@@ -14,150 +17,90 @@ export const createStyles = (colors: Colors) =>
       alignItems: "center",
     },
 
-    badgeLegend: {
-      width: "100%",
+    // --------------------------------------------------
+    // NEW STYLES FOR HORIZONTAL NUTRIENT VALUES
+    // --------------------------------------------------
+    nutrientValuesWrapper: {
+      width: "80%",
       flexDirection: "row",
       flexWrap: "wrap",
-      marginTop: theme.spacing.sm,
-      gap: theme.spacing.xs,
-      justifyContent: "center",
+      // justifyContent: "space-between",
+      alignItems: "center", // Align values to the bottom
+
+      marginTop: theme.spacing.xl, // Generous spacing below the rings
     },
 
-    expandedBadgeLegend: {
-      width: "100%",
+    // This wrapper is for compact mode, when the container becomes horizontal
+    compactValuesWrapper: {
       flexDirection: "column",
-      alignItems: "center",
-      marginTop: theme.spacing.sm,
-      gap: theme.spacing.sm,
-    },
-
-    caloriesRow: {
-      flexDirection: "row",
+      alignItems: "flex-start",
       justifyContent: "center",
-      alignItems: "center",
-    },
-
-    macrosRow: {
-      flexDirection: "row",
-      justifyContent: "center",
-      alignItems: "center",
-      gap: theme.spacing.xs,
-      flexWrap: "wrap",
-    },
-
-    compactBadgeLegend: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      width: 130,
+      paddingLeft: theme.spacing.xl,
       marginTop: 0,
-      gap: 4,
-      justifyContent: "space-between",
-    },
-
-    badge: {
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.xs,
-      borderRadius: 6,
-      minWidth: 70,
-      alignItems: "center",
-    },
-
-    // Enhanced badge for normal state
-    enhancedBadge: {
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
-      borderRadius: 12,
-      minWidth: 80,
-      alignItems: "center",
-      gap: theme.spacing.xs,
-      shadowColor: "rgba(0, 0, 0, 0.08)",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 1,
-      shadowRadius: 4,
-      elevation: 2,
-    },
-
-    compactBadge: {
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.xs,
-      borderRadius: 8,
-      width: 64, // Fixed width for 2x2 grid (8pt grid aligned)
-      alignItems: "center",
-      gap: theme.spacing.xs / 2, // 2px gap
-      shadowColor: "rgba(0, 0, 0, 0.06)",
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 1,
-      shadowRadius: 2,
-      elevation: 1,
-    },
-
-    badgeTitle: {
-      ...theme.typography.Caption,
-      marginBottom: 1,
-    },
-
-    // Enhanced badge typography
-    enhancedBadgeTitle: {
-      ...theme.typography.Subhead,
-      fontWeight: "600",
-      letterSpacing: 0.1,
-    },
-
-    badgeValue: {
-      ...theme.typography.Caption,
-      color: colors.primaryText,
-    },
-
-    enhancedBadgeValue: {
-      ...theme.typography.Body,
-      fontWeight: "700",
-      color: colors.primaryText,
-    },
-
-    compactBadgeTitle: {
-      ...theme.typography.Caption,
-      fontWeight: "600",
-      letterSpacing: 0.1,
-    },
-
-    compactBadgeValue: {
-      ...theme.typography.Caption,
-      color: colors.primaryText,
-      fontWeight: "700",
-    },
-
-    // Badge component layout styles
-    badgeHeader: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
       gap: theme.spacing.xs,
     },
 
-    badgePercentage: {
+    nutrientValueContainer: {
+      alignItems: "center",
+      marginHorizontal: theme.spacing.sm,
+      // Layout change for compact mode
+      ...Platform.select({
+        ios: {
+          flexDirection: "row",
+          gap: theme.spacing.xs,
+        },
+      }),
+    },
+
+    // Color-coded dot
+    colorDot: {
+      width: theme.spacing.sm, // 8px
+      height: theme.spacing.sm, // 8px
+      borderRadius: theme.spacing.xs, // 4px
+      ...Platform.select({
+        ios: {
+          marginBottom: 0, // No bottom margin in compact mode
+        },
+      }),
+    },
+
+    // Main value (e.g., '50/200')
+    valueText: {
+      ...theme.typography.Body, // Use a readable text size
+      fontWeight: "700",
+      color: colors.primaryText,
+      marginTop: theme.spacing.xs,
+      // Layout change for compact mode
+      ...Platform.select({
+        ios: {
+          marginTop: 0,
+        },
+      }),
+    },
+
+    // Unit text ('g', 'kcal')
+    unitText: {
       ...theme.typography.Caption,
-      fontSize: 10,
+      color: colors.secondaryText,
+      textTransform: "uppercase",
       fontWeight: "500",
-      opacity: 0.8,
-      lineHeight: 12,
     },
 
-    badgeUnit: {
+    // Label text ('Protein', 'Carbs')
+    labelText: {
       ...theme.typography.Caption,
-      fontSize: 10,
-      fontWeight: "400",
-      opacity: 0.7,
-      marginTop: 1,
-      lineHeight: 12,
+      color: colors.secondaryText,
+      marginTop: theme.spacing.xs,
+      // Layout change for compact mode
+      ...Platform.select({
+        ios: {
+          marginTop: 0,
+        },
+      }),
     },
 
-    // New style for compact combined value+unit
-    enhancedBadgeValueWithUnit: {
-      ...theme.typography.Body,
-      fontWeight: "700",
-      color: colors.primaryText,
-    },
+    // Legacy exports removed, as they are no longer needed
+    // --------------------------------------------------
+    // LEGACY STYLES (REMOVED)
+    // --------------------------------------------------
   });
-
-// Legacy export for compatibility
-export const styles = createStyles(theme.getColors());

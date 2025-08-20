@@ -17,6 +17,7 @@ import { DateNavigationHeader } from "./components/DateNavigationHeader";
 import { FoodLogsList } from "./components/FoodLogsList";
 import { FavoritesPickerModal } from "./molecules/FavoritesPickerModal";
 import { NutrientHub } from "./components/NutrientHub";
+import { AppText } from "@/components/AppText";
 
 interface FoodLogScreenProps {
   isLoadingLogs: boolean;
@@ -122,6 +123,9 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         isToday={isTodayMemo}
       />
       <View style={styles.statsContainer}>
+        <AppText role="Headline" style={styles.headerStyle}>
+          Nutrient Hub
+        </AppText>
         <NutrientHub
           key={selectedDate}
           percentages={percentages}
