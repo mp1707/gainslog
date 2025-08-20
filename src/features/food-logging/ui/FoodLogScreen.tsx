@@ -1,7 +1,7 @@
 import React, { useRef, useMemo } from "react";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Animated, { useSharedValue } from "react-native-reanimated";
+import { useSharedValue } from "react-native-reanimated";
 import { FoodLog } from "@/types";
 import { createStyles } from "./FoodLogScreen.styles";
 import {
@@ -16,9 +16,6 @@ import { useFavoriteSelection } from "./hooks/useFavoriteSelection";
 import { DateNavigationHeader } from "./components/DateNavigationHeader";
 import { FoodLogsList } from "./components/FoodLogsList";
 import { FavoritesPickerModal } from "./molecules/FavoritesPickerModal";
-import { NutritionHub } from "./components/NutritionHub";
-import { CaloriesSection } from "./components/CaloriesSection";
-import { MacronutriensSection } from "./components/MacronutriensSection";
 import { NutrientHub } from "../NutrientHub";
 
 interface FoodLogScreenProps {
@@ -125,11 +122,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         isToday={isTodayMemo}
       />
       <View style={styles.statsContainer}>
-        {/* <NutritionHub
-          current={currentTotals}
-          targets={dailyTargets}
-          percentages={percentages}
-        /> */}
+
         <NutrientHub
           key={selectedDate}
           percentages={percentages}
