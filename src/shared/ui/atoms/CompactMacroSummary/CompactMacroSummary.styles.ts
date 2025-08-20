@@ -6,25 +6,31 @@ export const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     container: {
       flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      height: 28,
-      gap: 6,
+      alignItems: "stretch",
+      height: theme.spacing.lg, // 24pt following 8pt grid system
+      width: 70, // Fixed width for consistent bar size
+      overflow: "hidden",
+      borderRadius: theme.spacing.sm,
+      minHeight: 28, // Ensure proper touch target
     },
     
-    dot: {
-      // Base dot style - size will be set dynamically
+    segment: {
+      height: "100%",
+      // Flex-based width distribution - flex value will be set dynamically
     },
     
-    proteinDot: {
+    proteinSegment: {
       backgroundColor: colors.semantic.protein,
+      transformOrigin: 'left', // Scale from left edge
     },
     
-    carbsDot: {
+    carbsSegment: {
       backgroundColor: colors.semantic.carbs,
+      transformOrigin: 'center', // Scale from center
     },
     
-    fatDot: {
+    fatSegment: {
       backgroundColor: colors.semantic.fat,
+      transformOrigin: 'right', // Scale from right edge
     },
   });

@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import { Pressable, TouchableOpacity } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { TouchableOpacity, Alert } from "react-native";
 import * as Haptics from "expo-haptics";
 import Animated, {
   useSharedValue,
@@ -9,13 +9,15 @@ import Animated, {
   withSpring,
   Easing,
 } from "react-native-reanimated";
+import { DotsThreeIcon } from "phosphor-react-native";
 import { FoodLog } from "@/types";
 import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./FoodLogCard.styles";
 import { FoodLogCardSkeleton } from "../../FoodLogCardSkeleton";
-import { StarIcon } from "phosphor-react-native";
 import { useFavoritesStore } from "@/stores/useFavoritesStore";
+import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { FoodLogCardView } from "../../FoodLogCardView";
+import { FoodLogOptionsSheet } from "../FoodLogOptionsSheet";
 
 interface FoodLogCardProps {
   foodLog: FoodLog;
@@ -29,7 +31,9 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
   const { colors } = useTheme();
   const styles = createStyles(colors);
   const { isFavorite, toggleForLog } = useFavoritesStore();
+  const { deleteFoodLogById } = useFoodLogStore();
   const favorite = isFavorite(foodLog);
+  const [optionsVisible, setOptionsVisible] = useState(false);
 
   // Loading state detection
   const isLoading = foodLog.estimationConfidence === 0;
@@ -91,56 +95,99 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
     onAddInfo(foodLog);
   };
 
+  const handleMenuPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setOptionsVisible(true);
+  };
+
+  const handleEdit = () => {
+    setOptionsVisible(false);
+    onAddInfo(foodLog);
+  };
+
+  const handleToggleFavorite = async () => {
+    setOptionsVisible(false);
+    await toggleForLog(foodLog);
+  };
+
+  const handleDelete = () => {
+    setOptionsVisible(false);
+    Alert.alert(
+      "Delete Food Log",
+      "Are you sure you want to delete this food log entry? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteFoodLogById(foodLog.id);
+            } catch (error) {
+              Alert.alert("Error", "Failed to delete food log entry. Please try again.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
 
   return (
-    <Animated.View style={[styles.cardContainer, cardAnimatedStyle]}>
-      {isLoading ? (
-        <FoodLogCardSkeleton foodLog={foodLog} />
-      ) : (
-        <>
-          <FoodLogCardView
-            title={foodLog.userTitle || foodLog.generatedTitle}
-            description={foodLog.userDescription}
-            calories={foodLog.calories}
-            protein={foodLog.protein}
-            carbs={foodLog.carbs}
-            fat={foodLog.fat}
-            confidence={foodLog.estimationConfidence}
-            showConfidence
-            onEdit={handleCardPress}
-            accessoryRight={
-              <TouchableOpacity
-                onPress={async () => {
-                  Haptics.selectionAsync();
-                  await toggleForLog(foodLog);
-                }}
-                style={styles.favoriteButton}
-                accessibilityRole="button"
-                accessibilityLabel={
-                  favorite ? "Remove favorite" : "Add to favorites"
-                }
-                accessibilityHint={
-                  favorite
-                    ? "Removes this entry from your favorites"
-                    : "Adds this entry to your favorites"
-                }
-              >
-                {favorite ? (
-                  <StarIcon size={20} color="#FDB813" weight="fill" />
-                ) : (
-                  <StarIcon size={20} color="#FDB813" weight="regular" />
-                )}
-              </TouchableOpacity>
-            }
-          />
+    <>
+      <Animated.View style={[styles.cardContainer, cardAnimatedStyle]}>
+        {isLoading ? (
+          <FoodLogCardSkeleton foodLog={foodLog} />
+        ) : (
+          <>
+            <FoodLogCardView
+              title={foodLog.userTitle || foodLog.generatedTitle}
+              description={foodLog.userDescription}
+              calories={foodLog.calories}
+              protein={foodLog.protein}
+              carbs={foodLog.carbs}
+              fat={foodLog.fat}
+              confidence={foodLog.estimationConfidence}
+              showConfidence
+              onEdit={handleCardPress}
+              accessoryRight={
+                <TouchableOpacity
+                  onPress={handleMenuPress}
+                  style={styles.menuButton}
+                  accessibilityRole="button"
+                  accessibilityLabel="Food log options"
+                  accessibilityHint="Opens menu with edit, favorite, and delete options"
+                >
+                  <DotsThreeIcon
+                    size={20}
+                    color={colors.secondaryText}
+                    weight="regular"
+                  />
+                </TouchableOpacity>
+              }
+            />
 
-          {/* Flash overlay for success animation */}
-          <Animated.View
-            style={[styles.flashOverlay, flashAnimatedStyle]}
-            pointerEvents="none"
-          />
-        </>
-      )}
-    </Animated.View>
+            {/* Flash overlay for success animation */}
+            <Animated.View
+              style={[styles.flashOverlay, flashAnimatedStyle]}
+              pointerEvents="none"
+            />
+          </>
+        )}
+      </Animated.View>
+      
+      <FoodLogOptionsSheet
+        visible={optionsVisible}
+        onClose={() => setOptionsVisible(false)}
+        foodLog={foodLog}
+        isFavorite={favorite}
+        onEdit={handleEdit}
+        onToggleFavorite={handleToggleFavorite}
+        onDelete={handleDelete}
+      />
+    </>
   );
 };

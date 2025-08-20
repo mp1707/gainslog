@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { View } from "react-native";
 import Animated, {
   useSharedValue,
@@ -22,12 +22,28 @@ export const CompactMacroSummary: React.FC<CompactMacroSummaryProps> = ({
 }) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
-  
-  // Animation values for dot entrance
+
+  // Animation values for segment scale entrance
   const proteinScale = useSharedValue(0);
   const carbsScale = useSharedValue(0);
   const fatScale = useSharedValue(0);
-  
+
+  // Calculate percentages and minimum visible width
+  const percentages = useMemo(() => {
+    const total = protein + carbs + fat;
+
+    if (total === 0) {
+      return { protein: 0, carbs: 0, fat: 0, total: 0 };
+    }
+
+    return {
+      protein: (protein / total) * 100,
+      carbs: (carbs / total) * 100,
+      fat: (fat / total) * 100,
+      total,
+    };
+  }, [protein, carbs, fat]);
+
   // Trigger entrance animations on mount
   useEffect(() => {
     // Staggered entrance animations with spring physics
@@ -52,75 +68,117 @@ export const CompactMacroSummary: React.FC<CompactMacroSummaryProps> = ({
         stiffness: 300,
       })
     );
-  }, [protein, carbs, fat]); // Re-animate when values change
+  }, [percentages.protein, percentages.carbs, percentages.fat]); // Re-animate when percentages change
 
-  // Define dot size constraints
-  const minSize = 6;
-  const maxSize = 24;
-  
-  // Find the maximum value to scale all dots relative to it
-  const maxValue = Math.max(protein, carbs, fat);
-  
-  // Calculate dot sizes based on relative values
-  const calculateDotSize = (value: number): number => {
-    if (maxValue === 0) return minSize;
-    return minSize + (value / maxValue) * (maxSize - minSize);
-  };
+  // Determine which segments are visible for border radius logic
+  const visibleSegments = useMemo(() => {
+    const segments = [];
+    if (percentages.protein > 0) segments.push("protein");
+    if (percentages.carbs > 0) segments.push("carbs");
+    if (percentages.fat > 0) segments.push("fat");
+    return segments;
+  }, [percentages.protein, percentages.carbs, percentages.fat]);
 
-  const proteinSize = calculateDotSize(protein);
-  const carbsSize = calculateDotSize(carbs);
-  const fatSize = calculateDotSize(fat);
+  const isFirstSegment = (segment: string) => visibleSegments[0] === segment;
+  const isLastSegment = (segment: string) =>
+    visibleSegments[visibleSegments.length - 1] === segment;
 
-  // Create dot style with dynamic size
-  const createDotStyle = (size: number) => ({
-    width: size,
-    height: size,
-    borderRadius: size / 2,
-  });
-  
-  // Animated styles for each dot
-  const proteinDotStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: proteinScale.value }],
+  // Animated styles for each segment
+  const proteinSegmentStyle = useAnimatedStyle(() => ({
+    flex: percentages.protein,
+    transform: [{ scaleX: proteinScale.value }],
   }));
-  
-  const carbsDotStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: carbsScale.value }],
+
+  const carbsSegmentStyle = useAnimatedStyle(() => ({
+    flex: percentages.carbs,
+    transform: [{ scaleX: carbsScale.value }],
   }));
-  
-  const fatDotStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: fatScale.value }],
+
+  const fatSegmentStyle = useAnimatedStyle(() => ({
+    flex: percentages.fat,
+    transform: [{ scaleX: fatScale.value }],
   }));
+
+  // Don't render if no data
+  if (percentages.total === 0) {
+    return null;
+  }
 
   return (
-    <View 
+    <View
       style={styles.container}
-      accessibilityRole="image"
-      accessibilityLabel={`Macro nutrients: ${protein}g protein, ${carbs}g carbs, ${fat}g fat`}
+      accessibilityRole="progressbar"
+      accessibilityLabel={`Macro distribution: ${Math.round(
+        percentages.protein
+      )}% protein (${protein}g), ${Math.round(
+        percentages.carbs
+      )}% carbs (${carbs}g), ${Math.round(percentages.fat)}% fat (${fat}g)`}
     >
-      <Animated.View 
-        style={[
-          styles.dot, 
-          styles.proteinDot, 
-          createDotStyle(proteinSize),
-          proteinDotStyle
-        ]} 
-      />
-      <Animated.View 
-        style={[
-          styles.dot, 
-          styles.carbsDot, 
-          createDotStyle(carbsSize),
-          carbsDotStyle
-        ]} 
-      />
-      <Animated.View 
-        style={[
-          styles.dot, 
-          styles.fatDot, 
-          createDotStyle(fatSize),
-          fatDotStyle
-        ]} 
-      />
+      {percentages.protein > 0 && (
+        <Animated.View
+          style={[
+            styles.segment,
+            styles.proteinSegment,
+            proteinSegmentStyle,
+            {
+              borderTopLeftRadius: isFirstSegment("protein")
+                ? theme.spacing.sm
+                : 0,
+              borderBottomLeftRadius: isFirstSegment("protein")
+                ? theme.spacing.sm
+                : 0,
+              borderTopRightRadius: isLastSegment("protein")
+                ? theme.spacing.sm
+                : 0,
+              borderBottomRightRadius: isLastSegment("protein")
+                ? theme.spacing.sm
+                : 0,
+            },
+          ]}
+        />
+      )}
+      {percentages.carbs > 0 && (
+        <Animated.View
+          style={[
+            styles.segment,
+            styles.carbsSegment,
+            carbsSegmentStyle,
+            {
+              borderTopLeftRadius: isFirstSegment("carbs")
+                ? theme.spacing.sm
+                : 0,
+              borderBottomLeftRadius: isFirstSegment("carbs")
+                ? theme.spacing.sm
+                : 0,
+              borderTopRightRadius: isLastSegment("carbs")
+                ? theme.spacing.sm
+                : 0,
+              borderBottomRightRadius: isLastSegment("carbs")
+                ? theme.spacing.sm
+                : 0,
+            },
+          ]}
+        />
+      )}
+      {percentages.fat > 0 && (
+        <Animated.View
+          style={[
+            styles.segment,
+            styles.fatSegment,
+            fatSegmentStyle,
+            {
+              borderTopLeftRadius: isFirstSegment("fat") ? theme.spacing.sm : 0,
+              borderBottomLeftRadius: isFirstSegment("fat")
+                ? theme.spacing.sm
+                : 0,
+              borderTopRightRadius: isLastSegment("fat") ? theme.spacing.sm : 0,
+              borderBottomRightRadius: isLastSegment("fat")
+                ? theme.spacing.sm
+                : 0,
+            },
+          ]}
+        />
+      )}
     </View>
   );
 };

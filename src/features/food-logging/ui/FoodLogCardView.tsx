@@ -13,7 +13,7 @@ import Animated, {
   interpolate,
   runOnJS,
 } from "react-native-reanimated";
-import { CaretDownIcon, PencilSimpleIcon } from "phosphor-react-native";
+import { CaretDownIcon } from "phosphor-react-native";
 import { Badge } from "@/shared/ui";
 import { CompactMacroSummary } from "@/shared/ui/atoms/CompactMacroSummary";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -292,27 +292,13 @@ export const FoodLogCardView: React.FC<FoodLogCardViewProps> = ({
               <AppText role="Headline" style={styles.title}>
                 {title}
               </AppText>
+              {showConfidence && typeof confidence === "number" ? (
+                <Badge confidence={confidence} isLoading={false} />
+              ) : null}
               <View
                 style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
               >
-                {showConfidence && typeof confidence === "number" ? (
-                  <Badge confidence={confidence} isLoading={false} />
-                ) : null}
                 {accessoryRight}
-                {onEdit && (
-                  <TouchableOpacity
-                    onPress={handleEdit}
-                    style={styles.editButton}
-                    accessibilityRole="button"
-                    accessibilityLabel="Edit food entry"
-                    accessibilityHint="Tap to edit this food log entry"
-                  >
-                    <PencilSimpleIcon
-                      size={16}
-                      color={colors.secondaryText}
-                    />
-                  </TouchableOpacity>
-                )}
               </View>
             </View>
             {description ? (
@@ -322,11 +308,14 @@ export const FoodLogCardView: React.FC<FoodLogCardViewProps> = ({
             ) : null}
           </View>
           <View style={styles.bottomSection}>
-            <Badge
-              variant="semantic"
-              semanticType="calories"
-              label={`${calories} kcal`}
-            />
+            <View style={styles.bottomLeft}>
+              <Badge
+                variant="semantic"
+                semanticType="calories"
+                label={`${calories} kcal`}
+              />
+            </View>
+
             <View
               style={{
                 position: "absolute",
