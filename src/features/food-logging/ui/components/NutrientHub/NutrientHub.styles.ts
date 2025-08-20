@@ -9,9 +9,9 @@ export const createStyles = (colors: Colors) =>
       justifyContent: "center",
       alignItems: "center",
       padding: theme.spacing.pageMargins.horizontal,
-      backgroundColor: colors.secondaryBackground,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
+      // backgroundColor: colors.secondaryBackground,
+      // borderBottomWidth: 1,
+      // borderBottomColor: colors.border,
     },
 
     // --------------------------------------------------
@@ -116,7 +116,7 @@ export const createStyles = (colors: Colors) =>
       position: "absolute",
       top: "50%",
       left: "50%",
-      transform: [{ translateX: -100 }, { translateY: -60 }],
+      transform: [{ translateX: -80 }, { translateY: -60 }],
       width: 160,
       height: 120,
       alignItems: "center",
