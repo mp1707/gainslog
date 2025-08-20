@@ -64,12 +64,12 @@ export const createStyles = (colors: Colors) =>
 
     // Enhanced badge for normal state
     enhancedBadge: {
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.xs,
-      borderRadius: 10,
-      minWidth: 75,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      borderRadius: 12,
+      minWidth: 80,
       alignItems: "center",
-      gap: 2,
+      gap: theme.spacing.xs,
       shadowColor: "rgba(0, 0, 0, 0.08)",
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 1,
@@ -78,12 +78,12 @@ export const createStyles = (colors: Colors) =>
     },
 
     compactBadge: {
-      paddingHorizontal: 6,
-      paddingVertical: 3,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: theme.spacing.xs,
       borderRadius: 8,
-      width: 62, // Fixed width for 2x2 grid
+      width: 64, // Fixed width for 2x2 grid (8pt grid aligned)
       alignItems: "center",
-      gap: 1,
+      gap: theme.spacing.xs / 2, // 2px gap
       shadowColor: "rgba(0, 0, 0, 0.06)",
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 1,
@@ -98,11 +98,9 @@ export const createStyles = (colors: Colors) =>
 
     // Enhanced badge typography
     enhancedBadgeTitle: {
-      ...theme.typography.Caption,
+      ...theme.typography.Subhead,
       fontWeight: "600",
-      fontSize: 11,
       letterSpacing: 0.1,
-      lineHeight: 14,
     },
 
     badgeValue: {
@@ -111,25 +109,21 @@ export const createStyles = (colors: Colors) =>
     },
 
     enhancedBadgeValue: {
-      ...theme.typography.Subhead,
+      ...theme.typography.Body,
       fontWeight: "700",
-      fontSize: 13,
-      lineHeight: 16,
       color: colors.primaryText,
     },
 
     compactBadgeTitle: {
       ...theme.typography.Caption,
-      fontWeight: "700",
-      fontSize: 9,
+      fontWeight: "600",
       letterSpacing: 0.1,
     },
 
     compactBadgeValue: {
       ...theme.typography.Caption,
       color: colors.primaryText,
-      fontSize: 10,
-      fontWeight: "600",
+      fontWeight: "700",
     },
 
     // Badge component layout styles
@@ -137,7 +131,7 @@ export const createStyles = (colors: Colors) =>
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      gap: 3,
+      gap: theme.spacing.xs,
     },
 
     badgePercentage: {
@@ -159,10 +153,8 @@ export const createStyles = (colors: Colors) =>
 
     // New style for compact combined value+unit
     enhancedBadgeValueWithUnit: {
-      ...theme.typography.Subhead,
+      ...theme.typography.Body,
       fontWeight: "700",
-      fontSize: 13,
-      lineHeight: 16,
       color: colors.primaryText,
     },
   });
