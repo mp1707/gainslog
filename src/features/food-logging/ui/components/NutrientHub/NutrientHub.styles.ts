@@ -8,13 +8,18 @@ export const createStyles = (colors: Colors) =>
       width: "100%",
       justifyContent: "center",
       alignItems: "center",
+      padding: theme.spacing.pageMargins.horizontal,
+      backgroundColor: colors.secondaryBackground,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
     },
 
     // --------------------------------------------------
     // NEW STYLES FOR HORIZONTAL NUTRIENT VALUES
     // --------------------------------------------------
     nutrientValuesWrapper: {
-      width: "80%",
+      width: "100%",
+      marginLeft: theme.spacing.xl,
       flexDirection: "row",
       flexWrap: "wrap",
       // justifyContent: "space-between",
@@ -95,14 +100,11 @@ export const createStyles = (colors: Colors) =>
       alignItems: "center",
       justifyContent: "center",
       zIndex: 10,
-      gap: theme.spacing.xs,
+
       minWidth: 70,
     },
 
     innerNutrientLabel: {
-      color: colors.secondaryText,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.xs,
       borderRadius: 50,
     },
 

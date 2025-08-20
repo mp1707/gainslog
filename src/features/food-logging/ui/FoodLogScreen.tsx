@@ -122,15 +122,15 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         onNavigateNext={navigateToNextDay}
         isToday={isTodayMemo}
       />
-      <View style={styles.statsContainer}>
-        <NutrientHub
-          key={selectedDate}
-          percentages={percentages}
-          targets={dailyTargets}
-          totals={currentTotals}
-          scrollY={scrollY}
-        />
-      </View>
+
+      <NutrientHub
+        key={selectedDate}
+        percentages={percentages}
+        targets={dailyTargets}
+        totals={currentTotals}
+        scrollY={scrollY}
+      />
+
       <ScrollView
         ref={scrollViewRef}
         style={styles.scrollView}

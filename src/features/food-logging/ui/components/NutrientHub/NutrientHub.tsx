@@ -66,7 +66,7 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
   const screenWidth = Dimensions.get("window").width;
   // Calculate available width after page margins (20px each side)
   const availableWidth = screenWidth - theme.spacing.pageMargins.horizontal * 2;
-  const containerSize = availableWidth * 0.9;
+  const containerSize = availableWidth;
   const center = containerSize / 2;
 
   const outerRadius = center - STROKE_WIDTHS[0] / 2;
@@ -317,20 +317,9 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
         accessibilityHint="Tap to view next nutrient"
       >
         <View style={[styles.innerCircleContent]}>
-          <AppText
-            role="Caption"
-            style={[
-              styles.innerNutrientLabel,
-              {
-                color: colors.semantic[selectedConfig.key],
-                backgroundColor:
-                  colors.semanticBadges[selectedConfig.key].background,
-                borderRadius: 10,
-                overflow: "hidden",
-              },
-            ]}
-          >
-            {selectedConfig.key.toUpperCase()}
+          <AppText role="Body" style={styles.innerNutrientLabel}>
+            {selectedConfig.key.charAt(0).toUpperCase() +
+              selectedConfig.key.slice(1)}
           </AppText>
           <AppText role="Caption" style={styles.innerNutrientValue}>
             {selectedConfig.key === "calories"
@@ -366,12 +355,12 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
   });
 
   const animatedRingStyle = useAnimatedStyle(() => {
-    const ringScale = interpolate(animationProgress.value, [0, 1], [1, 0.42]);
+    const ringScale = interpolate(animationProgress.value, [0, 1], [1, 0.35]);
     // Reduce translation to account for page margins and keep proper spacing
     const translateX = interpolate(
       animationProgress.value,
       [0, 1],
-      [0, screenWidth * 0.2]
+      [0, screenWidth * 0.6]
     );
 
     return {
@@ -396,14 +385,12 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
     ? {
         flexDirection: "row" as const,
         alignItems: "center" as const,
-        gap: 8,
-        height: containerSize * 0.42 + 10,
+        height: containerSize * 0.45,
       }
     : {
         flexDirection: "column" as const,
         alignItems: "center" as const,
-        gap: 0,
-        minHeight: containerSize + 60,
+        minHeight: containerSize,
       };
 
   return (

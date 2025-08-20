@@ -8,17 +8,12 @@ export const createStyles = (colors: Colors, bottomPadding?: number) =>
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
-      gap: theme.spacing.md,
     },
 
     // ScrollView styles
     scrollView: {
       flex: 1,
       paddingTop: theme.spacing.md,
-    },
-    statsContainer: {
-      paddingHorizontal: theme.spacing.pageMargins.horizontal,
-      paddingBottom: theme.spacing.md,
     },
     headerStyle: {
       color: colors.primaryText,
