@@ -4,13 +4,6 @@ import type { Colors } from "@/theme";
 
 export const createStyles = (colors: Colors) =>
   StyleSheet.create({
-    cardContainer: {
-      alignSelf: "center",
-      // Updated to give more vertical space in the container
-      minHeight: Dimensions.get("window").width * 0.7 + theme.spacing.xl * 2,
-      width: "100%",
-    },
-
     animatedContainer: {
       width: "100%",
       justifyContent: "center",
@@ -35,7 +28,6 @@ export const createStyles = (colors: Colors) =>
       flexDirection: "column",
       alignItems: "flex-start",
       justifyContent: "center",
-      paddingLeft: theme.spacing.xl,
       marginTop: 0,
       gap: theme.spacing.xs,
     },
@@ -99,8 +91,40 @@ export const createStyles = (colors: Colors) =>
       }),
     },
 
-    // Legacy exports removed, as they are no longer needed
-    // --------------------------------------------------
-    // LEGACY STYLES (REMOVED)
-    // --------------------------------------------------
+    innerCircleContent: {
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 10,
+      gap: theme.spacing.xs,
+      minWidth: 70,
+    },
+
+    innerNutrientLabel: {
+      color: colors.secondaryText,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: theme.spacing.xs,
+      borderRadius: 50,
+    },
+
+    innerNutrientValue: {
+      textAlign: "center",
+    },
+
+    touchableInfoSection: {
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: [{ translateX: -100 }, { translateY: -60 }],
+      width: 160,
+      height: 120,
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 10,
+      borderRadius: theme.spacing.md,
+    },
+
+    arrowIndicator: {
+      alignItems: "center",
+      justifyContent: "center",
+    },
   });

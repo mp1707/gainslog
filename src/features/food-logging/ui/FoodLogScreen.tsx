@@ -123,9 +123,6 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         isToday={isTodayMemo}
       />
       <View style={styles.statsContainer}>
-        <AppText role="Headline" style={styles.headerStyle}>
-          Nutrient Hub
-        </AppText>
         <NutrientHub
           key={selectedDate}
           percentages={percentages}

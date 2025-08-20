@@ -1,5 +1,11 @@
 import React, { useMemo, useEffect } from "react";
-import { Dimensions, View, Text, AccessibilityInfo } from "react-native";
+import {
+  Dimensions,
+  View,
+  Text,
+  AccessibilityInfo,
+  TouchableOpacity,
+} from "react-native";
 import { Canvas, Circle, Path, Skia, Group } from "@shopify/react-native-skia";
 import Animated, {
   useSharedValue,
@@ -12,11 +18,11 @@ import Animated, {
   SharedValue,
   runOnJS,
 } from "react-native-reanimated";
-import { Fire, Barbell, Bread, Drop } from "phosphor-react-native";
-import { theme } from "@/theme";
+import { ArrowRight } from "phosphor-react-native";
 import { useTheme } from "@/providers/ThemeProvider";
+import { theme } from "@/theme";
 import { createStyles } from "./NutrientHub.styles";
-import { Card } from "@/components/Card";
+import { AppText } from "@/components/AppText";
 
 // TypeScript interface for component props
 interface NutrientValues {
@@ -42,7 +48,7 @@ const RING_CONFIG = [
 ] as const;
 
 // Component constants
-const STROKE_WIDTHS = [32, 26, 20, 14]; // From outermost to innermost
+const STROKE_WIDTHS = [34, 28, 22, 16]; // From outermost to innermost
 const RING_SPACING = 8;
 
 /**
@@ -58,7 +64,9 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
   const { colors } = useTheme();
   const styles = createStyles(colors);
   const screenWidth = Dimensions.get("window").width;
-  const containerSize = screenWidth * 0.7;
+  // Calculate available width after page margins (20px each side)
+  const availableWidth = screenWidth - theme.spacing.pageMargins.horizontal * 2;
+  const containerSize = availableWidth * 0.9;
   const center = containerSize / 2;
 
   const outerRadius = center - STROKE_WIDTHS[0] / 2;
@@ -291,7 +299,52 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
     </View>
   );
 
+  // Inner circle content component for expanded view
+  const InnerCircleContent = () => {
+    const selectedConfig = RING_CONFIG[selectedNutrientIndex];
+    const total = Math.round(totals[selectedConfig.key]);
+    const target = Math.round(targets[selectedConfig.key]);
+
+    return (
+      <TouchableOpacity
+        style={styles.touchableInfoSection}
+        onPress={nextNutrient}
+        activeOpacity={0.7}
+        accessibilityLabel={`${selectedConfig.key}: ${total} of ${target} ${
+          selectedConfig.key === "calories" ? "calories" : "grams"
+        }. Tap to cycle through nutrients.`}
+        accessibilityRole="button"
+        accessibilityHint="Tap to view next nutrient"
+      >
+        <View style={[styles.innerCircleContent]}>
+          <AppText
+            role="Caption"
+            style={[
+              styles.innerNutrientLabel,
+              {
+                color: colors.semantic[selectedConfig.key],
+                backgroundColor:
+                  colors.semanticBadges[selectedConfig.key].background,
+                borderRadius: 10,
+                overflow: "hidden",
+              },
+            ]}
+          >
+            {selectedConfig.key.toUpperCase()}
+          </AppText>
+          <AppText role="Caption" style={styles.innerNutrientValue}>
+            {selectedConfig.key === "calories"
+              ? `${total}/${target}`
+              : `${total}/${target}`}
+          </AppText>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
   const [isCompactMode, setIsCompactMode] = React.useState(false);
+  const [selectedNutrientIndex, setSelectedNutrientIndex] = React.useState(0);
+
   useAnimatedReaction(
     () => compactModeValue.value,
     (currentValue) => {
@@ -299,6 +352,11 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
       runOnJS(setIsCompactMode)(shouldBeCompact);
     }
   );
+
+  // Cycling functions for nutrients
+  const nextNutrient = () => {
+    setSelectedNutrientIndex((prev) => (prev + 1) % RING_CONFIG.length);
+  };
 
   // Animated styles for the main container and content
   const animatedContainerStyle = useAnimatedStyle(() => {
@@ -309,10 +367,11 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
 
   const animatedRingStyle = useAnimatedStyle(() => {
     const ringScale = interpolate(animationProgress.value, [0, 1], [1, 0.42]);
+    // Reduce translation to account for page margins and keep proper spacing
     const translateX = interpolate(
       animationProgress.value,
       [0, 1],
-      [0, screenWidth * 0.12]
+      [0, screenWidth * 0.2]
     );
 
     return {
@@ -324,7 +383,7 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
     const translateX = interpolate(
       animationProgress.value,
       [0, 1],
-      [0, -screenWidth * 0.12]
+      [0, -screenWidth * 0.08]
     );
 
     return {
@@ -348,37 +407,40 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
       };
 
   return (
-    <Card style={styles.cardContainer}>
-      <Animated.View
-        style={[
-          styles.animatedContainer,
-          animatedContainerStyle,
-          containerLayoutStyle,
-        ]}
-      >
-        {/* Ring Canvas */}
-        <Animated.View style={animatedRingStyle}>
-          <Canvas
-            style={{
-              width: containerSize,
-              height: containerSize,
-            }}
+    <Animated.View
+      style={[
+        styles.animatedContainer,
+        animatedContainerStyle,
+        containerLayoutStyle,
+      ]}
+    >
+      {/* Ring Canvas */}
+      <Animated.View style={animatedRingStyle}>
+        <Canvas
+          style={{
+            width: containerSize,
+            height: containerSize,
+          }}
+        >
+          <Group
+            transform={[{ rotate: -Math.PI / 2 }]}
+            origin={{ x: center, y: center }}
           >
-            <Group
-              transform={[{ rotate: -Math.PI / 2 }]}
-              origin={{ x: center, y: center }}
-            >
-              {RING_CONFIG.map((_, index) => renderRing(index))}
-            </Group>
-          </Canvas>
-        </Animated.View>
+            {RING_CONFIG.map((_, index) => renderRing(index))}
+          </Group>
+        </Canvas>
 
-        {/* Updated: Single, horizontal row for all nutrient values */}
+        {/* Inner circle content for expanded view only */}
+        {!isCompactMode && <InnerCircleContent />}
+      </Animated.View>
+
+      {/* Compact mode: Show all nutrient values */}
+      {isCompactMode && (
         <Animated.View
           style={[
             styles.nutrientValuesWrapper,
             animatedValuesStyle,
-            isCompactMode && styles.compactValuesWrapper,
+            styles.compactValuesWrapper,
           ]}
         >
           {RING_CONFIG.map((config) => {
@@ -402,7 +464,9 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
               <NutrientValueDisplay
                 key={config.key}
                 label={config.key === "calories" ? "kcal" : config.key}
-                value={config.key === "calories" ? `${total}` : `${total}/${target}`}
+                value={
+                  config.key === "calories" ? `${total}` : `${total}/${target}`
+                }
                 unit={config.key === "calories" ? "" : "g"}
                 color={color}
                 description={description}
@@ -413,7 +477,7 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
             );
           })}
         </Animated.View>
-      </Animated.View>
-    </Card>
+      )}
+    </Animated.View>
   );
 };
