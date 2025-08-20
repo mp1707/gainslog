@@ -110,17 +110,17 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
 
     const scrollY_val = scrollY.value;
 
-    if (scrollY_val > 50 && compactModeValue.value === 0) {
+    if (scrollY_val > 100 && compactModeValue.value === 0) {
       compactModeValue.value = withSpring(1, {
-        damping: reducedMotionEnabled ? 20 : 12,
-        stiffness: reducedMotionEnabled ? 200 : 300,
-        mass: 0.8,
+        damping: reducedMotionEnabled ? 25 : 18,
+        stiffness: reducedMotionEnabled ? 150 : 180,
+        mass: 1.2,
       });
-    } else if (scrollY_val < 20 && compactModeValue.value === 1) {
+    } else if (scrollY_val < -40 && compactModeValue.value === 1) {
       compactModeValue.value = withSpring(0, {
-        damping: reducedMotionEnabled ? 20 : 12,
-        stiffness: reducedMotionEnabled ? 200 : 300,
-        mass: 0.8,
+        damping: reducedMotionEnabled ? 25 : 18,
+        stiffness: reducedMotionEnabled ? 150 : 180,
+        mass: 1.2,
       });
     }
 
@@ -293,8 +293,7 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
       accessibilityHint={description}
     >
       <View style={[styles.colorDot, { backgroundColor: color }]} />
-      <Text style={styles.valueText}>{value}</Text>
-      <Text style={styles.unitText}>{unit}</Text>
+      <Text style={styles.valueText}>{value}{unit}</Text>
       <Text style={styles.labelText}>{label}</Text>
     </View>
   );
