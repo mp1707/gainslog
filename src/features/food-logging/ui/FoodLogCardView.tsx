@@ -302,18 +302,14 @@ export const FoodLogCardView: React.FC<FoodLogCardViewProps> = ({
                 {onEdit && (
                   <TouchableOpacity
                     onPress={handleEdit}
-                    style={[
-                      styles.editButton,
-                      { backgroundColor: colors.iconBadge.background },
-                    ]}
+                    style={styles.editButton}
                     accessibilityRole="button"
                     accessibilityLabel="Edit food entry"
                     accessibilityHint="Tap to edit this food log entry"
                   >
                     <PencilSimpleIcon
                       size={16}
-                      color={colors.iconBadge.iconColor}
-                      weight="regular"
+                      color={colors.secondaryText}
                     />
                   </TouchableOpacity>
                 )}

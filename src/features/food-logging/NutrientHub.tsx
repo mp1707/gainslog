@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect } from "react";
-import { Dimensions, View, Text } from "react-native";
+import { Dimensions, View, Text, AccessibilityInfo } from "react-native";
 import { Canvas, Circle, Path, Skia, Group } from "@shopify/react-native-skia";
 import Animated, {
   useSharedValue,
@@ -13,6 +13,7 @@ import Animated, {
   SharedValue,
   runOnJS,
 } from "react-native-reanimated";
+import { Fire, Barbell, Bread, Drop } from "phosphor-react-native";
 import { theme } from "@/theme";
 import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./NutrientHub.styles";
@@ -43,6 +44,13 @@ const RING_CONFIG = [
 // Component constants
 const STROKE_WIDTHS = [32, 26, 20, 14]; // From outermost to innermost
 const RING_SPACING = 8;
+
+// Animation timing constants
+const ANIMATION_PHASES = {
+  RING: { duration: 200, delay: 0 },
+  BADGES: { duration: 300, stagger: 100 },
+  SETTLING: { duration: 150, delay: 250 },
+} as const;
 
 /**
  * NutrientHub - A high-performance React Native component that displays
@@ -96,8 +104,23 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
   
   // Binary animation state with hysteresis
   const compactModeValue = useSharedValue(0);
+  
+  // Individual badge animation values for staggered entrance
+  const badgeAnimations = {
+    calories: useSharedValue(0),
+    protein: useSharedValue(0),
+    carbs: useSharedValue(0),
+    fat: useSharedValue(0),
+  };
+  
+  // Check for reduced motion preference
+  const [reducedMotionEnabled, setReducedMotionEnabled] = React.useState(false);
+  
+  React.useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReducedMotionEnabled);
+  }, []);
 
-  // Hysteresis-based scroll detection for snappy animation
+  // Hysteresis-based scroll detection for smooth multi-phase animation
   const animationProgress = useDerivedValue(() => {
     if (!scrollY) return compactModeValue.value;
     
@@ -105,19 +128,69 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
     
     // Hysteresis thresholds: enter compact at 50px, exit at 20px
     if (scrollY_val > 50 && compactModeValue.value === 0) {
-      // Snap to compact mode
+      // Phase 1: Ring animation
       compactModeValue.value = withSpring(1, {
-        damping: 15,
-        stiffness: 400,
-        mass: 0.6,
+        damping: reducedMotionEnabled ? 20 : 12,
+        stiffness: reducedMotionEnabled ? 200 : 300,
+        mass: 0.8,
       });
+      
+      // Phase 2: Staggered badge animations
+      const staggerDelay = reducedMotionEnabled ? 0 : 100;
+      const badgeSpringConfig = {
+        damping: reducedMotionEnabled ? 25 : 15,
+        stiffness: reducedMotionEnabled ? 150 : 250,
+        mass: 0.9,
+      };
+      
+      badgeAnimations.calories.value = withDelay(
+        reducedMotionEnabled ? 0 : 50,
+        withSpring(1, badgeSpringConfig)
+      );
+      badgeAnimations.protein.value = withDelay(
+        reducedMotionEnabled ? 0 : 50 + staggerDelay,
+        withSpring(1, badgeSpringConfig)
+      );
+      badgeAnimations.carbs.value = withDelay(
+        reducedMotionEnabled ? 0 : 50 + staggerDelay * 2,
+        withSpring(1, badgeSpringConfig)
+      );
+      badgeAnimations.fat.value = withDelay(
+        reducedMotionEnabled ? 0 : 50 + staggerDelay * 3,
+        withSpring(1, badgeSpringConfig)
+      );
     } else if (scrollY_val < 20 && compactModeValue.value === 1) {
-      // Snap to normal mode
+      // Phase 1: Ring animation back to normal
       compactModeValue.value = withSpring(0, {
-        damping: 15,
-        stiffness: 400,
-        mass: 0.6,
+        damping: reducedMotionEnabled ? 20 : 12,
+        stiffness: reducedMotionEnabled ? 200 : 300,
+        mass: 0.8,
       });
+      
+      // Phase 2: Reset badge animations (reverse stagger)
+      const staggerDelay = reducedMotionEnabled ? 0 : 80;
+      const badgeSpringConfig = {
+        damping: reducedMotionEnabled ? 25 : 18,
+        stiffness: reducedMotionEnabled ? 150 : 280,
+        mass: 0.7,
+      };
+      
+      badgeAnimations.fat.value = withDelay(
+        reducedMotionEnabled ? 0 : 30,
+        withSpring(0, badgeSpringConfig)
+      );
+      badgeAnimations.carbs.value = withDelay(
+        reducedMotionEnabled ? 0 : 30 + staggerDelay,
+        withSpring(0, badgeSpringConfig)
+      );
+      badgeAnimations.protein.value = withDelay(
+        reducedMotionEnabled ? 0 : 30 + staggerDelay * 2,
+        withSpring(0, badgeSpringConfig)
+      );
+      badgeAnimations.calories.value = withDelay(
+        reducedMotionEnabled ? 0 : 30 + staggerDelay * 3,
+        withSpring(0, badgeSpringConfig)
+      );
     }
     
     return compactModeValue.value;
@@ -273,28 +346,54 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
     );
   };
 
-  // Helper function to get nutrient display info for badges
+  // Helper function to get nutrient display info for enhanced badges
   const getNutrientInfo = (nutrientKey: keyof NutrientValues) => {
     const total = Math.round(totals[nutrientKey]);
     const target = Math.round(targets[nutrientKey]);
     
-    // Use different labels for compact vs normal mode
-    const names = isCompactMode ? {
-      calories: "Cal",
-      protein: "Prot",
-      carbs: "Carb",
-      fat: "Fat",
-    } : {
-      calories: "Cal",
-      protein: "Protein",
-      carbs: "Carbs",
-      fat: "Fat",
+    // Enhanced nutrient information with icons and styling
+    const nutrientMeta = {
+      calories: {
+        normalName: "Calories",
+        compactName: "Cal",
+        icon: Fire,
+        unit: "kcal",
+        description: "Energy from food",
+      },
+      protein: {
+        normalName: "Protein",
+        compactName: "Prot",
+        icon: Barbell,
+        unit: "g",
+        description: "Muscle building blocks",
+      },
+      carbs: {
+        normalName: "Carbs",
+        compactName: "Carb",
+        icon: Bread,
+        unit: "g",
+        description: "Quick energy source",
+      },
+      fat: {
+        normalName: "Fat",
+        compactName: "Fat",
+        icon: Drop,
+        unit: "g",
+        description: "Essential nutrients",
+      },
     };
     
+    const meta = nutrientMeta[nutrientKey];
+    
     return {
-      name: names[nutrientKey],
+      name: isCompactMode ? meta.compactName : meta.normalName,
       value: `${total}/${target}`,
+      valueWithUnit: `${total}/${target}${meta.unit}`,
+      unit: meta.unit,
+      description: meta.description,
       colors: colors.semanticBadges[nutrientKey],
+      Icon: meta.icon,
+      percentage: Math.round((percentages[nutrientKey] || 0)),
     };
   };
 
@@ -331,13 +430,37 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
   });
 
   const animatedBadgeStyle = useAnimatedStyle(() => {
-    const translateX = interpolate(animationProgress.value, [0, 1], [0, -screenWidth * 0.15]);
-    // Remove opacity animation for cleaner snapping
+    const translateX = interpolate(animationProgress.value, [0, 1], [0, -screenWidth * 0.12]);
     
     return {
       transform: [{ translateX: translateX }],
     };
   });
+  
+  // Individual badge animation styles for staggered entrance
+  const createBadgeAnimationStyle = (nutrientKey: keyof NutrientValues) => {
+    return useAnimatedStyle(() => {
+      const animationValue = badgeAnimations[nutrientKey].value;
+      const opacity = interpolate(animationValue, [0, 1], [0.6, 1]);
+      const scale = interpolate(animationValue, [0, 1], [0.85, 1]);
+      const translateY = interpolate(animationValue, [0, 1], [8, 0]);
+      
+      return {
+        opacity,
+        transform: [
+          { scale },
+          { translateY }
+        ],
+      };
+    });
+  };
+  
+  const badgeAnimationStyles = {
+    calories: createBadgeAnimationStyle("calories"),
+    protein: createBadgeAnimationStyle("protein"),
+    carbs: createBadgeAnimationStyle("carbs"),
+    fat: createBadgeAnimationStyle("fat"),
+  };
 
   // Dynamic styles based on compact mode
   const containerLayoutStyle = isCompactMode ? {
@@ -349,6 +472,8 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
     flexDirection: 'column' as const,
     alignItems: 'center' as const,
     gap: 0,
+    // More compact overall height in normal mode too
+    minHeight: containerSize + 60, // Ring size + optimized badge area
   };
 
   const badgeLayoutStyle = isCompactMode ? {
@@ -361,9 +486,9 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
   } : {
     flexDirection: 'row' as const,
     width: '100%' as const,
-    marginTop: theme.spacing.md,
+    marginTop: 0, // Reduced from theme.spacing.md since we optimized marginTop in styles
     flexWrap: 'wrap' as const,
-    gap: theme.spacing.sm,
+    gap: theme.spacing.xs, // Tighter gap for better density
   };
 
   return (
@@ -392,41 +517,179 @@ export const NutrientHub: React.FC<NutrientHubProps> = ({
           </Canvas>
         </Animated.View>
 
-        {/* Badge legend */}
-        <Animated.View style={[
-          styles.badgeLegend, 
-          animatedBadgeStyle,
-          badgeLayoutStyle
-        ]}>
-          {RING_CONFIG.map((config) => {
-            const info = getNutrientInfo(config.key);
-            const badgeStyle = isCompactMode ? styles.compactBadge : styles.badge;
-            const titleStyle = isCompactMode ? styles.compactBadgeTitle : styles.badgeTitle;
-            const valueStyle = isCompactMode ? styles.compactBadgeValue : styles.badgeValue;
-            
-            return (
-              <View
-                key={config.key}
-                style={[
-                  badgeStyle,
-                  { backgroundColor: info.colors.background }
-                ]}
-              >
-                <Text
+        {/* Enhanced Badge Legend with Icons */}
+        {isCompactMode ? (
+          // Compact mode: 2x2 grid layout (unchanged)
+          <Animated.View style={[
+            styles.badgeLegend, 
+            animatedBadgeStyle,
+            badgeLayoutStyle
+          ]}>
+            {RING_CONFIG.map((config, index) => {
+              const info = getNutrientInfo(config.key);
+              const badgeStyle = styles.compactBadge;
+              const badgeAnimationStyle = badgeAnimationStyles[config.key];
+              const IconComponent = info.Icon;
+              
+              return (
+                <Animated.View
+                  key={config.key}
                   style={[
-                    titleStyle,
-                    { color: info.colors.text }
+                    badgeStyle,
+                    badgeAnimationStyle,
+                    { 
+                      backgroundColor: info.colors.background,
+                      borderColor: info.colors.text,
+                      borderWidth: 0,
+                    }
                   ]}
+                  accessible={true}
+                  accessibilityRole="text"
+                  accessibilityLabel={`${info.name}: ${info.value} ${info.unit}. ${info.percentage}% of daily target.`}
+                  accessibilityHint={info.description}
                 >
-                  {info.name}
-                </Text>
-                <Text style={valueStyle}>
-                  {info.value}
-                </Text>
-              </View>
-            );
-          })}
-        </Animated.View>
+                  {/* Icon and Title Row with Percentage */}
+                  <View style={styles.badgeHeader}>
+                    <IconComponent 
+                      size={12} 
+                      color={info.colors.text} 
+                      weight="fill"
+                    />
+                    <Text
+                      style={[
+                        styles.compactBadgeTitle,
+                        { color: info.colors.text }
+                      ]}
+                    >
+                      {info.name}
+                    </Text>
+                  </View>
+                  
+                  {/* Value with Unit */}
+                  <Text style={[
+                    styles.compactBadgeValue,
+                    { color: colors.primaryText }
+                  ]}>
+                    {info.value}
+                  </Text>
+                </Animated.View>
+              );
+            })}
+          </Animated.View>
+        ) : (
+          // Expanded mode: Two-row layout with separated calories
+          <Animated.View style={[
+            styles.expandedBadgeLegend,
+            animatedBadgeStyle
+          ]}>
+            {/* Calories Row */}
+            <View style={styles.caloriesRow}>
+              {(() => {
+                const caloriesConfig = RING_CONFIG[0]; // Calories is first in RING_CONFIG
+                const info = getNutrientInfo(caloriesConfig.key);
+                const badgeAnimationStyle = badgeAnimationStyles[caloriesConfig.key];
+                const IconComponent = info.Icon;
+                
+                return (
+                  <Animated.View
+                    key={caloriesConfig.key}
+                    style={[
+                      styles.enhancedBadge,
+                      badgeAnimationStyle,
+                      { 
+                        backgroundColor: info.colors.background,
+                        borderColor: info.colors.text,
+                        borderWidth: 0.5,
+                      }
+                    ]}
+                    accessible={true}
+                    accessibilityRole="text"
+                    accessibilityLabel={`${info.name}: ${info.value} ${info.unit}. ${info.percentage}% of daily target.`}
+                    accessibilityHint={info.description}
+                  >
+                    {/* Icon and Title Row with Percentage */}
+                    <View style={styles.badgeHeader}>
+                      <IconComponent 
+                        size={15} 
+                        color={info.colors.text} 
+                        weight="regular"
+                      />
+                      <Text
+                        style={[
+                          styles.enhancedBadgeTitle,
+                          { color: info.colors.text }
+                        ]}
+                      >
+                        {info.name} {info.percentage}%
+                      </Text>
+                    </View>
+                    
+                    {/* Value with Unit */}
+                    <Text style={[
+                      styles.enhancedBadgeValueWithUnit,
+                      { color: colors.primaryText }
+                    ]}>
+                      {info.valueWithUnit}
+                    </Text>
+                  </Animated.View>
+                );
+              })()}
+            </View>
+
+            {/* Macros Row */}
+            <View style={styles.macrosRow}>
+              {RING_CONFIG.slice(1).map((config, index) => { // Skip calories (index 0)
+                const info = getNutrientInfo(config.key);
+                const badgeAnimationStyle = badgeAnimationStyles[config.key];
+                const IconComponent = info.Icon;
+                
+                return (
+                  <Animated.View
+                    key={config.key}
+                    style={[
+                      styles.enhancedBadge,
+                      badgeAnimationStyle,
+                      { 
+                        backgroundColor: info.colors.background,
+                        borderColor: info.colors.text,
+                        borderWidth: 0.5,
+                      }
+                    ]}
+                    accessible={true}
+                    accessibilityRole="text"
+                    accessibilityLabel={`${info.name}: ${info.value} ${info.unit}. ${info.percentage}% of daily target.`}
+                    accessibilityHint={info.description}
+                  >
+                    {/* Icon and Title Row with Percentage */}
+                    <View style={styles.badgeHeader}>
+                      <IconComponent 
+                        size={15} 
+                        color={info.colors.text} 
+                        weight="regular"
+                      />
+                      <Text
+                        style={[
+                          styles.enhancedBadgeTitle,
+                          { color: info.colors.text }
+                        ]}
+                      >
+                        {info.name} {info.percentage}%
+                      </Text>
+                    </View>
+                    
+                    {/* Value with Unit */}
+                    <Text style={[
+                      styles.enhancedBadgeValueWithUnit,
+                      { color: colors.primaryText }
+                    ]}>
+                      {info.valueWithUnit}
+                    </Text>
+                  </Animated.View>
+                );
+              })}
+            </View>
+          </Animated.View>
+        )}
       </Animated.View>
     </View>
   );
