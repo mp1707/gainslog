@@ -108,6 +108,11 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
     }
   }, [scrollToTop]);
 
+  // Handle nutrient hub enlarging - scroll food logs to top
+  const handleNutrientHubEnlarge = React.useCallback(() => {
+    scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+  }, []);
+
   const handleScroll = (event: any) => {
     const newScrollY = event.nativeEvent.contentOffset.y;
     scrollY.value = newScrollY;
@@ -129,6 +134,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         targets={dailyTargets}
         totals={currentTotals}
         scrollY={scrollY}
+        onToggleToLarge={handleNutrientHubEnlarge}
       />
 
       <ScrollView
