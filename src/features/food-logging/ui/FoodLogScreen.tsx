@@ -167,11 +167,11 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
             targets={dailyTargets}
             totals={currentTotals}
           />
-          <LargeNutrientHub
+          {/* <LargeNutrientHub
             percentages={percentages}
             targets={dailyTargets}
             totals={currentTotals}
-          />
+          /> */}
         </View>
         <FoodLogsList
           isLoadingLogs={isLoadingLogs}

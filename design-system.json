@@ -25,27 +25,27 @@
         "disabledText": "rgba(17, 17, 17, 0.4)",
         "recording": "#FF3B30",
         "semantic": {
-          "calories": "#00C853",
-          "protein": "#2962FF",
-          "carbs": "#FF6D00",
-          "fat": "#FDB813"
+          "calories": "#2DCEC4",
+          "protein": "#4F86F7",
+          "carbs": "#FF6B6B",
+          "fat": "#FFC107"
         },
         "semanticBadges": {
           "calories": {
-            "background": "rgba(0, 200, 83, 0.15)",
-            "text": "#00C853"
+            "background": "rgba(45, 206, 196, 0.15)",
+            "text": "#2DCEC4"
           },
           "protein": {
-            "background": "rgba(41, 98, 255, 0.15)",
-            "text": "#2962FF"
+            "background": "rgba(79, 134, 247, 0.15)",
+            "text": "#4F86F7"
           },
           "carbs": {
-            "background": "rgba(255, 109, 0, 0.15)",
-            "text": "#FF6D00"
+            "background": "rgba(255, 107, 107, 0.15)",
+            "text": "#FF6B6B"
           },
           "fat": {
-            "background": "rgba(253, 184, 19, 0.15)",
-            "text": "#FDB813"
+            "background": "rgba(255, 193, 7, 0.15)",
+            "text": "#FFC107"
           }
         },
         "iconBadges": {
@@ -73,23 +73,23 @@
         "disabledText": "rgba(242, 242, 247, 0.4)",
         "recording": "#FF3B30",
         "semantic": {
-          "calories": "#69F0AE",
-          "protein": "#40C4FF",
-          "carbs": "#FFAB40",
+          "calories": "#44EBD4",
+          "protein": "#6A9BFF",
+          "carbs": "#FF8A8A",
           "fat": "#FFD740"
         },
         "semanticBadges": {
           "calories": {
-            "background": "rgba(105, 240, 174, 0.15)",
-            "text": "#69F0AE"
+            "background": "hsla(172, 80.70%, 59.40%, 0.15)",
+            "text": "#44EBD4"
           },
           "protein": {
-            "background": "rgba(64, 196, 255, 0.15)",
-            "text": "#40C4FF"
+            "background": "rgba(106, 155, 255, 0.15)",
+            "text": "#6A9BFF"
           },
           "carbs": {
-            "background": "rgba(255, 171, 64, 0.15)",
-            "text": "#FFAB40"
+            "background": "rgba(255, 138, 138, 0.15)",
+            "text": "#FF8A8A"
           },
           "fat": {
             "background": "rgba(255, 215, 64, 0.15)",

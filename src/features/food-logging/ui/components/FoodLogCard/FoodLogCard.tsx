@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TouchableOpacity, Alert } from "react-native";
+import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import Animated, {
   useSharedValue,
@@ -30,6 +31,7 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
 }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
+  const router = useRouter();
   const { isFavorite, toggleForLog } = useFavoritesStore();
   const { deleteFoodLogById } = useFoodLogStore();
   const favorite = isFavorite(foodLog);
@@ -92,7 +94,7 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
 
   const handleCardPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    onAddInfo(foodLog);
+    router.push(`/food-log-detail/${foodLog.id}`);
   };
 
   const handleMenuPress = () => {
@@ -102,7 +104,7 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
 
   const handleEdit = () => {
     setOptionsVisible(false);
-    onAddInfo(foodLog);
+    router.push(`/food-log-detail/${foodLog.id}`);
   };
 
   const handleToggleFavorite = async () => {

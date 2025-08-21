@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Pressable } from "react-native";
+import { useRouter } from "expo-router";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -25,6 +26,7 @@ interface LogCardProps {
 export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
+  const router = useRouter();
 
   // Animation shared values - must be declared before any conditional returns
   const scale = useSharedValue(1);
@@ -51,7 +53,7 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
 
   const handlePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    onAddInfo(foodLog);
+    router.push(`/food-log-detail/${foodLog.id}`);
   };
 
   const handlePressIn = () => {
