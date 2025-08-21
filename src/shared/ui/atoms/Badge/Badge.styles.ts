@@ -13,7 +13,7 @@ export const createStyles = (colors: any) => StyleSheet.create({
   },
 
   text: {
-    // Text styling is handled by AppText component
+    // Text styling is handled by AppText component"
   },
 
   // Confidence levels using simplified color scheme

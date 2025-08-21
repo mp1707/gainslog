@@ -61,6 +61,26 @@ const lightColors = {
     background: "rgba(194, 24, 91, 0.15)",
     iconColor: "#C2185B",
   },
+
+  // Confidence indicator colors
+  confidence: {
+    high: {
+      background: "rgba(16, 185, 129, 0.15)",
+      text: "#10b981",
+    },
+    medium: {
+      background: "rgba(245, 158, 11, 0.15)",
+      text: "#f59e0b",
+    },
+    low: {
+      background: "rgba(239, 68, 68, 0.15)",
+      text: "#ef4444",
+    },
+    uncertain: {
+      background: "rgba(26, 26, 26, 0.1)",
+      text: "#8E8E93",
+    },
+  },
 } as const;
 
 const darkColors = {
@@ -118,6 +138,26 @@ const darkColors = {
   iconBadge: {
     background: "rgba(240, 98, 146, 0.15)",
     iconColor: "#F06292",
+  },
+
+  // Confidence indicator colors
+  confidence: {
+    high: {
+      background: "rgba(77, 242, 222, 0.15)",
+      text: "#4DF2DE",
+    },
+    medium: {
+      background: "rgba(255, 213, 79, 0.15)",
+      text: "#FFD54F",
+    },
+    low: {
+      background: "rgba(255, 102, 90, 0.15)",
+      text: "#FF665A",
+    },
+    uncertain: {
+      background: "rgba(242, 242, 247, 0.15)",
+      text: "#8D8D93",
+    },
   },
 } as const;
 

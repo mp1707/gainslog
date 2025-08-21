@@ -1,4 +1,10 @@
 import { NutritionMergeResult } from "@/types";
+import {
+  CheckCircle,
+  Warning,
+  WarningCircle,
+  Question,
+} from "phosphor-react-native";
 
 /**
  * Merge user nutrition input with AI estimation data
@@ -83,4 +89,54 @@ export const mergeNutritionData = (
     validationErrors: errors,
     isValid: errors.length === 0,
   };
+};
+
+// Confidence thresholds constants
+export const CONFIDENCE_THRESHOLDS = {
+  HIGH: 80,
+  MEDIUM: 60,
+} as const;
+
+export type ConfidenceLevel = "high" | "medium" | "low" | "uncertain";
+
+export interface ConfidenceInfo {
+  level: ConfidenceLevel;
+  icon: React.ComponentType<any>;
+  label: string;
+  accessibilityLabel: string;
+}
+
+/**
+ * Get confidence information based on estimation confidence percentage
+ */
+export const getConfidenceInfo = (confidence: number): ConfidenceInfo => {
+  if (confidence === 0) {
+    return {
+      level: "uncertain",
+      icon: Question,
+      label: "Uncertain",
+      accessibilityLabel: "Estimation in progress",
+    };
+  } else if (confidence >= CONFIDENCE_THRESHOLDS.HIGH) {
+    return {
+      level: "high",
+      icon: CheckCircle,
+      label: "High Accuracy",
+      accessibilityLabel: "High accuracy estimation",
+    };
+  } else if (confidence >= CONFIDENCE_THRESHOLDS.MEDIUM) {
+    return {
+      level: "medium",
+      icon: Warning,
+      label: "Medium Accuracy",
+      accessibilityLabel: "Medium accuracy estimation",
+    };
+  } else {
+    return {
+      level: "low",
+      icon: WarningCircle,
+      label: "Low Accuracy",
+      accessibilityLabel: "Low accuracy estimation",
+    };
+  }
 };

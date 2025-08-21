@@ -1,0 +1,1 @@
+export { NutritionList } from "./NutritionList";

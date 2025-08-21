@@ -7,6 +7,7 @@ import { FoodLog } from "@/types";
 import { useTheme } from "@/providers";
 import { styles } from "./FoodLogsList.styles";
 import { FoodLogCard } from "../FoodLogCard";
+import { LogCard } from "../LogCard";
 
 interface FoodLogsListProps {
   isLoadingLogs: boolean;
@@ -74,7 +75,8 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = React.memo(
               layout={Layout.springify().damping(18).stiffness(150).mass(1)}
             >
               <SwipeToDelete onDelete={() => handleDeleteLog(log.id)}>
-                <FoodLogCard foodLog={log} onAddInfo={onAddInfo} />
+                {/* <FoodLogCard foodLog={log} onAddInfo={onAddInfo} /> */}
+                <LogCard foodLog={log} onAddInfo={onAddInfo} />
               </SwipeToDelete>
             </Animated.View>
           ))}
