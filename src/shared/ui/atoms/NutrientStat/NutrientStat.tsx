@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "react-native";
+import { View, ViewStyle } from "react-native";
 import { useTheme } from "@/providers/ThemeProvider";
 import { AppText } from "@/components/AppText";
 import { createStyles } from "./NutrientStat.styles";
@@ -10,6 +10,7 @@ export interface NutrientStatProps {
   goalValue: number;
   unit?: string;
   color: string;
+  style?: ViewStyle;
 }
 
 export const NutrientStat: React.FC<NutrientStatProps> = ({
@@ -18,6 +19,7 @@ export const NutrientStat: React.FC<NutrientStatProps> = ({
   goalValue,
   unit,
   color,
+  style,
 }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
@@ -25,7 +27,7 @@ export const NutrientStat: React.FC<NutrientStatProps> = ({
 
   return (
     <View
-      style={styles.container}
+      style={[styles.container, style]}
       accessible={true}
       accessibilityLabel={accessibilityLabel}
     >

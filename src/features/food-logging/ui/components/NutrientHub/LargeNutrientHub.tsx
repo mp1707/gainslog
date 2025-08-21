@@ -35,8 +35,8 @@ const RING_CONFIG = [
 ] as const;
 
 // Component constants
-const STROKE_WIDTHS = [30, 24, 18, 12]; // From outermost to innermost
-const RING_SPACING = 8;
+const STROKE_WIDTHS = [40, 34, 28, 22]; // From outermost to innermost
+const RING_SPACING = 2;
 
 export const LargeNutrientHub: React.FC<LargeNutrientHubProps> = ({
   percentages,
@@ -45,7 +45,7 @@ export const LargeNutrientHub: React.FC<LargeNutrientHubProps> = ({
 }) => {
   const { colors } = useTheme();
   const screenWidth = Dimensions.get("window").width;
-  const availableWidth = screenWidth * 0.6;
+  const availableWidth = screenWidth * 0.75;
   const containerSize = availableWidth;
   const center = containerSize / 2;
 
@@ -218,14 +218,14 @@ export const LargeNutrientHub: React.FC<LargeNutrientHubProps> = ({
   };
 
   return (
-    <Card style={{ gap: theme.spacing.sm }}>
+    <Card style={{ gap: theme.spacing.lg, paddingHorizontal: theme.spacing.xl, paddingTop: theme.spacing.xl }}>
       <View
         style={[
           {
             width: "100%",
             justifyContent: "center",
             alignItems: "center",
-            padding: theme.spacing.pageMargins.horizontal,
+            // padding: theme.spacing.pageMargins.horizontal,
             minHeight: containerSize,
           },
         ]}
