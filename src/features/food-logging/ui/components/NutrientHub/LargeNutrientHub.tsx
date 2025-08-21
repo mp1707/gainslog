@@ -1,10 +1,5 @@
 import React, { useMemo, useEffect } from "react";
-import {
-  Dimensions,
-  View,
-  AccessibilityInfo,
-  TouchableOpacity,
-} from "react-native";
+import { Dimensions, View, TouchableOpacity } from "react-native";
 import { Canvas, Circle, Path, Skia, Group } from "@shopify/react-native-skia";
 import Animated, {
   useSharedValue,
@@ -40,7 +35,7 @@ const RING_CONFIG = [
 ] as const;
 
 // Component constants
-const STROKE_WIDTHS = [34, 28, 22, 16]; // From outermost to innermost
+const STROKE_WIDTHS = [30, 24, 18, 12]; // From outermost to innermost
 const RING_SPACING = 8;
 
 export const LargeNutrientHub: React.FC<LargeNutrientHubProps> = ({
@@ -50,7 +45,7 @@ export const LargeNutrientHub: React.FC<LargeNutrientHubProps> = ({
 }) => {
   const { colors } = useTheme();
   const screenWidth = Dimensions.get("window").width;
-  const availableWidth = screenWidth - theme.spacing.pageMargins.horizontal * 2;
+  const availableWidth = screenWidth * 0.6;
   const containerSize = availableWidth;
   const center = containerSize / 2;
 
@@ -79,11 +74,6 @@ export const LargeNutrientHub: React.FC<LargeNutrientHubProps> = ({
 
   const scale = useSharedValue(1);
   const [selectedNutrientIndex, setSelectedNutrientIndex] = React.useState(0);
-  const [reducedMotionEnabled, setReducedMotionEnabled] = React.useState(false);
-
-  React.useEffect(() => {
-    AccessibilityInfo.isReduceMotionEnabled().then(setReducedMotionEnabled);
-  }, []);
 
   // Animate to new percentage values when props change
   useEffect(() => {
@@ -327,7 +317,7 @@ export const LargeNutrientHub: React.FC<LargeNutrientHubProps> = ({
           </Group>
         </Canvas>
 
-        <InnerCircleContent />
+        {/* <InnerCircleContent /> */}
       </View>
     </Animated.View>
   );
