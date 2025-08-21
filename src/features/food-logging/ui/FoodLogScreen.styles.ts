@@ -22,7 +22,7 @@ export const createStyles = (colors: Colors, bottomPadding?: number) =>
     scrollContent: {
       paddingHorizontal: theme.spacing.pageMargins.horizontal,
       paddingBottom: bottomPadding || 100, // Dynamic bottom padding for tab bar and FAB
-      gap: theme.spacing.md,
+      gap: theme.spacing.lg,
     },
 
     // Mini summary styles

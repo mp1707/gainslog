@@ -18,6 +18,8 @@ import { FoodLogsList } from "./components/FoodLogsList";
 import { FavoritesPickerModal } from "./molecules/FavoritesPickerModal";
 import { LargeNutrientHub } from "./components/NutrientHub/LargeNutrientHub";
 import { NutrientSummaryGrid } from "./components/NutrientSummaryGrid";
+import { theme } from "@/theme/theme";
+import { AppText } from "@/components/AppText";
 
 interface FoodLogScreenProps {
   isLoadingLogs: boolean;
@@ -158,16 +160,14 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
             percentages={percentages}
           />
         </View> */}
-        <NutrientSummaryGrid
-          percentages={percentages}
-          targets={dailyTargets}
-          totals={currentTotals}
-        />
-        <LargeNutrientHub
-          percentages={percentages}
-          targets={dailyTargets}
-          totals={currentTotals}
-        />
+        <View style={{ gap: theme.spacing.md }}>
+          <AppText role="Title2">Today's Progress</AppText>
+          <LargeNutrientHub
+            percentages={percentages}
+            targets={dailyTargets}
+            totals={currentTotals}
+          />
+        </View>
         <FoodLogsList
           isLoadingLogs={isLoadingLogs}
           foodLogs={filteredFoodLogs}

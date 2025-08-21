@@ -38,7 +38,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = React.memo(
     if (isLoadingLogs) {
       return (
         <View>
-          <AppText role="Headline" style={headerStyle}>
+          <AppText role="Title2" style={headerStyle}>
             Logs
           </AppText>
           <Animated.View style={styles.container}>
@@ -61,7 +61,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = React.memo(
 
     return (
       <View>
-        <AppText role="Headline" style={headerStyle}>
+        <AppText role="Title2" style={headerStyle}>
           Logs
         </AppText>
         <View style={styles.container}>

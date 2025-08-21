@@ -112,7 +112,7 @@ const darkColors = {
   // Semi-transparent colors for badges/backgrounds
   semanticBadges: {
     calories: {
-      background: "rgba(68, 235, 212, 0.15)",
+      background: "hsla(172, 80.70%, 59.40%, 0.15)",
       text: "#44EBD4",
     },
     protein: {

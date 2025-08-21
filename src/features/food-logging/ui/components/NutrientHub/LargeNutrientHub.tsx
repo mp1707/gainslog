@@ -1,16 +1,16 @@
 import React, { useMemo, useEffect } from "react";
 import { Dimensions, View, TouchableOpacity } from "react-native";
 import { Canvas, Circle, Path, Skia, Group } from "@shopify/react-native-skia";
-import Animated, {
+import {
   useSharedValue,
   withSpring,
   withDelay,
   useDerivedValue,
-  useAnimatedStyle,
 } from "react-native-reanimated";
 import { useTheme } from "@/providers/ThemeProvider";
 import { theme } from "@/theme";
-import { AppText } from "@/components/AppText";
+import { Card } from "@/components/Card";
+import { NutrientSummaryGrid } from "../NutrientSummaryGrid";
 
 // TypeScript interface for component props
 interface NutrientValues {
@@ -217,108 +217,42 @@ export const LargeNutrientHub: React.FC<LargeNutrientHubProps> = ({
     );
   };
 
-  // Inner circle content component
-  const InnerCircleContent = () => {
-    const selectedConfig = RING_CONFIG[selectedNutrientIndex];
-    const total = Math.round(totals[selectedConfig.key]);
-    const target = Math.round(targets[selectedConfig.key]);
-
-    return (
-      <TouchableOpacity
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: [{ translateX: -80 }, { translateY: -60 }],
-          width: 160,
-          height: 120,
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 10,
-          borderRadius: theme.spacing.md,
-        }}
-        onPress={nextNutrient}
-        activeOpacity={0.7}
-        accessibilityLabel={`${selectedConfig.key}: ${total} of ${target} ${
-          selectedConfig.key === "calories" ? "calories" : "grams"
-        }. Tap to cycle through nutrients.`}
-        accessibilityRole="button"
-        accessibilityHint="Tap to view next nutrient"
-      >
-        <View
-          style={{
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 10,
-            minWidth: 70,
-          }}
-        >
-          <AppText
-            role="Body"
-            style={{
-              borderRadius: 50,
-            }}
-          >
-            {selectedConfig.key.charAt(0).toUpperCase() +
-              selectedConfig.key.slice(1)}
-          </AppText>
-          <AppText
-            role="Caption"
-            style={{
-              textAlign: "center",
-            }}
-          >
-            {selectedConfig.key === "calories"
-              ? `${total}/${target}`
-              : `${total}/${target}`}
-          </AppText>
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
-  // Cycling function for nutrients
-  const nextNutrient = () => {
-    setSelectedNutrientIndex((prev) => (prev + 1) % RING_CONFIG.length);
-  };
-
-  // Animated styles for the main container
-  const animatedContainerStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-    };
-  });
-
   return (
-    <Animated.View
-      style={[
-        {
-          width: "100%",
-          justifyContent: "center",
-          alignItems: "center",
-          padding: theme.spacing.pageMargins.horizontal,
-          minHeight: containerSize,
-        },
-        animatedContainerStyle,
-      ]}
-    >
-      <View>
-        <Canvas
-          style={{
-            width: containerSize,
-            height: containerSize,
-          }}
-        >
-          <Group
-            transform={[{ rotate: -Math.PI / 2 }]}
-            origin={{ x: center, y: center }}
+    <Card style={{ gap: theme.spacing.sm }}>
+      <View
+        style={[
+          {
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: theme.spacing.pageMargins.horizontal,
+            minHeight: containerSize,
+          },
+        ]}
+      >
+        <View>
+          <Canvas
+            style={{
+              width: containerSize,
+              height: containerSize,
+            }}
           >
-            {RING_CONFIG.map((_, index) => renderRing(index))}
-          </Group>
-        </Canvas>
+            <Group
+              transform={[{ rotate: -Math.PI / 2 }]}
+              origin={{ x: center, y: center }}
+            >
+              {RING_CONFIG.map((_, index) => renderRing(index))}
+            </Group>
+          </Canvas>
 
-        {/* <InnerCircleContent /> */}
+          {/* <InnerCircleContent /> */}
+        </View>
       </View>
-    </Animated.View>
+      <NutrientSummaryGrid
+        percentages={percentages}
+        targets={targets}
+        totals={totals}
+      />
+    </Card>
   );
 };
