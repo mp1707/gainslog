@@ -15,6 +15,7 @@ import { AppText } from "@/components";
 import { NutritionList } from "@/shared/ui/molecules";
 import { getConfidenceInfo } from "../../../utils";
 import { createStyles } from "./LogCard.styles";
+import { LogCardSkeleton } from "./LogCardSkeleton";
 
 interface LogCardProps {
   foodLog: FoodLog;
@@ -25,9 +26,26 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
 
-  // Animation shared values
+  // Animation shared values - must be declared before any conditional returns
   const scale = useSharedValue(1);
   const pressFlashOpacity = useSharedValue(0);
+
+  // Animated styles - must be declared before any conditional returns  
+  const cardAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const pressFlashAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: pressFlashOpacity.value,
+    backgroundColor: colors.primaryText,
+  }));
+
+  // Show skeleton while loading
+  const isLoading = foodLog.estimationConfidence === 0;
+  
+  if (isLoading) {
+    return <LogCardSkeleton />;
+  }
 
   const displayTitle = foodLog.userTitle || foodLog.generatedTitle;
 
@@ -77,16 +95,6 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
   };
 
   const confidenceStyles = getConfidenceStyles(confidenceInfo.level);
-
-  // Animated styles
-  const cardAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
-  const pressFlashAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: pressFlashOpacity.value,
-    backgroundColor: colors.primaryText,
-  }));
 
   return (
     <Animated.View style={[styles.cardContainer, cardAnimatedStyle]}>
