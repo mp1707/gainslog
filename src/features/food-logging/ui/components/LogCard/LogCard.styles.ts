@@ -73,4 +73,12 @@ export const createStyles = (colors: Colors) =>
     confidenceUncertainText: {
       color: colors.confidence.uncertain.text,
     },
+    pressOverlay: {
+      position: "absolute",
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      borderRadius: theme.components.cards.cornerRadius,
+    },
   });

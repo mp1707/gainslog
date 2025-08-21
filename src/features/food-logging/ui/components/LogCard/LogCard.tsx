@@ -1,5 +1,12 @@
 import React from "react";
 import { View, Pressable } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  Easing,
+} from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { FoodLog } from "@/types";
 import { useTheme } from "@/providers/ThemeProvider";
@@ -18,11 +25,36 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
 
+  // Animation shared values
+  const scale = useSharedValue(1);
+  const pressFlashOpacity = useSharedValue(0);
+
   const displayTitle = foodLog.userTitle || foodLog.generatedTitle;
 
   const handlePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onAddInfo(foodLog);
+  };
+
+  const handlePressIn = () => {
+    // Press down animation - scale down and flash
+    scale.value = withTiming(0.97, {
+      duration: 150,
+      easing: Easing.out(Easing.quad),
+    });
+    pressFlashOpacity.value = withTiming(0.08, {
+      duration: 150,
+      easing: Easing.out(Easing.quad),
+    });
+  };
+
+  const handlePressOut = () => {
+    // Release animation - spring back and fade flash
+    scale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+    pressFlashOpacity.value = withTiming(0, {
+      duration: 300,
+      easing: Easing.out(Easing.quad),
+    });
   };
 
   const confidenceInfo = getConfidenceInfo(foodLog.estimationConfidence);
@@ -46,18 +78,24 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
 
   const confidenceStyles = getConfidenceStyles(confidenceInfo.level);
 
+  // Animated styles
+  const cardAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const pressFlashAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: pressFlashOpacity.value,
+    backgroundColor: colors.primaryText,
+  }));
+
   return (
-    <View style={styles.cardContainer}>
+    <Animated.View style={[styles.cardContainer, cardAnimatedStyle]}>
       <Card elevated={true} style={styles.card}>
         <Pressable
           onPress={handlePress}
-          style={({ pressed }) => [
-            styles.pressable,
-            {
-              opacity: pressed ? 0.95 : 1,
-              transform: [{ scale: pressed ? 0.98 : 1 }],
-            },
-          ]}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          style={styles.pressable}
           accessibilityRole="button"
           accessibilityLabel={`Edit food log: ${displayTitle}`}
           accessibilityHint="Double tap to edit this food log entry"
@@ -90,7 +128,9 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
                     color={confidenceStyles.text.color}
                     weight="fill"
                   />
-                  <AppText style={[styles.confidenceText, confidenceStyles.text]}>
+                  <AppText
+                    style={[styles.confidenceText, confidenceStyles.text]}
+                  >
                     {confidenceInfo.label}
                   </AppText>
                 </View>
@@ -110,6 +150,12 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
           </View>
         </Pressable>
       </Card>
-    </View>
+      
+      {/* Press flash overlay for press feedback */}
+      <Animated.View
+        style={[styles.pressOverlay, pressFlashAnimatedStyle]}
+        pointerEvents="none"
+      />
+    </Animated.View>
   );
 };
