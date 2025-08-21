@@ -18,20 +18,16 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
 
-  // Get display title (user title or generated title)
   const displayTitle = foodLog.userTitle || foodLog.generatedTitle;
 
-  // Handle card tap - opens edit modal
   const handlePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onAddInfo(foodLog);
   };
 
-  // Get confidence indicator based on estimation confidence
   const confidenceInfo = getConfidenceInfo(foodLog.estimationConfidence);
   const ConfidenceIcon = confidenceInfo.icon;
 
-  // Map confidence level to style variants
   const getConfidenceStyles = (level: string) => {
     const styleMap = {
       high: { badge: styles.confidenceHigh, text: styles.confidenceHighText },
@@ -67,41 +63,40 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
           accessibilityHint="Double tap to edit this food log entry"
         >
           <View style={styles.contentContainer}>
-            {/* Left Section - Title and Description */}
             <View style={styles.leftSection}>
-              <View style={styles.textContainer}>
-                <AppText role="Headline" style={styles.title} numberOfLines={2}>
-                  {displayTitle}
-                </AppText>
+              <AppText role="Headline" style={styles.title} numberOfLines={2}>
+                {displayTitle}
+              </AppText>
 
-                {foodLog.userDescription && (
-                  <AppText
-                    role="Body"
-                    color="secondary"
-                    style={styles.description}
-                    numberOfLines={2}
-                  >
-                    {foodLog.userDescription}
-                  </AppText>
-                )}
-              </View>
-              <View
-                style={styles.confidenceBadge}
-                accessibilityRole="text"
-                accessibilityLabel={confidenceInfo.accessibilityLabel}
-              >
-                <ConfidenceIcon
-                  size={14}
-                  color={confidenceStyles.text.color}
-                  weight="fill"
-                />
-                <AppText style={[styles.confidenceText, confidenceStyles.text]}>
-                  {confidenceInfo.label}
+              {foodLog.userDescription && (
+                <AppText
+                  role="Body"
+                  color="secondary"
+                  style={styles.description}
+                  numberOfLines={2}
+                >
+                  {foodLog.userDescription}
                 </AppText>
+              )}
+
+              <View style={styles.confidenceContainer}>
+                <View
+                  style={[styles.confidenceBadge, confidenceStyles.badge]}
+                  accessibilityRole="text"
+                  accessibilityLabel={confidenceInfo.accessibilityLabel}
+                >
+                  <ConfidenceIcon
+                    size={14}
+                    color={confidenceStyles.text.color}
+                    weight="fill"
+                  />
+                  <AppText style={[styles.confidenceText, confidenceStyles.text]}>
+                    {confidenceInfo.label}
+                  </AppText>
+                </View>
               </View>
             </View>
 
-            {/* Right Section - Nutrition */}
             <View style={styles.rightSection}>
               <NutritionList
                 nutrition={{
