@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import {
   View,
   Text,
@@ -7,22 +7,23 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Stack } from "expo-router";
-import { X, ArrowsClockwise } from "phosphor-react-native";
+import { X, ArrowsClockwise, Star, PencilSimple } from "phosphor-react-native";
 import { useTheme } from "@/providers";
 import { useFoodLogStore, selectFoodLogs } from "@/stores/useFoodLogStore";
 import { useUpdateFoodLog } from "@/features/food-logging/hooks";
 import { FoodLog } from "@/types";
 import { theme } from "@/theme";
 
-// Import components
+// Import new components
 import {
-  Section,
-  EditableTextRow,
-  EditableNutritionRow,
-  ImagePickerSection,
+  NutritionViewCard,
+  NutritionEditCard,
+  ImageSection,
+  MetadataSection,
 } from "@/features/food-logging/ui/detail";
 
 export default function FoodLogDetailScreen() {
@@ -37,7 +38,8 @@ export default function FoodLogDetailScreen() {
   // Find the food log by ID
   const originalLog = foodLogs.find(log => log.id === id);
   
-  // Local state for editing
+  // View/Edit mode state
+  const [isEditing, setIsEditing] = useState(false);
   const [editedLog, setEditedLog] = useState<FoodLog | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const [isReEstimating, setIsReEstimating] = useState(false);
@@ -47,13 +49,80 @@ export default function FoodLogDetailScreen() {
 
   // Initialize local state when log is found
   useEffect(() => {
-    if (originalLog && !editedLog) {
+    if (originalLog) {
       setEditedLog(originalLog);
     }
-  }, [originalLog, editedLog]);
+  }, [originalLog]);
+
+  // Dynamic navigation header based on edit mode
+  useLayoutEffect(() => {
+    const logTitle = originalLog?.userTitle || originalLog?.generatedTitle || "Food Log";
+    
+    navigation.setOptions({
+      title: isEditing ? "Edit Log" : logTitle,
+      headerLeft: () => (
+        isEditing ? (
+          <TouchableOpacity 
+            onPress={handleCancel} 
+            style={{ marginLeft: 10 }}
+            accessibilityLabel="Cancel editing"
+            accessibilityHint="Discards changes and returns to view mode"
+          >
+            <Text style={[styles.navButtonText, { color: colors.accent }]}>Cancel</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity 
+            onPress={() => router.back()} 
+            style={{ marginLeft: 10 }}
+            accessibilityLabel="Go back"
+            accessibilityHint="Returns to previous screen"
+          >
+            <X size={24} color={colors.primaryText} />
+          </TouchableOpacity>
+        )
+      ),
+      headerRight: () => (
+        <View style={styles.headerRightContainer}>
+          {isEditing ? (
+            <TouchableOpacity 
+              onPress={handleSave}
+              accessibilityLabel="Save changes"
+              accessibilityHint="Saves edits and returns to view mode"
+            >
+              <Text style={[styles.navButtonText, styles.navButtonDone, { color: colors.accent }]}>
+                Done
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <>
+              <TouchableOpacity 
+                onPress={() => setIsEditing(true)}
+                accessibilityLabel="Edit food log"
+                accessibilityHint="Switches to edit mode to modify this log entry"
+              >
+                <Text style={[styles.navButtonText, { color: colors.accent }]}>Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={toggleFavorite}
+                style={{ marginLeft: theme.spacing.md }}
+                accessibilityLabel={originalLog?.isFavorite ? "Remove from favorites" : "Add to favorites"}
+                accessibilityHint={originalLog?.isFavorite ? "Removes this log from your favorites" : "Adds this log to your favorites"}
+              >
+                <Star
+                  size={24}
+                  color={colors.accent}
+                  weight={originalLog?.isFavorite ? "fill" : "regular"}
+                />
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      ),
+    });
+  }, [navigation, isEditing, originalLog, colors]);
 
   // If log not found, show error
-  if (!originalLog || !editedLog) {
+  if (!originalLog) {
     return (
       <View style={styles.errorContainer}>
         <Text style={[styles.errorText, { color: colors.error }]}>
@@ -62,6 +131,8 @@ export default function FoodLogDetailScreen() {
       </View>
     );
   }
+
+  const currentLog = editedLog || originalLog;
 
   const handleFieldUpdate = (field: keyof FoodLog, value: any) => {
     setEditedLog(prev => {
@@ -72,12 +143,50 @@ export default function FoodLogDetailScreen() {
     });
   };
 
+  const handleNutritionUpdate = (field: string, value: number) => {
+    setEditedLog(prev => {
+      if (!prev) return prev;
+      const updated = { ...prev, [field]: value };
+      setHasChanges(true);
+      return updated;
+    });
+  };
+
+  const toggleFavorite = () => {
+    if (!originalLog) return;
+    const updatedLog = { ...originalLog, isFavorite: !originalLog.isFavorite };
+    updateFoodLogById(updatedLog);
+  };
+
+  const handleCancel = () => {
+    if (hasChanges) {
+      Alert.alert(
+        "Discard Changes",
+        "Are you sure you want to discard your changes?",
+        [
+          { text: "Keep Editing", style: "cancel" },
+          {
+            text: "Discard",
+            style: "destructive",
+            onPress: () => {
+              setEditedLog(originalLog);
+              setHasChanges(false);
+              setIsEditing(false);
+            },
+          },
+        ]
+      );
+    } else {
+      setIsEditing(false);
+    }
+  };
+
   const handleSave = async () => {
     if (editedLog && hasChanges) {
       await updateFoodLogById(editedLog);
       setHasChanges(false);
     }
-    router.back();
+    setIsEditing(false);
   };
 
   const handleDelete = () => {
@@ -90,7 +199,7 @@ export default function FoodLogDetailScreen() {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            await deleteFoodLogById(editedLog.id);
+            await deleteFoodLogById(currentLog.id);
             router.back();
           },
         },
@@ -98,28 +207,13 @@ export default function FoodLogDetailScreen() {
     );
   };
 
-  const handleBack = () => {
-    if (hasChanges) {
-      Alert.alert(
-        "Unsaved Changes",
-        "You have unsaved changes. Do you want to save them?",
-        [
-          { text: "Don't Save", style: "destructive", onPress: () => router.back() },
-          { text: "Cancel", style: "cancel" },
-          { text: "Save", onPress: handleSave },
-        ]
-      );
-    } else {
-      router.back();
-    }
-  };
 
   const handleReEstimate = async () => {
-    if (!editedLog || isReEstimating) return;
+    if (!currentLog || isReEstimating) return;
     
     // Check if there's something to re-estimate
-    const hasTitle = editedLog.userTitle || editedLog.generatedTitle;
-    const hasImage = editedLog.imageUrl;
+    const hasTitle = currentLog.userTitle || currentLog.generatedTitle;
+    const hasImage = currentLog.imageUrl;
     
     if (!hasTitle && !hasImage) {
       Alert.alert(
@@ -134,18 +228,17 @@ export default function FoodLogDetailScreen() {
     try {
       // Create a copy of the log with re-estimation flag
       const logToReEstimate = {
-        ...editedLog,
+        ...currentLog,
         needsAiEstimation: true,
         // Clear existing AI-generated nutrition for fresh estimation
-        calories: editedLog.userCalories || 0,
-        protein: editedLog.userProtein || 0,
-        carbs: editedLog.userCarbs || 0,
-        fat: editedLog.userFat || 0,
+        calories: currentLog.userCalories || 0,
+        protein: currentLog.userProtein || 0,
+        carbs: currentLog.userCarbs || 0,
+        fat: currentLog.userFat || 0,
         estimationConfidence: undefined,
       };
       
       await update(logToReEstimate);
-      setHasChanges(true);
     } catch (error) {
       console.error("Error re-estimating nutrition:", error);
       Alert.alert(
@@ -162,24 +255,11 @@ export default function FoodLogDetailScreen() {
       <Stack.Screen
         options={{
           headerShown: true,
-          title: "Edit Log",
           headerStyle: { backgroundColor: colors.primaryBackground },
           headerTitleStyle: {
             ...theme.typography.Headline,
             color: colors.primaryText,
           },
-          headerLeft: () => (
-            <TouchableOpacity onPress={handleBack} style={{ marginLeft: 10 }}>
-              <X size={24} color={colors.primaryText} />
-            </TouchableOpacity>
-          ),
-          headerRight: () => (
-            <TouchableOpacity onPress={handleSave}>
-              <Text style={[styles.doneButton, { color: colors.accent }]}>
-                Done
-              </Text>
-            </TouchableOpacity>
-          ),
         }}
       />
       
@@ -187,74 +267,85 @@ export default function FoodLogDetailScreen() {
         style={[styles.container, { backgroundColor: colors.primaryBackground }]}
         contentContainerStyle={styles.contentContainer}
       >
-        {/* Media Section */}
-        <ImagePickerSection
-          log={editedLog}
-          onLogUpdate={(updatedLog) => setEditedLog(updatedLog)}
+        {/* Image Section */}
+        <ImageSection
+          log={currentLog}
+          isEditing={isEditing}
+          onLogUpdate={(updatedLog) => {
+            setEditedLog(updatedLog);
+            setHasChanges(true);
+          }}
         />
 
-        {/* General Section */}
-        <Section title="General">
-          <EditableTextRow
-            label="Title"
-            value={editedLog.userTitle || editedLog.generatedTitle}
-            onChangeText={(text) => handleFieldUpdate("userTitle", text)}
-            placeholder="e.g., Grilled Chicken Salad"
-          />
-          <View style={[styles.divider, { backgroundColor: colors.border }]} />
-          <EditableTextRow
-            label="Description"
-            value={editedLog.userDescription || ""}
-            onChangeText={(text) => handleFieldUpdate("userDescription", text)}
-            placeholder="Add a note..."
-            multiline
-            showMicButton
-          />
-        </Section>
+        {/* Title and Description */}
+        <View style={styles.generalSection}>
+          {isEditing ? (
+            <>
+              <TextInput
+                style={[
+                  styles.titleInput,
+                  {
+                    color: colors.primaryText,
+                    backgroundColor: colors.secondaryBackground,
+                    borderColor: colors.border,
+                  },
+                ]}
+                value={currentLog.userTitle || currentLog.generatedTitle || ""}
+                onChangeText={(text) => handleFieldUpdate("userTitle", text)}
+                placeholder="Food title"
+                placeholderTextColor={colors.secondaryText}
+                multiline
+                accessibilityLabel="Food title"
+                accessibilityHint="Enter or edit the name of the food item"
+              />
+              <TextInput
+                style={[
+                  styles.descriptionInput,
+                  {
+                    color: colors.primaryText,
+                    backgroundColor: colors.secondaryBackground,
+                    borderColor: colors.border,
+                  },
+                ]}
+                value={currentLog.userDescription || ""}
+                onChangeText={(text) => handleFieldUpdate("userDescription", text)}
+                placeholder="Add a description..."
+                placeholderTextColor={colors.secondaryText}
+                multiline
+                numberOfLines={3}
+                accessibilityLabel="Food description"
+                accessibilityHint="Enter additional details about the food item"
+              />
+            </>
+          ) : (
+            <>
+              <Text style={[styles.title, { color: colors.primaryText }]}>
+                {currentLog.userTitle || currentLog.generatedTitle}
+              </Text>
+              {(currentLog.userDescription || currentLog.description) && (
+                <Text style={[styles.description, { color: colors.secondaryText }]}>
+                  {currentLog.userDescription || currentLog.description}
+                </Text>
+              )}
+            </>
+          )}
+        </View>
 
         {/* Nutrition Section */}
-        <Section title="Nutrition">
-          <EditableNutritionRow
-            label="Calories"
-            value={editedLog.userCalories || editedLog.calories}
-            unit="kcal"
-            onPress={() => {
-              // TODO: Navigate to nutrition editor
-              console.log("Edit calories");
-            }}
-          />
-          <View style={[styles.divider, { backgroundColor: colors.border }]} />
-          <EditableNutritionRow
-            label="Protein"
-            value={editedLog.userProtein || editedLog.protein}
-            unit="g"
-            onPress={() => {
-              // TODO: Navigate to nutrition editor
-              console.log("Edit protein");
-            }}
-          />
-          <View style={[styles.divider, { backgroundColor: colors.border }]} />
-          <EditableNutritionRow
-            label="Carbs"
-            value={editedLog.userCarbs || editedLog.carbs}
-            unit="g"
-            onPress={() => {
-              // TODO: Navigate to nutrition editor
-              console.log("Edit carbs");
-            }}
-          />
-          <View style={[styles.divider, { backgroundColor: colors.border }]} />
-          <EditableNutritionRow
-            label="Fat"
-            value={editedLog.userFat || editedLog.fat}
-            unit="g"
-            onPress={() => {
-              // TODO: Navigate to nutrition editor
-              console.log("Edit fat");
-            }}
-          />
-          
-          {/* Re-estimation Button */}
+        <View style={styles.nutritionSection}>
+          <Text style={[styles.sectionTitle, { color: colors.primaryText }]}>Nutrition</Text>
+          {isEditing ? (
+            <NutritionEditCard
+              log={currentLog}
+              onUpdateNutrition={handleNutritionUpdate}
+            />
+          ) : (
+            <NutritionViewCard log={currentLog} />
+          )}
+        </View>
+
+        {/* Re-estimation Button - Available in both modes */}
+        <View style={styles.actionsSection}>
           <TouchableOpacity
             style={[
               styles.reEstimateButton,
@@ -266,6 +357,9 @@ export default function FoodLogDetailScreen() {
             ]}
             onPress={handleReEstimate}
             disabled={isReEstimating}
+            accessibilityLabel="Re-estimate nutrition with AI"
+            accessibilityHint="Uses AI to generate new nutrition estimates based on the current title and image"
+            accessibilityState={{ busy: isReEstimating }}
           >
             {isReEstimating ? (
               <ActivityIndicator size="small" color={colors.accent} />
@@ -273,19 +367,27 @@ export default function FoodLogDetailScreen() {
               <ArrowsClockwise size={16} color={colors.accent} />
             )}
             <Text style={[styles.reEstimateButtonText, { color: colors.accent }]}>
-              {isReEstimating ? "Estimating..." : "Estimate again"}
+              {isReEstimating ? "Estimating..." : "Re-estimate with AI"}
             </Text>
           </TouchableOpacity>
-        </Section>
+        </View>
 
-        {/* Actions Section */}
-        <Section title="Actions">
-          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+        {/* Metadata Section - Only in view mode */}
+        {!isEditing && <MetadataSection log={currentLog} />}
+
+        {/* Delete Button */}
+        <View style={styles.deleteSection}>
+          <TouchableOpacity 
+            onPress={handleDelete}
+            accessibilityLabel="Delete food log"
+            accessibilityHint="Permanently deletes this log entry. This action cannot be undone."
+            accessibilityRole="button"
+          >
             <Text style={[styles.deleteButtonText, { color: colors.error }]}>
               Delete Log
             </Text>
           </TouchableOpacity>
-        </Section>
+        </View>
       </ScrollView>
     </>
   );
@@ -296,7 +398,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    paddingHorizontal: theme.spacing.pageMargins.horizontal,
     paddingBottom: theme.spacing.xxl,
   },
   errorContainer: {
@@ -307,37 +408,83 @@ const styles = StyleSheet.create({
   errorText: {
     ...theme.typography.Body,
   },
-  doneButton: {
-    ...theme.typography.Headline,
-    marginRight: 10,
-  },
-  divider: {
-    height: 1,
-    marginLeft: theme.spacing.md,
-  },
-  deleteButton: {
+  headerRightContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    minHeight: 50,
+    paddingRight: 10,
   },
-  deleteButtonText: {
+  navButtonText: {
     ...theme.typography.Body,
+    fontSize: 17,
+  },
+  navButtonDone: {
+    ...theme.typography.Headline,
     fontWeight: "600",
+  },
+  generalSection: {
+    paddingHorizontal: theme.spacing.pageMargins.horizontal,
+    paddingVertical: theme.spacing.lg,
+  },
+  title: {
+    ...theme.typography.Title1,
+    marginBottom: theme.spacing.sm,
+  },
+  description: {
+    ...theme.typography.Body,
+    lineHeight: 22,
+  },
+  titleInput: {
+    ...theme.typography.Title1,
+    borderWidth: 1,
+    borderRadius: theme.components.buttons.cornerRadius,
+    padding: theme.spacing.md,
+    marginBottom: theme.spacing.md,
+    minHeight: 50,
+    textAlignVertical: "top",
+  },
+  descriptionInput: {
+    ...theme.typography.Body,
+    borderWidth: 1,
+    borderRadius: theme.components.buttons.cornerRadius,
+    padding: theme.spacing.md,
+    minHeight: 80,
+    textAlignVertical: "top",
+  },
+  nutritionSection: {
+    marginVertical: theme.spacing.lg,
+  },
+  sectionTitle: {
+    ...theme.typography.Headline,
+    paddingHorizontal: theme.spacing.pageMargins.horizontal,
+    marginBottom: theme.spacing.md,
+  },
+  actionsSection: {
+    paddingHorizontal: theme.spacing.pageMargins.horizontal,
+    alignItems: "center",
+    marginVertical: theme.spacing.lg,
   },
   reEstimateButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: theme.spacing.md,
-    paddingVertical: theme.spacing.sm + 2,
-    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
     borderWidth: 1.5,
     borderRadius: theme.components.buttons.cornerRadius,
     gap: theme.spacing.xs,
+    minWidth: 160,
   },
   reEstimateButtonText: {
     ...theme.typography.Body,
     fontWeight: "500",
+  },
+  deleteSection: {
+    paddingHorizontal: theme.spacing.pageMargins.horizontal,
+    paddingVertical: theme.spacing.xl,
+    alignItems: "center",
+  },
+  deleteButtonText: {
+    ...theme.typography.Body,
+    fontWeight: "600",
   },
 });

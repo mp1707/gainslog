@@ -1,10 +1,11 @@
 import React, { useCallback, useMemo } from "react";
 import { View } from "react-native";
 import Animated, { Layout, FadeInUp } from "react-native-reanimated";
-import { SwipeToDelete, SkeletonCard } from "../../../../../shared/ui";
+import { SwipeToFunctions, SkeletonCard } from "../../../../../shared/ui";
 import { AppText } from "@/components/AppText";
 import { FoodLog } from "@/types";
 import { useTheme } from "@/providers";
+import { useFavoritesStore } from "@/stores/useFavoritesStore";
 import { styles } from "./FoodLogsList.styles";
 import { FoodLogCard } from "../FoodLogCard";
 import { LogCard } from "../LogCard";
@@ -19,12 +20,20 @@ interface FoodLogsListProps {
 export const FoodLogsList: React.FC<FoodLogsListProps> = React.memo(
   ({ isLoadingLogs, foodLogs, onDeleteLog, onAddInfo }) => {
     const { theme, colors } = useTheme();
+    const { toggleForLog } = useFavoritesStore();
 
     const handleDeleteLog = useCallback(
       async (logId: string) => {
         await onDeleteLog(logId);
       },
       [onDeleteLog]
+    );
+
+    const handleFavoriteLog = useCallback(
+      async (log: FoodLog) => {
+        await toggleForLog(log);
+      },
+      [toggleForLog]
     );
 
     const headerStyle = useMemo(
@@ -74,10 +83,13 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = React.memo(
                 .stiffness(150)}
               layout={Layout.springify().damping(18).stiffness(150).mass(1)}
             >
-              <SwipeToDelete onDelete={() => handleDeleteLog(log.id)}>
+              <SwipeToFunctions 
+                onDelete={() => handleDeleteLog(log.id)}
+                onFavorite={() => handleFavoriteLog(log)}
+              >
                 {/* <FoodLogCard foodLog={log} onAddInfo={onAddInfo} /> */}
                 <LogCard foodLog={log} onAddInfo={onAddInfo} />
-              </SwipeToDelete>
+              </SwipeToFunctions>
             </Animated.View>
           ))}
         </View>

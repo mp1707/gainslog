@@ -1,4 +1,4 @@
-export { SwipeToDelete } from "./SwipeToDelete";
+export { SwipeToFunctions } from "./SwipeToFunctions";
 export { SearchBar } from "./SearchBar/SearchBar";
 export { CalculatorScreenLayout } from './CalculatorScreenLayout';
 export { CalculatorInputAccessory } from './CalculatorInputAccessory';

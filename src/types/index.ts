@@ -3,8 +3,9 @@ export interface FoodLog {
   id: string;
   userTitle?: string;
   userDescription?: string;
+  description?: string; // AI-generated description
   generatedTitle: string;
-  estimationConfidence: number;
+  estimationConfidence?: number;
   calories: number;
   protein: number;
   carbs: number;
@@ -17,6 +18,7 @@ export interface FoodLog {
   localImageUri?: string; // Local image URI before upload
   isUploading?: boolean; // Track upload state
   isTranscribing?: boolean; // Track transcription state for audio logs
+  isFavorite?: boolean; // Favorite flag
   createdAt: string;
   date: string; // ISO date string (YYYY-MM-DD)
   needsAiEstimation?: boolean;
