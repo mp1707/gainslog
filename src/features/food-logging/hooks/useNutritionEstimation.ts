@@ -3,14 +3,14 @@ import {
   estimateNutritionImageBased,
 } from "@/lib/supabase";
 import { mergeNutritionData } from "../utils";
-import { FoodLog } from "@/types";
+import { LegacyFoodLog } from "@/types/indexLegacy";
 import * as Haptics from "expo-haptics";
 
 export interface UseNutritionEstimationReturn {
   processLogWithEstimation: (
-    log: FoodLog,
-    onSkeletonUpdate: (log: FoodLog) => void,
-    onFinalUpdate: (log: FoodLog) => void,
+    log: LegacyFoodLog,
+    onSkeletonUpdate: (log: LegacyFoodLog) => void,
+    onFinalUpdate: (log: LegacyFoodLog) => void,
     onInvalidImage?: (logId: string) => void
   ) => Promise<void>;
 }
@@ -21,9 +21,9 @@ export interface UseNutritionEstimationReturn {
  */
 export function useNutritionEstimation(): UseNutritionEstimationReturn {
   const processLogWithEstimation = async (
-    log: FoodLog,
-    onSkeletonUpdate: (log: FoodLog) => void,
-    onFinalUpdate: (log: FoodLog) => void,
+    log: LegacyFoodLog,
+    onSkeletonUpdate: (log: LegacyFoodLog) => void,
+    onFinalUpdate: (log: LegacyFoodLog) => void,
     onInvalidImage?: (logId: string) => void
   ) => {
     if (!log.needsAiEstimation) {

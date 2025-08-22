@@ -5,7 +5,7 @@ import { StarIcon } from "phosphor-react-native";
 import { useTheme } from "@/providers/ThemeProvider";
 import { FoodLogCardView } from "../../FoodLogCardView";
 import { createStyles } from "../../components/FoodLogCard/FoodLogCard.styles";
-import { FavoriteEntry, FoodLog } from "@/types";
+import { FavoriteEntry, LegacyFoodLog } from "@/types/indexLegacy";
 import { useFavoritesStore } from "@/stores/useFavoritesStore";
 
 interface FavoriteCardProps {
@@ -20,7 +20,7 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({ entry }) => {
   const handleRemoveFavorite = async () => {
     await Haptics.selectionAsync();
     const today = new Date();
-    const logLike: FoodLog = {
+    const logLike: LegacyFoodLog = {
       id: `fav-${today.getTime()}`,
       userTitle: entry.title,
       userDescription: entry.description,

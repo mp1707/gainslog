@@ -2,7 +2,7 @@ import React, { useRef, useMemo } from "react";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSharedValue } from "react-native-reanimated";
-import { FoodLog } from "@/types";
+import { LegacyFoodLog } from "@/types/indexLegacy";
 import { createStyles } from "./FoodLogScreen.styles";
 import {
   useFoodLogStore,
@@ -24,7 +24,7 @@ import { NutrientSummary } from "@/shared/ui";
 interface FoodLogScreenProps {
   isLoadingLogs: boolean;
   onDeleteLog: (logId: string) => Promise<void>;
-  onAddInfo: (log: FoodLog) => void;
+  onAddInfo: (log: LegacyFoodLog) => void;
   scrollToTop?: boolean;
   isFavoritesModalVisible?: boolean;
   onCloseFavoritesModal?: () => void;

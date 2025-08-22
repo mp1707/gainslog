@@ -67,12 +67,10 @@ export const createFoodLogsSlice: StateCreator<
     return logs.reduce(
       (totals, log) => {
         // Use user values if available, otherwise use AI-generated values
-        const calories =
-          log.userCalories !== undefined ? log.userCalories : log.calories;
-        const protein =
-          log.userProtein !== undefined ? log.userProtein : log.protein;
-        const carbs = log.userCarbs !== undefined ? log.userCarbs : log.carbs;
-        const fat = log.userFat !== undefined ? log.userFat : log.fat;
+        const calories = log.userCalories ?? log.generatedCalories ?? 0;
+        const protein = log.userProtein ?? log.generatedProtein ?? 0;
+        const carbs = log.userCarbs ?? log.generatedCarbs ?? 0;
+        const fat = log.userFat ?? log.generatedFat ?? 0;
 
         return {
           calories: totals.calories + calories,

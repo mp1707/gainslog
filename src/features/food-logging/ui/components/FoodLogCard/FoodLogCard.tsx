@@ -11,7 +11,7 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { DotsThreeIcon } from "phosphor-react-native";
-import { FoodLog } from "@/types";
+import { LegacyFoodLog } from "@/types/indexLegacy";
 import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./FoodLogCard.styles";
 import { FoodLogCardSkeleton } from "../../FoodLogCardSkeleton";
@@ -21,8 +21,8 @@ import { FoodLogCardView } from "../../FoodLogCardView";
 import { FoodLogOptionsSheet } from "../FoodLogOptionsSheet";
 
 interface FoodLogCardProps {
-  foodLog: FoodLog;
-  onAddInfo: (log: FoodLog) => void;
+  foodLog: LegacyFoodLog;
+  onAddInfo: (log: LegacyFoodLog) => void;
 }
 
 export const FoodLogCard: React.FC<FoodLogCardProps> = ({
@@ -44,7 +44,6 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
   const flashOpacity = useSharedValue(0);
   const cardScale = useSharedValue(1);
   const prevConfidence = useRef(foodLog.estimationConfidence);
-
 
   // Get color based on confidence level (matching Badge component logic)
   const getConfidenceColor = (confidence: number): string => {
@@ -129,14 +128,16 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
             try {
               await deleteFoodLogById(foodLog.id);
             } catch (error) {
-              Alert.alert("Error", "Failed to delete food log entry. Please try again.");
+              Alert.alert(
+                "Error",
+                "Failed to delete food log entry. Please try again."
+              );
             }
           },
         },
       ]
     );
   };
-
 
   return (
     <>
@@ -180,7 +181,7 @@ export const FoodLogCard: React.FC<FoodLogCardProps> = ({
           </>
         )}
       </Animated.View>
-      
+
       <FoodLogOptionsSheet
         visible={optionsVisible}
         onClose={() => setOptionsVisible(false)}

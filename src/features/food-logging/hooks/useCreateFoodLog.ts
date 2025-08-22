@@ -1,8 +1,9 @@
 import { useCallback } from "react";
 import { useNutritionEstimation } from "./useNutritionEstimation";
-import { FoodLog } from "@/types";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
+import { LegacyFoodLog } from "@/types/indexLegacy";
+
 import { showInvalidImageToast } from "@/lib/toast";
+import { useFoodLogStore } from "src/stores/useFoodLogStore";
 
 /**
  * Business-logic hook that turns a (possibly partial) FoodLog coming from the modal
@@ -21,7 +22,7 @@ export const useCreateFoodLog = () => {
   const { processLogWithEstimation } = useNutritionEstimation();
 
   const create = useCallback(
-    async (initialLog: FoodLog) => {
+    async (initialLog: LegacyFoodLog) => {
       await processLogWithEstimation(
         initialLog,
         // Skeleton → optimistic UI update

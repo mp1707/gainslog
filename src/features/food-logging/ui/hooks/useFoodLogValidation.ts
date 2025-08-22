@@ -1,15 +1,15 @@
 import { Alert } from "react-native";
-import { FoodLog, ModalMode } from "@/types";
+import { LegacyFoodLog, ModalMode } from "@/types/indexLegacy";
 import { mergeNutritionData } from "@/features/food-logging/utils";
-import { useFoodLogStore, selectSelectedDate } from "@/stores/useFoodLogStore";
+import { useFoodLogStore, selectSelectedDate } from "src/stores/useFoodLogStore";
 import { FoodLogFormData } from "./useFoodLogForm";
 
 export interface UseFoodLogValidationReturn {
   validateAndCreateLog: (
     formData: FoodLogFormData,
-    currentLog: FoodLog | null,
+    currentLog: LegacyFoodLog | null,
     mode: ModalMode
-  ) => { isValid: boolean; log?: FoodLog; error?: string };
+  ) => { isValid: boolean; log?: LegacyFoodLog; error?: string };
 }
 
 /**
@@ -21,9 +21,9 @@ export function useFoodLogValidation(): UseFoodLogValidationReturn {
 
   const validateAndCreateLog = (
     formData: FoodLogFormData,
-    currentLog: FoodLog | null,
+    currentLog: LegacyFoodLog | null,
     mode: ModalMode
-  ): { isValid: boolean; log?: FoodLog; error?: string } => {
+  ): { isValid: boolean; log?: LegacyFoodLog; error?: string } => {
     const { title, description, calories, protein, carbs, fat } = formData;
 
     // Validate required fields for create mode - either title OR description needed for non-image logs
@@ -53,7 +53,7 @@ export function useFoodLogValidation(): UseFoodLogValidationReturn {
       return { isValid: false };
     }
 
-    let finalLog: FoodLog;
+    let finalLog: LegacyFoodLog;
 
     if (mode === "edit" && currentLog) {
       // Updating existing log - preserve original ID and metadata

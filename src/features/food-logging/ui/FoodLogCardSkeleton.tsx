@@ -2,12 +2,12 @@ import React from "react";
 import { View } from "react-native";
 import { Skeleton } from "@/shared/ui/atoms";
 import { SkeletonShimmerEffect, Card } from "@/components";
-import { FoodLog } from "@/types";
+import { LegacyFoodLog } from "@/types/indexLegacy";
 import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./components/FoodLogCard/FoodLogCard.styles";
 
 interface FoodLogCardSkeletonProps {
-  foodLog: FoodLog;
+  foodLog: LegacyFoodLog;
 }
 
 export const FoodLogCardSkeleton: React.FC<FoodLogCardSkeletonProps> = ({

@@ -19,7 +19,7 @@ import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { Button } from "@/shared/ui/atoms/Button";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import { saveCalorieCalculatorParams } from "@/lib/storage";
-import type { GoalType } from "@/types";
+import type { GoalType } from "@/types/indexLegacy";
 import { StyleSheet } from "react-native";
 
 export default function Step3GoalsScreen() {

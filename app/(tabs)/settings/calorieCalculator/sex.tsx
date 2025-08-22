@@ -9,7 +9,7 @@ import { useTheme } from "@/providers";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
 import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
-import type { CalorieIntakeParams, Sex } from "@/types";
+import type { CalorieIntakeParams, Sex } from "@/types/indexLegacy";
 import { getCalorieCalculatorParams } from "@/lib/storage";
 import { StyleSheet } from "react-native";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";

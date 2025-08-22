@@ -23,7 +23,10 @@ import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
 import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
 import { CALCULATION_METHODS } from "@/shared/constants/calculationMethods";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
-import type { CalorieCalculationMethod, ActivityLevel } from "@/types";
+import type {
+  CalorieCalculationMethod,
+  ActivityLevel,
+} from "@/types/indexLegacy";
 import { StyleSheet } from "react-native";
 
 export default function Step2ActivityLevelScreen() {

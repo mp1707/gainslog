@@ -1,16 +1,16 @@
-import { useCallback } from 'react';
-import { useFoodLogStore } from '@/stores/useFoodLogStore';
-import { FavoriteEntry, FoodLog } from '@/types';
-import { generateFoodLogId } from '@/lib/storage';
+import { useCallback } from "react";
+import { FavoriteEntry, LegacyFoodLog } from "@/types/indexLegacy";
+import { generateFoodLogId } from "@/lib/storage";
+import { useFoodLogStore } from "src/stores/useFoodLogStore";
 
 interface UseFavoriteSelectionProps {
   selectedDate: string;
   onSelectionComplete?: () => void;
 }
 
-export const useFavoriteSelection = ({ 
-  selectedDate, 
-  onSelectionComplete 
+export const useFavoriteSelection = ({
+  selectedDate,
+  onSelectionComplete,
 }: UseFavoriteSelectionProps) => {
   const addFoodLog = useFoodLogStore((state) => state.addFoodLog);
 
@@ -18,8 +18,8 @@ export const useFavoriteSelection = ({
     (favorite: FavoriteEntry) => {
       const now = new Date();
       const id = generateFoodLogId();
-      
-      const log: FoodLog = {
+
+      const log: LegacyFoodLog = {
         id,
         userTitle: favorite.title,
         userDescription: favorite.description,

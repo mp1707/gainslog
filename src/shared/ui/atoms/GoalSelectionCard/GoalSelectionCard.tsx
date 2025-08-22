@@ -11,7 +11,7 @@ import Animated, {
 import { TrendDownIcon, EqualsIcon, TrendUpIcon } from "phosphor-react-native";
 import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./GoalSelectionCard.styles";
-import type { GoalType } from "@/types";
+import type { GoalType } from "@/types/indexLegacy";
 
 export interface GoalSelectionCardProps {
   goalType: GoalType;

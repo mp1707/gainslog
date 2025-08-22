@@ -10,8 +10,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { FoodLog, ModalMode } from "@/types";
-import { useFoodLogStore, selectFoodLogs } from "@/stores/useFoodLogStore";
+import { LegacyFoodLog, ModalMode } from "@/types/indexLegacy";
+import { useFoodLogStore, selectFoodLogs } from "src/stores/useFoodLogStore";
 import { useStyles } from "./FoodLogModal.styles";
 import { ModalHeader } from "./components/ModalHeader";
 import { FoodImageDisplay } from "./components/FoodImageDisplay";
@@ -25,9 +25,9 @@ export type NutritionMode = "estimation" | "manual";
 interface FoodLogModalProps {
   visible: boolean;
   mode: ModalMode;
-  selectedLog: FoodLog | null;
+  selectedLog: LegacyFoodLog | null;
   onClose: (wasSaved?: boolean) => void;
-  onSave: (log: FoodLog) => void;
+  onSave: (log: LegacyFoodLog) => void;
   isAudioMode?: boolean;
 }
 

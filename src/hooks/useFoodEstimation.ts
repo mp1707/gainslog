@@ -36,11 +36,11 @@ export const useFoodEstimation = () => {
         userTitle: title,
         userDescription: description,
         generatedTitle: estimation.generatedTitle,
+        generatedCalories: estimation.calories,
+        generatedProtein: estimation.protein,
+        generatedCarbs: estimation.carbs,
+        generatedFat: estimation.fat,
         estimationConfidence: estimation.estimationConfidence,
-        calories: estimation.calories,
-        protein: estimation.protein,
-        carbs: estimation.carbs,
-        fat: estimation.fat,
       };
 
       addFoodLog(newLog);
@@ -77,11 +77,11 @@ export const useFoodEstimation = () => {
         userTitle: title,
         userDescription: description,
         generatedTitle: estimation.generatedTitle,
+        generatedCalories: estimation.calories,
+        generatedProtein: estimation.protein,
+        generatedCarbs: estimation.carbs,
+        generatedFat: estimation.fat,
         estimationConfidence: estimation.estimationConfidence,
-        calories: estimation.calories,
-        protein: estimation.protein,
-        carbs: estimation.carbs,
-        fat: estimation.fat,
         imageUrl: imageUrl,
       };
 
@@ -113,16 +113,11 @@ export const useFoodEstimation = () => {
       date: selectedDate,
       userTitle: title,
       userDescription: description,
-      generatedTitle: title,
-      estimationConfidence: 100, // Manual entry has 100% confidence
-      calories: parseFloat(calories) || 0,
-      protein: parseFloat(protein) || 0,
-      carbs: parseFloat(carbs) || 0,
-      fat: parseFloat(fat) || 0,
       userCalories: parseFloat(calories) || 0,
       userProtein: parseFloat(protein) || 0,
       userCarbs: parseFloat(carbs) || 0,
       userFat: parseFloat(fat) || 0,
+      estimationConfidence: 100, // Manual entry has 100% confidence
     };
 
     addFoodLog(newLog);

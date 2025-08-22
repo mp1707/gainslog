@@ -7,7 +7,7 @@ import {
   InlineRecordButton,
 } from "@/shared/ui";
 import { Toggle, type ToggleOption } from "@/shared/ui/atoms/Toggle";
-import { FoodLog } from "@/types";
+import { LegacyFoodLog } from "@/types/indexLegacy";
 import { FoodLogFormData } from "../../hooks/useFoodLogForm";
 import { UseAudioRecordingReturn } from "../../hooks/useAudioRecording";
 import { NutritionMode } from "../../FoodLogModal";
@@ -26,7 +26,7 @@ import { AppText } from "@/components";
 
 interface FoodLogFormFieldsProps {
   formData: FoodLogFormData;
-  currentLog: FoodLog | null;
+  currentLog: LegacyFoodLog | null;
   audioRecording: UseAudioRecordingReturn;
   nutritionMode: NutritionMode;
   onFieldChange: (field: keyof FoodLogFormData, value: string) => void;

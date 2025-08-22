@@ -1,5 +1,6 @@
 import { StateCreator } from "zustand";
 import { FavoriteEntry, FoodLog } from "@/types";
+import { generateFavoriteId } from "@/utils/idGenerator";
 
 export interface FavoritesSlice {
   favorites: FavoriteEntry[];
@@ -22,28 +23,16 @@ export const createFavoritesSlice: StateCreator<
     set((state) => {
       // Create disconnected copy
       const favorite: FavoriteEntry = {
-        id: `fav_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id: generateFavoriteId(),
         createdAt: new Date().toISOString(),
         date: foodLog.date,
-        title: foodLog.userTitle || foodLog.generatedTitle,
-        description: foodLog.userDescription || foodLog.description || "",
-        calories: (foodLog.userCalories !== undefined
-          ? foodLog.userCalories
-          : foodLog.calories
-        ).toString(),
-        protein: (foodLog.userProtein !== undefined
-          ? foodLog.userProtein
-          : foodLog.protein
-        ).toString(),
-        carbs: (foodLog.userCarbs !== undefined
-          ? foodLog.userCarbs
-          : foodLog.carbs
-        ).toString(),
-        fat: (foodLog.userFat !== undefined
-          ? foodLog.userFat
-          : foodLog.fat
-        ).toString(),
-        estimationConfidence: (foodLog.estimationConfidence || 100).toString(),
+        title: foodLog.userTitle ?? foodLog.generatedTitle,
+        description: foodLog.userDescription ?? foodLog.generatedDescription,
+        calories: foodLog.userCalories ?? foodLog.generatedCalories,
+        protein: foodLog.userProtein ?? foodLog.generatedProtein,
+        carbs: foodLog.userCarbs ?? foodLog.generatedCarbs,
+        fat: foodLog.userFat ?? foodLog.generatedFat,
+        estimationConfidence: foodLog.estimationConfidence,
       };
 
       state.favorites.push(favorite);
@@ -79,16 +68,11 @@ export const createFavoritesSlice: StateCreator<
       date,
       userTitle: favorite.title,
       userDescription: favorite.description,
-      generatedTitle: favorite.title,
-      estimationConfidence: parseFloat(favorite.estimationConfidence),
-      calories: parseFloat(favorite.calories),
-      protein: parseFloat(favorite.protein),
-      carbs: parseFloat(favorite.carbs),
-      fat: parseFloat(favorite.fat),
-      userCalories: parseFloat(favorite.calories),
-      userProtein: parseFloat(favorite.protein),
-      userCarbs: parseFloat(favorite.carbs),
-      userFat: parseFloat(favorite.fat),
+      userCalories: favorite.calories,
+      userProtein: favorite.protein,
+      userCarbs: favorite.carbs,
+      userFat: favorite.fat,
+      estimationConfidence: favorite.estimationConfidence,
     };
 
     get().addFoodLog(newLog);

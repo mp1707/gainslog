@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { useTheme } from "@/providers";
 import { theme } from "@/theme";
-import { FoodLog } from "@/types";
+import { LegacyFoodLog } from "@/types/indexLegacy";
 
 interface NutritionEditRowProps {
   label: string;
@@ -24,7 +24,9 @@ const NutritionEditRow: React.FC<NutritionEditRowProps> = ({
   return (
     <View style={styles.nutritionRow}>
       <View style={styles.labelContainer}>
-        <View style={[styles.semanticDot, { backgroundColor: semanticColor }]} />
+        <View
+          style={[styles.semanticDot, { backgroundColor: semanticColor }]}
+        />
         <Text style={[styles.nutritionLabel, { color: colors.primaryText }]}>
           {label}
         </Text>
@@ -56,7 +58,7 @@ const NutritionEditRow: React.FC<NutritionEditRowProps> = ({
 };
 
 interface NutritionEditCardProps {
-  log: FoodLog;
+  log: LegacyFoodLog;
   onUpdateNutrition: (field: string, value: number) => void;
 }
 

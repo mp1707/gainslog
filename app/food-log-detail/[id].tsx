@@ -15,7 +15,7 @@ import { X, ArrowsClockwise, Star, PencilSimple } from "phosphor-react-native";
 import { useTheme } from "@/providers";
 import { useFoodLogStore, selectFoodLogs } from "@/stores/useFoodLogStore";
 import { useUpdateFoodLog } from "@/features/food-logging/hooks";
-import { FoodLog } from "@/types";
+import { LegacyFoodLog } from "@/types/indexLegacy";
 import { theme } from "@/theme";
 
 // Import new components
@@ -31,19 +31,19 @@ export default function FoodLogDetailScreen() {
   const navigation = useNavigation();
   const router = useRouter();
   const { colors } = useTheme();
-  
+
   const foodLogs = useFoodLogStore(selectFoodLogs);
   const { updateFoodLogById, deleteFoodLogById } = useFoodLogStore();
-  
+
   // Find the food log by ID
-  const originalLog = foodLogs.find(log => log.id === id);
-  
+  const originalLog = foodLogs.find((log) => log.id === id);
+
   // View/Edit mode state
   const [isEditing, setIsEditing] = useState(false);
-  const [editedLog, setEditedLog] = useState<FoodLog | null>(null);
+  const [editedLog, setEditedLog] = useState<LegacyFoodLog | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const [isReEstimating, setIsReEstimating] = useState(false);
-  
+
   // Hook for re-estimation
   const { update } = useUpdateFoodLog();
 
@@ -56,57 +56,75 @@ export default function FoodLogDetailScreen() {
 
   // Dynamic navigation header based on edit mode
   useLayoutEffect(() => {
-    const logTitle = originalLog?.userTitle || originalLog?.generatedTitle || "Food Log";
-    
+    const logTitle =
+      originalLog?.userTitle || originalLog?.generatedTitle || "Food Log";
+
     navigation.setOptions({
       title: isEditing ? "Edit Log" : logTitle,
-      headerLeft: () => (
+      headerLeft: () =>
         isEditing ? (
-          <TouchableOpacity 
-            onPress={handleCancel} 
+          <TouchableOpacity
+            onPress={handleCancel}
             style={{ marginLeft: 10 }}
             accessibilityLabel="Cancel editing"
             accessibilityHint="Discards changes and returns to view mode"
           >
-            <Text style={[styles.navButtonText, { color: colors.accent }]}>Cancel</Text>
+            <Text style={[styles.navButtonText, { color: colors.accent }]}>
+              Cancel
+            </Text>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity 
-            onPress={() => router.back()} 
+          <TouchableOpacity
+            onPress={() => router.back()}
             style={{ marginLeft: 10 }}
             accessibilityLabel="Go back"
             accessibilityHint="Returns to previous screen"
           >
             <X size={24} color={colors.primaryText} />
           </TouchableOpacity>
-        )
-      ),
+        ),
       headerRight: () => (
         <View style={styles.headerRightContainer}>
           {isEditing ? (
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={handleSave}
               accessibilityLabel="Save changes"
               accessibilityHint="Saves edits and returns to view mode"
             >
-              <Text style={[styles.navButtonText, styles.navButtonDone, { color: colors.accent }]}>
+              <Text
+                style={[
+                  styles.navButtonText,
+                  styles.navButtonDone,
+                  { color: colors.accent },
+                ]}
+              >
                 Done
               </Text>
             </TouchableOpacity>
           ) : (
             <>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => setIsEditing(true)}
                 accessibilityLabel="Edit food log"
                 accessibilityHint="Switches to edit mode to modify this log entry"
               >
-                <Text style={[styles.navButtonText, { color: colors.accent }]}>Edit</Text>
+                <Text style={[styles.navButtonText, { color: colors.accent }]}>
+                  Edit
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={toggleFavorite}
                 style={{ marginLeft: theme.spacing.md }}
-                accessibilityLabel={originalLog?.isFavorite ? "Remove from favorites" : "Add to favorites"}
-                accessibilityHint={originalLog?.isFavorite ? "Removes this log from your favorites" : "Adds this log to your favorites"}
+                accessibilityLabel={
+                  originalLog?.isFavorite
+                    ? "Remove from favorites"
+                    : "Add to favorites"
+                }
+                accessibilityHint={
+                  originalLog?.isFavorite
+                    ? "Removes this log from your favorites"
+                    : "Adds this log to your favorites"
+                }
               >
                 <Star
                   size={24}
@@ -134,8 +152,8 @@ export default function FoodLogDetailScreen() {
 
   const currentLog = editedLog || originalLog;
 
-  const handleFieldUpdate = (field: keyof FoodLog, value: any) => {
-    setEditedLog(prev => {
+  const handleFieldUpdate = (field: keyof LegacyFoodLog, value: any) => {
+    setEditedLog((prev) => {
       if (!prev) return prev;
       const updated = { ...prev, [field]: value };
       setHasChanges(true);
@@ -144,7 +162,7 @@ export default function FoodLogDetailScreen() {
   };
 
   const handleNutritionUpdate = (field: string, value: number) => {
-    setEditedLog(prev => {
+    setEditedLog((prev) => {
       if (!prev) return prev;
       const updated = { ...prev, [field]: value };
       setHasChanges(true);
@@ -207,14 +225,13 @@ export default function FoodLogDetailScreen() {
     );
   };
 
-
   const handleReEstimate = async () => {
     if (!currentLog || isReEstimating) return;
-    
+
     // Check if there's something to re-estimate
     const hasTitle = currentLog.userTitle || currentLog.generatedTitle;
     const hasImage = currentLog.imageUrl;
-    
+
     if (!hasTitle && !hasImage) {
       Alert.alert(
         "Nothing to Estimate",
@@ -224,7 +241,7 @@ export default function FoodLogDetailScreen() {
     }
 
     setIsReEstimating(true);
-    
+
     try {
       // Create a copy of the log with re-estimation flag
       const logToReEstimate = {
@@ -237,7 +254,7 @@ export default function FoodLogDetailScreen() {
         fat: currentLog.userFat || 0,
         estimationConfidence: undefined,
       };
-      
+
       await update(logToReEstimate);
     } catch (error) {
       console.error("Error re-estimating nutrition:", error);
@@ -262,9 +279,12 @@ export default function FoodLogDetailScreen() {
           },
         }}
       />
-      
+
       <ScrollView
-        style={[styles.container, { backgroundColor: colors.primaryBackground }]}
+        style={[
+          styles.container,
+          { backgroundColor: colors.primaryBackground },
+        ]}
         contentContainerStyle={styles.contentContainer}
       >
         {/* Image Section */}
@@ -308,7 +328,9 @@ export default function FoodLogDetailScreen() {
                   },
                 ]}
                 value={currentLog.userDescription || ""}
-                onChangeText={(text) => handleFieldUpdate("userDescription", text)}
+                onChangeText={(text) =>
+                  handleFieldUpdate("userDescription", text)
+                }
                 placeholder="Add a description..."
                 placeholderTextColor={colors.secondaryText}
                 multiline
@@ -323,7 +345,9 @@ export default function FoodLogDetailScreen() {
                 {currentLog.userTitle || currentLog.generatedTitle}
               </Text>
               {(currentLog.userDescription || currentLog.description) && (
-                <Text style={[styles.description, { color: colors.secondaryText }]}>
+                <Text
+                  style={[styles.description, { color: colors.secondaryText }]}
+                >
                   {currentLog.userDescription || currentLog.description}
                 </Text>
               )}
@@ -333,7 +357,9 @@ export default function FoodLogDetailScreen() {
 
         {/* Nutrition Section */}
         <View style={styles.nutritionSection}>
-          <Text style={[styles.sectionTitle, { color: colors.primaryText }]}>Nutrition</Text>
+          <Text style={[styles.sectionTitle, { color: colors.primaryText }]}>
+            Nutrition
+          </Text>
           {isEditing ? (
             <NutritionEditCard
               log={currentLog}
@@ -366,7 +392,9 @@ export default function FoodLogDetailScreen() {
             ) : (
               <ArrowsClockwise size={16} color={colors.accent} />
             )}
-            <Text style={[styles.reEstimateButtonText, { color: colors.accent }]}>
+            <Text
+              style={[styles.reEstimateButtonText, { color: colors.accent }]}
+            >
               {isReEstimating ? "Estimating..." : "Re-estimate with AI"}
             </Text>
           </TouchableOpacity>
@@ -377,7 +405,7 @@ export default function FoodLogDetailScreen() {
 
         {/* Delete Button */}
         <View style={styles.deleteSection}>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={handleDelete}
             accessibilityLabel="Delete food log"
             accessibilityHint="Permanently deletes this log entry. This action cannot be undone."

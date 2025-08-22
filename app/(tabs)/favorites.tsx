@@ -5,7 +5,7 @@ import { PageHeader } from "@/shared/ui/molecules/PageHeader";
 import { useTheme } from "@/providers";
 import { useFavoritesStore } from "@/stores/useFavoritesStore";
 import { SearchBar } from "@/shared/ui/components/SearchBar/SearchBar";
-import { FavoriteEntry } from "@/types";
+import { FavoriteEntry } from "@/types/indexLegacy";
 import { AppText } from "src/components";
 import { FavoriteCard } from "@/features/food-logging/ui/molecules/FavoriteCard";
 

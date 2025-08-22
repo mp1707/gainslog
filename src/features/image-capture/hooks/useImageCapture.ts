@@ -3,7 +3,7 @@ import { Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 import { supabase } from "@/lib/supabase";
-import { FoodLog } from "@/types";
+import { LegacyFoodLog } from "@/types/indexLegacy";
 import { generateFoodLogId } from "@/lib/storage";
 import { useFoodLogStore, selectSelectedDate } from "@/stores/useFoodLogStore";
 
@@ -11,7 +11,7 @@ export const useImageCapture = () => {
   const [isUploading, setIsUploading] = useState(false);
   const selectedDate = useFoodLogStore(selectSelectedDate);
 
-  const createPartialLog = (localImageUri: string): FoodLog => {
+  const createPartialLog = (localImageUri: string): LegacyFoodLog => {
     return {
       id: generateFoodLogId(),
       generatedTitle: "",
@@ -28,9 +28,9 @@ export const useImageCapture = () => {
   };
 
   const uploadImageInBackground = async (
-    log: FoodLog,
+    log: LegacyFoodLog,
     imageUri: string,
-    onUpdated?: (updated: FoodLog) => void
+    onUpdated?: (updated: LegacyFoodLog) => void
   ) => {
     try {
       // Process and resize image
@@ -66,7 +66,7 @@ export const useImageCapture = () => {
       }
 
       // Update the log with uploaded image URL
-      const updatedLog: FoodLog = {
+      const updatedLog: LegacyFoodLog = {
         ...log,
         imageUrl: publicUrlData.publicUrl,
         isUploading: false,
@@ -77,7 +77,7 @@ export const useImageCapture = () => {
       console.error("Error processing and uploading image:", error);
 
       // Update log to show upload failed
-      const failedLog: FoodLog = {
+      const failedLog: LegacyFoodLog = {
         ...log,
         isUploading: false,
         // Keep local URI so user can retry
@@ -91,8 +91,8 @@ export const useImageCapture = () => {
   };
 
   const launchCamera = async (
-    onProgressUpdate?: (updated: FoodLog) => void
-  ): Promise<FoodLog | null> => {
+    onProgressUpdate?: (updated: LegacyFoodLog) => void
+  ): Promise<LegacyFoodLog | null> => {
     try {
       // Request camera permissions
       const permissionResult =
@@ -133,8 +133,8 @@ export const useImageCapture = () => {
   };
 
   const launchImageLibrary = async (
-    onProgressUpdate?: (updated: FoodLog) => void
-  ): Promise<FoodLog | null> => {
+    onProgressUpdate?: (updated: LegacyFoodLog) => void
+  ): Promise<LegacyFoodLog | null> => {
     try {
       // Request media library permissions
       const permissionResult =

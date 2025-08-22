@@ -1,27 +1,31 @@
 import { create } from "zustand";
-import { FavoriteEntry, FoodLog } from "@/types";
+import { FavoriteEntry, LegacyFoodLog } from "@/types/indexLegacy";
 import { getFavoriteEntries, saveFavoriteEntries } from "@/lib/storage";
 
 interface FavoritesStore {
   favorites: FavoriteEntry[];
   isLoading: boolean;
   loadFavorites: () => Promise<void>;
-  addFromLog: (log: FoodLog) => Promise<void>;
-  removeMatchingLog: (log: FoodLog) => Promise<void>;
-  toggleForLog: (log: FoodLog) => Promise<void>;
-  isFavorite: (log: FoodLog) => boolean;
+  addFromLog: (log: LegacyFoodLog) => Promise<void>;
+  removeMatchingLog: (log: LegacyFoodLog) => Promise<void>;
+  toggleForLog: (log: LegacyFoodLog) => Promise<void>;
+  isFavorite: (log: LegacyFoodLog) => boolean;
   filter: (term: string) => FavoriteEntry[];
 }
 
 const normalize = (value?: string) => (value || "").trim();
 
-const fromLogToEntry = (log: FoodLog): FavoriteEntry => ({
+const fromLogToEntry = (log: LegacyFoodLog): FavoriteEntry => ({
+  id: `fav_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+  createdAt: new Date().toISOString(),
+  date: log.date,
   title: normalize(log.userTitle) || log.generatedTitle,
   description: normalize(log.userDescription),
   calories: log.calories,
   protein: log.protein,
   carbs: log.carbs,
   fat: log.fat,
+  estimationConfidence: log.estimationConfidence,
 });
 
 const isSameEntry = (a: FavoriteEntry, b: FavoriteEntry) => {
@@ -51,7 +55,7 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
     }
   },
 
-  addFromLog: async (log: FoodLog) => {
+  addFromLog: async (log: LegacyFoodLog) => {
     const entry = fromLogToEntry(log);
     const current = get().favorites;
     // avoid duplicates
@@ -61,7 +65,7 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
     await saveFavoriteEntries(next);
   },
 
-  removeMatchingLog: async (log: FoodLog) => {
+  removeMatchingLog: async (log: LegacyFoodLog) => {
     const entry = fromLogToEntry(log);
     const current = get().favorites;
     const next = current.filter((f) => !isSameEntry(f, entry));
@@ -69,7 +73,7 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
     await saveFavoriteEntries(next);
   },
 
-  toggleForLog: async (log: FoodLog) => {
+  toggleForLog: async (log: LegacyFoodLog) => {
     const isFav = get().isFavorite(log);
     if (isFav) {
       await get().removeMatchingLog(log);
@@ -78,7 +82,7 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
     }
   },
 
-  isFavorite: (log: FoodLog) => {
+  isFavorite: (log: LegacyFoodLog) => {
     const entry = fromLogToEntry(log);
     return get().favorites.some((f) => isSameEntry(f, entry));
   },
@@ -99,7 +103,7 @@ export const selectFavorites = (state: FavoritesStore) => state.favorites;
 export const selectFavoritesIsLoading = (state: FavoritesStore) =>
   state.isLoading;
 export const selectIsFavoriteForLog =
-  (log: FoodLog) => (state: FavoritesStore) =>
+  (log: LegacyFoodLog) => (state: FavoritesStore) =>
     state.isFavorite(log);
 export const selectFilteredFavorites =
   (term: string) => (state: FavoritesStore) =>

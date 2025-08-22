@@ -9,7 +9,7 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { FoodLog } from "@/types";
+import { LegacyFoodLog } from "@/types/indexLegacy";
 import { useTheme } from "@/providers/ThemeProvider";
 import { Card } from "@/components/Card";
 import { AppText } from "@/components";
@@ -19,8 +19,8 @@ import { createStyles } from "./LogCard.styles";
 import { LogCardSkeleton } from "./LogCardSkeleton";
 
 interface LogCardProps {
-  foodLog: FoodLog;
-  onAddInfo: (log: FoodLog) => void;
+  foodLog: LegacyFoodLog;
+  onAddInfo: (log: LegacyFoodLog) => void;
 }
 
 export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
@@ -32,7 +32,7 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
   const scale = useSharedValue(1);
   const pressFlashOpacity = useSharedValue(0);
 
-  // Animated styles - must be declared before any conditional returns  
+  // Animated styles - must be declared before any conditional returns
   const cardAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
@@ -44,7 +44,7 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
 
   // Show skeleton while loading
   const isLoading = foodLog.estimationConfidence === 0;
-  
+
   if (isLoading) {
     return <LogCardSkeleton />;
   }
@@ -160,7 +160,7 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
           </View>
         </Pressable>
       </Card>
-      
+
       {/* Press flash overlay for press feedback */}
       <Animated.View
         style={[styles.pressOverlay, pressFlashAnimatedStyle]}

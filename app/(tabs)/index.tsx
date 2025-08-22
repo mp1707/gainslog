@@ -12,7 +12,7 @@ import {
   useFoodLogStore,
   selectIsLoadingLogs,
   selectTriggerAction,
-} from "@/stores/useFoodLogStore";
+} from "src/stores/useFoodLogStore";
 import { useKeyboardOffset } from "@/features/settings/hooks/useKeyboardOffset";
 
 export default function TodayTab() {

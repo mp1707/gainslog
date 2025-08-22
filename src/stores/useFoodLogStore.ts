@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { Alert } from "react-native";
 import { router } from "expo-router";
 import type {
-  FoodLog,
+  LegacyFoodLog,
   DailyTargets,
   ProteinCalculationMethod,
   CalorieCalculationMethod,
@@ -10,7 +10,7 @@ import type {
   FatCalculatorParams,
   ActivityLevel,
   GoalType,
-} from "@/types";
+} from "@/types/indexLegacy";
 
 import {
   getFoodLogs,
@@ -25,7 +25,13 @@ import {
 } from "@/lib/storage";
 import { calculateMacrosFromProtein } from "@/utils/nutritionCalculations";
 
-type ActionType = "manual" | "camera" | "library" | "audio" | "favorites" | null;
+type ActionType =
+  | "manual"
+  | "camera"
+  | "library"
+  | "audio"
+  | "favorites"
+  | null;
 
 interface ProteinCalculationSelection {
   method: ProteinCalculationMethod;
@@ -49,7 +55,7 @@ interface ProteinCalculatorParams {
 
 interface FoodLogStore {
   // Data state
-  foodLogs: FoodLog[];
+  foodLogs: LegacyFoodLog[];
   isLoadingLogs: boolean;
 
   // Date filtering state
@@ -81,13 +87,13 @@ interface FoodLogStore {
 
   // Data actions
   loadFoodLogs: () => Promise<void>;
-  addFoodLog: (log: FoodLog) => Promise<void>;
-  updateFoodLogById: (log: FoodLog) => Promise<void>;
+  addFoodLog: (log: LegacyFoodLog) => Promise<void>;
+  updateFoodLogById: (log: LegacyFoodLog) => Promise<void>;
   deleteFoodLogById: (logId: string) => Promise<void>;
 
   // State-only updates (for optimistic UI updates)
-  updateFoodLogInState: (log: FoodLog) => void;
-  addFoodLogToState: (log: FoodLog) => void;
+  updateFoodLogInState: (log: LegacyFoodLog) => void;
+  addFoodLogToState: (log: LegacyFoodLog) => void;
   removeFoodLogFromState: (logId: string) => void;
 
   // Action triggers
@@ -102,8 +108,8 @@ interface FoodLogStore {
   // Date actions
   setSelectedDate: (date: string) => void;
   setSelectedMonth: (month: string) => void;
-  getFilteredFoodLogs: () => FoodLog[];
-  getMonthlyFoodLogs: () => FoodLog[];
+  getFilteredFoodLogs: () => LegacyFoodLog[];
+  getMonthlyFoodLogs: () => LegacyFoodLog[];
   getDailyTotalsForMonth: () => Array<{
     date: string;
     totals: { calories: number; protein: number; carbs: number; fat: number };
@@ -224,7 +230,7 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
     }
   },
 
-  addFoodLog: async (log: FoodLog) => {
+  addFoodLog: async (log: LegacyFoodLog) => {
     try {
       await saveFoodLog(log);
       const { foodLogs } = get();
@@ -247,7 +253,7 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
     }
   },
 
-  updateFoodLogById: async (log: FoodLog) => {
+  updateFoodLogById: async (log: LegacyFoodLog) => {
     try {
       await updateFoodLog(log);
       const { foodLogs } = get();
@@ -277,14 +283,14 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
   },
 
   // State-only updates (for optimistic UI updates)
-  updateFoodLogInState: (log: FoodLog) => {
+  updateFoodLogInState: (log: LegacyFoodLog) => {
     const { foodLogs } = get();
     set({
       foodLogs: foodLogs.map((item) => (item.id === log.id ? log : item)),
     });
   },
 
-  addFoodLogToState: (log: FoodLog) => {
+  addFoodLogToState: (log: LegacyFoodLog) => {
     const { foodLogs } = get();
 
     // Check if log already exists in state
@@ -342,7 +348,7 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
       }
       acc[date].push(log);
       return acc;
-    }, {} as Record<string, FoodLog[]>);
+    }, {} as Record<string, LegacyFoodLog[]>);
 
     // Calculate totals for each date
     const dailyTotals = Object.entries(logsByDate).map(([date, logs]) => ({
@@ -587,7 +593,11 @@ export const useFoodLogStore = create<FoodLogStore>((set, get) => ({
 }));
 
 // Export types for components that need them
-export type { ActionType, ProteinCalculationSelection, ProteinCalculatorParams };
+export type {
+  ActionType,
+  ProteinCalculationSelection,
+  ProteinCalculatorParams,
+};
 
 // Memoizable selectors for component-level subscription
 export const selectFoodLogs = (state: FoodLogStore) => state.foodLogs;

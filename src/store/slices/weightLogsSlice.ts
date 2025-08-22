@@ -1,5 +1,6 @@
 import { StateCreator } from "zustand";
 import { WeightLog } from "@/types";
+import { generateWeightLogId } from "@/utils/idGenerator";
 
 export interface WeightLogsSlice {
   weightLogs: WeightLog[];
@@ -22,10 +23,12 @@ export const createWeightLogsSlice: StateCreator<
   addWeightLog: (weight, date) =>
     set((state) => {
       // Remove any existing log for the same date
-      state.weightLogs = state.weightLogs.filter((log) => log.date !== date);
+      state.weightLogs = state.weightLogs.filter(
+        (log: WeightLog) => log.date !== date
+      );
 
       const newLog: WeightLog = {
-        id: `weight_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id: generateWeightLogId(),
         createdAt: new Date().toISOString(),
         date,
         weight,
@@ -34,12 +37,16 @@ export const createWeightLogsSlice: StateCreator<
       state.weightLogs.push(newLog);
 
       // Sort by date descending
-      state.weightLogs.sort((a, b) => b.date.localeCompare(a.date));
+      state.weightLogs.sort((a: WeightLog, b: WeightLog) =>
+        b.date.localeCompare(a.date)
+      );
     }),
 
   updateWeightLog: (id, weight) =>
     set((state) => {
-      const index = state.weightLogs.findIndex((log) => log.id === id);
+      const index = state.weightLogs.findIndex(
+        (log: WeightLog) => log.id === id
+      );
       if (index !== -1) {
         state.weightLogs[index].weight = weight;
       }
@@ -47,7 +54,9 @@ export const createWeightLogsSlice: StateCreator<
 
   deleteWeightLog: (id) =>
     set((state) => {
-      state.weightLogs = state.weightLogs.filter((log) => log.id !== id);
+      state.weightLogs = state.weightLogs.filter(
+        (log: WeightLog) => log.id !== id
+      );
     }),
 
   getLatestWeight: () => {

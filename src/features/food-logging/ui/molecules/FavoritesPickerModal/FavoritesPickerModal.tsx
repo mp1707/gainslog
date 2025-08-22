@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useTheme } from "@/providers/ThemeProvider";
 import { useFavoritesStore } from "@/stores/useFavoritesStore";
-import { FavoriteEntry } from "@/types";
+import { FavoriteEntry } from "@/types/indexLegacy";
 import { createStyles } from "./FavoritesPickerModal.styles";
 import { AppText } from "@/components";
 import { SearchBar } from "@/shared/ui/components";

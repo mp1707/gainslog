@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { TextInput } from "@/shared/ui/atoms";
-import { TextInputProps } from "@/types";
+import { TextInputProps } from "@/types/indexLegacy";
 import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./FormField.styles";
 

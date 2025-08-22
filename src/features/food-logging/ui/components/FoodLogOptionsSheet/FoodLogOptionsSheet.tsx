@@ -1,21 +1,17 @@
 import React, { useState, useRef } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import * as Haptics from "expo-haptics";
-import {
-  PencilIcon,
-  StarIcon,
-  TrashIcon,
-} from "phosphor-react-native";
+import { PencilIcon, StarIcon, TrashIcon } from "phosphor-react-native";
 import { BaseModal } from "@/shared/ui/organisms/BaseModal";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
-import { FoodLog } from "@/types";
+import { LegacyFoodLog } from "@/types/indexLegacy";
 import { createStyles } from "./FoodLogOptionsSheet.styles";
 
 interface FoodLogOptionsSheetProps {
   visible: boolean;
   onClose: () => void;
-  foodLog: FoodLog;
+  foodLog: LegacyFoodLog;
   isFavorite: boolean;
   onEdit: () => void;
   onToggleFavorite: () => void;
@@ -43,7 +39,7 @@ export const FoodLogOptionsSheet: React.FC<FoodLogOptionsSheetProps> = ({
   const { colors } = useTheme();
   const { safeNavigate, isNavigating } = useNavigationGuard();
   const styles = createStyles(colors);
-  
+
   // State to trigger smooth close animation
   const [shouldAnimateOut, setShouldAnimateOut] = useState(false);
   // Ref to store the pending action to execute after animation
@@ -66,13 +62,7 @@ export const FoodLogOptionsSheet: React.FC<FoodLogOptionsSheetProps> = ({
 
   const actions: ActionItem[] = [
     {
-      icon: (
-        <PencilIcon
-          size={iconSize}
-          color={iconColor}
-          weight="regular"
-        />
-      ),
+      icon: <PencilIcon size={iconSize} color={iconColor} weight="regular" />,
       label: "Edit Entry",
       subtitle: "Modify nutrition details",
       onPress: onEdit,
@@ -88,21 +78,17 @@ export const FoodLogOptionsSheet: React.FC<FoodLogOptionsSheetProps> = ({
         />
       ),
       label: isFavorite ? "Remove Favorite" : "Add to Favorites",
-      subtitle: isFavorite ? "Remove from saved entries" : "Save for quick access",
+      subtitle: isFavorite
+        ? "Remove from saved entries"
+        : "Save for quick access",
       onPress: onToggleFavorite,
       accessibilityLabel: isFavorite ? "Remove favorite" : "Add to favorites",
-      accessibilityHint: isFavorite 
+      accessibilityHint: isFavorite
         ? "Removes this entry from your favorites"
         : "Adds this entry to your favorites",
     },
     {
-      icon: (
-        <TrashIcon
-          size={iconSize}
-          color={iconColor}
-          weight="regular"
-        />
-      ),
+      icon: <TrashIcon size={iconSize} color={iconColor} weight="regular" />,
       label: "Delete Entry",
       subtitle: "Remove from food log",
       onPress: onDelete,
@@ -114,30 +100,30 @@ export const FoodLogOptionsSheet: React.FC<FoodLogOptionsSheetProps> = ({
   const handleActionPress = (action: () => void) => {
     // Prevent multiple rapid taps
     if (isNavigating) return;
-    
+
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    
+
     // Store the action to execute after animation complete
     pendingActionRef.current = () => {
       action();
     };
-    
+
     // Trigger smooth close animation
     setShouldAnimateOut(true);
   };
 
   return (
-    <BaseModal 
-      visible={visible} 
+    <BaseModal
+      visible={visible}
       onClose={onClose}
       onAnimationComplete={handleAnimationComplete}
       animateOut={shouldAnimateOut}
     >
       <View style={styles.container}>
         <View style={styles.handle} />
-        
+
         <Text style={styles.title}>Food Log Options</Text>
-        
+
         <View style={styles.actionsContainer}>
           {actions.map((action, index) => (
             <TouchableOpacity
@@ -149,9 +135,7 @@ export const FoodLogOptionsSheet: React.FC<FoodLogOptionsSheetProps> = ({
               accessibilityHint={action.accessibilityHint}
               activeOpacity={0.7}
             >
-              <View style={styles.actionIcon}>
-                {action.icon}
-              </View>
+              <View style={styles.actionIcon}>{action.icon}</View>
               <View style={styles.actionTextContainer}>
                 <Text style={styles.actionLabel}>{action.label}</Text>
                 <Text style={styles.actionSubtitle}>{action.subtitle}</Text>

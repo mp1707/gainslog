@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Alert } from "react-native";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import type { ProteinCalculationMethod } from "@/types";
+import type { ProteinCalculationMethod } from "@/types/indexLegacy";
 import { CALCULATION_METHODS } from "@/shared/constants/calculationMethods";
-import type { GoalType } from "@/types";
-import type { CalorieIntakeParams, ActivityLevel } from "@/types";
+import type { GoalType } from "@/types/indexLegacy";
+import type { CalorieIntakeParams, ActivityLevel } from "@/types/indexLegacy";
 
 export const useSettingsModals = (
   onTargetChange: (key: "calories" | "protein", value: number) => void,

@@ -1,12 +1,12 @@
 import React from "react";
 import { View } from "react-native";
-import { FoodLog } from "@/types";
+import { LegacyFoodLog } from "@/types/indexLegacy";
 import { AppText } from "@/components/AppText";
 import { useTheme } from "@/providers";
 import { createStyles } from "./MacroRow.styles";
 
 interface MacroRowProps {
-  foodLog: FoodLog;
+  foodLog: LegacyFoodLog;
 }
 
 interface MacroItemProps {

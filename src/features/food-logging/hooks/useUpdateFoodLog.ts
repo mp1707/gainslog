@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useNutritionEstimation } from "./useNutritionEstimation";
-import { FoodLog } from "@/types";
+import { LegacyFoodLog } from "@/types/indexLegacy";
 import { useFoodLogStore } from "@/stores/useFoodLogStore";
 
 /**
@@ -16,7 +16,7 @@ export const useUpdateFoodLog = () => {
   const { processLogWithEstimation } = useNutritionEstimation();
 
   const update = useCallback(
-    async (updatedLog: FoodLog) => {
+    async (updatedLog: LegacyFoodLog) => {
       await processLogWithEstimation(
         updatedLog,
         // Optimistic UI update during processing

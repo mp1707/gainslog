@@ -3,7 +3,7 @@ import { View } from "react-native";
 import Animated, { Layout, FadeInUp } from "react-native-reanimated";
 import { SwipeToFunctions, SkeletonCard } from "../../../../../shared/ui";
 import { AppText } from "@/components/AppText";
-import { FoodLog } from "@/types";
+import { LegacyFoodLog } from "@/types/indexLegacy";
 import { useTheme } from "@/providers";
 import { useFavoritesStore } from "@/stores/useFavoritesStore";
 import { styles } from "./FoodLogsList.styles";
@@ -12,9 +12,9 @@ import { LogCard } from "../LogCard";
 
 interface FoodLogsListProps {
   isLoadingLogs: boolean;
-  foodLogs: FoodLog[];
+  foodLogs: LegacyFoodLog[];
   onDeleteLog: (logId: string) => Promise<void>;
-  onAddInfo: (log: FoodLog) => void;
+  onAddInfo: (log: LegacyFoodLog) => void;
 }
 
 export const FoodLogsList: React.FC<FoodLogsListProps> = React.memo(
@@ -30,7 +30,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = React.memo(
     );
 
     const handleFavoriteLog = useCallback(
-      async (log: FoodLog) => {
+      async (log: LegacyFoodLog) => {
         await toggleForLog(log);
       },
       [toggleForLog]
@@ -83,7 +83,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = React.memo(
                 .stiffness(150)}
               layout={Layout.springify().damping(18).stiffness(150).mass(1)}
             >
-              <SwipeToFunctions 
+              <SwipeToFunctions
                 onDelete={() => handleDeleteLog(log.id)}
                 onFavorite={() => handleFavoriteLog(log)}
               >

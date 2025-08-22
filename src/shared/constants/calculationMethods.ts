@@ -1,6 +1,12 @@
-import type { ActivityLevel, CalorieCalculationMethod } from "@/types";
+import type {
+  ActivityLevel,
+  CalorieCalculationMethod,
+} from "@/types/indexLegacy";
 
-export const CALCULATION_METHODS: Record<ActivityLevel, CalorieCalculationMethod> = {
+export const CALCULATION_METHODS: Record<
+  ActivityLevel,
+  CalorieCalculationMethod
+> = {
   sedentary: {
     id: "sedentary",
     title: "Sedentary",

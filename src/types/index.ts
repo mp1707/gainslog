@@ -1,116 +1,71 @@
-// Food log interface - moved from lib/storage.ts for global access
+// NEW ARCHITECTURE TYPES
+// Simple, clean types for the new Zustand-based architecture
+
 export interface FoodLog {
   id: string;
-  userTitle?: string;
-  userDescription?: string;
-  description?: string; // AI-generated description
-  generatedTitle: string;
-  estimationConfidence?: number;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  userCalories?: number;
-  userProtein?: number;
-  userCarbs?: number;
-  userFat?: number;
-  imageUrl?: string;
-  localImageUri?: string; // Local image URI before upload
-  isUploading?: boolean; // Track upload state
-  isTranscribing?: boolean; // Track transcription state for audio logs
-  isFavorite?: boolean; // Favorite flag
   createdAt: string;
   date: string; // ISO date string (YYYY-MM-DD)
-  needsAiEstimation?: boolean;
-}
 
-export interface DailyProgress {
-  current: {
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
-  targets: {
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
-  percentages: {
-    calories: number;
-    protein: number;
-    fat: number;
-    carbs: number;
-  };
-}
-
-// Domain enums and shared calculation/input types
-export type Sex = "male" | "female";
-export type ActivityLevel =
-  | "sedentary"
-  | "light"
-  | "moderate"
-  | "active"
-  | "veryactive";
-
-export interface CalorieIntakeParams {
-  sex?: Sex;
-  age: number;
-  weight: number; // kilograms
-  height: number; // centimeters
-}
-
-export interface FatCalculatorParams {
-  fatPercentage: number; // percentage of total calories
-}
-
-export interface CalorieGoals {
-  loseWeight: number;
-  maintainWeight: number;
-  gainWeight: number;
-}
-
-// Goals and calculation method descriptors
-export type GoalType = "lose" | "maintain" | "gain";
-
-export interface ProteinCalculationMethod {
-  id:
-    | "optimal_growth"
-    | "dedicated_athlete"
-    | "anabolic_insurance"
-    | "max_preservation";
-  title: string;
-  description: string;
-  multiplier: number;
-}
-
-export interface CalorieCalculationMethod {
-  id: ActivityLevel;
-  title: string;
-  description: string;
-  label: string;
-}
-
-// Modal modes for food log modal
-export type ModalMode = "edit" | "create";
-
-// Nutrition data merging result
-export interface NutritionMergeResult {
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
+  // User-entered values (always take precedence)
+  userTitle?: string;
+  userDescription?: string;
   userCalories?: number;
   userProtein?: number;
   userCarbs?: number;
   userFat?: number;
-  needsAiEstimation: boolean;
-  validationErrors: string[];
-  isValid: boolean;
+
+  // AI-generated values (fallback when user values not set)
+  generatedTitle?: string;
+  generatedDescription?: string;
+  generatedCalories?: number;
+  generatedProtein?: number;
+  generatedCarbs?: number;
+  generatedFat?: number;
+
+  // Additional properties
+  imageUrl?: string;
+  estimationConfidence?: number; // 0-100
 }
 
-// API request/response types (from lib/supabase.ts)
+export interface FavoriteEntry {
+  id: string;
+  createdAt: string;
+  date: string; // Date when favorite was created
+  title?: string;
+  description?: string;
+  calories?: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
+  estimationConfidence?: number;
+}
+
+export interface UserSettings {
+  sex: "male" | "female";
+  age: number;
+  weight: number; // kg
+  height: number; // cm
+  activityLevel: "sedentary" | "light" | "moderate" | "active" | "veryactive";
+  calorieGoalType: "lose" | "maintain" | "gain";
+  proteinCalculationFactor: number; // grams per kg of body weight
+  fatCalculationPercentage: number; // percentage of total calories
+}
+
+export interface DailyTargets {
+  calories: number;
+  protein: number; // grams
+  carbs: number; // grams
+  fat: number; // grams
+}
+
+export interface WeightLog {
+  id: string;
+  createdAt: string;
+  date: string; // ISO date string (YYYY-MM-DD)
+  weight: number; // kg
+}
+
+// API types for edge function communication
 export interface FoodEstimateRequest {
   title?: string;
   description?: string;
@@ -129,99 +84,4 @@ export interface FoodEstimateResponse {
   protein: number;
   carbs: number;
   fat: number;
-}
-
-// Component prop types
-export interface ButtonProps {
-  onPress: () => void;
-  disabled?: boolean;
-  shape?: "round" | "square";
-  variant?: "primary" | "secondary" | "tertiary" | "destructive";
-  size?: "small" | "medium" | "large";
-  children: React.ReactNode;
-  style?: any; // ViewStyle but avoiding import
-  accessibilityLabel?: string;
-  accessibilityHint?: string;
-}
-
-export interface TextInputProps {
-  value: string;
-  onChangeText: (text: string) => void;
-  placeholder?: string;
-  multiline?: boolean;
-  keyboardType?: "default" | "numeric";
-  autoCapitalize?: "none" | "sentences" | "words" | "characters";
-  autoFocus?: boolean;
-  error?: boolean;
-  disabled?: boolean;
-  style?: any; // ViewStyle but avoiding import
-  accessibilityLabel?: string;
-  accessibilityHint?: string;
-  onFocus?: (e: any) => void;
-  onBlur?: (e: any) => void;
-}
-
-export interface ConfidenceBadgeProps {
-  confidence: number;
-  isLoading?: boolean;
-}
-
-export interface SemanticBadgeProps {
-  variant: "semantic";
-  semanticType: "calories" | "protein" | "carbs" | "fat";
-  label: string;
-  isLoading?: boolean;
-}
-
-export interface IconBadgeProps {
-  variant: "icon";
-  iconType: "image" | "audio" | "text";
-  isLoading?: boolean;
-}
-
-export type BadgeProps =
-  | (ConfidenceBadgeProps & { variant?: "confidence" })
-  | SemanticBadgeProps
-  | IconBadgeProps;
-
-// Daily nutrition targets interface
-export interface DailyTargets {
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-}
-
-// Favorite entry template stored on device
-export interface FavoriteEntry {
-  id: string;
-  createdAt: string;
-  date: string;
-  title: string;
-  description: string;
-  calories: string;
-  protein: string;
-  carbs: string;
-  fat: string;
-  estimationConfidence: string;
-}
-
-// User settings for profile and calculations
-export interface UserSettings {
-  sex: "male" | "female";
-  age: number;
-  weight: number;
-  height: number;
-  activityLevel: "sedentary" | "light" | "moderate" | "active" | "veryactive";
-  calorieGoalType: "lose" | "maintain" | "gain";
-  proteinCalculationFactor: number;
-  fatCalculationPercentage: number;
-}
-
-// Weight tracking entry
-export interface WeightLog {
-  id: string;
-  createdAt: string;
-  date: string;
-  weight: number;
 }

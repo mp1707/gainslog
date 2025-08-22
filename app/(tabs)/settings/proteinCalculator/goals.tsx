@@ -21,7 +21,7 @@ import { useFoodLogStore } from "@/stores/useFoodLogStore";
 import { Button } from "@/shared/ui/atoms/Button";
 import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
 import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
-import type { ProteinCalculationMethod } from "@/types";
+import type { ProteinCalculationMethod } from "@/types/indexLegacy";
 import { StyleSheet } from "react-native";
 
 // Protein calculation methods with their configurations

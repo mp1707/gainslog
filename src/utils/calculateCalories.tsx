@@ -3,7 +3,7 @@ import type {
   CalorieGoals,
   CalorieIntakeParams,
   Sex,
-} from "@/types";
+} from "@/types/indexLegacy";
 
 // --- Calculation Logic ---
 
@@ -40,7 +40,7 @@ export function calculateCalorieGoals(
   activityLevel: ActivityLevel
 ): CalorieGoals {
   const { sex, age, weight, height } = params;
-  
+
   if (!sex) {
     throw new Error("Sex parameter is required for calorie calculation");
   }

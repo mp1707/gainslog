@@ -1,6 +1,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FoodLog, DailyTargets, FavoriteEntry } from "../types";
-import type { CalorieIntakeParams, FatCalculatorParams, Sex } from "@/types";
+import {
+  LegacyFoodLog,
+  DailyTargets,
+  FavoriteEntry,
+} from "../types/indexLegacy";
+import type {
+  CalorieIntakeParams,
+  FatCalculatorParams,
+  Sex,
+} from "@/types/indexLegacy";
 
 // Centralized, typed storage keys to avoid typos and ease migrations
 export const storageKeys = {
@@ -22,7 +30,7 @@ const FAVORITE_ENTRIES_KEY = storageKeys.FAVORITE_ENTRIES;
 /**
  * Save a food log to AsyncStorage
  */
-export const saveFoodLog = async (foodLog: FoodLog): Promise<void> => {
+export const saveFoodLog = async (foodLog: LegacyFoodLog): Promise<void> => {
   try {
     const existingLogs = await getFoodLogs();
 
@@ -48,13 +56,13 @@ export const saveFoodLog = async (foodLog: FoodLog): Promise<void> => {
 /**
  * Get all food logs from AsyncStorage
  */
-export const getFoodLogs = async (): Promise<FoodLog[]> => {
+export const getFoodLogs = async (): Promise<LegacyFoodLog[]> => {
   try {
     const logsJson = await AsyncStorage.getItem(FOOD_LOGS_KEY);
     if (!logsJson) {
       return [];
     }
-    return JSON.parse(logsJson) as FoodLog[];
+    return JSON.parse(logsJson) as LegacyFoodLog[];
   } catch (error) {
     console.error("Error getting food logs:", error);
     return [];
@@ -64,7 +72,9 @@ export const getFoodLogs = async (): Promise<FoodLog[]> => {
 /**
  * Update an existing food log
  */
-export const updateFoodLog = async (updatedLog: FoodLog): Promise<void> => {
+export const updateFoodLog = async (
+  updatedLog: LegacyFoodLog
+): Promise<void> => {
   try {
     const existingLogs = await getFoodLogs();
     const updatedLogs = existingLogs.map((log) =>
@@ -242,18 +252,19 @@ export const saveFatCalculatorParams = async (
 /**
  * Get fat calculator parameters from AsyncStorage
  */
-export const getFatCalculatorParams = async (): Promise<FatCalculatorParams> => {
-  try {
-    const paramsJson = await AsyncStorage.getItem(FAT_CALCULATOR_PARAMS_KEY);
-    if (!paramsJson) {
+export const getFatCalculatorParams =
+  async (): Promise<FatCalculatorParams> => {
+    try {
+      const paramsJson = await AsyncStorage.getItem(FAT_CALCULATOR_PARAMS_KEY);
+      if (!paramsJson) {
+        return DEFAULT_FAT_CALCULATOR_PARAMS;
+      }
+      return JSON.parse(paramsJson) as FatCalculatorParams;
+    } catch (error) {
+      console.error("Error getting fat calculator params:", error);
       return DEFAULT_FAT_CALCULATOR_PARAMS;
     }
-    return JSON.parse(paramsJson) as FatCalculatorParams;
-  } catch (error) {
-    console.error("Error getting fat calculator params:", error);
-    return DEFAULT_FAT_CALCULATOR_PARAMS;
-  }
-};
+  };
 
 /**
  * Save protein calculator body weight to AsyncStorage

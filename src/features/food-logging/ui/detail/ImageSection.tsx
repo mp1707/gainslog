@@ -10,13 +10,13 @@ import {
 import { Camera, PencilSimple } from "phosphor-react-native";
 import { useTheme } from "@/providers";
 import { theme } from "@/theme";
-import { FoodLog } from "@/types";
+import { LegacyFoodLog } from "@/types/indexLegacy";
 import { useImageCapture } from "@/features/image-capture/hooks/useImageCapture";
 
 interface ImageSectionProps {
-  log: FoodLog;
+  log: LegacyFoodLog;
   isEditing: boolean;
-  onLogUpdate: (updatedLog: FoodLog) => void;
+  onLogUpdate: (updatedLog: LegacyFoodLog) => void;
 }
 
 export const ImageSection: React.FC<ImageSectionProps> = ({
@@ -71,16 +71,25 @@ export const ImageSection: React.FC<ImageSectionProps> = ({
           <Image source={{ uri: imageSource }} style={styles.image} />
           {isEditing && (
             <View style={styles.editOverlay}>
-              <View style={[styles.editButton, { backgroundColor: colors.accent }]}>
+              <View
+                style={[styles.editButton, { backgroundColor: colors.accent }]}
+              >
                 <PencilSimple size={20} color={colors.white} weight="bold" />
               </View>
             </View>
           )}
         </>
       ) : (
-        <View style={[styles.placeholder, { backgroundColor: colors.secondaryBackground }]}>
+        <View
+          style={[
+            styles.placeholder,
+            { backgroundColor: colors.secondaryBackground },
+          ]}
+        >
           <Camera size={32} color={colors.secondaryText} />
-          <Text style={[styles.placeholderText, { color: colors.secondaryText }]}>
+          <Text
+            style={[styles.placeholderText, { color: colors.secondaryText }]}
+          >
             {isEditing ? "Tap to Add Photo" : "No Photo"}
           </Text>
         </View>

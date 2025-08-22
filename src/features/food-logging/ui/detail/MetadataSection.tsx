@@ -2,10 +2,10 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useTheme } from "@/providers";
 import { theme } from "@/theme";
-import { FoodLog } from "@/types";
+import { LegacyFoodLog } from "@/types/indexLegacy";
 
 interface MetadataSectionProps {
-  log: FoodLog;
+  log: LegacyFoodLog;
 }
 
 export const MetadataSection: React.FC<MetadataSectionProps> = ({ log }) => {
@@ -15,13 +15,13 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({ log }) => {
     const date = new Date(timestamp);
     const now = new Date();
     const isToday = date.toDateString() === now.toDateString();
-    
-    const timeString = date.toLocaleTimeString([], { 
-      hour: "numeric", 
+
+    const timeString = date.toLocaleTimeString([], {
+      hour: "numeric",
       minute: "2-digit",
-      hour12: true 
+      hour12: true,
     });
-    
+
     if (isToday) {
       return `Logged today at ${timeString}`;
     } else {
@@ -49,8 +49,10 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({ log }) => {
     }
 
     const confidenceConfig = colors.confidence[confidenceKey];
-    const confidenceText = confidenceKey.charAt(0).toUpperCase() + 
-                          confidenceKey.slice(1) + " Accuracy";
+    const confidenceText =
+      confidenceKey.charAt(0).toUpperCase() +
+      confidenceKey.slice(1) +
+      " Accuracy";
 
     return (
       <View
@@ -59,12 +61,7 @@ export const MetadataSection: React.FC<MetadataSectionProps> = ({ log }) => {
           { backgroundColor: confidenceConfig.background },
         ]}
       >
-        <Text
-          style={[
-            styles.confidenceText,
-            { color: confidenceConfig.text },
-          ]}
-        >
+        <Text style={[styles.confidenceText, { color: confidenceConfig.text }]}>
           {confidenceText}
         </Text>
       </View>

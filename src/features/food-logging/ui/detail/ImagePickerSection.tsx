@@ -10,12 +10,12 @@ import {
 import { Camera } from "phosphor-react-native";
 import { useTheme } from "@/providers";
 import { theme } from "@/theme";
-import { FoodLog } from "@/types";
+import { LegacyFoodLog } from "@/types/indexLegacy";
 import { useImageCapture } from "@/features/image-capture/hooks/useImageCapture";
 
 interface ImagePickerSectionProps {
-  log: FoodLog;
-  onLogUpdate: (updatedLog: FoodLog) => void;
+  log: LegacyFoodLog;
+  onLogUpdate: (updatedLog: LegacyFoodLog) => void;
 }
 
 export const ImagePickerSection: React.FC<ImagePickerSectionProps> = ({
