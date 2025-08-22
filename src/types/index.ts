@@ -194,10 +194,34 @@ export interface DailyTargets {
 
 // Favorite entry template stored on device
 export interface FavoriteEntry {
+  id: string;
+  createdAt: string;
+  date: string;
   title: string;
-  description?: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
+  description: string;
+  calories: string;
+  protein: string;
+  carbs: string;
+  fat: string;
+  estimationConfidence: string;
+}
+
+// User settings for profile and calculations
+export interface UserSettings {
+  sex: "male" | "female";
+  age: number;
+  weight: number;
+  height: number;
+  activityLevel: "sedentary" | "light" | "moderate" | "active" | "veryactive";
+  calorieGoalType: "lose" | "maintain" | "gain";
+  proteinCalculationFactor: number;
+  fatCalculationPercentage: number;
+}
+
+// Weight tracking entry
+export interface WeightLog {
+  id: string;
+  createdAt: string;
+  date: string;
+  weight: number;
 }
