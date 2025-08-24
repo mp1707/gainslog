@@ -1,13 +1,5 @@
 import React from "react";
 import { View } from "react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withSpring,
-  Easing,
-} from "react-native-reanimated";
-import * as Haptics from "expo-haptics";
 import { FoodLog } from "@/types";
 import { useTheme } from "@/theme";
 import { Card } from "@/components/Card";
@@ -26,20 +18,6 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onPress }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
 
-  // Animation shared values - must be declared before any conditional returns
-  const scale = useSharedValue(1);
-  const pressFlashOpacity = useSharedValue(0);
-
-  // Animated styles - must be declared before any conditional returns
-  const cardAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
-  const pressFlashAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: pressFlashOpacity.value,
-    backgroundColor: colors.primaryText,
-  }));
-
   // Show skeleton while loading
   const isLoading = (foodLog.estimationConfidence ?? 0) === 0;
 
@@ -48,34 +26,6 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onPress }) => {
   }
 
   const displayTitle = foodLog.userTitle || foodLog.generatedTitle;
-
-  const handlePressIn = () => {
-    // Press down animation - scale down and flash
-    scale.value = withTiming(0.97, {
-      duration: 150,
-      easing: Easing.out(Easing.quad),
-    });
-    pressFlashOpacity.value = withTiming(0.08, {
-      duration: 150,
-      easing: Easing.out(Easing.quad),
-    });
-  };
-
-  const handlePressOut = () => {
-    // Release animation - spring back and fade flash
-    scale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
-    pressFlashOpacity.value = withTiming(0, {
-      duration: 300,
-      easing: Easing.out(Easing.quad),
-    });
-  };
-
-  const handlePress = () => {
-    if (onPress) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      onPress();
-    }
-  };
 
   const confidenceInfo = getConfidenceInfo(foodLog.estimationConfidence ?? 0);
   const ConfidenceIcon = confidenceInfo.icon;
@@ -99,7 +49,7 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onPress }) => {
   const confidenceStyles = getConfidenceStyles(confidenceInfo.level);
 
   return (
-    <Animated.View style={[styles.cardContainer, cardAnimatedStyle]}>
+    <View style={styles.cardContainer}>
       <Card elevated={true} style={styles.card}>
         <View style={styles.contentContainer}>
             <View style={styles.leftSection}>
@@ -151,12 +101,6 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onPress }) => {
             </View>
           </View>
       </Card>
-
-      {/* Press flash overlay for press feedback */}
-      <Animated.View
-        style={[styles.pressOverlay, pressFlashAnimatedStyle]}
-        pointerEvents="none"
-      />
-    </Animated.View>
+    </View>
   );
 };

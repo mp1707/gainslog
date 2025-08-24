@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useMemo } from "react";
 import { View, Text, Alert, Dimensions, Pressable } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -12,6 +12,7 @@ import Animated, {
   Extrapolate,
   FadeOutLeft,
   Layout,
+  Easing,
 } from "react-native-reanimated";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { theme } from "@/theme";
@@ -48,8 +49,23 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
   const gestureDirection = useSharedValue<
     "unknown" | "horizontal" | "vertical"
   >("unknown");
+  
+  // Press animation shared values
+  const scale = useSharedValue(1);
+  const pressFlashOpacity = useSharedValue(0);
+  
+  // Track if gesture started as a press (for tap vs swipe differentiation)
+  const isPressing = useSharedValue(false);
 
   const colors = theme.getColors();
+
+  // Helper functions for JS thread actions - defined early for worklet access
+  const triggerTap = () => {
+    if (onTap) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      onTap();
+    }
+  };
 
   const executeDelete = () => {
     if (!onDelete) return;
@@ -153,13 +169,12 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
     }
   };
 
-  // Modern pan gesture with proper thresholds
-  const panGesture = Gesture.Pan()
-    .activeOffsetX([-10, 10]) // Only activate after 10px horizontal movement
-    .failOffsetY([-5, 5]) // Fail if vertical movement exceeds 5px
-    .onStart(() => {
-      gestureDirection.value = "unknown";
-    })
+  // Pan gesture focused purely on swipe actions
+  const panGesture = useMemo(() => 
+    Gesture.Pan()
+      .onStart(() => {
+        gestureDirection.value = "unknown";
+      })
     .onUpdate((event) => {
       // Don't allow gestures during delete animation
       if (isDeleting.value) return;
@@ -171,11 +186,12 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
         const absX = Math.abs(translationX);
         const absY = Math.abs(translationY);
 
+        // Determine gesture direction based on movement
         if (absX > DIRECTION_THRESHOLD || absY > DIRECTION_THRESHOLD) {
-          if (absX > absY) {
+          if (absX > absY * 1.5) { // Require more horizontal movement
             gestureDirection.value = "horizontal";
             runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
-          } else {
+          } else if (absY > absX * 1.5) { // Require more vertical movement
             gestureDirection.value = "vertical";
           }
         }
@@ -197,47 +213,48 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
       // Don't process gestures during delete animation
       if (isDeleting.value) return;
 
-      // Only process end event for horizontal gestures
-      if (gestureDirection.value !== "horizontal") {
-        return;
-      }
-
       const { translationX, velocityX } = event;
 
-      if (translationX < 0 && onDelete) {
-        // Left swipe - Delete action
-        if (
-          translationX < -ACTION_COMPLETE_THRESHOLD ||
-          (translationX < -ACTION_THRESHOLD && velocityX < -500)
-        ) {
-          runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Heavy);
-          runOnJS(executeDelete)();
-        } else if (translationX < -ACTION_THRESHOLD) {
-          // Show delete button but don't auto-delete
-          runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
-          translateX.value = withSpring(-ACTION_BUTTON_WIDTH);
-        } else {
-          // Snap back to original position
-          translateX.value = withSpring(0);
-        }
-      } else if (translationX > 0 && onFavorite) {
-        // Right swipe - Favorite action
-        if (
-          translationX > ACTION_COMPLETE_THRESHOLD ||
-          (translationX > ACTION_THRESHOLD && velocityX > 500)
-        ) {
-          runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Heavy);
-          runOnJS(executeFavorite)();
-        } else if (translationX > ACTION_THRESHOLD) {
-          // Show favorite button but don't auto-favorite
-          runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
-          translateX.value = withSpring(ACTION_BUTTON_WIDTH);
+      // Only process swipe actions for horizontal gestures
+      if (gestureDirection.value === "horizontal") {
+        if (translationX < 0 && onDelete) {
+          // Left swipe - Delete action
+          if (
+            translationX < -ACTION_COMPLETE_THRESHOLD ||
+            (translationX < -ACTION_THRESHOLD && velocityX < -500)
+          ) {
+            runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Heavy);
+            runOnJS(executeDelete)();
+          } else if (translationX < -ACTION_THRESHOLD) {
+            // Show delete button but don't auto-delete
+            runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
+            translateX.value = withSpring(-ACTION_BUTTON_WIDTH);
+          } else {
+            // Snap back to original position
+            translateX.value = withSpring(0);
+          }
+        } else if (translationX > 0 && onFavorite) {
+          // Right swipe - Favorite action
+          if (
+            translationX > ACTION_COMPLETE_THRESHOLD ||
+            (translationX > ACTION_THRESHOLD && velocityX > 500)
+          ) {
+            runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Heavy);
+            runOnJS(executeFavorite)();
+          } else if (translationX > ACTION_THRESHOLD) {
+            // Show favorite button but don't auto-favorite
+            runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
+            translateX.value = withSpring(ACTION_BUTTON_WIDTH);
+          } else {
+            // Snap back to original position
+            translateX.value = withSpring(0);
+          }
         } else {
           // Snap back to original position
           translateX.value = withSpring(0);
         }
       } else {
-        // Snap back to original position
+        // For non-horizontal gestures, just snap back
         translateX.value = withSpring(0);
       }
 
@@ -245,30 +262,66 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
       gestureDirection.value = "unknown";
     })
     .onFinalize(() => {
-      // Reset direction and position on gesture failure
-      if (gestureDirection.value === "unknown") {
+      // Only reset position if not deleting or in an active action
+      if (!isDeleting.value) {
         translateX.value = withSpring(0);
       }
+      
       gestureDirection.value = "unknown";
-    });
+    }), [onDelete, onFavorite]);
 
-  // Create tap gesture for navigation if onTap is provided
-  const tapGesture = onTap 
-    ? Gesture.Tap()
-        .maxDistance(10) // Ensures it's a true tap, not accidental swipe
-        .maxDuration(250) // Responsive tap detection
-        .onEnd((_event, success) => {
-          if (success && !isDeleting.value) {
-            runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
-            runOnJS(onTap)();
-          }
-        })
-    : null;
+  // Dedicated tap gesture for reliable tap detection
+  const tapGesture = useMemo(() => 
+    Gesture.Tap()
+      .maxDuration(250)
+      .maxDistance(10)
+      .onStart(() => {
+      // Start press animation for tap
+      if (!isDeleting.value) {
+        isPressing.value = true;
+        scale.value = withTiming(0.97, {
+          duration: 150,
+          easing: Easing.out(Easing.quad),
+        });
+        pressFlashOpacity.value = withTiming(0.08, {
+          duration: 150,
+          easing: Easing.out(Easing.quad),
+        });
+      }
+    })
+    .onEnd((_event, success) => {
+      // Reset press animation
+      if (isPressing.value) {
+        isPressing.value = false;
+        scale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+        pressFlashOpacity.value = withTiming(0, {
+          duration: 300,
+          easing: Easing.out(Easing.quad),
+        });
+      }
+      
+      // Trigger tap if successful and not deleting
+      if (success && !isDeleting.value && onTap) {
+        runOnJS(triggerTap)();
+      }
+    })
+    .onFinalize(() => {
+      // Cleanup press state if still active
+      if (isPressing.value) {
+        isPressing.value = false;
+        scale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+        pressFlashOpacity.value = withTiming(0, {
+          duration: 300,
+          easing: Easing.out(Easing.quad),
+        });
+      }
+    }), [onTap]);
 
-  // Compose gestures - allow simultaneous tap and swipe recognition
-  const composedGesture = tapGesture 
-    ? Gesture.Simultaneous(panGesture, tapGesture)
-    : panGesture;
+  // Combine tap and pan gestures using simultaneous mode with useMemo for performance
+  const composedGesture = useMemo(
+    () => Gesture.Simultaneous(panGesture, tapGesture),
+    [panGesture, tapGesture]
+  );
 
   const containerStyle = useAnimatedStyle(() => {
     return {
@@ -279,9 +332,17 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateX: translateX.value }],
+      transform: [
+        { translateX: translateX.value },
+        { scale: scale.value },
+      ],
     };
   });
+
+  const pressFlashAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: pressFlashOpacity.value,
+    backgroundColor: colors.primaryText,
+  }));
 
   const deleteButtonContainerStyle = useAnimatedStyle(() => {
     // Hide delete button immediately when delete animation starts or if no delete action
@@ -453,6 +514,22 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
           <GestureDetector gesture={composedGesture}>
             <Animated.View style={animatedStyle}>{children}</Animated.View>
           </GestureDetector>
+
+          {/* Press flash overlay for press feedback */}
+          <Animated.View
+            style={[
+              {
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                borderRadius: 16,
+              },
+              pressFlashAnimatedStyle,
+            ]}
+            pointerEvents="none"
+          />
         </View>
       </Animated.View>
     </Animated.View>
