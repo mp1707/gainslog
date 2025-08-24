@@ -40,35 +40,160 @@ gainslog/
 │   ├── components/                   # UI Components organized by feature/domain
 │   │   ├── shared/                  # Reusable UI components
 │   │   │   ├── AppText.tsx
-│   │   │   ├── Button/
-│   │   │   ├── TextInput/
+│   │   │   ├── CancelButton.tsx
+│   │   │   ├── StatusIcon.tsx
 │   │   │   ├── Badge/
+│   │   │   │   ├── Badge.tsx
+│   │   │   │   ├── Badge.styles.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── BaseModal/
+│   │   │   │   ├── BaseModal.tsx
+│   │   │   │   ├── BaseModal.styles.ts
+│   │   │   │   ├── ModalContent.tsx
+│   │   │   │   ├── useModal.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── Button/
+│   │   │   │   ├── Button.tsx
+│   │   │   │   ├── Button.styles.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── InlineRecordButton/
+│   │   │   │   ├── InlineRecordButton.tsx
+│   │   │   │   ├── InlineRecordButton.styles.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── LoadingSpinner/
+│   │   │   │   ├── LoadingSpinner.tsx
+│   │   │   │   └── index.ts
 │   │   │   ├── NumericTextInput/
+│   │   │   │   ├── NumericTextInput.tsx
+│   │   │   │   ├── NumericTextInput.styles.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── NutrientStat/
+│   │   │   │   ├── NutrientStat.tsx
+│   │   │   │   ├── NutrientStat.styles.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── PageHeader/
+│   │   │   │   ├── PageHeader.tsx
+│   │   │   │   ├── PageHeader.styles.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── ProteinCalculationCard/
+│   │   │   │   ├── ProteinCalculationCard.tsx
+│   │   │   │   ├── ProteinCalculationCard.styles.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── SearchBar/
+│   │   │   │   └── SearchBar.tsx
 │   │   │   ├── Skeleton/
+│   │   │   │   ├── Skeleton.tsx
+│   │   │   │   ├── Skeleton.styles.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── SwipeToFunctions/
+│   │   │   │   ├── SwipeToFunctions.tsx
+│   │   │   │   └── index.ts
+│   │   │   ├── TextInput/
+│   │   │   │   ├── TextInput.tsx
+│   │   │   │   ├── TextInput.styles.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── Toggle/
-│   │   │   └── ... (other shared components)
+│   │   │   │   ├── Toggle.tsx
+│   │   │   │   ├── Toggle.styles.ts
+│   │   │   │   └── index.ts
+│   │   │   └── index.ts
 │   │   │
 │   │   ├── daily-food-logs/         # Food logging feature components
 │   │   │   ├── DateNavigationHeader/
+│   │   │   │   ├── DateNavigationHeader.tsx
+│   │   │   │   ├── DateNavigationHeader.styles.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── FoodImageDisplay/
+│   │   │   │   ├── FoodImageDisplay.tsx
+│   │   │   │   ├── FoodImageDisplay.styles.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── FoodLogFormFields/
+│   │   │   │   ├── FoodLogFormFields.tsx
+│   │   │   │   ├── FoodLogFormFields.styles.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── FoodLogScreen/
+│   │   │   │   ├── FoodLogScreen.tsx
+│   │   │   │   ├── FoodLogScreen.styles.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── FoodLogsList/
+│   │   │   │   ├── FoodLogsList.tsx
+│   │   │   │   ├── FoodLogsList.styles.ts
+│   │   │   │   ├── SkeletonCard/
+│   │   │   │   │   ├── SkeletonCard.tsx
+│   │   │   │   │   ├── SkeletonCard.styles.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── LogCard/
+│   │   │   │   ├── LogCard.tsx
+│   │   │   │   ├── LogCard.styles.ts
+│   │   │   │   ├── LogCardSkeleton.tsx
+│   │   │   │   ├── NutritionList/
+│   │   │   │   │   ├── NutritionList.tsx
+│   │   │   │   │   ├── NutritionList.styles.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── LogModal/
+│   │   │   │   ├── FoodLogModal.tsx
+│   │   │   │   ├── FoodLogModal.styles.ts
+│   │   │   │   ├── DescriptionSkeleton/
+│   │   │   │   │   ├── DescriptionSkeleton.tsx
+│   │   │   │   │   ├── DescriptionSkeleton.styles.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── FormField/
+│   │   │   │   │   ├── FormField.tsx
+│   │   │   │   │   ├── FormField.styles.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── ImageSkeleton/
+│   │   │   │   │   ├── ImageSkeleton.tsx
+│   │   │   │   │   ├── ImageSkeleton.styles.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── NutritionGrid/
+│   │   │   │   │   ├── NutritionGrid.tsx
+│   │   │   │   │   ├── NutritionGrid.styles.ts
+│   │   │   │   │   └── index.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── ModalHeader/
+│   │   │   │   ├── ModalHeader.tsx
+│   │   │   │   ├── ModalHeader.styles.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── NewLogButton/
+│   │   │   │   ├── NewLogButton.tsx
+│   │   │   │   └── index.ts
 │   │   │   ├── NewLogSheet/
+│   │   │   │   ├── NewLogSheet.tsx
+│   │   │   │   ├── NewLogSheet.styles.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── NutrientHub/
+│   │   │   │   ├── NutrientHub.tsx
+│   │   │   │   ├── NutrientHub.styles.ts
+│   │   │   │   ├── CompactNutrientHub.tsx
+│   │   │   │   ├── LargeNutrientHub.tsx
+│   │   │   │   └── index.ts
 │   │   │   ├── NutrientSummary/
-│   │   │   └── NutrientSummaryGrid/
+│   │   │   │   ├── NutrientSummary.tsx
+│   │   │   │   ├── NutrientSummary.styles.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── NutrientSummaryGrid/
+│   │   │   │   ├── NutrientSummaryGrid.tsx
+│   │   │   │   ├── NutrientSummaryGrid.styles.ts
+│   │   │   │   └── index.ts
+│   │   │   └── index.ts
 │   │   │
 │   │   ├── monthly-food-logs/       # Monthly overview components
 │   │   │   ├── DailySummaryCard/
+│   │   │   │   ├── DailySummaryCard.tsx
+│   │   │   │   ├── DailySummaryCard.styles.ts
+│   │   │   │   ├── DailyMacroBars.tsx
+│   │   │   │   ├── ProgressRow.tsx
+│   │   │   │   ├── useMacroPercentages.ts
+│   │   │   │   ├── ProgressBar/
+│   │   │   │   │   ├── ProgressBar.tsx
+│   │   │   │   │   └── index.ts
+│   │   │   │   └── index.ts
 │   │   │   └── MonthPicker/
+│   │   │       ├── MonthPicker.tsx
+│   │   │       ├── MonthPicker.styles.ts
+│   │   │       └── index.ts
 │   │   │
 │   │   ├── detail-page/             # Food log detail page components
 │   │   │   ├── EditableNutritionRow.tsx
@@ -78,23 +203,37 @@ gainslog/
 │   │   │   ├── MetadataSection.tsx
 │   │   │   ├── NutritionEditCard.tsx
 │   │   │   ├── NutritionViewCard.tsx
-│   │   │   └── Section.tsx
+│   │   │   ├── Section.tsx
+│   │   │   └── index.ts
 │   │   │
 │   │   ├── settings/                # Settings feature components
 │   │   │   ├── AppearanceCard/
+│   │   │   │   ├── AppearanceCard.tsx
+│   │   │   │   ├── AppearanceCard.styles.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── CalculatorInputAccessory.tsx
 │   │   │   ├── ProgressBar/
+│   │   │   │   ├── ProgressBar.tsx
+│   │   │   │   ├── ProgressBar.styles.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── SelectionCard/
+│   │   │   │   ├── SelectionCard.tsx
+│   │   │   │   ├── SelectionCard.styles.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── SettingCard/
+│   │   │   │   ├── SettingCard.tsx
+│   │   │   │   └── index.ts
 │   │   │   ├── SettingsSection.tsx
-│   │   │   └── calculationMethods.ts
+│   │   │   ├── calculationMethods.ts
+│   │   │   └── index.ts
 │   │   │
 │   │   ├── favorites/               # Favorites components (legacy/empty)
 │   │   │
 │   │   ├── AppIcon.tsx
 │   │   ├── Card.tsx
 │   │   ├── FilterBadge.tsx
-│   │   └── SemanticBadge.tsx
+│   │   ├── SemanticBadge.tsx
+│   │   └── index.ts
 │   │
 │   ├── hooks/                       # Core custom React hooks
 │   │   ├── index.ts
@@ -116,9 +255,7 @@ gainslog/
 │   │   ├── useFoodEstimation.ts    # AI estimation hook
 │   │   └── useMonthlyData.ts       # Monthly overview data
 │   │
-│   ├── hooks-legacy/                # Removed (migrated to new architecture)
-│   │
-│   ├── store/                       # Current Zustand store (preferred)
+│   ├── store/                       # Zustand store configuration
 │   │   ├── index.ts                # Store configuration & export
 │   │   ├── slices/
 │   │   │   ├── foodLogsSlice.ts
@@ -126,8 +263,6 @@ gainslog/
 │   │   │   ├── userSettingsSlice.ts
 │   │   │   └── weightLogsSlice.ts
 │   │   └── types.ts                # Store-specific types
-│   │
-│   ├── store-legacy/                # Removed (migrated to new architecture)
 │   │
 │   ├── services/                    # External services
 │   │   ├── index.ts
@@ -152,12 +287,8 @@ gainslog/
 │   │   ├── nutrition.ts            # Nutrition calculations
 │   │   └── nutritionCalculations.ts
 │   │
-│   ├── utils-legacy/                # Removed (migrated to new architecture)
-│   │
-│   ├── types/                       # TypeScript type definitions
-│   │   └── index.ts                # Shared types (FoodLog, UserSettings, etc.)
-│   │
-│   └── types-legacy/                # Removed (migrated to new architecture)
+│   └── types/                       # TypeScript type definitions
+│       └── index.ts                # Shared types (FoodLog, UserSettings, etc.)
 │
 ├── supabase/                        # Supabase backend configuration
 │   ├── functions/                   # Edge functions (serverless)
@@ -177,9 +308,7 @@ gainslog/
 │   │   ├── Nunito-Bold.ttf
 │   │   ├── Nunito-Regular.ttf
 │   │   └── Nunito-SemiBold.ttf
-│   ├── icon variations...          # App icons and splash screens
-│   ├── logo variations...          # Brand logos
-│   └── radial-progress assets...   # Progress visualization assets
+│   └── icon.png
 │
 ├── docs/                           # Project documentation
 │   └── project-structure.txt      # This file
@@ -189,6 +318,7 @@ gainslog/
 ├── concept.ts                      # Project concept/planning notes
 ├── design-system.json             # Detailed design system specifications
 ├── eas.json                       # Expo Application Services config
+├── migrationState.tsx             # Migration state tracking
 ├── package.json                   # Dependencies and scripts
 ├── tsconfig.json                  # TypeScript configuration
 ├── CLAUDE.md                      # AI assistant project context
