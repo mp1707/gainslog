@@ -97,8 +97,9 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = React.memo(
               <SwipeToFunctions
                 onDelete={() => handleDeleteLog(log.id)}
                 onFavorite={() => handleFavoriteLog(log)}
+                onTap={() => handlePress(log)}
               >
-                <LogCard foodLog={log} onPress={() => handlePress(log)} />
+                <LogCard foodLog={log} />
               </SwipeToFunctions>
             </Animated.View>
           ))}

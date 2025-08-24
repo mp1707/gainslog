@@ -1,9 +1,8 @@
 import React, { ReactNode } from "react";
 import { View, Text, Alert, Dimensions, Pressable } from "react-native";
 import * as Haptics from "expo-haptics";
-import { PanGestureHandler, State } from "react-native-gesture-handler";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
-  useAnimatedGestureHandler,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -23,6 +22,7 @@ interface SwipeToFunctionsProps {
   confirmDelete?: boolean;
   onFavorite?: () => void;
   confirmFavorite?: boolean;
+  onTap?: () => void; // Navigation handler for tap gestures
 }
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -39,6 +39,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
   confirmDelete = true,
   onFavorite,
   confirmFavorite = false,
+  onTap,
 }) => {
   const translateX = useSharedValue(0);
   const opacity = useSharedValue(1);
@@ -152,11 +153,14 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
     }
   };
 
-  const gestureHandler = useAnimatedGestureHandler({
-    onStart: () => {
+  // Modern pan gesture with proper thresholds
+  const panGesture = Gesture.Pan()
+    .activeOffsetX([-10, 10]) // Only activate after 10px horizontal movement
+    .failOffsetY([-5, 5]) // Fail if vertical movement exceeds 5px
+    .onStart(() => {
       gestureDirection.value = "unknown";
-    },
-    onActive: (event) => {
+    })
+    .onUpdate((event) => {
       // Don't allow gestures during delete animation
       if (isDeleting.value) return;
 
@@ -188,8 +192,8 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
           translateX.value = translationX;
         }
       }
-    },
-    onEnd: (event) => {
+    })
+    .onEnd((event) => {
       // Don't process gestures during delete animation
       if (isDeleting.value) return;
 
@@ -239,13 +243,32 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
 
       // Reset direction for next gesture
       gestureDirection.value = "unknown";
-    },
-    onFail: () => {
+    })
+    .onFinalize(() => {
       // Reset direction and position on gesture failure
+      if (gestureDirection.value === "unknown") {
+        translateX.value = withSpring(0);
+      }
       gestureDirection.value = "unknown";
-      translateX.value = withSpring(0);
-    },
-  });
+    });
+
+  // Create tap gesture for navigation if onTap is provided
+  const tapGesture = onTap 
+    ? Gesture.Tap()
+        .maxDistance(10) // Ensures it's a true tap, not accidental swipe
+        .maxDuration(250) // Responsive tap detection
+        .onEnd((_event, success) => {
+          if (success && !isDeleting.value) {
+            runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
+            runOnJS(onTap)();
+          }
+        })
+    : null;
+
+  // Compose gestures - allow simultaneous tap and swipe recognition
+  const composedGesture = tapGesture 
+    ? Gesture.Simultaneous(panGesture, tapGesture)
+    : panGesture;
 
   const containerStyle = useAnimatedStyle(() => {
     return {
@@ -427,13 +450,9 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
           )}
 
           {/* Swipeable Content */}
-          <PanGestureHandler
-            onGestureEvent={gestureHandler}
-            activeOffsetX={[-10, 10]}
-            failOffsetY={[-5, 5]}
-          >
+          <GestureDetector gesture={composedGesture}>
             <Animated.View style={animatedStyle}>{children}</Animated.View>
-          </PanGestureHandler>
+          </GestureDetector>
         </View>
       </Animated.View>
     </Animated.View>

@@ -1,6 +1,5 @@
 import React from "react";
-import { View, Pressable } from "react-native";
-import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { View } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -20,7 +19,7 @@ import { NutritionList } from "./NutritionList";
 
 interface LogCardProps {
   foodLog: FoodLog;
-  onPress: () => void;
+  onPress?: () => void;
 }
 
 export const LogCard: React.FC<LogCardProps> = ({ foodLog, onPress }) => {
@@ -50,11 +49,6 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onPress }) => {
 
   const displayTitle = foodLog.userTitle || foodLog.generatedTitle;
 
-  const handlePress = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    onPress();
-  };
-
   const handlePressIn = () => {
     // Press down animation - scale down and flash
     scale.value = withTiming(0.97, {
@@ -74,6 +68,13 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onPress }) => {
       duration: 300,
       easing: Easing.out(Easing.quad),
     });
+  };
+
+  const handlePress = () => {
+    if (onPress) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      onPress();
+    }
   };
 
   const confidenceInfo = getConfidenceInfo(foodLog.estimationConfidence ?? 0);
@@ -100,16 +101,7 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onPress }) => {
   return (
     <Animated.View style={[styles.cardContainer, cardAnimatedStyle]}>
       <Card elevated={true} style={styles.card}>
-        <Pressable
-          onPress={handlePress}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-          style={styles.pressable}
-          accessibilityRole="button"
-          accessibilityLabel={`Edit entry: ${displayTitle}`}
-          accessibilityHint="Press to edit this entry"
-        >
-          <View style={styles.contentContainer}>
+        <View style={styles.contentContainer}>
             <View style={styles.leftSection}>
               <AppText role="Headline" style={styles.title} numberOfLines={2}>
                 {displayTitle}
@@ -158,7 +150,6 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onPress }) => {
               />
             </View>
           </View>
-        </Pressable>
       </Card>
 
       {/* Press flash overlay for press feedback */}
