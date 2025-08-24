@@ -1,5 +1,8 @@
 // Export all hooks from a central location
-export { useFoodEstimation } from "./useFoodEstimation";
-export { useDailyTotals, useMultipleDaysTotals } from "./useDailyTotals";
-export { useMonthlyData } from "./useMonthlyData";
-export { useDateNavigation } from "./useDateNavigation";
+export { useFoodEstimation } from "../hooks-new/useFoodEstimation";
+export {
+  useDailyTotals,
+  useMultipleDaysTotals,
+} from "../hooks-new/useDailyTotals";
+export { useMonthlyData } from "../hooks-new/useMonthlyData";
+export { useDateNavigation } from "../hooks-new/useDateNavigation";

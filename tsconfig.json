@@ -33,7 +33,13 @@
       "@/providers/*": ["src/providers/*"],
       "@/providers": ["src/providers/index"],
       "@/hooks/*": ["src/hooks/*"],
-      "@/hooks": ["src/hooks/index"]
+      "@/hooks": ["src/hooks/index"],
+      "@/hooks-legacy/*": ["src/hooks-legacy/*"],
+      "@/hooks-legacy": ["src/hooks-legacy/index"],
+      "@/utils-legacy/*": ["src/utils-legacy/*"],
+      "@/utils-legacy": ["src/utils-legacy/index"],
+      "@/hooks-new/*": ["src/hooks-new/*"],
+      "@/hooks-new": ["src/hooks-new/index"]
     }
   },
   "include": [

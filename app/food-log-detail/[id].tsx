@@ -17,7 +17,7 @@ import {
   useFoodLogStore,
   selectFoodLogs,
 } from "src/store-legacy/useFoodLogStore";
-import { useUpdateFoodLog } from "@/hooks/useUpdateFoodLog";
+import { useUpdateFoodLog } from "@/hooks-legacy/useUpdateFoodLog";
 import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
 import { theme } from "@/theme";
 import { ImageSection } from "@/components/detail-page/ImageSection";

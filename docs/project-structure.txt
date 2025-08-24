@@ -1,74 +1,206 @@
-src/
-  ├── app/                          # Expo Router app directory
-  │   ├── (tabs)/
-  │   │   ├── _layout.tsx          # Tab layout
-  │   │   ├── index.tsx            # Food Log tab (main screen)
-  │   │   ├── overview.tsx         # Overview tab (monthly/analytics)
-  │   │   ├── new-log.tsx          # New Log tab (modal trigger)
-  │   │   └── settings/
-  │   │       ├── _layout.tsx      # Settings stack layout
-  │   │       ├── index.tsx        # Main settings screen
-  │   │       ├── carbs.tsx        # Carbs settings
-  │   │       ├── calorieCalculator/
-  │   │       │   ├── _layout.tsx
-  │   │       │   ├── index.tsx
-  │   │       │   ├── activitylevel.tsx
-  │   │       │   ├── age.tsx
-  │   │       │   ├── editCalories.tsx
-  │   │       │   ├── goals.tsx
-  │   │       │   ├── height.tsx
-  │   │       │   ├── manualInput.tsx
-  │   │       │   ├── sex.tsx
-  │   │       │   └── weight.tsx
-  │   │       ├── proteinCalculator/
-  │   │       │   ├── _layout.tsx
-  │   │       │   ├── index.tsx
-  │   │       │   ├── editProtein.tsx
-  │   │       │   ├── goals.tsx
-  │   │       │   ├── manualInput.tsx
-  │   │       │   └── weight.tsx
-  │   │       └── fatCalculator/
-  │   │           ├── _layout.tsx
-  │   │           ├── index.tsx
-  │   │           ├── editFat.tsx
-  │   │           └── manualInput.tsx
-  │   ├── food-log/[id].tsx       # Food log detail screen
-  │   └── _layout.tsx              # Root layout
-  │
-  ├── store/                       # Zustand store
-  │   ├── index.ts                # Store configuration & export
-  │   ├── slices/
-  │   │   ├── foodLogsSlice.ts
-  │   │   ├── favoritesSlice.ts
-  │   │   ├── userSettingsSlice.ts
-  │   │   └── weightLogsSlice.ts
-  │   └── types.ts                # Store-specific types
-  │
-  ├── hooks/                       # Custom hooks
-  │   ├── useFoodEstimation.ts   # AI estimation hook
-  │   ├── useDailyTotals.ts      # Calculate daily nutrient totals
-  │   ├── useMonthlyData.ts      # Monthly overview data
-  │   └── useDateNavigation.ts   # Date picker logic
-  │
-  ├── components/                  # Shared components
-  │   ├── food-log/
-  │   │   ├── FoodLogCard.tsx
-  │   │   ├── FoodLogList.tsx
-  │   │   └── DailyProgressGraph.tsx
-  │   ├── common/
-  │   │   ├── DatePicker.tsx
-  │   │   ├── NutrientDisplay.tsx
-  │   │   └── LoadingState.tsx
-  │   └── favorites/
-  │       └── FavoriteCard.tsx
-  │
-  ├── services/                    # External services
-  │   └── nutritionEstimation.ts  # Edge function calls
-  │
-  ├── utils/                       # Utility functions
-  │   ├── nutrition.ts            # Nutrition calculations
-  │   ├── dateHelpers.ts          # Date formatting/parsing
-  │   └── idGenerator.ts          # UUID generation
-  │
-  └── types/                      # TypeScript types
-      └── index.ts                # Shared types
+gainslog/
+├── app/                              # Expo Router app directory
+│   ├── (tabs)/
+│   │   ├── _layout.tsx              # Tab layout
+│   │   ├── index.tsx                # Food Log tab (main screen)
+│   │   ├── overview.tsx             # Overview tab (monthly/analytics)
+│   │   ├── new-log.tsx              # New Log tab (modal trigger)
+│   │   └── settings/
+│   │       ├── _layout.tsx          # Settings stack layout
+│   │       ├── index.tsx            # Main settings screen
+│   │       ├── carbs.tsx            # Carbs settings
+│   │       ├── calorieCalculator/
+│   │       │   ├── _layout.tsx
+│   │       │   ├── index.tsx
+│   │       │   ├── activitylevel.tsx
+│   │       │   ├── age.tsx
+│   │       │   ├── editCalories.tsx
+│   │       │   ├── goals.tsx
+│   │       │   ├── height.tsx
+│   │       │   ├── manualInput.tsx
+│   │       │   ├── sex.tsx
+│   │       │   └── weight.tsx
+│   │       ├── proteinCalculator/
+│   │       │   ├── _layout.tsx
+│   │       │   ├── index.tsx
+│   │       │   ├── editProtein.tsx
+│   │       │   ├── goals.tsx
+│   │       │   ├── manualInput.tsx
+│   │       │   └── weight.tsx
+│   │       └── fatCalculator/
+│   │           ├── _layout.tsx
+│   │           ├── index.tsx
+│   │           ├── editFat.tsx
+│   │           └── manualInput.tsx
+│   ├── food-log-detail/
+│   │   └── [id].tsx                 # Food log detail screen
+│   └── _layout.tsx                  # Root layout
+│
+├── src/
+│   ├── components/                   # UI Components organized by feature/domain
+│   │   ├── shared/                  # Reusable UI components
+│   │   │   ├── AppText.tsx
+│   │   │   ├── Button/
+│   │   │   ├── TextInput/
+│   │   │   ├── Badge/
+│   │   │   ├── BaseModal/
+│   │   │   ├── LoadingSpinner/
+│   │   │   ├── NumericTextInput/
+│   │   │   ├── NutrientStat/
+│   │   │   ├── PageHeader/
+│   │   │   ├── Skeleton/
+│   │   │   ├── Toggle/
+│   │   │   └── ... (other shared components)
+│   │   │
+│   │   ├── daily-food-logs/         # Food logging feature components
+│   │   │   ├── DateNavigationHeader/
+│   │   │   ├── FoodImageDisplay/
+│   │   │   ├── FoodLogFormFields/
+│   │   │   ├── FoodLogScreen/
+│   │   │   ├── FoodLogsList/
+│   │   │   ├── LogCard/
+│   │   │   ├── LogModal/
+│   │   │   ├── NewLogButton/
+│   │   │   ├── NewLogSheet/
+│   │   │   ├── NutrientHub/
+│   │   │   ├── NutrientSummary/
+│   │   │   └── NutrientSummaryGrid/
+│   │   │
+│   │   ├── monthly-food-logs/       # Monthly overview components
+│   │   │   ├── DailySummaryCard/
+│   │   │   └── MonthPicker/
+│   │   │
+│   │   ├── detail-page/             # Food log detail page components
+│   │   │   ├── EditableNutritionRow.tsx
+│   │   │   ├── EditableTextRow.tsx
+│   │   │   ├── ImagePickerSection.tsx
+│   │   │   ├── ImageSection.tsx
+│   │   │   ├── MetadataSection.tsx
+│   │   │   ├── NutritionEditCard.tsx
+│   │   │   ├── NutritionViewCard.tsx
+│   │   │   └── Section.tsx
+│   │   │
+│   │   ├── settings/                # Settings feature components
+│   │   │   ├── AppearanceCard/
+│   │   │   ├── CalculatorInputAccessory.tsx
+│   │   │   ├── ProgressBar/
+│   │   │   ├── SelectionCard/
+│   │   │   ├── SettingCard/
+│   │   │   ├── SettingsSection.tsx
+│   │   │   └── calculationMethods.ts
+│   │   │
+│   │   ├── favorites/               # Favorites components (legacy/empty)
+│   │   │
+│   │   ├── AppIcon.tsx
+│   │   ├── Card.tsx
+│   │   ├── FilterBadge.tsx
+│   │   └── SemanticBadge.tsx
+│   │
+│   ├── hooks/                       # Core custom React hooks
+│   │   ├── index.ts
+│   │   ├── useAudioRecording.ts
+│   │   ├── useFavoriteSelection.ts
+│   │   ├── useFonts.ts
+│   │   ├── useFoodLogForm.ts
+│   │   ├── useFoodLogModal.ts
+│   │   ├── useImageCapture.ts
+│   │   ├── useKeyboardOffset.ts
+│   │   ├── useNavigationGuard.ts
+│   │   ├── useNutritionCalculations.ts
+│   │   ├── useNutritionEstimation.ts
+│   │   └── useTabBarSpacing.ts
+│   │
+│   ├── hooks-new/                   # New custom hooks
+│   │   ├── useDailyTotals.ts       # Calculate daily nutrient totals
+│   │   ├── useDateNavigation.ts    # Date picker logic
+│   │   ├── useFoodEstimation.ts    # AI estimation hook
+│   │   └── useMonthlyData.ts       # Monthly overview data
+│   │
+│   ├── hooks-legacy/                # Legacy hooks implementation
+│   │   ├── useCreateFoodLog.ts     # Main food creation flow (legacy)
+│   │   ├── useFoodLogValidation.ts
+│   │   ├── useLegacyDateNavigation.ts
+│   │   └── useUpdateFoodLog.ts
+│   │
+│   ├── store/                       # Current Zustand store (preferred)
+│   │   ├── index.ts                # Store configuration & export
+│   │   ├── slices/
+│   │   │   ├── foodLogsSlice.ts
+│   │   │   ├── favoritesSlice.ts
+│   │   │   ├── userSettingsSlice.ts
+│   │   │   └── weightLogsSlice.ts
+│   │   └── types.ts                # Store-specific types
+│   │
+│   ├── store-legacy/                # Legacy store implementation
+│   │   ├── index.ts
+│   │   ├── storage.ts
+│   │   ├── useFavoritesStore.ts
+│   │   ├── useFoodLogStore.ts
+│   │   └── useLegacyDateNavigation.ts
+│   │
+│   ├── services/                    # External services
+│   │   ├── index.ts
+│   │   └── nutritionEstimation.ts  # Supabase Edge function calls
+│   │
+│   ├── lib/                         # External service integrations
+│   │   ├── env.ts                  # Environment configuration
+│   │   ├── index.ts
+│   │   ├── supabase.ts             # Supabase client setup
+│   │   └── toast.ts                # Toast notifications
+│   │
+│   ├── theme/                       # Design system & theming
+│   │   ├── ThemeProvider.tsx
+│   │   ├── index.ts
+│   │   └── theme.ts                # "Focused Motivation" design system
+│   │
+│   ├── utils/                       # Utility functions
+│   │   ├── calculateCalories.tsx
+│   │   ├── dateHelpers.ts          # Date formatting/parsing
+│   │   ├── idGenerator.ts          # UUID generation
+│   │   ├── index.ts
+│   │   ├── nutrition.ts            # Nutrition calculations
+│   │   └── nutritionCalculations.ts
+│   │
+│   ├── utils-legacy/                # Legacy utilities
+│   │   └── utils.ts
+│   │
+│   ├── types/                       # TypeScript type definitions
+│   │   └── index.ts                # Shared types (FoodLog, UserSettings, etc.)
+│   │
+│   └── types-legacy/                # Legacy type definitions
+│       └── indexLegacy.ts
+│
+├── supabase/                        # Supabase backend configuration
+│   ├── functions/                   # Edge functions (serverless)
+│   │   ├── image-estimation/
+│   │   │   └── index.ts            # AI image-based food estimation
+│   │   ├── text-estimation/
+│   │   │   └── index.ts            # AI text-based food estimation
+│   │   └── transcribe-audio/
+│   │       └── index.ts            # Audio transcription to text
+│   │
+│   └── edgefunctions/               # Legacy edge function files
+│       ├── image-estimation.ts
+│       └── text-estimation.ts
+│
+├── assets/                          # Static assets
+│   ├── fonts/                      # Nunito font family
+│   │   ├── Nunito-Bold.ttf
+│   │   ├── Nunito-Regular.ttf
+│   │   └── Nunito-SemiBold.ttf
+│   ├── icon variations...          # App icons and splash screens
+│   ├── logo variations...          # Brand logos
+│   └── radial-progress assets...   # Progress visualization assets
+│
+├── docs/                           # Project documentation
+│   └── project-structure.txt      # This file
+│
+├── app.config.ts                   # Expo app configuration
+├── babel.config.js                 # Babel configuration  
+├── concept.ts                      # Project concept/planning notes
+├── design-system.json             # Detailed design system specifications
+├── eas.json                       # Expo Application Services config
+├── package.json                   # Dependencies and scripts
+├── tsconfig.json                  # TypeScript configuration
+├── CLAUDE.md                      # AI assistant project context
+└── STYLE_GUIDE.md                # Code style guidelines

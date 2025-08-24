@@ -3,8 +3,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardAvoidingView } from "react-native";
 import { FoodLogScreen } from "@/components/daily-food-logs/FoodLogScreen";
 import { useFoodLogModal } from "@/hooks/useFoodLogModal";
-import { useUpdateFoodLog } from "@/hooks/useUpdateFoodLog";
-import { useCreateFoodLog } from "@/hooks/useCreateFoodLog";
+import { useUpdateFoodLog } from "@/hooks-legacy/useUpdateFoodLog";
+import { useCreateFoodLog } from "@/hooks-legacy/useCreateFoodLog";
 import { useImageCapture } from "@/hooks/useImageCapture";
 import {
   useFoodLogStore,
