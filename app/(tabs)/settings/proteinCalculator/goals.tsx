@@ -17,11 +17,11 @@ import {
 } from "phosphor-react-native";
 
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
 import { Button } from "@/components/shared/Button";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import { SelectionCard } from "@/components/settings/SelectionCard";
-import type { ProteinCalculationMethod } from "@/types/indexLegacy";
+import type { ProteinCalculationMethod } from "src/types-legacy/indexLegacy";
 import { StyleSheet } from "react-native";
 
 // Protein calculation methods with their configurations

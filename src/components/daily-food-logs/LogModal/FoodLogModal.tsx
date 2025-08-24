@@ -10,18 +10,18 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { LegacyFoodLog, ModalMode } from "@/types/indexLegacy";
+import { LegacyFoodLog, ModalMode } from "src/types-legacy/indexLegacy";
 import {
   useFoodLogStore,
   selectFoodLogs,
-} from "src/legacystore/useFoodLogStore";
+} from "src/store-legacy/useFoodLogStore";
 import { useStyles } from "./FoodLogModal.styles";
 import { ModalHeader } from "../ModalHeader";
 import { FoodImageDisplay } from "../FoodImageDisplay";
 import { FoodLogFormFields } from "../FoodLogFormFields";
-import { useFoodLogForm } from "../../../features/food-logging/ui/hooks/useFoodLogForm";
-import { useAudioRecording } from "../../../features/food-logging/ui/hooks/useAudioRecording";
-import { useFoodLogValidation } from "../../../features/food-logging/ui/hooks/useFoodLogValidation";
+import { useFoodLogForm } from "../../../hooks/useFoodLogForm";
+import { useAudioRecording } from "../../../hooks/useAudioRecording";
+import { useFoodLogValidation } from "../../../hooks/useFoodLogValidation";
 
 export type NutritionMode = "estimation" | "manual";
 

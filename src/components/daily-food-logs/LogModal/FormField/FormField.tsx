@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { TextInputProps } from "@/types/indexLegacy";
+import { TextInputProps } from "src/types-legacy/indexLegacy";
 import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./FormField.styles";
 import { TextInput } from "@/components/shared/TextInput";

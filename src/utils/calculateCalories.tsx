@@ -3,7 +3,7 @@ import type {
   CalorieGoals,
   CalorieIntakeParams,
   Sex,
-} from "@/types/indexLegacy";
+} from "src/types-legacy/indexLegacy";
 
 // --- Calculation Logic ---
 

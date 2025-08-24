@@ -18,15 +18,15 @@ import {
 } from "phosphor-react-native";
 
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { CALCULATION_METHODS } from "src/constants/calculationMethods";
+import { CALCULATION_METHODS } from "@/components/settings/calculationMethods";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import type {
   CalorieCalculationMethod,
   ActivityLevel,
-} from "@/types/indexLegacy";
+} from "src/types-legacy/indexLegacy";
 import { StyleSheet } from "react-native";
 
 export default function Step2ActivityLevelScreen() {

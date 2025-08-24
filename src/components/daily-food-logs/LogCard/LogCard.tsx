@@ -9,11 +9,11 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { LegacyFoodLog } from "@/types/indexLegacy";
+import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
 import { useTheme } from "@/providers/ThemeProvider";
 import { Card } from "@/components/Card";
 import { AppText } from "@/components";
-import { getConfidenceInfo } from "../../../features/food-logging/utils";
+import { getConfidenceInfo } from "src/utils-legacy/utils";
 import { createStyles } from "./LogCard.styles";
 import { LogCardSkeleton } from "./LogCardSkeleton";
 import { NutritionList } from "./NutritionList";

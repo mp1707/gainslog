@@ -26,8 +26,8 @@
       "@/lib": ["src/lib/index"],
       "@/store/*": ["src/store/*"],
       "@/store": ["src/store/index"],
-      "@/legacystore/*": ["src/legacystore/*"],
-      "@/legacystore": ["src/legacystore/index"],
+      "@/legacystore/*": ["src/store-legacy/*"],
+      "@/legacystore": ["src/store-legacy/index"],
       "@/utils/*": ["src/utils/*"],
       "@/utils": ["src/utils/index"],
       "@/providers/*": ["src/providers/*"],
@@ -36,6 +36,12 @@
       "@/hooks": ["src/hooks/index"]
     }
   },
-  "include": ["src/**/*", "app/**/*", "App.tsx", "index.ts"],
+  "include": [
+    "src/**/*",
+    "app/**/*",
+    "App.tsx",
+    "index.ts",
+    "legacyUtils/utils.ts"
+  ],
   "exclude": ["node_modules", "dist", "build"]
 }

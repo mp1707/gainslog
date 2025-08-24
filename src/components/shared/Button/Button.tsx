@@ -6,7 +6,7 @@ import {
   ViewStyle,
   TextStyle,
 } from "react-native";
-import { ButtonProps } from "@/types/indexLegacy";
+import { ButtonProps } from "src/types-legacy/indexLegacy";
 import { styles } from "./Button.styles";
 
 export const Button: React.FC<ButtonProps> = ({

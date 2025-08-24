@@ -3,12 +3,12 @@ import { Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 import { supabase } from "@/lib/supabase";
-import { LegacyFoodLog } from "@/types/indexLegacy";
-import { generateFoodLogId } from "@/lib/storage";
+import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
+import { generateFoodLogId } from "@/legacystore/storage";
 import {
   useFoodLogStore,
   selectSelectedDate,
-} from "src/legacystore/useFoodLogStore";
+} from "src/store-legacy/useFoodLogStore";
 
 export const useImageCapture = () => {
   const [isUploading, setIsUploading] = useState(false);

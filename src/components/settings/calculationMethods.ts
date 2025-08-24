@@ -1,7 +1,7 @@
 import type {
   ActivityLevel,
   CalorieCalculationMethod,
-} from "@/types/indexLegacy";
+} from "src/types-legacy/indexLegacy";
 
 export const CALCULATION_METHODS: Record<
   ActivityLevel,

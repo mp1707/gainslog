@@ -2,17 +2,15 @@ import React, { useEffect, useCallback, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardAvoidingView } from "react-native";
 import { FoodLogScreen } from "@/components/daily-food-logs/FoodLogScreen";
-import {
-  useFoodLogModal,
-  useUpdateFoodLog,
-} from "@/features/food-logging/hooks";
-import { useCreateFoodLog } from "@/features/food-logging/hooks/useCreateFoodLog";
+import { useFoodLogModal } from "@/hooks/useFoodLogModal";
+import { useUpdateFoodLog } from "@/hooks/useUpdateFoodLog";
+import { useCreateFoodLog } from "@/hooks/useCreateFoodLog";
 import { useImageCapture } from "@/hooks/useImageCapture";
 import {
   useFoodLogStore,
   selectIsLoadingLogs,
   selectTriggerAction,
-} from "src/legacystore/useFoodLogStore";
+} from "src/store-legacy/useFoodLogStore";
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset";
 import { FoodLogModal } from "@/components/daily-food-logs/LogModal";
 

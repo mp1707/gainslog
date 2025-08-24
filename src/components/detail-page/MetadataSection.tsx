@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useTheme } from "@/providers";
 import { theme } from "@/theme";
-import { LegacyFoodLog } from "@/types/indexLegacy";
+import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
 
 interface MetadataSectionProps {
   log: LegacyFoodLog;

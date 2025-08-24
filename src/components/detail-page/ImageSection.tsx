@@ -10,7 +10,7 @@ import {
 import { Camera, PencilSimple } from "phosphor-react-native";
 import { useTheme } from "@/providers";
 import { theme } from "@/theme";
-import { LegacyFoodLog } from "@/types/indexLegacy";
+import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
 import { useImageCapture } from "@/hooks/useImageCapture";
 
 interface ImageSectionProps {

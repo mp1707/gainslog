@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { FavoriteEntry, LegacyFoodLog } from "@/types/indexLegacy";
-import { getFavoriteEntries, saveFavoriteEntries } from "@/lib/storage";
+import { FavoriteEntry, LegacyFoodLog } from "src/types-legacy/indexLegacy";
+import { getFavoriteEntries, saveFavoriteEntries } from "@/legacystore/storage";
 
 interface FavoritesStore {
   favorites: FavoriteEntry[];

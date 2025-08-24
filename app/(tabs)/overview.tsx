@@ -17,7 +17,7 @@ import {
   selectSelectedMonth,
   selectDailyTargets,
   selectFoodLogs,
-} from "../../src/legacystore/useFoodLogStore";
+} from "../../src/store-legacy/useFoodLogStore";
 import { DailySummaryCard } from "../../src/components/monthly-food-logs/DailySummaryCard";
 import { MonthPicker } from "../../src/components/monthly-food-logs/MonthPicker";
 import { PageHeader } from "../../src/components/shared/PageHeader";

@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
-import { useFoodLogStore } from "../src/legacystore/useFoodLogStore";
+import { useFoodLogStore } from "../src/store-legacy/useFoodLogStore";
 import { ThemeProvider } from "@/providers";
 import React, { useEffect } from "react";
 import ToastManager from "toastify-react-native";

@@ -1,4 +1,4 @@
-import { NutritionMergeResult } from "@/types/indexLegacy";
+import { NutritionMergeResult } from "src/types-legacy/indexLegacy";
 import {
   CheckCircle,
   Warning,

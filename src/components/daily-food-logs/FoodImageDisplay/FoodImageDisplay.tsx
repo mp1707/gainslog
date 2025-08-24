@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Image } from "react-native";
-import { LegacyFoodLog } from "@/types/indexLegacy";
+import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
 import { useStyles } from "./FoodImageDisplay.styles";
 import { ImageSkeleton } from "../LogModal/ImageSkeleton";
 

@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
 import { NewLogSheet } from "@/components/daily-food-logs/NewLogSheet";
 
 interface NewLogButtonProps {

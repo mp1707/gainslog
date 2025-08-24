@@ -5,7 +5,7 @@ import { PencilIcon, CalculatorIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";

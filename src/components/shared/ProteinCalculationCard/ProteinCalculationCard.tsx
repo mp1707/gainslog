@@ -16,7 +16,7 @@ import {
 } from "phosphor-react-native";
 import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./ProteinCalculationCard.styles";
-import type { ProteinCalculationMethod } from "@/types/indexLegacy";
+import type { ProteinCalculationMethod } from "src/types-legacy/indexLegacy";
 
 export interface ProteinCalculationCardProps {
   method: ProteinCalculationMethod;

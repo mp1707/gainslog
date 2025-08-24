@@ -10,7 +10,7 @@ import type {
   FatCalculatorParams,
   ActivityLevel,
   GoalType,
-} from "@/types/indexLegacy";
+} from "src/types-legacy/indexLegacy";
 
 import {
   getFoodLogs,
@@ -22,7 +22,7 @@ import {
   saveCalorieCalculatorParams,
   getFatCalculatorParams,
   saveFatCalculatorParams,
-} from "@/lib/storage";
+} from "@/legacystore/storage";
 import { calculateMacrosFromProtein } from "@/utils/nutritionCalculations";
 
 type ActionType =

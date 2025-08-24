@@ -12,14 +12,14 @@ import * as Haptics from "expo-haptics";
 import { TrendDownIcon, EqualsIcon, TrendUpIcon } from "phosphor-react-native";
 
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
 import { SelectionCard } from "@/components/settings/SelectionCard";
-import { CALCULATION_METHODS } from "src/constants/calculationMethods";
+import { CALCULATION_METHODS } from "@/components/settings/calculationMethods";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { Button } from "@/components/shared/Button";
 import { ProgressBar } from "@/components/settings/ProgressBar";
-import { saveCalorieCalculatorParams } from "@/lib/storage";
-import type { GoalType } from "@/types/indexLegacy";
+import { saveCalorieCalculatorParams } from "@/legacystore/storage";
+import type { GoalType } from "src/types-legacy/indexLegacy";
 import { StyleSheet } from "react-native";
 
 export default function Step3GoalsScreen() {

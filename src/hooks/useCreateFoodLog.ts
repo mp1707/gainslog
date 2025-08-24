@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 import { useNutritionEstimation } from "./useNutritionEstimation";
-import { LegacyFoodLog } from "@/types/indexLegacy";
+import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
 
 import { showInvalidImageToast } from "@/lib/toast";
-import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
 
 /**
  * Business-logic hook that turns a (possibly partial) FoodLog coming from the modal

@@ -1,6 +1,6 @@
 import React, { useState, forwardRef } from "react";
 import { TextInput as RNTextInput, ViewStyle } from "react-native";
-import { TextInputProps } from "@/types/indexLegacy";
+import { TextInputProps } from "src/types-legacy/indexLegacy";
 import { useTheme } from "@/providers/ThemeProvider";
 import { createStyles } from "./TextInput.styles";
 

@@ -3,12 +3,12 @@ import {
   LegacyFoodLog,
   DailyTargets,
   FavoriteEntry,
-} from "../types/indexLegacy";
+} from "../types-legacy/indexLegacy";
 import type {
   CalorieIntakeParams,
   FatCalculatorParams,
   Sex,
-} from "@/types/indexLegacy";
+} from "src/types-legacy/indexLegacy";
 
 // Centralized, typed storage keys to avoid typos and ease migrations
 export const storageKeys = {

@@ -1,11 +1,10 @@
 import React, { useRef, useEffect } from "react";
 import { SparkleIcon, PencilIcon } from "phosphor-react-native";
 
-
 import { Toggle, type ToggleOption } from "@/components/shared/Toggle";
-import { LegacyFoodLog } from "@/types/indexLegacy";
-import { FoodLogFormData } from "../../../features/food-logging/ui/hooks/useFoodLogForm";
-import { UseAudioRecordingReturn } from "../../../features/food-logging/ui/hooks/useAudioRecording";
+import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
+import { FoodLogFormData } from "../../../hooks/useFoodLogForm";
+import { UseAudioRecordingReturn } from "../../../hooks/useAudioRecording";
 import { NutritionMode } from "../LogModal/FoodLogModal";
 import { View, Keyboard } from "react-native";
 import Animated, {
@@ -23,7 +22,6 @@ import { FormField } from "../LogModal/FormField/FormField";
 import { NutritionGrid } from "../LogModal/NutritionGrid/NutritionGrid";
 import { DescriptionSkeleton } from "../LogModal/DescriptionSkeleton/DescriptionSkeleton";
 import { InlineRecordButton } from "@/components/shared/InlineRecordButton";
-
 
 interface FoodLogFormFieldsProps {
   formData: FoodLogFormData;

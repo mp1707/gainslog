@@ -6,11 +6,11 @@ import { GenderMaleIcon, GenderFemaleIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import type { CalorieIntakeParams, Sex } from "@/types/indexLegacy";
-import { getCalorieCalculatorParams } from "@/lib/storage";
+import type { CalorieIntakeParams, Sex } from "src/types-legacy/indexLegacy";
+import { getCalorieCalculatorParams } from "@/legacystore/storage";
 import { StyleSheet } from "react-native";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 

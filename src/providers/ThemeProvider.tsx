@@ -11,7 +11,7 @@ import { theme, ColorScheme } from "../theme";
 import {
   saveColorSchemePreference,
   getColorSchemePreference,
-} from "../lib/storage";
+} from "../store-legacy/storage";
 
 type Colors = typeof theme.colors.light | typeof theme.colors.dark;
 

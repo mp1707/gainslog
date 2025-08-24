@@ -2,9 +2,9 @@ import {
   estimateNutritionTextBased,
   estimateNutritionImageBased,
 } from "@/lib/supabase";
-import { mergeNutritionData } from "../utils";
-import { LegacyFoodLog } from "@/types/indexLegacy";
+import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
 import * as Haptics from "expo-haptics";
+import { mergeNutritionData } from "src/utils-legacy/utils";
 
 export interface UseNutritionEstimationReturn {
   processLogWithEstimation: (

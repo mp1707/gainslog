@@ -2,17 +2,17 @@ import React, { useRef, useMemo } from "react";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSharedValue } from "react-native-reanimated";
-import { LegacyFoodLog } from "@/types/indexLegacy";
+import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
 import { createStyles } from "./FoodLogScreen.styles";
 import {
   useFoodLogStore,
   selectDailyTargets,
   selectFoodLogs,
-} from "src/legacystore/useFoodLogStore";
+} from "src/store-legacy/useFoodLogStore";
 import { useTheme } from "@/providers/ThemeProvider";
-import { useDateNavigation } from "../../../features/food-logging/ui/hooks/useDateNavigation";
-import { useTabBarSpacing } from "../../../features/food-logging/ui/hooks/useTabBarSpacing";
-import { useFavoriteSelection } from "../../../features/food-logging/ui/hooks/useFavoriteSelection";
+import { useDateNavigation } from "../../../store-legacy/useLegacyDateNavigation";
+import { useTabBarSpacing } from "../../../hooks/useTabBarSpacing";
+import { useFavoriteSelection } from "../../../hooks/useFavoriteSelection";
 import { DateNavigationHeader } from "../DateNavigationHeader";
 import { FoodLogsList } from "../FoodLogsList";
 import { theme } from "@/theme/theme";

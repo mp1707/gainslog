@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LegacyFoodLog, ModalMode } from "@/types/indexLegacy";
+import { LegacyFoodLog, ModalMode } from "src/types-legacy/indexLegacy";
 
 export interface UseFoodLogModalReturn {
   isModalVisible: boolean;
