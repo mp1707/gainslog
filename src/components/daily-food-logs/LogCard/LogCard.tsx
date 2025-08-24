@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Pressable } from "react-native";
-import { useRouter } from "expo-router";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -20,13 +20,12 @@ import { NutritionList } from "./NutritionList";
 
 interface LogCardProps {
   foodLog: FoodLog;
-  onAddInfo: (log: FoodLog) => void;
 }
 
-export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
+export const LogCard: React.FC<LogCardProps> = ({ foodLog }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
-  const router = useRouter();
+  const { safeNavigate } = useNavigationGuard();
 
   // Animation shared values - must be declared before any conditional returns
   const scale = useSharedValue(1);
@@ -53,7 +52,7 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
 
   const handlePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push(`/food-log-detail/${foodLog.id}`);
+    safeNavigate(`/food-log-detail/${foodLog.id}`);
   };
 
   const handlePressIn = () => {

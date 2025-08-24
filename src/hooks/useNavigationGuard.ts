@@ -15,7 +15,6 @@ export function useNavigationGuard() {
   const lockedRef = useRef(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Route validation helper
   const isValidRoute = useCallback((route: string): boolean => {
@@ -24,8 +23,9 @@ export function useNavigationGuard() {
       const validPatterns = [
         /^\/$/, // Root route
         /^\/\w+$/, // Single level routes
-        /^\/\w+\/\w+$/, // Two level routes
-        /^\/\w+\/\w+\/\w+$/, // Three level routes (like /settings/proteinCalculator/editProtein)
+        /^\/\w+\/[\w\-_]+$/, // Two level routes with dynamic parameters
+        /^\/\w+\/\w+\/[\w\-_]+$/, // Three level routes with dynamic parameters
+        /^\/food-log-detail\/[\w\-_]+$/, // Food log detail routes with complex IDs
         /^\/\(tabs\)\/\w+$/, // Tab routes
         /^\/\(tabs\)\/\w+\/\w+$/, // Tab sub-routes
         /^\/\(tabs\)\/\w+\/\w+\/\w+$/, // Tab nested routes
@@ -40,26 +40,16 @@ export function useNavigationGuard() {
 
   // Unified unlock function called by all events
   const unlockNavigation = useCallback(() => {
-    // Avoid unnecessary state updates if we're already unlocked and idle
-    if (!lockedRef.current && !isNavigating) {
-      return;
-    }
-
+    // Always clear the lock and navigation state to prevent stuck states
     lockedRef.current = false;
-    if (isNavigating) {
-      setIsNavigating(false);
-    }
+    setIsNavigating(false);
 
-    // Clear all timeouts if they exist
+    // Clear timeout if it exists
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-      debounceTimeoutRef.current = null;
-    }
-  }, [isNavigating]);
+  }, []);
 
   useEffect(() => {
     // Listen to navigation events that can indicate completion
@@ -81,35 +71,44 @@ export function useNavigationGuard() {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
     };
   }, [navigation, unlockNavigation]);
 
   /**
-   * Debounced navigation helper
+   * Execute navigation with proper locking and timeout fallback
    */
-  const debouncedNavigate = useCallback(
-    (navigationFn: () => void, delay: number = 150) => {
-      // Clear existing debounce timeout
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
+  const executeNavigation = useCallback(
+    (navigationFn: () => void) => {
+      // Double-check lock state before proceeding
+      if (lockedRef.current) {
+        console.warn("[NavigationGuard] Navigation already in progress, ignoring duplicate call");
+        return;
       }
 
-      // Set new debounce timeout
-      debounceTimeoutRef.current = setTimeout(() => {
+      try {
+        lockedRef.current = true;
+        setIsNavigating(true);
+
+        // Set fallback timeout to prevent permanent locks
+        timeoutRef.current = setTimeout(() => {
+          console.warn("[NavigationGuard] Navigation timeout reached, unlocking");
+          unlockNavigation();
+        }, 1000);
+
         navigationFn();
-        debounceTimeoutRef.current = null;
-      }, delay);
+      } catch (error) {
+        console.error("[NavigationGuard] Navigation failed:", error);
+        // Immediately unlock on navigation failure
+        unlockNavigation();
+      }
     },
-    []
+    [unlockNavigation]
   );
 
   /**
    * Safe navigation function that prevents multiple rapid calls.
    * Uses router.navigate (idempotent navigation).
-   * Includes route validation, debouncing, and error recovery.
+   * Includes route validation and error recovery.
    *
    * @param route - The route to navigate to
    */
@@ -125,34 +124,15 @@ export function useNavigationGuard() {
         return;
       }
 
-      const performNavigation = () => {
-        try {
-          lockedRef.current = true;
-          setIsNavigating(true);
-
-          // Set 1-second timeout fallback
-          timeoutRef.current = setTimeout(() => {
-            unlockNavigation();
-          }, 1000);
-
-          router.navigate(route);
-        } catch (error) {
-          console.error("[NavigationGuard] Navigation failed:", error);
-          // Immediately unlock on navigation failure
-          unlockNavigation();
-        }
-      };
-
-      // Use debounced navigation to prevent rapid-fire calls
-      debouncedNavigate(performNavigation);
+      executeNavigation(() => router.navigate(route));
     },
-    [router, unlockNavigation, isValidRoute, debouncedNavigate]
+    [router, isValidRoute, executeNavigation]
   );
 
   /**
    * Safe replace function that prevents multiple rapid calls.
    * Uses router.replace to replace the current screen.
-   * Includes route validation, debouncing, and error recovery.
+   * Includes route validation and error recovery.
    *
    * @param route - The route to replace with
    */
@@ -171,35 +151,16 @@ export function useNavigationGuard() {
         return;
       }
 
-      const performNavigation = () => {
-        try {
-          lockedRef.current = true;
-          setIsNavigating(true);
-
-          // Set 1-second timeout fallback
-          timeoutRef.current = setTimeout(() => {
-            unlockNavigation();
-          }, 1000);
-
-          router.replace(route);
-        } catch (error) {
-          console.error("[NavigationGuard] Replace navigation failed:", error);
-          // Immediately unlock on navigation failure
-          unlockNavigation();
-        }
-      };
-
-      // Use debounced navigation to prevent rapid-fire calls
-      debouncedNavigate(performNavigation);
+      executeNavigation(() => router.replace(route));
     },
-    [router, unlockNavigation, isValidRoute, debouncedNavigate]
+    [router, isValidRoute, executeNavigation]
   );
 
   /**
    * Safe push function for cases where you specifically need push behavior.
    * Note: This can still create duplicate screens if called rapidly,
    * but will prevent multiple rapid calls.
-   * Includes route validation, debouncing, and error recovery.
+   * Includes route validation and error recovery.
    *
    * @param route - The route to push to
    */
@@ -218,34 +179,15 @@ export function useNavigationGuard() {
         return;
       }
 
-      const performNavigation = () => {
-        try {
-          lockedRef.current = true;
-          setIsNavigating(true);
-
-          // Set 1-second timeout fallback
-          timeoutRef.current = setTimeout(() => {
-            unlockNavigation();
-          }, 1000);
-
-          router.push(route);
-        } catch (error) {
-          console.error("[NavigationGuard] Push navigation failed:", error);
-          // Immediately unlock on navigation failure
-          unlockNavigation();
-        }
-      };
-
-      // Use debounced navigation to prevent rapid-fire calls
-      debouncedNavigate(performNavigation);
+      executeNavigation(() => router.push(route));
     },
-    [router, unlockNavigation, isValidRoute, debouncedNavigate]
+    [router, isValidRoute, executeNavigation]
   );
 
   /**
    * Safe dismissTo function for dismissing modals/stacks to a specific route.
    * Prevents multiple rapid calls and provides navigation state feedback.
-   * Includes route validation, debouncing, and error recovery.
+   * Includes route validation and error recovery.
    *
    * @param route - The route to dismiss to
    */
@@ -264,31 +206,9 @@ export function useNavigationGuard() {
         return;
       }
 
-      const performNavigation = () => {
-        try {
-          lockedRef.current = true;
-          setIsNavigating(true);
-
-          // Set 1-second timeout fallback
-          timeoutRef.current = setTimeout(() => {
-            unlockNavigation();
-          }, 1000);
-
-          router.dismissTo(route);
-        } catch (error) {
-          console.error(
-            "[NavigationGuard] DismissTo navigation failed:",
-            error
-          );
-          // Immediately unlock on navigation failure
-          unlockNavigation();
-        }
-      };
-
-      // Use debounced navigation to prevent rapid-fire calls
-      debouncedNavigate(performNavigation);
+      executeNavigation(() => router.dismissTo(route));
     },
-    [router, unlockNavigation, isValidRoute, debouncedNavigate]
+    [router, isValidRoute, executeNavigation]
   );
 
   return {

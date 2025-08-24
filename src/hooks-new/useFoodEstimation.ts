@@ -14,7 +14,7 @@ interface EstimationResult {
 export const useFoodEstimation = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { addFoodLog, selectedDate } = useAppStore();
+  const { addFoodLog, updateFoodLog, deleteFoodLog, selectedDate } = useAppStore();
 
   const estimateFromText = async (
     title: string,
@@ -23,32 +23,45 @@ export const useFoodEstimation = () => {
     setIsLoading(true);
     setError(null);
 
+    // Create skeleton log immediately with confidence 0 to trigger skeleton UI
+    const skeletonLog: FoodLog = {
+      id: generateFoodLogId(),
+      createdAt: new Date().toISOString(),
+      date: selectedDate,
+      userTitle: title,
+      userDescription: description,
+      estimationConfidence: 0, // This triggers the skeleton state in LogCard
+    };
+
+    // Add skeleton to store immediately for optimistic UI
+    addFoodLog(skeletonLog);
+
+    // Run AI estimation in background
     try {
       const estimation = await estimateNutritionTextBased({
         title: title || "No title",
         description,
       });
 
-      const newLog: FoodLog = {
-        id: generateFoodLogId(),
-        createdAt: new Date().toISOString(),
-        date: selectedDate,
-        userTitle: title,
-        userDescription: description,
+      // Update the skeleton with real data
+      updateFoodLog(skeletonLog.id, {
         generatedTitle: estimation.generatedTitle,
         generatedCalories: estimation.calories,
         generatedProtein: estimation.protein,
         generatedCarbs: estimation.carbs,
         generatedFat: estimation.fat,
         estimationConfidence: estimation.estimationConfidence,
-      };
+      });
 
-      addFoodLog(newLog);
-      return { foodLog: newLog };
+      const finalLog = { ...skeletonLog, ...estimation };
+      return { foodLog: finalLog };
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to estimate nutrition";
       setError(message);
+      
+      // Remove the skeleton log on error
+      deleteFoodLog(skeletonLog.id);
       return null;
     } finally {
       setIsLoading(false);
@@ -63,6 +76,21 @@ export const useFoodEstimation = () => {
     setIsLoading(true);
     setError(null);
 
+    // Create skeleton log immediately with confidence 0 to trigger skeleton UI
+    const skeletonLog: FoodLog = {
+      id: generateFoodLogId(),
+      createdAt: new Date().toISOString(),
+      date: selectedDate,
+      userTitle: title,
+      userDescription: description,
+      imageUrl: imageUrl,
+      estimationConfidence: 0, // This triggers the skeleton state in LogCard
+    };
+
+    // Add skeleton to store immediately for optimistic UI
+    addFoodLog(skeletonLog);
+
+    // Run AI estimation in background
     try {
       const estimation = await estimateNutritionImageBased({
         imageUrl,
@@ -70,29 +98,27 @@ export const useFoodEstimation = () => {
         description,
       });
 
-      const newLog: FoodLog = {
-        id: generateFoodLogId(),
-        createdAt: new Date().toISOString(),
-        date: selectedDate,
-        userTitle: title,
-        userDescription: description,
+      // Update the skeleton with real data
+      updateFoodLog(skeletonLog.id, {
         generatedTitle: estimation.generatedTitle,
         generatedCalories: estimation.calories,
         generatedProtein: estimation.protein,
         generatedCarbs: estimation.carbs,
         generatedFat: estimation.fat,
         estimationConfidence: estimation.estimationConfidence,
-        imageUrl: imageUrl,
-      };
+      });
 
-      addFoodLog(newLog);
-      return { foodLog: newLog };
+      const finalLog = { ...skeletonLog, ...estimation };
+      return { foodLog: finalLog };
     } catch (err) {
       const message =
         err instanceof Error
           ? err.message
           : "Failed to estimate nutrition from image";
       setError(message);
+      
+      // Remove the skeleton log on error
+      deleteFoodLog(skeletonLog.id);
       return null;
     } finally {
       setIsLoading(false);
