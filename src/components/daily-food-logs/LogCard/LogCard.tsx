@@ -25,7 +25,7 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onPress }) => {
     return <LogCardSkeleton />;
   }
 
-  const displayTitle = foodLog.userTitle || foodLog.generatedTitle;
+  const displayTitle = foodLog.userTitle ?? foodLog.generatedTitle;
 
   const confidenceInfo = getConfidenceInfo(foodLog.estimationConfidence ?? 0);
   const ConfidenceIcon = confidenceInfo.icon;
@@ -57,14 +57,14 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onPress }) => {
                 {displayTitle}
               </AppText>
 
-              {foodLog.userDescription && (
+              {(foodLog.userDescription || foodLog.generatedDescription) && (
                 <AppText
                   role="Body"
                   color="secondary"
                   style={styles.description}
                   numberOfLines={2}
                 >
-                  {foodLog.userDescription}
+                  {foodLog.userDescription || foodLog.generatedDescription}
                 </AppText>
               )}
 
