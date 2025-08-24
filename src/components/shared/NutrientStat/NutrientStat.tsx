@@ -1,6 +1,6 @@
 import React from "react";
 import { View, ViewStyle } from "react-native";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import { AppText } from "@/components/shared/AppText";
 import { createStyles } from "./NutrientStat.styles";
 

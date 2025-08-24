@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { View, TouchableOpacity, Text, InputAccessoryView, StyleSheet } from "react-native";
 import { CaretRightIcon } from "phosphor-react-native";
 
-import { useTheme } from "@/providers";
+import { useTheme } from "@/theme";
 
 interface CalculatorInputAccessoryProps {
   nativeID: string;

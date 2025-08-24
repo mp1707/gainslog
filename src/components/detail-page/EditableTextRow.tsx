@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { Microphone } from "phosphor-react-native";
-import { useTheme } from "@/providers";
+import { useTheme } from "@/theme";
 import { theme } from "@/theme";
 
 interface EditableTextRowProps {

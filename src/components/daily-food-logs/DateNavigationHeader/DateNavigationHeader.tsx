@@ -3,7 +3,7 @@ import { View, TouchableOpacity, Platform } from "react-native";
 import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import { createStyles } from "./DateNavigationHeader.styles";
 
 interface DateNavigationHeaderProps {

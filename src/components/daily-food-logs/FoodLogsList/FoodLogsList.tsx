@@ -4,7 +4,7 @@ import Animated, { Layout, FadeInUp } from "react-native-reanimated";
 
 import { AppText } from "@/components/shared/AppText";
 import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
-import { useTheme } from "@/providers";
+import { useTheme } from "@/theme";
 import { useFavoritesStore } from "src/store-legacy/useFavoritesStore";
 import { styles } from "./FoodLogsList.styles";
 import { LogCard } from "../LogCard";

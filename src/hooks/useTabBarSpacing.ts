@@ -1,6 +1,6 @@
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 
 export const useTabBarSpacing = () => {
   const insets = useSafeAreaInsets();

@@ -4,7 +4,7 @@ import { CameraIcon } from "phosphor-react-native";
 import { BadgeProps } from "src/types-legacy/indexLegacy";
 import { LoadingSpinner } from "../LoadingSpinner";
 import { AppText } from "@/components";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import { createStyles } from "./Badge.styles";
 
 export const Badge: React.FC<BadgeProps> = (props) => {

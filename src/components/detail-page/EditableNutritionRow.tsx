@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useTheme } from "@/providers";
+import { useTheme } from "@/theme";
 import { theme } from "@/theme";
 
 interface EditableNutritionRowProps {

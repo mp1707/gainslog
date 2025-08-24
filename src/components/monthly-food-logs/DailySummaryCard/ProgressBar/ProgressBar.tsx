@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import Animated, { useAnimatedStyle, SharedValue } from "react-native-reanimated";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 
 export interface ProgressBarProps {
   value: number; // percent value, can exceed 100

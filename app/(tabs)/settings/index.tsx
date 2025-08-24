@@ -7,7 +7,7 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTheme } from "@/providers";
+import { useTheme } from "@/theme";
 import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
 import { Button } from "@/components/shared/Button";
 import { StatusIcon } from "@/components/shared/StatusIcon";

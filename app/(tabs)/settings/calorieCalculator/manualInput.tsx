@@ -20,7 +20,7 @@ import { InteractionManager } from "react-native";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
-import { useTheme } from "@/providers";
+import { useTheme } from "@/theme";
 import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
 import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";

@@ -7,7 +7,7 @@ import {
   Dimensions,
 } from "react-native";
 import * as Haptics from "expo-haptics";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import {
   PanGestureHandler,
   GestureHandlerRootView,

@@ -9,7 +9,7 @@ import {
   selectDailyTargets,
   selectFoodLogs,
 } from "src/store-legacy/useFoodLogStore";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import { useDateNavigation } from "../../../store-legacy/useLegacyDateNavigation";
 import { useTabBarSpacing } from "../../../hooks/useTabBarSpacing";
 import { useFavoriteSelection } from "../../../hooks/useFavoriteSelection";

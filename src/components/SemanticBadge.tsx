@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet, ViewStyle } from "react-native";
 import { AppText } from "./shared/AppText";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 
 export type SemanticType = "calories" | "protein" | "carbs" | "fat";
 

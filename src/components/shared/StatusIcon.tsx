@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 
 type StatusIconType = "completed" | "next";
 

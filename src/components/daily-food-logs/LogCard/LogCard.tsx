@@ -10,7 +10,7 @@ import Animated, {
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import { Card } from "@/components/Card";
 import { AppText } from "@/components";
 import { getConfidenceInfo } from "src/utils-legacy/utils";

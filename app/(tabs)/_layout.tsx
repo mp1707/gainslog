@@ -7,7 +7,7 @@ import {
   PlusIcon,
   XIcon,
 } from "phosphor-react-native";
-import { useTheme } from "@/providers";
+import { useTheme } from "@/theme";
 import { NewLogButton } from "@/components/daily-food-logs/NewLogButton";
 import React, { useState, useCallback } from "react";
 

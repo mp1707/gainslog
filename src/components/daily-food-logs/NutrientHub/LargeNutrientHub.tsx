@@ -7,7 +7,7 @@ import {
   withDelay,
   useDerivedValue,
 } from "react-native-reanimated";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import { theme } from "@/theme";
 import { Card } from "@/components/Card";
 import { NutrientSummaryGrid } from "../NutrientSummaryGrid";

@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 
 export interface ModalContentProps {
   title: string;

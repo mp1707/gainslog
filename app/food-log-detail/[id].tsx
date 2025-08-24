@@ -12,7 +12,7 @@ import {
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Stack } from "expo-router";
 import { X, ArrowsClockwise, Star, PencilSimple } from "phosphor-react-native";
-import { useTheme } from "@/providers";
+import { useTheme } from "@/theme";
 import {
   useFoodLogStore,
   selectFoodLogs,

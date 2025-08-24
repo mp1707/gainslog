@@ -9,7 +9,7 @@ import {
   StarIcon,
 } from "phosphor-react-native";
 import { BaseModal } from "@/components/shared/BaseModal";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { createStyles } from "./NewLogSheet.styles";
 

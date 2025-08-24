@@ -9,7 +9,7 @@ import Animated, {
   withDelay,
   Easing,
 } from "react-native-reanimated";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import { Card, AppText } from "@/components";
 import { useStyles } from "./DailySummaryCard.styles";
 import { ProgressRow } from "./ProgressRow";

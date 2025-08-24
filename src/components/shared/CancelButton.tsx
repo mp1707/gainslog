@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import { XIcon} from 'phosphor-react-native';
-import { useTheme } from '@/providers';
+import { useTheme } from '@/theme';
 
 interface CancelButtonProps {
   onPress: () => void;

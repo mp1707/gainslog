@@ -1,4 +1,4 @@
-import { useThemedStyles } from "@/providers/ThemeProvider";
+import { useThemedStyles } from "@/theme";
 import { StyleSheet } from "react-native";
 import type { Colors, Theme } from "@/theme";
 

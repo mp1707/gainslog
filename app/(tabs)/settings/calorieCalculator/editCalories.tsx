@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { PencilIcon, CalculatorIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
-import { useTheme } from "@/providers";
+import { useTheme } from "@/theme";
 import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";

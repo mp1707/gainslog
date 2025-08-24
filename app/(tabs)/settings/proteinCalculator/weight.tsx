@@ -14,7 +14,7 @@ import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 import { useFocusEffect } from "@react-navigation/native";
 
-import { useTheme } from "@/providers";
+import { useTheme } from "@/theme";
 import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";

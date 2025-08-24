@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from "react";
 import { View, TouchableOpacity } from "react-native";
 import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
-import { useTheme } from "@/providers";
+import { useTheme } from "@/theme";
 import { AppText } from "@/components/shared/AppText";
 import { createStyles } from "./MonthPicker.styles";
 

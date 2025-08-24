@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native";
 import { SharedValue } from "react-native-reanimated";
 import { AppText } from "../../shared/AppText";
 import { ProgressBar } from "@/components/monthly-food-logs/DailySummaryCard/ProgressBar";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 
 interface ProgressRowProps {
   label: string;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, forwardRef, useCallback, useMemo } from "react";
 import { View, Text } from "react-native";
 import { TextInput as RNTextInput } from "react-native";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import { createStyles } from "./NumericTextInput.styles";
 
 interface NumericTextInputProps {

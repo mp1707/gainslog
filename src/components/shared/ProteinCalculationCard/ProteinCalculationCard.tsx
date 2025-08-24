@@ -14,7 +14,7 @@ import {
   ShieldCheckIcon,
   TrophyIcon,
 } from "phosphor-react-native";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import { createStyles } from "./ProteinCalculationCard.styles";
 import type { ProteinCalculationMethod } from "src/types-legacy/indexLegacy";
 

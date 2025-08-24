@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { useTheme } from "@/providers";
+import { useTheme } from "@/theme";
 import { CancelButton } from "@/components/shared/CancelButton";
 import React from "react";
 

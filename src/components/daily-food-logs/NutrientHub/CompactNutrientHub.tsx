@@ -13,7 +13,7 @@ import Animated, {
   useDerivedValue,
   useAnimatedStyle,
 } from "react-native-reanimated";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import { theme } from "@/theme";
 
 // TypeScript interface for component props

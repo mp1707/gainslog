@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 import { theme } from "../../../../theme";
-import { useThemedStyles } from "@/providers/ThemeProvider";
+import { useThemedStyles } from "@/theme";
 
 const { typography, spacing } = theme;
 

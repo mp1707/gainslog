@@ -8,7 +8,7 @@ import {
   Alert,
 } from "react-native";
 import { Camera } from "phosphor-react-native";
-import { useTheme } from "@/providers";
+import { useTheme } from "@/theme";
 import { theme } from "@/theme";
 import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
 import { useImageCapture } from "@/hooks/useImageCapture";

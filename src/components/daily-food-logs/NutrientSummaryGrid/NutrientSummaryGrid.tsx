@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "react-native";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import { NutrientStat } from "@/components/shared/NutrientStat";
 import { createStyles } from "./NutrientSummaryGrid.styles";
 

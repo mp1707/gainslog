@@ -16,7 +16,7 @@ import {
   TrophyIcon,
 } from "phosphor-react-native";
 
-import { useTheme } from "@/providers";
+import { useTheme } from "@/theme";
 import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
 import { Button } from "@/components/shared/Button";
 import { ProgressBar } from "@/components/settings/ProgressBar";

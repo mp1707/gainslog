@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import { MagnifyingGlassIcon } from "phosphor-react-native";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import { TextInput } from "../TextInput";
 
 interface SearchBarProps {

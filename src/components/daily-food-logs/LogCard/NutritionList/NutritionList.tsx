@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import { AppText } from "@/components";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import { createStyles } from "./NutritionList.styles";
 
 interface NutritionData {

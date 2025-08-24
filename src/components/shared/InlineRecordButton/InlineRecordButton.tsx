@@ -11,7 +11,7 @@ import Animated, {
 import { MicrophoneIcon, StopIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 import { createStyles } from "./InlineRecordButton.styles";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);

@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Switch, StyleSheet } from "react-native";
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import { SettingCard } from "@/components/settings/SettingCard/SettingCard";
 import { AppText } from "src/components";
 

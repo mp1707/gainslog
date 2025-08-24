@@ -10,7 +10,7 @@ import Animated, {
 } from "react-native-reanimated";
 import type { Icon } from "phosphor-react-native";
 
-import { useTheme } from "@/providers/ThemeProvider";
+import { useTheme } from "@/theme";
 import { createStyles } from "./SelectionCard.styles";
 
 export interface SelectionCardProps {

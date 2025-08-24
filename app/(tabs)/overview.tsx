@@ -11,7 +11,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { useTheme } from "@/providers";
+import { useTheme } from "@/theme";
 import {
   useFoodLogStore,
   selectSelectedMonth,
