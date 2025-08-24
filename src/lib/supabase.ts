@@ -4,7 +4,7 @@ import {
   FoodEstimateRequest,
   ImageEstimateRequest,
   FoodEstimateResponse,
-} from "../types-legacy/indexLegacy";
+} from "@/types";
 import { env } from "./env";
 
 const supabaseUrl = env.SUPABASE_URL;

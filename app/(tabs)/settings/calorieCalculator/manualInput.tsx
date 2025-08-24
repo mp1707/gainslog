@@ -24,7 +24,6 @@ import { useTheme } from "@/theme";
 import { useAppStore } from "@/store";
 import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { saveCalorieCalculatorParams } from "@/store-legacy/storage";
 
 const inputAccessoryViewID = "calories-input-accessory";
 

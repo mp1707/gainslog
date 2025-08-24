@@ -116,11 +116,7 @@ gainslog/
 │   │   ├── useFoodEstimation.ts    # AI estimation hook
 │   │   └── useMonthlyData.ts       # Monthly overview data
 │   │
-│   ├── hooks-legacy/                # Legacy hooks implementation
-│   │   ├── useCreateFoodLog.ts     # Main food creation flow (legacy)
-│   │   ├── useFoodLogValidation.ts
-│   │   ├── useLegacyDateNavigation.ts
-│   │   └── useUpdateFoodLog.ts
+│   ├── hooks-legacy/                # Removed (migrated to new architecture)
 │   │
 │   ├── store/                       # Current Zustand store (preferred)
 │   │   ├── index.ts                # Store configuration & export
@@ -131,12 +127,7 @@ gainslog/
 │   │   │   └── weightLogsSlice.ts
 │   │   └── types.ts                # Store-specific types
 │   │
-│   ├── store-legacy/                # Legacy store implementation
-│   │   ├── index.ts
-│   │   ├── storage.ts
-│   │   ├── useFavoritesStore.ts
-│   │   ├── useFoodLogStore.ts
-│   │   └── useLegacyDateNavigation.ts
+│   ├── store-legacy/                # Removed (migrated to new architecture)
 │   │
 │   ├── services/                    # External services
 │   │   ├── index.ts
@@ -161,14 +152,12 @@ gainslog/
 │   │   ├── nutrition.ts            # Nutrition calculations
 │   │   └── nutritionCalculations.ts
 │   │
-│   ├── utils-legacy/                # Legacy utilities
-│   │   └── utils.ts
+│   ├── utils-legacy/                # Removed (migrated to new architecture)
 │   │
 │   ├── types/                       # TypeScript type definitions
 │   │   └── index.ts                # Shared types (FoodLog, UserSettings, etc.)
 │   │
-│   └── types-legacy/                # Legacy type definitions
-│       └── indexLegacy.ts
+│   └── types-legacy/                # Removed (migrated to new architecture)
 │
 ├── supabase/                        # Supabase backend configuration
 │   ├── functions/                   # Edge functions (serverless)

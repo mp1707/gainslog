@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FoodLog } from "@/types";
-import type { ModalMode } from "src/types-legacy/indexLegacy";
+import type { ModalMode } from "@/types";
 
 export interface FoodLogFormData {
   title: string;

@@ -2,15 +2,15 @@ import {
   estimateNutritionTextBased,
   estimateNutritionImageBased,
 } from "@/lib/supabase";
-import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
+import { FoodLog } from "@/types";
 import * as Haptics from "expo-haptics";
-import { mergeNutritionData } from "src/utils-legacy/utils";
+import { validateNutritionValues } from "@/utils/nutrition";
 
 export interface UseNutritionEstimationReturn {
   processLogWithEstimation: (
-    log: LegacyFoodLog,
-    onSkeletonUpdate: (log: LegacyFoodLog) => void,
-    onFinalUpdate: (log: LegacyFoodLog) => void,
+    log: FoodLog,
+    onSkeletonUpdate: (log: FoodLog) => void,
+    onFinalUpdate: (log: FoodLog) => void,
     onInvalidImage?: (logId: string) => void
   ) => Promise<void>;
 }
@@ -21,20 +21,21 @@ export interface UseNutritionEstimationReturn {
  */
 export function useNutritionEstimation(): UseNutritionEstimationReturn {
   const processLogWithEstimation = async (
-    log: LegacyFoodLog,
-    onSkeletonUpdate: (log: LegacyFoodLog) => void,
-    onFinalUpdate: (log: LegacyFoodLog) => void,
+    log: FoodLog,
+    onSkeletonUpdate: (log: FoodLog) => void,
+    onFinalUpdate: (log: FoodLog) => void,
     onInvalidImage?: (logId: string) => void
   ) => {
-    if (!log.needsAiEstimation) {
-      // No AI needed, just process the log
-      const finalLog = { ...log, needsAiEstimation: undefined };
+    // Legacy flag support: treat a truthy needsAiEstimation as requiring estimation
+    if (!(log as any).needsAiEstimation) {
+      const finalLog = { ...log, needsAiEstimation: undefined } as FoodLog & {
+        needsAiEstimation?: undefined;
+      };
       onFinalUpdate(finalLog);
       return;
     }
 
-    // Show skeleton state while processing
-    const skeletonLog = {
+    const skeletonLog: FoodLog = {
       ...log,
       generatedTitle: log.imageUrl ? "Processing image..." : log.generatedTitle,
       estimationConfidence: 0,
@@ -42,62 +43,80 @@ export function useNutritionEstimation(): UseNutritionEstimationReturn {
     onSkeletonUpdate(skeletonLog);
 
     try {
-      let estimation;
+      let estimation: {
+        generatedTitle: string;
+        estimationConfidence: number;
+        calories: number;
+        protein: number;
+        carbs: number;
+        fat: number;
+      };
 
       if (log.imageUrl) {
-        // Use image-based estimation
         estimation = await estimateNutritionImageBased({
           imageUrl: log.imageUrl,
           title: log.userTitle || undefined,
           description: log.userDescription || undefined,
         });
       } else {
-        // Use text-based estimation
         estimation = await estimateNutritionTextBased({
           title: log.userTitle || log.generatedTitle,
           description: log.userDescription || undefined,
         });
       }
 
-      // Check if the AI returned an invalid image response
       if (estimation.generatedTitle === "Invalid Image" && onInvalidImage) {
-        // Handle invalid image by removing skeleton and showing toast
         onInvalidImage(log.id);
         return;
       }
 
-      // Merge AI data with user input (user input takes precedence)
-      const mergedNutrition = mergeNutritionData(
-        log.userCalories?.toString() || "",
-        log.userProtein?.toString() || "",
-        log.userCarbs?.toString() || "",
-        log.userFat?.toString() || "",
-        estimation
-      );
+      // Merge: prefer user-entered macros; fallback to AI-generated
+      const merged = {
+        calories: log.userCalories ?? estimation.calories,
+        protein: log.userProtein ?? estimation.protein,
+        carbs: log.userCarbs ?? estimation.carbs,
+        fat: log.userFat ?? estimation.fat,
+      };
 
-      const finalLog = {
+      const validation = validateNutritionValues(merged);
+      if (!validation.isValid) {
+        merged.calories = Math.max(0, merged.calories || 0);
+        merged.protein = Math.max(0, merged.protein || 0);
+        merged.carbs = Math.max(0, merged.carbs || 0);
+        merged.fat = Math.max(0, merged.fat || 0);
+      }
+
+      const finalLog: FoodLog = {
         ...log,
         generatedTitle: log.userTitle || estimation.generatedTitle,
         estimationConfidence: estimation.estimationConfidence,
-        calories: mergedNutrition.calories,
-        protein: mergedNutrition.protein,
-        carbs: mergedNutrition.carbs,
-        fat: mergedNutrition.fat,
-        userCalories: mergedNutrition.userCalories,
-        userProtein: mergedNutrition.userProtein,
-        userCarbs: mergedNutrition.userCarbs,
-        userFat: mergedNutrition.userFat,
+        generatedCalories:
+          log.userCalories === undefined
+            ? merged.calories
+            : log.generatedCalories,
+        generatedProtein:
+          log.userProtein === undefined ? merged.protein : log.generatedProtein,
+        generatedCarbs:
+          log.userCarbs === undefined ? merged.carbs : log.generatedCarbs,
+        generatedFat: log.userFat === undefined ? merged.fat : log.generatedFat,
+        userCalories: log.userCalories,
+        userProtein: log.userProtein,
+        userCarbs: log.userCarbs,
+        userFat: log.userFat,
         needsAiEstimation: undefined,
       };
 
-      // Provide haptic feedback when estimation completes successfully
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
       onFinalUpdate(finalLog);
     } catch (error) {
       console.error("Error with AI estimation:", error);
-      // If AI fails, just save with user data
-      const fallbackLog = { ...log, needsAiEstimation: undefined };
+      const fallbackLog = {
+        ...log,
+        needsAiEstimation: undefined,
+      } as FoodLog & {
+        needsAiEstimation?: undefined;
+      };
       onFinalUpdate(fallbackLog);
     }
   };

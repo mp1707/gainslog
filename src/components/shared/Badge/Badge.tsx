@@ -1,7 +1,7 @@
 import React from "react";
 import { View } from "react-native";
 import { CameraIcon } from "phosphor-react-native";
-import { BadgeProps } from "src/types-legacy/indexLegacy";
+import { BadgeProps } from "@/types";
 import { LoadingSpinner } from "../LoadingSpinner";
 import { AppText } from "@/components";
 import { useTheme } from "@/theme";

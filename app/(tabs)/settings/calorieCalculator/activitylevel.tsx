@@ -23,10 +23,7 @@ import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { CALCULATION_METHODS } from "@/components/settings/calculationMethods";
 import { ProgressBar } from "@/components/settings/ProgressBar";
-import type {
-  CalorieCalculationMethod,
-  ActivityLevel,
-} from "src/types-legacy/indexLegacy";
+import type { CalorieCalculationMethod, ActivityLevel } from "@/types";
 import { StyleSheet } from "react-native";
 
 export default function Step2ActivityLevelScreen() {

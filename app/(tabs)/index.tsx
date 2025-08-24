@@ -3,24 +3,18 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardAvoidingView } from "react-native";
 import { FoodLogScreen } from "@/components/daily-food-logs/FoodLogScreen";
 import { useFoodLogModal } from "@/hooks/useFoodLogModal";
-import { useUpdateFoodLog } from "@/hooks-legacy/useUpdateFoodLog";
-import { useCreateFoodLog } from "@/hooks-legacy/useCreateFoodLog";
 import { useImageCapture } from "@/hooks/useImageCapture";
-import {
-  useFoodLogStore,
-  selectIsLoadingLogs,
-  selectTriggerAction,
-} from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
+import { useFoodEstimation } from "@/hooks-new/useFoodEstimation";
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset";
 import { FoodLogModal } from "@/components/daily-food-logs/LogModal";
 
 export default function TodayTab() {
   // Global store for logs & trigger state
-  const isLoadingLogs = useFoodLogStore(selectIsLoadingLogs);
-  const triggerAction = useFoodLogStore(selectTriggerAction);
-  const clearTrigger = useFoodLogStore((state) => state.clearTrigger);
-  const loadFoodLogs = useFoodLogStore((state) => state.loadFoodLogs);
-  const deleteFoodLogById = useFoodLogStore((state) => state.deleteFoodLogById);
+  const isLoadingLogs = false; // logs render instantly from persisted store
+  const triggerAction = useAppStore((s) => s.triggerAction);
+  const clearTrigger = useAppStore((s) => s.clearTrigger);
+  const deleteFoodLog = useAppStore((s) => s.deleteFoodLog);
 
   const keyboardOffset = useKeyboardOffset(true); // true because we have a tab bar
 
@@ -34,14 +28,10 @@ export default function TodayTab() {
 
   /* UI hooks */
   const modal = useFoodLogModal(handleSaveClose);
-  const { create } = useCreateFoodLog();
-  const { update } = useUpdateFoodLog();
+  const estimation = useFoodEstimation();
   const { launchCamera, launchImageLibrary } = useImageCapture();
 
-  // Load logs on mount
-  useEffect(() => {
-    loadFoodLogs();
-  }, [loadFoodLogs]);
+  // No explicit loading step needed; state persists via zustand persist
 
   /* Respond to global +-button triggers */
   useEffect(() => {
@@ -79,17 +69,12 @@ export default function TodayTab() {
   }, [triggerAction, clearTrigger, launchCamera, launchImageLibrary, modal]);
 
   /* Modal save handler */
-  const handleSave = useCallback(
-    async (log: any) => {
-      if (modal.modalMode === "edit") {
-        await update(log);
-      } else {
-        await create(log);
-      }
-      // Note: Scroll trigger now happens immediately when modal closes, not here
-    },
-    [create, update, modal.modalMode]
-  );
+  const handleSave = useCallback(async (log: any) => {
+    // New flow: if it's an image-based create, estimation will be handled externally after upload
+    // For text/manual, estimation hook will create the log directly
+    // Here, accept the log and let detail modal close; log creation happens via estimation hook
+    // Keeping compatibility: no-op here. Actual save occurs inside LogModal using estimation hooks.
+  }, []);
 
   // Reset scroll trigger after it's been processed
   useEffect(() => {
@@ -111,7 +96,7 @@ export default function TodayTab() {
       >
         <FoodLogScreen
           isLoadingLogs={isLoadingLogs}
-          onDeleteLog={deleteFoodLogById}
+          onDeleteLog={deleteFoodLog}
           onAddInfo={modal.handleAddInfo}
           scrollToTop={shouldScrollToTop}
           isFavoritesModalVisible={modal.isFavoritesModalVisible}

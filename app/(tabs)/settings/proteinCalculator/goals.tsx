@@ -21,7 +21,7 @@ import { useAppStore } from "@/store";
 import { Button } from "@/components/shared/Button";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import { SelectionCard } from "@/components/settings/SelectionCard";
-import type { ProteinCalculationMethod } from "src/types-legacy/indexLegacy";
+import type { ProteinCalculationMethod } from "@/types";
 import { StyleSheet } from "react-native";
 
 // Protein calculation methods with their configurations

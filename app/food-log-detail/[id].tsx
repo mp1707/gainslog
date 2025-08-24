@@ -12,13 +12,14 @@ import {
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Stack } from "expo-router";
 import { X, ArrowsClockwise, Star, PencilSimple } from "phosphor-react-native";
-import { useTheme } from "@/theme";
+import * as Haptics from "expo-haptics";
 import {
-  useFoodLogStore,
-  selectFoodLogs,
-} from "src/store-legacy/useFoodLogStore";
-import { useUpdateFoodLog } from "@/hooks-legacy/useUpdateFoodLog";
-import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
+  estimateNutritionImageBased,
+  estimateNutritionTextBased,
+} from "@/lib/supabase";
+import { useTheme } from "@/theme";
+import { useAppStore } from "@/store";
+import { FoodLog } from "@/types";
 import { theme } from "@/theme";
 import { ImageSection } from "@/components/detail-page/ImageSection";
 import { MetadataSection } from "@/components/detail-page/MetadataSection";
@@ -31,20 +32,22 @@ export default function FoodLogDetailScreen() {
   const router = useRouter();
   const { colors } = useTheme();
 
-  const foodLogs = useFoodLogStore(selectFoodLogs);
-  const { updateFoodLogById, deleteFoodLogById } = useFoodLogStore();
+  const foodLogs = useAppStore((s) => s.foodLogs);
+  const updateFoodLog = useAppStore((s) => s.updateFoodLog);
+  const deleteFoodLog = useAppStore((s) => s.deleteFoodLog);
+  const toggleFavoriteForLog = useAppStore((s: any) => s.toggleFavoriteForLog);
+  const isFavoriteForLog = useAppStore((s: any) => s.isFavoriteForLog);
 
   // Find the food log by ID
   const originalLog = foodLogs.find((log) => log.id === id);
 
   // View/Edit mode state
   const [isEditing, setIsEditing] = useState(false);
-  const [editedLog, setEditedLog] = useState<LegacyFoodLog | null>(null);
+  const [editedLog, setEditedLog] = useState<FoodLog | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const [isReEstimating, setIsReEstimating] = useState(false);
 
-  // Hook for re-estimation
-  const { update } = useUpdateFoodLog();
+  // Re-estimation can be added via useFoodEstimation if needed
 
   // Initialize local state when log is found
   useEffect(() => {
@@ -115,12 +118,12 @@ export default function FoodLogDetailScreen() {
                 onPress={toggleFavorite}
                 style={{ marginLeft: theme.spacing.md }}
                 accessibilityLabel={
-                  originalLog?.isFavorite
+                  isFavoriteForLog(originalLog)
                     ? "Remove from favorites"
                     : "Add to favorites"
                 }
                 accessibilityHint={
-                  originalLog?.isFavorite
+                  isFavoriteForLog(originalLog)
                     ? "Removes this log from your favorites"
                     : "Adds this log to your favorites"
                 }
@@ -128,7 +131,7 @@ export default function FoodLogDetailScreen() {
                 <Star
                   size={24}
                   color={colors.accent}
-                  weight={originalLog?.isFavorite ? "fill" : "regular"}
+                  weight={isFavoriteForLog(originalLog) ? "fill" : "regular"}
                 />
               </TouchableOpacity>
             </>
@@ -151,7 +154,7 @@ export default function FoodLogDetailScreen() {
 
   const currentLog = editedLog || originalLog;
 
-  const handleFieldUpdate = (field: keyof LegacyFoodLog, value: any) => {
+  const handleFieldUpdate = (field: keyof FoodLog, value: any) => {
     setEditedLog((prev) => {
       if (!prev) return prev;
       const updated = { ...prev, [field]: value };
@@ -171,8 +174,7 @@ export default function FoodLogDetailScreen() {
 
   const toggleFavorite = () => {
     if (!originalLog) return;
-    const updatedLog = { ...originalLog, isFavorite: !originalLog.isFavorite };
-    updateFoodLogById(updatedLog);
+    toggleFavoriteForLog(originalLog);
   };
 
   const handleCancel = () => {
@@ -200,7 +202,7 @@ export default function FoodLogDetailScreen() {
 
   const handleSave = async () => {
     if (editedLog && hasChanges) {
-      await updateFoodLogById(editedLog);
+      await updateFoodLog(editedLog.id, editedLog);
       setHasChanges(false);
     }
     setIsEditing(false);
@@ -216,7 +218,7 @@ export default function FoodLogDetailScreen() {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            await deleteFoodLogById(currentLog.id);
+            await deleteFoodLog(currentLog.id);
             router.back();
           },
         },
@@ -227,7 +229,6 @@ export default function FoodLogDetailScreen() {
   const handleReEstimate = async () => {
     if (!currentLog || isReEstimating) return;
 
-    // Check if there's something to re-estimate
     const hasTitle = currentLog.userTitle || currentLog.generatedTitle;
     const hasImage = currentLog.imageUrl;
 
@@ -242,19 +243,44 @@ export default function FoodLogDetailScreen() {
     setIsReEstimating(true);
 
     try {
-      // Create a copy of the log with re-estimation flag
-      const logToReEstimate = {
-        ...currentLog,
-        needsAiEstimation: true,
-        // Clear existing AI-generated nutrition for fresh estimation
-        calories: currentLog.userCalories || 0,
-        protein: currentLog.userProtein || 0,
-        carbs: currentLog.userCarbs || 0,
-        fat: currentLog.userFat || 0,
-        estimationConfidence: undefined,
+      const title = currentLog.userTitle || currentLog.generatedTitle || "";
+      const description =
+        currentLog.userDescription ||
+        currentLog.generatedDescription ||
+        undefined;
+
+      const response = hasImage
+        ? await estimateNutritionImageBased({
+            imageUrl: currentLog.imageUrl as string,
+            title: title || undefined,
+            description,
+          })
+        : await estimateNutritionTextBased({
+            title: title || undefined,
+            description,
+          });
+
+      if (response.generatedTitle === "Invalid Image") {
+        Alert.alert(
+          "Invalid Image",
+          "The selected image could not be processed. Please try a different image."
+        );
+        return;
+      }
+
+      const updates: Partial<FoodLog> = {
+        generatedTitle: response.generatedTitle,
+        generatedCalories: response.calories,
+        generatedProtein: response.protein,
+        generatedCarbs: response.carbs,
+        generatedFat: response.fat,
+        estimationConfidence: response.estimationConfidence,
       };
 
-      // await update(logToReEstimate);
+      await updateFoodLog(currentLog.id, updates);
+      setEditedLog((prev) => (prev ? { ...prev, ...updates } : prev));
+
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error) {
       console.error("Error re-estimating nutrition:", error);
       Alert.alert(
@@ -290,7 +316,7 @@ export default function FoodLogDetailScreen() {
         <ImageSection
           log={currentLog}
           isEditing={isEditing}
-          onLogUpdate={(updatedLog: LegacyFoodLog) => {
+          onLogUpdate={(updatedLog: FoodLog) => {
             setEditedLog(updatedLog);
             setHasChanges(true);
           }}
@@ -343,11 +369,13 @@ export default function FoodLogDetailScreen() {
               <Text style={[styles.title, { color: colors.primaryText }]}>
                 {currentLog.userTitle || currentLog.generatedTitle}
               </Text>
-              {(currentLog.userDescription || currentLog.description) && (
+              {(currentLog.userDescription ||
+                currentLog.generatedDescription) && (
                 <Text
                   style={[styles.description, { color: colors.secondaryText }]}
                 >
-                  {currentLog.userDescription || currentLog.description}
+                  {currentLog.userDescription ||
+                    currentLog.generatedDescription}
                 </Text>
               )}
             </>

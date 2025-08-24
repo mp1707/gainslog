@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { ModalMode } from "src/types-legacy/indexLegacy";
+import { ModalMode } from "@/types";
 import { useStyles } from "./ModalHeader.styles";
 
 interface ModalHeaderProps {

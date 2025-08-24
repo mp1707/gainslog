@@ -26,28 +26,25 @@
       "@/lib": ["src/lib/index"],
       "@/store/*": ["src/store/*"],
       "@/store": ["src/store/index"],
-      "@/store-legacy/*": ["src/store-legacy/*"],
-      "@/store-legacy": ["src/store-legacy/index"],
       "@/utils/*": ["src/utils/*"],
       "@/utils": ["src/utils/index"],
       "@/providers/*": ["src/providers/*"],
       "@/providers": ["src/providers/index"],
       "@/hooks/*": ["src/hooks/*"],
       "@/hooks": ["src/hooks/index"],
-      "@/hooks-legacy/*": ["src/hooks-legacy/*"],
-      "@/hooks-legacy": ["src/hooks-legacy/index"],
-      "@/utils-legacy/*": ["src/utils-legacy/*"],
-      "@/utils-legacy": ["src/utils-legacy/index"],
+
       "@/hooks-new/*": ["src/hooks-new/*"],
       "@/hooks-new": ["src/hooks-new/index"]
     }
   },
-  "include": [
-    "src/**/*",
-    "app/**/*",
-    "App.tsx",
-    "index.ts",
-    "legacyUtils/utils.ts"
-  ],
-  "exclude": ["node_modules", "dist", "build"]
+  "include": ["src/**/*", "app/**/*", "App.tsx", "index.ts"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "src/store-legacy/**",
+    "src/hooks-legacy/**",
+    "src/utils-legacy/**",
+    "src/types-legacy/**"
+  ]
 }

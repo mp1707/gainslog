@@ -18,8 +18,7 @@ import { CALCULATION_METHODS } from "@/components/settings/calculationMethods";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { Button } from "@/components/shared/Button";
 import { ProgressBar } from "@/components/settings/ProgressBar";
-import { saveCalorieCalculatorParams } from "src/store-legacy/storage";
-import type { GoalType } from "src/types-legacy/indexLegacy";
+import type { GoalType } from "@/types";
 import { StyleSheet } from "react-native";
 
 export default function Step3GoalsScreen() {

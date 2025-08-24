@@ -9,7 +9,7 @@ import { useTheme } from "@/theme";
 import { useAppStore } from "@/store";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import type { Sex } from "src/types-legacy/indexLegacy";
+import type { Sex } from "@/types";
 import { StyleSheet } from "react-native";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import { UserSettings } from "@/types";

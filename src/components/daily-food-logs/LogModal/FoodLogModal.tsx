@@ -12,7 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { FoodLog } from "@/types";
 import { useAppStore } from "@/store";
-import type { ModalMode } from "src/types-legacy/indexLegacy";
+import type { ModalMode } from "@/types";
 import { useFoodEstimation } from "@/hooks-new/useFoodEstimation";
 import { validateNutritionValues } from "@/utils/nutrition";
 import { useStyles } from "./FoodLogModal.styles";
@@ -21,7 +21,7 @@ import { FoodImageDisplay } from "../FoodImageDisplay";
 import { FoodLogFormFields } from "../FoodLogFormFields";
 import { useFoodLogForm } from "../../../hooks/useFoodLogForm";
 import { useAudioRecording } from "../../../hooks/useAudioRecording";
-import { useFoodLogValidation } from "../../../hooks-legacy/useFoodLogValidation";
+// Legacy validation removed. Using validateNutritionValues from utils.
 
 export type NutritionMode = "estimation" | "manual";
 

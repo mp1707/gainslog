@@ -1,21 +1,21 @@
 import { useState } from "react";
-import { LegacyFoodLog, ModalMode } from "src/types-legacy/indexLegacy";
+import { FoodLog, ModalMode } from "@/types";
 
 export interface UseFoodLogModalReturn {
   isModalVisible: boolean;
   modalMode: ModalMode;
-  selectedLog: LegacyFoodLog | null;
+  selectedLog: FoodLog | null;
   isAudioMode: boolean;
   isFavoritesModalVisible: boolean;
-  handleAddInfo: (log: LegacyFoodLog) => void;
+  handleAddInfo: (log: FoodLog) => void;
   handleManualLog: () => void;
-  handleImageCaptured: (log: LegacyFoodLog) => void;
-  handleAudioTranscribed: (log: LegacyFoodLog) => void;
+  handleImageCaptured: (log: FoodLog) => void;
+  handleAudioTranscribed: (log: FoodLog) => void;
   handleAudioLog: () => void;
   handleFavoritesLog: () => void;
   handleModalClose: (wasSaved?: boolean) => void;
   handleFavoritesModalClose: () => void;
-  setSelectedLog: (log: LegacyFoodLog | null) => void;
+  setSelectedLog: (log: FoodLog | null) => void;
   setModalMode: (mode: ModalMode) => void;
   setIsModalVisible: (visible: boolean) => void;
 }
@@ -29,11 +29,11 @@ export function useFoodLogModal(
 ): UseFoodLogModalReturn {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>("edit");
-  const [selectedLog, setSelectedLog] = useState<LegacyFoodLog | null>(null);
+  const [selectedLog, setSelectedLog] = useState<FoodLog | null>(null);
   const [isAudioMode, setIsAudioMode] = useState(false);
   const [isFavoritesModalVisible, setIsFavoritesModalVisible] = useState(false);
 
-  const handleAddInfo = (log: LegacyFoodLog) => {
+  const handleAddInfo = (log: FoodLog) => {
     setModalMode("edit");
     setSelectedLog(log);
     setIsAudioMode(false);
@@ -47,7 +47,7 @@ export function useFoodLogModal(
     setIsModalVisible(true);
   };
 
-  const handleImageCaptured = (log: LegacyFoodLog) => {
+  const handleImageCaptured = (log: FoodLog) => {
     // Don't add to state yet - just open modal for user input
     // The skeleton will be added after modal closes
     setModalMode("create");
@@ -61,7 +61,7 @@ export function useFoodLogModal(
     setIsModalVisible(true);
   };
 
-  const handleAudioTranscribed = (log: LegacyFoodLog) => {
+  const handleAudioTranscribed = (log: FoodLog) => {
     // Similar to image captured, but for audio transcription
     setModalMode("create");
     setSelectedLog(log);
