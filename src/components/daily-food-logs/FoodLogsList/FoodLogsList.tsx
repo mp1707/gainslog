@@ -10,6 +10,7 @@ import { styles } from "./FoodLogsList.styles";
 import { LogCard } from "../LogCard";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
 import { SkeletonCard } from "./SkeletonCard/SkeletonCard";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
 interface FoodLogsListProps {
   isLoadingLogs: boolean;
@@ -20,6 +21,7 @@ interface FoodLogsListProps {
 
 export const FoodLogsList: React.FC<FoodLogsListProps> = React.memo(
   ({ isLoadingLogs, foodLogs, onDeleteLog, onAddInfo }) => {
+    const { safeNavigate } = useNavigationGuard();
     const { theme, colors } = useTheme();
     const toggleFavoriteForLog = useAppStore((s) => s.toggleFavoriteForLog);
 
@@ -43,6 +45,14 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = React.memo(
         marginBottom: theme.spacing.md,
       }),
       [colors.primaryText, theme.spacing.md]
+    );
+
+    const handlePress = useCallback(
+      (log: FoodLog) => {
+        if (!log) return;
+        safeNavigate(`/food-log-detail/${log.id}`);
+      },
+      [safeNavigate]
     );
 
     if (isLoadingLogs) {
@@ -88,8 +98,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = React.memo(
                 onDelete={() => handleDeleteLog(log.id)}
                 onFavorite={() => handleFavoriteLog(log)}
               >
-                {/* <FoodLogCard foodLog={log} onAddInfo={onAddInfo} /> */}
-                <LogCard foodLog={log} onAddInfo={onAddInfo} />
+                <LogCard foodLog={log} onPress={() => handlePress(log)} />
               </SwipeToFunctions>
             </Animated.View>
           ))}

@@ -20,12 +20,12 @@ import { NutritionList } from "./NutritionList";
 
 interface LogCardProps {
   foodLog: FoodLog;
+  onPress: () => void;
 }
 
-export const LogCard: React.FC<LogCardProps> = ({ foodLog }) => {
+export const LogCard: React.FC<LogCardProps> = ({ foodLog, onPress }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
-  const { safeNavigate } = useNavigationGuard();
 
   // Animation shared values - must be declared before any conditional returns
   const scale = useSharedValue(1);
@@ -52,7 +52,7 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog }) => {
 
   const handlePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    safeNavigate(`/food-log-detail/${foodLog.id}`);
+    onPress();
   };
 
   const handlePressIn = () => {
@@ -106,8 +106,8 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog }) => {
           onPressOut={handlePressOut}
           style={styles.pressable}
           accessibilityRole="button"
-          accessibilityLabel={`Edit food log: ${displayTitle}`}
-          accessibilityHint="Double tap to edit this food log entry"
+          accessibilityLabel={`Edit entry: ${displayTitle}`}
+          accessibilityHint="Press to edit this entry"
         >
           <View style={styles.contentContainer}>
             <View style={styles.leftSection}>

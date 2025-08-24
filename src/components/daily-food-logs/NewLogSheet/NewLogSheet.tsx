@@ -11,6 +11,7 @@ import {
 import { BaseModal } from "@/components/shared/BaseModal";
 import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { FoodLog } from "@/types";
 import { createStyles } from "./NewLogSheet.styles";
 
 interface NewLogSheetProps {
@@ -44,7 +45,7 @@ export const NewLogSheet: React.FC<NewLogSheetProps> = ({
   const { colors } = useTheme();
   const { safeReplace } = useNavigationGuard();
   const styles = createStyles(colors);
-
+  
   // State to trigger smooth close animation
   const [shouldAnimateOut, setShouldAnimateOut] = useState(false);
   // Ref to store the pending action to execute after animation
@@ -66,6 +67,7 @@ export const NewLogSheet: React.FC<NewLogSheetProps> = ({
       }, 120); // Maintain existing 120ms delay between modals
     }
   };
+
 
   const actions: ActionItem[] = [
     {

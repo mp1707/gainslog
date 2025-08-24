@@ -8,6 +8,8 @@ import { useAppStore } from "@/store";
 import { useFoodEstimation } from "@/hooks-new/useFoodEstimation";
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset";
 import { FoodLogModal } from "@/components/daily-food-logs/LogModal";
+import { FavoritesSelectionModal } from "@/components/daily-food-logs/FavoritesSelectionModal";
+import { FoodLog } from "@/types";
 
 export default function TodayTab() {
   // Global store for logs & trigger state
@@ -15,16 +17,38 @@ export default function TodayTab() {
   const triggerAction = useAppStore((s) => s.triggerAction);
   const clearTrigger = useAppStore((s) => s.clearTrigger);
   const deleteFoodLog = useAppStore((s) => s.deleteFoodLog);
+  const addFoodLog = useAppStore((s) => s.addFoodLog);
 
   const keyboardOffset = useKeyboardOffset(true); // true because we have a tab bar
 
   // State to trigger scroll to top after save
   const [shouldScrollToTop, setShouldScrollToTop] = useState(false);
+  
+  // Favorites modal state
+  const [showFavoritesModal, setShowFavoritesModal] = useState(false);
 
   // Callback for immediate scroll on save-close
   const handleSaveClose = useCallback(() => {
     setShouldScrollToTop(true);
   }, []);
+
+  // Favorites modal handlers
+  const handleShowFavorites = useCallback(() => {
+    console.log("🌟 Today Tab - Opening favorites modal...");
+    setShowFavoritesModal(true);
+  }, []);
+
+  const handleCloseFavorites = useCallback(() => {
+    console.log("🌟 Today Tab - Closing favorites modal...");
+    setShowFavoritesModal(false);
+  }, []);
+
+  const handleSelectFavorite = useCallback((foodLog: FoodLog) => {
+    console.log("🌟 Today Tab - Selected favorite:", foodLog.userTitle);
+    addFoodLog(foodLog);
+    setShowFavoritesModal(false);
+    // Keep NewLogSheet open as requested
+  }, [addFoodLog]);
 
   /* UI hooks */
   const modal = useFoodLogModal(handleSaveClose);
@@ -59,8 +83,8 @@ export default function TodayTab() {
         // Directly open FoodLogModal in audio mode
         modal.handleAudioLog();
       } else if (triggerAction === "favorites") {
-        // Open favorites modal in FoodLogScreen
-        modal.handleFavoritesLog();
+        // Open favorites selection modal
+        handleShowFavorites();
       }
       clearTrigger();
     };
@@ -111,6 +135,12 @@ export default function TodayTab() {
         onClose={modal.handleModalClose}
         onSave={handleSave}
         isAudioMode={modal.isAudioMode}
+      />
+
+      <FavoritesSelectionModal
+        visible={showFavoritesModal}
+        onClose={handleCloseFavorites}
+        onSelectFavorite={handleSelectFavorite}
       />
     </GestureHandlerRootView>
   );
