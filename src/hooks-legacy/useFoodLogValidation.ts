@@ -4,7 +4,7 @@ import {
   useFoodLogStore,
   selectSelectedDate,
 } from "src/store-legacy/useFoodLogStore";
-import { FoodLogFormData } from "./useFoodLogForm";
+import { FoodLogFormData } from "../hooks/useFoodLogForm";
 import { mergeNutritionData } from "src/utils-legacy/utils";
 
 export interface UseFoodLogValidationReturn {

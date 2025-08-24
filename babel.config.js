@@ -17,8 +17,12 @@ module.exports = function (api) {
             "@/store": "./src/store",
             "@/store-legacy": "./src/store-legacy",
             "@/utils": "./src/utils",
+            "@/utils-legacy": "./src/utils-legacy",
             "@/providers": "./src/providers",
             "@/hooks": "./src/hooks",
+            "@/hooks-legacy": "./src/hooks-legacy",
+            "@/hooks-new": "./src/hooks-new",
+
             "@/theme": "./src/theme",
           },
         },

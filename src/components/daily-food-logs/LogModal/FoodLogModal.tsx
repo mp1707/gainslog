@@ -21,7 +21,7 @@ import { FoodImageDisplay } from "../FoodImageDisplay";
 import { FoodLogFormFields } from "../FoodLogFormFields";
 import { useFoodLogForm } from "../../../hooks/useFoodLogForm";
 import { useAudioRecording } from "../../../hooks/useAudioRecording";
-import { useFoodLogValidation } from "../../../hooks/useFoodLogValidation";
+import { useFoodLogValidation } from "../../../hooks-legacy/useFoodLogValidation";
 
 export type NutritionMode = "estimation" | "manual";
 

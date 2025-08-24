@@ -10,7 +10,7 @@ import {
   selectFoodLogs,
 } from "src/store-legacy/useFoodLogStore";
 import { useTheme } from "@/theme";
-import { useDateNavigation } from "../../../store-legacy/useLegacyDateNavigation";
+import { useDateNavigation } from "../../../hooks-legacy/useLegacyDateNavigation";
 import { useTabBarSpacing } from "../../../hooks/useTabBarSpacing";
 import { useFavoriteSelection } from "../../../hooks/useFavoriteSelection";
 import { DateNavigationHeader } from "../DateNavigationHeader";

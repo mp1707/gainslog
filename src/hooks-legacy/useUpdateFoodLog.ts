@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useNutritionEstimation } from "./useNutritionEstimation";
+import { useNutritionEstimation } from "../hooks/useNutritionEstimation";
 import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
 import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
 

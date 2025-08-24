@@ -2,4 +2,4 @@
 export * from "./storage";
 export * from "./useFoodLogStore";
 export * from "./useFavoritesStore";
-export * from "./useLegacyDateNavigation";
+export * from "../hooks-legacy/useLegacyDateNavigation";

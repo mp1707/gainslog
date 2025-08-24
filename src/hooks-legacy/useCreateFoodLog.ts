@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useNutritionEstimation } from "./useNutritionEstimation";
+import { useNutritionEstimation } from "../hooks/useNutritionEstimation";
 import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
 
 import { showInvalidImageToast } from "@/lib/toast";
