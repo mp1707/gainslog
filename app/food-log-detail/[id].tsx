@@ -13,18 +13,17 @@ import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Stack } from "expo-router";
 import { X, ArrowsClockwise, Star, PencilSimple } from "phosphor-react-native";
 import { useTheme } from "@/providers";
-import { useFoodLogStore, selectFoodLogs } from "@/stores/useFoodLogStore";
+import {
+  useFoodLogStore,
+  selectFoodLogs,
+} from "src/legacystore/useFoodLogStore";
 import { useUpdateFoodLog } from "@/features/food-logging/hooks";
 import { LegacyFoodLog } from "@/types/indexLegacy";
 import { theme } from "@/theme";
-
-// Import new components
-import {
-  NutritionViewCard,
-  NutritionEditCard,
-  ImageSection,
-  MetadataSection,
-} from "@/features/food-logging/ui/detail";
+import { ImageSection } from "@/components/detail-page/ImageSection";
+import { MetadataSection } from "@/components/detail-page/MetadataSection";
+import { NutritionEditCard } from "@/components/detail-page/NutritionEditCard";
+import { NutritionViewCard } from "@/components/detail-page/NutritionViewCard";
 
 export default function FoodLogDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -255,7 +254,7 @@ export default function FoodLogDetailScreen() {
         estimationConfidence: undefined,
       };
 
-      await update(logToReEstimate);
+      // await update(logToReEstimate);
     } catch (error) {
       console.error("Error re-estimating nutrition:", error);
       Alert.alert(
@@ -291,7 +290,7 @@ export default function FoodLogDetailScreen() {
         <ImageSection
           log={currentLog}
           isEditing={isEditing}
-          onLogUpdate={(updatedLog) => {
+          onLogUpdate={(updatedLog: LegacyFoodLog) => {
             setEditedLog(updatedLog);
             setHasChanges(true);
           }}

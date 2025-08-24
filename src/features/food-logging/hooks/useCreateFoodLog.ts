@@ -3,7 +3,7 @@ import { useNutritionEstimation } from "./useNutritionEstimation";
 import { LegacyFoodLog } from "@/types/indexLegacy";
 
 import { showInvalidImageToast } from "@/lib/toast";
-import { useFoodLogStore } from "src/stores/useFoodLogStore";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
 
 /**
  * Business-logic hook that turns a (possibly partial) FoodLog coming from the modal

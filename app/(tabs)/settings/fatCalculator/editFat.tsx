@@ -9,10 +9,10 @@ import {
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
-import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
-import { useNutritionCalculations } from "@/features/settings/hooks/useNutritionCalculations";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { SelectionCard } from "@/components/settings/SelectionCard";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
 import {
   calculateFatGramsFromPercentage,
   calculateMaxFatPercentage,
@@ -80,8 +80,8 @@ const EditFatScreen = React.memo(function EditFatScreen() {
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Fat Target</Text>
           <Text style={styles.fatInfo}>
-            Your current target is: {Math.round(fatGrams)}g ({fatPercentage}%
-            of calories).
+            Your current target is: {Math.round(fatGrams)}g ({fatPercentage}% of
+            calories).
           </Text>
         </View>
         {/* Interactive Card Section */}

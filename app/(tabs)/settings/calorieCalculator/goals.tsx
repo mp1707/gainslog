@@ -7,17 +7,17 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
 import { TrendDownIcon, EqualsIcon, TrendUpIcon } from "phosphor-react-native";
 
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
-import { CALCULATION_METHODS } from "@/shared/constants/calculationMethods";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { SelectionCard } from "@/components/settings/SelectionCard";
+import { CALCULATION_METHODS } from "src/constants/calculationMethods";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
-import { Button } from "@/shared/ui/atoms/Button";
-import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
+import { Button } from "@/components/shared/Button";
+import { ProgressBar } from "@/components/settings/ProgressBar";
 import { saveCalorieCalculatorParams } from "@/lib/storage";
 import type { GoalType } from "@/types/indexLegacy";
 import { StyleSheet } from "react-native";

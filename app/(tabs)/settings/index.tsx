@@ -7,23 +7,22 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { Button } from "@/shared/ui/atoms/Button";
-import { StatusIcon } from "@/shared/ui/atoms/StatusIcon";
-import { AppearanceCard } from "@/features/settings/ui/molecules/AppearanceCard";
-import { useNutritionCalculations } from "@/features/settings/hooks/useNutritionCalculations";
-import { useKeyboardOffset } from "@/features/settings/hooks/useKeyboardOffset";
-import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { Button } from "@/components/shared/Button";
+import { StatusIcon } from "@/components/shared/StatusIcon";
+import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
+import { useKeyboardOffset } from "@/hooks/useKeyboardOffset";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import {
   calculateFatGramsFromPercentage,
   calculateCarbsFromMacros,
 } from "@/utils/nutritionCalculations";
 import { StyleSheet } from "react-native";
 import { Card, AppText } from "src/components";
-import { SettingsSection } from "@/shared/ui/molecules/SettingsSection";
 import { CaretRightIcon } from "phosphor-react-native";
+import { AppearanceCard } from "@/components/settings/AppearanceCard";
+import { SettingsSection } from "@/components/settings/SettingsSection";
 
 export default function SettingsTab() {
   const { isLoadingTargets } = useFoodLogStore();
@@ -86,10 +85,7 @@ export default function SettingsTab() {
 
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-      <SafeAreaView
-        style={styles.container}
-        edges={["left", "right", "top"]}
-      >
+      <SafeAreaView style={styles.container} edges={["left", "right", "top"]}>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}

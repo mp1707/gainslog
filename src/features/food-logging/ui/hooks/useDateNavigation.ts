@@ -1,5 +1,8 @@
 import { useCallback } from "react";
-import { useFoodLogStore, selectSelectedDate } from "@/stores/useFoodLogStore";
+import {
+  useFoodLogStore,
+  selectSelectedDate,
+} from "src/legacystore/useFoodLogStore";
 
 export const useDateNavigation = () => {
   const selectedDate = useFoodLogStore(selectSelectedDate);

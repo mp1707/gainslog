@@ -1,16 +1,13 @@
 import React, { useMemo, useCallback } from "react";
-import {
-  View,
-  Text,
-} from "react-native";
+import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { PencilIcon, CalculatorIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
-import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { SelectionCard } from "@/components/settings/SelectionCard";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
 
 const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
@@ -42,7 +39,8 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Edit your calorie target</Text>
           <Text style={styles.description}>
-            Your current target is {currentCalories} calories. Choose how you'd like to update it.
+            Your current target is {currentCalories} calories. Choose how you'd
+            like to update it.
           </Text>
         </View>
 

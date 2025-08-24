@@ -7,7 +7,7 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
 import {
   ChartLineUpIcon,
@@ -17,10 +17,10 @@ import {
 } from "phosphor-react-native";
 
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { Button } from "@/shared/ui/atoms/Button";
-import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
-import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { Button } from "@/components/shared/Button";
+import { ProgressBar } from "@/components/settings/ProgressBar";
+import { SelectionCard } from "@/components/settings/SelectionCard";
 import type { ProteinCalculationMethod } from "@/types/indexLegacy";
 import { StyleSheet } from "react-native";
 

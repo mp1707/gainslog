@@ -1,1 +1,0 @@
-export { ManualEntryButton } from './ManualEntryButton';

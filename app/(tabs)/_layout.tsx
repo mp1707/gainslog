@@ -8,14 +8,12 @@ import {
   XIcon,
 } from "phosphor-react-native";
 import { useTheme } from "@/providers";
-import { NewLogButton } from "@/shared/ui/organisms/NewLogButton";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
+import { NewLogButton } from "@/components/daily-food-logs/NewLogButton";
 import React, { useState, useCallback } from "react";
 
 export default function TabLayout() {
   const { colors } = useTheme();
   const [isSheetVisible, setSheetVisible] = useState(false);
-  const [isFavoritesModalVisible, setFavoritesModalVisible] = useState(false);
 
   const openSheet = useCallback(() => {
     setSheetVisible(true);
@@ -23,14 +21,6 @@ export default function TabLayout() {
 
   const closeSheet = useCallback(() => {
     setSheetVisible(false);
-  }, []);
-
-  const handleFavoritesLog = useCallback(() => {
-    setFavoritesModalVisible(true);
-  }, []);
-
-  const handleCloseFavoritesModal = useCallback(() => {
-    setFavoritesModalVisible(false);
   }, []);
 
   return (
@@ -46,97 +36,84 @@ export default function TabLayout() {
           },
         }}
       >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Food Log",
-          tabBarIcon: ({ color, focused, size }) => (
-            <ForkKnifeIcon
-              color={color}
-              size={size ?? 24}
-              weight={focused ? "fill" : "regular"}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="overview"
-        options={{
-          title: "Overview",
-          tabBarIcon: ({ color, focused, size }) => (
-            <ChartBarIcon
-              color={color}
-              size={size ?? 24}
-              weight={focused ? "fill" : "regular"}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="favorites"
-        options={{
-          title: "Favorites",
-          tabBarIcon: ({ color, focused, size }) => (
-            <StarIcon
-              color={color}
-              size={size ?? 24}
-              weight={focused ? "fill" : "regular"}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: "Settings",
-          headerShown: false, // Let the stack handle the header
-          tabBarIcon: ({ color, focused, size }) => (
-            <GearSixIcon
-              color={color}
-              size={size ?? 24}
-              weight={focused ? "fill" : "regular"}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="new-log"
-        options={{
-          title: "New",
-          tabBarIcon: ({ color, size }) => (
-            isSheetVisible ? (
-              <XIcon
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: "Food Log",
+            tabBarIcon: ({ color, focused, size }) => (
+              <ForkKnifeIcon
                 color={color}
                 size={size ?? 24}
-                weight="bold"
+                weight={focused ? "fill" : "regular"}
               />
-            ) : (
-              <PlusIcon
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="overview"
+          options={{
+            title: "Overview",
+            tabBarIcon: ({ color, focused, size }) => (
+              <ChartBarIcon
                 color={color}
                 size={size ?? 24}
-                weight="bold"
+                weight={focused ? "fill" : "regular"}
               />
-            )
-          ),
-        }}
-        listeners={{
-          tabPress: (e) => {
-            e.preventDefault(); // Prevent navigation
-            if (isSheetVisible) {
-              closeSheet();
-            } else {
-              openSheet();
-            }
-          },
-        }}
-      />
-    </Tabs>
-    
-    <NewLogButton 
-      visible={isSheetVisible} 
-      onClose={closeSheet} 
-      onFavoritesLog={handleFavoritesLog} 
-    />
-  </>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="favorites"
+          options={{
+            title: "Favorites",
+            tabBarIcon: ({ color, focused, size }) => (
+              <StarIcon
+                color={color}
+                size={size ?? 24}
+                weight={focused ? "fill" : "regular"}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: "Settings",
+            headerShown: false, // Let the stack handle the header
+            tabBarIcon: ({ color, focused, size }) => (
+              <GearSixIcon
+                color={color}
+                size={size ?? 24}
+                weight={focused ? "fill" : "regular"}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="new-log"
+          options={{
+            title: "New",
+            tabBarIcon: ({ color, size }) =>
+              isSheetVisible ? (
+                <XIcon color={color} size={size ?? 24} weight="bold" />
+              ) : (
+                <PlusIcon color={color} size={size ?? 24} weight="bold" />
+              ),
+          }}
+          listeners={{
+            tabPress: (e) => {
+              e.preventDefault(); // Prevent navigation
+              if (isSheetVisible) {
+                closeSheet();
+              } else {
+                openSheet();
+              }
+            },
+          }}
+        />
+      </Tabs>
+
+      <NewLogButton visible={isSheetVisible} onClose={closeSheet} />
+    </>
   );
 }

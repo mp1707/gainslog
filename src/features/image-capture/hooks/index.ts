@@ -1,1 +1,0 @@
-export { useImageCapture } from './useImageCapture';

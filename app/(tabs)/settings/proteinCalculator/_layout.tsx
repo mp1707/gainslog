@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
-import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useTheme } from "@/providers";
-import { CancelButton } from "@/shared/ui/atoms/CancelButton";
+import { CancelButton } from "@/components/shared/CancelButton";
 import React from "react";
 
 export default function ProteinCalculatorLayout() {

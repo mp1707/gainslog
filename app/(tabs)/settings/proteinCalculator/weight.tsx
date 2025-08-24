@@ -15,10 +15,9 @@ import * as Haptics from "expo-haptics";
 import { useFocusEffect } from "@react-navigation/native";
 
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
-import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
-import { CalculatorInputAccessory } from "@/shared/ui";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
 
 const inputAccessoryViewID = "protein-weight-input-accessory";
 
@@ -94,7 +93,8 @@ const ProteinWeightSelectionScreen = () => {
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>What's your weight?</Text>
           <Text style={styles.description}>
-            Your weight is needed to calculate personalized protein recommendations.
+            Your weight is needed to calculate personalized protein
+            recommendations.
           </Text>
         </View>
 

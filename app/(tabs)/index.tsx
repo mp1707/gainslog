@@ -1,19 +1,20 @@
 import React, { useEffect, useCallback, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardAvoidingView } from "react-native";
-import { FoodLogScreen, FoodLogModal } from "@/features/food-logging";
+import { FoodLogScreen } from "@/components/daily-food-logs/FoodLogScreen";
 import {
   useFoodLogModal,
   useUpdateFoodLog,
 } from "@/features/food-logging/hooks";
 import { useCreateFoodLog } from "@/features/food-logging/hooks/useCreateFoodLog";
-import { useImageCapture } from "@/features/image-capture/hooks/useImageCapture";
+import { useImageCapture } from "@/hooks/useImageCapture";
 import {
   useFoodLogStore,
   selectIsLoadingLogs,
   selectTriggerAction,
-} from "src/stores/useFoodLogStore";
-import { useKeyboardOffset } from "@/features/settings/hooks/useKeyboardOffset";
+} from "src/legacystore/useFoodLogStore";
+import { useKeyboardOffset } from "@/hooks/useKeyboardOffset";
+import { FoodLogModal } from "@/components/daily-food-logs/LogModal";
 
 export default function TodayTab() {
   // Global store for logs & trigger state

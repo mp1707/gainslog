@@ -21,10 +21,10 @@ import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { CalculatorInputAccessory } from "@/shared/ui";
-import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
-import { useNutritionCalculations } from "@/features/settings/hooks/useNutritionCalculations";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
 import { calculateMaxFatPercentage } from "@/utils/nutritionCalculations";
 
 const inputAccessoryViewID = "fat-input-accessory";
@@ -33,7 +33,8 @@ const ManualFatInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const { dailyTargets } = useFoodLogStore();
   const { safeDismissTo, isNavigating } = useNavigationGuard();
-  const { fatPercentage, handleFatPercentageChange } = useNutritionCalculations();
+  const { fatPercentage, handleFatPercentageChange } =
+    useNutritionCalculations();
 
   const [fatPercent, setFatPercent] = useState<number>(fatPercentage);
   const inputRef = useRef<TextInput>(null);
@@ -69,7 +70,7 @@ const ManualFatInputScreen = () => {
 
   const handleFatPercentChange = (fatText: string) => {
     const newFatPercent = fatText === "" ? 0 : parseInt(fatText, 10);
-    
+
     if (!isNaN(newFatPercent)) {
       setFatPercent(newFatPercent);
     }
@@ -79,7 +80,9 @@ const ManualFatInputScreen = () => {
     if (fatPercent < 10 || fatPercent > maxFatPercentage) {
       Alert.alert(
         "Invalid Fat Percentage",
-        `Please enter a fat percentage between 10% and ${Math.round(maxFatPercentage)}%.`,
+        `Please enter a fat percentage between 10% and ${Math.round(
+          maxFatPercentage
+        )}%.`,
         [{ text: "OK" }]
       );
       return;
@@ -89,7 +92,7 @@ const ManualFatInputScreen = () => {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
       handleFatPercentageChange(fatPercent);
-      
+
       safeDismissTo("/settings");
     } catch (error) {
       console.error("Error saving manual fat target:", error);
@@ -106,7 +109,8 @@ const ManualFatInputScreen = () => {
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Enter your daily fat goal</Text>
           <Text style={styles.description}>
-            Set your target fat percentage of total calories. You can always adjust this later in settings.
+            Set your target fat percentage of total calories. You can always
+            adjust this later in settings.
           </Text>
         </View>
 
@@ -153,7 +157,7 @@ const ManualFatInputScreen = () => {
         />
       )}
     </SafeAreaView>
-  )
+  );
 };
 
 export default ManualFatInputScreen;

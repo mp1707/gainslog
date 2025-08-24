@@ -26,6 +26,8 @@
       "@/lib": ["src/lib/index"],
       "@/store/*": ["src/store/*"],
       "@/store": ["src/store/index"],
+      "@/legacystore/*": ["src/legacystore/*"],
+      "@/legacystore": ["src/legacystore/index"],
       "@/utils/*": ["src/utils/*"],
       "@/utils": ["src/utils/index"],
       "@/providers/*": ["src/providers/*"],

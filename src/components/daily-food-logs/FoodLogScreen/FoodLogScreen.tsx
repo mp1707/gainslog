@@ -1,0 +1,161 @@
+import React, { useRef, useMemo } from "react";
+import { ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useSharedValue } from "react-native-reanimated";
+import { LegacyFoodLog } from "@/types/indexLegacy";
+import { createStyles } from "./FoodLogScreen.styles";
+import {
+  useFoodLogStore,
+  selectDailyTargets,
+  selectFoodLogs,
+} from "src/legacystore/useFoodLogStore";
+import { useTheme } from "@/providers/ThemeProvider";
+import { useDateNavigation } from "../../../features/food-logging/ui/hooks/useDateNavigation";
+import { useTabBarSpacing } from "../../../features/food-logging/ui/hooks/useTabBarSpacing";
+import { useFavoriteSelection } from "../../../features/food-logging/ui/hooks/useFavoriteSelection";
+import { DateNavigationHeader } from "../DateNavigationHeader";
+import { FoodLogsList } from "../FoodLogsList";
+import { theme } from "@/theme/theme";
+import { AppText } from "@/components/shared/AppText";
+import { NutrientSummary } from "@/components/daily-food-logs/NutrientSummary";
+
+interface FoodLogScreenProps {
+  isLoadingLogs: boolean;
+  onDeleteLog: (logId: string) => Promise<void>;
+  onAddInfo: (log: LegacyFoodLog) => void;
+  scrollToTop?: boolean;
+  isFavoritesModalVisible?: boolean;
+  onCloseFavoritesModal?: () => void;
+}
+
+export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
+  isLoadingLogs,
+  onDeleteLog,
+  onAddInfo,
+  scrollToTop,
+  isFavoritesModalVisible = false,
+  onCloseFavoritesModal,
+}) => {
+  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollY = useSharedValue(0);
+
+  const foodLogs = useFoodLogStore(selectFoodLogs);
+  const dailyTargets = useFoodLogStore(selectDailyTargets);
+
+  const { colors } = useTheme();
+  const { dynamicBottomPadding } = useTabBarSpacing();
+  const {
+    selectedDate,
+    handleDateChange,
+    navigateToPreviousDay,
+    navigateToNextDay,
+    isToday,
+  } = useDateNavigation();
+
+  const filteredFoodLogs = useMemo(() => {
+    return foodLogs.filter((log) => log.date === selectedDate);
+  }, [foodLogs, selectedDate]);
+
+  // Compute totals once
+  const currentTotals = useMemo(() => {
+    return filteredFoodLogs.reduce(
+      (totals, log) => ({
+        calories: totals.calories + log.calories,
+        protein: totals.protein + log.protein,
+        carbs: totals.carbs + log.carbs,
+        fat: totals.fat + log.fat,
+      }),
+      { calories: 0, protein: 0, carbs: 0, fat: 0 }
+    );
+  }, [filteredFoodLogs]);
+
+  const percentages = useMemo(() => {
+    return {
+      calories:
+        dailyTargets.calories > 0
+          ? Math.round((currentTotals.calories / dailyTargets.calories) * 100)
+          : 0,
+      protein:
+        dailyTargets.protein > 0
+          ? Math.round((currentTotals.protein / dailyTargets.protein) * 100)
+          : 0,
+      carbs:
+        dailyTargets.carbs > 0
+          ? Math.round((currentTotals.carbs / dailyTargets.carbs) * 100)
+          : 0,
+      fat:
+        dailyTargets.fat > 0
+          ? Math.round((currentTotals.fat / dailyTargets.fat) * 100)
+          : 0,
+    };
+  }, [currentTotals, dailyTargets]);
+
+  const styles = useMemo(
+    () => createStyles(colors, dynamicBottomPadding),
+    [colors, dynamicBottomPadding]
+  );
+
+  const isTodayMemo = useMemo(() => isToday(), [isToday]);
+
+  const { selectFavorite } = useFavoriteSelection({
+    selectedDate,
+    onSelectionComplete: onCloseFavoritesModal || (() => {}),
+  });
+
+  React.useEffect(() => {
+    if (scrollToTop) {
+      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+    }
+  }, [scrollToTop]);
+
+  // Handle nutrient hub enlarging - scroll food logs to top
+  const handleNutrientHubEnlarge = React.useCallback(() => {
+    scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+  }, []);
+
+  const handleScroll = (event: any) => {
+    const newScrollY = event.nativeEvent.contentOffset.y;
+    scrollY.value = newScrollY;
+  };
+
+  return (
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+      <DateNavigationHeader
+        selectedDate={selectedDate}
+        onDateChange={handleDateChange}
+        onNavigatePrevious={navigateToPreviousDay}
+        onNavigateNext={navigateToNextDay}
+        isToday={isTodayMemo}
+      />
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        scrollEventThrottle={16}
+        removeClippedSubviews={true}
+        showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+      >
+        <View style={{ gap: theme.spacing.md }}>
+          <AppText role="Title2">Today's Progress</AppText>
+          <NutrientSummary
+            percentages={percentages}
+            targets={dailyTargets}
+            totals={currentTotals}
+          />
+          {/* <LargeNutrientHub
+            percentages={percentages}
+            targets={dailyTargets}
+            totals={currentTotals}
+          /> */}
+        </View>
+        <FoodLogsList
+          isLoadingLogs={isLoadingLogs}
+          foodLogs={filteredFoodLogs}
+          onDeleteLog={onDeleteLog}
+          onAddInfo={onAddInfo}
+        />
+      </ScrollView>
+    </SafeAreaView>
+  );
+};

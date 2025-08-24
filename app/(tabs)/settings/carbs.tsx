@@ -2,8 +2,8 @@ import React, { useMemo } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { useNutritionCalculations } from "@/features/settings/hooks/useNutritionCalculations";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
 import {
   calculateFatGramsFromPercentage,
   calculateCarbsFromMacros,

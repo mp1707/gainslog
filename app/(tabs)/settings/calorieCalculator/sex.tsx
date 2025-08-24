@@ -6,13 +6,13 @@ import { GenderMaleIcon, GenderFemaleIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
-import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { SelectionCard } from "@/components/settings/SelectionCard";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import type { CalorieIntakeParams, Sex } from "@/types/indexLegacy";
 import { getCalorieCalculatorParams } from "@/lib/storage";
 import { StyleSheet } from "react-native";
-import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
+import { ProgressBar } from "@/components/settings/ProgressBar";
 
 const SexSelectionScreen = React.memo(function SexSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();

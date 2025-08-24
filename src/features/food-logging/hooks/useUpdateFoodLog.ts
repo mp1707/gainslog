@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useNutritionEstimation } from "./useNutritionEstimation";
 import { LegacyFoodLog } from "@/types/indexLegacy";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
 
 /**
  * Business-logic hook that updates an existing FoodLog with new information

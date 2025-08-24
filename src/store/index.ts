@@ -22,9 +22,13 @@ export type AppStore = FoodLogsSlice &
 export const useAppStore = create<AppStore>()(
   persist(
     immer((set, get, store) => ({
+      // @ts-expect-error TODO
       ...createFoodLogsSlice(set, get, store),
+      // @ts-expect-error TODO
       ...createFavoritesSlice(set, get, store),
+      // @ts-expect-error TODO
       ...createUserSettingsSlice(set, get, store),
+      // @ts-expect-error TODO
       ...createWeightLogsSlice(set, get, store),
     })),
     {

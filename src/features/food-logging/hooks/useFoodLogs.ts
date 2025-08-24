@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useFoodLogStore } from "src/stores/useFoodLogStore";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
 
 /**
  * Thin wrapper around `useFoodLogStore` that

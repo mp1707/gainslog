@@ -18,11 +18,11 @@ import {
 } from "phosphor-react-native";
 
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { SelectionCard } from "@/shared/ui/atoms/SelectionCard";
-import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
-import { CALCULATION_METHODS } from "@/shared/constants/calculationMethods";
-import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { SelectionCard } from "@/components/settings/SelectionCard";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { CALCULATION_METHODS } from "src/constants/calculationMethods";
+import { ProgressBar } from "@/components/settings/ProgressBar";
 import type {
   CalorieCalculationMethod,
   ActivityLevel,

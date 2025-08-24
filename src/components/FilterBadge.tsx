@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Pressable, StyleSheet, ViewStyle } from "react-native";
-import { AppText } from "./AppText";
+import { AppText } from "./shared/AppText";
 import { useTheme } from "@/providers/ThemeProvider";
 
 export type NutrientType = "calories" | "protein" | "carbs" | "fat";

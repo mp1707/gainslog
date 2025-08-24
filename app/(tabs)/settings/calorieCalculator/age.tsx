@@ -20,10 +20,10 @@ import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { ProgressBar } from "@/shared/ui/molecules/ProgressBar";
-import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
-import { CalculatorInputAccessory } from "@/shared/ui";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { ProgressBar } from "@/components/settings/ProgressBar";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
 
 const inputAccessoryViewID = "age-input-accessory";
 

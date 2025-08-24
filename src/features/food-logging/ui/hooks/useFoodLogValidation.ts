@@ -1,7 +1,10 @@
 import { Alert } from "react-native";
 import { LegacyFoodLog, ModalMode } from "@/types/indexLegacy";
 import { mergeNutritionData } from "@/features/food-logging/utils";
-import { useFoodLogStore, selectSelectedDate } from "src/stores/useFoodLogStore";
+import {
+  useFoodLogStore,
+  selectSelectedDate,
+} from "src/legacystore/useFoodLogStore";
 import { FoodLogFormData } from "./useFoodLogForm";
 
 export interface UseFoodLogValidationReturn {

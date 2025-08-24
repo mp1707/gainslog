@@ -17,10 +17,10 @@ import {
   selectSelectedMonth,
   selectDailyTargets,
   selectFoodLogs,
-} from "../../src/stores/useFoodLogStore";
-import { DailySummaryCard } from "../../src/shared/ui/molecules/DailySummaryCard";
-import { MonthPicker } from "../../src/shared/ui/molecules/MonthPicker";
-import { PageHeader } from "../../src/shared/ui/molecules/PageHeader";
+} from "../../src/legacystore/useFoodLogStore";
+import { DailySummaryCard } from "../../src/components/monthly-food-logs/DailySummaryCard";
+import { MonthPicker } from "../../src/components/monthly-food-logs/MonthPicker";
+import { PageHeader } from "../../src/components/shared/PageHeader";
 
 export default function OverviewTab() {
   // Subscribe to only the needed slices of state with safe defaults
@@ -124,7 +124,6 @@ export default function OverviewTab() {
     () => createStyles(colors, theme, dynamicBottomPadding),
     [colors, theme, dynamicBottomPadding]
   );
-
 
   // Memoized month change handler
   const handleMonthChange = useCallback(

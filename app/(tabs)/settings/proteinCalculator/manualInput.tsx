@@ -21,19 +21,26 @@ import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { CalculatorInputAccessory } from "@/shared/ui";
-import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
 const inputAccessoryViewID = "protein-input-accessory";
 
 const ManualProteinInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const { dailyTargets, updateDailyTargets, proteinCalculatorParams, clearProteinCalculatorData } = useFoodLogStore();
+  const {
+    dailyTargets,
+    updateDailyTargets,
+    proteinCalculatorParams,
+    clearProteinCalculatorData,
+  } = useFoodLogStore();
   const { safeDismissTo, isNavigating } = useNavigationGuard();
 
   const [protein, setProtein] = useState<number>(
-    (dailyTargets?.protein && dailyTargets.protein > 0) ? dailyTargets.protein : 100
+    dailyTargets?.protein && dailyTargets.protein > 0
+      ? dailyTargets.protein
+      : 100
   );
   const inputRef = useRef<TextInput>(null);
 
@@ -63,7 +70,7 @@ const ManualProteinInputScreen = () => {
 
   const handleProteinChange = (proteinText: string) => {
     const newProtein = proteinText === "" ? 0 : parseInt(proteinText, 10);
-    
+
     if (!isNaN(newProtein)) {
       setProtein(newProtein);
     }
@@ -95,7 +102,7 @@ const ManualProteinInputScreen = () => {
       };
 
       await updateDailyTargets(newTargets);
-      
+
       safeDismissTo("/settings");
     } catch (error) {
       console.error("Error saving manual protein target:", error);
@@ -112,7 +119,8 @@ const ManualProteinInputScreen = () => {
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Enter your daily protein goal</Text>
           <Text style={styles.description}>
-            Set your target protein per day. You can always adjust this later in settings.
+            Set your target protein per day. You can always adjust this later in
+            settings.
           </Text>
         </View>
 
@@ -159,7 +167,7 @@ const ManualProteinInputScreen = () => {
         />
       )}
     </SafeAreaView>
-  )
+  );
 };
 
 export default ManualProteinInputScreen;

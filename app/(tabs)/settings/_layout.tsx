@@ -1,8 +1,8 @@
 import { Stack } from "expo-router";
 import { useTheme } from "@/providers";
 import React from "react";
-import { CancelButton } from "@/shared/ui/atoms/CancelButton";
-import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
+import { CancelButton } from "@/components/shared/CancelButton";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
 export default function SettingsLayout() {
   const { safeDismissTo } = useNavigationGuard();

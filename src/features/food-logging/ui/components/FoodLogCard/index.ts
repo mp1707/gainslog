@@ -1,1 +1,0 @@
-export { FoodLogCard } from "./FoodLogCard";

@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { FavoriteEntry, LegacyFoodLog } from "@/types/indexLegacy";
 import { generateFoodLogId } from "@/lib/storage";
-import { useFoodLogStore } from "src/stores/useFoodLogStore";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
 
 interface UseFavoriteSelectionProps {
   selectedDate: string;

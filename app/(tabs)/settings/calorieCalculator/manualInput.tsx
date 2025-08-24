@@ -21,9 +21,9 @@ import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/providers";
-import { useFoodLogStore } from "@/stores/useFoodLogStore";
-import { CalculatorInputAccessory } from "@/shared/ui";
-import { useNavigationGuard } from "@/shared/hooks/useNavigationGuard";
+import { useFoodLogStore } from "src/legacystore/useFoodLogStore";
+import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { saveCalorieCalculatorParams } from "@/lib/storage";
 
 const inputAccessoryViewID = "calories-input-accessory";
