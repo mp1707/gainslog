@@ -1,7 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { useTheme } from "@/theme";
-import { theme } from "@/theme";
+import { useTheme, useThemedStyles } from "@/theme";
 import { FoodLog } from "@/types";
 
 interface NutritionRowProps {
@@ -18,6 +17,8 @@ const NutritionRow: React.FC<NutritionRowProps> = ({
   semanticColor,
 }) => {
   const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
+
 
   return (
     <View style={styles.nutritionRow}>
@@ -44,10 +45,10 @@ export const NutritionViewCard: React.FC<NutritionViewCardProps> = ({
   log,
 }) => {
   const { colors } = useTheme();
-  const componentStyles = theme.getComponentStyles();
+  const styles = useThemedStyles(createStyles);
 
   return (
-    <View style={[styles.card, { ...componentStyles.cards }]}>
+    <View style={styles.card}>
       <NutritionRow
         label="Calories"
         value={log.userCalories ?? log.generatedCalories ?? 0}
@@ -79,16 +80,18 @@ export const NutritionViewCard: React.FC<NutritionViewCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any, themeObj: any) => StyleSheet.create({
   card: {
-    padding: theme.spacing.md,
-    marginHorizontal: theme.spacing.pageMargins.horizontal,
+    padding: themeObj.spacing.md,
+    marginHorizontal: themeObj.spacing.pageMargins.horizontal,
+    backgroundColor: colors.secondaryBackground,
+    borderRadius: themeObj.components.cards.cornerRadius,
   },
   nutritionRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: theme.spacing.md,
+    paddingVertical: themeObj.spacing.md,
   },
   labelContainer: {
     flexDirection: "row",
@@ -99,17 +102,17 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    marginRight: theme.spacing.md,
+    marginRight: themeObj.spacing.md,
   },
   nutritionLabel: {
-    ...theme.typography.Body,
+    ...themeObj.typography.Body,
   },
   nutritionValue: {
-    ...theme.typography.Body,
+    ...themeObj.typography.Body,
     fontWeight: "500",
   },
   divider: {
     height: 1,
-    marginHorizontal: -theme.spacing.md,
+    marginHorizontal: -themeObj.spacing.md,
   },
 });

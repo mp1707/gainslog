@@ -1,7 +1,6 @@
 import React from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
-import { useTheme } from "@/theme";
-import { theme } from "@/theme";
+import { useTheme, useThemedStyles } from "@/theme";
 import { FoodLog } from "@/types";
 
 interface NutritionEditRowProps {
@@ -20,6 +19,7 @@ const NutritionEditRow: React.FC<NutritionEditRowProps> = ({
   onChangeText,
 }) => {
   const { colors } = useTheme();
+  const styles = useThemedStyles(createRowStyles);
 
   return (
     <View style={styles.nutritionRow}>
@@ -67,7 +67,7 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
   onUpdateNutrition,
 }) => {
   const { colors } = useTheme();
-  const componentStyles = theme.getComponentStyles();
+  const styles = useThemedStyles(createCardStyles);
 
   const handleNumericChange = (field: string, text: string) => {
     const numericValue = parseFloat(text) || 0;
@@ -75,7 +75,7 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
   };
 
   return (
-    <View style={[styles.card, { ...componentStyles.cards }]}>
+    <View style={styles.card}>
       <NutritionEditRow
         label="Calories"
         value={log.userCalories ?? log.generatedCalories ?? 0}
@@ -111,52 +111,63 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  card: {
-    padding: theme.spacing.md,
-    marginHorizontal: theme.spacing.pageMargins.horizontal,
-  },
-  nutritionRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: theme.spacing.md,
-  },
-  labelContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  semanticDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: theme.spacing.md,
-  },
-  nutritionLabel: {
-    ...theme.typography.Body,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    minWidth: 100,
-  },
-  nutritionInput: {
-    ...theme.typography.Body,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
-    minWidth: 60,
-    textAlign: "right",
-  },
-  unitText: {
-    ...theme.typography.Caption,
-    marginLeft: theme.spacing.xs,
-    minWidth: 30,
-  },
-  divider: {
-    height: 1,
-    marginHorizontal: -theme.spacing.md,
-  },
-});
+const createCardStyles = (colors: any, themeObj: any) =>
+  StyleSheet.create({
+    card: {
+      padding: themeObj.spacing.md,
+      marginHorizontal: themeObj.spacing.pageMargins.horizontal,
+      borderRadius: themeObj.components.cards.cornerRadius,
+      backgroundColor: colors.secondaryBackground,
+    },
+    divider: {
+      height: 1,
+      marginHorizontal: -themeObj.spacing.md,
+    },
+  });
+
+const createRowStyles = (colors: any, themeObj: any) =>
+  StyleSheet.create({
+    nutritionRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: themeObj.spacing.md,
+    },
+    labelContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      flex: 1,
+    },
+    semanticDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      marginRight: themeObj.spacing.md,
+    },
+    nutritionLabel: {
+      ...themeObj.typography.Body,
+    },
+    inputContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      minWidth: 100,
+    },
+    nutritionInput: {
+      ...themeObj.typography.Body,
+      borderWidth: 1,
+      borderRadius: 8,
+      paddingHorizontal: themeObj.spacing.sm,
+      paddingVertical: themeObj.spacing.xs,
+      minWidth: 60,
+      textAlign: "right",
+    },
+    unitText: {
+      ...themeObj.typography.Caption,
+      marginLeft: themeObj.spacing.xs,
+      minWidth: 30,
+    },
+    divider: {
+      height: 1,
+      marginHorizontal: -themeObj.spacing.md,
+    },
+  });

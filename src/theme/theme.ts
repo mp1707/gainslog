@@ -95,7 +95,7 @@ const darkColors = {
   disabledText: "rgba(242, 242, 247, 0.4)",
 
   // Main Accent & System Colors
-  accent: "#6200EA", // A brighter magenta for dark mode
+  accent: "#7C4DFF", // A brighter magenta for dark mode
   recording: "#FF665A",
   error: "#FF665A",
   warning: "#FFD54F",

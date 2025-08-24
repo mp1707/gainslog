@@ -8,6 +8,7 @@ import {
   Alert,
   ActivityIndicator,
   TextInput,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Stack } from "expo-router";
@@ -17,10 +18,9 @@ import {
   estimateNutritionImageBased,
   estimateNutritionTextBased,
 } from "@/lib/supabase";
-import { useTheme } from "@/theme";
+import { useTheme, useThemedStyles } from "@/theme";
 import { useAppStore } from "@/store";
 import { FoodLog } from "@/types";
-import { theme } from "@/theme";
 import { ImageSection } from "@/components/detail-page/ImageSection";
 import { MetadataSection } from "@/components/detail-page/MetadataSection";
 import { NutritionEditCard } from "@/components/detail-page/NutritionEditCard";
@@ -31,8 +31,10 @@ export default function FoodLogDetailScreen() {
   const navigation = useNavigation();
   const router = useRouter();
   const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
 
   const foodLogs = useAppStore((s) => s.foodLogs);
+  const favorites = useAppStore((s) => s.favorites);
   const updateFoodLog = useAppStore((s) => s.updateFoodLog);
   const deleteFoodLog = useAppStore((s) => s.deleteFoodLog);
   const toggleFavoriteForLog = useAppStore((s: any) => s.toggleFavoriteForLog);
@@ -114,26 +116,6 @@ export default function FoodLogDetailScreen() {
                   Edit
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={toggleFavorite}
-                style={{ marginLeft: theme.spacing.md }}
-                accessibilityLabel={
-                  isFavoriteForLog(originalLog)
-                    ? "Remove from favorites"
-                    : "Add to favorites"
-                }
-                accessibilityHint={
-                  isFavoriteForLog(originalLog)
-                    ? "Removes this log from your favorites"
-                    : "Adds this log to your favorites"
-                }
-              >
-                <Star
-                  size={24}
-                  color={colors.accent}
-                  weight={isFavoriteForLog(originalLog) ? "fill" : "regular"}
-                />
-              </TouchableOpacity>
             </>
           )}
         </View>
@@ -172,8 +154,9 @@ export default function FoodLogDetailScreen() {
     });
   };
 
-  const toggleFavorite = () => {
+  const toggleFavorite = async () => {
     if (!originalLog) return;
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     toggleFavoriteForLog(originalLog);
   };
 
@@ -293,13 +276,15 @@ export default function FoodLogDetailScreen() {
   };
 
   return (
-    <>
+    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <Stack.Screen
         options={{
           headerShown: true,
           headerStyle: { backgroundColor: colors.primaryBackground },
           headerTitleStyle: {
-            ...theme.typography.Headline,
+            fontSize: 17,
+            fontWeight: "600",
+            fontFamily: "Nunito-SemiBold",
             color: colors.primaryText,
           },
         }}
@@ -384,9 +369,42 @@ export default function FoodLogDetailScreen() {
 
         {/* Nutrition Section */}
         <View style={styles.nutritionSection}>
-          <Text style={[styles.sectionTitle, { color: colors.primaryText }]}>
-            Nutrition
-          </Text>
+          <View style={styles.nutritionHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.primaryText }]}>
+              Nutrition
+            </Text>
+            <TouchableOpacity
+              onPress={toggleFavorite}
+              style={styles.favoriteButton}
+              accessibilityLabel={
+                originalLog && isFavoriteForLog(originalLog)
+                  ? "Remove from favorites"
+                  : "Add to favorites"
+              }
+              accessibilityHint={
+                originalLog && isFavoriteForLog(originalLog)
+                  ? "Removes this log from your favorites"
+                  : "Adds this log to your favorites"
+              }
+            >
+              <Star
+                size={20}
+                color={colors.accent}
+                weight={
+                  originalLog && isFavoriteForLog(originalLog)
+                    ? "fill"
+                    : "regular"
+                }
+              />
+              <Text
+                style={[styles.favoriteButtonText, { color: colors.accent }]}
+              >
+                {originalLog && isFavoriteForLog(originalLog)
+                  ? "Favorited"
+                  : "Add to Favorites"}
+              </Text>
+            </TouchableOpacity>
+          </View>
           {isEditing ? (
             <NutritionEditCard
               log={currentLog}
@@ -444,102 +462,118 @@ export default function FoodLogDetailScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </>
+    </KeyboardAvoidingView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  contentContainer: {
-    paddingBottom: theme.spacing.xxl,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  errorText: {
-    ...theme.typography.Body,
-  },
-  headerRightContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingRight: 10,
-  },
-  navButtonText: {
-    ...theme.typography.Body,
-    fontSize: 17,
-  },
-  navButtonDone: {
-    ...theme.typography.Headline,
-    fontWeight: "600",
-  },
-  generalSection: {
-    paddingHorizontal: theme.spacing.pageMargins.horizontal,
-    paddingVertical: theme.spacing.lg,
-  },
-  title: {
-    ...theme.typography.Title1,
-    marginBottom: theme.spacing.sm,
-  },
-  description: {
-    ...theme.typography.Body,
-    lineHeight: 22,
-  },
-  titleInput: {
-    ...theme.typography.Title1,
-    borderWidth: 1,
-    borderRadius: theme.components.buttons.cornerRadius,
-    padding: theme.spacing.md,
-    marginBottom: theme.spacing.md,
-    minHeight: 50,
-    textAlignVertical: "top",
-  },
-  descriptionInput: {
-    ...theme.typography.Body,
-    borderWidth: 1,
-    borderRadius: theme.components.buttons.cornerRadius,
-    padding: theme.spacing.md,
-    minHeight: 80,
-    textAlignVertical: "top",
-  },
-  nutritionSection: {
-    marginVertical: theme.spacing.lg,
-  },
-  sectionTitle: {
-    ...theme.typography.Headline,
-    paddingHorizontal: theme.spacing.pageMargins.horizontal,
-    marginBottom: theme.spacing.md,
-  },
-  actionsSection: {
-    paddingHorizontal: theme.spacing.pageMargins.horizontal,
-    alignItems: "center",
-    marginVertical: theme.spacing.lg,
-  },
-  reEstimateButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    borderWidth: 1.5,
-    borderRadius: theme.components.buttons.cornerRadius,
-    gap: theme.spacing.xs,
-    minWidth: 160,
-  },
-  reEstimateButtonText: {
-    ...theme.typography.Body,
-    fontWeight: "500",
-  },
-  deleteSection: {
-    paddingHorizontal: theme.spacing.pageMargins.horizontal,
-    paddingVertical: theme.spacing.xl,
-    alignItems: "center",
-  },
-  deleteButtonText: {
-    ...theme.typography.Body,
-    fontWeight: "600",
-  },
-});
+const createStyles = (colors: any, theme: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    contentContainer: {
+      paddingBottom: theme.spacing.xxl,
+    },
+    errorContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    errorText: {
+      ...theme.typography.Body,
+    },
+    headerRightContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingRight: 10,
+    },
+    navButtonText: {
+      ...theme.typography.Body,
+      fontSize: 17,
+    },
+    navButtonDone: {
+      ...theme.typography.Headline,
+      fontWeight: "600",
+    },
+    generalSection: {
+      paddingHorizontal: theme.spacing.pageMargins.horizontal,
+      paddingVertical: theme.spacing.lg,
+    },
+    title: {
+      ...theme.typography.Title1,
+      marginBottom: theme.spacing.sm,
+    },
+    description: {
+      ...theme.typography.Body,
+      lineHeight: 22,
+    },
+    titleInput: {
+      ...theme.typography.Title1,
+      borderWidth: 1,
+      borderRadius: theme.components.buttons.cornerRadius,
+      padding: theme.spacing.md,
+      marginBottom: theme.spacing.md,
+      minHeight: 50,
+      textAlignVertical: "top",
+    },
+    descriptionInput: {
+      ...theme.typography.Body,
+      borderWidth: 1,
+      borderRadius: theme.components.buttons.cornerRadius,
+      padding: theme.spacing.md,
+      minHeight: 80,
+      textAlignVertical: "top",
+    },
+    nutritionSection: {
+      marginVertical: theme.spacing.lg,
+    },
+    nutritionHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingHorizontal: theme.spacing.pageMargins.horizontal,
+      marginBottom: theme.spacing.md,
+    },
+    sectionTitle: {
+      ...theme.typography.Headline,
+    },
+    favoriteButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.xs,
+    },
+    favoriteButtonText: {
+      ...theme.typography.Body,
+      fontSize: 15,
+      fontWeight: "500",
+    },
+    actionsSection: {
+      paddingHorizontal: theme.spacing.pageMargins.horizontal,
+      alignItems: "center",
+      marginVertical: theme.spacing.lg,
+    },
+    reEstimateButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.lg,
+      borderWidth: 1.5,
+      borderRadius: theme.components.buttons.cornerRadius,
+      gap: theme.spacing.xs,
+      minWidth: 160,
+    },
+    reEstimateButtonText: {
+      ...theme.typography.Body,
+      fontWeight: "500",
+    },
+    deleteSection: {
+      paddingHorizontal: theme.spacing.pageMargins.horizontal,
+      paddingVertical: theme.spacing.xl,
+      alignItems: "center",
+    },
+    deleteButtonText: {
+      ...theme.typography.Body,
+      fontWeight: "600",
+    },
+  });
