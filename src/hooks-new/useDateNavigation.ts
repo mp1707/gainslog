@@ -10,7 +10,6 @@ import {
 
 interface DateNavigationResult {
   selectedDate: string;
-  isToday: boolean;
   displayDate: string;
   relativeDate: string;
   canGoNext: boolean;
@@ -24,15 +23,16 @@ export const useDateNavigation = (): DateNavigationResult => {
   const { selectedDate, setSelectedDate } = useAppStore();
 
   const todayKey = getTodayKey();
-  const isTodaySelected = isToday(selectedDate);
+  // Allow navigation forward until we reach today (inclusive)
   const canGoNext = selectedDate < todayKey;
 
   const goToNext = useCallback(() => {
-    if (canGoNext) {
-      const nextDate = navigateDate(selectedDate, "next");
+    const nextDate = navigateDate(selectedDate, "next");
+    // Only navigate if the next date is not in the future beyond today
+    if (nextDate <= todayKey) {
       setSelectedDate(nextDate);
     }
-  }, [selectedDate, canGoNext, setSelectedDate]);
+  }, [selectedDate, todayKey, setSelectedDate]);
 
   const goToPrev = useCallback(() => {
     const prevDate = navigateDate(selectedDate, "prev");
@@ -52,7 +52,6 @@ export const useDateNavigation = (): DateNavigationResult => {
 
   return {
     selectedDate,
-    isToday: isTodaySelected,
     displayDate: formatDisplayDate(selectedDate),
     relativeDate: getRelativeDate(selectedDate),
     canGoNext,

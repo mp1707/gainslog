@@ -42,13 +42,15 @@ export const NewLogSheet: React.FC<NewLogSheetProps> = ({
   onFavoritesLog,
 }) => {
   const { colors } = useTheme();
-  const { safeNavigate, isNavigating } = useNavigationGuard();
+  const { safeReplace } = useNavigationGuard();
   const styles = createStyles(colors);
 
   // State to trigger smooth close animation
   const [shouldAnimateOut, setShouldAnimateOut] = useState(false);
   // Ref to store the pending action to execute after animation
   const pendingActionRef = useRef<(() => void) | null>(null);
+  // Local guard to prevent double taps without relying on global navigation state
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const iconColor = colors.white;
   const iconSize = 24;
@@ -111,18 +113,21 @@ export const NewLogSheet: React.FC<NewLogSheetProps> = ({
   ];
 
   const handleActionPress = (action: () => void) => {
-    // Prevent multiple rapid taps
-    if (isNavigating) return;
+    // Prevent multiple rapid taps within the sheet
+    if (isProcessing) return;
+    setIsProcessing(true);
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-    // Store the action to execute after navigation and animation complete
+    // After the sheet finishes animating out, navigate to Today and then trigger the action
     pendingActionRef.current = () => {
-      // Navigate to index tab first, then execute action after delay
-      safeNavigate("/");
+      // Navigate first to ensure the Today tab is active
+      safeReplace("/");
+      // Then dispatch the action shortly after navigation stabilizes
       setTimeout(() => {
         action();
-      }, 250); // Allow time for navigation to complete
+        setIsProcessing(false);
+      }, 180);
     };
 
     // Trigger smooth close animation

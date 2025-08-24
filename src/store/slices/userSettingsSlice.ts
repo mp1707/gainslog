@@ -47,8 +47,9 @@ const calculateDailyTargets = (settings: UserSettings): DailyTargets => {
   }
 
   // Calculate macros
-  const protein = settings.weight * settings.proteinCalculationFactor;
-  const fat = (targetCalories * settings.fatCalculationPercentage) / 100 / 9; // 9 cal per gram of fat
+  const protein = settings.weight * (settings.proteinCalculationFactor || 2.2);
+  const fatPercentage = settings.fatCalculationPercentage || 30; // Default 30% if not set
+  const fat = (targetCalories * fatPercentage) / 100 / 9; // 9 cal per gram of fat
   const carbs = (targetCalories - protein * 4 - fat * 9) / 4; // 4 cal per gram of carbs/protein
 
   return {
@@ -71,7 +72,12 @@ export const createUserSettingsSlice: StateCreator<
   updateUserSettings: (settings) =>
     set((state) => {
       if (!state.userSettings) {
-        state.userSettings = settings as UserSettings;
+        // Ensure defaults are set for new user settings
+        state.userSettings = {
+          proteinCalculationFactor: 2.2,
+          fatCalculationPercentage: 30,
+          ...settings,
+        } as UserSettings;
       } else {
         Object.assign(state.userSettings, settings);
       }
@@ -80,11 +86,25 @@ export const createUserSettingsSlice: StateCreator<
   calculateAndSetTargets: () => {
     const { userSettings } = get();
     if (!userSettings) return;
-
-    const targets = calculateDailyTargets(userSettings);
+    // Compute complete targets from user settings so UI has carbs/fat as well
+    const computed = calculateDailyTargets(userSettings);
 
     set((state) => {
-      state.dailyTargets = targets;
+      // If user had manually overridden any targets earlier via setDailyTargets,
+      // we preserve those non-zero overrides and fill in missing values from computed.
+      const existing = state.dailyTargets || {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+      };
+
+      state.dailyTargets = {
+        calories: existing.calories > 0 ? existing.calories : computed.calories,
+        protein: existing.protein > 0 ? existing.protein : computed.protein,
+        carbs: existing.carbs > 0 ? existing.carbs : computed.carbs,
+        fat: existing.fat > 0 ? existing.fat : computed.fat,
+      } as DailyTargets;
     });
   },
 
@@ -101,6 +121,9 @@ export const createUserSettingsSlice: StateCreator<
 
   resetDailyTargets: () =>
     set((state) => {
+      // Reset daily targets to zero
       state.dailyTargets = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+      // Clear user settings to ensure UI state reflects the reset
+      state.userSettings = null;
     }),
 });

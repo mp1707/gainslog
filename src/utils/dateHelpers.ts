@@ -44,10 +44,14 @@ export const formatDisplayDate = (dateKey: string): string => {
 };
 
 /**
- * Gets today's date as an ISO date string
+ * Gets today's date as an ISO date string in local timezone
  */
 export const getTodayKey = (): string => {
-  return new Date().toISOString().split("T")[0];
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 };
 
 /**
@@ -78,7 +82,7 @@ export const navigateDate = (
 ): string => {
   const date = new Date(currentDate + "T00:00:00");
   date.setDate(date.getDate() + (direction === "next" ? 1 : -1));
-  return date.toISOString().split("T")[0];
+  return formatDateKey(date.getFullYear(), date.getMonth() + 1, date.getDate());
 };
 
 /**

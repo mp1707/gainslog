@@ -9,7 +9,7 @@ import React, {
   useCallback,
 } from "react";
 import { Appearance, StatusBar } from "react-native";
-import { theme, ColorScheme } from "../theme";
+import { theme, ColorScheme } from "./theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Colors = typeof theme.colors.light | typeof theme.colors.dark;

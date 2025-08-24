@@ -25,7 +25,7 @@ export const useFoodEstimation = () => {
 
     try {
       const estimation = await estimateNutritionTextBased({
-        title,
+        title: title || "No title",
         description,
       });
 

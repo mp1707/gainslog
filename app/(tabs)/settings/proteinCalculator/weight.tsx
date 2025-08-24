@@ -72,16 +72,6 @@ const ProteinWeightSelectionScreen = () => {
       return;
     }
 
-    // Ensure calculatorParams weight is set before navigation
-    const updatedParams = {
-      ...calculatorParams,
-      sex: calculatorParams?.sex ?? "male",
-      age: calculatorParams?.age ?? 30,
-      weight: weight,
-      height: calculatorParams?.height ?? 175,
-    };
-    setCalculatorParams(updatedParams);
-
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     safeNavigate("/settings/proteinCalculator/goals");
   };

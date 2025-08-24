@@ -24,7 +24,7 @@ const DEFAULT_DAILY_TARGETS = Object.freeze({
 
 interface FoodLogScreenProps {
   isLoadingLogs: boolean;
-  onDeleteLog: (logId: string) => Promise<void>;
+  onDeleteLog: (logId: string) => void;
   onAddInfo: (log: FoodLog) => void;
   scrollToTop?: boolean;
   isFavoritesModalVisible?: boolean;
@@ -36,8 +36,6 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
   onDeleteLog,
   onAddInfo,
   scrollToTop,
-  isFavoritesModalVisible = false,
-  onCloseFavoritesModal,
 }) => {
   const scrollViewRef = useRef<ScrollView>(null);
   const scrollY = useSharedValue(0);
@@ -48,7 +46,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
 
   const { colors } = useTheme();
   const { dynamicBottomPadding } = useTabBarSpacing();
-  const { selectedDate, isToday, goToPrev, goToNext, setDate } =
+  const { selectedDate, goToPrev, goToNext, setDate, canGoNext } =
     useDateNavigation();
 
   const handleDateChange = (_event: any, date?: Date) => {
@@ -109,23 +107,11 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
     [colors, dynamicBottomPadding]
   );
 
-  const isTodayMemo = isToday;
-
-  const { selectFavorite } = useFavoriteSelection({
-    selectedDate,
-    onSelectionComplete: onCloseFavoritesModal || (() => {}),
-  });
-
   React.useEffect(() => {
     if (scrollToTop) {
       scrollViewRef.current?.scrollTo({ y: 0, animated: true });
     }
   }, [scrollToTop]);
-
-  // Handle nutrient hub enlarging - scroll food logs to top
-  const handleNutrientHubEnlarge = React.useCallback(() => {
-    scrollViewRef.current?.scrollTo({ y: 0, animated: true });
-  }, []);
 
   const handleScroll = (event: any) => {
     const newScrollY = event.nativeEvent.contentOffset.y;
@@ -139,7 +125,7 @@ export const FoodLogScreen: React.FC<FoodLogScreenProps> = ({
         onDateChange={handleDateChange}
         onNavigatePrevious={goToPrev}
         onNavigateNext={goToNext}
-        isToday={isTodayMemo}
+        canGoNext={canGoNext}
       />
       <ScrollView
         ref={scrollViewRef}

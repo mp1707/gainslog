@@ -11,7 +11,7 @@ interface DateNavigationHeaderProps {
   onDateChange: (event: any, selectedDate?: Date) => void;
   onNavigatePrevious: () => void;
   onNavigateNext: () => void;
-  isToday: boolean;
+  canGoNext: boolean;
 }
 
 export const DateNavigationHeader: React.FC<DateNavigationHeaderProps> =
@@ -21,7 +21,7 @@ export const DateNavigationHeader: React.FC<DateNavigationHeaderProps> =
       onDateChange,
       onNavigatePrevious,
       onNavigateNext,
-      isToday,
+      canGoNext,
     }) => {
       const { theme, colors, colorScheme } = useTheme();
       const styles = useMemo(
@@ -45,7 +45,7 @@ export const DateNavigationHeader: React.FC<DateNavigationHeaderProps> =
 
             <View style={styles.datePickerContainer}>
               <DateTimePicker
-                value={new Date(selectedDate)}
+                value={new Date(selectedDate + "T00:00:00")}
                 mode="date"
                 display={Platform.OS === "ios" ? "compact" : "default"}
                 onChange={onDateChange}
@@ -62,13 +62,13 @@ export const DateNavigationHeader: React.FC<DateNavigationHeaderProps> =
               onPress={onNavigateNext}
               style={[
                 styles.navigationButton,
-                isToday && styles.navigationButtonDisabled,
+                !canGoNext && styles.navigationButtonDisabled,
               ]}
-              disabled={isToday}
+              disabled={!canGoNext}
             >
               <CaretRightIcon
                 size={16}
-                color={isToday ? colors.disabledText : colors.secondaryText}
+                color={!canGoNext ? colors.disabledText : colors.secondaryText}
                 weight="regular"
               />
             </TouchableOpacity>

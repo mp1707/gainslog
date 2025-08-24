@@ -174,16 +174,13 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
 
       // Create new log
       if (currentLog?.imageUrl && !providedAllMacros) {
-        // Image-based estimation
-        const result = await estimateFromImage(
+        // Image-based estimation - close modal immediately, estimation happens in background
+        estimateFromImage(
           currentLog.imageUrl,
           title.trim() || undefined,
           description.trim() || undefined
         );
-        if (result) {
-          onSave(result.foodLog);
-          onClose(true);
-        }
+        onClose(true);
         return;
       }
 
@@ -201,7 +198,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
         return;
       }
 
-      // Fallback to text-based estimation
+      // Fallback to text-based estimation - close modal immediately, estimation happens in background
       const text = title.trim() || description.trim();
       if (!text) {
         form.setValidationError(
@@ -209,11 +206,8 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
         );
         return;
       }
-      const result = await estimateFromText(title.trim(), description.trim());
-      if (result) {
-        onSave(result.foodLog);
-        onClose(true);
-      }
+      estimateFromText(title.trim(), description.trim());
+      onClose(true);
     } catch (e) {
       form.setValidationError("Failed to save. Please try again.");
     }

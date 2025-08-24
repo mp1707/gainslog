@@ -16,6 +16,7 @@ import { useAppStore } from "@/store";
 import { DailySummaryCard } from "../../src/components/monthly-food-logs/DailySummaryCard";
 import { MonthPicker } from "../../src/components/monthly-food-logs/MonthPicker";
 import { PageHeader } from "../../src/components/shared/PageHeader";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
 export default function OverviewTab() {
   // Subscribe to only the needed slices of state with safe defaults
@@ -88,6 +89,7 @@ export default function OverviewTab() {
   }, [monthlyFoodLogs]);
 
   const { colors, theme } = useTheme();
+  const { safeReplace } = useNavigationGuard();
   const insets = useSafeAreaInsets();
 
   // Calculate platform-specific tab bar height for Expo Router
@@ -119,8 +121,10 @@ export default function OverviewTab() {
   const handleDayPress = useCallback(
     (date: string) => {
       setSelectedDate(date);
+      // Jump to Today tab to show the selected day's logs
+      safeReplace("/");
     },
-    [setSelectedDate]
+    [setSelectedDate, safeReplace]
   );
 
   // Memoize transformed data with optimized calculations

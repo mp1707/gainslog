@@ -14,7 +14,7 @@ import { SkeletonCard } from "./SkeletonCard/SkeletonCard";
 interface FoodLogsListProps {
   isLoadingLogs: boolean;
   foodLogs: FoodLog[];
-  onDeleteLog: (logId: string) => Promise<void>;
+  onDeleteLog: (logId: string) => void;
   onAddInfo: (log: FoodLog) => void;
 }
 
