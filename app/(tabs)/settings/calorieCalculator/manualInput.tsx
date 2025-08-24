@@ -24,7 +24,7 @@ import { useTheme } from "@/providers";
 import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
 import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { saveCalorieCalculatorParams } from "@/legacystore/storage";
+import { saveCalorieCalculatorParams } from "@/store-legacy/storage";
 
 const inputAccessoryViewID = "calories-input-accessory";
 

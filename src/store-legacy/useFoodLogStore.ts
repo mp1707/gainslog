@@ -22,7 +22,7 @@ import {
   saveCalorieCalculatorParams,
   getFatCalculatorParams,
   saveFatCalculatorParams,
-} from "@/legacystore/storage";
+} from "@/store-legacy/storage";
 import { calculateMacrosFromProtein } from "@/utils/nutritionCalculations";
 
 type ActionType =

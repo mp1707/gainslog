@@ -4,7 +4,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 import { supabase } from "@/lib/supabase";
 import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
-import { generateFoodLogId } from "@/legacystore/storage";
+import { generateFoodLogId } from "@/store-legacy/storage";
 import {
   useFoodLogStore,
   selectSelectedDate,

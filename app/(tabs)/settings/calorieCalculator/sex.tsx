@@ -10,9 +10,10 @@ import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import type { CalorieIntakeParams, Sex } from "src/types-legacy/indexLegacy";
-import { getCalorieCalculatorParams } from "@/legacystore/storage";
 import { StyleSheet } from "react-native";
 import { ProgressBar } from "@/components/settings/ProgressBar";
+import { getCalorieCalculatorParams } from "@/store-legacy/storage";
+
 
 const SexSelectionScreen = React.memo(function SexSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();

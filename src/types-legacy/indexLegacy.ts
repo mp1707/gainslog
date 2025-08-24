@@ -1,4 +1,3 @@
-// Food log interface - moved from lib/storage.ts for global access
 export interface LegacyFoodLog {
   id: string;
   userTitle?: string;
