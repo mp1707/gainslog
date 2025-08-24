@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { NewLogSheet } from "@/components/daily-food-logs/NewLogSheet";
 
 interface NewLogButtonProps {
@@ -14,17 +14,15 @@ export const NewLogButton: React.FC<NewLogButtonProps> = ({
   onFavoritesLog,
 }) => {
   // Store action triggers
-  const triggerManualLog = useFoodLogStore((state) => state.triggerManualLog);
-  const triggerCameraCapture = useFoodLogStore(
+  const triggerManualLog = useAppStore((state) => state.triggerManualLog);
+  const triggerCameraCapture = useAppStore(
     (state) => state.triggerCameraCapture
   );
-  const triggerLibraryCapture = useFoodLogStore(
+  const triggerLibraryCapture = useAppStore(
     (state) => state.triggerLibraryCapture
   );
-  const triggerAudioCapture = useFoodLogStore(
-    (state) => state.triggerAudioCapture
-  );
-  const triggerFavorites = useFoodLogStore((state) => state.triggerFavorites);
+  const triggerAudioCapture = useAppStore((state) => state.triggerAudioCapture);
+  const triggerFavorites = useAppStore((state) => state.triggerFavorites);
 
   // Memoized handlers
   const handleManualLog = useCallback(() => {

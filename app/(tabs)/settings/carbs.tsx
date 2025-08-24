@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/theme";
-import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
 import {
   calculateFatGramsFromPercentage,
@@ -12,7 +12,12 @@ import type { ColorScheme, Theme } from "@/theme";
 
 const CarbsScreen = React.memo(function CarbsScreen() {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const { dailyTargets, isLoadingTargets } = useFoodLogStore();
+  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  };
   const { fatPercentage, isCaloriesSet, isProteinSet } =
     useNutritionCalculations();
 
@@ -24,12 +29,12 @@ const CarbsScreen = React.memo(function CarbsScreen() {
   const carbsEnabled = isCaloriesSet && isProteinSet;
 
   // Calculate carbs value
-  const fatGrams = useMemo(
+  const fatGrams = React.useMemo(
     () => calculateFatGramsFromPercentage(dailyTargets.calories, fatPercentage),
     [dailyTargets.calories, fatPercentage]
   );
 
-  const carbsGrams = useMemo(
+  const carbsGrams = React.useMemo(
     () =>
       calculateCarbsFromMacros(
         dailyTargets.calories,
@@ -39,22 +44,11 @@ const CarbsScreen = React.memo(function CarbsScreen() {
     [dailyTargets.calories, dailyTargets.protein, fatGrams]
   );
 
-  const carbsPercentage = useMemo(
+  const carbsPercentage = React.useMemo(
     () =>
       Math.round(((carbsGrams * 4) / Math.max(dailyTargets.calories, 1)) * 100),
     [carbsGrams, dailyTargets.calories]
   );
-
-  if (isLoadingTargets) {
-    return (
-      <SafeAreaView
-        style={[styles.container, styles.centered]}
-        edges={["left", "right"]}
-      >
-        {/* Loading state handled by parent navigation */}
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right", "bottom"]}>
@@ -114,10 +108,8 @@ const CarbsScreen = React.memo(function CarbsScreen() {
 
 export default CarbsScreen;
 
-type Colors = ReturnType<typeof useTheme>["colors"];
-
 const createStyles = (
-  colors: Colors,
+  colors: ReturnType<typeof useTheme>["colors"],
   themeObj: Theme,
   colorScheme: ColorScheme
 ) => {

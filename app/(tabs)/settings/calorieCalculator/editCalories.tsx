@@ -5,14 +5,19 @@ import { PencilIcon, CalculatorIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/theme";
-import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
 
 const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const { dailyTargets } = useFoodLogStore();
+  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  };
   const { safeReplace, isNavigating } = useNavigationGuard();
 
   const styles = useMemo(

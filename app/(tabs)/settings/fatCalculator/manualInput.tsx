@@ -21,7 +21,7 @@ import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/theme";
-import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
@@ -31,7 +31,12 @@ const inputAccessoryViewID = "fat-input-accessory";
 
 const ManualFatInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const { dailyTargets } = useFoodLogStore();
+  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  };
   const { safeDismissTo, isNavigating } = useNavigationGuard();
   const { fatPercentage, handleFatPercentageChange } =
     useNutritionCalculations();

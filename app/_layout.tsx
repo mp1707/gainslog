@@ -1,5 +1,4 @@
 import { Stack } from "expo-router";
-import { useFoodLogStore } from "../src/store-legacy/useFoodLogStore";
 import { ThemeProvider } from "@/theme";
 import React, { useEffect } from "react";
 import ToastManager from "toastify-react-native";
@@ -8,13 +7,9 @@ import { View, Text, ActivityIndicator } from "react-native";
 import { theme } from "../src/theme";
 
 export default function RootLayout() {
-  const { loadFoodLogs, loadDailyTargets } = useFoodLogStore();
   const { fontsLoaded, error } = useFonts();
 
-  useEffect(() => {
-    loadFoodLogs();
-    loadDailyTargets();
-  }, [loadFoodLogs, loadDailyTargets]);
+  // No explicit load needed; zustand persist rehydrates
 
   // Show loading screen while fonts are loading
   if (!fontsLoaded) {

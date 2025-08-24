@@ -21,7 +21,7 @@ import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/theme";
-import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
@@ -30,10 +30,11 @@ const inputAccessoryViewID = "height-input-accessory";
 
 const HeightSelectionScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const { calculatorParams, setCalculatorParams } = useFoodLogStore();
+  const userSettings = useAppStore((s) => s.userSettings);
+  const updateUserSettings = useAppStore((s) => s.updateUserSettings);
   const { safeNavigate, isNavigating } = useNavigationGuard();
 
-  const [height, setHeight] = useState<number>(calculatorParams?.height ?? 175);
+  const [height, setHeight] = useState<number>(userSettings?.height ?? 175);
   const inputRef = useRef<TextInput>(null);
 
   const styles = useMemo(
@@ -42,10 +43,10 @@ const HeightSelectionScreen = () => {
   );
 
   useEffect(() => {
-    if (calculatorParams?.height !== undefined) {
-      setHeight(calculatorParams.height);
+    if (userSettings?.height !== undefined) {
+      setHeight(userSettings.height);
     }
-  }, [calculatorParams?.height]);
+  }, [userSettings?.height]);
 
   useFocusEffect(
     useCallback(() => {
@@ -62,14 +63,12 @@ const HeightSelectionScreen = () => {
     if (!isNaN(newHeight)) {
       setHeight(newHeight);
 
-      const updatedParams = {
-        ...calculatorParams,
-        sex: calculatorParams?.sex ?? "male",
-        age: calculatorParams?.age ?? 30,
-        weight: calculatorParams?.weight ?? 70,
+      updateUserSettings({
+        sex: userSettings?.sex ?? "male",
+        age: userSettings?.age ?? 30,
+        weight: userSettings?.weight ?? 70,
         height: newHeight,
-      };
-      setCalculatorParams(updatedParams);
+      });
     }
   };
 

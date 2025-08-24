@@ -5,13 +5,12 @@ import React, {
   useEffect,
   ReactNode,
   useRef,
+  useMemo,
+  useCallback,
 } from "react";
 import { Appearance, StatusBar } from "react-native";
 import { theme, ColorScheme } from "../theme";
-import {
-  saveColorSchemePreference,
-  getColorSchemePreference,
-} from "../store-legacy/storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Colors = typeof theme.colors.light | typeof theme.colors.dark;
 
@@ -37,7 +36,13 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   // Load saved preference or fallback to system on mount
   useEffect(() => {
     (async () => {
-      const saved = await getColorSchemePreference();
+      let saved: ColorScheme | null = null;
+      try {
+        const raw = await AsyncStorage.getItem("colorSchemePreference");
+        saved = (raw as ColorScheme) || null;
+      } catch (e) {
+        // ignore
+      }
       if (saved) {
         setColorSchemeState(saved);
         manualPreferenceRef.current = true;
@@ -67,25 +72,28 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     );
   }, [colorScheme]);
 
-  const colors = theme.getColors(colorScheme);
+  const colors = useMemo(() => theme.getColors(colorScheme), [colorScheme]);
 
-  const setColorScheme = (scheme: ColorScheme) => {
+  const setColorScheme = useCallback((scheme: ColorScheme) => {
     manualPreferenceRef.current = true;
     setColorSchemeState(scheme);
-    saveColorSchemePreference(scheme);
-  };
+    AsyncStorage.setItem("colorSchemePreference", scheme).catch(() => {});
+  }, []);
 
-  const toggleColorScheme = () => {
+  const toggleColorScheme = useCallback(() => {
     setColorScheme(colorScheme === "light" ? "dark" : "light");
-  };
+  }, [colorScheme, setColorScheme]);
 
-  const value: ThemeContextType = {
-    colorScheme,
-    colors,
-    theme,
-    setColorScheme,
-    toggleColorScheme,
-  };
+  const value: ThemeContextType = useMemo(
+    () => ({
+      colorScheme,
+      colors,
+      theme,
+      setColorScheme,
+      toggleColorScheme,
+    }),
+    [colorScheme, colors, setColorScheme, toggleColorScheme]
+  );
 
   return (
     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>

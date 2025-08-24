@@ -6,19 +6,18 @@ import { GenderMaleIcon, GenderFemaleIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/theme";
-import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import type { CalorieIntakeParams, Sex } from "src/types-legacy/indexLegacy";
+import type { Sex } from "src/types-legacy/indexLegacy";
 import { StyleSheet } from "react-native";
 import { ProgressBar } from "@/components/settings/ProgressBar";
-import { getCalorieCalculatorParams } from "@/store-legacy/storage";
-
+import { UserSettings } from "@/types";
 
 const SexSelectionScreen = React.memo(function SexSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const { calculatorParams, setCalculatorParams, clearCalculatorData } =
-    useFoodLogStore();
+  const userSettings = useAppStore((s) => s.userSettings);
+  const updateUserSettings = useAppStore((s) => s.updateUserSettings);
   const { safeNavigate, isNavigating } = useNavigationGuard();
 
   // Create stable initial params to prevent re-renders
@@ -31,8 +30,8 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
     []
   );
 
-  const [localParams, setLocalParams] = useState<CalorieIntakeParams | null>(
-    calculatorParams
+  const [localParams, setLocalParams] = useState<Partial<UserSettings> | null>(
+    userSettings
   );
   const [selectedSex, setSelectedSex] = useState<Sex | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -42,65 +41,35 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
     [colors, themeObj]
   );
 
-  // Load saved params when screen opens
+  // Initialize from persisted userSettings
   useEffect(() => {
-    const loadSavedParams = async () => {
-      try {
-        // If store has been explicitly cleared (calculatorParams is null),
-        // we should still try to load from AsyncStorage to show previous values
-        if (calculatorParams === null) {
-          const savedParams = await getCalorieCalculatorParams();
-          setLocalParams(savedParams);
-          setIsLoaded(true);
-          return;
-        }
-
-        // If we have store params, use them
-        if (calculatorParams) {
-          setLocalParams(calculatorParams);
-          setIsLoaded(true);
-          return;
-        }
-
-        // Otherwise, load from AsyncStorage for fresh app launches
-        const savedParams = await getCalorieCalculatorParams();
-        setLocalParams(savedParams);
-        setCalculatorParams(savedParams);
-        setIsLoaded(true);
-      } catch (error) {
-        console.error("Failed to load saved params:", error);
-        // Start with no selection on error
-        setLocalParams(null);
-        setIsLoaded(true);
-      }
-    };
-
-    loadSavedParams();
-  }, [calculatorParams, setCalculatorParams]);
+    setLocalParams(userSettings);
+    setIsLoaded(true);
+  }, [userSettings]);
 
   // Update local params when store changes
   useEffect(() => {
-    if (calculatorParams) {
-      setLocalParams(calculatorParams);
+    if (userSettings) {
+      setLocalParams(userSettings);
     }
-  }, [calculatorParams]);
+  }, [userSettings]);
 
   const handleSexSelect = useCallback(
     async (sex: Sex) => {
       setSelectedSex(sex);
-      const newParams = {
+      const newParams: Partial<UserSettings> = {
         ...stableInitialParams,
         ...localParams,
         sex,
-      };
+      } as Partial<UserSettings>;
       setLocalParams(newParams);
-      setCalculatorParams(newParams);
+      updateUserSettings(newParams);
 
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
       safeNavigate("/settings/calorieCalculator/age");
     },
-    [stableInitialParams, localParams, setCalculatorParams, safeNavigate]
+    [stableInitialParams, localParams, safeNavigate]
   );
 
   const handleManualInput = useCallback(async () => {

@@ -17,7 +17,7 @@ import {
 } from "phosphor-react-native";
 
 import { useTheme } from "@/theme";
-import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { Button } from "@/components/shared/Button";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import { SelectionCard } from "@/components/settings/SelectionCard";
@@ -82,13 +82,15 @@ const calculateProteinIntake = (
 
 export default function ProteinGoalsScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const {
-    calculatorParams,
-    dailyTargets,
-    updateDailyTargets,
-    setProteinCalculation,
-    clearProteinCalculatorData,
-  } = useFoodLogStore();
+  const userSettings = useAppStore((s) => s.userSettings);
+  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  };
+  const setDailyTargets = useAppStore((s) => s.setDailyTargets);
+  const updateUserSettings = useAppStore((s) => s.updateUserSettings);
   const { safeDismissTo, safeReplace } = useNavigationGuard();
 
   const [selectedMethod, setSelectedMethod] =
@@ -99,7 +101,7 @@ export default function ProteinGoalsScreen() {
     [colors, themeObj]
   );
 
-  const bodyWeight = calculatorParams?.weight ?? 70;
+  const bodyWeight = userSettings?.weight ?? 70;
 
   const handleMethodSelect = async (method: ProteinCalculationMethod) => {
     setSelectedMethod(method);
@@ -110,7 +112,7 @@ export default function ProteinGoalsScreen() {
   };
 
   const handleSaveTarget = async (method: ProteinCalculationMethod) => {
-    if (!calculatorParams?.weight || bodyWeight <= 0) {
+    if (!userSettings?.weight || bodyWeight <= 0) {
       Alert.alert("Error", "Missing weight information. Please start over.");
       return;
     }
@@ -123,14 +125,9 @@ export default function ProteinGoalsScreen() {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
       // Update the daily targets
-      const newTargets = { ...dailyTargets, protein: calculatedProtein };
-      await updateDailyTargets(newTargets);
-
-      // Save the calculation for display on settings screen
-      setProteinCalculation(method, bodyWeight, calculatedProtein);
-
-      // Clear calculator params
-      clearProteinCalculatorData();
+      await setDailyTargets({ protein: calculatedProtein });
+      // Remember chosen method in settings so future recalcs can use it
+      updateUserSettings({ proteinCalculationFactor: method.multiplier });
 
       // Go back to close the modal and return to settings
       safeDismissTo("/settings");
@@ -140,7 +137,7 @@ export default function ProteinGoalsScreen() {
     }
   };
 
-  if (!calculatorParams?.weight || bodyWeight <= 0) {
+  if (!userSettings?.weight || bodyWeight <= 0) {
     return (
       <SafeAreaView
         style={[styles.container, styles.centered]}

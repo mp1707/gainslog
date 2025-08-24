@@ -10,11 +10,11 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { LegacyFoodLog, ModalMode } from "src/types-legacy/indexLegacy";
-import {
-  useFoodLogStore,
-  selectFoodLogs,
-} from "src/store-legacy/useFoodLogStore";
+import { FoodLog } from "@/types";
+import { useAppStore } from "@/store";
+import type { ModalMode } from "src/types-legacy/indexLegacy";
+import { useFoodEstimation } from "@/hooks-new/useFoodEstimation";
+import { validateNutritionValues } from "@/utils/nutrition";
 import { useStyles } from "./FoodLogModal.styles";
 import { ModalHeader } from "../ModalHeader";
 import { FoodImageDisplay } from "../FoodImageDisplay";
@@ -28,9 +28,9 @@ export type NutritionMode = "estimation" | "manual";
 interface FoodLogModalProps {
   visible: boolean;
   mode: ModalMode;
-  selectedLog: LegacyFoodLog | null;
+  selectedLog: FoodLog | null;
   onClose: (wasSaved?: boolean) => void;
-  onSave: (log: LegacyFoodLog) => void;
+  onSave: (log: FoodLog) => void;
   isAudioMode?: boolean;
 }
 
@@ -43,7 +43,10 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   isAudioMode = false,
 }) => {
   const styles = useStyles();
-  const foodLogs = useFoodLogStore(selectFoodLogs);
+  const foodLogs = useAppStore((s) => s.foodLogs);
+  const updateFoodLog = useAppStore((s) => s.updateFoodLog);
+  const { estimateFromText, estimateFromImage, createManualLog } =
+    useFoodEstimation();
   const titleInputRef = useRef<any>(null);
 
   // Nutrition mode state - defaults to estimation
@@ -58,7 +61,7 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
   // Custom hooks for state and logic management
   const form = useFoodLogForm();
   const audioRecording = useAudioRecording();
-  const validation = useFoodLogValidation();
+  // legacy validation removed; using validateNutritionValues from utils
 
   // Handle nutrition mode toggle change
   const handleNutritionModeChange = (mode: NutritionMode) => {
@@ -126,24 +129,93 @@ export const FoodLogModal: React.FC<FoodLogModalProps> = ({
     }
   }, [audioRecording.recordingState]);
 
-  const handleSave = () => {
-    const result = validation.validateAndCreateLog(
-      form.formData,
-      currentLog,
-      mode
-    );
+  const handleSave = async () => {
+    const { title, description, calories, protein, carbs, fat } = form.formData;
 
-    if (!result.isValid) {
-      if (result.error) {
-        form.setValidationError(result.error);
-      }
+    // Simple validation: title or description required for text/image estimate when no macros
+    const caloriesNum = calories.trim() ? parseFloat(calories) : undefined;
+    const proteinNum = protein.trim() ? parseFloat(protein) : undefined;
+    const carbsNum = carbs.trim() ? parseFloat(carbs) : undefined;
+    const fatNum = fat.trim() ? parseFloat(fat) : undefined;
+
+    const providedAllMacros =
+      caloriesNum !== undefined &&
+      proteinNum !== undefined &&
+      carbsNum !== undefined &&
+      fatNum !== undefined;
+
+    const validation = validateNutritionValues({
+      calories: caloriesNum,
+      protein: proteinNum,
+      carbs: carbsNum,
+      fat: fatNum,
+    });
+
+    if (!validation.isValid) {
+      form.setValidationError(validation.errors.join("\n"));
       return;
     }
 
-    if (result.log) {
-      // Close modal immediately and let parent handle AI processing
-      onSave(result.log);
-      onClose(true); // Pass true to indicate this was a save action
+    try {
+      // Edit existing log
+      if (mode === "edit" && currentLog) {
+        await updateFoodLog(currentLog.id, {
+          userTitle: title.trim() || undefined,
+          userDescription: description.trim() || undefined,
+          userCalories: caloriesNum,
+          userProtein: proteinNum,
+          userCarbs: carbsNum,
+          userFat: fatNum,
+        });
+        onSave({ ...currentLog, userTitle: title.trim() || undefined });
+        onClose(true);
+        return;
+      }
+
+      // Create new log
+      if (currentLog?.imageUrl && !providedAllMacros) {
+        // Image-based estimation
+        const result = await estimateFromImage(
+          currentLog.imageUrl,
+          title.trim() || undefined,
+          description.trim() || undefined
+        );
+        if (result) {
+          onSave(result.foodLog);
+          onClose(true);
+        }
+        return;
+      }
+
+      if (providedAllMacros) {
+        const result = createManualLog(
+          title.trim(),
+          description.trim(),
+          calories,
+          protein,
+          carbs,
+          fat
+        );
+        onSave(result);
+        onClose(true);
+        return;
+      }
+
+      // Fallback to text-based estimation
+      const text = title.trim() || description.trim();
+      if (!text) {
+        form.setValidationError(
+          "Please provide a title or description, or enter nutrition values."
+        );
+        return;
+      }
+      const result = await estimateFromText(title.trim(), description.trim());
+      if (result) {
+        onSave(result.foodLog);
+        onClose(true);
+      }
+    } catch (e) {
+      form.setValidationError("Failed to save. Please try again.");
     }
   };
 

@@ -12,7 +12,7 @@ import * as Haptics from "expo-haptics";
 import { TrendDownIcon, EqualsIcon, TrendUpIcon } from "phosphor-react-native";
 
 import { useTheme } from "@/theme";
-import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { CALCULATION_METHODS } from "@/components/settings/calculationMethods";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
@@ -24,13 +24,15 @@ import { StyleSheet } from "react-native";
 
 export default function Step3GoalsScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const {
-    calculatorParams,
-    calculatorActivityLevel,
-    dailyTargets,
-    updateDailyTargets,
-    setCalorieCalculation,
-  } = useFoodLogStore();
+  const userSettings = useAppStore((s) => s.userSettings);
+  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  };
+  const updateUserSettings = useAppStore((s) => s.updateUserSettings);
+  const calculateAndSetTargets = useAppStore((s) => s.calculateAndSetTargets);
   const { safeDismissTo, safeReplace } = useNavigationGuard();
 
   const [selectedGoal, setSelectedGoal] = useState<GoalType | null>(null);
@@ -42,11 +44,25 @@ export default function Step3GoalsScreen() {
 
   // Calculate calorie goals based on stored params and activity level
   const calorieGoals = useMemo(() => {
-    if (!calculatorParams || !calculatorActivityLevel) {
+    if (
+      !userSettings?.sex ||
+      !userSettings?.age ||
+      !userSettings?.weight ||
+      !userSettings?.height ||
+      !userSettings?.activityLevel
+    ) {
       return null;
     }
-    return calculateCalorieGoals(calculatorParams, calculatorActivityLevel);
-  }, [calculatorParams, calculatorActivityLevel]);
+    return calculateCalorieGoals(
+      {
+        sex: userSettings.sex,
+        age: userSettings.age,
+        weight: userSettings.weight,
+        height: userSettings.height,
+      },
+      userSettings.activityLevel as any
+    );
+  }, [userSettings]);
 
   const handleGoalSelect = async (goalType: GoalType) => {
     setSelectedGoal(goalType);
@@ -57,7 +73,7 @@ export default function Step3GoalsScreen() {
   };
 
   const handleSaveTarget = async (goalType: GoalType) => {
-    if (!calculatorParams || !calculatorActivityLevel || !calorieGoals) {
+    if (!userSettings || !userSettings.activityLevel || !calorieGoals) {
       Alert.alert(
         "Error",
         "Missing calculation parameters. Please start over."
@@ -79,21 +95,8 @@ export default function Step3GoalsScreen() {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
       // Update the daily targets
-      const newTargets = { ...dailyTargets, calories };
-      await updateDailyTargets(newTargets);
-
-      // Save the calculation for display on settings screen
-      const selectedMethod = CALCULATION_METHODS[calculatorActivityLevel];
-      setCalorieCalculation(
-        selectedMethod,
-        calculatorParams,
-        calculatorActivityLevel,
-        calories,
-        goalType
-      );
-
-      // Save calculator params to AsyncStorage for future use
-      await saveCalorieCalculatorParams(calculatorParams);
+      await updateUserSettings({ calorieGoalType: goalType });
+      await calculateAndSetTargets();
 
       // Go back to close the modal and return to settings
       safeDismissTo("/settings");
@@ -103,7 +106,7 @@ export default function Step3GoalsScreen() {
     }
   };
 
-  if (!calculatorParams || !calculatorActivityLevel || !calorieGoals) {
+  if (!calorieGoals) {
     return (
       <SafeAreaView
         style={[styles.container, styles.centered]}

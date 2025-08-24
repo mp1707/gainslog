@@ -25,6 +25,11 @@ export interface FoodLog {
   // Additional properties
   imageUrl?: string;
   estimationConfidence?: number; // 0-100
+
+  // Transient UI/creation state (not required, not always persisted)
+  localImageUri?: string; // Local image URI before upload
+  isUploading?: boolean; // Track upload state for images
+  isTranscribing?: boolean; // Track transcription state for audio logs
 }
 
 export interface FavoriteEntry {

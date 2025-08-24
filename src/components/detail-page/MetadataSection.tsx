@@ -2,10 +2,10 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useTheme } from "@/theme";
 import { theme } from "@/theme";
-import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
+import { FoodLog } from "@/types";
 
 interface MetadataSectionProps {
-  log: LegacyFoodLog;
+  log: FoodLog;
 }
 
 export const MetadataSection: React.FC<MetadataSectionProps> = ({ log }) => {

@@ -7,6 +7,8 @@ export interface UserSettingsSlice {
 
   updateUserSettings: (settings: Partial<UserSettings>) => void;
   calculateAndSetTargets: () => void;
+  setDailyTargets: (targets: Partial<DailyTargets>) => void;
+  resetDailyTargets: () => void;
 }
 
 const calculateDailyTargets = (settings: UserSettings): DailyTargets => {
@@ -85,4 +87,20 @@ export const createUserSettingsSlice: StateCreator<
       state.dailyTargets = targets;
     });
   },
+
+  setDailyTargets: (targets) =>
+    set((state) => {
+      const current = state.dailyTargets || {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+      };
+      state.dailyTargets = { ...current, ...targets } as DailyTargets;
+    }),
+
+  resetDailyTargets: () =>
+    set((state) => {
+      state.dailyTargets = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+    }),
 });

@@ -22,26 +22,33 @@ export function useNavigationGuard() {
     try {
       // Basic route validation - check if route follows expected patterns
       const validPatterns = [
-        /^\/$/,                                      // Root route
-        /^\/\w+$/,                                   // Single level routes
-        /^\/\w+\/\w+$/,                             // Two level routes
-        /^\/\w+\/\w+\/\w+$/,                        // Three level routes (like /settings/proteinCalculator/editProtein)
-        /^\/\(tabs\)\/\w+$/,                        // Tab routes
-        /^\/\(tabs\)\/\w+\/\w+$/,                   // Tab sub-routes
-        /^\/\(tabs\)\/\w+\/\w+\/\w+$/,              // Tab nested routes
+        /^\/$/, // Root route
+        /^\/\w+$/, // Single level routes
+        /^\/\w+\/\w+$/, // Two level routes
+        /^\/\w+\/\w+\/\w+$/, // Three level routes (like /settings/proteinCalculator/editProtein)
+        /^\/\(tabs\)\/\w+$/, // Tab routes
+        /^\/\(tabs\)\/\w+\/\w+$/, // Tab sub-routes
+        /^\/\(tabs\)\/\w+\/\w+\/\w+$/, // Tab nested routes
       ];
-      
-      return validPatterns.some(pattern => pattern.test(route));
+
+      return validPatterns.some((pattern) => pattern.test(route));
     } catch (error) {
-      console.warn('[NavigationGuard] Route validation error:', error);
+      console.warn("[NavigationGuard] Route validation error:", error);
       return false;
     }
   }, []);
 
   // Unified unlock function called by all events
   const unlockNavigation = useCallback(() => {
+    // Avoid unnecessary state updates if we're already unlocked and idle
+    if (!lockedRef.current && !isNavigating) {
+      return;
+    }
+
     lockedRef.current = false;
-    setIsNavigating(false);
+    if (isNavigating) {
+      setIsNavigating(false);
+    }
 
     // Clear all timeouts if they exist
     if (timeoutRef.current) {
@@ -52,7 +59,7 @@ export function useNavigationGuard() {
       clearTimeout(debounceTimeoutRef.current);
       debounceTimeoutRef.current = null;
     }
-  }, []);
+  }, [isNavigating]);
 
   useEffect(() => {
     // Listen to navigation events that can indicate completion
@@ -114,7 +121,7 @@ export function useNavigationGuard() {
 
       // Validate route before proceeding
       if (!isValidRoute(route)) {
-        console.warn('[NavigationGuard] Invalid route attempted:', route);
+        console.warn("[NavigationGuard] Invalid route attempted:", route);
         return;
       }
 
@@ -130,7 +137,7 @@ export function useNavigationGuard() {
 
           router.navigate(route);
         } catch (error) {
-          console.error('[NavigationGuard] Navigation failed:', error);
+          console.error("[NavigationGuard] Navigation failed:", error);
           // Immediately unlock on navigation failure
           unlockNavigation();
         }
@@ -157,7 +164,10 @@ export function useNavigationGuard() {
 
       // Validate route before proceeding
       if (!isValidRoute(route)) {
-        console.warn('[NavigationGuard] Invalid route attempted (replace):', route);
+        console.warn(
+          "[NavigationGuard] Invalid route attempted (replace):",
+          route
+        );
         return;
       }
 
@@ -173,7 +183,7 @@ export function useNavigationGuard() {
 
           router.replace(route);
         } catch (error) {
-          console.error('[NavigationGuard] Replace navigation failed:', error);
+          console.error("[NavigationGuard] Replace navigation failed:", error);
           // Immediately unlock on navigation failure
           unlockNavigation();
         }
@@ -201,7 +211,10 @@ export function useNavigationGuard() {
 
       // Validate route before proceeding
       if (!isValidRoute(route)) {
-        console.warn('[NavigationGuard] Invalid route attempted (push):', route);
+        console.warn(
+          "[NavigationGuard] Invalid route attempted (push):",
+          route
+        );
         return;
       }
 
@@ -217,7 +230,7 @@ export function useNavigationGuard() {
 
           router.push(route);
         } catch (error) {
-          console.error('[NavigationGuard] Push navigation failed:', error);
+          console.error("[NavigationGuard] Push navigation failed:", error);
           // Immediately unlock on navigation failure
           unlockNavigation();
         }
@@ -244,7 +257,10 @@ export function useNavigationGuard() {
 
       // Validate route before proceeding
       if (!isValidRoute(route)) {
-        console.warn('[NavigationGuard] Invalid route attempted (dismissTo):', route);
+        console.warn(
+          "[NavigationGuard] Invalid route attempted (dismissTo):",
+          route
+        );
         return;
       }
 
@@ -260,7 +276,10 @@ export function useNavigationGuard() {
 
           router.dismissTo(route);
         } catch (error) {
-          console.error('[NavigationGuard] DismissTo navigation failed:', error);
+          console.error(
+            "[NavigationGuard] DismissTo navigation failed:",
+            error
+          );
           // Immediately unlock on navigation failure
           unlockNavigation();
         }

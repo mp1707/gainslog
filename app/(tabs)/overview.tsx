@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
   Text,
@@ -12,38 +12,26 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { useTheme } from "@/theme";
-import {
-  useFoodLogStore,
-  selectSelectedMonth,
-  selectDailyTargets,
-  selectFoodLogs,
-} from "../../src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { DailySummaryCard } from "../../src/components/monthly-food-logs/DailySummaryCard";
 import { MonthPicker } from "../../src/components/monthly-food-logs/MonthPicker";
 import { PageHeader } from "../../src/components/shared/PageHeader";
 
 export default function OverviewTab() {
   // Subscribe to only the needed slices of state with safe defaults
-  const selectedMonth =
-    useFoodLogStore(selectSelectedMonth) ||
-    new Date().toISOString().slice(0, 7);
-  const setSelectedMonth = useFoodLogStore((s) => s.setSelectedMonth);
-  const dailyTargets = useFoodLogStore(selectDailyTargets) || {
+  const [selectedMonth, setSelectedMonth] = useState(
+    new Date().toISOString().slice(0, 7)
+  );
+  const setSelectedDate = useAppStore((s) => s.setSelectedDate);
+  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
     calories: 0,
     protein: 0,
     carbs: 0,
     fat: 0,
   };
-  const loadDailyTargets = useFoodLogStore((s) => s.loadDailyTargets);
-  const navigateToTodayWithDate = useFoodLogStore(
-    (s) => s.navigateToTodayWithDate
-  );
-  const foodLogs = useFoodLogStore(selectFoodLogs) || [];
+  const foodLogs = useAppStore((s) => s.foodLogs) || [];
 
-  // Early return if essential data is not available
-  if (!setSelectedMonth || !loadDailyTargets || !navigateToTodayWithDate) {
-    return null; // or a loading spinner
-  }
+  // No early return needed; selectors available
 
   // Filter logs for the current month using useMemo (fixes infinite re-render)
   const monthlyFoodLogs = useMemo(
@@ -52,10 +40,7 @@ export default function OverviewTab() {
     [foodLogs, selectedMonth]
   );
 
-  // Load daily targets on mount
-  useEffect(() => {
-    loadDailyTargets();
-  }, [loadDailyTargets]);
+  // No explicit load; persisted
 
   // Optimized daily totals computation with better memoization
   const dailyTotals = useMemo(() => {
@@ -86,10 +71,10 @@ export default function OverviewTab() {
         fat = 0;
 
       for (const log of logs) {
-        calories += log.calories;
-        protein += log.protein;
-        carbs += log.carbs;
-        fat += log.fat;
+        calories += log.userCalories ?? log.generatedCalories ?? 0;
+        protein += log.userProtein ?? log.generatedProtein ?? 0;
+        carbs += log.userCarbs ?? log.generatedCarbs ?? 0;
+        fat += log.userFat ?? log.generatedFat ?? 0;
       }
 
       totals.push({
@@ -126,19 +111,16 @@ export default function OverviewTab() {
   );
 
   // Memoized month change handler
-  const handleMonthChange = useCallback(
-    (month: string) => {
-      setSelectedMonth(month);
-    },
-    [setSelectedMonth]
-  );
+  const handleMonthChange = useCallback((month: string) => {
+    setSelectedMonth(month);
+  }, []);
 
   // Memoized day press handler
   const handleDayPress = useCallback(
     (date: string) => {
-      navigateToTodayWithDate(date);
+      setSelectedDate(date);
     },
-    [navigateToTodayWithDate]
+    [setSelectedDate]
   );
 
   // Memoize transformed data with optimized calculations

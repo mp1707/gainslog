@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/theme";
-import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { Button } from "@/components/shared/Button";
 import { StatusIcon } from "@/components/shared/StatusIcon";
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
@@ -25,7 +25,7 @@ import { AppearanceCard } from "@/components/settings/AppearanceCard";
 import { SettingsSection } from "@/components/settings/SettingsSection";
 
 export default function SettingsTab() {
-  const { isLoadingTargets } = useFoodLogStore();
+  const isLoadingTargets = false;
   const { colors, theme: themeObj } = useTheme();
   const keyboardOffset = useKeyboardOffset(true); // true because we have a tab bar
   const { safeNavigate, isNavigating } = useNavigationGuard();
@@ -35,7 +35,7 @@ export default function SettingsTab() {
   const { dailyTargets, fatPercentage, isCaloriesSet, isProteinSet } =
     nutritionCalculations;
 
-  const { resetDailyTargets } = useFoodLogStore();
+  const resetDailyTargetsDirect = useAppStore((s) => s.resetDailyTargets);
 
   const styles = useMemo(
     () => createStyles(colors, themeObj, keyboardOffset),
@@ -292,7 +292,7 @@ export default function SettingsTab() {
 
             <View style={styles.resetButtonContainer}>
               <Button
-                onPress={() => resetTargets(resetDailyTargets)}
+                onPress={() => resetTargets(resetDailyTargetsDirect)}
                 variant="destructive"
                 size="medium"
                 shape="round"
@@ -312,7 +312,7 @@ export default function SettingsTab() {
   );
 }
 
-const resetTargets = (resetDailyTargets: () => Promise<void>) => {
+const resetTargets = (resetDailyTargets: () => void) => {
   Alert.alert(
     "Reset Daily Targets",
     "This will reset all your daily nutrition targets to zero and clear any saved calculations. This action cannot be undone.\\n\\nAre you sure you want to continue?",
@@ -324,9 +324,9 @@ const resetTargets = (resetDailyTargets: () => Promise<void>) => {
       {
         text: "Reset",
         style: "destructive",
-        onPress: async () => {
+        onPress: () => {
           try {
-            await resetDailyTargets();
+            resetDailyTargets();
             Alert.alert(
               "Success",
               "Daily targets have been reset successfully."

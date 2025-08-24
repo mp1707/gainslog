@@ -3,9 +3,9 @@ import { View } from "react-native";
 import Animated, { Layout, FadeInUp } from "react-native-reanimated";
 
 import { AppText } from "@/components/shared/AppText";
-import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
+import { FoodLog } from "@/types";
 import { useTheme } from "@/theme";
-import { useFavoritesStore } from "src/store-legacy/useFavoritesStore";
+import { useAppStore } from "@/store";
 import { styles } from "./FoodLogsList.styles";
 import { LogCard } from "../LogCard";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
@@ -13,15 +13,15 @@ import { SkeletonCard } from "./SkeletonCard/SkeletonCard";
 
 interface FoodLogsListProps {
   isLoadingLogs: boolean;
-  foodLogs: LegacyFoodLog[];
+  foodLogs: FoodLog[];
   onDeleteLog: (logId: string) => Promise<void>;
-  onAddInfo: (log: LegacyFoodLog) => void;
+  onAddInfo: (log: FoodLog) => void;
 }
 
 export const FoodLogsList: React.FC<FoodLogsListProps> = React.memo(
   ({ isLoadingLogs, foodLogs, onDeleteLog, onAddInfo }) => {
     const { theme, colors } = useTheme();
-    const { toggleForLog } = useFavoritesStore();
+    const toggleFavoriteForLog = useAppStore((s) => s.toggleFavoriteForLog);
 
     const handleDeleteLog = useCallback(
       async (logId: string) => {
@@ -31,10 +31,10 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = React.memo(
     );
 
     const handleFavoriteLog = useCallback(
-      async (log: LegacyFoodLog) => {
-        await toggleForLog(log);
+      async (log: FoodLog) => {
+        toggleFavoriteForLog?.(log);
       },
-      [toggleForLog]
+      [toggleFavoriteForLog]
     );
 
     const headerStyle = useMemo(

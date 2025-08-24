@@ -21,7 +21,7 @@ import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/theme";
-import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { saveCalorieCalculatorParams } from "@/store-legacy/storage";
@@ -30,12 +30,13 @@ const inputAccessoryViewID = "calories-input-accessory";
 
 const ManualCalorieInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const {
-    dailyTargets,
-    updateDailyTargets,
-    calculatorParams,
-    clearCalculatorData,
-  } = useFoodLogStore();
+  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  };
+  const setDailyTargets = useAppStore((s) => s.setDailyTargets);
   const { safeDismissTo, isNavigating } = useNavigationGuard();
 
   const [calories, setCalories] = useState<number>(
@@ -102,12 +103,7 @@ const ManualCalorieInputScreen = () => {
         calories: calories,
       };
 
-      await updateDailyTargets(newTargets);
-
-      // Save existing calculator params to AsyncStorage if they exist
-      if (calculatorParams) {
-        await saveCalorieCalculatorParams(calculatorParams);
-      }
+      await setDailyTargets({ calories });
 
       safeDismissTo("/settings");
     } catch (error) {

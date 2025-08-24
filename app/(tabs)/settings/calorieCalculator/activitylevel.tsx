@@ -18,7 +18,7 @@ import {
 } from "phosphor-react-native";
 
 import { useTheme } from "@/theme";
-import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { CALCULATION_METHODS } from "@/components/settings/calculationMethods";
@@ -31,12 +31,12 @@ import { StyleSheet } from "react-native";
 
 export default function Step2ActivityLevelScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const { calculatorActivityLevel, setCalculatorActivityLevel } =
-    useFoodLogStore();
+  const userSettings = useAppStore((s) => s.userSettings);
+  const updateUserSettings = useAppStore((s) => s.updateUserSettings);
   const { safeNavigate } = useNavigationGuard();
 
   const [selectedActivityLevel, setSelectedActivityLevel] =
-    useState<ActivityLevel | null>(calculatorActivityLevel);
+    useState<ActivityLevel | null>(userSettings?.activityLevel || null);
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -47,7 +47,7 @@ export default function Step2ActivityLevelScreen() {
     method: CalorieCalculationMethod
   ) => {
     setSelectedActivityLevel(method.id);
-    setCalculatorActivityLevel(method.id);
+    updateUserSettings({ activityLevel: method.id });
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 

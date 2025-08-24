@@ -155,3 +155,58 @@ export const calculatePercentage = (actual: number, target: number): number => {
   if (target === 0) return 0;
   return Math.round((actual / target) * 100);
 };
+
+// Confidence thresholds and helpers migrated from legacy utils
+export const CONFIDENCE_THRESHOLDS = {
+  HIGH: 80,
+  MEDIUM: 60,
+} as const;
+
+export type ConfidenceLevel = "high" | "medium" | "low" | "uncertain";
+
+export interface ConfidenceInfo {
+  level: ConfidenceLevel;
+  icon: React.ComponentType<any>;
+  label: string;
+  accessibilityLabel: string;
+}
+
+export const getConfidenceInfo = (confidence: number): ConfidenceInfo => {
+  // Lazy import icons to avoid circular deps
+  const {
+    CheckCircle,
+    Warning,
+    WarningCircle,
+    Question,
+  } = require("phosphor-react-native");
+
+  if (confidence === 0) {
+    return {
+      level: "uncertain",
+      icon: Question,
+      label: "Uncertain",
+      accessibilityLabel: "Estimation in progress",
+    };
+  } else if (confidence >= CONFIDENCE_THRESHOLDS.HIGH) {
+    return {
+      level: "high",
+      icon: CheckCircle,
+      label: "High Accuracy",
+      accessibilityLabel: "High accuracy estimation",
+    };
+  } else if (confidence >= CONFIDENCE_THRESHOLDS.MEDIUM) {
+    return {
+      level: "medium",
+      icon: Warning,
+      label: "Medium Accuracy",
+      accessibilityLabel: "Medium accuracy estimation",
+    };
+  } else {
+    return {
+      level: "low",
+      icon: WarningCircle,
+      label: "Low Accuracy",
+      accessibilityLabel: "Low accuracy estimation",
+    };
+  }
+};

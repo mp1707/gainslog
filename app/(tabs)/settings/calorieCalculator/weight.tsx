@@ -15,7 +15,7 @@ import * as Haptics from "expo-haptics";
 import { useFocusEffect } from "@react-navigation/native";
 
 import { useTheme } from "@/theme";
-import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
@@ -24,7 +24,8 @@ const inputAccessoryViewID = "weight-input-accessory";
 
 const WeightSelectionScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const { calculatorParams, setCalculatorParams } = useFoodLogStore();
+  const userSettings = useAppStore((s) => s.userSettings);
+  const updateUserSettings = useAppStore((s) => s.updateUserSettings);
   const { safeNavigate, isNavigating } = useNavigationGuard();
 
   const styles = useMemo(
@@ -32,7 +33,7 @@ const WeightSelectionScreen = () => {
     [colors, themeObj]
   );
 
-  const [weight, setWeight] = useState<number>(calculatorParams?.weight ?? 70);
+  const [weight, setWeight] = useState<number>(userSettings?.weight ?? 70);
   const inputRef = useRef<TextInput>(null);
 
   useFocusEffect(
@@ -49,14 +50,12 @@ const WeightSelectionScreen = () => {
     if (!isNaN(newWeight)) {
       setWeight(newWeight);
 
-      const updatedParams = {
-        ...calculatorParams,
-        sex: calculatorParams?.sex ?? "male",
-        age: calculatorParams?.age ?? 30,
+      updateUserSettings({
+        sex: userSettings?.sex ?? "male",
+        age: userSettings?.age ?? 30,
         weight: newWeight,
-        height: calculatorParams?.height ?? 175,
-      };
-      setCalculatorParams(updatedParams);
+        height: userSettings?.height ?? 175,
+      });
     }
   };
 

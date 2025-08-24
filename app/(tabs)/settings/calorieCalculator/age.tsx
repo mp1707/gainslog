@@ -20,7 +20,7 @@ import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/theme";
-import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
@@ -29,10 +29,11 @@ const inputAccessoryViewID = "age-input-accessory";
 
 const AgeSelectionScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const { calculatorParams, setCalculatorParams } = useFoodLogStore();
+  const userSettings = useAppStore((s) => s.userSettings);
+  const updateUserSettings = useAppStore((s) => s.updateUserSettings);
   const { safeNavigate, isNavigating } = useNavigationGuard();
 
-  const [age, setAge] = useState<number>(calculatorParams?.age ?? 30);
+  const [age, setAge] = useState<number>(userSettings?.age ?? 30);
   const inputRef = useRef<TextInput>(null);
 
   const styles = useMemo(
@@ -41,10 +42,10 @@ const AgeSelectionScreen = () => {
   );
 
   useEffect(() => {
-    if (calculatorParams?.age !== undefined) {
-      setAge(calculatorParams.age);
+    if (userSettings?.age !== undefined) {
+      setAge(userSettings.age);
     }
-  }, [calculatorParams?.age]);
+  }, [userSettings?.age]);
 
   useFocusEffect(
     useCallback(() => {
@@ -70,12 +71,11 @@ const AgeSelectionScreen = () => {
     const newAge = parseInt(text, 10);
     if (!isNaN(newAge)) {
       setAge(newAge);
-      setCalculatorParams({
-        ...calculatorParams,
-        sex: calculatorParams?.sex ?? "male",
+      updateUserSettings({
+        sex: userSettings?.sex ?? "male",
         age: newAge,
-        weight: calculatorParams?.weight ?? 85,
-        height: calculatorParams?.height ?? 175,
+        weight: userSettings?.weight ?? 85,
+        height: userSettings?.height ?? 175,
       });
     }
   };

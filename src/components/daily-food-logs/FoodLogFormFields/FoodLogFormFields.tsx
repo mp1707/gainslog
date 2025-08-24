@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { SparkleIcon, PencilIcon } from "phosphor-react-native";
 
 import { Toggle, type ToggleOption } from "@/components/shared/Toggle";
-import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
+import { FoodLog } from "@/types";
 import { FoodLogFormData } from "../../../hooks/useFoodLogForm";
 import { UseAudioRecordingReturn } from "../../../hooks/useAudioRecording";
 import { NutritionMode } from "../LogModal/FoodLogModal";
@@ -25,7 +25,7 @@ import { InlineRecordButton } from "@/components/shared/InlineRecordButton";
 
 interface FoodLogFormFieldsProps {
   formData: FoodLogFormData;
-  currentLog: LegacyFoodLog | null;
+  currentLog: FoodLog | null;
   audioRecording: UseAudioRecordingReturn;
   nutritionMode: NutritionMode;
   onFieldChange: (field: keyof FoodLogFormData, value: string) => void;

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { LegacyFoodLog, ModalMode } from "src/types-legacy/indexLegacy";
+import { FoodLog } from "@/types";
+import type { ModalMode } from "src/types-legacy/indexLegacy";
 
 export interface FoodLogFormData {
   title: string;
@@ -16,7 +17,7 @@ export interface UseFoodLogFormReturn {
   setValidationError: (error: string) => void;
   updateField: (field: keyof FoodLogFormData, value: string) => void;
   resetForm: () => void;
-  initializeForm: (log: LegacyFoodLog | null, mode: ModalMode) => void;
+  initializeForm: (log: FoodLog | null, mode: ModalMode) => void;
   clearNutritionFields: () => void;
 }
 
@@ -70,10 +71,7 @@ export function useFoodLogForm(): UseFoodLogFormReturn {
     }));
   };
 
-  const initializeForm = (
-    currentLog: LegacyFoodLog | null,
-    mode: ModalMode
-  ) => {
+  const initializeForm = (currentLog: FoodLog | null, mode: ModalMode) => {
     if (currentLog) {
       // For audio logs being transcribed, keep title field empty for user input
       // For other logs, use generatedTitle as fallback
@@ -85,10 +83,22 @@ export function useFoodLogForm(): UseFoodLogFormReturn {
       setFormData({
         title: titleValue,
         description: currentLog.userDescription || "",
-        calories: currentLog.userCalories?.toString() || "",
-        protein: currentLog.userProtein?.toString() || "",
-        carbs: currentLog.userCarbs?.toString() || "",
-        fat: currentLog.userFat?.toString() || "",
+        calories:
+          currentLog.userCalories ?? currentLog.generatedCalories ?? 0
+            ? String(currentLog.userCalories ?? currentLog.generatedCalories)
+            : "",
+        protein:
+          currentLog.userProtein ?? currentLog.generatedProtein ?? 0
+            ? String(currentLog.userProtein ?? currentLog.generatedProtein)
+            : "",
+        carbs:
+          currentLog.userCarbs ?? currentLog.generatedCarbs ?? 0
+            ? String(currentLog.userCarbs ?? currentLog.generatedCarbs)
+            : "",
+        fat:
+          currentLog.userFat ?? currentLog.generatedFat ?? 0
+            ? String(currentLog.userFat ?? currentLog.generatedFat)
+            : "",
       });
     } else if (mode === "create") {
       resetForm();

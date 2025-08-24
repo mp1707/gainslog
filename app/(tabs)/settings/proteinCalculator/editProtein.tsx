@@ -5,14 +5,19 @@ import { PencilIcon, CalculatorIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/theme";
-import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
 
 const EditProteinScreen = React.memo(function EditProteinScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const { dailyTargets, clearProteinCalculatorData } = useFoodLogStore();
+  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  };
   const { safeReplace } = useNavigationGuard();
 
   const styles = useMemo(
@@ -29,9 +34,8 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
 
   const handleStartFresh = useCallback(async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    clearProteinCalculatorData();
     safeReplace("/settings/proteinCalculator/weight");
-  }, [safeReplace, clearProteinCalculatorData]);
+  }, [safeReplace]);
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>

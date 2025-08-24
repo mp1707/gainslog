@@ -17,7 +17,22 @@ import {
 export type AppStore = FoodLogsSlice &
   FavoritesSlice &
   UserSettingsSlice &
-  WeightLogsSlice;
+  WeightLogsSlice & {
+    // UI triggers for new log actions
+    triggerAction:
+      | "manual"
+      | "camera"
+      | "library"
+      | "audio"
+      | "favorites"
+      | null;
+    triggerManualLog: () => void;
+    triggerCameraCapture: () => void;
+    triggerLibraryCapture: () => void;
+    triggerAudioCapture: () => void;
+    triggerFavorites: () => void;
+    clearTrigger: () => void;
+  };
 
 export const useAppStore = create<AppStore>()(
   persist(
@@ -30,6 +45,15 @@ export const useAppStore = create<AppStore>()(
       ...createUserSettingsSlice(set, get, store),
       // @ts-expect-error TODO
       ...createWeightLogsSlice(set, get, store),
+
+      // UI triggers (not persisted via partialize below except triggerAction state will rehydrate but is harmless)
+      triggerAction: null,
+      triggerManualLog: () => set(() => ({ triggerAction: "manual" })),
+      triggerCameraCapture: () => set(() => ({ triggerAction: "camera" })),
+      triggerLibraryCapture: () => set(() => ({ triggerAction: "library" })),
+      triggerAudioCapture: () => set(() => ({ triggerAction: "audio" })),
+      triggerFavorites: () => set(() => ({ triggerAction: "favorites" })),
+      clearTrigger: () => set(() => ({ triggerAction: null })),
     })),
     {
       name: "gainslog-storage",
@@ -42,11 +66,13 @@ export const useAppStore = create<AppStore>()(
         dailyTargets: state.dailyTargets,
         weightLogs: state.weightLogs,
         // Don't persist selectedDate as it should always start with today
+        // Do not persist triggerAction
       }),
       onRehydrateStorage: () => (state) => {
         // Reset selectedDate to today when app starts
         if (state) {
           state.selectedDate = new Date().toISOString().split("T")[0];
+          state.triggerAction = null;
         }
       },
     }

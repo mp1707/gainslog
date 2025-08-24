@@ -9,7 +9,7 @@ import {
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/theme";
-import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
@@ -49,7 +49,12 @@ const GuidelineRow = ({
 
 const EditFatScreen = React.memo(function EditFatScreen() {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const { dailyTargets } = useFoodLogStore();
+  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  };
   const { safeReplace } = useNavigationGuard();
   const { fatPercentage } = useNutritionCalculations();
 

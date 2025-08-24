@@ -9,6 +9,8 @@ export interface FavoritesSlice {
   updateFavorite: (id: string, updates: Partial<FavoriteEntry>) => void;
   deleteFavorite: (id: string) => void;
   createLogFromFavorite: (favoriteId: string, date: string) => void;
+  toggleFavoriteForLog: (foodLog: FoodLog) => void;
+  isFavoriteForLog: (foodLog: FoodLog) => boolean;
 }
 
 export const createFavoritesSlice: StateCreator<
@@ -76,5 +78,75 @@ export const createFavoritesSlice: StateCreator<
     };
 
     get().addFoodLog(newLog);
+  },
+
+  toggleFavoriteForLog: (foodLog) => {
+    const normalize = (value?: string) => (value || "").trim().toLowerCase();
+
+    const toComparable = (log: FoodLog) => ({
+      title: normalize(log.userTitle ?? log.generatedTitle),
+      description: normalize(log.userDescription ?? log.generatedDescription),
+      calories: (log.userCalories ?? log.generatedCalories) || 0,
+      protein: (log.userProtein ?? log.generatedProtein) || 0,
+      carbs: (log.userCarbs ?? log.generatedCarbs) || 0,
+      fat: (log.userFat ?? log.generatedFat) || 0,
+    });
+
+    const comp = toComparable(foodLog);
+    const existing = get().favorites.find((fav) => {
+      const favComp = {
+        title: normalize(fav.title),
+        description: normalize(fav.description),
+        calories: fav.calories || 0,
+        protein: fav.protein || 0,
+        carbs: fav.carbs || 0,
+        fat: fav.fat || 0,
+      };
+      return (
+        favComp.title === comp.title &&
+        favComp.description === comp.description &&
+        favComp.calories === comp.calories &&
+        favComp.protein === comp.protein &&
+        favComp.carbs === comp.carbs &&
+        favComp.fat === comp.fat
+      );
+    });
+
+    if (existing) {
+      // Remove existing
+      set((state) => {
+        state.favorites = state.favorites.filter((f) => f.id !== existing.id);
+      });
+    } else {
+      // Add new
+      get().addFavorite(foodLog);
+    }
+  },
+
+  isFavoriteForLog: (foodLog) => {
+    const normalize = (value?: string) => (value || "").trim().toLowerCase();
+    const comp = {
+      title: normalize(foodLog.userTitle ?? foodLog.generatedTitle),
+      description: normalize(
+        foodLog.userDescription ?? foodLog.generatedDescription
+      ),
+      calories: (foodLog.userCalories ?? foodLog.generatedCalories) || 0,
+      protein: (foodLog.userProtein ?? foodLog.generatedProtein) || 0,
+      carbs: (foodLog.userCarbs ?? foodLog.generatedCarbs) || 0,
+      fat: (foodLog.userFat ?? foodLog.generatedFat) || 0,
+    };
+
+    return (
+      get().favorites.find((fav) => {
+        return (
+          normalize(fav.title) === comp.title &&
+          normalize(fav.description) === comp.description &&
+          (fav.calories || 0) === comp.calories &&
+          (fav.protein || 0) === comp.protein &&
+          (fav.carbs || 0) === comp.carbs &&
+          (fav.fat || 0) === comp.fat
+        );
+      }) !== undefined
+    );
   },
 });

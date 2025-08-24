@@ -1,11 +1,11 @@
 import React from "react";
 import { View, Image } from "react-native";
-import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
+import { FoodLog } from "@/types";
 import { useStyles } from "./FoodImageDisplay.styles";
 import { ImageSkeleton } from "../LogModal/ImageSkeleton";
 
 interface FoodImageDisplayProps {
-  log: LegacyFoodLog;
+  log: FoodLog;
 }
 
 export const FoodImageDisplay: React.FC<FoodImageDisplayProps> = ({ log }) => {

@@ -10,13 +10,13 @@ import {
 import { Camera, PencilSimple } from "phosphor-react-native";
 import { useTheme } from "@/theme";
 import { theme } from "@/theme";
-import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
+import { FoodLog } from "@/types";
 import { useImageCapture } from "@/hooks/useImageCapture";
 
 interface ImageSectionProps {
-  log: LegacyFoodLog;
+  log: FoodLog;
   isEditing: boolean;
-  onLogUpdate: (updatedLog: LegacyFoodLog) => void;
+  onLogUpdate: (updatedLog: FoodLog) => void;
 }
 
 export const ImageSection: React.FC<ImageSectionProps> = ({

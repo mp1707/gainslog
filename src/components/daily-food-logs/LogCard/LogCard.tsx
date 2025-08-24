@@ -9,18 +9,18 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
+import { FoodLog } from "@/types";
 import { useTheme } from "@/theme";
 import { Card } from "@/components/Card";
 import { AppText } from "@/components";
-import { getConfidenceInfo } from "src/utils-legacy/utils";
+import { getConfidenceInfo } from "@/utils/nutrition";
 import { createStyles } from "./LogCard.styles";
 import { LogCardSkeleton } from "./LogCardSkeleton";
 import { NutritionList } from "./NutritionList";
 
 interface LogCardProps {
-  foodLog: LegacyFoodLog;
-  onAddInfo: (log: LegacyFoodLog) => void;
+  foodLog: FoodLog;
+  onAddInfo: (log: FoodLog) => void;
 }
 
 export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
@@ -43,7 +43,7 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
   }));
 
   // Show skeleton while loading
-  const isLoading = foodLog.estimationConfidence === 0;
+  const isLoading = (foodLog.estimationConfidence ?? 0) === 0;
 
   if (isLoading) {
     return <LogCardSkeleton />;
@@ -77,7 +77,7 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
     });
   };
 
-  const confidenceInfo = getConfidenceInfo(foodLog.estimationConfidence);
+  const confidenceInfo = getConfidenceInfo(foodLog.estimationConfidence ?? 0);
   const ConfidenceIcon = confidenceInfo.icon;
 
   const getConfidenceStyles = (level: string) => {
@@ -150,10 +150,11 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onAddInfo }) => {
             <View style={styles.rightSection}>
               <NutritionList
                 nutrition={{
-                  calories: foodLog.calories,
-                  protein: foodLog.protein,
-                  carbs: foodLog.carbs,
-                  fat: foodLog.fat,
+                  calories:
+                    foodLog.userCalories ?? foodLog.generatedCalories ?? 0,
+                  protein: foodLog.userProtein ?? foodLog.generatedProtein ?? 0,
+                  carbs: foodLog.userCarbs ?? foodLog.generatedCarbs ?? 0,
+                  fat: foodLog.userFat ?? foodLog.generatedFat ?? 0,
                 }}
               />
             </View>

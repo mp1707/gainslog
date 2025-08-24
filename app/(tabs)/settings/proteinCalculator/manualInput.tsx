@@ -21,7 +21,7 @@ import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/theme";
-import { useFoodLogStore } from "src/store-legacy/useFoodLogStore";
+import { useAppStore } from "@/store";
 import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
@@ -29,12 +29,13 @@ const inputAccessoryViewID = "protein-input-accessory";
 
 const ManualProteinInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const {
-    dailyTargets,
-    updateDailyTargets,
-    proteinCalculatorParams,
-    clearProteinCalculatorData,
-  } = useFoodLogStore();
+  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  };
+  const setDailyTargets = useAppStore((s) => s.setDailyTargets);
   const { safeDismissTo, isNavigating } = useNavigationGuard();
 
   const [protein, setProtein] = useState<number>(
@@ -101,7 +102,7 @@ const ManualProteinInputScreen = () => {
         protein: protein,
       };
 
-      await updateDailyTargets(newTargets);
+      await setDailyTargets({ protein });
 
       safeDismissTo("/settings");
     } catch (error) {

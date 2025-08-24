@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useTheme } from "@/theme";
 import { theme } from "@/theme";
-import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
+import { FoodLog } from "@/types";
 
 interface NutritionRowProps {
   label: string;
@@ -37,7 +37,7 @@ const NutritionRow: React.FC<NutritionRowProps> = ({
 };
 
 interface NutritionViewCardProps {
-  log: LegacyFoodLog;
+  log: FoodLog;
 }
 
 export const NutritionViewCard: React.FC<NutritionViewCardProps> = ({
@@ -50,28 +50,28 @@ export const NutritionViewCard: React.FC<NutritionViewCardProps> = ({
     <View style={[styles.card, { ...componentStyles.cards }]}>
       <NutritionRow
         label="Calories"
-        value={log.userCalories || log.calories}
+        value={log.userCalories ?? log.generatedCalories ?? 0}
         unit="kcal"
         semanticColor={colors.semantic.calories}
       />
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionRow
         label="Protein"
-        value={log.userProtein || log.protein}
+        value={log.userProtein ?? log.generatedProtein ?? 0}
         unit="g"
         semanticColor={colors.semantic.protein}
       />
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionRow
         label="Carbs"
-        value={log.userCarbs || log.carbs}
+        value={log.userCarbs ?? log.generatedCarbs ?? 0}
         unit="g"
         semanticColor={colors.semantic.carbs}
       />
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionRow
         label="Fat"
-        value={log.userFat || log.fat}
+        value={log.userFat ?? log.generatedFat ?? 0}
         unit="g"
         semanticColor={colors.semantic.fat}
       />

@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { useTheme } from "@/theme";
 import { theme } from "@/theme";
-import { LegacyFoodLog } from "src/types-legacy/indexLegacy";
+import { FoodLog } from "@/types";
 
 interface NutritionEditRowProps {
   label: string;
@@ -58,7 +58,7 @@ const NutritionEditRow: React.FC<NutritionEditRowProps> = ({
 };
 
 interface NutritionEditCardProps {
-  log: LegacyFoodLog;
+  log: FoodLog;
   onUpdateNutrition: (field: string, value: number) => void;
 }
 
@@ -78,7 +78,7 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
     <View style={[styles.card, { ...componentStyles.cards }]}>
       <NutritionEditRow
         label="Calories"
-        value={log.userCalories || log.calories}
+        value={log.userCalories ?? log.generatedCalories ?? 0}
         unit="kcal"
         semanticColor={colors.semantic.calories}
         onChangeText={(text) => handleNumericChange("userCalories", text)}
@@ -86,7 +86,7 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionEditRow
         label="Protein"
-        value={log.userProtein || log.protein}
+        value={log.userProtein ?? log.generatedProtein ?? 0}
         unit="g"
         semanticColor={colors.semantic.protein}
         onChangeText={(text) => handleNumericChange("userProtein", text)}
@@ -94,7 +94,7 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionEditRow
         label="Carbs"
-        value={log.userCarbs || log.carbs}
+        value={log.userCarbs ?? log.generatedCarbs ?? 0}
         unit="g"
         semanticColor={colors.semantic.carbs}
         onChangeText={(text) => handleNumericChange("userCarbs", text)}
@@ -102,7 +102,7 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionEditRow
         label="Fat"
-        value={log.userFat || log.fat}
+        value={log.userFat ?? log.generatedFat ?? 0}
         unit="g"
         semanticColor={colors.semantic.fat}
         onChangeText={(text) => handleNumericChange("userFat", text)}
