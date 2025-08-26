@@ -1,4 +1,16 @@
-import type { ActivityLevel, CalorieCalculationMethod } from "@/types";
+type ActivityLevel =
+  | "sedentary"
+  | "light"
+  | "moderate"
+  | "active"
+  | "veryactive";
+
+interface CalorieCalculationMethod {
+  id: ActivityLevel;
+  title: string;
+  description: string;
+  label: string;
+}
 
 export const CALCULATION_METHODS: Record<
   ActivityLevel,

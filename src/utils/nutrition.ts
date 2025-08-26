@@ -1,4 +1,4 @@
-import { UserSettings, DailyTargets } from "@/types";
+import { UserSettings, DailyTargets } from "@/types/models";
 
 /**
  * Nutrition calculation utilities

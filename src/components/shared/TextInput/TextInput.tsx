@@ -1,8 +1,24 @@
 import React, { useState, forwardRef } from "react";
 import { TextInput as RNTextInput, ViewStyle } from "react-native";
-import { TextInputProps } from "@/types";
 import { useTheme } from "@/theme";
 import { createStyles } from "./TextInput.styles";
+
+interface TextInputProps {
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder?: string;
+  multiline?: boolean;
+  keyboardType?: "default" | "numeric" | "number-pad" | "decimal-pad";
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  autoFocus?: boolean;
+  error?: boolean;
+  disabled?: boolean;
+  style?: any;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+  onFocus?: (e: any) => void;
+  onBlur?: (e: any) => void;
+}
 
 export const TextInput = forwardRef<RNTextInput, TextInputProps>(
   (

@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useTheme, useThemedStyles } from "@/theme";
-import { FoodLog } from "@/types";
+import { FoodLog } from "@/types/models";
 
 interface NutritionRowProps {
   label: string;
@@ -51,28 +51,28 @@ export const NutritionViewCard: React.FC<NutritionViewCardProps> = ({
     <View style={styles.card}>
       <NutritionRow
         label="Calories"
-        value={log.userCalories ?? log.generatedCalories ?? 0}
+        value={log.calories ?? 0}
         unit="kcal"
         semanticColor={colors.semantic.calories}
       />
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionRow
         label="Protein"
-        value={log.userProtein ?? log.generatedProtein ?? 0}
+        value={log.protein ?? 0}
         unit="g"
         semanticColor={colors.semantic.protein}
       />
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionRow
         label="Carbs"
-        value={log.userCarbs ?? log.generatedCarbs ?? 0}
+        value={log.carbs ?? 0}
         unit="g"
         semanticColor={colors.semantic.carbs}
       />
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionRow
         label="Fat"
-        value={log.userFat ?? log.generatedFat ?? 0}
+        value={log.fat ?? 0}
         unit="g"
         semanticColor={colors.semantic.fat}
       />

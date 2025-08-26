@@ -1,1 +1,0 @@
-export { FoodLogScreen } from "./FoodLogScreen";

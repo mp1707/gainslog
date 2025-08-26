@@ -16,7 +16,17 @@ import {
 } from "phosphor-react-native";
 import { useTheme } from "@/theme";
 import { createStyles } from "./ProteinCalculationCard.styles";
-import type { ProteinCalculationMethod } from "@/types";
+
+interface ProteinCalculationMethod {
+  id:
+    | "optimal_growth"
+    | "dedicated_athlete"
+    | "anabolic_insurance"
+    | "max_preservation";
+  title: string;
+  description: string;
+  multiplier: number;
+}
 
 export interface ProteinCalculationCardProps {
   method: ProteinCalculationMethod;

@@ -10,4 +10,3 @@ export const generateId = (prefix: string = "id"): string => {
 
 export const generateFoodLogId = () => generateId("log");
 export const generateFavoriteId = () => generateId("fav");
-export const generateWeightLogId = () => generateId("weight");

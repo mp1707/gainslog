@@ -1,1 +1,0 @@
-export { DescriptionSkeleton } from './DescriptionSkeleton';

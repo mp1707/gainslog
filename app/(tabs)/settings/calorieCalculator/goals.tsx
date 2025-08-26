@@ -12,29 +12,22 @@ import * as Haptics from "expo-haptics";
 import { TrendDownIcon, EqualsIcon, TrendUpIcon } from "phosphor-react-native";
 
 import { useTheme } from "@/theme";
-import { useAppStore } from "@/store";
 import { SelectionCard } from "@/components/settings/SelectionCard";
-import { CALCULATION_METHODS } from "@/components/settings/calculationMethods";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { Button } from "@/components/shared/Button";
 import { ProgressBar } from "@/components/settings/ProgressBar";
-import type { GoalType } from "@/types";
+import type { UserSettings } from "@/types/models";
 import { StyleSheet } from "react-native";
+import { useAppStore } from "@/store/useAppStore";
 
 export default function Step3GoalsScreen() {
   const { colors, theme: themeObj } = useTheme();
   const userSettings = useAppStore((s) => s.userSettings);
-  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
-  };
   const updateUserSettings = useAppStore((s) => s.updateUserSettings);
   const calculateAndSetTargets = useAppStore((s) => s.calculateAndSetTargets);
   const { safeDismissTo, safeReplace } = useNavigationGuard();
 
-  const [selectedGoal, setSelectedGoal] = useState<GoalType | null>(null);
+  const [selectedGoal, setSelectedGoal] = useState<UserSettings["calorieGoalType"] | null>(null);
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),

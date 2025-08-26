@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "react-native";
-import { FoodLog } from "@/types";
+import { FoodLog } from "@/types/models";
 import { useTheme } from "@/theme";
 import { Card } from "@/components/Card";
 import { AppText } from "@/components";
@@ -25,7 +25,7 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onPress }) => {
     return <LogCardSkeleton />;
   }
 
-  const displayTitle = foodLog.userTitle ?? foodLog.generatedTitle;
+  const displayTitle = foodLog.title;
 
   const confidenceInfo = getConfidenceInfo(foodLog.estimationConfidence ?? 0);
   const ConfidenceIcon = confidenceInfo.icon;
@@ -52,54 +52,51 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onPress }) => {
     <View style={styles.cardContainer}>
       <Card elevated={true} style={styles.card}>
         <View style={styles.contentContainer}>
-            <View style={styles.leftSection}>
-              <AppText role="Headline" style={styles.title} numberOfLines={2}>
-                {displayTitle}
+          <View style={styles.leftSection}>
+            <AppText role="Headline" style={styles.title} numberOfLines={2}>
+              {displayTitle}
+            </AppText>
+
+            {foodLog.description && (
+              <AppText
+                role="Body"
+                color="secondary"
+                style={styles.description}
+                numberOfLines={2}
+              >
+                {foodLog.description}
               </AppText>
+            )}
 
-              {(foodLog.userDescription || foodLog.generatedDescription) && (
-                <AppText
-                  role="Body"
-                  color="secondary"
-                  style={styles.description}
-                  numberOfLines={2}
-                >
-                  {foodLog.userDescription || foodLog.generatedDescription}
+            <View style={styles.confidenceContainer}>
+              <View
+                style={[styles.confidenceBadge, confidenceStyles.badge]}
+                accessibilityRole="text"
+                accessibilityLabel={confidenceInfo.accessibilityLabel}
+              >
+                <ConfidenceIcon
+                  size={14}
+                  color={confidenceStyles.text.color}
+                  weight="fill"
+                />
+                <AppText style={[styles.confidenceText, confidenceStyles.text]}>
+                  {confidenceInfo.label}
                 </AppText>
-              )}
-
-              <View style={styles.confidenceContainer}>
-                <View
-                  style={[styles.confidenceBadge, confidenceStyles.badge]}
-                  accessibilityRole="text"
-                  accessibilityLabel={confidenceInfo.accessibilityLabel}
-                >
-                  <ConfidenceIcon
-                    size={14}
-                    color={confidenceStyles.text.color}
-                    weight="fill"
-                  />
-                  <AppText
-                    style={[styles.confidenceText, confidenceStyles.text]}
-                  >
-                    {confidenceInfo.label}
-                  </AppText>
-                </View>
               </View>
             </View>
-
-            <View style={styles.rightSection}>
-              <NutritionList
-                nutrition={{
-                  calories:
-                    foodLog.userCalories ?? foodLog.generatedCalories ?? 0,
-                  protein: foodLog.userProtein ?? foodLog.generatedProtein ?? 0,
-                  carbs: foodLog.userCarbs ?? foodLog.generatedCarbs ?? 0,
-                  fat: foodLog.userFat ?? foodLog.generatedFat ?? 0,
-                }}
-              />
-            </View>
           </View>
+
+          <View style={styles.rightSection}>
+            <NutritionList
+              nutrition={{
+                calories: foodLog.calories,
+                protein: foodLog.protein,
+                carbs: foodLog.carbs,
+                fat: foodLog.fat,
+              }}
+            />
+          </View>
+        </View>
       </Card>
     </View>
   );

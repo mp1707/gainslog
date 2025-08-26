@@ -1,1 +1,0 @@
-export { FoodLogModal } from "./FoodLogModal";

@@ -1,1 +1,0 @@
-export { NutritionGrid } from './NutritionGrid';

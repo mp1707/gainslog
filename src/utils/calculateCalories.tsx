@@ -1,9 +1,6 @@
 import type {
-  ActivityLevel,
-  CalorieGoals,
-  CalorieIntakeParams,
-  Sex,
-} from "@/types";
+  UserSettings,
+} from "@/types/models";
 
 // --- Calculation Logic ---
 
@@ -11,7 +8,7 @@ import type {
  * A dictionary mapping the activity levels to their corresponding
  * Physical Activity Level (PAL) multipliers.
  */
-const activityMultipliers: Record<ActivityLevel, number> = {
+const activityMultipliers: Record<UserSettings["activityLevel"], number> = {
   sedentary: 1.2,
   light: 1.375,
   moderate: 1.55,
@@ -23,7 +20,7 @@ const activityMultipliers: Record<ActivityLevel, number> = {
  * Safety floors for calorie intake to prevent unhealthy recommendations.
  * Diets below these levels should be medically supervised.
  */
-const calorieSafetyFloors: Record<Sex, number> = {
+const calorieSafetyFloors: Record<UserSettings["sex"], number> = {
   female: 1200,
   male: 1500,
 };
@@ -36,9 +33,13 @@ const calorieSafetyFloors: Record<Sex, number> = {
  * @returns An object with calculated calorie goals for weight loss, maintenance, and gain.
  */
 export function calculateCalorieGoals(
-  params: CalorieIntakeParams,
-  activityLevel: ActivityLevel
-): CalorieGoals {
+  params: UserSettings,
+  activityLevel: UserSettings["activityLevel"]
+): {
+  loseWeight: number;
+  maintainWeight: number;
+  gainWeight: number;
+} {
   const { sex, age, weight, height } = params;
 
   if (!sex) {

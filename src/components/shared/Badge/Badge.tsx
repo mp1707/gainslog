@@ -1,11 +1,33 @@
 import React from "react";
 import { View } from "react-native";
 import { CameraIcon } from "phosphor-react-native";
-import { BadgeProps } from "@/types";
 import { LoadingSpinner } from "../LoadingSpinner";
 import { AppText } from "@/components";
 import { useTheme } from "@/theme";
 import { createStyles } from "./Badge.styles";
+
+export interface ConfidenceBadgeProps {
+  confidence: number;
+  isLoading?: boolean;
+}
+
+export interface SemanticBadgeProps {
+  variant: "semantic";
+  semanticType: "calories" | "protein" | "carbs" | "fat";
+  label: string;
+  isLoading?: boolean;
+}
+
+export interface IconBadgeProps {
+  variant: "icon";
+  iconType: "image" | "audio" | "text";
+  isLoading?: boolean;
+}
+
+export type BadgeProps =
+  | (ConfidenceBadgeProps & { variant?: "confidence" })
+  | SemanticBadgeProps
+  | IconBadgeProps;
 
 export const Badge: React.FC<BadgeProps> = (props) => {
   const { colors } = useTheme();

@@ -6,8 +6,19 @@ import {
   ViewStyle,
   TextStyle,
 } from "react-native";
-import { ButtonProps } from "@/types";
 import { styles } from "./Button.styles";
+
+interface ButtonProps {
+  onPress: () => void;
+  disabled?: boolean;
+  shape?: "round" | "square";
+  variant?: "primary" | "secondary" | "tertiary" | "destructive";
+  size?: "small" | "medium" | "large";
+  children: React.ReactNode;
+  style?: any;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+}
 
 export const Button: React.FC<ButtonProps> = ({
   onPress,
