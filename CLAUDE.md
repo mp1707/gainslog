@@ -4,186 +4,193 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Gainslog is an AI-powered food tracking React Native app built with Expo. The app focuses on intelligent nutrition estimation through camera, text, and audio inputs with a clean, motivational design system called "Focused Motivation."
-
-## Key Technologies
-
-- **Expo Router** for file-based navigation
-- **React Native** with TypeScript
-- **Zustand** for state management
-- **Supabase** for backend services and AI edge functions
-- **Phosphor Icons** for iconography
-- **React Native Reanimated** for animations
+Gainslog is an AI-powered food tracking application built with React Native and Expo Router. The app allows users to log food intake through multiple input methods (camera, audio, manual entry) and provides intelligent nutrition estimation using AI services. The app follows a "Focused Motivation" design philosophy with semantic color coding for nutritional data.
 
 ## Development Commands
 
 ```bash
-# Start development server
+# Development (with dev app variant)
+npm run start:dev
+
+# Standard development
 npm start
 
-# Run on platforms
+# Platform-specific development
 npm run android
 npm run ios
 npm run web
 
-# Supabase edge functions (if needed)
-# Functions are located in supabase/functions/
+# Preview/Production variants
+npm run start:preview
+npm run start:prod
 ```
+
+The app uses Expo's build variants system with different bundle IDs for dev/preview/production environments.
 
 ## Architecture Overview
 
+### Core Stack
+- **React Native 0.79.5** with React 19.0.0
+- **Expo Router v5** for file-based routing with tab navigation
+- **Zustand** with Immer for state management and AsyncStorage persistence
+- **Supabase** for backend services and AI Edge Functions
+- **TypeScript** with strict configuration and path mapping
+
 ### Project Structure
-
-The codebase follows a feature-based architecture with atomic design patterns:
-
 ```
+app/                    # Expo Router pages (file-based routing)
+├── (tabs)/            # Tab navigator layout
+├── food-log-detail/   # Food log detail screens
+└── settings/          # Settings screens with nested navigation
+
 src/
-├── features/           # Feature modules (food-logging, image-capture)
-│   └── [feature]/
-│       ├── hooks/      # Business logic hooks
-│       ├── ui/         # Feature-specific UI components
-│       └── utils.ts    # Feature utilities
-├── shared/
-│   ├── ui/
-│   │   ├── atoms/      # Basic UI elements (Button, TextInput)
-│   │   ├── molecules/  # Composite components (FormField, ProgressRing)
-│   │   └── components/ # Complex shared components
-│   ├── hooks/          # Shared custom hooks
-│   └── icons/          # SVG icon components
-├── lib/                # External service integrations
-├── stores/             # Zustand stores
-├── types/              # TypeScript type definitions
-└── theme.ts            # Design system theme
+├── components/        # Feature-organized UI components
+│   ├── shared/       # Reusable components (Button, Modal, etc.)
+│   ├── daily-food-logs/  # Food logging feature components
+│   ├── monthly-food-logs/ # Overview/analytics components
+│   └── settings/     # Settings feature components
+├── hooks/            # Custom React hooks
+├── hooks-new/        # New architecture hooks
+├── store/            # Zustand store slices
+├── services/         # External service integrations
+├── lib/             # Third-party integrations (Supabase, etc.)
+├── theme/           # Design system implementation
+├── utils/           # Pure utility functions
+└── types/           # TypeScript type definitions
 ```
 
-### State Management
+## Key Technologies & Patterns
 
-**Central Store**: `useFoodLogStore` (Zustand) manages:
-- Food logs with date-based filtering
-- Action triggers for cross-screen communication
-- Daily nutrition targets and progress
-- Nutrition visibility preferences
+### State Management - Zustand Store
+The app uses a modular Zustand store with separate slices:
+- `foodLogsSlice` - Food log entries and CRUD operations
+- `favoritesSlice` - Favorite food items
+- `userSettingsSlice` - User preferences and targets
+- `weightLogsSlice` - Weight tracking data
 
-**Key Patterns**:
-- Optimistic UI updates with skeleton states
-- Debounced auto-saving for user inputs
-- Date-based filtering with local timezone handling
+**Key Store Features:**
+- Immer integration for immutable updates
+- AsyncStorage persistence with selective rehydration  
+- UI trigger system for coordinating between components
+- Computed selectors for daily totals and progress tracking
 
-### Navigation
+### Component Architecture
+Components follow a **folder-per-component** pattern for complex components:
+```
+ComponentName/
+├── ComponentName.tsx      # Main component
+├── ComponentName.styles.ts # StyleSheet styles
+├── index.ts              # Barrel export
+├── components/           # Sub-components
+└── hooks/               # Component-specific hooks
+```
 
-Uses Expo Router with tab-based layout:
-- `app/(tabs)/index.tsx` - Today/main screen
-- `app/(tabs)/overview.tsx` - Monthly overview
-- `app/(tabs)/settings.tsx` - Settings screen
-
-### AI Integration
-
-**Supabase Edge Functions** handle AI nutrition estimation:
-- `text-estimation` - Text-based food description analysis
-- `image-estimation` - Image-based food recognition
-- `transcribe-audio` - Audio-to-text transcription
-
-**Estimation Flow**:
-1. User inputs food data (text/image/audio)
-2. Optimistic skeleton added to UI
-3. AI processes input in background
-4. Real data replaces skeleton when ready
-5. Error handling removes skeleton if AI fails
-
-### Custom Hooks Pattern
-
-Business logic is encapsulated in custom hooks:
-- `useCreateFoodLog` - Handles full log creation flow with AI
-- `useNutritionEstimation` - Manages AI estimation process
-- `useImageCapture` - Camera/library image selection
-- `useFoodLogModal` - Modal state and validation
-
-## Design System: "Focused Motivation"
-
-### Color Palette
-- **Accent**: #FF7A5A (Vibrant Coral)
-- **Light Mode**: White cards on #F9F9F9 background
-- **Dark Mode**: #1C1C1E cards on #000000 background
-
-### Typography (Nunito Font)
-- **Title1**: Bold 28pt - Main dashboard greeting
-- **Title2**: Bold 22pt - Screen titles
-- **Headline**: SemiBold 17pt - Card titles, metrics
-- **Body**: Regular 17pt - Main text
-- **Subhead**: Regular 15pt - Secondary info
-- **Caption**: Regular 13pt - Timestamps, annotations
-
-### Spacing (8pt Grid System)
-- Base unit: 8pt
-- Page margins: 20pt horizontal
-- Component spacing: 8pt, 16pt, 24pt, 32pt multiples
-
-### Components
-- **Cards**: 16pt corner radius, subtle shadows in light mode
-- **Buttons**: 12pt corner radius, accent color for primary actions
-- **Icons**: Phosphor icons - Regular weight default, Fill weight for active states
-
-## Important Development Patterns
-
-### TypeScript Path Aliases
-Configured in `tsconfig.json`:
+### Import Path Organization
+The project uses extensive path mapping via TypeScript and Babel:
 ```typescript
-import { Button } from '@/shared/ui/atoms/Button';
-import { useFoodLogStore } from '@/stores/useFoodLogStore';
-import { FoodLog } from '@/types';
+// Import hierarchy (always follow this order):
+// 1. React/React Native
+import { useState } from "react";
+
+// 2. Third-party libraries
+import { router } from "expo-router";
+
+// 3. Internal utils/store (@/lib, @/store, @/utils)
+import { useAppStore } from "@/store";
+
+// 4. Components (general to specific)
+import { Button } from "@/components/shared";
+import { FoodLogCard } from "@/components/daily-food-logs";
+
+// 5. Types
+import type { FoodLog } from "@/types";
 ```
 
-### Date Handling
-All dates use local timezone ISO strings (YYYY-MM-DD format):
-```typescript
-// Get today's date in local timezone
-const getTodayDateString = (): string => {
-  const today = new Date();
-  // Format as YYYY-MM-DD in local timezone
-};
-```
+## Design System Integration
 
-### Animation Guidelines
-- Use `react-native-reanimated` for physics-based animations
-- Default timing: 300ms with easeOut
-- Motivational moments: 500ms with custom bezier curves
-- Respect `prefers-reduced-motion` accessibility setting
+### "Focused Motivation" Design System
+The app implements a comprehensive design system defined in `src/theme/theme.ts`:
 
-### Error Handling
-- AI estimation failures show toast notifications
-- Optimistic UI updates are reverted on errors
-- Storage errors display Alert dialogs
-- Network errors are handled gracefully with retries
+**Semantic Color System:**
+- **Calories:** Green (`#00C853` light / `#69F0AE` dark) - Health and vitality
+- **Protein:** Blue (`#2962FF` light / `#40C4FF` dark) - Strength and building  
+- **Carbs:** Orange (`#FF6D00` light / `#FFAB40` dark) - Energy and fuel
+- **Fat:** Yellow (`#FDB813` light / `#FFD740` dark) - Essential nutrition
+
+**Typography:** Nunito font family with semantic scale (Title1, Title2, Headline, Body, etc.)
+
+**Component Specifications:**
+- Cards: 16pt corner radius with light mode shadows
+- Buttons: 12pt corner radius with accent color (#6200EA/#7C4DFF)
+- 8pt grid spacing system
+
+## AI Integration & Services
+
+### Nutrition Estimation
+The app integrates with Supabase Edge Functions for AI-powered nutrition estimation:
+
+**Services:**
+- `image-estimation` - Analyzes food photos for nutritional content
+- `text-estimation` - Processes text descriptions for nutrition data  
+- `transcribe-audio` - Converts audio recordings to text
+
+**Service Layer:**
+- `NutritionEstimationService` provides clean API abstractions
+- Confidence scoring and validation for AI estimates
+- Error handling and fallback strategies
+
+### Supabase Integration
+- Client configuration in `src/lib/supabase.ts`
+- Edge Functions for serverless AI processing
+- Environment-based configuration via `src/lib/env.ts`
+
+## Component Development Patterns
+
+### Styling Conventions
+- Use `ComponentName.styles.ts` files with React Native StyleSheet
+- Follow design system tokens from theme
+- Implement proper light/dark mode support
+- Use semantic colors for nutrition data visualization
+
+### Hook Patterns
+The app extensively uses custom hooks for logic extraction:
+- `useFoodLogModal` - Modal state management
+- `useFoodEstimation` - AI estimation logic  
+- `useDateNavigation` - Date picker functionality
+- `useImageCapture` - Camera and gallery integration
+
+### Modal & Navigation
+- Custom `BaseModal` component with consistent behavior
+- Expo Router for type-safe navigation
+- Tab-based main navigation with modal overlays
+- Navigation guard hooks for unsaved changes
+
+## Development Guidelines
+
+### TypeScript Patterns
+- Strict TypeScript configuration enabled
+- Comprehensive type definitions in `src/types/`
+- Interface-first component props design
+- Proper error boundary typing
+
+### Testing Strategy
+- Component testing for UI components
+- Hook testing for custom logic
+- Integration testing for store operations
+- E2E testing for critical user flows
+
+### Performance Considerations
+- AsyncStorage optimization for state persistence
+- Image optimization and caching strategies
+- Component memoization where appropriate
+- Bundle splitting via dynamic imports
 
 ## Key Files to Understand
 
-- `src/stores/useFoodLogStore.ts` - Central state management
-- `src/theme.ts` - Complete design system implementation
-- `src/types/index.ts` - Core TypeScript interfaces
-- `src/features/food-logging/hooks/useCreateFoodLog.ts` - Main food logging flow
-- `design-system.json` - Detailed design system specifications
-- `architecture.md` - Explanation of provider pattern (legacy context approach)
+- `src/store/index.ts` - Main store configuration and selectors
+- `src/theme/theme.ts` - Complete design system implementation
+- `src/hooks/useFoodLogModal.ts` - Modal coordination patterns
+- `src/services/nutritionEstimation.ts` - AI service integration
+- `STYLE_GUIDE.md` - Comprehensive design system documentation
 
-## Development Notes
-
-- **Feature Development**: Create new features in `src/features/[feature-name]/`
-- **UI Components**: Follow atomic design - atoms → molecules → components
-- **Business Logic**: Extract complex logic into custom hooks
-- **Styling**: Use theme system and design tokens consistently
-- **Testing**: Test hooks separately from UI components when possible
-- **Performance**: Use optimistic updates for responsive user experience
-
-## Accessibility
-
-- All interactive elements have proper ARIA labels
-- Color contrast meets WCAG 2.2 AA standards
-- Animations respect motion preferences
-- Focus management for keyboard navigation
-- Screen reader support for all text content
-
-## Common Tasks
-
-- **Adding new nutrition metric**: Update `FoodLog` interface, store calculations, and UI components
-- **New AI input method**: Create edge function, add to store triggers, implement UI flow
-- **Design system updates**: Modify `theme.ts` and update component implementations
-- **Performance optimization**: Check for unnecessary re-renders in Zustand selectors
+This codebase emphasizes clean architecture, comprehensive typing, and sophisticated state management while maintaining excellent developer experience through well-organized imports and component structure.
