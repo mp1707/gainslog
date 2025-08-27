@@ -74,7 +74,6 @@ export default function CalculatorLayout() {
         name="editCalories"
         options={{
           title: "",
-          // presentation: "modal",
         }}
       />
     </Stack>

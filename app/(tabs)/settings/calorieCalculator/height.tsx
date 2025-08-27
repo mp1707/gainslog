@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useRef,
-  useCallback,
-} from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -19,34 +13,26 @@ import { useFocusEffect } from "@react-navigation/native";
 import { InteractionManager } from "react-native";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
-
 import { useTheme } from "@/theme";
-import { useAppStore } from "@/store";
+import { useAppStore } from "@/store/useAppStore";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
 
 const inputAccessoryViewID = "height-input-accessory";
 
+const isValidHeight = (height: number | undefined) =>
+  height !== undefined && height >= 100 && height <= 250;
+
 const HeightSelectionScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const userSettings = useAppStore((s) => s.userSettings);
-  const updateUserSettings = useAppStore((s) => s.updateUserSettings);
+  const styles = createStyles(colors, themeObj);
+  const { userSettings, setUserSettings } = useAppStore();
   const { safeNavigate, isNavigating } = useNavigationGuard();
-
-  const [height, setHeight] = useState<number>(userSettings?.height ?? 175);
-  const inputRef = useRef<TextInput>(null);
-
-  const styles = useMemo(
-    () => createStyles(colors, themeObj),
-    [colors, themeObj]
+  const [height, setHeight] = useState<number | undefined>(
+    userSettings?.height
   );
-
-  useEffect(() => {
-    if (userSettings?.height !== undefined) {
-      setHeight(userSettings.height);
-    }
-  }, [userSettings?.height]);
+  const inputRef = useRef<TextInput>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -58,29 +44,24 @@ const HeightSelectionScreen = () => {
   );
 
   const handleHeightChange = (heightText: string) => {
-    const newHeight = heightText === "" ? 0 : parseFloat(heightText);
-
-    if (!isNaN(newHeight)) {
-      setHeight(newHeight);
-
-      updateUserSettings({
-        sex: userSettings?.sex ?? "male",
-        age: userSettings?.age ?? 30,
-        weight: userSettings?.weight ?? 70,
-        height: newHeight,
-      });
-    }
+    const newHeight = Number(heightText);
+    setHeight(newHeight);
   };
 
   const handleContinue = async () => {
-    if (height < 100 || height > 250) {
+    if (!userSettings) return;
+    if (!height) return;
+
+    if (!isValidHeight(height)) {
       Alert.alert(
         "Invalid Height",
-        "Please enter a valid height between 100 and 250 cm.",
+        "Please enter a height between 100 and 250 cm.",
         [{ text: "OK" }]
       );
       return;
     }
+
+    setUserSettings({ ...userSettings, height });
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     safeNavigate("/settings/calorieCalculator/activitylevel");
@@ -108,7 +89,7 @@ const HeightSelectionScreen = () => {
           <View style={styles.inputContainer}>
             <TextInput
               ref={inputRef}
-              value={height === 0 ? "" : height.toString()}
+              value={height?.toString()}
               onChangeText={handleHeightChange}
               placeholder="175"
               keyboardType="numeric"
@@ -140,7 +121,7 @@ const HeightSelectionScreen = () => {
         <CalculatorInputAccessory
           accessibilityLabel="Continue"
           nativeID={inputAccessoryViewID}
-          isValid={height >= 100 && height <= 250}
+          isValid={isValidHeight(height)}
           onContinue={handleContinue}
         />
       )}

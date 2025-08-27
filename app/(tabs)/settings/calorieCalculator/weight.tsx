@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   View,
   TouchableOpacity,
@@ -13,27 +13,25 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 import { useFocusEffect } from "@react-navigation/native";
-
 import { useTheme } from "@/theme";
-import { useAppStore } from "@/store";
+import { useAppStore } from "@/store/useAppStore";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
 
 const inputAccessoryViewID = "weight-input-accessory";
 
+const isValidWeight = (weight: number | undefined) =>
+  weight !== undefined && weight >= 30 && weight <= 300;
+
 const WeightSelectionScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const userSettings = useAppStore((s) => s.userSettings);
-  const updateUserSettings = useAppStore((s) => s.updateUserSettings);
+  const styles = createStyles(colors, themeObj);
+  const { userSettings, setUserSettings } = useAppStore();
   const { safeNavigate, isNavigating } = useNavigationGuard();
-
-  const styles = useMemo(
-    () => createStyles(colors, themeObj),
-    [colors, themeObj]
+  const [weight, setWeight] = useState<number | undefined>(
+    userSettings?.weight
   );
-
-  const [weight, setWeight] = useState<number>(userSettings?.weight ?? 70);
   const inputRef = useRef<TextInput>(null);
 
   useFocusEffect(
@@ -46,21 +44,15 @@ const WeightSelectionScreen = () => {
   );
 
   const handleWeightChange = (weightText: string) => {
-    const newWeight = weightText === "" ? 0 : parseFloat(weightText);
-    if (!isNaN(newWeight)) {
-      setWeight(newWeight);
-
-      updateUserSettings({
-        sex: userSettings?.sex ?? "male",
-        age: userSettings?.age ?? 30,
-        weight: newWeight,
-        height: userSettings?.height ?? 175,
-      });
-    }
+    const newWeight = Number(weightText);
+    setWeight(newWeight);
   };
 
   const handleContinue = async () => {
-    if (weight < 30 || weight > 300) {
+    if (!userSettings) return;
+    if (!weight) return;
+
+    if (!isValidWeight(weight)) {
       Alert.alert(
         "Invalid Weight",
         "Please enter a weight between 30 and 300 kg.",
@@ -69,6 +61,7 @@ const WeightSelectionScreen = () => {
       return;
     }
 
+    setUserSettings({ ...userSettings, weight });
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     safeNavigate("/settings/calorieCalculator/height");
   };
@@ -91,7 +84,7 @@ const WeightSelectionScreen = () => {
           <View style={styles.inputContainer}>
             <TextInput
               ref={inputRef}
-              value={weight === 0 ? "" : weight.toString()}
+              value={weight?.toString()}
               onChangeText={handleWeightChange}
               placeholder="70"
               keyboardType="numeric"

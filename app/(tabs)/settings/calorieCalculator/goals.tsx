@@ -1,11 +1,5 @@
 import React, { useState, useMemo } from "react";
-import {
-  View,
-  ScrollView,
-  KeyboardAvoidingView,
-  Text,
-  Alert,
-} from "react-native";
+import { View, ScrollView, KeyboardAvoidingView, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
@@ -13,89 +7,62 @@ import { TrendDownIcon, EqualsIcon, TrendUpIcon } from "phosphor-react-native";
 
 import { useTheme } from "@/theme";
 import { SelectionCard } from "@/components/settings/SelectionCard";
-import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { Button } from "@/components/shared/Button";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import type { UserSettings } from "@/types/models";
 import { StyleSheet } from "react-native";
 import { useAppStore } from "@/store/useAppStore";
+import { calculateCalorieGoals } from "@/utils/calculateCalories";
 
 export default function Step3GoalsScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const userSettings = useAppStore((s) => s.userSettings);
-  const updateUserSettings = useAppStore((s) => s.updateUserSettings);
-  const calculateAndSetTargets = useAppStore((s) => s.calculateAndSetTargets);
+  const styles = createStyles(colors, themeObj);
+  const { userSettings, setUserSettings, dailyTargets, setDailyTargets } =
+    useAppStore();
   const { safeDismissTo, safeReplace } = useNavigationGuard();
-
-  const [selectedGoal, setSelectedGoal] = useState<UserSettings["calorieGoalType"] | null>(null);
-
-  const styles = useMemo(
-    () => createStyles(colors, themeObj),
-    [colors, themeObj]
-  );
+  const [selectedGoal, setSelectedGoal] = useState<
+    UserSettings["calorieGoalType"] | null
+  >(null);
 
   // Calculate calorie goals based on stored params and activity level
   const calorieGoals = useMemo(() => {
-    if (
-      !userSettings?.sex ||
-      !userSettings?.age ||
-      !userSettings?.weight ||
-      !userSettings?.height ||
-      !userSettings?.activityLevel
-    ) {
-      return null;
-    }
+    if (!userSettings) return;
     return calculateCalorieGoals(
       {
         sex: userSettings.sex,
         age: userSettings.age,
         weight: userSettings.weight,
         height: userSettings.height,
+        activityLevel: userSettings.activityLevel,
+        calorieGoalType: userSettings.calorieGoalType,
       },
       userSettings.activityLevel as any
     );
   }, [userSettings]);
 
-  const handleGoalSelect = async (goalType: GoalType) => {
+  const handleGoalSelect = async (
+    goalType: UserSettings["calorieGoalType"]
+  ) => {
     setSelectedGoal(goalType);
+    if (!userSettings) return;
+    if (!calorieGoals) return;
+    setUserSettings({ ...userSettings, calorieGoalType: goalType });
+    const newDailyTargets = {
+      ...dailyTargets,
+      calories:
+        calorieGoals[
+          goalType === "lose"
+            ? "loseWeight"
+            : goalType === "maintain"
+            ? "maintainWeight"
+            : "gainWeight"
+        ],
+    };
+    setDailyTargets(newDailyTargets);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-    // Auto-save the selected goal and complete the flow
-    await handleSaveTarget(goalType);
-  };
-
-  const handleSaveTarget = async (goalType: GoalType) => {
-    if (!userSettings || !userSettings.activityLevel || !calorieGoals) {
-      Alert.alert(
-        "Error",
-        "Missing calculation parameters. Please start over."
-      );
-      return;
-    }
-
-    const calories =
-      calorieGoals[
-        goalType === "lose"
-          ? "loseWeight"
-          : goalType === "maintain"
-          ? "maintainWeight"
-          : "gainWeight"
-      ];
-
-    try {
-      // Provide success haptic feedback
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
-      // Update the daily targets
-      await updateUserSettings({ calorieGoalType: goalType });
-      await calculateAndSetTargets();
-
-      // Go back to close the modal and return to settings
+    setTimeout(() => {
       safeDismissTo("/settings");
-    } catch (error) {
-      console.error("Error saving calorie target:", error);
-      Alert.alert("Error", "Failed to save calorie target. Please try again.");
-    }
+    }, 300);
   };
 
   if (!calorieGoals) {

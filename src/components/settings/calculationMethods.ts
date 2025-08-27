@@ -1,20 +1,13 @@
-type ActivityLevel =
-  | "sedentary"
-  | "light"
-  | "moderate"
-  | "active"
-  | "veryactive";
+import { UserSettings } from "@/types/models";
 
-interface CalorieCalculationMethod {
-  id: ActivityLevel;
-  title: string;
-  description: string;
-  label: string;
-}
-
-export const CALCULATION_METHODS: Record<
-  ActivityLevel,
-  CalorieCalculationMethod
+export const ACTIVITY_LEVELS: Record<
+  UserSettings["activityLevel"],
+  {
+    id: UserSettings["activityLevel"];
+    title: string;
+    description: string;
+    label: string;
+  }
 > = {
   sedentary: {
     id: "sedentary",

@@ -18,43 +18,44 @@ import {
 } from "phosphor-react-native";
 
 import { useTheme } from "@/theme";
-import { useAppStore } from "@/store";
+import { useAppStore } from "@/store/useAppStore";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { CALCULATION_METHODS } from "@/components/settings/calculationMethods";
+import { ACTIVITY_LEVELS } from "@/components/settings/calculationMethods";
 import { ProgressBar } from "@/components/settings/ProgressBar";
-import type { CalorieCalculationMethod, ActivityLevel } from "@/types";
 import { StyleSheet } from "react-native";
+import { UserSettings } from "@/types/models";
 
 export default function Step2ActivityLevelScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const userSettings = useAppStore((s) => s.userSettings);
-  const updateUserSettings = useAppStore((s) => s.updateUserSettings);
+  const styles = createStyles(colors, themeObj);
+  const { userSettings, setUserSettings } = useAppStore();
   const { safeNavigate } = useNavigationGuard();
 
-  const [selectedActivityLevel, setSelectedActivityLevel] =
-    useState<ActivityLevel | null>(userSettings?.activityLevel || null);
-
-  const styles = useMemo(
-    () => createStyles(colors, themeObj),
-    [colors, themeObj]
-  );
+  const [selectedActivityLevel, setSelectedActivityLevel] = useState<
+    UserSettings["activityLevel"] | undefined
+  >(userSettings?.activityLevel);
 
   const handleActivityLevelSelect = async (
-    method: CalorieCalculationMethod
+    activityLevel: UserSettings["activityLevel"]
   ) => {
-    setSelectedActivityLevel(method.id);
-    updateUserSettings({ activityLevel: method.id });
+    setSelectedActivityLevel(activityLevel);
+
+    if (!userSettings) return;
+
+    setUserSettings({
+      ...userSettings,
+      activityLevel,
+    });
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-    // Auto-advance to next screen after a short delay for visual feedback
     setTimeout(() => {
       safeNavigate("/settings/calorieCalculator/goals");
     }, 300);
   };
 
-  const methods = Object.values(CALCULATION_METHODS);
+  const activityLevels = Object.values(ACTIVITY_LEVELS);
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
@@ -83,7 +84,7 @@ export default function Step2ActivityLevelScreen() {
           </View>
 
           <View style={styles.methodsSection}>
-            {methods.map((method) => {
+            {activityLevels.map((activityLevel) => {
               // Map activity level to appropriate icon
               const getIcon = (id: string) => {
                 switch (id) {
@@ -104,15 +105,15 @@ export default function Step2ActivityLevelScreen() {
 
               return (
                 <SelectionCard
-                  key={method.id}
-                  title={method.title}
-                  description={method.description}
-                  icon={getIcon(method.id)}
+                  key={activityLevel.id}
+                  title={activityLevel.title}
+                  description={activityLevel.description}
+                  icon={getIcon(activityLevel.id)}
                   iconColor={colors.secondaryText}
-                  isSelected={selectedActivityLevel === method.id}
-                  onSelect={() => handleActivityLevelSelect(method)}
-                  accessibilityLabel={`${method.title} activity level`}
-                  accessibilityHint={`Calculate calories for ${method.description.toLowerCase()}`}
+                  isSelected={selectedActivityLevel === activityLevel.id}
+                  onSelect={() => handleActivityLevelSelect(activityLevel.id)}
+                  accessibilityLabel={`${activityLevel.title} activity level`}
+                  accessibilityHint={`Calculate calories for ${activityLevel.description.toLowerCase()}`}
                 />
               );
             })}

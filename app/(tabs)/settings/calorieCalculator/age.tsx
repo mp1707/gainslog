@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useRef,
-  useCallback,
-} from "react";
+import React, { useState, useMemo, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -18,34 +12,24 @@ import { useFocusEffect } from "@react-navigation/native";
 import { InteractionManager } from "react-native";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
-
 import { useTheme } from "@/theme";
-import { useAppStore } from "@/store";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
+import { useAppStore } from "@/store/useAppStore";
 
 const inputAccessoryViewID = "age-input-accessory";
 
+const isValidAge = (age: number | undefined) =>
+  age !== undefined && age >= 15 && age <= 100;
+
 const AgeSelectionScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const userSettings = useAppStore((s) => s.userSettings);
-  const updateUserSettings = useAppStore((s) => s.updateUserSettings);
+  const styles = createStyles(colors, themeObj);
+  const { userSettings, setUserSettings } = useAppStore();
   const { safeNavigate, isNavigating } = useNavigationGuard();
-
-  const [age, setAge] = useState<number>(userSettings?.age ?? 30);
+  const [age, setAge] = useState<number | undefined>(userSettings?.age);
   const inputRef = useRef<TextInput>(null);
-
-  const styles = useMemo(
-    () => createStyles(colors, themeObj),
-    [colors, themeObj]
-  );
-
-  useEffect(() => {
-    if (userSettings?.age !== undefined) {
-      setAge(userSettings.age);
-    }
-  }, [userSettings?.age]);
 
   useFocusEffect(
     useCallback(() => {
@@ -61,23 +45,17 @@ const AgeSelectionScreen = () => {
   );
 
   const handleContinue = async () => {
-    if (age < 15 || age > 100) return;
-
+    if (!isValidAge(age)) return;
+    if (!age) return;
+    if (!userSettings) return;
+    setUserSettings({ ...userSettings, age: age });
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     safeNavigate("/settings/calorieCalculator/weight");
   };
 
-  const handleAgeChange = (text: string) => {
-    const newAge = parseInt(text, 10);
-    if (!isNaN(newAge)) {
-      setAge(newAge);
-      updateUserSettings({
-        sex: userSettings?.sex ?? "male",
-        age: newAge,
-        weight: userSettings?.weight ?? 85,
-        height: userSettings?.height ?? 175,
-      });
-    }
+  const handleAgeChange = (age: string) => {
+    const newAge = Number(age);
+    setAge(newAge);
   };
 
   return (
@@ -101,7 +79,7 @@ const AgeSelectionScreen = () => {
         <View style={styles.inputSection}>
           <TextInput
             ref={inputRef}
-            value={age.toString()}
+            value={age?.toString()}
             onChangeText={handleAgeChange}
             placeholder="30"
             keyboardType="numeric"
@@ -131,7 +109,7 @@ const AgeSelectionScreen = () => {
         <CalculatorInputAccessory
           accessibilityLabel="Continue"
           nativeID={inputAccessoryViewID}
-          isValid={age >= 15 && age <= 100}
+          isValid={isValidAge(age)}
           onContinue={handleContinue}
         />
       )}

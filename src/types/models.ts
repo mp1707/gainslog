@@ -24,10 +24,10 @@ export type Favorite = {
 };
 
 export type DailyTargets = {
-  calories: number;
-  protein: number; // g
-  carbs: number; // g
-  fat: number; // g
+  calories?: number;
+  protein?: number; // g
+  carbs?: number; // g
+  fat?: number; // g
 };
 
 export type UserSettings = {

@@ -1,6 +1,6 @@
-import type {
-  UserSettings,
-} from "@/types/models";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import type { UserSettings } from "@/types/models";
+import { Alert } from "react-native";
 
 // --- Calculation Logic ---
 
@@ -33,7 +33,10 @@ const calorieSafetyFloors: Record<UserSettings["sex"], number> = {
  * @returns An object with calculated calorie goals for weight loss, maintenance, and gain.
  */
 export function calculateCalorieGoals(
-  params: UserSettings,
+  params: Omit<
+    UserSettings,
+    "proteinCalculationFactor" | "fatCalculationPercentage"
+  >,
   activityLevel: UserSettings["activityLevel"]
 ): {
   loseWeight: number;
@@ -41,9 +44,13 @@ export function calculateCalorieGoals(
   gainWeight: number;
 } {
   const { sex, age, weight, height } = params;
+  const { safeDismissTo } = useNavigationGuard();
 
-  if (!sex) {
-    throw new Error("Sex parameter is required for calorie calculation");
+  if (!sex || !age || !weight || !height || !activityLevel) {
+    Alert.alert("Something went wrong. Please try again.");
+    setTimeout(() => {
+      safeDismissTo("/settings/calorieCalculator/goals");
+    }, 1000);
   }
 
   // 1. Calculate Resting Metabolic Rate (RMR) using Mifflin-St Jeor

@@ -21,34 +21,25 @@ import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/theme";
-import { useAppStore } from "@/store";
+import { useAppStore } from "@/store/useAppStore";
 import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
 const inputAccessoryViewID = "calories-input-accessory";
 
+const isValidCalories = (calories: number | undefined) =>
+  calories !== undefined && calories >= 1000 && calories <= 7000;
+
 const ManualCalorieInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
-  };
-  const setDailyTargets = useAppStore((s) => s.setDailyTargets);
+  const styles = createStyles(colors, themeObj);
+  const { dailyTargets, setDailyTargets } = useAppStore();
   const { safeDismissTo, isNavigating } = useNavigationGuard();
 
-  const [calories, setCalories] = useState<number>(
-    dailyTargets?.calories && dailyTargets.calories > 0
-      ? dailyTargets.calories
-      : 2000
+  const [calories, setCalories] = useState<number | undefined>(
+    dailyTargets?.calories
   );
   const inputRef = useRef<TextInput>(null);
-
-  const styles = useMemo(
-    () => createStyles(colors, themeObj),
-    [colors, themeObj]
-  );
 
   useEffect(() => {
     if (dailyTargets?.calories && dailyTargets.calories > 0) {
@@ -70,48 +61,31 @@ const ManualCalorieInputScreen = () => {
   );
 
   const handleCaloriesChange = (caloriesText: string) => {
-    const newCalories = caloriesText === "" ? 0 : parseInt(caloriesText, 10);
+    const newCalories = caloriesText === "" ? undefined : Number(caloriesText);
 
-    if (!isNaN(newCalories)) {
-      setCalories(newCalories);
-    }
+    if (!newCalories) return;
+
+    setCalories(newCalories);
   };
 
   const handleSave = async () => {
-    if (calories < 1000 || calories > 5000) {
+    const newDailyTargets = {
+      ...dailyTargets,
+      calories,
+    };
+    if (!isValidCalories(calories)) {
       Alert.alert(
         "Invalid Calorie Value",
-        "Please enter a calorie value between 1000 and 5000.",
+        "Please enter a calorie value between 1000 and 7000.",
         [{ text: "OK" }]
       );
       return;
     }
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-    try {
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setDailyTargets(newDailyTargets);
 
-      const currentTargets = dailyTargets || {
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-        fat: 0,
-      };
-
-      const newTargets = {
-        ...currentTargets,
-        calories: calories,
-      };
-
-      await setDailyTargets({ calories });
-
-      safeDismissTo("/settings");
-    } catch (error) {
-      console.error("Error saving manual calorie target:", error);
-      Alert.alert(
-        "Save Failed",
-        "Failed to save your calorie target. Please check your connection and try again."
-      );
-    }
+    safeDismissTo("/settings");
   };
 
   return (
@@ -129,7 +103,7 @@ const ManualCalorieInputScreen = () => {
           <View style={styles.inputContainer}>
             <TextInput
               ref={inputRef}
-              value={calories === 0 ? "" : calories.toString()}
+              value={calories?.toString()}
               onChangeText={handleCaloriesChange}
               placeholder="2000"
               keyboardType="number-pad"
@@ -162,7 +136,7 @@ const ManualCalorieInputScreen = () => {
         <CalculatorInputAccessory
           accessibilityLabel="Save Goal"
           nativeID={inputAccessoryViewID}
-          isValid={calories >= 1000 && calories <= 5000}
+          isValid={isValidCalories(calories)}
           onContinue={handleSave}
           buttonText="Save Goal"
         />

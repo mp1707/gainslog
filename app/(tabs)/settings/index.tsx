@@ -8,16 +8,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/theme";
-import { useAppStore } from "@/store";
-import { Button } from "@/components/shared/Button";
+import { useAppStore } from "@/store/useAppStore";
 import { StatusIcon } from "@/components/shared/StatusIcon";
-import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import {
-  calculateFatGramsFromPercentage,
-  calculateCarbsFromMacros,
-} from "@/utils/nutritionCalculations";
 import { StyleSheet } from "react-native";
 import { Card, AppText } from "src/components";
 import { CaretRightIcon } from "phosphor-react-native";
@@ -27,39 +21,22 @@ import { SettingsSection } from "@/components/settings/SettingsSection";
 export default function SettingsTab() {
   const isLoadingTargets = false;
   const { colors, theme: themeObj } = useTheme();
-  const keyboardOffset = useKeyboardOffset(true); // true because we have a tab bar
+  const keyboardOffset = useKeyboardOffset(true);
   const { safeNavigate, isNavigating } = useNavigationGuard();
-
-  // Use extracted hooks
-  const nutritionCalculations = useNutritionCalculations();
-  const { dailyTargets, fatPercentage, isCaloriesSet, isProteinSet } =
-    nutritionCalculations;
-
-  const resetDailyTargetsDirect = useAppStore((s) => s.resetDailyTargets);
+  const { dailyTargets } = useAppStore();
 
   const styles = useMemo(
     () => createStyles(colors, themeObj, keyboardOffset),
     [colors, themeObj, keyboardOffset]
   );
 
+  const isCaloriesSet = dailyTargets?.calories;
+  const isProteinSet = dailyTargets?.protein;
+  const isFatSet = dailyTargets?.fat;
+
   const proteinEnabled = isCaloriesSet;
-  const fatEnabled = isCaloriesSet && isProteinSet;
-  const carbsEnabled = isCaloriesSet && isProteinSet;
-
-  // Helper function to calculate values for card components
-  const calculateMacroValues = () => {
-    const fatGrams = calculateFatGramsFromPercentage(
-      dailyTargets.calories,
-      fatPercentage
-    );
-    const carbsGrams = calculateCarbsFromMacros(
-      dailyTargets.calories,
-      dailyTargets.protein,
-      fatGrams
-    );
-
-    return { fatGrams, carbsGrams };
-  };
+  const fatEnabled = isProteinSet;
+  const carbsEnabled = isFatSet;
 
   if (isLoadingTargets) {
     return (
@@ -73,8 +50,6 @@ export default function SettingsTab() {
       </SafeAreaView>
     );
   }
-
-  const { fatGrams, carbsGrams } = calculateMacroValues();
 
   // Determine next step for guidance icon
   const nextStep = !isCaloriesSet
@@ -226,9 +201,7 @@ export default function SettingsTab() {
                   </AppText>
                   <AppText role="Caption" color="secondary">
                     {fatEnabled
-                      ? `Target: ${Math.round(
-                          fatGrams
-                        )} g (${fatPercentage}% of total calories)`
+                      ? `Target: ${dailyTargets.fat} g`
                       : "Set protein first"}
                   </AppText>
                 </View>
@@ -270,7 +243,7 @@ export default function SettingsTab() {
                   </AppText>
                   <AppText role="Caption" color="secondary">
                     {carbsEnabled
-                      ? `Target: ${Math.round(carbsGrams)} g (rest of calories)`
+                      ? `Target: ${dailyTargets.carbs} g`
                       : "Set protein first"}
                   </AppText>
                 </View>
@@ -290,9 +263,9 @@ export default function SettingsTab() {
               </TouchableOpacity>
             </Card>
 
-            <View style={styles.resetButtonContainer}>
+            {/* <View style={styles.resetButtonContainer}>
               <Button
-                onPress={() => resetTargets(resetDailyTargetsDirect)}
+                onPress={() => resetTargets(resetDailyTargets)}
                 variant="destructive"
                 size="medium"
                 shape="round"
@@ -304,7 +277,7 @@ export default function SettingsTab() {
                   Reset daily targets
                 </AppText>
               </Button>
-            </View>
+            </View> */}
           </SettingsSection>
         </ScrollView>
       </SafeAreaView>

@@ -9,6 +9,10 @@ type AppState = {
   dailyTargets?: DailyTargets;
   userSettings?: UserSettings;
 
+  // UI state
+  selectedDate: string;  // YYYY-MM-DD (for day view)
+  selectedMonth: string; // YYYY-MM (for month view)
+
   // Logs
   addFoodLog: (log: FoodLog) => void;
   updateFoodLog: (id: string, update: Partial<FoodLog>) => void;
@@ -22,6 +26,10 @@ type AppState = {
   // Settings
   setDailyTargets: (targets: DailyTargets) => void;
   setUserSettings: (settings: UserSettings) => void;
+
+  // UI
+  setSelectedDate: (date: string) => void;
+  setSelectedMonth: (month: string) => void;
 };
 
 export const useAppStore = create<AppState>()(
@@ -31,6 +39,10 @@ export const useAppStore = create<AppState>()(
       favorites: [],
       dailyTargets: undefined,
       userSettings: undefined,
+
+      // default to today’s date & current month
+      selectedDate: new Date().toISOString().split("T")[0],   // YYYY-MM-DD
+      selectedMonth: new Date().toISOString().slice(0, 7),    // YYYY-MM
 
       // Logs
       addFoodLog: (log) =>
@@ -49,7 +61,10 @@ export const useAppStore = create<AppState>()(
           state.foodLogs = state.foodLogs.filter((log) => log.id !== id);
         }),
 
-      clearAllLogs: () => set((state) => { state.foodLogs = []; }),
+      clearAllLogs: () =>
+        set((state) => {
+          state.foodLogs = [];
+        }),
 
       // Favorites
       addFavorite: (fav) =>
@@ -71,6 +86,17 @@ export const useAppStore = create<AppState>()(
       setUserSettings: (settings) =>
         set((state) => {
           state.userSettings = settings;
+        }),
+
+      // UI
+      setSelectedDate: (date) =>
+        set((state) => {
+          state.selectedDate = date;
+        }),
+
+      setSelectedMonth: (month) =>
+        set((state) => {
+          state.selectedMonth = month;
         }),
     })),
     { name: "food-app" }

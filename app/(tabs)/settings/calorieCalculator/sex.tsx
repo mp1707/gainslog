@@ -1,92 +1,46 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { View, TouchableOpacity, Text } from "react-native";
+import React, { useMemo, useCallback } from "react";
+import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
 import { GenderMaleIcon, GenderFemaleIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
-
 import { useTheme } from "@/theme";
-import { useAppStore } from "@/store";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import type { Sex } from "@/types";
 import { StyleSheet } from "react-native";
 import { ProgressBar } from "@/components/settings/ProgressBar";
-import { UserSettings } from "@/types";
+import { UserSettings } from "@/types/models";
+import { useAppStore } from "@/store/useAppStore";
 
 const SexSelectionScreen = React.memo(function SexSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const userSettings = useAppStore((s) => s.userSettings);
-  const updateUserSettings = useAppStore((s) => s.updateUserSettings);
-  const { safeNavigate, isNavigating } = useNavigationGuard();
-
-  // Create stable initial params to prevent re-renders
-  const stableInitialParams = useMemo(
-    () => ({
-      age: 30,
-      weight: 85,
-      height: 175,
-    }),
-    []
-  );
-
-  const [localParams, setLocalParams] = useState<Partial<UserSettings> | null>(
-    userSettings
-  );
-  const [selectedSex, setSelectedSex] = useState<Sex | null>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const { userSettings, setUserSettings } = useAppStore();
+  const { safeNavigate } = useNavigationGuard();
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
     [colors, themeObj]
   );
 
-  // Initialize from persisted userSettings
-  useEffect(() => {
-    setLocalParams(userSettings);
-    setIsLoaded(true);
-  }, [userSettings]);
-
-  // Update local params when store changes
-  useEffect(() => {
-    if (userSettings) {
-      setLocalParams(userSettings);
-    }
-  }, [userSettings]);
-
   const handleSexSelect = useCallback(
-    async (sex: Sex) => {
-      setSelectedSex(sex);
-      const newParams: Partial<UserSettings> = {
-        ...stableInitialParams,
-        ...localParams,
+    async (sex: UserSettings["sex"]) => {
+      const newSettings: UserSettings = {
         sex,
-      } as Partial<UserSettings>;
-      setLocalParams(newParams);
-      updateUserSettings(newParams);
+        age: userSettings?.age ?? 30,
+        weight: userSettings?.weight ?? 85,
+        height: userSettings?.height ?? 175,
+        activityLevel: userSettings?.activityLevel ?? "moderate",
+        calorieGoalType: userSettings?.calorieGoalType ?? "maintain",
+        proteinCalculationFactor: userSettings?.proteinCalculationFactor ?? 2.2,
+        fatCalculationPercentage: userSettings?.fatCalculationPercentage ?? 25,
+      };
+      setUserSettings(newSettings);
 
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
       safeNavigate("/settings/calorieCalculator/age");
     },
-    [stableInitialParams, localParams, safeNavigate]
+    [userSettings, setUserSettings, safeNavigate]
   );
-
-  const handleManualInput = useCallback(async () => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    safeNavigate("/settings/calorieCalculator/manualInput");
-  }, [safeNavigate]);
-
-  if (!isLoaded) {
-    return (
-      <SafeAreaView
-        style={[styles.container, styles.centered]}
-        edges={["left", "right"]}
-      >
-        <Text style={styles.loadingText}>Loading...</Text>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
@@ -114,7 +68,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
               description="Biological male"
               icon={GenderMaleIcon}
               iconColor="#4A90E2"
-              isSelected={selectedSex === "male"}
+              isSelected={userSettings?.sex === "male"}
               onSelect={() => handleSexSelect("male")}
               accessibilityLabel="Select male as biological sex"
               accessibilityHint="This will help calculate your calorie needs and advance to the next step"
@@ -125,7 +79,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
               description="Biological female"
               icon={GenderFemaleIcon}
               iconColor="#E24A90"
-              isSelected={selectedSex === "female"}
+              isSelected={userSettings?.sex === "female"}
               onSelect={() => handleSexSelect("female")}
               accessibilityLabel="Select female as biological sex"
               accessibilityHint="This will help calculate your calorie needs and advance to the next step"
