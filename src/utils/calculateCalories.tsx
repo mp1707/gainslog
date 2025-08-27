@@ -44,13 +44,9 @@ export function calculateCalorieGoals(
   gain: number;
 } {
   const { sex, age, weight, height } = params;
-  const { safeDismissTo } = useNavigationGuard();
 
   if (!sex || !age || !weight || !height || !activityLevel) {
-    Alert.alert("Something went wrong. Please try again.");
-    setTimeout(() => {
-      safeDismissTo("/settings/calorieCalculator/goals");
-    }, 1000);
+    throw new Error("Something went wrong. Please try again.");
   }
 
   // 1. Calculate Resting Metabolic Rate (RMR) using Mifflin-St Jeor

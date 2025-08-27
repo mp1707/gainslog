@@ -33,9 +33,12 @@ const inputAccessoryViewID = "fat-input-accessory";
 const ManualFatInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const styles = createStyles(colors, themeObj);
-  const { dailyTargets, setDailyTargets } = useAppStore();
+  const { dailyTargets, setDailyTargets, userSettings, setUserSettings } =
+    useAppStore();
   const { safeDismissTo, isNavigating } = useNavigationGuard();
-  const [fatPercent, setFatPercent] = useState<number>(dailyTargets?.fat || 30);
+  const [fatPercent, setFatPercent] = useState<number>(
+    userSettings?.fatCalculationPercentage || 30
+  );
   const inputRef = useRef<TextInput>(null);
 
   const maxFatPercentage = calculateMaxFatPercentage(
@@ -72,6 +75,8 @@ const ManualFatInputScreen = () => {
     };
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setDailyTargets(newDailyTargets);
+    if (!userSettings) return;
+    setUserSettings({ ...userSettings, fatCalculationPercentage: fatPercent }); 
     safeDismissTo("/settings");
   };
 

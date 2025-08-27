@@ -95,10 +95,10 @@ export default function ProteinGoalsScreen() {
 
   const proteinGoals = useMemo(() => {
     return {
-      optimal_growth: weight * METHODS.optimal_growth.factor,
-      dedicated_athlete: weight * METHODS.dedicated_athlete.factor,
-      anabolic_insurance: weight * METHODS.anabolic_insurance.factor,
-      max_preservation: weight * METHODS.max_preservation.factor,
+      optimal_growth: Math.round(weight * METHODS.optimal_growth.factor),
+      dedicated_athlete: Math.round(weight * METHODS.dedicated_athlete.factor),
+      anabolic_insurance: Math.round(weight * METHODS.anabolic_insurance.factor),
+      max_preservation: Math.round(weight * METHODS.max_preservation.factor),
     };
   }, [userSettings]);
 
@@ -156,7 +156,7 @@ export default function ProteinGoalsScreen() {
 
           <View style={styles.methodsSection}>
             {methods.map((method) => {
-              const calculatedProtein = weight * method.factor;
+              const proteinGoal = proteinGoals[method.id as keyof typeof proteinGoals];
               const IconComponent = getIconForMethod(method.id as string);
 
               return (
@@ -169,12 +169,12 @@ export default function ProteinGoalsScreen() {
                   isSelected={selectedMethod === method.id}
                   onSelect={() => handleMethodSelect(method.id)}
                   dailyTarget={{
-                    value: calculatedProtein,
+                    value: proteinGoal,
                     unit: "g",
                     label: "Daily Target",
                   }}
                   accessibilityLabel={`${method.title} protein calculation method`}
-                  accessibilityHint={`Calculate ${calculatedProtein}g protein per day based on ${method.description.toLowerCase()}`}
+                  accessibilityHint={`Calculate ${proteinGoal}g protein per day based on ${method.description.toLowerCase()}`}
                 />
               );
             })}

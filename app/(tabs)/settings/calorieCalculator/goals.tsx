@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
 import { TrendDownIcon, EqualsIcon, TrendUpIcon } from "phosphor-react-native";
-import { useTheme } from "@/theme";
+import { useTheme } from "@/theme/ThemeProvider";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { Button } from "@/components/shared/Button";
 import { ProgressBar } from "@/components/settings/ProgressBar";
@@ -20,24 +20,23 @@ export default function Step3GoalsScreen() {
     useAppStore();
   const { safeDismissTo, safeReplace } = useNavigationGuard();
   const [selectedGoal, setSelectedGoal] = useState<
-    UserSettings["calorieGoalType"] | null
-  >(null);
+    UserSettings["calorieGoalType"] | undefined
+  >(undefined);
 
   // Calculate calorie goals based on stored params and activity level
-  const calorieGoals = useMemo(() => {
-    if (!userSettings) return;
-    return calculateCalorieGoals(
-      {
-        sex: userSettings.sex,
-        age: userSettings.age,
-        weight: userSettings.weight,
-        height: userSettings.height,
-        activityLevel: userSettings.activityLevel,
-        calorieGoalType: userSettings.calorieGoalType,
-      },
-      userSettings.activityLevel as any
-    );
-  }, [userSettings]);
+  const calorieGoals = !userSettings
+    ? undefined
+    : calculateCalorieGoals(
+        {
+          sex: userSettings.sex,
+          age: userSettings.age,
+          weight: userSettings.weight,
+          height: userSettings.height,
+          activityLevel: userSettings.activityLevel,
+          calorieGoalType: userSettings.calorieGoalType,
+        },
+        userSettings.activityLevel as any
+      );
 
   const handleGoalSelect = async (
     goalType: UserSettings["calorieGoalType"]
