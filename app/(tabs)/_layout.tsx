@@ -49,7 +49,7 @@ export default function TabLayout() {
             ),
           }}
         />
-        <Tabs.Screen
+        {/* <Tabs.Screen
           name="overview"
           options={{
             title: "Overview",
@@ -61,8 +61,8 @@ export default function TabLayout() {
               />
             ),
           }}
-        />
-        <Tabs.Screen
+        /> */}
+        {/* <Tabs.Screen
           name="favorites"
           options={{
             title: "Favorites",
@@ -74,7 +74,7 @@ export default function TabLayout() {
               />
             ),
           }}
-        />
+        /> */}
         <Tabs.Screen
           name="settings"
           options={{
@@ -89,7 +89,7 @@ export default function TabLayout() {
             ),
           }}
         />
-        <Tabs.Screen
+        {/* <Tabs.Screen
           name="new-log"
           options={{
             title: "New",
@@ -113,7 +113,8 @@ export default function TabLayout() {
         />
       </Tabs>
 
-      <NewLogButton visible={isSheetVisible} onClose={closeSheet} />
+      <NewLogButton visible={isSheetVisible} onClose={closeSheet} /> */}
+      </Tabs>
     </>
   );
 }
