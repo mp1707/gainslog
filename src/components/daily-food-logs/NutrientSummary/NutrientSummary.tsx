@@ -16,10 +16,10 @@ import { createStyles } from "./NutrientSummary.styles";
 
 // TypeScript interface for component props
 interface NutrientValues {
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
+  calories?: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
 }
 
 export interface NutrientSummaryProps {
@@ -51,6 +51,10 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
   const availableWidth = screenWidth * 0.35; // Smaller than LargeNutrientHub
   const containerSize = availableWidth;
   const center = containerSize / 2;
+
+  const safeTotals = safeNutrientValues(totals);
+  const safeTargets = safeNutrientValues(targets);
+  const safePercentages = safeNutrientValues(percentages);
 
   const outerRadius = center - STROKE_WIDTHS[0] / 2;
   const ringRadii = useMemo(() => {
@@ -118,10 +122,10 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
     };
 
     const targetValues = {
-      calories: Math.min(1, Math.max(0, (percentages.calories || 0) / 100)),
-      protein: Math.min(1, Math.max(0, (percentages.protein || 0) / 100)),
-      carbs: Math.min(1, Math.max(0, (percentages.carbs || 0) / 100)),
-      fat: Math.min(1, Math.max(0, (percentages.fat || 0) / 100)),
+      calories: Math.min(1, Math.max(0, (safePercentages.calories || 0) / 100)),
+      protein: Math.min(1, Math.max(0, (safePercentages.protein || 0) / 100)),
+      carbs: Math.min(1, Math.max(0, (safePercentages.carbs || 0) / 100)),
+      fat: Math.min(1, Math.max(0, (safePercentages.fat || 0) / 100)),
     };
 
     progress.value = {
@@ -156,7 +160,7 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
         mass: 1,
       });
     }, 150);
-  }, [percentages, progress, scale]);
+  }, [safePercentages, progress, scale]);
 
   const ringColors = useMemo(
     () => ({
@@ -244,31 +248,31 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
         <View style={styles.statsContainer}>
           <NutrientStat
             label="Kcal"
-            currentValue={totals.calories}
-            goalValue={targets.calories}
+            currentValue={safeTotals.calories}
+            goalValue={safeTargets.calories}
             color={colors.semantic.calories}
             style={styles.statItem}
           />
           <NutrientStat
             label="Protein"
-            currentValue={totals.protein}
-            goalValue={targets.protein}
+            currentValue={safeTotals.protein}
+            goalValue={safeTargets.protein}
             unit="g"
             color={colors.semantic.protein}
             style={styles.statItem}
           />
           <NutrientStat
             label="Carbs"
-            currentValue={totals.carbs}
-            goalValue={targets.carbs}
+            currentValue={safeTotals.carbs}
+            goalValue={safeTargets.carbs}
             unit="g"
             color={colors.semantic.carbs}
             style={styles.statItem}
           />
           <NutrientStat
             label="Fat"
-            currentValue={totals.fat}
-            goalValue={targets.fat}
+            currentValue={safeTotals.fat}
+            goalValue={safeTargets.fat}
             unit="g"
             color={colors.semantic.fat}
             style={styles.statItem}
@@ -277,4 +281,13 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
       </View>
     </Card>
   );
+};
+
+const safeNutrientValues = (values: NutrientValues) => {
+  return {
+    calories: values.calories || 0,
+    protein: values.protein || 0,
+    carbs: values.carbs || 0,
+    fat: values.fat || 0,
+  };
 };

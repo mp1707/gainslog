@@ -1,6 +1,7 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FoodLog, Favorite, DailyTargets, UserSettings } from "../types/models";
 
 type AppState = {
@@ -10,7 +11,7 @@ type AppState = {
   userSettings?: UserSettings;
 
   // UI state
-  selectedDate: string;  // YYYY-MM-DD (for day view)
+  selectedDate: string; // YYYY-MM-DD (for day view)
   selectedMonth: string; // YYYY-MM (for month view)
 
   // Logs
@@ -41,8 +42,8 @@ export const useAppStore = create<AppState>()(
       userSettings: undefined,
 
       // default to today’s date & current month
-      selectedDate: new Date().toISOString().split("T")[0],   // YYYY-MM-DD
-      selectedMonth: new Date().toISOString().slice(0, 7),    // YYYY-MM
+      selectedDate: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+      selectedMonth: new Date().toISOString().slice(0, 7), // YYYY-MM
 
       // Logs
       addFoodLog: (log) =>
@@ -99,6 +100,9 @@ export const useAppStore = create<AppState>()(
           state.selectedMonth = month;
         }),
     })),
-    { name: "food-app" }
+    {
+      name: "food-app",
+      storage: createJSONStorage(() => AsyncStorage),
+    }
   )
 );
