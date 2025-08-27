@@ -19,46 +19,29 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
-
 import { useTheme } from "@/theme";
-import { useAppStore } from "@/store";
+import { useAppStore } from "@/store/useAppStore";
 import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
-import { calculateMaxFatPercentage } from "@/utils/nutritionCalculations";
+import {
+  calculateFatGramsFromPercentage,
+  calculateMaxFatPercentage,
+} from "@/utils/nutritionCalculations";
 
 const inputAccessoryViewID = "fat-input-accessory";
 
 const ManualFatInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
-  };
+  const styles = createStyles(colors, themeObj);
+  const { dailyTargets, setDailyTargets } = useAppStore();
   const { safeDismissTo, isNavigating } = useNavigationGuard();
-  const { fatPercentage, handleFatPercentageChange } =
-    useNutritionCalculations();
-
-  const [fatPercent, setFatPercent] = useState<number>(fatPercentage);
+  const [fatPercent, setFatPercent] = useState<number>(dailyTargets?.fat || 30);
   const inputRef = useRef<TextInput>(null);
 
-  const styles = useMemo(
-    () => createStyles(colors, themeObj),
-    [colors, themeObj]
-  );
-
   const maxFatPercentage = calculateMaxFatPercentage(
-    dailyTargets.calories,
-    dailyTargets.protein
+    dailyTargets?.calories || 0,
+    dailyTargets?.protein || 0
   );
-
-  useEffect(() => {
-    if (fatPercentage > 0) {
-      setFatPercent(fatPercentage);
-    }
-  }, [fatPercentage]);
 
   useFocusEffect(
     useCallback(() => {
@@ -74,38 +57,22 @@ const ManualFatInputScreen = () => {
   );
 
   const handleFatPercentChange = (fatText: string) => {
-    const newFatPercent = fatText === "" ? 0 : parseInt(fatText, 10);
-
-    if (!isNaN(newFatPercent)) {
-      setFatPercent(newFatPercent);
-    }
+    const newFatPercent = fatText === "" ? 0 : Number(fatText);
+    setFatPercent(newFatPercent);
   };
 
   const handleSave = async () => {
-    if (fatPercent < 10 || fatPercent > maxFatPercentage) {
-      Alert.alert(
-        "Invalid Fat Percentage",
-        `Please enter a fat percentage between 10% and ${Math.round(
-          maxFatPercentage
-        )}%.`,
-        [{ text: "OK" }]
-      );
-      return;
-    }
-
-    try {
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
-      handleFatPercentageChange(fatPercent);
-
-      safeDismissTo("/settings");
-    } catch (error) {
-      console.error("Error saving manual fat target:", error);
-      Alert.alert(
-        "Save Failed",
-        "Failed to save your fat target. Please check your connection and try again."
-      );
-    }
+    const fat = calculateFatGramsFromPercentage(
+      dailyTargets?.calories || 0,
+      fatPercent
+    );
+    const newDailyTargets = {
+      ...dailyTargets,
+      fat,
+    };
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setDailyTargets(newDailyTargets);
+    safeDismissTo("/settings");
   };
 
   return (

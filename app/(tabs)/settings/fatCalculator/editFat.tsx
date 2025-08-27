@@ -7,12 +7,10 @@ import {
   PencilSimpleIcon,
 } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
-
 import { useTheme } from "@/theme";
-import { useAppStore } from "@/store";
+import { useAppStore } from "@/store/useAppStore";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
 import {
   calculateFatGramsFromPercentage,
   calculateMaxFatPercentage,
@@ -49,29 +47,18 @@ const GuidelineRow = ({
 
 const EditFatScreen = React.memo(function EditFatScreen() {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
-  };
+  const styles = createStyles(colors, themeObj, colorScheme);
+  const { dailyTargets, userSettings } = useAppStore();
   const { safeReplace } = useNavigationGuard();
-  const { fatPercentage } = useNutritionCalculations();
 
-  const styles = useMemo(
-    () => createStyles(colors, themeObj, colorScheme),
-    [colors, themeObj, colorScheme]
+  const fatGrams = calculateFatGramsFromPercentage(
+    dailyTargets?.calories || 0,
+    userSettings?.fatCalculationPercentage || 0
   );
 
-  const fatGrams = useMemo(
-    () => calculateFatGramsFromPercentage(dailyTargets.calories, fatPercentage),
-    [dailyTargets.calories, fatPercentage]
-  );
-
-  const maxFatPercentage = useMemo(
-    () =>
-      calculateMaxFatPercentage(dailyTargets.calories, dailyTargets.protein),
-    [dailyTargets.calories, dailyTargets.protein]
+  const maxFatPercentage = calculateMaxFatPercentage(
+    dailyTargets?.calories || 0,
+    dailyTargets?.protein || 0
   );
 
   const handleEditCurrent = useCallback(async () => {
@@ -85,8 +72,8 @@ const EditFatScreen = React.memo(function EditFatScreen() {
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Fat Target</Text>
           <Text style={styles.fatInfo}>
-            Your current target is: {Math.round(fatGrams)}g ({fatPercentage}% of
-            calories).
+            Your current target is: {Math.round(fatGrams)}g (
+            {userSettings?.fatCalculationPercentage}% of calories).
           </Text>
         </View>
         {/* Interactive Card Section */}
