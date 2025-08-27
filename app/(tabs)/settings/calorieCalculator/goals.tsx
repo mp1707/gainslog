@@ -4,7 +4,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
 import { TrendDownIcon, EqualsIcon, TrendUpIcon } from "phosphor-react-native";
-
 import { useTheme } from "@/theme";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { Button } from "@/components/shared/Button";
@@ -46,17 +45,11 @@ export default function Step3GoalsScreen() {
     setSelectedGoal(goalType);
     if (!userSettings) return;
     if (!calorieGoals) return;
+    if (!goalType) return;
     setUserSettings({ ...userSettings, calorieGoalType: goalType });
     const newDailyTargets = {
       ...dailyTargets,
-      calories:
-        calorieGoals[
-          goalType === "lose"
-            ? "loseWeight"
-            : goalType === "maintain"
-            ? "maintainWeight"
-            : "gainWeight"
-        ],
+      calories: calorieGoals[goalType],
     };
     setDailyTargets(newDailyTargets);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -119,12 +112,12 @@ export default function Step3GoalsScreen() {
               isSelected={selectedGoal === "lose"}
               onSelect={() => handleGoalSelect("lose")}
               dailyTarget={{
-                value: calorieGoals.loseWeight,
+                value: calorieGoals.lose,
                 unit: "kcal",
                 label: "Daily Target",
               }}
               accessibilityLabel="Lose Weight goal"
-              accessibilityHint={`Set ${calorieGoals.loseWeight} calories as your daily goal to create a calorie deficit to lose weight gradually`}
+              accessibilityHint={`Set ${calorieGoals.lose} calories as your daily goal to create a calorie deficit to lose weight gradually`}
             />
 
             <SelectionCard
@@ -135,12 +128,12 @@ export default function Step3GoalsScreen() {
               isSelected={selectedGoal === "maintain"}
               onSelect={() => handleGoalSelect("maintain")}
               dailyTarget={{
-                value: calorieGoals.maintainWeight,
+                value: calorieGoals.maintain,
                 unit: "kcal",
                 label: "Daily Target",
               }}
               accessibilityLabel="Maintain Weight goal"
-              accessibilityHint={`Set ${calorieGoals.maintainWeight} calories as your daily goal to eat at maintenance calories to stay at current weight`}
+              accessibilityHint={`Set ${calorieGoals.maintain} calories as your daily goal to eat at maintenance calories to stay at current weight`}
             />
 
             <SelectionCard
@@ -151,12 +144,12 @@ export default function Step3GoalsScreen() {
               isSelected={selectedGoal === "gain"}
               onSelect={() => handleGoalSelect("gain")}
               dailyTarget={{
-                value: calorieGoals.gainWeight,
+                value: calorieGoals.gain,
                 unit: "kcal",
                 label: "Daily Target",
               }}
               accessibilityLabel="Gain Weight goal"
-              accessibilityHint={`Set ${calorieGoals.gainWeight} calories as your daily goal to create a calorie surplus to gain weight gradually`}
+              accessibilityHint={`Set ${calorieGoals.gain} calories as your daily goal to create a calorie surplus to gain weight gradually`}
             />
           </View>
 

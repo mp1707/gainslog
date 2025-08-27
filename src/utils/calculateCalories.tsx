@@ -35,13 +35,13 @@ const calorieSafetyFloors: Record<UserSettings["sex"], number> = {
 export function calculateCalorieGoals(
   params: Omit<
     UserSettings,
-    "proteinCalculationFactor" | "fatCalculationPercentage"
+    "proteinGoalType" | "fatCalculationPercentage"
   >,
   activityLevel: UserSettings["activityLevel"]
 ): {
-  loseWeight: number;
-  maintainWeight: number;
-  gainWeight: number;
+  lose: number;
+  maintain: number;
+  gain: number;
 } {
   const { sex, age, weight, height } = params;
   const { safeDismissTo } = useNavigationGuard();
@@ -65,22 +65,22 @@ export function calculateCalorieGoals(
 
   // 2. Calculate Total Daily Energy Expenditure (TDEE) for maintenance
   const activityMultiplier = activityMultipliers[activityLevel];
-  const maintainWeight = Math.round(rmr * activityMultiplier);
+  const maintain = Math.round(rmr * activityMultiplier);
 
   // 3. Calculate goals for weight loss and gain
   // A standard, safe deficit of 500 kcal for loss and a modest surplus of 300 kcal for lean gain.
-  let loseWeight = maintainWeight - 500;
-  const gainWeight = maintainWeight + 300;
+  let lose = maintain - 500;
+  const gain = maintain + 300;
 
   // 4. Apply the safety floor to the weight loss goal to prevent unsafe targets
   const safetyFloor = calorieSafetyFloors[sex];
-  if (loseWeight < safetyFloor) {
-    loseWeight = safetyFloor;
+  if (lose < safetyFloor) {
+    lose = safetyFloor;
   }
 
   return {
-    loseWeight: Math.round(loseWeight),
-    maintainWeight,
-    gainWeight: Math.round(gainWeight),
+    lose: Math.round(lose),
+    maintain,
+    gain: Math.round(gain),
   };
 }

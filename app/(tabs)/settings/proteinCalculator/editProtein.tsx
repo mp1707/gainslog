@@ -3,29 +3,18 @@ import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { PencilIcon, CalculatorIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
-
 import { useTheme } from "@/theme";
-import { useAppStore } from "@/store";
+import { useAppStore } from "@/store/useAppStore";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
 
 const EditProteinScreen = React.memo(function EditProteinScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
-  };
+  const styles = createStyles(colors, themeObj);
+  const { dailyTargets } = useAppStore();
   const { safeReplace } = useNavigationGuard();
-
-  const styles = useMemo(
-    () => createStyles(colors, themeObj),
-    [colors, themeObj]
-  );
-
-  const currentProtein = dailyTargets?.protein || 0;
+  const proteinTarget = dailyTargets?.protein || 0;
 
   const handleEditCurrent = useCallback(async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -44,7 +33,7 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Edit your protein target</Text>
           <Text style={styles.description}>
-            Your current target is {currentProtein}g protein. Choose how you'd
+            Your current target is {proteinTarget}g protein. Choose how you'd
             like to update it.
           </Text>
         </View>

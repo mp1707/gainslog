@@ -30,7 +30,6 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
         height: userSettings?.height ?? 175,
         activityLevel: userSettings?.activityLevel ?? "moderate",
         calorieGoalType: userSettings?.calorieGoalType ?? "maintain",
-        proteinCalculationFactor: userSettings?.proteinCalculationFactor ?? 2.2,
         fatCalculationPercentage: userSettings?.fatCalculationPercentage ?? 25,
       };
       setUserSettings(newSettings);

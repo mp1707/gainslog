@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useRef,
-  useCallback,
-} from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -12,16 +6,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
-  Alert,
   InteractionManager,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
-
 import { useTheme } from "@/theme";
-import { useAppStore } from "@/store";
+import { useAppStore } from "@/store/useAppStore";
 import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
@@ -29,32 +21,13 @@ const inputAccessoryViewID = "protein-input-accessory";
 
 const ManualProteinInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
-  };
-  const setDailyTargets = useAppStore((s) => s.setDailyTargets);
+  const styles = createStyles(colors, themeObj);
+  const { dailyTargets, setDailyTargets } = useAppStore();
   const { safeDismissTo, isNavigating } = useNavigationGuard();
-
-  const [protein, setProtein] = useState<number>(
-    dailyTargets?.protein && dailyTargets.protein > 0
-      ? dailyTargets.protein
-      : 100
+  const [protein, setProtein] = useState<number | undefined>(
+    dailyTargets?.protein || 0
   );
   const inputRef = useRef<TextInput>(null);
-
-  const styles = useMemo(
-    () => createStyles(colors, themeObj),
-    [colors, themeObj]
-  );
-
-  useEffect(() => {
-    if (dailyTargets?.protein && dailyTargets.protein > 0) {
-      setProtein(dailyTargets.protein);
-    }
-  }, [dailyTargets?.protein]);
 
   useFocusEffect(
     useCallback(() => {
@@ -70,48 +43,18 @@ const ManualProteinInputScreen = () => {
   );
 
   const handleProteinChange = (proteinText: string) => {
-    const newProtein = proteinText === "" ? 0 : parseInt(proteinText, 10);
-
-    if (!isNaN(newProtein)) {
-      setProtein(newProtein);
-    }
+    const newProtein = proteinText === "" ? 0 : Number(proteinText);
+    setProtein(newProtein);
   };
 
   const handleSave = async () => {
-    if (protein < 50 || protein > 500) {
-      Alert.alert(
-        "Invalid Protein Value",
-        "Please enter a protein value between 50 and 500 grams.",
-        [{ text: "OK" }]
-      );
-      return;
-    }
-
-    try {
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
-      const currentTargets = dailyTargets || {
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-        fat: 0,
-      };
-
-      const newTargets = {
-        ...currentTargets,
-        protein: protein,
-      };
-
-      await setDailyTargets({ protein });
-
-      safeDismissTo("/settings");
-    } catch (error) {
-      console.error("Error saving manual protein target:", error);
-      Alert.alert(
-        "Save Failed",
-        "Failed to save your protein target. Please check your connection and try again."
-      );
-    }
+    const newDailyTargets = {
+      ...dailyTargets,
+      protein,
+    };
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setDailyTargets(newDailyTargets);
+    safeDismissTo("/settings");
   };
 
   return (
@@ -129,7 +72,7 @@ const ManualProteinInputScreen = () => {
           <View style={styles.inputContainer}>
             <TextInput
               ref={inputRef}
-              value={protein === 0 ? "" : protein.toString()}
+              value={protein?.toString()}
               onChangeText={handleProteinChange}
               placeholder="100"
               keyboardType="number-pad"
@@ -162,7 +105,7 @@ const ManualProteinInputScreen = () => {
         <CalculatorInputAccessory
           accessibilityLabel="Save Goal"
           nativeID={inputAccessoryViewID}
-          isValid={protein >= 50 && protein <= 500}
+          isValid={true}
           onContinue={handleSave}
           buttonText="Save Goal"
         />

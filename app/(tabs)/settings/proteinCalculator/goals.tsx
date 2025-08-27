@@ -17,42 +17,48 @@ import {
 } from "phosphor-react-native";
 
 import { useTheme } from "@/theme";
-import { useAppStore } from "@/store";
+import { useAppStore } from "@/store/useAppStore";
 import { Button } from "@/components/shared/Button";
-import { ProgressBar } from "@/components/settings/ProgressBar";
 import { SelectionCard } from "@/components/settings/SelectionCard";
-import type { ProteinCalculationMethod } from "@/types";
 import { StyleSheet } from "react-native";
+import { UserSettings } from "@/types/models";
 
-// Protein calculation methods with their configurations
-const CALCULATION_METHODS: Record<string, ProteinCalculationMethod> = {
+const METHODS: Record<
+  NonNullable<UserSettings["proteinGoalType"]>,
+  {
+    id: NonNullable<UserSettings["proteinGoalType"]>;
+    title: string;
+    description: string;
+    factor: number;
+  }
+> = {
   optimal_growth: {
     id: "optimal_growth",
     title: "1.6 g/kg - Optimal Growth",
     description:
       "The evidence-based point of diminishing returns for maximizing muscle growth in a caloric surplus or maintenance.",
-    multiplier: 1.6,
+    factor: 1.6,
   },
   dedicated_athlete: {
     id: "dedicated_athlete",
     title: "2.0 g/kg - Dedicated Athlete",
     description:
       "A robust target for dedicated athletes to optimize all training adaptations and ensure consistent muscle growth.",
-    multiplier: 2.0,
+    factor: 2.0,
   },
   anabolic_insurance: {
     id: "anabolic_insurance",
     title: "2.2 g/kg - Anabolic Insurance",
     description:
       "The upper-end target to ensure protein is never a limiting factor. Ideal for advanced athletes.",
-    multiplier: 2.2,
+    factor: 2.2,
   },
   max_preservation: {
     id: "max_preservation",
     title: "3.0 g/kg - Max Preservation",
     description:
       "A very high intake to maximize muscle retention during a significant or prolonged caloric deficit (cutting).",
-    multiplier: 3.0,
+    factor: 3.0,
   },
 };
 
@@ -72,92 +78,45 @@ const getIconForMethod = (methodId: string) => {
   }
 };
 
-// Calculate protein intake (convert kg to grams, round to nearest 5)
-const calculateProteinIntake = (
-  bodyWeight: number,
-  multiplier: number
-): number => {
-  return bodyWeight > 0 ? Math.round((bodyWeight * multiplier) / 5) * 5 : 0;
-};
-
 export default function ProteinGoalsScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const userSettings = useAppStore((s) => s.userSettings);
-  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
-  };
-  const setDailyTargets = useAppStore((s) => s.setDailyTargets);
-  const updateUserSettings = useAppStore((s) => s.updateUserSettings);
+  const styles = createStyles(colors, themeObj);
+  const { userSettings, setUserSettings, dailyTargets, setDailyTargets } =
+    useAppStore();
   const { safeDismissTo, safeReplace } = useNavigationGuard();
+  const weight = userSettings?.weight || 0;
+  const [selectedMethod, setSelectedMethod] = useState<
+    UserSettings["proteinGoalType"] | undefined
+  >(undefined);
 
-  const [selectedMethod, setSelectedMethod] =
-    useState<ProteinCalculationMethod | null>(null);
+  const proteinGoals = useMemo(() => {
+    return {
+      optimal_growth: weight * METHODS.optimal_growth.factor,
+      dedicated_athlete: weight * METHODS.dedicated_athlete.factor,
+      anabolic_insurance: weight * METHODS.anabolic_insurance.factor,
+      max_preservation: weight * METHODS.max_preservation.factor,
+    };
+  }, [userSettings]);
 
-  const styles = useMemo(
-    () => createStyles(colors, themeObj),
-    [colors, themeObj]
-  );
-
-  const bodyWeight = userSettings?.weight ?? 70;
-
-  const handleMethodSelect = async (method: ProteinCalculationMethod) => {
+  const handleMethodSelect = async (
+    method: UserSettings["proteinGoalType"]
+  ) => {
     setSelectedMethod(method);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-    // Auto-save the selected method and complete the flow
-    await handleSaveTarget(method);
-  };
-
-  const handleSaveTarget = async (method: ProteinCalculationMethod) => {
-    if (!userSettings?.weight || bodyWeight <= 0) {
-      Alert.alert("Error", "Missing weight information. Please start over.");
-      return;
-    }
-
-    const calculatedProtein =
-      Math.round((bodyWeight * method.multiplier) / 5) * 5;
-
-    try {
-      // Provide success haptic feedback
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
-      // Update the daily targets
-      await setDailyTargets({ protein: calculatedProtein });
-      // Remember chosen method in settings so future recalcs can use it
-      updateUserSettings({ proteinCalculationFactor: method.multiplier });
-
-      // Go back to close the modal and return to settings
+    if (!userSettings) return;
+    setUserSettings({ ...userSettings, proteinGoalType: method });
+    const newDailyTargets = {
+      ...dailyTargets,
+      protein: proteinGoals[method as keyof typeof proteinGoals],
+    };
+    setDailyTargets(newDailyTargets);
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setTimeout(() => {
       safeDismissTo("/settings");
-    } catch (error) {
-      console.error("Error saving protein target:", error);
-      Alert.alert("Error", "Failed to save protein target. Please try again.");
-    }
+    }, 300);
   };
 
-  if (!userSettings?.weight || bodyWeight <= 0) {
-    return (
-      <SafeAreaView
-        style={[styles.container, styles.centered]}
-        edges={["left", "right"]}
-      >
-        <Text style={styles.errorText}>
-          Missing weight data. Please start over.
-        </Text>
-        <Button
-          onPress={() => safeReplace("/settings")}
-          disabled={false}
-          style={styles.backButton}
-        >
-          Go Back
-        </Button>
-      </SafeAreaView>
-    );
-  }
-
-  const methods = Object.values(CALCULATION_METHODS);
+  const methods = Object.values(METHODS);
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
@@ -175,17 +134,14 @@ export default function ProteinGoalsScreen() {
               Select the option that best matches your training and goals.
             </Text>
             <Text style={styles.weightInfo}>
-              Based on your weight of {bodyWeight}kg
+              Based on your weight of {weight}kg
             </Text>
           </View>
 
           <View style={styles.methodsSection}>
             {methods.map((method) => {
-              const calculatedProtein = calculateProteinIntake(
-                bodyWeight,
-                method.multiplier
-              );
-              const IconComponent = getIconForMethod(method.id);
+              const calculatedProtein = weight * method.factor;
+              const IconComponent = getIconForMethod(method.id as string);
 
               return (
                 <SelectionCard
@@ -194,8 +150,8 @@ export default function ProteinGoalsScreen() {
                   description={method.description}
                   icon={IconComponent}
                   iconColor={colors.primaryText}
-                  isSelected={selectedMethod?.id === method.id}
-                  onSelect={() => handleMethodSelect(method)}
+                  isSelected={selectedMethod === method.id}
+                  onSelect={() => handleMethodSelect(method.id)}
                   dailyTarget={{
                     value: calculatedProtein,
                     unit: "g",

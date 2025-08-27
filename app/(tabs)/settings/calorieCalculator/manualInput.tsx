@@ -82,9 +82,7 @@ const ManualCalorieInputScreen = () => {
       return;
     }
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
     setDailyTargets(newDailyTargets);
-
     safeDismissTo("/settings");
   };
 

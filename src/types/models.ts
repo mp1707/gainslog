@@ -36,7 +36,11 @@ export type UserSettings = {
   weight: number; // kg
   height: number; // cm
   activityLevel: "sedentary" | "light" | "moderate" | "active" | "veryactive";
-  calorieGoalType: "lose" | "maintain" | "gain";
-  proteinCalculationFactor: number; // g per kg BW
+  calorieGoalType?: "lose" | "maintain" | "gain";
+  proteinGoalType?:
+    | "optimal_growth"
+    | "dedicated_athlete"
+    | "anabolic_insurance"
+    | "max_preservation"; // g per kg BW
   fatCalculationPercentage: number; // % of total calories
 };
