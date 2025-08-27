@@ -22,6 +22,10 @@ import { Button } from "@/components/shared/Button";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { StyleSheet } from "react-native";
 import { UserSettings } from "@/types/models";
+import {
+  calculateCarbsFromMacros,
+  calculateFatGramsFromPercentage,
+} from "@/utils/nutritionCalculations";
 
 const METHODS: Record<
   NonNullable<UserSettings["proteinGoalType"]>,
@@ -108,6 +112,18 @@ export default function ProteinGoalsScreen() {
     const newDailyTargets = {
       ...dailyTargets,
       protein: proteinGoals[method as keyof typeof proteinGoals],
+      fat: calculateFatGramsFromPercentage(
+        dailyTargets?.calories || 0,
+        userSettings?.fatCalculationPercentage || 0
+      ),
+      carbs: calculateCarbsFromMacros(
+        dailyTargets?.calories || 0,
+        proteinGoals[method as keyof typeof proteinGoals],
+        calculateFatGramsFromPercentage(
+          dailyTargets?.calories || 0,
+          userSettings?.fatCalculationPercentage || 0
+        )
+      ),
     };
     setDailyTargets(newDailyTargets);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

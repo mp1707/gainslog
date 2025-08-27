@@ -2,8 +2,7 @@ import React, { useMemo } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/theme";
-import { useAppStore } from "@/store";
-import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
+import { useAppStore } from "@/store/useAppStore";
 import {
   calculateFatGramsFromPercentage,
   calculateCarbsFromMacros,
@@ -12,42 +11,37 @@ import type { ColorScheme, Theme } from "@/theme";
 
 const CarbsScreen = React.memo(function CarbsScreen() {
   const { colors, theme: themeObj, colorScheme } = useTheme();
-  const dailyTargets = useAppStore((s) => s.dailyTargets) || {
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
-  };
-  const { fatPercentage, isCaloriesSet, isProteinSet } =
-    useNutritionCalculations();
-
-  const styles = useMemo(
-    () => createStyles(colors, themeObj, colorScheme),
-    [colors, themeObj, colorScheme]
-  );
-
-  const carbsEnabled = isCaloriesSet && isProteinSet;
+  const styles = createStyles(colors, themeObj, colorScheme);
+  const { dailyTargets, userSettings } = useAppStore();
+  const fatPercentage = userSettings?.fatCalculationPercentage || 0;
+  const carbsEnabled = dailyTargets?.protein && dailyTargets?.fat;
 
   // Calculate carbs value
   const fatGrams = React.useMemo(
-    () => calculateFatGramsFromPercentage(dailyTargets.calories, fatPercentage),
-    [dailyTargets.calories, fatPercentage]
+    () =>
+      calculateFatGramsFromPercentage(
+        dailyTargets?.calories || 0,
+        fatPercentage
+      ),
+    [dailyTargets?.calories, fatPercentage]
   );
 
   const carbsGrams = React.useMemo(
     () =>
       calculateCarbsFromMacros(
-        dailyTargets.calories,
-        dailyTargets.protein,
+        dailyTargets?.calories || 0,
+        dailyTargets?.protein || 0,
         fatGrams
       ),
-    [dailyTargets.calories, dailyTargets.protein, fatGrams]
+    [dailyTargets?.calories, dailyTargets?.protein, fatGrams]
   );
 
   const carbsPercentage = React.useMemo(
     () =>
-      Math.round(((carbsGrams * 4) / Math.max(dailyTargets.calories, 1)) * 100),
-    [carbsGrams, dailyTargets.calories]
+      Math.round(
+        ((carbsGrams * 4) / Math.max(dailyTargets?.calories || 0, 1)) * 100
+      ),
+    [carbsGrams, dailyTargets?.calories]
   );
 
   return (
