@@ -15,7 +15,7 @@ export const createStyles = (colors: Colors) =>
       fontWeight: theme.typography.Body.fontWeight,
       color: colors.primaryText,
       fontFamily: theme.typography.Body.fontFamily,
-      minHeight: 44, // Minimum touch target
+      minHeight: 54, // Minimum touch target
     },
 
     // Focus state

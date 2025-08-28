@@ -48,20 +48,17 @@ export default function Create() {
           ]}
           onChange={setEstimationType}
         />
-        <ImagePicker
+        {/* <ImagePicker
           newLog={newLog}
           setNewLog={(log) => setNewLog(log as FoodLog)}
-        />
-        <AppText>✍️ Type or dictate your meal</AppText>
+        /> */}
         <TextInput
           value={newLog.description || ""}
           onChangeText={(text) => setNewLog({ ...newLog, description: text })}
           placeholder="Description"
           autoExpand={true}
+          allowAudioTranscription={true}
         />
-        <Button onPress={() => {}} shape="square" variant="secondary">
-          🎤 Dictate
-        </Button>
       </View>
     </View>
   );
@@ -75,7 +72,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
       gap: theme.spacing.md,
     },
     content: {
-      gap: theme.spacing.md,
+      gap: theme.spacing.xl,
       marginHorizontal: theme.spacing.md,
     },
   });

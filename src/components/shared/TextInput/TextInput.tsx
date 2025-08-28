@@ -1,16 +1,23 @@
-import React, { useState, forwardRef } from "react";
-import { TextInput as RNTextInput, ViewStyle } from "react-native";
+import React, { useState, forwardRef, useRef, useEffect } from "react";
+import { TextInput as RNTextInput, ViewStyle, View, Alert } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   Easing,
 } from "react-native-reanimated";
+import {
+  ExpoSpeechRecognitionModule,
+  useSpeechRecognitionEvent,
+} from 'expo-speech-recognition';
+import { AudioModule } from 'expo-audio';
 
 // Create animated TextInput component
 const AnimatedTextInput = Animated.createAnimatedComponent(RNTextInput);
 import { useTheme } from "@/theme";
 import { createStyles } from "./TextInput.styles";
+import { AudioTranscriptionButton } from "./AudioTranscriptionButton";
+import { TranscriptionOverlay } from "./TranscriptionOverlay";
 
 interface TextInputProps {
   value: string;
@@ -23,6 +30,7 @@ interface TextInputProps {
   error?: boolean;
   disabled?: boolean;
   autoExpand?: boolean;
+  allowAudioTranscription?: boolean;
   style?: any;
   accessibilityLabel?: string;
   accessibilityHint?: string;
@@ -43,6 +51,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
       error = false,
       disabled = false,
       autoExpand = false,
+      allowAudioTranscription = false,
       style,
       accessibilityLabel,
       accessibilityHint,
@@ -53,8 +62,15 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
   ) => {
     const [isFocused, setIsFocused] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
+    const [liveTranscription, setLiveTranscription] = useState('');
     const { colors, colorScheme } = useTheme();
     const styles = createStyles(colors);
+    
+    // Refs for audio transcription
+    const isRecordingRef = useRef(false);
+    const baseTextRef = useRef('');
+    
     // Animation values for autoExpand feature
     const heightAnimation = useSharedValue(44); // Start with single-line height
 
@@ -62,6 +78,133 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
     const animatedHeightStyle = useAnimatedStyle(() => {
       return {
         height: heightAnimation.value,
+      };
+    }, []);
+
+    // Speech recognition event handlers
+    useSpeechRecognitionEvent('result', (event) => {
+      if (!isRecordingRef.current) return;
+
+      if (event.results && event.results.length > 0) {
+        const latestResult = event.results[event.results.length - 1];
+        const transcription = latestResult.transcript.trim();
+        
+        if (transcription) {
+          setLiveTranscription(transcription);
+        }
+      }
+    });
+
+    useSpeechRecognitionEvent('error', (event) => {
+      if (!isRecordingRef.current) return;
+
+      console.error('Speech recognition error:', event.error);
+      handleStopRecording();
+      
+      let errorMessage = 'Voice recognition failed. Please try again.';
+      if (event.error === 'no-speech') {
+        errorMessage = 'No speech detected. Please speak clearly and try again.';
+      } else if (event.error === 'network') {
+        errorMessage = 'Network connection required for voice recognition.';
+      }
+      
+      Alert.alert('Voice Recognition Error', errorMessage);
+    });
+
+    useSpeechRecognitionEvent('end', () => {
+      if (isRecordingRef.current) {
+        handleStopRecording();
+      }
+    });
+
+    // Audio transcription methods
+    const startRecording = async () => {
+      try {
+        setIsRecording(true);
+        setLiveTranscription('');
+        baseTextRef.current = value;
+
+        // Request microphone permission
+        const permission = await AudioModule.requestRecordingPermissionsAsync();
+        if (!permission.granted) {
+          Alert.alert(
+            'Permission Required',
+            'Please allow microphone access to use voice recording.'
+          );
+          setIsRecording(false);
+          return;
+        }
+
+        // Request speech recognition permission
+        const speechPermission = await ExpoSpeechRecognitionModule.requestSpeechRecognizerPermissionsAsync();
+        if (!speechPermission.granted) {
+          Alert.alert(
+            'Permission Required',
+            'Please allow speech recognition access for voice transcription.'
+          );
+          setIsRecording(false);
+          return;
+        }
+
+        // Start real-time speech recognition
+        await ExpoSpeechRecognitionModule.start({
+          lang: 'de-DE',
+          interimResults: true,
+          maxAlternatives: 1,
+          continuous: true,
+        });
+
+        isRecordingRef.current = true;
+      } catch (error) {
+        console.error('Error starting recording:', error);
+        Alert.alert('Error', 'Failed to start voice recording. Please try again.');
+        setIsRecording(false);
+      }
+    };
+
+    const handleStopRecording = async () => {
+      try {
+        if (isRecordingRef.current) {
+          // Combine base text with transcription
+          const finalText = baseTextRef.current.trim() 
+            ? `${baseTextRef.current} ${liveTranscription.trim()}`
+            : liveTranscription.trim();
+          
+          // Update the input with final transcription
+          if (finalText !== baseTextRef.current) {
+            onChangeText(finalText);
+          }
+          
+          await ExpoSpeechRecognitionModule.stop();
+          isRecordingRef.current = false;
+        }
+        
+        setIsRecording(false);
+        setLiveTranscription('');
+        baseTextRef.current = '';
+      } catch (error) {
+        console.error('Error stopping recording:', error);
+        setIsRecording(false);
+        setLiveTranscription('');
+      }
+    };
+
+    const handleAudioTranscriptionPress = () => {
+      if (disabled) return;
+      
+      if (isRecording) {
+        handleStopRecording();
+      } else {
+        startRecording();
+      }
+    };
+
+    // Cleanup on unmount
+    useEffect(() => {
+      return () => {
+        if (isRecordingRef.current) {
+          handleStopRecording();
+        }
       };
     }, []);
 
@@ -127,36 +270,58 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
     const shouldUseMultiline = multiline || (autoExpand && isExpanded);
     
     return (
-      <AnimatedTextInput
-        ref={ref}
-        style={[baseStyles, autoExpand && !multiline && animatedHeightStyle]}
-        placeholderTextColor={colors.secondaryText}
-        value={value}
-        onChangeText={onChangeText}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        keyboardAppearance={colorScheme}
-        multiline={shouldUseMultiline}
-        keyboardType={keyboardType}
-        autoCapitalize={autoCapitalize}
-        autoFocus={autoFocus}
-        textAlignVertical={shouldUseMultiline ? "top" : "center"}
-        numberOfLines={shouldUseMultiline ? 4 : 1}
-        editable={!disabled}
-        selectTextOnFocus={!disabled}
-        returnKeyType={shouldUseMultiline ? "default" : "done"}
-        blurOnSubmit={!shouldUseMultiline}
-        // Accessibility
-        accessibilityLabel={accessibilityLabel || placeholder}
-        accessibilityHint={accessibilityHint}
-        accessibilityState={{
-          disabled,
-          selected: isFocused,
-          expanded: shouldUseMultiline,
-        }}
-        accessible={true}
-      />
+      <>
+        <View style={{ position: 'relative' }}>
+          <AnimatedTextInput
+            ref={ref}
+            style={[baseStyles, autoExpand && !multiline && animatedHeightStyle]}
+            placeholderTextColor={colors.secondaryText}
+            value={value}
+            onChangeText={onChangeText}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            placeholder={placeholder}
+            keyboardAppearance={colorScheme}
+            multiline={shouldUseMultiline}
+            keyboardType={keyboardType}
+            autoCapitalize={autoCapitalize}
+            autoFocus={autoFocus}
+            textAlignVertical={shouldUseMultiline ? "top" : "center"}
+            numberOfLines={shouldUseMultiline ? 4 : 1}
+            editable={!disabled}
+            selectTextOnFocus={!disabled}
+            returnKeyType={shouldUseMultiline ? "default" : "done"}
+            blurOnSubmit={!shouldUseMultiline}
+            // Accessibility
+            accessibilityLabel={accessibilityLabel || placeholder}
+            accessibilityHint={accessibilityHint}
+            accessibilityState={{
+              disabled,
+              selected: isFocused,
+              expanded: shouldUseMultiline,
+            }}
+            accessible={true}
+          />
+          
+          {/* Audio Transcription Button */}
+          {allowAudioTranscription && !disabled && (
+            <AudioTranscriptionButton
+              isMultiline={shouldUseMultiline}
+              isRecording={isRecording}
+              onPress={handleAudioTranscriptionPress}
+            />
+          )}
+        </View>
+
+        {/* Transcription Overlay */}
+        {allowAudioTranscription && (
+          <TranscriptionOverlay
+            visible={isRecording}
+            liveTranscription={liveTranscription}
+            onStop={handleStopRecording}
+          />
+        )}
+      </>
     );
   }
 );
