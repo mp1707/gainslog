@@ -10,7 +10,7 @@ import {
 import { Camera } from "phosphor-react-native";
 import { useTheme } from "@/theme";
 import { theme } from "@/theme";
-import { FoodLog } from "@/types";
+import { FoodLog } from "@/types/models";
 import { useImageCapture } from "@/hooks/useImageCapture";
 
 interface ImagePickerSectionProps {

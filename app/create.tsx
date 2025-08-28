@@ -1,10 +1,13 @@
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { Button } from "@/components/index";
 import { AppText } from "@/components/shared/AppText";
+import { ImagePicker } from "@/components/shared/ImagePicker";
 import { TextInput } from "@/components/shared/TextInput";
 import { Toggle } from "@/components/shared/Toggle";
+import { useAppStore } from "@/store/useAppStore";
 import { Colors, Theme } from "@/theme/theme";
 import { useTheme } from "@/theme/ThemeProvider";
+import { FoodLog } from "@/types/models";
 import { useRouter } from "expo-router";
 import { SparkleIcon, PencilIcon } from "phosphor-react-native";
 import { useCallback, useState } from "react";
@@ -14,7 +17,20 @@ export default function Create() {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
   const [estimationType, setEstimationType] = useState<"ai" | "manual">("ai");
-  const [description, setDescription] = useState("");
+  const { selectedDate } = useAppStore();
+  const [newLog, setNewLog] = useState<FoodLog>({
+    id: "",
+    title: "",
+    description: "",
+    imageUrl: "",
+    logDate: selectedDate,
+    createdAt: new Date().toISOString(),
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  });
+
   const { back } = useRouter();
   const handleCancel = useCallback(() => {
     back();
@@ -32,10 +48,14 @@ export default function Create() {
           ]}
           onChange={setEstimationType}
         />
+        <ImagePicker
+          newLog={newLog}
+          setNewLog={(log) => setNewLog(log as FoodLog)}
+        />
         <AppText>✍️ Type or dictate your meal</AppText>
         <TextInput
-          value={description}
-          onChangeText={setDescription}
+          value={newLog.description || ""}
+          onChangeText={(text) => setNewLog({ ...newLog, description: text })}
           placeholder="Description"
           autoExpand={true}
         />

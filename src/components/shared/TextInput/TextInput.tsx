@@ -55,7 +55,6 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
     const [isExpanded, setIsExpanded] = useState(false);
     const { colors, colorScheme } = useTheme();
     const styles = createStyles(colors);
-
     // Animation values for autoExpand feature
     const heightAnimation = useSharedValue(44); // Start with single-line height
 

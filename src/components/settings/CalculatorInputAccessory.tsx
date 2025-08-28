@@ -31,9 +31,7 @@ export function CalculatorInputAccessory({
         borderTopColor: colors.border,
       },
       inputAccessoryContent: {
-        paddingHorizontal: spacing.pageMargins.horizontal,
-        paddingVertical: spacing.md,
-        paddingBottom: spacing.lg,
+        padding: spacing.sm,
       },
       accessoryContinueButton: {
         backgroundColor: colors.accent,
