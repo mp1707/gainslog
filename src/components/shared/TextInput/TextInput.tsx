@@ -31,6 +31,7 @@ interface TextInputProps {
   disabled?: boolean;
   autoExpand?: boolean;
   allowAudioTranscription?: boolean;
+  inputAccessoryViewID?: string;
   style?: any;
   accessibilityLabel?: string;
   accessibilityHint?: string;
@@ -52,6 +53,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
       disabled = false,
       autoExpand = false,
       allowAudioTranscription = false,
+      inputAccessoryViewID,
       style,
       accessibilityLabel,
       accessibilityHint,
@@ -292,6 +294,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
             selectTextOnFocus={!disabled}
             returnKeyType={shouldUseMultiline ? "default" : "done"}
             blurOnSubmit={!shouldUseMultiline}
+            inputAccessoryViewID={inputAccessoryViewID}
             // Accessibility
             accessibilityLabel={accessibilityLabel || placeholder}
             accessibilityHint={accessibilityHint}

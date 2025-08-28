@@ -16,7 +16,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
+import { InputAccessory } from "@/components/shared/InputAccessory";
 
 const inputAccessoryViewID = "protein-weight-input-accessory";
 
@@ -112,11 +112,11 @@ const ProteinWeightSelectionScreen = () => {
       </View>
 
       {Platform.OS === "ios" && (
-        <CalculatorInputAccessory
+        <InputAccessory
           accessibilityLabel="Continue"
           nativeID={inputAccessoryViewID}
           isValid={true}
-          onContinue={handleContinue}
+          onPrimaryPress={handleContinue}
         />
       )}
     </SafeAreaView>

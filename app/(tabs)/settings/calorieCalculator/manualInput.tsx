@@ -22,7 +22,7 @@ import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
-import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
+import { InputAccessory } from "@/components/shared/InputAccessory";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
 const inputAccessoryViewID = "calories-input-accessory";
@@ -131,12 +131,12 @@ const ManualCalorieInputScreen = () => {
       </View>
 
       {Platform.OS === "ios" && (
-        <CalculatorInputAccessory
+        <InputAccessory
           accessibilityLabel="Save Goal"
           nativeID={inputAccessoryViewID}
           isValid={isValidCalories(calories)}
-          onContinue={handleSave}
-          buttonText="Save Goal"
+          onPrimaryPress={handleSave}
+          primaryText="Save Goal"
         />
       )}
     </SafeAreaView>

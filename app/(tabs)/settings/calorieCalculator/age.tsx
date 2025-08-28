@@ -15,7 +15,7 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
+import { InputAccessory } from "@/components/shared/InputAccessory";
 import { useAppStore } from "@/store/useAppStore";
 
 const inputAccessoryViewID = "age-input-accessory";
@@ -106,11 +106,11 @@ const AgeSelectionScreen = () => {
       </View>
 
       {Platform.OS === "ios" && (
-        <CalculatorInputAccessory
+        <InputAccessory
           accessibilityLabel="Continue"
           nativeID={inputAccessoryViewID}
           isValid={isValidAge(age)}
-          onContinue={handleContinue}
+          onPrimaryPress={handleContinue}
         />
       )}
     </SafeAreaView>

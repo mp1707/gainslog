@@ -17,7 +17,7 @@ import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { CalculatorInputAccessory } from "@/components/settings/CalculatorInputAccessory";
+import { InputAccessory } from "@/components/shared/InputAccessory";
 
 const inputAccessoryViewID = "weight-input-accessory";
 
@@ -112,11 +112,11 @@ const WeightSelectionScreen = () => {
       </View>
 
       {Platform.OS === "ios" && (
-        <CalculatorInputAccessory
+        <InputAccessory
           accessibilityLabel="Continue"
           nativeID={inputAccessoryViewID}
           isValid={true}
-          onContinue={handleContinue}
+          onPrimaryPress={handleContinue}
         />
       )}
     </SafeAreaView>
