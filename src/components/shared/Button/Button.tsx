@@ -69,7 +69,9 @@ export const Button: React.FC<ButtonProps> = ({
   const textStyles: TextStyle[] = [styles.text];
 
   // Add variant-specific text styles
-  if (variant === "tertiary") {
+  if (variant === "secondary") {
+    textStyles.push(styles.secondaryText);
+  } else if (variant === "tertiary") {
     textStyles.push(styles.tertiaryText);
   }
 

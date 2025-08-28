@@ -1,5 +1,14 @@
 import React, { useState, forwardRef } from "react";
 import { TextInput as RNTextInput, ViewStyle } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
+
+// Create animated TextInput component
+const AnimatedTextInput = Animated.createAnimatedComponent(RNTextInput);
 import { useTheme } from "@/theme";
 import { createStyles } from "./TextInput.styles";
 
@@ -13,6 +22,7 @@ interface TextInputProps {
   autoFocus?: boolean;
   error?: boolean;
   disabled?: boolean;
+  autoExpand?: boolean;
   style?: any;
   accessibilityLabel?: string;
   accessibilityHint?: string;
@@ -32,6 +42,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
       autoFocus = false,
       error = false,
       disabled = false,
+      autoExpand = false,
       style,
       accessibilityLabel,
       accessibilityHint,
@@ -41,8 +52,19 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
     ref
   ) => {
     const [isFocused, setIsFocused] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
     const { colors, colorScheme } = useTheme();
     const styles = createStyles(colors);
+
+    // Animation values for autoExpand feature
+    const heightAnimation = useSharedValue(44); // Start with single-line height
+
+    // Animated style for height transitions
+    const animatedHeightStyle = useAnimatedStyle(() => {
+      return {
+        height: heightAnimation.value,
+      };
+    }, []);
 
     // Get base styles
     const baseStyles: ViewStyle[] = [styles.base];
@@ -74,18 +96,41 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
 
     const handleFocus = (e: any) => {
       setIsFocused(true);
+      
+      // Handle autoExpand animation
+      if (autoExpand && !multiline) {
+        setIsExpanded(true);
+        heightAnimation.value = withTiming(100, {
+          duration: 300,
+          easing: Easing.out(Easing.quad),
+        });
+      }
+      
       onFocus?.(e);
     };
 
     const handleBlur = (e: any) => {
       setIsFocused(false);
+      
+      // Handle autoExpand animation
+      if (autoExpand && !multiline) {
+        setIsExpanded(false);
+        heightAnimation.value = withTiming(44, {
+          duration: 300,
+          easing: Easing.out(Easing.quad),
+        });
+      }
+      
       onBlur?.(e);
     };
 
+    // Determine if we should use multiline behavior (original multiline prop or expanded state)
+    const shouldUseMultiline = multiline || (autoExpand && isExpanded);
+    
     return (
-      <RNTextInput
+      <AnimatedTextInput
         ref={ref}
-        style={baseStyles}
+        style={[baseStyles, autoExpand && !multiline && animatedHeightStyle]}
         placeholderTextColor={colors.secondaryText}
         value={value}
         onChangeText={onChangeText}
@@ -93,23 +138,23 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
         onBlur={handleBlur}
         placeholder={placeholder}
         keyboardAppearance={colorScheme}
-        multiline={multiline}
+        multiline={shouldUseMultiline}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
         autoFocus={autoFocus}
-        textAlignVertical={multiline ? "top" : "center"}
-        numberOfLines={multiline ? 4 : 1}
+        textAlignVertical={shouldUseMultiline ? "top" : "center"}
+        numberOfLines={shouldUseMultiline ? 4 : 1}
         editable={!disabled}
         selectTextOnFocus={!disabled}
-        returnKeyType={multiline ? "default" : "done"}
-        blurOnSubmit={!multiline}
+        returnKeyType={shouldUseMultiline ? "default" : "done"}
+        blurOnSubmit={!shouldUseMultiline}
         // Accessibility
         accessibilityLabel={accessibilityLabel || placeholder}
         accessibilityHint={accessibilityHint}
         accessibilityState={{
           disabled,
           selected: isFocused,
-          expanded: multiline,
+          expanded: shouldUseMultiline,
         }}
         accessible={true}
       />

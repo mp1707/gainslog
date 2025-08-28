@@ -1,18 +1,15 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { ModalMode } from "@/types";
 import { useStyles } from "./ModalHeader.styles";
 
 interface ModalHeaderProps {
-  mode: ModalMode;
-  isUploading?: boolean;
+  disabled?: boolean;
   onCancel: () => void;
   onSave: () => void;
 }
 
 export const ModalHeader: React.FC<ModalHeaderProps> = ({
-  mode,
-  isUploading = false,
+  disabled = false,
   onCancel,
   onSave,
 }) => {
@@ -28,14 +25,12 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({
       >
         <Text style={styles.cancelButton}>Cancel</Text>
       </TouchableOpacity>
-      <Text style={styles.title}>
-        {mode === "create" ? "Add Food Log" : "Edit Food Log"}
-      </Text>
-      <TouchableOpacity onPress={onSave} disabled={isUploading}>
+      <Text style={styles.title}>New Log</Text>
+      <TouchableOpacity onPress={onSave} disabled={disabled}>
         <Text
-          style={[styles.saveButton, isUploading && styles.saveButtonDisabled]}
+          style={[styles.saveButton, disabled && styles.saveButtonDisabled]}
         >
-          {isUploading ? "Uploading..." : "Save"}
+          Done
         </Text>
       </TouchableOpacity>
     </View>
