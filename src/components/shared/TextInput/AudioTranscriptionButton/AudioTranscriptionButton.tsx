@@ -7,28 +7,24 @@ import Animated, {
   withRepeat,
   Easing,
 } from "react-native-reanimated";
-import { Microphone } from "phosphor-react-native";
+import { MicrophoneIcon } from "phosphor-react-native";
 import { useTheme } from "@/theme";
 import { createStyles } from "./AudioTranscriptionButton.styles";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 interface AudioTranscriptionButtonProps {
-  isMultiline: boolean;
   isRecording: boolean;
   onPress: () => void;
   style?: ViewStyle;
 }
 
-export const AudioTranscriptionButton: React.FC<AudioTranscriptionButtonProps> = ({
-  isMultiline,
-  isRecording,
-  onPress,
-  style,
-}) => {
+export const AudioTranscriptionButton: React.FC<
+  AudioTranscriptionButtonProps
+> = ({ isRecording, onPress, style }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
-  
+
   // Animation values
   const scaleAnimation = useSharedValue(1);
   const pulseAnimation = useSharedValue(1);
@@ -42,32 +38,6 @@ export const AudioTranscriptionButton: React.FC<AudioTranscriptionButtonProps> =
   const animatedPulseStyle = useAnimatedStyle(() => ({
     transform: [{ scale: pulseAnimation.value }],
   }));
-
-  // Position animation for multiline changes
-  const animatedPositionStyle = useAnimatedStyle(() => {
-    // Calculate position based on multiline state
-    const targetBottom = isMultiline ? withTiming(8, {
-      duration: 300,
-      easing: Easing.out(Easing.quad),
-    }) : undefined;
-    const targetTop = isMultiline ? undefined : withTiming("50%" as any, {
-      duration: 300,
-      easing: Easing.out(Easing.quad),
-    });
-    const targetMarginTop = isMultiline ? withTiming(0, {
-      duration: 300,
-      easing: Easing.out(Easing.quad),
-    }) : withTiming(-16, {
-      duration: 300,
-      easing: Easing.out(Easing.quad),
-    });
-
-    return {
-      bottom: targetBottom,
-      top: targetTop as any,
-      marginTop: targetMarginTop,
-    };
-  });
 
   // Handle press in/out for feedback
   const handlePressIn = () => {
@@ -112,7 +82,6 @@ export const AudioTranscriptionButton: React.FC<AudioTranscriptionButtonProps> =
         recordingStyle,
         animatedScaleStyle,
         animatedPulseStyle,
-        animatedPositionStyle,
         { right: 8 }, // Fixed right positioning
         style,
       ]}
@@ -120,14 +89,12 @@ export const AudioTranscriptionButton: React.FC<AudioTranscriptionButtonProps> =
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       accessibilityRole="button"
-      accessibilityLabel={isRecording ? "Stop voice recording" : "Start voice recording"}
+      accessibilityLabel={
+        isRecording ? "Stop voice recording" : "Start voice recording"
+      }
       accessibilityHint="Tap to start or stop voice transcription"
     >
-      <Microphone 
-        size={20} 
-        color={colors.white}
-        weight="bold"
-      />
+      <MicrophoneIcon size={20} color={colors.white} weight="bold" />
     </AnimatedPressable>
   );
 };

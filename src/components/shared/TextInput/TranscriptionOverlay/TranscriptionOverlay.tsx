@@ -117,7 +117,6 @@ export const TranscriptionOverlay: React.FC<TranscriptionOverlayProps> = ({
       duration: 150,
       easing: Easing.out(Easing.quad),
     });
-    onStop();
   };
 
   if (!visible) return null;

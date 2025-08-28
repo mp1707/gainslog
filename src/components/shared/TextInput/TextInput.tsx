@@ -1,23 +1,13 @@
-import React, { useState, forwardRef, useRef, useEffect } from "react";
-import { TextInput as RNTextInput, ViewStyle, View, Alert } from "react-native";
-import Animated, {
+import React, { useState, forwardRef, useMemo, useCallback } from "react";
+import { TextInput as RNTextInput, ViewStyle } from "react-native";
+import {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  Easing,
 } from "react-native-reanimated";
-import {
-  ExpoSpeechRecognitionModule,
-  useSpeechRecognitionEvent,
-} from 'expo-speech-recognition';
-import { AudioModule } from 'expo-audio';
 
-// Create animated TextInput component
-const AnimatedTextInput = Animated.createAnimatedComponent(RNTextInput);
 import { useTheme } from "@/theme";
 import { createStyles } from "./TextInput.styles";
-import { AudioTranscriptionButton } from "./AudioTranscriptionButton";
-import { TranscriptionOverlay } from "./TranscriptionOverlay";
 
 interface TextInputProps {
   value: string;
@@ -29,8 +19,6 @@ interface TextInputProps {
   autoFocus?: boolean;
   error?: boolean;
   disabled?: boolean;
-  autoExpand?: boolean;
-  allowAudioTranscription?: boolean;
   inputAccessoryViewID?: string;
   style?: any;
   accessibilityLabel?: string;
@@ -39,7 +27,7 @@ interface TextInputProps {
   onBlur?: (e: any) => void;
 }
 
-export const TextInput = forwardRef<RNTextInput, TextInputProps>(
+const TextInputComponent = forwardRef<RNTextInput, TextInputProps>(
   (
     {
       value,
@@ -51,8 +39,6 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
       autoFocus = false,
       error = false,
       disabled = false,
-      autoExpand = false,
-      allowAudioTranscription = false,
       inputAccessoryViewID,
       style,
       accessibilityLabel,
@@ -62,271 +48,124 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
     },
     ref
   ) => {
+    // React state for component logic (accessibility, conditional rendering)
     const [isFocused, setIsFocused] = useState(false);
-    const [isExpanded, setIsExpanded] = useState(false);
-    const [isRecording, setIsRecording] = useState(false);
-    const [liveTranscription, setLiveTranscription] = useState('');
+    // SharedValue for smooth animations on native thread
+    const isFocusedAnimated = useSharedValue(false);
     const { colors, colorScheme } = useTheme();
-    const styles = createStyles(colors);
-    
-    // Refs for audio transcription
-    const isRecordingRef = useRef(false);
-    const baseTextRef = useRef('');
-    
-    // Animation values for autoExpand feature
-    const heightAnimation = useSharedValue(44); // Start with single-line height
 
-    // Animated style for height transitions
-    const animatedHeightStyle = useAnimatedStyle(() => {
+    // Memoize styles to prevent recalculation on every render
+    const styles = useMemo(() => createStyles(colors), [colors]);
+
+    // Create animated style for focus state that runs on native thread
+    const animatedBorderStyle = useAnimatedStyle(() => {
       return {
-        height: heightAnimation.value,
+        borderColor: withTiming(
+          isFocusedAnimated.value ? colors.accent : colors.border,
+          { duration: 200 }
+        ),
+        borderWidth: withTiming(isFocusedAnimated.value ? 2 : 1, {
+          duration: 200,
+        }),
+        shadowColor: "rgba(0, 0, 0, 0.1)",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: withTiming(isFocusedAnimated.value ? 1 : 0, {
+          duration: 200,
+        }),
+        shadowRadius: withTiming(isFocusedAnimated.value ? 4 : 0, {
+          duration: 200,
+        }),
+        elevation: withTiming(isFocusedAnimated.value ? 2 : 0, {
+          duration: 200,
+        }),
       };
-    }, []);
-
-    // Speech recognition event handlers
-    useSpeechRecognitionEvent('result', (event) => {
-      if (!isRecordingRef.current) return;
-
-      if (event.results && event.results.length > 0) {
-        const latestResult = event.results[event.results.length - 1];
-        const transcription = latestResult.transcript.trim();
-        
-        if (transcription) {
-          setLiveTranscription(transcription);
-        }
-      }
     });
 
-    useSpeechRecognitionEvent('error', (event) => {
-      if (!isRecordingRef.current) return;
+    // Memoized event handlers - update both React state and SharedValue
+    const handleFocus = useCallback(
+      (e: any) => {
+        setIsFocused(true); // React state for component logic
+        isFocusedAnimated.value = true; // SharedValue for smooth animations
+        onFocus?.(e);
+      },
+      [onFocus, isFocusedAnimated]
+    );
 
-      console.error('Speech recognition error:', event.error);
-      handleStopRecording();
-      
-      let errorMessage = 'Voice recognition failed. Please try again.';
-      if (event.error === 'no-speech') {
-        errorMessage = 'No speech detected. Please speak clearly and try again.';
-      } else if (event.error === 'network') {
-        errorMessage = 'Network connection required for voice recognition.';
+    const handleBlur = useCallback(
+      (e: any) => {
+        setIsFocused(false); // React state for component logic
+        isFocusedAnimated.value = false; // SharedValue for smooth animations
+        onBlur?.(e);
+      },
+      [onBlur, isFocusedAnimated]
+    );
+
+    // Memoize computed styles - focus styling now handled by animatedBorderStyle
+    const computedStyles = useMemo(() => {
+      const baseStyles: ViewStyle[] = [styles.base];
+
+      if (multiline) {
+        baseStyles.push(styles.multiline);
       }
-      
-      Alert.alert('Voice Recognition Error', errorMessage);
-    });
 
-    useSpeechRecognitionEvent('end', () => {
-      if (isRecordingRef.current) {
-        handleStopRecording();
+      if (error && !disabled) {
+        baseStyles.push(styles.error);
       }
-    });
 
-    // Audio transcription methods
-    const startRecording = async () => {
-      try {
-        setIsRecording(true);
-        setLiveTranscription('');
-        baseTextRef.current = value;
-
-        // Request microphone permission
-        const permission = await AudioModule.requestRecordingPermissionsAsync();
-        if (!permission.granted) {
-          Alert.alert(
-            'Permission Required',
-            'Please allow microphone access to use voice recording.'
-          );
-          setIsRecording(false);
-          return;
-        }
-
-        // Request speech recognition permission
-        const speechPermission = await ExpoSpeechRecognitionModule.requestSpeechRecognizerPermissionsAsync();
-        if (!speechPermission.granted) {
-          Alert.alert(
-            'Permission Required',
-            'Please allow speech recognition access for voice transcription.'
-          );
-          setIsRecording(false);
-          return;
-        }
-
-        // Start real-time speech recognition
-        await ExpoSpeechRecognitionModule.start({
-          lang: 'de-DE',
-          interimResults: true,
-          maxAlternatives: 1,
-          continuous: true,
-        });
-
-        isRecordingRef.current = true;
-      } catch (error) {
-        console.error('Error starting recording:', error);
-        Alert.alert('Error', 'Failed to start voice recording. Please try again.');
-        setIsRecording(false);
+      if (disabled) {
+        baseStyles.push(styles.disabled);
       }
-    };
 
-    const handleStopRecording = async () => {
-      try {
-        if (isRecordingRef.current) {
-          // Combine base text with transcription
-          const finalText = baseTextRef.current.trim() 
-            ? `${baseTextRef.current} ${liveTranscription.trim()}`
-            : liveTranscription.trim();
-          
-          // Update the input with final transcription
-          if (finalText !== baseTextRef.current) {
-            onChangeText(finalText);
-          }
-          
-          await ExpoSpeechRecognitionModule.stop();
-          isRecordingRef.current = false;
-        }
-        
-        setIsRecording(false);
-        setLiveTranscription('');
-        baseTextRef.current = '';
-      } catch (error) {
-        console.error('Error stopping recording:', error);
-        setIsRecording(false);
-        setLiveTranscription('');
+      // Add the animated border style that runs on native thread
+      baseStyles.push(animatedBorderStyle);
+
+      if (style) {
+        baseStyles.push(style as ViewStyle);
       }
-    };
 
-    const handleAudioTranscriptionPress = () => {
-      if (disabled) return;
-      
-      if (isRecording) {
-        handleStopRecording();
-      } else {
-        startRecording();
-      }
-    };
+      return baseStyles;
+    }, [styles, multiline, disabled, error, style, animatedBorderStyle]);
 
-    // Cleanup on unmount
-    useEffect(() => {
-      return () => {
-        if (isRecordingRef.current) {
-          handleStopRecording();
-        }
-      };
-    }, []);
+    // Determine if we should use multiline behavior
+    const shouldUseMultiline = multiline;
 
-    // Get base styles
-    const baseStyles: ViewStyle[] = [styles.base];
-
-    // Add multiline styles
-    if (multiline) {
-      baseStyles.push(styles.multiline);
-    }
-
-    // Add focus styles
-    if (isFocused && !disabled) {
-      baseStyles.push(styles.focused);
-    }
-
-    // Add error styles
-    if (error && !disabled) {
-      baseStyles.push(styles.error);
-    }
-
-    // Add disabled styles
-    if (disabled) {
-      baseStyles.push(styles.disabled);
-    }
-
-    // Add custom styles
-    if (style) {
-      baseStyles.push(style as ViewStyle);
-    }
-
-    const handleFocus = (e: any) => {
-      setIsFocused(true);
-      
-      // Handle autoExpand animation
-      if (autoExpand && !multiline) {
-        setIsExpanded(true);
-        heightAnimation.value = withTiming(100, {
-          duration: 300,
-          easing: Easing.out(Easing.quad),
-        });
-      }
-      
-      onFocus?.(e);
-    };
-
-    const handleBlur = (e: any) => {
-      setIsFocused(false);
-      
-      // Handle autoExpand animation
-      if (autoExpand && !multiline) {
-        setIsExpanded(false);
-        heightAnimation.value = withTiming(44, {
-          duration: 300,
-          easing: Easing.out(Easing.quad),
-        });
-      }
-      
-      onBlur?.(e);
-    };
-
-    // Determine if we should use multiline behavior (original multiline prop or expanded state)
-    const shouldUseMultiline = multiline || (autoExpand && isExpanded);
-    
     return (
-      <>
-        <View style={{ position: 'relative' }}>
-          <AnimatedTextInput
-            ref={ref}
-            style={[baseStyles, autoExpand && !multiline && animatedHeightStyle]}
-            placeholderTextColor={colors.secondaryText}
-            value={value}
-            onChangeText={onChangeText}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            placeholder={placeholder}
-            keyboardAppearance={colorScheme}
-            multiline={shouldUseMultiline}
-            keyboardType={keyboardType}
-            autoCapitalize={autoCapitalize}
-            autoFocus={autoFocus}
-            textAlignVertical={shouldUseMultiline ? "top" : "center"}
-            numberOfLines={shouldUseMultiline ? 4 : 1}
-            editable={!disabled}
-            selectTextOnFocus={!disabled}
-            returnKeyType={shouldUseMultiline ? "default" : "done"}
-            blurOnSubmit={!shouldUseMultiline}
-            inputAccessoryViewID={inputAccessoryViewID}
-            // Accessibility
-            accessibilityLabel={accessibilityLabel || placeholder}
-            accessibilityHint={accessibilityHint}
-            accessibilityState={{
-              disabled,
-              selected: isFocused,
-              expanded: shouldUseMultiline,
-            }}
-            accessible={true}
-          />
-          
-          {/* Audio Transcription Button */}
-          {allowAudioTranscription && !disabled && (
-            <AudioTranscriptionButton
-              isMultiline={shouldUseMultiline}
-              isRecording={isRecording}
-              onPress={handleAudioTranscriptionPress}
-            />
-          )}
-        </View>
-
-        {/* Transcription Overlay */}
-        {allowAudioTranscription && (
-          <TranscriptionOverlay
-            visible={isRecording}
-            liveTranscription={liveTranscription}
-            onStop={handleStopRecording}
-          />
-        )}
-      </>
+      <RNTextInput
+        ref={ref}
+        style={computedStyles}
+        placeholderTextColor={colors.secondaryText}
+        value={value}
+        onChangeText={onChangeText}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        keyboardAppearance={colorScheme}
+        multiline={shouldUseMultiline}
+        keyboardType={keyboardType}
+        autoCapitalize={autoCapitalize}
+        autoFocus={autoFocus}
+        textAlignVertical={shouldUseMultiline ? "top" : "center"}
+        numberOfLines={shouldUseMultiline ? 4 : 1}
+        editable={!disabled}
+        selectTextOnFocus={!disabled}
+        returnKeyType={shouldUseMultiline ? "default" : "done"}
+        blurOnSubmit={!shouldUseMultiline}
+        inputAccessoryViewID={inputAccessoryViewID}
+        // Accessibility
+        accessibilityLabel={accessibilityLabel || placeholder}
+        accessibilityHint={accessibilityHint}
+        accessibilityState={{
+          disabled,
+          selected: isFocused,
+          expanded: shouldUseMultiline,
+        }}
+        accessible={true}
+      />
     );
   }
 );
+
+// Memoize the component to prevent unnecessary re-renders
+export const TextInput = React.memo(TextInputComponent);
 
 TextInput.displayName = "TextInput";
