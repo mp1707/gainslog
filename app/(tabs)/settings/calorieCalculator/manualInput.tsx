@@ -134,9 +134,12 @@ const ManualCalorieInputScreen = () => {
         <InputAccessory
           accessibilityLabel="Save Goal"
           nativeID={inputAccessoryViewID}
-          isValid={isValidCalories(calories)}
-          onPrimaryPress={handleSave}
-          primaryText="Save Goal"
+          primaryAction={{
+            icon: CaretRightIcon,
+            label: "Save Goal",
+            onPress: handleSave,
+            isValid: isValidCalories(calories),
+          }}
         />
       )}
     </SafeAreaView>

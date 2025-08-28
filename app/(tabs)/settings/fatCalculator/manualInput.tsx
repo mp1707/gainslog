@@ -76,7 +76,7 @@ const ManualFatInputScreen = () => {
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setDailyTargets(newDailyTargets);
     if (!userSettings) return;
-    setUserSettings({ ...userSettings, fatCalculationPercentage: fatPercent }); 
+    setUserSettings({ ...userSettings, fatCalculationPercentage: fatPercent });
     safeDismissTo("/settings");
   };
 
@@ -128,9 +128,12 @@ const ManualFatInputScreen = () => {
         <InputAccessory
           accessibilityLabel="Save Goal"
           nativeID={inputAccessoryViewID}
-          isValid={fatPercent >= 10 && fatPercent <= maxFatPercentage}
-          onPrimaryPress={handleSave}
-          primaryText="Save Goal"
+          primaryAction={{
+            icon: CaretRightIcon,
+            label: "Save Goal",
+            onPress: handleSave,
+            isValid: fatPercent <= maxFatPercentage,
+          }}
         />
       )}
     </SafeAreaView>

@@ -115,8 +115,12 @@ const WeightSelectionScreen = () => {
         <InputAccessory
           accessibilityLabel="Continue"
           nativeID={inputAccessoryViewID}
-          isValid={true}
-          onPrimaryPress={handleContinue}
+          primaryAction={{
+            icon: CaretRightIcon,
+            label: "Continue",
+            onPress: handleContinue,
+            isValid: isValidWeight(weight),
+          }}
         />
       )}
     </SafeAreaView>

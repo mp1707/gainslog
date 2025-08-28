@@ -105,9 +105,12 @@ const ManualProteinInputScreen = () => {
         <InputAccessory
           accessibilityLabel="Save Goal"
           nativeID={inputAccessoryViewID}
-          isValid={true}
-          onPrimaryPress={handleSave}
-          primaryText="Save Goal"
+          primaryAction={{
+            icon: CaretRightIcon,
+            label: "Save Goal",
+            onPress: handleSave,
+            isValid: true,
+          }}
         />
       )}
     </SafeAreaView>

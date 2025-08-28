@@ -11,7 +11,8 @@ export const createStyles = (colors: Colors, theme: Theme) => {
       borderTopColor: colors.border,
     },
     inputAccessoryContent: {
-      padding: spacing.sm,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
     },
     buttonsContainer: {
       flexDirection: "row",
@@ -24,10 +25,11 @@ export const createStyles = (colors: Colors, theme: Theme) => {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      minHeight: 50,
+      // minHeight: 50,
     },
     primaryButton: {
       backgroundColor: colors.accent,
+      minWidth: 150,
       flex: 1,
     },
     primaryButtonText: {
@@ -53,6 +55,19 @@ export const createStyles = (colors: Colors, theme: Theme) => {
       fontSize: typography.Button.fontSize,
       fontFamily: typography.Button.fontFamily,
       color: colors.primaryText,
+      fontWeight: "600",
+      marginRight: spacing.sm,
+    },
+    tertiaryButton: {
+      backgroundColor: colors.secondaryBackground,
+      borderWidth: 1,
+      borderColor: colors.border,
+      flex: 1,
+    },
+    tertiaryButtonText: {
+      fontSize: typography.Button.fontSize,
+      fontFamily: typography.Button.fontFamily,
+      color: colors.accent,
       fontWeight: "600",
       marginRight: spacing.sm,
     },

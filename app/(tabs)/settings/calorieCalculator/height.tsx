@@ -121,8 +121,12 @@ const HeightSelectionScreen = () => {
         <InputAccessory
           accessibilityLabel="Continue"
           nativeID={inputAccessoryViewID}
-          isValid={isValidHeight(height)}
-          onPrimaryPress={handleContinue}
+          primaryAction={{
+            icon: CaretRightIcon,
+            label: "Continue",
+            onPress: handleContinue,
+            isValid: isValidHeight(height),
+          }}
         />
       )}
     </SafeAreaView>

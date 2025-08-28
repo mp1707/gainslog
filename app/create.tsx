@@ -13,7 +13,12 @@ import { Colors, Theme } from "@/theme/theme";
 import { useTheme } from "@/theme/ThemeProvider";
 import { FoodLog } from "@/types/models";
 import { useRouter } from "expo-router";
-import { SparkleIcon, PencilIcon } from "phosphor-react-native";
+import {
+  SparkleIcon,
+  PencilIcon,
+  CameraIcon,
+  MicrophoneIcon,
+} from "phosphor-react-native";
 import { useCallback, useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -117,11 +122,22 @@ export default function Create() {
         {/* Bottom InputAccessoryView for demonstration */}
         <View style={styles.bottomContainer}>
           <InputAccessoryView
-            primaryText="Button1"
-            onPrimaryPress={handleButton1}
-            isValid={true}
-            secondaryText="Button2"
-            onSecondaryPress={handleButton2}
+            primaryAction={{
+              icon: SparkleIcon,
+              label: "Estimate",
+              onPress: handleButton1,
+              isValid: true,
+            }}
+            secondaryAction={{
+              icon: CameraIcon,
+              label: "",
+              onPress: handleButton2,
+            }}
+            tertiaryAction={{
+              icon: MicrophoneIcon,
+              label: "",
+              onPress: handleButton2,
+            }}
             accessibilityLabel="Demo buttons"
           />
         </View>
@@ -130,12 +146,23 @@ export default function Create() {
       {/* InputAccessory for TextInput */}
       <InputAccessory
         nativeID={inputAccessoryViewID}
-        primaryText="Estimate"
-        onPrimaryPress={handleButton1}
-        isValid={true}
-        secondaryText="Add Foto"
-        onSecondaryPress={handleButton2}
-        accessibilityLabel="Demo input accessory buttons"
+        primaryAction={{
+          icon: SparkleIcon,
+          label: "Estimate",
+          onPress: handleButton1,
+          isValid: true,
+        }}
+        secondaryAction={{
+          icon: CameraIcon,
+          label: "",
+          onPress: handleButton2,
+        }}
+        tertiaryAction={{
+          icon: MicrophoneIcon,
+          label: "",
+          onPress: handleButton2,
+        }}
+        accessibilityLabel="Demo buttons"
       />
       <TranscriptionOverlay
         visible={isRecording}

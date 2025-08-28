@@ -109,8 +109,12 @@ const AgeSelectionScreen = () => {
         <InputAccessory
           accessibilityLabel="Continue"
           nativeID={inputAccessoryViewID}
-          isValid={isValidAge(age)}
-          onPrimaryPress={handleContinue}
+          primaryAction={{
+            icon: CaretRightIcon,
+            label: "Continue",
+            onPress: handleContinue,
+            isValid: isValidAge(age),
+          }}
         />
       )}
     </SafeAreaView>
