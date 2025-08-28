@@ -21,9 +21,7 @@ import {
 } from "phosphor-react-native";
 import { useCallback, useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useAudioTranscription } from "@/hooks/useAudioTranscription";
-import { AudioTranscriptionButton } from "@/components/shared/TextInput/AudioTranscriptionButton";
 import { TranscriptionOverlay } from "@/components/shared/TextInput/TranscriptionOverlay";
 
 const inputAccessoryViewID = "create-input-accessory";
@@ -50,11 +48,12 @@ export default function Create() {
   const handleTranscriptionComplete = useCallback((text: string) => {
     setNewLog((prev) => ({
       ...prev,
-      description: prev.description + " " + text,
+      description:
+        prev.description !== "" ? prev.description + " " + text : text,
     }));
   }, []);
 
-  const { isRecording, liveTranscription, toggleRecording } =
+  const { isRecording, liveTranscription, toggleRecording, startRecording } =
     useAudioTranscription({
       onTranscriptionComplete: handleTranscriptionComplete,
       initialValue: "",
@@ -100,23 +99,16 @@ export default function Create() {
             allowAudioTranscription={true}
             inputAccessoryViewID={inputAccessoryViewID}
           /> */}
-          <View style={styles.textInputContainer}>
-            <TextInput
-              value={newLog.description || ""}
-              onChangeText={(text) =>
-                setNewLog({ ...newLog, description: text })
-              }
-              placeholder="e.g. 100g of chicken breast"
-              style={styles.textInput}
-              multiline={true}
-              collapsable={true}
-              inputAccessoryViewID={inputAccessoryViewID}
-            />
-            <AudioTranscriptionButton
-              isRecording={isRecording}
-              onPress={toggleRecording}
-            />
-          </View>
+
+          <TextInput
+            value={newLog.description || ""}
+            onChangeText={(text) => setNewLog({ ...newLog, description: text })}
+            placeholder="e.g. 100g of chicken breast"
+            style={styles.textInput}
+            multiline={true}
+            collapsable={true}
+            inputAccessoryViewID={inputAccessoryViewID}
+          />
         </View>
 
         {/* Bottom InputAccessoryView for demonstration */}
@@ -131,12 +123,12 @@ export default function Create() {
             secondaryAction={{
               icon: CameraIcon,
               label: "",
-              onPress: handleButton2,
+              onPress: startRecording,
             }}
             tertiaryAction={{
               icon: MicrophoneIcon,
               label: "",
-              onPress: handleButton2,
+              onPress: startRecording,
             }}
             accessibilityLabel="Demo buttons"
           />
@@ -155,12 +147,12 @@ export default function Create() {
         secondaryAction={{
           icon: CameraIcon,
           label: "",
-          onPress: handleButton2,
+          onPress: startRecording,
         }}
         tertiaryAction={{
           icon: MicrophoneIcon,
           label: "",
-          onPress: handleButton2,
+          onPress: startRecording,
         }}
         accessibilityLabel="Demo buttons"
       />
@@ -201,11 +193,5 @@ const createStyles = (colors: Colors, theme: Theme) =>
       margin: theme.spacing.md,
       minHeight: 500,
       ...theme.typography.Title2,
-    },
-    textInputContainer: {
-      flexDirection: "row",
-      flex: 1,
-      justifyContent: "space-between",
-      gap: theme.spacing.md,
     },
   });
