@@ -1,28 +1,11 @@
-import { Tabs } from "expo-router";
-import {
-  ChartBarIcon,
-  ForkKnifeIcon,
-  GearSixIcon,
-  StarIcon,
-  PlusIcon,
-  XIcon,
-} from "phosphor-react-native";
+import { router, Tabs } from "expo-router";
+import { ForkKnifeIcon, GearSixIcon, PlusIcon } from "phosphor-react-native";
 import { useTheme } from "@/theme";
-import { NewLogButton } from "@/components/daily-food-logs/NewLogButton";
-import React, { useState, useCallback } from "react";
+import React from "react";
+import { TouchableOpacity } from "react-native";
 
 export default function TabLayout() {
   const { colors } = useTheme();
-  const [isSheetVisible, setSheetVisible] = useState(false);
-
-  const openSheet = useCallback(() => {
-    setSheetVisible(true);
-  }, []);
-
-  const closeSheet = useCallback(() => {
-    setSheetVisible(false);
-  }, []);
-
   return (
     <>
       <Tabs
@@ -49,32 +32,6 @@ export default function TabLayout() {
             ),
           }}
         />
-        {/* <Tabs.Screen
-          name="overview"
-          options={{
-            title: "Overview",
-            tabBarIcon: ({ color, focused, size }) => (
-              <ChartBarIcon
-                color={color}
-                size={size ?? 24}
-                weight={focused ? "fill" : "regular"}
-              />
-            ),
-          }}
-        /> */}
-        {/* <Tabs.Screen
-          name="favorites"
-          options={{
-            title: "Favorites",
-            tabBarIcon: ({ color, focused, size }) => (
-              <StarIcon
-                color={color}
-                size={size ?? 24}
-                weight={focused ? "fill" : "regular"}
-              />
-            ),
-          }}
-        /> */}
         <Tabs.Screen
           name="settings"
           options={{
@@ -89,32 +46,40 @@ export default function TabLayout() {
             ),
           }}
         />
-        {/* <Tabs.Screen
-          name="new-log"
+        <Tabs.Screen
+          name="new"
           options={{
             title: "New",
-            tabBarIcon: ({ color, size }) =>
-              isSheetVisible ? (
-                <XIcon color={color} size={size ?? 24} weight="bold" />
-              ) : (
-                <PlusIcon color={color} size={size ?? 24} weight="bold" />
-              ),
-          }}
-          listeners={{
-            tabPress: (e) => {
-              e.preventDefault(); // Prevent navigation
-              if (isSheetVisible) {
-                closeSheet();
-              } else {
-                openSheet();
-              }
-            },
+            headerShown: false,
+            tabBarIcon: ({ color, focused, size }) => (
+              <PlusIcon
+                color={color}
+                size={size ?? 24}
+                weight={focused ? "fill" : "regular"}
+              />
+            ),
+            tabBarButton: ({ children, onPress, ...props }) => (
+              <TouchableOpacity
+                {...nullToUndefined(props)}
+                onPress={() => {
+                  router.push("/create");
+                }}
+              >
+                {children}
+              </TouchableOpacity>
+            ),
           }}
         />
-      </Tabs>
-
-      <NewLogButton visible={isSheetVisible} onClose={closeSheet} /> */}
       </Tabs>
     </>
   );
 }
+
+// Utility to convert null values to undefined for TouchableOpacity compatibility
+const nullToUndefined = (obj: Record<string, any>) => {
+  const result: Record<string, any> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    result[key] = value === null ? undefined : value;
+  }
+  return result;
+};
