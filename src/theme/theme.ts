@@ -15,6 +15,10 @@ const lightColors = {
   white: "#FFFFFF",
   disabledBackground: "rgba(26, 26, 26, 0.1)",
   disabledText: "rgba(26, 26, 26, 0.4)",
+  
+  // Subtle UI elements (for de-emphasized components)
+  subtleBackground: "rgba(0, 0, 0, 0.03)",
+  subtleBorder: "rgba(0, 0, 0, 0.08)",
 
   // Main Accent & System Colors
   accent: "#6200EA", // A striking magenta for a bold accent
@@ -93,6 +97,10 @@ const darkColors = {
   white: "#FFFFFF",
   disabledBackground: "rgba(242, 242, 247, 0.15)",
   disabledText: "rgba(242, 242, 247, 0.4)",
+  
+  // Subtle UI elements (for de-emphasized components)
+  subtleBackground: "rgba(255, 255, 255, 0.05)",
+  subtleBorder: "rgba(255, 255, 255, 0.12)",
 
   // Main Accent & System Colors
   accent: "#7C4DFF", // A brighter magenta for dark mode

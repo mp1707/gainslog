@@ -43,7 +43,9 @@ export function Toggle<T>({
 
   // Animated style for sliding indicator
   const animatedSliderStyle = useAnimatedStyle(() => {
-    const slideDistance = slideAnimation.value * 101;
+    // Calculate proper slide distance: from left position to right position
+    // Slider needs to move the precise distance to align with right option center
+    const slideDistance = slideAnimation.value * 100;
     return {
       transform: [
         {

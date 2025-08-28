@@ -20,12 +20,12 @@ export const createStyles = (colors: Colors, theme: Theme) => {
     },
     buttonBase: {
       borderRadius: components.buttons.cornerRadius,
-      paddingVertical: spacing.md,
+      // paddingVertical: spacing.md,
       paddingHorizontal: spacing.lg,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      // minHeight: 50,
+      minHeight: 40,
     },
     primaryButton: {
       backgroundColor: colors.accent,
