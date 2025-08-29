@@ -7,6 +7,7 @@ import {
   InputAccessoryView,
 } from "@/components/shared/InputAccessory";
 import { useAppStore } from "@/store/useAppStore";
+import { generateFoodLogId } from "@/utils/idGenerator";
 import { Colors, Theme } from "@/theme/theme";
 import { useTheme } from "@/theme/ThemeProvider";
 import { FoodLog } from "@/types/models";
@@ -42,7 +43,7 @@ export default function Create() {
   const { colors, theme } = useTheme();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [estimationType, setEstimationType] = useState<"ai" | "manual">("ai");
-  const { selectedDate } = useAppStore();
+  const { selectedDate, addFoodLog } = useAppStore();
   const [newLog, setNewLog] = useState<FoodLog>({
     id: "",
     title: "",
@@ -87,6 +88,15 @@ export default function Create() {
   const handleCancel = useCallback(() => {
     back();
   }, [back]);
+
+  const handleSave = useCallback(() => {
+    const logWithId = {
+      ...newLog,
+      id: generateFoodLogId(),
+    };
+    addFoodLog(logWithId);
+    back();
+  }, [newLog, addFoodLog, back]);
 
   const { showImagePickerAlert } = useImageSelection({
     onImageSelected: (imageUrl: string) => {
@@ -156,7 +166,11 @@ export default function Create() {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <ModalHeader onCancel={handleCancel} onSave={handleCancel} />
+      <ModalHeader 
+        onCancel={handleCancel} 
+        onSave={handleSave}
+        disabled={(newLog.estimationConfidence ?? 0) <= 0}
+      />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
