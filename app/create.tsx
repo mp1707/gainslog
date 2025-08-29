@@ -40,7 +40,7 @@ import { LogCard } from "@/components/daily-food-logs";
 const inputAccessoryViewID = "create-input-accessory";
 
 export default function Create() {
-  const { colors, theme } = useTheme();
+  const { colors, theme, colorScheme } = useTheme();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [estimationType, setEstimationType] = useState<"ai" | "manual">("ai");
   const { selectedDate, addFoodLog } = useAppStore();
@@ -166,8 +166,8 @@ export default function Create() {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <ModalHeader 
-        onCancel={handleCancel} 
+      <ModalHeader
+        onCancel={handleCancel}
         onSave={handleSave}
         disabled={(newLog.estimationConfidence ?? 0) <= 0}
       />
@@ -210,6 +210,7 @@ export default function Create() {
               onFocus={() => setIsKeyboardVisible(true)}
               onBlur={() => setIsKeyboardVisible(false)}
               inputAccessoryViewID={inputAccessoryViewID}
+              keyboardAppearance={colorScheme}
             />
           </Pressable>
         </View>

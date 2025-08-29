@@ -64,7 +64,10 @@ export default function TodayTab() {
         <DateNavigationHeader />
         <ScrollView
           style={styles.scrollView}
-          contentContainerStyle={{ paddingBottom: dynamicBottomPadding }}
+          contentContainerStyle={[
+            styles.contentContainer,
+            { paddingBottom: dynamicBottomPadding },
+          ]}
           showsVerticalScrollIndicator={false}
         >
           <NutrientSummary
@@ -95,11 +98,14 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     scrollView: {
       paddingVertical: themeObj.spacing.md,
-      gap: themeObj.spacing.lg,
+      paddingHorizontal: themeObj.spacing.md,
+      gap: themeObj.spacing.md,
       flex: 1,
     },
+    contentContainer: {
+      gap: themeObj.spacing.md,
+    },
     logCardContainer: {
-      paddingHorizontal: themeObj.spacing.md,
       gap: themeObj.spacing.md,
     },
   });

@@ -81,7 +81,7 @@ export const createStyles = (colors: Colors) =>
       right: 0,
       borderRadius: theme.components.cards.cornerRadius,
     },
-    
+
     // Skeleton styles
     skeletonTitleContainer: {
       gap: theme.spacing.xs,
@@ -89,19 +89,20 @@ export const createStyles = (colors: Colors) =>
     skeletonTitleLine: {
       height: theme.typography.Headline.fontSize + 2,
       backgroundColor: colors.border,
-      borderRadius: theme.spacing.xs / 2,
+      borderRadius: theme.spacing.md,
       width: "100%",
     },
     skeletonTitleLineShort: {
       height: theme.typography.Headline.fontSize + 2,
       backgroundColor: colors.border,
-      borderRadius: theme.spacing.xs / 2,
+      borderRadius: theme.spacing.md,
       width: "75%",
     },
     skeletonDescription: {
       height: theme.typography.Body.fontSize,
       backgroundColor: colors.border,
-      borderRadius: theme.spacing.xs / 2,
+      borderRadius: theme.spacing.md,
+
       width: "90%",
       marginTop: theme.spacing.xs,
     },
@@ -114,11 +115,12 @@ export const createStyles = (colors: Colors) =>
     skeletonNutritionContainer: {
       gap: theme.spacing.sm,
       alignItems: "flex-end",
+      width: "100%",
     },
     skeletonNutritionValue: {
       height: theme.typography.Headline.fontSize + 4,
-      width: 60,
+      width: "100%",
       backgroundColor: colors.border,
-      borderRadius: theme.spacing.xs / 2,
+      borderRadius: theme.spacing.md,
     },
   });
