@@ -12,8 +12,6 @@ export const createStyles = (
 
   return StyleSheet.create({
     container: {
-      marginHorizontal: spacing.md,
-      aspectRatio: 16 / 9,
       borderRadius: componentStyles.cards.cornerRadius,
       overflow: "hidden",
     },
@@ -30,6 +28,7 @@ export const createStyles = (
     image: {
       flex: 1,
       width: "100%",
+      height: "100%",
       borderRadius: componentStyles.cards.cornerRadius,
     },
   });

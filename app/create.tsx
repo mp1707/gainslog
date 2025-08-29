@@ -35,7 +35,6 @@ const inputAccessoryViewID = "create-input-accessory";
 
 export default function Create() {
   const { colors, theme } = useTheme();
-  const styles = createStyles(colors, theme);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [estimationType, setEstimationType] = useState<"ai" | "manual">("ai");
   const { selectedDate } = useAppStore();
@@ -51,6 +50,7 @@ export default function Create() {
     carbs: 0,
     fat: 0,
   });
+  const styles = createStyles(colors, theme, !!newLog.imageUrl);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const textInputRef = useRef<TextInput>(null);
 
@@ -195,7 +195,7 @@ export default function Create() {
   );
 }
 
-const createStyles = (colors: Colors, theme: Theme) =>
+const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -210,7 +210,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
     },
     content: {
       flex: 1,
-      gap: theme.spacing.xl,
+      gap: hasImage ? theme.spacing.md : theme.spacing.xl,
       marginHorizontal: theme.spacing.md,
       paddingTop: theme.spacing.md,
     },
@@ -220,10 +220,11 @@ const createStyles = (colors: Colors, theme: Theme) =>
     },
     textInputContainer: {
       flex: 1,
-      minHeight: 200,
+      minHeight: hasImage ? 150 : 200,
     },
     textInput: {
-      minHeight: 120,
+      flex: 1,
+      minHeight: hasImage ? 100 : 120,
       borderWidth: 0,
       backgroundColor: "transparent",
       color: colors.primaryText,
