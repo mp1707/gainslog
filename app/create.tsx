@@ -258,7 +258,7 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
     content: {
       flex: 1,
       gap: hasImage ? theme.spacing.md : theme.spacing.xl,
-      marginHorizontal: theme.spacing.md,
+      marginHorizontal: theme.spacing.xl,
       paddingTop: theme.spacing.md,
     },
     bottomContainer: {

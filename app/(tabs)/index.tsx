@@ -8,17 +8,25 @@ import { NutrientSummary } from "@/components/daily-food-logs/NutrientSummary";
 import { LogCard } from "@/components/daily-food-logs/LogCard";
 import { useTheme } from "@/theme/ThemeProvider";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
+import { FoodLog } from "@/types/models";
+import { Toast } from "toastify-react-native";
 
 export default function TodayTab() {
   const { dynamicBottomPadding } = useTabBarSpacing();
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
-  const { foodLogs, selectedDate, dailyTargets, deleteFoodLog } = useAppStore();
+  const {
+    foodLogs,
+    selectedDate,
+    dailyTargets,
+    deleteFoodLog,
+    addFavorite,
+    deleteFavorite,
+    favorites,
+  } = useAppStore();
 
   const todayFoodLogs = useMemo(() => {
-    return foodLogs
-      .filter((log) => log.logDate === selectedDate)
-      .reverse();
+    return foodLogs.filter((log) => log.logDate === selectedDate).reverse();
   }, [foodLogs, selectedDate]);
 
   const dailyTotals = useMemo(() => {
@@ -61,6 +69,26 @@ export default function TodayTab() {
     fat: 0,
   };
 
+  const toggleFavorite = (foodLog: FoodLog) => {
+    const isFavorite = favorites.some((favorite) => favorite.id === foodLog.id);
+    if (isFavorite) {
+      deleteFavorite(foodLog.id);
+      Toast.error("Favorite removed");
+    } else {
+      addFavorite({
+        id: foodLog.id,
+        title: foodLog.title,
+        description: foodLog.description,
+        imageUrl: foodLog.imageUrl,
+        calories: foodLog.calories,
+        protein: foodLog.protein,
+        carbs: foodLog.carbs,
+        fat: foodLog.fat,
+      });
+      Toast.success("Favorite added");
+    }
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
@@ -86,6 +114,7 @@ export default function TodayTab() {
                 onDelete={() => {
                   deleteFoodLog(foodLog.id);
                 }}
+                onFavorite={() => toggleFavorite(foodLog)}
               >
                 <LogCard
                   key={foodLog.id}
