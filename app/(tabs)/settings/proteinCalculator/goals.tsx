@@ -18,7 +18,6 @@ import {
 
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
-import { Button } from "@/components/shared/Button";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { StyleSheet } from "react-native";
 import { UserSettings } from "@/types/models";

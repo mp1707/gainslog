@@ -11,7 +11,7 @@ export interface MacroCalculationResult {
 /**
  * Calculate Fat and Carbs based on total calories and protein
  * This is used when protein is first set during the guided flow
- * 
+ *
  * @param totalCalories - Total calorie target
  * @param proteinInGrams - Protein target in grams
  * @returns Object with calculated fat, carbs values and fat percentage
@@ -22,16 +22,16 @@ export const calculateMacrosFromProtein = (
 ): MacroCalculationResult => {
   // Protein contributes 4 calories per gram
   const proteinCalories = proteinInGrams * 4;
-  
+
   // Fat should be 30% of total calories (as per requirements)
   const fatPercentage = 30;
   const fatInGrams = Math.round((totalCalories * (fatPercentage / 100)) / 9);
   const fatCalories = fatInGrams * 9;
-  
+
   // Remaining calories go to carbs
   const carbCalories = totalCalories - proteinCalories - fatCalories;
   const carbsInGrams = Math.round(carbCalories / 4);
-  
+
   return {
     fat: fatInGrams,
     carbs: carbsInGrams,
@@ -42,7 +42,7 @@ export const calculateMacrosFromProtein = (
 /**
  * Calculate carbs when protein changes (Fat stays constant)
  * Used in manual adjustment logic after initial setup
- * 
+ *
  * @param totalCalories - Total calorie target
  * @param newProteinInGrams - New protein value in grams
  * @param currentFatInGrams - Current fat value in grams (stays constant)
@@ -62,7 +62,7 @@ export const calculateCarbsFromProteinChange = (
 /**
  * Calculate carbs when fat changes (Protein stays constant)
  * Used in manual adjustment logic after initial setup
- * 
+ *
  * @param totalCalories - Total calorie target
  * @param currentProteinInGrams - Current protein value in grams (stays constant)
  * @param newFatInGrams - New fat value in grams
@@ -82,7 +82,7 @@ export const calculateCarbsFromFatChange = (
 /**
  * Calculate total calories when carbs change (Only scenario where macro overrides calorie target)
  * Used in manual adjustment logic after initial setup
- * 
+ *
  * @param proteinInGrams - Current protein value in grams
  * @param fatInGrams - Current fat value in grams
  * @param newCarbsInGrams - New carbs value in grams
@@ -102,7 +102,7 @@ export const calculateCaloriesFromCarbsChange = (
 /**
  * Calculate carbs when total calories change (Protein and Fat stay constant)
  * Used in manual adjustment logic after initial setup
- * 
+ *
  * @param newTotalCalories - New total calorie target
  * @param currentProteinInGrams - Current protein value in grams (stays constant)
  * @param currentFatInGrams - Current fat value in grams (stays constant)
@@ -121,7 +121,7 @@ export const calculateCarbsFromCaloriesChange = (
 
 /**
  * Calculate fat grams from percentage of total calories
- * 
+ *
  * @param totalCalories - Total calorie target
  * @param fatPercentage - Fat percentage (0-100)
  * @returns Fat in grams
@@ -130,13 +130,15 @@ export const calculateFatGramsFromPercentage = (
   totalCalories: number,
   fatPercentage: number
 ): number => {
-  const fatCalories = totalCalories * (fatPercentage / 100);
-  return Math.round(fatCalories / 9);
+  const fatPercentageDecimal = fatPercentage / 100;
+  const fatCalories = totalCalories * fatPercentageDecimal;
+  const fatInGrams = Math.round(fatCalories / 9);
+  return fatInGrams;
 };
 
 /**
  * Calculate carbs from macros (used for the new simplified flow)
- * 
+ *
  * @param totalCalories - Total calorie target
  * @param proteinInGrams - Protein in grams
  * @param fatInGrams - Fat in grams
@@ -156,7 +158,7 @@ export const calculateCarbsFromMacros = (
 /**
  * Calculate maximum fat percentage based on calories and protein
  * Ensures there are enough calories left for reasonable carbs (at least 50g)
- * 
+ *
  * @param totalCalories - Total calorie target
  * @param proteinInGrams - Protein in grams
  * @returns Maximum fat percentage
@@ -167,7 +169,10 @@ export const calculateMaxFatPercentage = (
 ): number => {
   const proteinCalories = proteinInGrams * 4;
   const minCarbCalories = 50 * 4; // Reserve at least 50g carbs (200 calories)
-  const availableCaloriesForFat = totalCalories - proteinCalories - minCarbCalories;
-  const maxFatPercentage = Math.floor((availableCaloriesForFat / totalCalories) * 100);
+  const availableCaloriesForFat =
+    totalCalories - proteinCalories - minCarbCalories;
+  const maxFatPercentage = Math.floor(
+    (availableCaloriesForFat / totalCalories) * 100
+  );
   return Math.max(10, Math.min(70, maxFatPercentage)); // Between 10% and 70%
 };

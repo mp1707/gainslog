@@ -79,7 +79,7 @@ const AgeSelectionScreen = () => {
         <View style={styles.inputSection}>
           <TextInput
             ref={inputRef}
-            value={age?.toString()}
+            value={age ? age.toString() : ""}
             onChangeText={handleAgeChange}
             placeholder="30"
             keyboardType="numeric"

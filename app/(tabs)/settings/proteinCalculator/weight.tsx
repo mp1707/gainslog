@@ -84,7 +84,7 @@ const ProteinWeightSelectionScreen = () => {
           <View style={styles.inputContainer}>
             <TextInput
               ref={inputRef}
-              value={weight?.toString()}
+              value={weight ? weight.toString() : ""}
               onChangeText={handleWeightChange}
               placeholder="70"
               keyboardType="numeric"

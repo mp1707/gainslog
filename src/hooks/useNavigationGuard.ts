@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 
 /**
  * Navigation guard hook to prevent multiple rapid navigation calls
@@ -12,12 +12,12 @@ export function useNavigationGuard() {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const unlockNavigation = useCallback(() => {
-    lockedRef.current = false;
-    setIsNavigating(false);
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
+    lockedRef.current = false;
+    setIsNavigating(false);
   }, []);
 
   const executeNavigation = useCallback(
@@ -25,6 +25,12 @@ export function useNavigationGuard() {
       if (lockedRef.current) {
         console.warn("[NavigationGuard] Navigation already in progress");
         return;
+      }
+
+      // Clear any existing timeout first
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
       }
 
       lockedRef.current = true;
@@ -38,6 +44,12 @@ export function useNavigationGuard() {
 
       try {
         navigationFn();
+        // Clear timeout after successful navigation
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+        unlockNavigation();
       } catch (err) {
         console.error("[NavigationGuard] Navigation failed:", err);
         unlockNavigation();
@@ -65,6 +77,16 @@ export function useNavigationGuard() {
     (route: string) => executeNavigation(() => router.dismissTo(route)),
     [router, executeNavigation]
   );
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, []);
 
   return {
     safeNavigate,

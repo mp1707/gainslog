@@ -16,6 +16,7 @@ import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { InputAccessory } from "@/components/shared/InputAccessory";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { calculateCarbsFromMacros } from "@/utils/nutritionCalculations";
 
 const inputAccessoryViewID = "protein-input-accessory";
 
@@ -51,6 +52,11 @@ const ManualProteinInputScreen = () => {
     const newDailyTargets = {
       ...dailyTargets,
       protein,
+      carbs: calculateCarbsFromMacros(
+        dailyTargets?.calories || 0,
+        protein || 0,
+        dailyTargets?.fat || 0
+      ),
     };
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setDailyTargets(newDailyTargets);
@@ -72,7 +78,7 @@ const ManualProteinInputScreen = () => {
           <View style={styles.inputContainer}>
             <TextInput
               ref={inputRef}
-              value={protein?.toString()}
+              value={protein ? protein.toString() : ""}
               onChangeText={handleProteinChange}
               placeholder="100"
               keyboardType="number-pad"

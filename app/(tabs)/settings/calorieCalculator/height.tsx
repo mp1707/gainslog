@@ -89,7 +89,7 @@ const HeightSelectionScreen = () => {
           <View style={styles.inputContainer}>
             <TextInput
               ref={inputRef}
-              value={height?.toString()}
+              value={height ? height.toString() : ""}
               onChangeText={handleHeightChange}
               placeholder="175"
               keyboardType="numeric"

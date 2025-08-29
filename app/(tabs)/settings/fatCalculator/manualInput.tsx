@@ -24,6 +24,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { InputAccessory } from "@/components/shared/InputAccessory";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import {
+  calculateCarbsFromMacros,
   calculateFatGramsFromPercentage,
   calculateMaxFatPercentage,
 } from "@/utils/nutritionCalculations";
@@ -72,6 +73,11 @@ const ManualFatInputScreen = () => {
     const newDailyTargets = {
       ...dailyTargets,
       fat,
+      carbs: calculateCarbsFromMacros(
+        dailyTargets?.calories || 0,
+        dailyTargets?.protein || 0,
+        fat
+      ),
     };
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setDailyTargets(newDailyTargets);

@@ -49,6 +49,9 @@ export default function Step3GoalsScreen() {
     const newDailyTargets = {
       ...dailyTargets,
       calories: calorieGoals[goalType],
+      protein: undefined,
+      carbs: undefined,
+      fat: undefined,
     };
     setDailyTargets(newDailyTargets);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

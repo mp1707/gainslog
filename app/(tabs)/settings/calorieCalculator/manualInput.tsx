@@ -61,17 +61,27 @@ const ManualCalorieInputScreen = () => {
   );
 
   const handleCaloriesChange = (caloriesText: string) => {
-    const newCalories = caloriesText === "" ? undefined : Number(caloriesText);
+    if (caloriesText === "") {
+      setCalories(undefined);
+      return;
+    }
 
-    if (!newCalories) return;
+    const newCalories = Number(caloriesText);
+
+    if (isNaN(newCalories)) {
+      setCalories(undefined);
+      return;
+    }
 
     setCalories(newCalories);
   };
 
   const handleSave = async () => {
     const newDailyTargets = {
-      ...dailyTargets,
       calories,
+      protein: undefined,
+      carbs: undefined,
+      fat: undefined,
     };
     if (!isValidCalories(calories)) {
       Alert.alert(
@@ -101,7 +111,7 @@ const ManualCalorieInputScreen = () => {
           <View style={styles.inputContainer}>
             <TextInput
               ref={inputRef}
-              value={calories?.toString()}
+              value={calories ? calories.toString() : ""}
               onChangeText={handleCaloriesChange}
               placeholder="2000"
               keyboardType="number-pad"
