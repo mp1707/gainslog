@@ -12,11 +12,11 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
-import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { InputAccessory } from "@/components/shared/InputAccessory";
+import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 
 const inputAccessoryViewID = "protein-weight-input-accessory";
 
@@ -33,18 +33,7 @@ const ProteinWeightSelectionScreen = () => {
   );
   const inputRef = useRef<TextInput>(null);
 
-  useFocusEffect(
-    useCallback(() => {
-      const task = InteractionManager.runAfterInteractions(() => {
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            inputRef.current?.focus();
-          }, 600);
-        });
-      });
-      return () => task.cancel();
-    }, [])
-  );
+  useDelayedAutofocus(inputRef);
 
   const handleWeightChange = (weightText: string) => {
     const newWeight = Number(weightText);

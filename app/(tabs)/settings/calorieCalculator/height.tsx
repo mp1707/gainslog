@@ -9,8 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect } from "@react-navigation/native";
-import { InteractionManager } from "react-native";
+import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
@@ -34,14 +33,7 @@ const HeightSelectionScreen = () => {
   );
   const inputRef = useRef<TextInput>(null);
 
-  useFocusEffect(
-    useCallback(() => {
-      const task = InteractionManager.runAfterInteractions(() => {
-        requestAnimationFrame(() => inputRef.current?.focus());
-      });
-      return () => task.cancel();
-    }, [])
-  );
+  useDelayedAutofocus(inputRef);
 
   const handleHeightChange = (heightText: string) => {
     const newHeight = Number(heightText);

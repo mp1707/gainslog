@@ -8,8 +8,7 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect } from "@react-navigation/native";
-import { InteractionManager } from "react-native";
+import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
@@ -31,18 +30,7 @@ const AgeSelectionScreen = () => {
   const [age, setAge] = useState<number | undefined>(userSettings?.age);
   const inputRef = useRef<TextInput>(null);
 
-  useFocusEffect(
-    useCallback(() => {
-      const task = InteractionManager.runAfterInteractions(() => {
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            inputRef.current?.focus();
-          }, 600);
-        });
-      });
-      return () => task.cancel();
-    }, [])
-  );
+  useDelayedAutofocus(inputRef);
 
   const handleContinue = async () => {
     if (!isValidAge(age)) return;

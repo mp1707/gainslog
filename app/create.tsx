@@ -17,7 +17,7 @@ import {
   CameraIcon,
   MicrophoneIcon,
 } from "phosphor-react-native";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -31,6 +31,7 @@ import { useAudioTranscription } from "@/hooks/useAudioTranscription";
 import { useImageSelection } from "@/hooks/useImageSelection";
 import { TranscriptionOverlay } from "@/components/shared/TextInput/TranscriptionOverlay";
 import { useEstimation } from "@/hooks/useEstimation";
+import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -61,6 +62,8 @@ export default function Create() {
       return "Re-estimate";
     return "Estimate";
   }, [newLog.estimationConfidence]);
+
+  useDelayedAutofocus(textInputRef);
 
   // Audio transcription hook
   const handleTranscriptionComplete = useCallback((text: string) => {
@@ -166,6 +169,7 @@ export default function Create() {
                 setNewLog({ ...newLog, description: text })
               }
               placeholder="e.g. 100g of chicken breast"
+              placeholderTextColor={colors.secondaryText}
               style={styles.textInput}
               multiline={true}
               onFocus={() => setIsKeyboardVisible(true)}

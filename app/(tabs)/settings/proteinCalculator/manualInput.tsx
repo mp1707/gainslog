@@ -9,13 +9,13 @@ import {
   InteractionManager,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect } from "@react-navigation/native";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { InputAccessory } from "@/components/shared/InputAccessory";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { calculateCarbsFromMacros } from "@/utils/nutritionCalculations";
 
 const inputAccessoryViewID = "protein-input-accessory";
@@ -30,18 +30,7 @@ const ManualProteinInputScreen = () => {
   );
   const inputRef = useRef<TextInput>(null);
 
-  useFocusEffect(
-    useCallback(() => {
-      const task = InteractionManager.runAfterInteractions(() => {
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            inputRef.current?.focus();
-          }, 600);
-        });
-      });
-      return () => task.cancel();
-    }, [])
-  );
+  useDelayedAutofocus(inputRef);
 
   const handleProteinChange = (proteinText: string) => {
     const newProtein = proteinText === "" ? 0 : Number(proteinText);
