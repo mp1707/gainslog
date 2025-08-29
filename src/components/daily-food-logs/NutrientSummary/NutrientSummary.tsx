@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect } from "react";
-import { Dimensions, View, TouchableOpacity } from "react-native";
+import { Dimensions, View } from "react-native";
 import { Canvas, Circle, Path, Skia, Group } from "@shopify/react-native-skia";
 import {
   useSharedValue,
@@ -8,9 +8,7 @@ import {
   useDerivedValue,
 } from "react-native-reanimated";
 import { useTheme } from "@/theme";
-import { theme } from "@/theme";
 import { Card } from "@/components/Card";
-import { AppText } from "@/components/shared/AppText";
 import { NutrientStat } from "@/components/shared/NutrientStat";
 import { createStyles } from "./NutrientSummary.styles";
 
@@ -48,7 +46,7 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
   const { colors } = useTheme();
   const styles = createStyles(colors);
   const screenWidth = Dimensions.get("window").width;
-  const availableWidth = screenWidth * 0.35; // Smaller than LargeNutrientHub
+  const availableWidth = screenWidth * 0.35; 
   const containerSize = availableWidth;
   const center = containerSize / 2;
 

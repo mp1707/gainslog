@@ -81,6 +81,14 @@ export const createStyles = (colors: Colors) =>
       right: 0,
       borderRadius: theme.components.cards.cornerRadius,
     },
+    flashOverlay: {
+      position: "absolute",
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      borderRadius: theme.components.cards.cornerRadius,
+    },
 
     // Skeleton styles
     skeletonTitleContainer: {

@@ -1,0 +1,1 @@
+export { SkeletonPill } from "./SkeletonPill";
