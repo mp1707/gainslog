@@ -1,9 +1,7 @@
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
-import { Button } from "@/components/index";
-import { AppText } from "@/components/shared/AppText";
-import { ImagePicker } from "@/components/shared/ImagePicker";
 // import { TextInput } from "@/components/shared/TextInput";
 import { Toggle } from "@/components/shared/Toggle";
+import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import {
   InputAccessory,
   InputAccessoryView,
@@ -19,9 +17,18 @@ import {
   CameraIcon,
   MicrophoneIcon,
 } from "phosphor-react-native";
-import { useCallback, useState } from "react";
-import { StyleSheet, TextInput, View } from "react-native";
+import { useCallback, useRef, useState } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
 import { useAudioTranscription } from "@/hooks/useAudioTranscription";
+import { useImageSelection } from "@/hooks/useImageSelection";
 import { TranscriptionOverlay } from "@/components/shared/TextInput/TranscriptionOverlay";
 
 const inputAccessoryViewID = "create-input-accessory";
@@ -29,6 +36,7 @@ const inputAccessoryViewID = "create-input-accessory";
 export default function Create() {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [estimationType, setEstimationType] = useState<"ai" | "manual">("ai");
   const { selectedDate } = useAppStore();
   const [newLog, setNewLog] = useState<FoodLog>({
@@ -43,6 +51,8 @@ export default function Create() {
     carbs: 0,
     fat: 0,
   });
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const textInputRef = useRef<TextInput>(null);
 
   // Audio transcription hook
   const handleTranscriptionComplete = useCallback((text: string) => {
@@ -69,14 +79,35 @@ export default function Create() {
     console.log("Button 1 pressed");
   }, []);
 
+  const { showImagePickerAlert } = useImageSelection({
+    onImageSelected: (imageUrl: string) => {
+      setNewLog((prev) => ({ ...prev, imageUrl }));
+      setIsUploadingImage(false);
+    },
+    onUploadStart: () => {
+      setIsUploadingImage(true);
+    },
+    onUploadError: () => {
+      setIsUploadingImage(false);
+    },
+  });
+
   const handleButton2 = useCallback(() => {
-    console.log("Button 2 pressed");
-  }, []);
+    showImagePickerAlert();
+  }, [showImagePickerAlert]);
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView 
+      style={styles.container} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       <ModalHeader onCancel={handleCancel} onSave={handleCancel} />
-      <View style={styles.contentContainer}>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+      >
         <View style={styles.content}>
           <Toggle
             value={estimationType}
@@ -86,32 +117,31 @@ export default function Create() {
             ]}
             onChange={setEstimationType}
           />
-          {/* <ImagePicker
-          newLog={newLog}
-          setNewLog={(log) => setNewLog(log as FoodLog)}
-          /> */}
-          {/* <TextInput
-            value={newLog.description || ""}
-            onChangeText={(text) => setNewLog({ ...newLog, description: text })}
-            placeholder="Description"
-            // autoExpand={true}
-            multiline={true}
-            allowAudioTranscription={true}
-            inputAccessoryViewID={inputAccessoryViewID}
-          /> */}
 
-          <TextInput
-            value={newLog.description || ""}
-            onChangeText={(text) => setNewLog({ ...newLog, description: text })}
-            placeholder="e.g. 100g of chicken breast"
-            style={styles.textInput}
-            multiline={true}
-            collapsable={true}
-            inputAccessoryViewID={inputAccessoryViewID}
+          <ImageDisplay
+            imageUrl={newLog.imageUrl}
+            isUploading={isUploadingImage}
           />
+          <Pressable 
+            style={styles.textInputContainer}
+            onPress={() => textInputRef.current?.focus()}
+          >
+            <TextInput
+              ref={textInputRef}
+              value={newLog.description || ""}
+              onChangeText={(text) => setNewLog({ ...newLog, description: text })}
+              placeholder="e.g. 100g of chicken breast"
+              style={styles.textInput}
+              multiline={true}
+              onFocus={() => setIsKeyboardVisible(true)}
+              onBlur={() => setIsKeyboardVisible(false)}
+              inputAccessoryViewID={inputAccessoryViewID}
+            />
+          </Pressable>
         </View>
+      </ScrollView>
 
-        {/* Bottom InputAccessoryView for demonstration */}
+      {!isKeyboardVisible && (
         <View style={styles.bottomContainer}>
           <InputAccessoryView
             primaryAction={{
@@ -123,7 +153,7 @@ export default function Create() {
             secondaryAction={{
               icon: CameraIcon,
               label: "",
-              onPress: startRecording,
+              onPress: handleButton2,
             }}
             tertiaryAction={{
               icon: MicrophoneIcon,
@@ -133,7 +163,7 @@ export default function Create() {
             accessibilityLabel="Demo buttons"
           />
         </View>
-      </View>
+      )}
 
       {/* InputAccessory for TextInput */}
       <InputAccessory
@@ -147,7 +177,7 @@ export default function Create() {
         secondaryAction={{
           icon: CameraIcon,
           label: "",
-          onPress: startRecording,
+          onPress: handleButton2,
         }}
         tertiaryAction={{
           icon: MicrophoneIcon,
@@ -161,7 +191,7 @@ export default function Create() {
         liveTranscription={liveTranscription}
         onStop={toggleRecording}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -170,28 +200,35 @@ const createStyles = (colors: Colors, theme: Theme) =>
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
-      gap: theme.spacing.md,
     },
-    contentContainer: {
+    scrollView: {
       flex: 1,
-      justifyContent: "space-between",
+    },
+    scrollContent: {
+      flexGrow: 1,
+      paddingBottom: theme.spacing.lg,
     },
     content: {
+      flex: 1,
       gap: theme.spacing.xl,
       marginHorizontal: theme.spacing.md,
+      paddingTop: theme.spacing.md,
     },
     bottomContainer: {
       paddingBottom: theme.spacing.lg,
       backgroundColor: colors.secondaryBackground,
     },
-    textInput: {
-      height: 100,
-      borderWidth: 0,
+    textInputContainer: {
       flex: 1,
+      minHeight: 200,
+    },
+    textInput: {
+      minHeight: 120,
+      borderWidth: 0,
       backgroundColor: "transparent",
       color: colors.primaryText,
-      margin: theme.spacing.md,
-      minHeight: 500,
+      padding: theme.spacing.md,
+      textAlignVertical: 'top',
       ...theme.typography.Title2,
     },
   });
