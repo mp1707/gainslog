@@ -170,9 +170,12 @@ export default function Create() {
           options={[
             { label: "Estimation", value: "ai" },
             { label: "Favorites", value: "favorites" },
-            { label: "Manual Entry", value: "manual" },
+            { label: "Manual", value: "manual" },
           ]}
-          onChange={setEstimationType}
+          onChange={(value: "ai" | "favorites" | "manual") => {
+            setEstimationType(value);
+            setIsKeyboardVisible(false);
+          }}
         />
       </View>
       {estimationType === "ai" && (
@@ -231,7 +234,7 @@ export default function Create() {
         </GestureHandlerRootView>
       )}
 
-      {!isKeyboardVisible && (
+      {!isKeyboardVisible && estimationType === "ai" && (
         <View style={styles.bottomContainer}>
           <InputAccessoryView
             primaryAction={{
@@ -300,7 +303,7 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
     },
     toggleContainer: {
       marginHorizontal: theme.spacing.md,
-      marginVertical: theme.spacing.sm,
+      marginVertical: theme.spacing.md,
     },
     content: {
       flex: 1,
