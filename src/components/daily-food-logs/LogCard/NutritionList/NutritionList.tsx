@@ -23,6 +23,7 @@ interface NutritionData {
 interface NutritionListProps {
   nutrition: NutritionData;
   isLoading?: boolean;
+  wasLoading?: boolean;
 }
 
 // Component for individual nutrition row with staggered fade animation
@@ -30,24 +31,29 @@ const AnimatedNutritionValue: React.FC<{
   value: number;
   label: string;
   isLoading: boolean;
+  wasLoading: boolean;
   delay: number;
   textStyle: any;
   large?: boolean;
-}> = ({ value, label, isLoading, delay, textStyle, large }) => {
+}> = ({ value, label, isLoading, wasLoading, delay, textStyle, large }) => {
   const skeletonOpacity = useSharedValue(isLoading ? 1 : 0);
-  const valueOpacity = useSharedValue(isLoading ? 0 : 0);
+  const valueOpacity = useSharedValue(isLoading ? 0 : wasLoading ? 0 : 1);
 
   useEffect(() => {
     if (isLoading) {
       // Show skeleton, hide value
       skeletonOpacity.value = withTiming(1, { duration: 200 });
       valueOpacity.value = withTiming(0, { duration: 200 });
-    } else {
-      // Staggered transition: skeleton fades out, then value fades in
+    } else if (wasLoading) {
+      // Only animate when transitioning from loading to loaded state
       skeletonOpacity.value = withDelay(delay, withTiming(0, { duration: 300 }));
       valueOpacity.value = withDelay(delay + 150, withTiming(1, { duration: 400 }));
+    } else {
+      // Show content immediately without animation if not coming from loading state
+      skeletonOpacity.value = 0;
+      valueOpacity.value = 1;
     }
-  }, [isLoading, delay]);
+  }, [isLoading, wasLoading, delay]);
 
   const skeletonAnimatedStyle = useAnimatedStyle(() => ({
     opacity: skeletonOpacity.value,
@@ -72,6 +78,7 @@ const AnimatedNutritionValue: React.FC<{
 export const NutritionList: React.FC<NutritionListProps> = ({
   nutrition,
   isLoading = false,
+  wasLoading = false,
 }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
@@ -126,15 +133,18 @@ export const NutritionList: React.FC<NutritionListProps> = ({
           withRepeat(withTiming(1.4, { duration: 600 }), -1, true)
         );
       });
-
-    } else {
-      // Stop dot animations and return to normal
+    } else if (wasLoading) {
+      // Only animate dots when transitioning from loading to loaded state
       dotScales.forEach((scale) => {
         scale.value = withSpring(1, { stiffness: 400, damping: 30 });
       });
-
+    } else {
+      // Set dots to normal state without animation if not coming from loading
+      dotScales.forEach((scale) => {
+        scale.value = 1;
+      });
     }
-  }, [isLoading]);
+  }, [isLoading, wasLoading]);
 
   return (
     <View style={styles.nutritionList}>
@@ -159,6 +169,7 @@ export const NutritionList: React.FC<NutritionListProps> = ({
               value={item.value}
               label={item.label}
               isLoading={isLoading}
+              wasLoading={wasLoading}
               delay={item.delay}
               textStyle={styles.nutritionText}
               large={item.key === "calories"}

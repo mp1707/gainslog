@@ -62,13 +62,12 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
   useEffect(() => {
     const wasLoading = previousLoadingRef.current;
 
-    if (!isLoading) {
+    if (!isLoading && wasLoading) {
+      // Only animate when transitioning from loading to loaded state
       // Trigger haptic feedback when loading completes
-      if (wasLoading) {
-        setTimeout(() => {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        }, 300);
-      }
+      setTimeout(() => {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }, 300);
 
       // Staggered reveal animation sequence
       titleOpacity.value = withDelay(
@@ -100,7 +99,15 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
           }
         })
       );
-    } else {
+    } else if (!isLoading && !wasLoading) {
+      // If card renders without loading, show content immediately without animation
+      titleOpacity.value = 1;
+      descriptionOpacity.value = 1;
+      confidenceOpacity.value = 1;
+      nutritionOpacity.value = 1;
+      flashOpacity.value = 0;
+    } else if (isLoading) {
+      // Hide content during loading
       titleOpacity.value = 0;
       descriptionOpacity.value = 0;
       confidenceOpacity.value = 0;
@@ -215,6 +222,7 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
                 fat: foodLog.fat,
               }}
               isLoading={isLoading}
+              wasLoading={previousLoadingRef.current}
             />
           </View>
         </View>
