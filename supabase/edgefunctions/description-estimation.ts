@@ -122,29 +122,13 @@ Deno.serve(async (req) => {
     );
   }
   try {
-    const { title, description } = await req.json();
-    // Validate input
-    if (!title?.trim()) {
-      return new Response(
-        JSON.stringify({
-          error: "Title is required",
-        }),
-        {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    }
+    const { description } = await req.json();
+
     // Construct the user prompt
-    const userPrompt = `Food: ${title}${
-      description ? ` - ${description}` : ""
-    }. Estimate nutrition for the whole food.`;
+    const userPrompt = `Food: ${description}. Estimate nutrition for the whole food.`;
     // Fetch the completion from OpenAI
     const chatCompletion = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-5",
       messages: [
         {
           role: "system",
@@ -168,10 +152,10 @@ Deno.serve(async (req) => {
     const nutrition = JSON.parse(messageContent);
     // Sanitize and structure the final result
     const result = {
-      generatedTitle: nutrition.generatedTitle || `${title} (AI estimate)`,
+      generatedTitle: nutrition.generatedTitle || "AI estimate",
       estimationConfidence: Math.max(
         1,
-        Math.min(100, Math.round(nutrition.estimationConfidence || 80))
+        Math.min(100, Math.round(nutrition.estimationConfidence || 10))
       ),
       calories: Math.max(0, Math.round(nutrition.calories || 0)),
       protein: Math.max(0, Math.round(nutrition.protein || 0)),

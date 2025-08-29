@@ -1,44 +1,51 @@
-import { useTheme } from '@/theme/ThemeProvider';
-import React from 'react';
-import { Text, TextProps, TextStyle } from 'react-native';
+import { useTheme } from "@/theme/ThemeProvider";
+import React from "react";
+import { Text, TextProps, TextStyle } from "react-native";
 
-export type TypographyRole = 'Title1' | 'Title2' | 'Headline' | 'Body' | 'Subhead' | 'Caption' | 'Button';
+export type TypographyRole =
+  | "Title1"
+  | "Title2"
+  | "Headline"
+  | "Body"
+  | "Subhead"
+  | "Caption"
+  | "Button";
 
-interface AppTextProps extends Omit<TextProps, 'role'> {
+interface AppTextProps extends Omit<TextProps, "role"> {
   role?: TypographyRole;
-  color?: 'primary' | 'secondary' | 'accent' | 'white' | 'disabled';
+  color?: "primary" | "secondary" | "accent" | "white" | "disabled";
   children: React.ReactNode;
 }
 
 export const AppText: React.FC<AppTextProps> = ({
-  role = 'Body',
+  role = "Body",
   color,
   style,
   children,
   ...props
 }) => {
   const { colors, theme } = useTheme();
-  
+
   // Get typography style for the role
   const typographyStyle = theme.typography[role];
-  
+
   // Determine text color
   let textColor: string;
   if (color) {
     switch (color) {
-      case 'primary':
+      case "primary":
         textColor = colors.primaryText;
         break;
-      case 'secondary':
+      case "secondary":
         textColor = colors.secondaryText;
         break;
-      case 'accent':
+      case "accent":
         textColor = colors.accent;
         break;
-      case 'white':
+      case "white":
         textColor = colors.white;
         break;
-      case 'disabled':
+      case "disabled":
         textColor = colors.disabledText;
         break;
       default:
@@ -46,7 +53,7 @@ export const AppText: React.FC<AppTextProps> = ({
     }
   } else {
     // Default color based on role
-    if (role === 'Subhead' || role === 'Caption') {
+    if (role === "Subhead" || role === "Caption") {
       textColor = colors.secondaryText;
     } else {
       textColor = colors.primaryText;

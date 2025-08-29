@@ -17,7 +17,7 @@ import {
   CameraIcon,
   MicrophoneIcon,
 } from "phosphor-react-native";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -30,6 +30,11 @@ import {
 import { useAudioTranscription } from "@/hooks/useAudioTranscription";
 import { useImageSelection } from "@/hooks/useImageSelection";
 import { TranscriptionOverlay } from "@/components/shared/TextInput/TranscriptionOverlay";
+import {
+  estimateNutritionDescriptionBased,
+  estimateNutritionImageBased,
+} from "@/lib/supabase";
+import { LogCard } from "@/components/daily-food-logs";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -49,10 +54,18 @@ export default function Create() {
     protein: 0,
     carbs: 0,
     fat: 0,
+    estimationConfidence: 0,
   });
   const styles = createStyles(colors, theme, !!newLog.imageUrl);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isEstimating, setIsEstimating] = useState(false);
   const textInputRef = useRef<TextInput>(null);
+  const estimateLabel = useMemo(() => {
+    if (isEstimating) return "Estimating...";
+    if (newLog.estimationConfidence && newLog.estimationConfidence > 0)
+      return "Re-estimate";
+    return "Estimate";
+  }, [isEstimating, newLog.estimationConfidence]);
 
   // Audio transcription hook
   const handleTranscriptionComplete = useCallback((text: string) => {
@@ -75,13 +88,17 @@ export default function Create() {
     back();
   }, [back]);
 
-  const handleButton1 = useCallback(() => {
-    console.log("Button 1 pressed");
-  }, []);
-
   const { showImagePickerAlert } = useImageSelection({
     onImageSelected: (imageUrl: string) => {
-      setNewLog((prev) => ({ ...prev, imageUrl }));
+      setNewLog((prev) => ({
+        ...prev,
+        imageUrl,
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+        estimationConfidence: 0,
+      }));
       setIsUploadingImage(false);
     },
     onUploadStart: () => {
@@ -96,13 +113,51 @@ export default function Create() {
     showImagePickerAlert();
   }, [showImagePickerAlert]);
 
+  const handleEstimation = useCallback(async () => {
+    setIsEstimating(true);
+    if (!newLog.imageUrl || newLog.imageUrl === "") {
+      const estimatedLog = await estimateNutritionDescriptionBased({
+        description: newLog.description || "",
+      });
+      setNewLog((prev) => ({
+        ...prev,
+        title: estimatedLog.generatedTitle,
+        calories: estimatedLog.calories,
+        protein: estimatedLog.protein,
+        carbs: estimatedLog.carbs,
+        fat: estimatedLog.fat,
+        estimationConfidence: estimatedLog.estimationConfidence,
+      }));
+      setIsEstimating(false);
+      textInputRef.current?.blur();
+      return;
+    }
+    const estimatedLog = await estimateNutritionImageBased({
+      imageUrl: newLog.imageUrl,
+      description: newLog.description || "",
+    });
+    setNewLog((prev) => ({
+      ...prev,
+      title: estimatedLog.generatedTitle,
+      calories: estimatedLog.calories,
+      protein: estimatedLog.protein,
+      carbs: estimatedLog.carbs,
+      fat: estimatedLog.fat,
+      estimationConfidence: estimatedLog.estimationConfidence,
+    }));
+    setIsEstimating(false);
+    textInputRef.current?.blur();
+  }, [newLog.imageUrl, newLog.description]);
+
+  const showLogCard = isEstimating || (newLog.estimationConfidence ?? 0) > 0;
+
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ModalHeader onCancel={handleCancel} onSave={handleCancel} />
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
@@ -122,14 +177,19 @@ export default function Create() {
             imageUrl={newLog.imageUrl}
             isUploading={isUploadingImage}
           />
-          <Pressable 
+          <Pressable
             style={styles.textInputContainer}
             onPress={() => textInputRef.current?.focus()}
           >
+            {showLogCard && (
+              <LogCard foodLog={newLog} isLoading={isEstimating} />
+            )}
             <TextInput
               ref={textInputRef}
               value={newLog.description || ""}
-              onChangeText={(text) => setNewLog({ ...newLog, description: text })}
+              onChangeText={(text) =>
+                setNewLog({ ...newLog, description: text })
+              }
               placeholder="e.g. 100g of chicken breast"
               style={styles.textInput}
               multiline={true}
@@ -146,9 +206,9 @@ export default function Create() {
           <InputAccessoryView
             primaryAction={{
               icon: SparkleIcon,
-              label: "Estimate",
-              onPress: handleButton1,
-              isValid: true,
+              label: estimateLabel,
+              onPress: handleEstimation,
+              isValid: !isEstimating,
             }}
             secondaryAction={{
               icon: CameraIcon,
@@ -170,9 +230,9 @@ export default function Create() {
         nativeID={inputAccessoryViewID}
         primaryAction={{
           icon: SparkleIcon,
-          label: "Estimate",
-          onPress: handleButton1,
-          isValid: true,
+          label: estimateLabel,
+          onPress: handleEstimation,
+          isValid: !isEstimating,
         }}
         secondaryAction={{
           icon: CameraIcon,
@@ -215,7 +275,7 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
       paddingTop: theme.spacing.md,
     },
     bottomContainer: {
-      paddingBottom: theme.spacing.lg,
+      paddingBottom: theme.spacing.xl,
       backgroundColor: colors.secondaryBackground,
     },
     textInputContainer: {
@@ -229,7 +289,7 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
       backgroundColor: "transparent",
       color: colors.primaryText,
       padding: theme.spacing.md,
-      textAlignVertical: 'top',
+      textAlignVertical: "top",
       ...theme.typography.Title2,
     },
   });

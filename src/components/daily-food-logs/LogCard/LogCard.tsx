@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import { FoodLog } from "@/types/models";
 import { useTheme } from "@/theme";
 import { Card } from "@/components/Card";
@@ -11,22 +11,18 @@ import { NutritionList } from "./NutritionList";
 
 interface LogCardProps {
   foodLog: FoodLog;
-  onPress?: () => void;
+  isLoading?: boolean;
 }
 
-export const LogCard: React.FC<LogCardProps> = ({ foodLog, onPress }) => {
+export const LogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
-
-  // Show skeleton while loading
-  const isLoading = (foodLog.estimationConfidence ?? 0) === 0;
 
   if (isLoading) {
     return <LogCardSkeleton />;
   }
 
-  const displayTitle = foodLog.title;
-
+  const displayTitle = foodLog.title || "New Log";
   const confidenceInfo = getConfidenceInfo(foodLog.estimationConfidence ?? 0);
   const ConfidenceIcon = confidenceInfo.icon;
 
@@ -56,7 +52,6 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, onPress }) => {
             <AppText role="Headline" style={styles.title} numberOfLines={2}>
               {displayTitle}
             </AppText>
-
             {foodLog.description && (
               <AppText
                 role="Body"

@@ -175,43 +175,36 @@ const typography = {
     fontFamily: "Nunito-Bold",
     fontSize: 28,
     fontWeight: "700" as const,
-    useCase: "Main dashboard greeting",
   },
   Title2: {
     fontFamily: "Nunito-Bold",
     fontSize: 22,
     fontWeight: "700" as const,
-    useCase: "Screen titles",
   },
   Headline: {
     fontFamily: "Nunito-SemiBold",
     fontSize: 17,
     fontWeight: "600" as const,
-    useCase: "Card titles, key metrics",
   },
   Body: {
     fontFamily: "Nunito-Regular",
     fontSize: 15,
     fontWeight: "400" as const,
-    useCase: "Main text, descriptions",
   },
   Subhead: {
     fontFamily: "Nunito-Regular",
     fontSize: 15,
     fontWeight: "400" as const,
-    useCase: "Secondary info, list items",
   },
   Caption: {
     fontFamily: "Nunito-Regular",
     fontSize: 13,
     fontWeight: "400" as const,
-    useCase: "Timestamps, small annotations",
   },
   Button: {
     fontFamily: "Nunito-Bold",
     fontSize: 17,
     fontWeight: "500" as const,
-    useCase: "Button labels",
   },
 } as const;
 

@@ -11,7 +11,7 @@ export const createStyles = (colors: Colors, theme: Theme) => {
       borderTopColor: colors.border,
     },
     inputAccessoryContent: {
-      paddingHorizontal: spacing.md,
+      paddingHorizontal: spacing.sm,
       paddingVertical: spacing.sm,
     },
     buttonsContainer: {

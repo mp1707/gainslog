@@ -50,7 +50,9 @@ export const NutritionList: React.FC<NutritionListProps> = ({ nutrition }) => {
     <View style={styles.nutritionList}>
       {nutritionItems.map((item) => (
         <View key={item.key} style={styles.nutritionRow}>
-          <View style={[styles.nutritionDot, { backgroundColor: item.color }]} />
+          <View
+            style={[styles.nutritionDot, { backgroundColor: item.color }]}
+          />
           <View style={styles.nutritionValueContainer}>
             <AppText style={styles.nutritionText}>{item.value}</AppText>
           </View>

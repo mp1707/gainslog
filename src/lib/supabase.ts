@@ -2,9 +2,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
 import { env } from "./env";
 
-export interface FoodEstimateRequest {
+export interface TextEstimateRequest {
   title?: string;
   description?: string;
+}
+
+export interface DescriptionEstimateRequest {
+  description: string;
 }
 
 export interface ImageEstimateRequest {
@@ -35,9 +39,38 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 export const estimateNutritionTextBased = async (
-  request: FoodEstimateRequest
+  request: TextEstimateRequest
 ): Promise<FoodEstimateResponse> => {
   const response = await fetch(`${supabaseUrl}/functions/v1/text-estimation`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${supabaseAnonKey}`,
+      apikey: supabaseAnonKey,
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("AI estimation HTTP error:", response.status, errorText);
+    throw new Error("AI_ESTIMATION_FAILED");
+  }
+
+  const data = await response.json();
+
+  if (data.error) {
+    console.error("AI estimation error:", data.error);
+    throw new Error("AI_ESTIMATION_FAILED");
+  }
+
+  return data as FoodEstimateResponse;
+};
+
+export const estimateNutritionDescriptionBased = async (
+  request: DescriptionEstimateRequest
+): Promise<FoodEstimateResponse> => {
+  const response = await fetch(`${supabaseUrl}/functions/v1/description-estimation`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
