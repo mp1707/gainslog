@@ -32,7 +32,7 @@ const ACTION_COMPLETE_THRESHOLD = SCREEN_WIDTH * 0.7; // 70% of screen width
 const ACTION_BUTTON_WIDTH = 60;
 
 // Threshold for determining if gesture is horizontal vs vertical
-const DIRECTION_THRESHOLD = 30;
+const DIRECTION_THRESHOLD = 50; // Increased to be more selective
 
 export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
   children,
@@ -165,6 +165,8 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
   const enhancedGesture = useMemo(
     () =>
       Gesture.Pan()
+        .activeOffsetX([-10, 10]) // Only become active for horizontal movement
+        .failOffsetY([-30, 30]) // Fail if vertical movement is too large
         .onBegin(() => {
           // Start press animation immediately on touch begin
           if (!isDeleting.value) {
@@ -193,10 +195,11 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
             const absX = Math.abs(translationX);
             const absY = Math.abs(translationY);
 
-            // Determine gesture direction based on movement
+            // Only determine direction after significant movement
             if (absX > DIRECTION_THRESHOLD || absY > DIRECTION_THRESHOLD) {
-              if (absX > absY * 1.5) {
-                // Require more horizontal movement
+              // Require much more pronounced horizontal movement to capture the gesture
+              if (absX > absY * 2.5 && absX > DIRECTION_THRESHOLD) {
+                // Much more strict horizontal requirement
                 gestureDirection.value = "horizontal";
                 runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
                 // Cancel press animation when starting to swipe
@@ -211,10 +214,10 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
                     easing: Easing.out(Easing.quad),
                   });
                 }
-              } else if (absY > absX * 1.5) {
-                // Require more vertical movement
+              } else {
+                // Any other movement pattern should be treated as vertical/other
                 gestureDirection.value = "vertical";
-                // Cancel press animation for vertical scrolling too
+                // Cancel press animation for vertical scrolling
                 if (isPressing.value) {
                   isPressing.value = false;
                   scale.value = withSpring(1.0, {

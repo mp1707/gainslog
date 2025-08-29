@@ -16,7 +16,9 @@ export default function TodayTab() {
   const { foodLogs, selectedDate, dailyTargets, deleteFoodLog } = useAppStore();
 
   const todayFoodLogs = useMemo(() => {
-    return foodLogs.filter((log) => log.logDate === selectedDate);
+    return foodLogs
+      .filter((log) => log.logDate === selectedDate)
+      .reverse();
   }, [foodLogs, selectedDate]);
 
   const dailyTotals = useMemo(() => {
