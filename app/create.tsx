@@ -38,7 +38,7 @@ const inputAccessoryViewID = "create-input-accessory";
 export default function Create() {
   const { colors, theme, colorScheme } = useTheme();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const [estimationType, setEstimationType] = useState<"ai" | "manual">("ai");
+  const [estimationType, setEstimationType] = useState<"ai" | "favorites" | "manual">("ai");
   const { selectedDate } = useAppStore();
   const { startEstimation } = useEstimation();
   const [newLog, setNewLog] = useState<FoodLog>({
@@ -155,8 +155,9 @@ export default function Create() {
           <Toggle
             value={estimationType}
             options={[
-              { label: "AI Estimation", value: "ai", icon: SparkleIcon },
-              { label: "Manual Entry", value: "manual", icon: PencilIcon },
+              { label: "Estimation", value: "ai" },
+              { label: "Favorites", value: "favorites" },
+              { label: "Manual Entry", value: "manual" },
             ]}
             onChange={setEstimationType}
           />
@@ -258,7 +259,7 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
     content: {
       flex: 1,
       gap: hasImage ? theme.spacing.md : theme.spacing.xl,
-      marginHorizontal: theme.spacing.xl,
+      marginHorizontal: theme.spacing.md,
       paddingTop: theme.spacing.md,
     },
     bottomContainer: {

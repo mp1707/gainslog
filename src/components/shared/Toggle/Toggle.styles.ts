@@ -1,14 +1,14 @@
+// Toggle.styles.ts
 import { StyleSheet, PixelRatio } from "react-native";
 import { useThemedStyles } from "@/theme";
 
 export const useStyles = () =>
   useThemedStyles((colors, theme) => {
-    // Calculate dynamic heights based on font scale for accessibility
     const fontScale = PixelRatio.getFontScale();
     const baseHeight = 40;
-    const scaledHeight = Math.max(44, baseHeight * fontScale); // Minimum 44pt for iOS accessibility
+    const scaledHeight = Math.max(44, baseHeight * fontScale);
     const containerPadding = 2;
-    const sliderHeight = scaledHeight - (containerPadding * 2);
+    const sliderHeight = scaledHeight - containerPadding * 2;
 
     return StyleSheet.create({
       toggleContainer: {
@@ -17,7 +17,8 @@ export const useStyles = () =>
         overflow: "hidden",
         position: "relative",
         minHeight: scaledHeight,
-        backgroundColor: colors.primaryText === "#1A1A1A" ? "#F2F2F7" : "#2C2C2E", // iOS segmented control background
+        backgroundColor:
+          colors.primaryText === "#1A1A1A" ? "#F2F2F7" : "#2C2C2E",
         padding: containerPadding,
       },
 
@@ -25,7 +26,6 @@ export const useStyles = () =>
         position: "absolute",
         top: containerPadding,
         left: containerPadding,
-        width: "50%", // Slightly less than 50% to account for padding
         height: sliderHeight,
         backgroundColor: colors.secondaryBackground,
         borderRadius: 10,
@@ -46,13 +46,6 @@ export const useStyles = () =>
         backgroundColor: "transparent",
         zIndex: 2,
         minHeight: sliderHeight,
-      },
-
-      toggleButtonContent: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: theme.spacing.xs, // Small gap between icon and text
       },
 
       toggleButtonText: {
