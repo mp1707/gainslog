@@ -7,12 +7,13 @@ import { DateNavigationHeader } from "@/components/daily-food-logs/DateNavigatio
 import { NutrientSummary } from "@/components/daily-food-logs/NutrientSummary";
 import { LogCard } from "@/components/daily-food-logs/LogCard";
 import { useTheme } from "@/theme/ThemeProvider";
+import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
 
 export default function TodayTab() {
   const { dynamicBottomPadding } = useTabBarSpacing();
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
-  const { foodLogs, selectedDate, dailyTargets } = useAppStore();
+  const { foodLogs, selectedDate, dailyTargets, deleteFoodLog } = useAppStore();
 
   const todayFoodLogs = useMemo(() => {
     return foodLogs.filter((log) => log.logDate === selectedDate);
@@ -78,7 +79,18 @@ export default function TodayTab() {
 
           <View style={styles.logCardContainer}>
             {todayFoodLogs.map((foodLog) => (
-              <LogCard key={foodLog.id} foodLog={foodLog} isLoading={foodLog.isEstimating || false} />
+              <SwipeToFunctions
+                key={foodLog.id}
+                onDelete={() => {
+                  deleteFoodLog(foodLog.id);
+                }}
+              >
+                <LogCard
+                  key={foodLog.id}
+                  foodLog={foodLog}
+                  isLoading={foodLog.isEstimating}
+                />
+              </SwipeToFunctions>
             ))}
           </View>
         </ScrollView>
