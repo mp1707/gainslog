@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { useTheme } from "@/theme";
 import { createStyles } from "./DateNavigationHeader.styles";
 import { useAppStore } from "@/store/useAppStore";
+import { formatDateToLocalString, navigateDate } from "@/utils/dateHelpers";
 
 export const DateNavigationHeader = () => {
   const { theme, colors, colorScheme } = useTheme();
@@ -14,20 +15,16 @@ export const DateNavigationHeader = () => {
 
   const handleDateChange = (event: any, selectedDate?: Date) => {
     if (selectedDate) {
-      setSelectedDate(selectedDate.toISOString().split("T")[0]);
+      setSelectedDate(formatDateToLocalString(selectedDate));
     }
   };
 
   const handleNavigatePrevious = () => {
-    const previousDate = new Date(selectedDate);
-    previousDate.setDate(previousDate.getDate() - 1);
-    setSelectedDate(previousDate.toISOString().split("T")[0]);
+    setSelectedDate(navigateDate(selectedDate, "prev"));
   };
 
   const handleNavigateNext = () => {
-    const nextDate = new Date(selectedDate);
-    nextDate.setDate(nextDate.getDate() + 1);
-    setSelectedDate(nextDate.toISOString().split("T")[0]);
+    setSelectedDate(navigateDate(selectedDate, "next"));
   };
 
   const canGoNext = useMemo(() => {
