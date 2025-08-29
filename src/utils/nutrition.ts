@@ -56,34 +56,6 @@ export const adjustCaloriesForGoal = (
 };
 
 /**
- * Calculates daily nutrition targets based on user settings
- */
-export const calculateDailyTargets = (settings: UserSettings): DailyTargets => {
-  const bmr = calculateBMR(settings);
-  const tdee = calculateTDEE(bmr, settings.activityLevel);
-  const targetCalories = adjustCaloriesForGoal(tdee, settings.calorieGoalType);
-
-  // Calculate protein (g) = weight (kg) × proteinCalculationFactor
-  const protein = settings.weight * settings.proteinCalculationFactor;
-
-  // Calculate fat (g) = (calories × fatPercentage) / 9
-  const fat = (targetCalories * settings.fatCalculationPercentage) / 100 / 9;
-
-  // Calculate carbs (g) = remaining calories / 4
-  const proteinCalories = protein * 4;
-  const fatCalories = fat * 9;
-  const remainingCalories = targetCalories - proteinCalories - fatCalories;
-  const carbs = remainingCalories / 4;
-
-  return {
-    calories: Math.round(targetCalories),
-    protein: Math.round(protein),
-    carbs: Math.round(Math.max(0, carbs)), // Ensure non-negative
-    fat: Math.round(fat),
-  };
-};
-
-/**
  * Validates if nutrition values are reasonable
  */
 export const validateNutritionValues = (values: {
@@ -171,7 +143,8 @@ export interface ConfidenceInfo {
   accessibilityLabel: string;
 }
 
-export const getConfidenceInfo = (confidence: number): ConfidenceInfo => {
+export const getConfidenceInfo = (confidence?: number): ConfidenceInfo | undefined => {
+  if (!confidence) return undefined;
   // Lazy import icons to avoid circular deps
   const {
     CheckCircle,

@@ -9,7 +9,7 @@ import {
 import { useAppStore } from "@/store/useAppStore";
 import { Colors, Theme } from "@/theme/theme";
 import { useTheme } from "@/theme/ThemeProvider";
-import { FoodLog } from "@/types/models";
+import { Favorite, FoodLog } from "@/types/models";
 import { useRouter } from "expo-router";
 import {
   SparkleIcon,
@@ -32,14 +32,21 @@ import { useImageSelection } from "@/hooks/useImageSelection";
 import { TranscriptionOverlay } from "@/components/shared/TextInput/TranscriptionOverlay";
 import { useEstimation } from "@/hooks/useEstimation";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
+import { AppText } from "@/components/index";
+import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
+import { LogCard } from "@/components/daily-food-logs";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { generateFoodLogId } from "@/utils/idGenerator";
 
 const inputAccessoryViewID = "create-input-accessory";
 
 export default function Create() {
   const { colors, theme, colorScheme } = useTheme();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const [estimationType, setEstimationType] = useState<"ai" | "favorites" | "manual">("ai");
-  const { selectedDate } = useAppStore();
+  const [estimationType, setEstimationType] = useState<
+    "ai" | "favorites" | "manual"
+  >("ai");
+  const { selectedDate, favorites, deleteFavorite, addFoodLog } = useAppStore();
   const { startEstimation } = useEstimation();
   const [newLog, setNewLog] = useState<FoodLog>({
     id: "",
@@ -135,6 +142,18 @@ export default function Create() {
     back();
   }, [newLog, startEstimation, back]);
 
+  const handleCreateLogFromFavorite = useCallback((favorite: Favorite) => {
+    addFoodLog({
+      ...favorite,
+      logDate: selectedDate,
+      createdAt: new Date().toISOString(),
+      isEstimating: false,
+      estimationConfidence: 100,
+      id: generateFoodLogId(),
+    });
+    back();
+  }, []);
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -145,49 +164,72 @@ export default function Create() {
         onSave={handleSave}
         disabled={(newLog.estimationConfidence ?? 0) <= 0}
       />
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="interactive"
-      >
-        <View style={styles.content}>
-          <Toggle
-            value={estimationType}
-            options={[
-              { label: "Estimation", value: "ai" },
-              { label: "Favorites", value: "favorites" },
-              { label: "Manual Entry", value: "manual" },
-            ]}
-            onChange={setEstimationType}
-          />
-
-          <ImageDisplay
-            imageUrl={newLog.imageUrl}
-            isUploading={isUploadingImage}
-          />
-          <Pressable
-            style={styles.textInputContainer}
-            onPress={() => textInputRef.current?.focus()}
-          >
-            <TextInput
-              ref={textInputRef}
-              value={newLog.description || ""}
-              onChangeText={(text) =>
-                setNewLog({ ...newLog, description: text })
-              }
-              placeholder="e.g. 100g of chicken breast"
-              placeholderTextColor={colors.secondaryText}
-              style={styles.textInput}
-              multiline={true}
-              onFocus={() => setIsKeyboardVisible(true)}
-              onBlur={() => setIsKeyboardVisible(false)}
-              inputAccessoryViewID={inputAccessoryViewID}
-              keyboardAppearance={colorScheme}
+      <View style={styles.toggleContainer}>
+        <Toggle
+          value={estimationType}
+          options={[
+            { label: "Estimation", value: "ai" },
+            { label: "Favorites", value: "favorites" },
+            { label: "Manual Entry", value: "manual" },
+          ]}
+          onChange={setEstimationType}
+        />
+      </View>
+      {estimationType === "ai" && (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+        >
+          <View style={styles.content}>
+            <ImageDisplay
+              imageUrl={newLog.imageUrl}
+              isUploading={isUploadingImage}
             />
-          </Pressable>
-        </View>
-      </ScrollView>
+            <Pressable
+              style={styles.textInputContainer}
+              onPress={() => textInputRef.current?.focus()}
+            >
+              <TextInput
+                ref={textInputRef}
+                value={newLog.description || ""}
+                onChangeText={(text) =>
+                  setNewLog({ ...newLog, description: text })
+                }
+                placeholder="e.g. 100g of chicken breast"
+                placeholderTextColor={colors.secondaryText}
+                style={styles.textInput}
+                multiline={true}
+                onFocus={() => setIsKeyboardVisible(true)}
+                onBlur={() => setIsKeyboardVisible(false)}
+                inputAccessoryViewID={inputAccessoryViewID}
+                keyboardAppearance={colorScheme}
+              />
+            </Pressable>
+          </View>
+        </ScrollView>
+      )}
+
+      {estimationType === "favorites" && (
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <ScrollView
+            style={styles.favoritesScrollview}
+            contentContainerStyle={[styles.contentContainer]}
+            showsVerticalScrollIndicator={false}
+          >
+            {favorites.map((favorite) => (
+              <SwipeToFunctions
+                key={favorite.id}
+                onDelete={() => deleteFavorite(favorite.id)}
+                onTap={() => handleCreateLogFromFavorite(favorite)}
+              >
+                <LogCard key={favorite.id} foodLog={favorite} />
+              </SwipeToFunctions>
+            ))}
+          </ScrollView>
+        </GestureHandlerRootView>
+      )}
 
       {!isKeyboardVisible && (
         <View style={styles.bottomContainer}>
@@ -256,6 +298,10 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
       flexGrow: 1,
       paddingBottom: theme.spacing.lg,
     },
+    toggleContainer: {
+      marginHorizontal: theme.spacing.md,
+      marginVertical: theme.spacing.sm,
+    },
     content: {
       flex: 1,
       gap: hasImage ? theme.spacing.md : theme.spacing.xl,
@@ -279,5 +325,14 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
       padding: theme.spacing.md,
       textAlignVertical: "top",
       ...theme.typography.Title2,
+    },
+    favoritesScrollview: {
+      paddingVertical: theme.spacing.md,
+      paddingHorizontal: theme.spacing.md,
+      gap: theme.spacing.md,
+      flex: 1,
+    },
+    contentContainer: {
+      gap: theme.spacing.md,
     },
   });

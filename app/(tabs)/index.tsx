@@ -107,23 +107,21 @@ export default function TodayTab() {
             totals={dailyTotals}
           />
 
-          <View style={styles.logCardContainer}>
-            {todayFoodLogs.map((foodLog) => (
-              <SwipeToFunctions
+          {todayFoodLogs.map((foodLog) => (
+            <SwipeToFunctions
+              key={foodLog.id}
+              onDelete={() => {
+                deleteFoodLog(foodLog.id);
+              }}
+              onFavorite={() => toggleFavorite(foodLog)}
+            >
+              <LogCard
                 key={foodLog.id}
-                onDelete={() => {
-                  deleteFoodLog(foodLog.id);
-                }}
-                onFavorite={() => toggleFavorite(foodLog)}
-              >
-                <LogCard
-                  key={foodLog.id}
-                  foodLog={foodLog}
-                  isLoading={foodLog.isEstimating}
-                />
-              </SwipeToFunctions>
-            ))}
-          </View>
+                foodLog={foodLog}
+                isLoading={foodLog.isEstimating}
+              />
+            </SwipeToFunctions>
+          ))}
         </ScrollView>
       </SafeAreaView>
     </GestureHandlerRootView>
@@ -146,9 +144,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       flex: 1,
     },
     contentContainer: {
-      gap: themeObj.spacing.md,
-    },
-    logCardContainer: {
       gap: themeObj.spacing.md,
     },
   });

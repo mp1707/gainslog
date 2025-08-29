@@ -7,7 +7,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { FoodLog } from "@/types/models";
+import { Favorite, FoodLog } from "@/types/models";
 import { useTheme } from "@/theme";
 import { Card } from "@/components/Card";
 import { AppText } from "@/components";
@@ -17,7 +17,7 @@ import { createStyles } from "./LogCard.styles";
 import { NutritionList } from "./NutritionList";
 
 interface LogCardProps {
-  foodLog: FoodLog;
+  foodLog: FoodLog | Favorite;
   isLoading?: boolean;
 }
 
@@ -38,8 +38,11 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
   const flashOpacity = useSharedValue(0);
 
   const displayTitle = foodLog.title || "New Log";
-  const confidenceInfo = getConfidenceInfo(foodLog.estimationConfidence ?? 0);
-  const ConfidenceIcon = confidenceInfo.icon;
+  const confidenceInfo =
+    "estimationConfidence" in foodLog
+      ? getConfidenceInfo(foodLog.estimationConfidence ?? 0)
+      : undefined;
+  const ConfidenceIcon = confidenceInfo?.icon;
 
   const getConfidenceStyles = (level: string) => {
     const styleMap = {
@@ -57,7 +60,8 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
     return styleMap[level as keyof typeof styleMap];
   };
 
-  const confidenceStyles = getConfidenceStyles(confidenceInfo.level);
+  const confidenceStyles =
+    confidenceInfo && getConfidenceStyles(confidenceInfo.level);
 
   useEffect(() => {
     const wasLoading = previousLoadingRef.current;
@@ -187,30 +191,32 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
             )}
 
             {/* Confidence Badge Section */}
-            <View style={styles.confidenceContainer}>
-              {isLoading ? (
-                <SkeletonPill width={80} height={28} />
-              ) : (
-                <Animated.View style={confidenceAnimatedStyle}>
-                  <View
-                    style={[styles.confidenceBadge, confidenceStyles.badge]}
-                    accessibilityRole="text"
-                    accessibilityLabel={confidenceInfo.accessibilityLabel}
-                  >
-                    <ConfidenceIcon
-                      size={14}
-                      color={confidenceStyles.text.color}
-                      weight="fill"
-                    />
-                    <AppText
-                      style={[styles.confidenceText, confidenceStyles.text]}
+            {confidenceInfo && confidenceStyles && ConfidenceIcon && (
+              <View style={styles.confidenceContainer}>
+                {isLoading ? (
+                  <SkeletonPill width={80} height={28} />
+                ) : (
+                  <Animated.View style={confidenceAnimatedStyle}>
+                    <View
+                      style={[styles.confidenceBadge, confidenceStyles.badge]}
+                      accessibilityRole="text"
+                      accessibilityLabel={confidenceInfo.accessibilityLabel}
                     >
-                      {confidenceInfo.label}
-                    </AppText>
-                  </View>
-                </Animated.View>
-              )}
-            </View>
+                      <ConfidenceIcon
+                        size={14}
+                        color={confidenceStyles.text.color}
+                        weight="fill"
+                      />
+                      <AppText
+                        style={[styles.confidenceText, confidenceStyles.text]}
+                      >
+                        {confidenceInfo.label}
+                      </AppText>
+                    </View>
+                  </Animated.View>
+                )}
+              </View>
+            )}
           </View>
 
           <View style={styles.rightSection}>
@@ -229,14 +235,16 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
       </Card>
 
       {/* Confidence flash overlay */}
-      <Animated.View
-        style={[
-          styles.flashOverlay,
-          { backgroundColor: confidenceStyles.badge.backgroundColor },
-          flashAnimatedStyle,
-        ]}
-        pointerEvents="none"
-      />
+      {confidenceStyles && (
+        <Animated.View
+          style={[
+            styles.flashOverlay,
+            { backgroundColor: confidenceStyles.badge.backgroundColor },
+            flashAnimatedStyle,
+          ]}
+          pointerEvents="none"
+        />
+      )}
     </View>
   );
 };
