@@ -8,7 +8,13 @@ import { createStyles } from "./DateNavigationHeader.styles";
 import { useAppStore } from "@/store/useAppStore";
 import { formatDateToLocalString, navigateDate } from "@/utils/dateHelpers";
 
-export const DateNavigationHeader = () => {
+interface DateNavigationHeaderProps {
+  compact?: boolean;
+}
+
+export const DateNavigationHeader = ({
+  compact = false,
+}: DateNavigationHeaderProps) => {
   const { theme, colors, colorScheme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const { selectedDate, setSelectedDate } = useAppStore();
@@ -33,6 +39,24 @@ export const DateNavigationHeader = () => {
     return selected < today;
   }, [selectedDate]);
 
+  if (compact) {
+    return (
+      <DateTimePicker
+        value={new Date(selectedDate + "T00:00:00")}
+        mode="date"
+        display={Platform.OS === "ios" ? "compact" : "default"}
+        onChange={handleDateChange}
+        maximumDate={new Date()}
+        {...(Platform.OS === "ios" && {
+          themeVariant: colorScheme,
+          textColor: colors.primaryText,
+          accentColor: colors.accent,
+        })}
+        style={{ marginLeft: -20 }}
+      />
+    );
+  }
+
   return (
     <PageHeader>
       <View style={styles.container}>
@@ -51,6 +75,9 @@ export const DateNavigationHeader = () => {
           <DateTimePicker
             value={new Date(selectedDate + "T00:00:00")}
             mode="date"
+            textColor={colors.primaryText}
+            accentColor={colors.accent}
+            themeVariant={colorScheme}
             display={Platform.OS === "ios" ? "compact" : "default"}
             onChange={handleDateChange}
             maximumDate={new Date()}

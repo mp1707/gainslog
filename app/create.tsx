@@ -54,6 +54,14 @@ export default function Create() {
     fat: 0,
     estimationConfidence: 0,
   });
+
+  useEffect(() => {
+    setNewLog({
+      ...newLog,
+      logDate: selectedDate,
+    });
+  }, [selectedDate]);
+
   const styles = createStyles(colors, theme, !!newLog.imageUrl);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const textInputRef = useRef<TextInput>(null);
@@ -126,7 +134,6 @@ export default function Create() {
     });
     back();
   }, [newLog, startEstimation, back]);
-
 
   return (
     <KeyboardAvoidingView

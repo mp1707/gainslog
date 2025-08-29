@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useStyles } from "./ModalHeader.styles";
+import { DateNavigationHeader } from "../DateNavigationHeader";
 
 interface ModalHeaderProps {
   disabled?: boolean;
@@ -25,7 +26,8 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({
       >
         <Text style={styles.cancelButton}>Cancel</Text>
       </TouchableOpacity>
-      <Text style={styles.title}>New Log</Text>
+      {/* <Text style={styles.title}>New Log</Text> */}
+      <DateNavigationHeader compact={true} />
       <TouchableOpacity onPress={onSave} disabled={disabled}>
         <Text
           style={[styles.saveButton, disabled && styles.saveButtonDisabled]}
