@@ -10,6 +10,7 @@ export type FoodLog = {
   carbs: number;
   fat: number;
   estimationConfidence?: number;
+  isEstimating?: boolean;
 };
 
 export type Favorite = {

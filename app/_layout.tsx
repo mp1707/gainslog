@@ -5,9 +5,17 @@ import ToastManager from "toastify-react-native";
 import { useFonts } from "../src/hooks/useFonts";
 import { View, Text, ActivityIndicator } from "react-native";
 import { theme } from "../src/theme";
+import { useAppStore } from "@/store/useAppStore";
 
 export default function RootLayout() {
   const { fontsLoaded, error } = useFonts();
+  const cleanupIncompleteEstimations = useAppStore((state) => state.cleanupIncompleteEstimations);
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      cleanupIncompleteEstimations();
+    }
+  }, [fontsLoaded, cleanupIncompleteEstimations]);
 
   // No explicit load needed; zustand persist rehydrates
 

@@ -78,7 +78,7 @@ export default function TodayTab() {
 
           <View style={styles.logCardContainer}>
             {todayFoodLogs.map((foodLog) => (
-              <LogCard key={foodLog.id} foodLog={foodLog} />
+              <LogCard key={foodLog.id} foodLog={foodLog} isLoading={foodLog.isEstimating || false} />
             ))}
           </View>
         </ScrollView>

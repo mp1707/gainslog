@@ -7,7 +7,6 @@ import {
   InputAccessoryView,
 } from "@/components/shared/InputAccessory";
 import { useAppStore } from "@/store/useAppStore";
-import { generateFoodLogId } from "@/utils/idGenerator";
 import { Colors, Theme } from "@/theme/theme";
 import { useTheme } from "@/theme/ThemeProvider";
 import { FoodLog } from "@/types/models";
@@ -31,11 +30,7 @@ import {
 import { useAudioTranscription } from "@/hooks/useAudioTranscription";
 import { useImageSelection } from "@/hooks/useImageSelection";
 import { TranscriptionOverlay } from "@/components/shared/TextInput/TranscriptionOverlay";
-import {
-  estimateNutritionDescriptionBased,
-  estimateNutritionImageBased,
-} from "@/lib/supabase";
-import { LogCard } from "@/components/daily-food-logs";
+import { useEstimation } from "@/hooks/useEstimation";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -43,7 +38,8 @@ export default function Create() {
   const { colors, theme, colorScheme } = useTheme();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [estimationType, setEstimationType] = useState<"ai" | "manual">("ai");
-  const { selectedDate, addFoodLog } = useAppStore();
+  const { selectedDate } = useAppStore();
+  const { startEstimation } = useEstimation();
   const [newLog, setNewLog] = useState<FoodLog>({
     id: "",
     title: "",
@@ -59,14 +55,12 @@ export default function Create() {
   });
   const styles = createStyles(colors, theme, !!newLog.imageUrl);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [isEstimating, setIsEstimating] = useState(false);
   const textInputRef = useRef<TextInput>(null);
   const estimateLabel = useMemo(() => {
-    if (isEstimating) return "Estimating...";
     if (newLog.estimationConfidence && newLog.estimationConfidence > 0)
       return "Re-estimate";
     return "Estimate";
-  }, [isEstimating, newLog.estimationConfidence]);
+  }, [newLog.estimationConfidence]);
 
   // Audio transcription hook
   const handleTranscriptionComplete = useCallback((text: string) => {
@@ -90,13 +84,9 @@ export default function Create() {
   }, [back]);
 
   const handleSave = useCallback(() => {
-    const logWithId = {
-      ...newLog,
-      id: generateFoodLogId(),
-    };
-    addFoodLog(logWithId);
+    // This would be for manual save, but we're focusing on AI estimation
     back();
-  }, [newLog, addFoodLog, back]);
+  }, [back]);
 
   const { showImagePickerAlert } = useImageSelection({
     onImageSelected: (imageUrl: string) => {
@@ -123,43 +113,17 @@ export default function Create() {
     showImagePickerAlert();
   }, [showImagePickerAlert]);
 
-  const handleEstimation = useCallback(async () => {
-    setIsEstimating(true);
-    if (!newLog.imageUrl || newLog.imageUrl === "") {
-      const estimatedLog = await estimateNutritionDescriptionBased({
-        description: newLog.description || "",
-      });
-      setNewLog((prev) => ({
-        ...prev,
-        title: estimatedLog.generatedTitle,
-        calories: estimatedLog.calories,
-        protein: estimatedLog.protein,
-        carbs: estimatedLog.carbs,
-        fat: estimatedLog.fat,
-        estimationConfidence: estimatedLog.estimationConfidence,
-      }));
-      setIsEstimating(false);
-      textInputRef.current?.blur();
-      return;
-    }
-    const estimatedLog = await estimateNutritionImageBased({
+  const handleEstimation = useCallback(() => {
+    startEstimation({
+      logDate: newLog.logDate,
+      createdAt: newLog.createdAt,
+      title: newLog.title,
+      description: newLog.description,
       imageUrl: newLog.imageUrl,
-      description: newLog.description || "",
     });
-    setNewLog((prev) => ({
-      ...prev,
-      title: estimatedLog.generatedTitle,
-      calories: estimatedLog.calories,
-      protein: estimatedLog.protein,
-      carbs: estimatedLog.carbs,
-      fat: estimatedLog.fat,
-      estimationConfidence: estimatedLog.estimationConfidence,
-    }));
-    setIsEstimating(false);
-    textInputRef.current?.blur();
-  }, [newLog.imageUrl, newLog.description]);
+    back();
+  }, [newLog, startEstimation, back]);
 
-  const showLogCard = isEstimating || (newLog.estimationConfidence ?? 0) > 0;
 
   return (
     <KeyboardAvoidingView
@@ -195,9 +159,6 @@ export default function Create() {
             style={styles.textInputContainer}
             onPress={() => textInputRef.current?.focus()}
           >
-            {showLogCard && (
-              <LogCard foodLog={newLog} isLoading={isEstimating} />
-            )}
             <TextInput
               ref={textInputRef}
               value={newLog.description || ""}
@@ -223,7 +184,7 @@ export default function Create() {
               icon: SparkleIcon,
               label: estimateLabel,
               onPress: handleEstimation,
-              isValid: !isEstimating,
+              isValid: true,
             }}
             secondaryAction={{
               icon: CameraIcon,
@@ -247,7 +208,7 @@ export default function Create() {
           icon: SparkleIcon,
           label: estimateLabel,
           onPress: handleEstimation,
-          isValid: !isEstimating,
+          isValid: true,
         }}
         secondaryAction={{
           icon: CameraIcon,

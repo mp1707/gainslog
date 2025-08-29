@@ -19,6 +19,7 @@ type AppState = {
   updateFoodLog: (id: string, update: Partial<FoodLog>) => void;
   deleteFoodLog: (id: string) => void;
   clearAllLogs: () => void;
+  cleanupIncompleteEstimations: () => void;
 
   // Favorites
   addFavorite: (fav: Favorite) => void;
@@ -65,6 +66,15 @@ export const useAppStore = create<AppState>()(
       clearAllLogs: () =>
         set((state) => {
           state.foodLogs = [];
+        }),
+
+      cleanupIncompleteEstimations: () =>
+        set((state) => {
+          state.foodLogs = state.foodLogs.filter(
+            (log) =>
+              (log.title !== "" && log.title !== null) ||
+              log.isEstimating === false
+          );
         }),
 
       // Favorites
