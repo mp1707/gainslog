@@ -80,6 +80,9 @@ export default function Create() {
 
   useDelayedAutofocus(textInputRef);
 
+  const canContine =
+    newLog?.description?.trim() !== "" || newLog.imageUrl !== "";
+
   // Audio transcription hook
   const handleTranscriptionComplete = useCallback((text: string) => {
     setNewLog((prev) => ({
@@ -161,8 +164,8 @@ export default function Create() {
     >
       <ModalHeader
         onCancel={handleCancel}
-        onSave={handleSave}
-        disabled={(newLog.estimationConfidence ?? 0) <= 0}
+        onSave={handleEstimation}
+        disabled={!canContine}
       />
       <View style={styles.toggleContainer}>
         <Toggle
@@ -241,7 +244,7 @@ export default function Create() {
               icon: SparkleIcon,
               label: estimateLabel,
               onPress: handleEstimation,
-              isValid: true,
+              isValid: canContine,
             }}
             secondaryAction={{
               icon: CameraIcon,
@@ -265,7 +268,7 @@ export default function Create() {
           icon: SparkleIcon,
           label: estimateLabel,
           onPress: handleEstimation,
-          isValid: true,
+          isValid: canContine,
         }}
         secondaryAction={{
           icon: CameraIcon,
