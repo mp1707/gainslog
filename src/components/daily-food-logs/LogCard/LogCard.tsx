@@ -331,12 +331,6 @@ const StaticLogCard: React.FC<LogCardProps> = ({ foodLog }) => {
 // Wrapper: choose animated only when needed, otherwise render lightweight static card
 const LogCardInner: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
   const hasEverBeenLoadingRef = useRef<boolean>(isLoading === true);
-
-  // Early return: common case is non-loading existing entries -> go static immediately
-  if (!isLoading && !hasEverBeenLoadingRef.current) {
-    return <StaticLogCard foodLog={foodLog} isLoading={false} />;
-  }
-
   const [useAnimatedVariant, setUseAnimatedVariant] = useState<boolean>(
     isLoading === true
   );
@@ -357,6 +351,10 @@ const LogCardInner: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
     setUseAnimatedVariant(false);
   }, [isLoading]);
 
+  if (!isLoading && !hasEverBeenLoadingRef.current) {
+    return <StaticLogCard foodLog={foodLog} isLoading={false} />;
+  }
+
   if (useAnimatedVariant) {
     return <AnimatedLogCard foodLog={foodLog} isLoading={isLoading} />;
   }
@@ -366,27 +364,11 @@ const LogCardInner: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
 
 // Memoize wrapper to avoid unnecessary re-renders when lists scroll
 export const LogCard = memo(LogCardInner, (prev, next) => {
-  // If loading state changes, we must re-render
+  // Fast path: if loading state changes, we must re-render
   if (prev.isLoading !== next.isLoading) return false;
 
-  const prevLog = prev.foodLog;
-  const nextLog = next.foodLog;
+  // Fast path: reference equality check first
+  if (prev.foodLog === next.foodLog) return true;
 
-  if (prevLog === nextLog) return true;
-
-  // Shallow compare of the fields we render
-  return (
-    prevLog.title === nextLog.title &&
-    prevLog.description === nextLog.description &&
-    prevLog.calories === nextLog.calories &&
-    prevLog.protein === nextLog.protein &&
-    prevLog.carbs === nextLog.carbs &&
-    prevLog.fat === nextLog.fat &&
-    ("estimationConfidence" in prevLog
-      ? (prevLog as any).estimationConfidence
-      : undefined) ===
-      ("estimationConfidence" in nextLog
-        ? (nextLog as any).estimationConfidence
-        : undefined)
-  );
+  return prev.foodLog.id === next.foodLog.id;
 });

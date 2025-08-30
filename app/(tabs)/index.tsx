@@ -22,7 +22,7 @@ export default function TodayTab() {
   const { safeNavigate } = useNavigationGuard();
   const { dynamicBottomPadding } = useTabBarSpacing();
   const { colors, theme } = useTheme();
-  const styles = createStyles(colors, theme);
+  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const {
     foodLogs,
     selectedDate,
@@ -103,6 +103,16 @@ export default function TodayTab() {
 
   const keyExtractor = useCallback((item: FoodLog) => item.id, []);
 
+  // Optimize FlatList performance with known item dimensions
+  const getItemLayout = useCallback(
+    (_: any, index: number) => ({
+      length: 120, // Estimated LogCard height including gap
+      offset: 120 * index,
+      index,
+    }),
+    []
+  );
+
   const renderItem: ListRenderItem<FoodLog> = useCallback(
     ({ item }) => (
       <SwipeToFunctions
@@ -126,6 +136,7 @@ export default function TodayTab() {
           data={todayFoodLogs}
           keyExtractor={keyExtractor}
           renderItem={renderItem}
+          getItemLayout={getItemLayout}
           style={styles.scrollView}
           contentContainerStyle={[
             styles.contentContainer,
