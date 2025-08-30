@@ -14,7 +14,9 @@ interface ButtonProps {
   shape?: "round" | "square";
   variant?: "primary" | "secondary" | "tertiary" | "destructive";
   size?: "small" | "medium" | "large";
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  icon?: React.ReactElement<{ style?: any }>;
+  iconPosition?: "left" | "right";
   style?: any;
   accessibilityLabel?: string;
   accessibilityHint?: string;
@@ -27,6 +29,8 @@ export const Button: React.FC<ButtonProps> = ({
   variant = "primary",
   size = "medium",
   children,
+  icon,
+  iconPosition = "left",
   style,
   accessibilityLabel,
   accessibilityHint,
@@ -86,9 +90,62 @@ export const Button: React.FC<ButtonProps> = ({
     textStyles.push(styles[textStyleKey]);
   }
 
+  // Determine content layout
+  const hasIcon = !!icon;
+  const hasText = !!children;
+  const isIconOnly = hasIcon && !hasText;
+  const isTextOnly = hasText && !hasIcon;
+  const hasIconAndText = hasIcon && hasText;
+
+  const renderContent = () => {
+    if (isLoading) {
+      // If children is ActivityIndicator, render it directly
+      if (
+        React.isValidElement(children) &&
+        children.type === ActivityIndicator
+      ) {
+        return children;
+      }
+      return <Text style={textStyles}>{children}</Text>;
+    }
+
+    if (isIconOnly) {
+      return React.cloneElement(icon!, {
+        style: [icon!.props.style, styles.iconOnly],
+      });
+    }
+
+    if (isTextOnly) {
+      return <Text style={textStyles}>{children}</Text>;
+    }
+
+    if (hasIconAndText) {
+      const iconWithStyle = React.cloneElement(icon!, {
+        style: [
+          icon!.props.style,
+          styles[iconPosition === "left" ? "iconLeft" : "iconRight"],
+        ],
+      });
+
+      const textElement = <Text style={textStyles}>{children}</Text>;
+
+      return (
+        <React.Fragment>
+          {iconPosition === "left" ? iconWithStyle : textElement}
+          {iconPosition === "left" ? textElement : iconWithStyle}
+        </React.Fragment>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <Pressable
-      style={baseStyles}
+      style={[
+        ...baseStyles,
+        (hasIconAndText || isIconOnly) && styles.iconContainer,
+      ]}
       onPress={onPress}
       onPressIn={() => setIsPressed(true)}
       onPressOut={() => setIsPressed(false)}
@@ -101,18 +158,7 @@ export const Button: React.FC<ButtonProps> = ({
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled }}
     >
-      {isLoading ? (
-        // If children is ActivityIndicator, render it directly
-        // Otherwise, wrap any text content in Text component
-        React.isValidElement(children) &&
-        children.type === ActivityIndicator ? (
-          children
-        ) : (
-          <Text style={textStyles}>{children}</Text>
-        )
-      ) : (
-        <Text style={textStyles}>{children}</Text>
-      )}
+      {renderContent()}
     </Pressable>
   );
 };

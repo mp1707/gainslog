@@ -3,9 +3,14 @@ import { useAppStore } from "@/store/useAppStore";
 import {
   EstimationInput,
   createEstimationLog,
-  estimateNutrition,
   applyEstimationResults,
+  EstimationResult,
 } from "@/utils/estimation";
+import { FoodLog } from "@/types/models";
+import {
+  estimateNutritionDescriptionBased,
+  estimateNutritionImageBased,
+} from "../lib";
 
 export const useEstimation = () => {
   const { addFoodLog, updateFoodLog, deleteFoodLog } = useAppStore();
@@ -16,9 +21,14 @@ export const useEstimation = () => {
       addFoodLog(incompleteLog);
 
       try {
-        const estimationResults = await estimateNutrition(logData);
-        const completedLog = applyEstimationResults(incompleteLog, estimationResults);
-        
+        const estimationResults = await estimateNutritionDescriptionBased({
+          description: logData.description || "",
+        });
+        const completedLog = applyEstimationResults(
+          incompleteLog,
+          estimationResults
+        );
+
         updateFoodLog(incompleteLog.id, {
           title: completedLog.title,
           calories: completedLog.calories,
@@ -36,7 +46,44 @@ export const useEstimation = () => {
     [addFoodLog, updateFoodLog, deleteFoodLog]
   );
 
+  const startReEstimation = useCallback(
+    async (logData: FoodLog, onComplete: (log: FoodLog) => void) => {
+      updateFoodLog(logData.id, { isEstimating: true });
+      let estimationResults: EstimationResult;
+      if (!logData.imageUrl || logData.imageUrl === "") {
+        estimationResults = await estimateNutritionDescriptionBased({
+          description: logData.description || "",
+        });
+      } else {
+        estimationResults = await estimateNutritionImageBased({
+          imageUrl: logData.imageUrl,
+          description: logData.description || "",
+        });
+      }
+      const title =
+        logData.title !== undefined && logData.title !== ""
+          ? logData.title
+          : estimationResults.generatedTitle;
+      const completedLog: FoodLog = {
+        ...logData,
+        title: title,
+        description: logData.description || "",
+        imageUrl: logData.imageUrl || "",
+        calories: estimationResults.calories,
+        protein: estimationResults.protein,
+        carbs: estimationResults.carbs,
+        fat: estimationResults.fat,
+        estimationConfidence: estimationResults.estimationConfidence,
+        isEstimating: false,
+      };
+      updateFoodLog(logData.id, completedLog);
+      onComplete(completedLog);
+    },
+    [addFoodLog, updateFoodLog, deleteFoodLog]
+  );
+
   return {
     startEstimation,
+    startReEstimation,
   };
 };

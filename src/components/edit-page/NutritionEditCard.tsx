@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { useTheme, useThemedStyles } from "@/theme";
 import { FoodLog } from "@/types/models";
+import { SkeletonPill } from "../shared";
 
 interface NutritionEditRowProps {
   label: string;
@@ -9,6 +10,7 @@ interface NutritionEditRowProps {
   unit: string;
   semanticColor: string;
   onChangeText: (text: string) => void;
+  isLoading?: boolean;
 }
 
 const NutritionEditRow: React.FC<NutritionEditRowProps> = ({
@@ -17,6 +19,7 @@ const NutritionEditRow: React.FC<NutritionEditRowProps> = ({
   unit,
   semanticColor,
   onChangeText,
+  isLoading = false,
 }) => {
   const { colors } = useTheme();
   const styles = useThemedStyles(createRowStyles);
@@ -32,23 +35,27 @@ const NutritionEditRow: React.FC<NutritionEditRowProps> = ({
         </Text>
       </View>
       <View style={styles.inputContainer}>
-        <TextInput
-          style={[
-            styles.nutritionInput,
-            {
-              color: colors.primaryText,
-              backgroundColor: colors.primaryBackground,
-              borderColor: colors.border,
-            },
-          ]}
-          value={String(value || "")}
-          onChangeText={onChangeText}
-          keyboardType="numeric"
-          returnKeyType="done"
-          textAlign="right"
-          placeholder="0"
-          placeholderTextColor={colors.secondaryText}
-        />
+        {isLoading ? (
+          <SkeletonPill width={60} height={30} />
+        ) : (
+          <TextInput
+            style={[
+              styles.nutritionInput,
+              {
+                color: colors.primaryText,
+                backgroundColor: colors.primaryBackground,
+                borderColor: colors.border,
+              },
+            ]}
+            value={String(value || "")}
+            onChangeText={onChangeText}
+            keyboardType="numeric"
+            returnKeyType="done"
+            textAlign="right"
+            placeholder="0"
+            placeholderTextColor={colors.secondaryText}
+          />
+        )}
         <Text style={[styles.unitText, { color: colors.secondaryText }]}>
           {unit}
         </Text>
@@ -60,11 +67,15 @@ const NutritionEditRow: React.FC<NutritionEditRowProps> = ({
 interface NutritionEditCardProps {
   log: FoodLog;
   onUpdateNutrition: (field: string, value: number) => void;
+  isStale?: boolean;
+  isLoading?: boolean;
 }
 
 export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
   log,
   onUpdateNutrition,
+  isStale = false,
+  isLoading = false,
 }) => {
   const { colors } = useTheme();
   const styles = useThemedStyles(createCardStyles);
@@ -75,13 +86,14 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
   };
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, isStale && styles.stale]}>
       <NutritionEditRow
         label="Calories"
         value={log.calories ?? 0}
         unit="kcal"
         semanticColor={colors.semantic.calories}
         onChangeText={(text) => handleNumericChange("calories", text)}
+        isLoading={isLoading}
       />
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionEditRow
@@ -90,6 +102,7 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
         unit="g"
         semanticColor={colors.semantic.protein}
         onChangeText={(text) => handleNumericChange("protein", text)}
+        isLoading={isLoading}
       />
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionEditRow
@@ -98,6 +111,7 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
         unit="g"
         semanticColor={colors.semantic.carbs}
         onChangeText={(text) => handleNumericChange("carbs", text)}
+        isLoading={isLoading}
       />
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionEditRow
@@ -106,6 +120,7 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
         unit="g"
         semanticColor={colors.semantic.fat}
         onChangeText={(text) => handleNumericChange("fat", text)}
+        isLoading={isLoading}
       />
     </View>
   );
@@ -121,6 +136,9 @@ const createCardStyles = (colors: any, themeObj: any) =>
     divider: {
       height: 1,
       marginHorizontal: -themeObj.spacing.md,
+    },
+    stale: {
+      opacity: 0.6,
     },
   });
 

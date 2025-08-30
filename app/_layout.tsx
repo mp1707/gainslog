@@ -9,7 +9,9 @@ import { useAppStore } from "@/store/useAppStore";
 
 export default function RootLayout() {
   const { fontsLoaded, error } = useFonts();
-  const cleanupIncompleteEstimations = useAppStore((state) => state.cleanupIncompleteEstimations);
+  const cleanupIncompleteEstimations = useAppStore(
+    (state) => state.cleanupIncompleteEstimations
+  );
 
   useEffect(() => {
     if (fontsLoaded) {
@@ -63,6 +65,13 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen
           name="create"
+          options={{
+            presentation: "modal",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="edit/[id]"
           options={{
             presentation: "modal",
             headerShown: false,

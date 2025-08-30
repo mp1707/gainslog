@@ -5,7 +5,16 @@ import {
   estimateNutritionImageBased,
 } from "@/lib/supabase";
 
-export type EstimationInput = Omit<FoodLog, "id" | "estimationConfidence" | "isEstimating" | "calories" | "protein" | "carbs" | "fat">;
+export type EstimationInput = Omit<
+  FoodLog,
+  | "id"
+  | "estimationConfidence"
+  | "isEstimating"
+  | "calories"
+  | "protein"
+  | "carbs"
+  | "fat"
+>;
 
 export type EstimationResult = {
   generatedTitle: string;
@@ -28,21 +37,6 @@ export const createEstimationLog = (logData: EstimationInput): FoodLog => {
     estimationConfidence: 0,
     isEstimating: true,
   };
-};
-
-export const estimateNutrition = async (
-  logData: EstimationInput
-): Promise<EstimationResult> => {
-  if (!logData.imageUrl || logData.imageUrl === "") {
-    return await estimateNutritionDescriptionBased({
-      description: logData.description || "",
-    });
-  }
-  
-  return await estimateNutritionImageBased({
-    imageUrl: logData.imageUrl,
-    description: logData.description || "",
-  });
 };
 
 export const applyEstimationResults = (

@@ -92,7 +92,7 @@ export default function TodayTab() {
   };
 
   const handleNavigateToDetailPage = (foodLog: FoodLog) => {
-    safeNavigate(`/food-log-detail/${foodLog.id}`);
+    safeNavigate(`/edit/${foodLog.id}`);
   };
 
   return (

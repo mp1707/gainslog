@@ -163,4 +163,23 @@ export const styles = StyleSheet.create({
     fontSize: typography.Headline.fontSize,
     fontWeight: typography.Button.fontWeight,
   },
+
+  // Icon layout styles
+  iconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  iconLeft: {
+    marginRight: spacing.xs,
+  },
+
+  iconRight: {
+    marginLeft: spacing.xs,
+  },
+
+  iconOnly: {
+    margin: 0,
+  },
 });

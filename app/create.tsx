@@ -251,7 +251,7 @@ export default function Create() {
               label: "",
               onPress: startRecording,
             }}
-            accessibilityLabel="Demo buttons"
+            accessibilityLabel="Main controls"
           />
         </View>
       )}
