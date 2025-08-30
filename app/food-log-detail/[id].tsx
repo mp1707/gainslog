@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import React, { useState, useLayoutEffect } from "react";
 import {
   View,
   Text,
@@ -48,18 +48,7 @@ export default function FoodLogDetailScreen() {
 
   // View/Edit mode state
   const [isEditing, setIsEditing] = useState(false);
-  const [editedLog, setEditedLog] = useState<FoodLog | null>(null);
-  const [hasChanges, setHasChanges] = useState(false);
   const [isReEstimating, setIsReEstimating] = useState(false);
-
-  // Re-estimation can be added via useFoodEstimation if needed
-
-  // Initialize local state when log is found
-  useEffect(() => {
-    if (originalLog) {
-      setEditedLog(originalLog);
-    }
-  }, [originalLog]);
 
   // Dynamic navigation header based on edit mode
   useLayoutEffect(() => {
@@ -136,25 +125,10 @@ export default function FoodLogDetailScreen() {
     );
   }
 
-  const currentLog = editedLog || originalLog;
 
   const handleFieldUpdate = (field: keyof FoodLog, value: any) => {
-    setEditedLog((prev) => {
-      if (!prev) return prev;
-      const updated = { ...prev, [field]: value };
-      setHasChanges(true);
-      return updated;
-    });
-    const updatedLog = { ...currentLog, [field]: value };
-  };
-
-  const handleNutritionUpdate = (field: string, value: number) => {
-    setEditedLog((prev) => {
-      if (!prev) return prev;
-      const updated = { ...prev, [field]: value };
-      setHasChanges(true);
-      return updated;
-    });
+    if (!originalLog) return;
+    updateFoodLog(originalLog.id, { [field]: value });
   };
 
   const toggleFavorite = (foodLog: FoodLog) => {
@@ -178,37 +152,15 @@ export default function FoodLogDetailScreen() {
   };
 
   const handleCancel = () => {
-    if (hasChanges) {
-      Alert.alert(
-        "Discard Changes",
-        "Are you sure you want to discard your changes?",
-        [
-          { text: "Keep Editing", style: "cancel" },
-          {
-            text: "Discard",
-            style: "destructive",
-            onPress: () => {
-              setEditedLog(originalLog);
-              setHasChanges(false);
-              setIsEditing(false);
-            },
-          },
-        ]
-      );
-    } else {
-      setIsEditing(false);
-    }
+    setIsEditing(false);
   };
 
-  const handleSave = async () => {
-    if (editedLog && hasChanges) {
-      await updateFoodLog(editedLog.id, editedLog);
-      setHasChanges(false);
-    }
+  const handleSave = () => {
     setIsEditing(false);
   };
 
   const handleDelete = () => {
+    if (!originalLog) return;
     Alert.alert(
       "Delete Log",
       "Are you sure you want to permanently delete this log?",
@@ -218,7 +170,7 @@ export default function FoodLogDetailScreen() {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            await deleteFoodLog(currentLog.id);
+            await deleteFoodLog(originalLog.id);
             router.back();
           },
         },
@@ -227,10 +179,10 @@ export default function FoodLogDetailScreen() {
   };
 
   const handleReEstimate = async () => {
-    if (!currentLog || isReEstimating) return;
+    if (!originalLog || isReEstimating) return;
 
-    const hasTitle = currentLog.title;
-    const hasImage = currentLog.imageUrl;
+    const hasTitle = originalLog.title;
+    const hasImage = originalLog.imageUrl;
 
     if (!hasTitle && !hasImage) {
       Alert.alert(
@@ -243,12 +195,12 @@ export default function FoodLogDetailScreen() {
     setIsReEstimating(true);
 
     try {
-      const title = currentLog.title || "";
-      const description = currentLog.description || undefined;
+      const title = originalLog.title || "";
+      const description = originalLog.description || undefined;
 
       const response = hasImage
         ? await estimateNutritionImageBased({
-            imageUrl: currentLog.imageUrl as string,
+            imageUrl: originalLog.imageUrl as string,
             title: title || undefined,
             description,
           })
@@ -274,8 +226,7 @@ export default function FoodLogDetailScreen() {
         estimationConfidence: response.estimationConfidence,
       };
 
-      await updateFoodLog(currentLog.id, updates);
-      setEditedLog((prev) => (prev ? { ...prev, ...updates } : prev));
+      await updateFoodLog(originalLog.id, updates);
 
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error) {
@@ -316,7 +267,7 @@ export default function FoodLogDetailScreen() {
         contentContainerStyle={styles.contentContainer}
       >
         {/* Image Section */}
-        <ImageDisplay imageUrl={currentLog.imageUrl} isUploading={false} />
+        <ImageDisplay imageUrl={originalLog.imageUrl} isUploading={false} />
 
         {/* Title and Description */}
         <View style={styles.generalSection}>
@@ -331,7 +282,7 @@ export default function FoodLogDetailScreen() {
                     borderColor: colors.border,
                   },
                 ]}
-                value={currentLog.title || ""}
+                value={originalLog.title || ""}
                 onChangeText={(text) => handleFieldUpdate("title", text)}
                 placeholder="Food title"
                 placeholderTextColor={colors.secondaryText}
@@ -348,7 +299,7 @@ export default function FoodLogDetailScreen() {
                     borderColor: colors.border,
                   },
                 ]}
-                value={currentLog.description || ""}
+                value={originalLog.description || ""}
                 onChangeText={(text) => handleFieldUpdate("description", text)}
                 placeholder="Add a description..."
                 placeholderTextColor={colors.secondaryText}
@@ -361,13 +312,13 @@ export default function FoodLogDetailScreen() {
           ) : (
             <>
               <Text style={[styles.title, { color: colors.primaryText }]}>
-                {currentLog.title}
+                {originalLog.title}
               </Text>
-              {currentLog.description && (
+              {originalLog.description && (
                 <Text
                   style={[styles.description, { color: colors.secondaryText }]}
                 >
-                  {currentLog.description}
+                  {originalLog.description}
                 </Text>
               )}
             </>
@@ -381,15 +332,15 @@ export default function FoodLogDetailScreen() {
               Nutrition
             </Text>
             <TouchableOpacity
-              onPress={() => toggleFavorite(currentLog)}
+              onPress={() => toggleFavorite(originalLog)}
               style={styles.favoriteButton}
               accessibilityLabel={
-                currentLog && isFavorite(currentLog)
+                isFavorite(originalLog)
                   ? "Remove from favorites"
                   : "Add to favorites"
               }
               accessibilityHint={
-                currentLog && isFavorite(currentLog)
+                isFavorite(originalLog)
                   ? "Removes this log from your favorites"
                   : "Adds this log to your favorites"
               }
@@ -398,7 +349,7 @@ export default function FoodLogDetailScreen() {
                 size={20}
                 color={colors.accent}
                 weight={
-                  currentLog && isFavorite(currentLog)
+                  isFavorite(originalLog)
                     ? "fill"
                     : "regular"
                 }
@@ -406,7 +357,7 @@ export default function FoodLogDetailScreen() {
               <Text
                 style={[styles.favoriteButtonText, { color: colors.accent }]}
               >
-                {currentLog && isFavorite(currentLog)
+                {isFavorite(originalLog)
                   ? "Favorited"
                   : "Add to Favorites"}
               </Text>
@@ -414,11 +365,11 @@ export default function FoodLogDetailScreen() {
           </View>
           {isEditing ? (
             <NutritionEditCard
-              log={currentLog}
-              onUpdateNutrition={handleNutritionUpdate}
+              log={originalLog}
+              onUpdateNutrition={handleFieldUpdate}
             />
           ) : (
-            <NutritionViewCard log={currentLog} />
+            <NutritionViewCard log={originalLog} />
           )}
         </View>
 
@@ -453,7 +404,7 @@ export default function FoodLogDetailScreen() {
         </View>
 
         {/* Metadata Section - Only in view mode */}
-        {!isEditing && <MetadataSection log={currentLog} />}
+        {!isEditing && <MetadataSection log={originalLog} />}
 
         {/* Delete Button */}
         <View style={styles.deleteSection}>
