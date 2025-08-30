@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect } from "react";
-import { Dimensions, View } from "react-native";
+import { View, useWindowDimensions } from "react-native";
 import { Canvas, Circle, Path, Skia, Group } from "@shopify/react-native-skia";
 import {
   useSharedValue,
@@ -45,7 +45,7 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
 }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
-  const screenWidth = Dimensions.get("window").width;
+  const { width: screenWidth } = useWindowDimensions();
   const availableWidth = screenWidth * 0.35; 
   const containerSize = availableWidth;
   const center = containerSize / 2;
