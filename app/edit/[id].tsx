@@ -72,7 +72,6 @@ export default function Edit() {
       setIsReEstimating(false);
     });
     setIsReEstimating(true);
-    setIsKeyboardVisible(false);
     Keyboard.dismiss();
   };
 
@@ -88,7 +87,7 @@ export default function Edit() {
       />
       <ScrollView
         style={[
-          styles.container,
+          styles.scrollView,
           { backgroundColor: colors.primaryBackground },
         ]}
         contentContainerStyle={styles.contentContainer}
@@ -163,24 +162,24 @@ export default function Edit() {
             onUpdateNutrition={handleUpdateNutrition}
             isStale={changesWereMade}
             isLoading={isReEstimating}
+            onBlur={() => setIsKeyboardVisible(false)}
+            onFocus={() => setIsKeyboardVisible(true)}
           />
         </View>
       </ScrollView>
-      {!isKeyboardVisible && (
-        <View style={styles.bottomContainer}>
-          <InputAccessoryView
-            primaryAction={{
-              icon: SparkleIcon,
-              label: isReEstimating
-                ? "Working on it..."
-                : "Re-estimate nutrition",
-              onPress: handleReEstimate,
-              isValid: caNreEstimate && !isReEstimating,
-            }}
-            accessibilityLabel="Re-estimate nutrition"
-          />
-        </View>
-      )}
+      <View style={styles.bottomContainer}>
+        <InputAccessoryView
+          primaryAction={{
+            icon: SparkleIcon,
+            label: isReEstimating
+              ? "Working on it..."
+              : "Re-estimate nutrition",
+            onPress: handleReEstimate,
+            isValid: caNreEstimate && !isReEstimating,
+          }}
+          accessibilityLabel="Re-estimate nutrition"
+        />
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -191,7 +190,11 @@ const createStyles = (colors: Colors, theme: Theme) =>
       flex: 1,
       backgroundColor: colors.primaryBackground,
     },
+    scrollView: {
+      flex: 1,
+    },
     contentContainer: {
+      paddingBottom: 100,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.md,
       gap: theme.spacing.lg,
@@ -211,7 +214,12 @@ const createStyles = (colors: Colors, theme: Theme) =>
       gap: theme.spacing.sm,
     },
     bottomContainer: {
-      paddingBottom: theme.spacing.xl + 50,
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
+
+      paddingBottom: theme.spacing.xl,
       backgroundColor: colors.secondaryBackground,
     },
     sectionTitle: {

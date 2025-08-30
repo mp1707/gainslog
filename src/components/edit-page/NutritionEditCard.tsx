@@ -11,6 +11,8 @@ interface NutritionEditRowProps {
   semanticColor: string;
   onChangeText: (text: string) => void;
   isLoading?: boolean;
+  onBlur?: () => void;
+  onFocus?: () => void;
 }
 
 const NutritionEditRow: React.FC<NutritionEditRowProps> = ({
@@ -20,6 +22,8 @@ const NutritionEditRow: React.FC<NutritionEditRowProps> = ({
   semanticColor,
   onChangeText,
   isLoading = false,
+  onBlur,
+  onFocus,
 }) => {
   const { colors } = useTheme();
   const styles = useThemedStyles(createRowStyles);
@@ -50,10 +54,11 @@ const NutritionEditRow: React.FC<NutritionEditRowProps> = ({
             value={String(value || "")}
             onChangeText={onChangeText}
             keyboardType="numeric"
-            returnKeyType="done"
             textAlign="right"
             placeholder="0"
             placeholderTextColor={colors.secondaryText}
+            onBlur={onBlur}
+            onFocus={onFocus}
           />
         )}
         <Text style={[styles.unitText, { color: colors.secondaryText }]}>
@@ -69,6 +74,8 @@ interface NutritionEditCardProps {
   onUpdateNutrition: (field: string, value: number) => void;
   isStale?: boolean;
   isLoading?: boolean;
+  onBlur?: () => void;
+  onFocus?: () => void;
 }
 
 export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
@@ -76,6 +83,8 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
   onUpdateNutrition,
   isStale = false,
   isLoading = false,
+  onBlur,
+  onFocus,
 }) => {
   const { colors } = useTheme();
   const styles = useThemedStyles(createCardStyles);
@@ -94,6 +103,8 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
         semanticColor={colors.semantic.calories}
         onChangeText={(text) => handleNumericChange("calories", text)}
         isLoading={isLoading}
+        onBlur={onBlur}
+        onFocus={onFocus}
       />
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionEditRow
@@ -103,6 +114,8 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
         semanticColor={colors.semantic.protein}
         onChangeText={(text) => handleNumericChange("protein", text)}
         isLoading={isLoading}
+        onBlur={onBlur}
+        onFocus={onFocus}
       />
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionEditRow
@@ -112,6 +125,8 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
         semanticColor={colors.semantic.carbs}
         onChangeText={(text) => handleNumericChange("carbs", text)}
         isLoading={isLoading}
+        onBlur={onBlur}
+        onFocus={onFocus}
       />
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionEditRow
@@ -121,6 +136,8 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
         semanticColor={colors.semantic.fat}
         onChangeText={(text) => handleNumericChange("fat", text)}
         isLoading={isLoading}
+        onBlur={onBlur}
+        onFocus={onFocus}
       />
     </View>
   );
