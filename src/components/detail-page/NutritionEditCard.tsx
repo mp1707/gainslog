@@ -81,7 +81,7 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
         value={log.calories ?? 0}
         unit="kcal"
         semanticColor={colors.semantic.calories}
-        onChangeText={(text) => handleNumericChange("userCalories", text)}
+        onChangeText={(text) => handleNumericChange("calories", text)}
       />
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionEditRow
@@ -89,7 +89,7 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
         value={log.protein ?? 0}
         unit="g"
         semanticColor={colors.semantic.protein}
-        onChangeText={(text) => handleNumericChange("userProtein", text)}
+        onChangeText={(text) => handleNumericChange("protein", text)}
       />
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionEditRow
@@ -97,7 +97,7 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
         value={log.carbs ?? 0}
         unit="g"
         semanticColor={colors.semantic.carbs}
-        onChangeText={(text) => handleNumericChange("userCarbs", text)}
+        onChangeText={(text) => handleNumericChange("carbs", text)}
       />
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
       <NutritionEditRow
@@ -105,7 +105,7 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
         value={log.fat ?? 0}
         unit="g"
         semanticColor={colors.semantic.fat}
-        onChangeText={(text) => handleNumericChange("userFat", text)}
+        onChangeText={(text) => handleNumericChange("fat", text)}
       />
     </View>
   );
@@ -114,8 +114,7 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
 const createCardStyles = (colors: any, themeObj: any) =>
   StyleSheet.create({
     card: {
-      padding: themeObj.spacing.md,
-      marginHorizontal: themeObj.spacing.pageMargins.horizontal,
+      paddingHorizontal: themeObj.spacing.md,
       borderRadius: themeObj.components.cards.cornerRadius,
       backgroundColor: colors.secondaryBackground,
     },

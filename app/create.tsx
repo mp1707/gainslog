@@ -32,7 +32,6 @@ import { useImageSelection } from "@/hooks/useImageSelection";
 import { TranscriptionOverlay } from "@/components/shared/TextInput/TranscriptionOverlay";
 import { useEstimation } from "@/hooks/useEstimation";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
-import { AppText } from "@/components/index";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
 import { LogCard } from "@/components/daily-food-logs";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -126,7 +125,7 @@ export default function Create() {
     },
   });
 
-  const handleButton2 = useCallback(() => {
+  const handleImageInput = useCallback(() => {
     showImagePickerAlert();
   }, [showImagePickerAlert]);
 
@@ -245,7 +244,7 @@ export default function Create() {
             secondaryAction={{
               icon: CameraIcon,
               label: "",
-              onPress: handleButton2,
+              onPress: handleImageInput,
             }}
             tertiaryAction={{
               icon: MicrophoneIcon,
@@ -269,7 +268,7 @@ export default function Create() {
         secondaryAction={{
           icon: CameraIcon,
           label: "",
-          onPress: handleButton2,
+          onPress: handleImageInput,
         }}
         tertiaryAction={{
           icon: MicrophoneIcon,

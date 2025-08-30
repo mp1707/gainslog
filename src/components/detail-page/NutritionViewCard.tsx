@@ -82,8 +82,7 @@ export const NutritionViewCard: React.FC<NutritionViewCardProps> = ({
 
 const createStyles = (colors: any, themeObj: any) => StyleSheet.create({
   card: {
-    padding: themeObj.spacing.md,
-    marginHorizontal: themeObj.spacing.pageMargins.horizontal,
+    paddingHorizontal: themeObj.spacing.md,
     backgroundColor: colors.secondaryBackground,
     borderRadius: themeObj.components.cards.cornerRadius,
   },

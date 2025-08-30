@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect } from "react";
+import React, { useCallback, useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,12 +7,15 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  TextInput,
-  KeyboardAvoidingView,
 } from "react-native";
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { Stack } from "expo-router";
-import { X, ArrowsClockwiseIcon, StarIcon, PencilSimple } from "phosphor-react-native";
+import {
+  X,
+  ArrowsClockwiseIcon,
+  StarIcon,
+  CameraIcon,
+} from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 import {
   estimateNutritionImageBased,
@@ -22,17 +25,18 @@ import { useTheme, useThemedStyles } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { FoodLog } from "@/types/models";
 import { MetadataSection } from "@/components/detail-page/MetadataSection";
-import { NutritionEditCard } from "@/components/detail-page/NutritionEditCard";
 import { NutritionViewCard } from "@/components/detail-page/NutritionViewCard";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { Toast } from "toastify-react-native";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { useImageSelection } from "@/hooks/useImageSelection";
 
 export default function FoodLogDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
-  const router = useRouter();
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
+  const { safeNavigate } = useNavigationGuard();
 
   const {
     foodLogs,
@@ -46,73 +50,39 @@ export default function FoodLogDetailScreen() {
   // Find the food log by ID
   const originalLog = foodLogs.find((log) => log.id === id);
 
-  // View/Edit mode state
-  const [isEditing, setIsEditing] = useState(false);
-  const [isReEstimating, setIsReEstimating] = useState(false);
+  // Re-estimation state
+  const [isReEstimating, setIsReEstimating] = React.useState(false);
 
-  // Dynamic navigation header based on edit mode
+
+  // Navigation header setup
   useLayoutEffect(() => {
     const logTitle = originalLog?.title || "Food Log";
 
     navigation.setOptions({
-      title: isEditing ? "Edit Log" : logTitle,
-      headerLeft: () =>
-        isEditing ? (
-          <TouchableOpacity
-            onPress={handleCancel}
-            style={{ marginLeft: 10 }}
-            accessibilityLabel="Cancel editing"
-            accessibilityHint="Discards changes and returns to view mode"
-          >
-            <Text style={[styles.navButtonText, { color: colors.accent }]}>
-              Cancel
-            </Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{ marginLeft: 10 }}
-            accessibilityLabel="Go back"
-            accessibilityHint="Returns to previous screen"
-          >
-            <X size={24} color={colors.primaryText} />
-          </TouchableOpacity>
-        ),
+      title: logTitle,
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => safeNavigate("/")}
+          style={{ marginLeft: 10 }}
+          accessibilityLabel="Go back"
+          accessibilityHint="Returns to previous screen"
+        >
+          <X size={24} color={colors.primaryText} />
+        </TouchableOpacity>
+      ),
       headerRight: () => (
-        <View style={styles.headerRightContainer}>
-          {isEditing ? (
-            <TouchableOpacity
-              onPress={handleSave}
-              accessibilityLabel="Save changes"
-              accessibilityHint="Saves edits and returns to view mode"
-            >
-              <Text
-                style={[
-                  styles.navButtonText,
-                  styles.navButtonDone,
-                  { color: colors.accent },
-                ]}
-              >
-                Done
-              </Text>
-            </TouchableOpacity>
-          ) : (
-            <>
-              <TouchableOpacity
-                onPress={() => setIsEditing(true)}
-                accessibilityLabel="Edit food log"
-                accessibilityHint="Switches to edit mode to modify this log entry"
-              >
-                <Text style={[styles.navButtonText, { color: colors.accent }]}>
-                  Edit
-                </Text>
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
+        <TouchableOpacity
+          onPress={handleEdit}
+          accessibilityLabel="Edit food log"
+          accessibilityHint="Navigate to edit mode for this log entry"
+        >
+          <Text style={[styles.navButtonText, { color: colors.accent }]}>
+            Edit
+          </Text>
+        </TouchableOpacity>
       ),
     });
-  }, [navigation, isEditing, originalLog, colors]);
+  }, [navigation, originalLog, colors, safeNavigate]);
 
   // If log not found, show error
   if (!originalLog) {
@@ -125,10 +95,8 @@ export default function FoodLogDetailScreen() {
     );
   }
 
-
-  const handleFieldUpdate = (field: keyof FoodLog, value: any) => {
-    if (!originalLog) return;
-    updateFoodLog(originalLog.id, { [field]: value });
+  const handleEdit = () => {
+    safeNavigate(`/food-log-edit/${id}`);
   };
 
   const toggleFavorite = (foodLog: FoodLog) => {
@@ -151,14 +119,6 @@ export default function FoodLogDetailScreen() {
     }
   };
 
-  const handleCancel = () => {
-    setIsEditing(false);
-  };
-
-  const handleSave = () => {
-    setIsEditing(false);
-  };
-
   const handleDelete = () => {
     if (!originalLog) return;
     Alert.alert(
@@ -169,9 +129,9 @@ export default function FoodLogDetailScreen() {
         {
           text: "Delete",
           style: "destructive",
-          onPress: async () => {
-            await deleteFoodLog(originalLog.id);
-            router.back();
+          onPress: () => {
+            deleteFoodLog(originalLog.id);
+            safeNavigate("/");
           },
         },
       ]
@@ -227,7 +187,6 @@ export default function FoodLogDetailScreen() {
       };
 
       await updateFoodLog(originalLog.id, updates);
-
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error) {
       console.error("Error re-estimating nutrition:", error);
@@ -245,7 +204,10 @@ export default function FoodLogDetailScreen() {
   };
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.primaryBackground }]}
+      contentContainerStyle={styles.contentContainer}
+    >
       <Stack.Screen
         options={{
           headerShown: true,
@@ -259,168 +221,104 @@ export default function FoodLogDetailScreen() {
         }}
       />
 
-      <ScrollView
-        style={[
-          styles.container,
-          { backgroundColor: colors.primaryBackground },
-        ]}
-        contentContainerStyle={styles.contentContainer}
-      >
-        {/* Image Section */}
-        <ImageDisplay imageUrl={originalLog.imageUrl} isUploading={false} />
+      {/* Image Section */}
+      <ImageDisplay
+        imageUrl={originalLog?.imageUrl}
+        isUploading={false}
+      />
 
-        {/* Title and Description */}
-        <View style={styles.generalSection}>
-          {isEditing ? (
-            <>
-              <TextInput
-                style={[
-                  styles.titleInput,
-                  {
-                    color: colors.primaryText,
-                    backgroundColor: colors.secondaryBackground,
-                    borderColor: colors.border,
-                  },
-                ]}
-                value={originalLog.title || ""}
-                onChangeText={(text) => handleFieldUpdate("title", text)}
-                placeholder="Food title"
-                placeholderTextColor={colors.secondaryText}
-                multiline
-                accessibilityLabel="Food title"
-                accessibilityHint="Enter or edit the name of the food item"
-              />
-              <TextInput
-                style={[
-                  styles.descriptionInput,
-                  {
-                    color: colors.primaryText,
-                    backgroundColor: colors.secondaryBackground,
-                    borderColor: colors.border,
-                  },
-                ]}
-                value={originalLog.description || ""}
-                onChangeText={(text) => handleFieldUpdate("description", text)}
-                placeholder="Add a description..."
-                placeholderTextColor={colors.secondaryText}
-                multiline
-                numberOfLines={3}
-                accessibilityLabel="Food description"
-                accessibilityHint="Enter additional details about the food item"
-              />
-            </>
-          ) : (
-            <>
-              <Text style={[styles.title, { color: colors.primaryText }]}>
-                {originalLog.title}
-              </Text>
-              {originalLog.description && (
-                <Text
-                  style={[styles.description, { color: colors.secondaryText }]}
-                >
-                  {originalLog.description}
-                </Text>
-              )}
-            </>
-          )}
-        </View>
+      {/* Title and Description */}
+      <View style={styles.generalSection}>
+        <Text style={[styles.title, { color: colors.primaryText }]}>
+          {originalLog?.title}
+        </Text>
+        {originalLog?.description && (
+          <Text style={[styles.description, { color: colors.secondaryText }]}>
+            {originalLog.description}
+          </Text>
+        )}
+      </View>
 
-        {/* Nutrition Section */}
-        <View style={styles.nutritionSection}>
-          <View style={styles.nutritionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.primaryText }]}>
-              Nutrition
-            </Text>
-            <TouchableOpacity
-              onPress={() => toggleFavorite(originalLog)}
-              style={styles.favoriteButton}
-              accessibilityLabel={
-                isFavorite(originalLog)
-                  ? "Remove from favorites"
-                  : "Add to favorites"
+      {/* Nutrition Section */}
+      <View style={styles.nutritionSection}>
+        <View style={styles.nutritionHeader}>
+          
+          <TouchableOpacity
+            onPress={() => originalLog && toggleFavorite(originalLog)}
+            style={styles.favoriteButton}
+            accessibilityLabel={
+              originalLog && isFavorite(originalLog)
+                ? "Remove from favorites"
+                : "Add to favorites"
+            }
+            accessibilityHint={
+              originalLog && isFavorite(originalLog)
+                ? "Removes this log from your favorites"
+                : "Adds this log to your favorites"
+            }
+          >
+            <StarIcon
+              size={20}
+              color={colors.accent}
+              weight={
+                originalLog && isFavorite(originalLog) ? "fill" : "regular"
               }
-              accessibilityHint={
-                isFavorite(originalLog)
-                  ? "Removes this log from your favorites"
-                  : "Adds this log to your favorites"
-              }
-            >
-              <StarIcon
-                size={20}
-                color={colors.accent}
-                weight={
-                  isFavorite(originalLog)
-                    ? "fill"
-                    : "regular"
-                }
-              />
-              <Text
-                style={[styles.favoriteButtonText, { color: colors.accent }]}
-              >
-                {isFavorite(originalLog)
-                  ? "Favorited"
-                  : "Add to Favorites"}
-              </Text>
-            </TouchableOpacity>
-          </View>
-          {isEditing ? (
-            <NutritionEditCard
-              log={originalLog}
-              onUpdateNutrition={handleFieldUpdate}
             />
+            <Text style={[styles.favoriteButtonText, { color: colors.accent }]}>
+              {originalLog && isFavorite(originalLog)
+                ? "Favorited"
+                : "Add to Favorites"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        {originalLog && <NutritionViewCard log={originalLog} />}
+      </View>
+
+      {/* Re-estimation Button */}
+      <View style={styles.actionsSection}>
+        <TouchableOpacity
+          style={[
+            styles.reEstimateButton,
+            {
+              backgroundColor: "transparent",
+              borderColor: colors.accent,
+              opacity: isReEstimating ? 0.6 : 1,
+            },
+          ]}
+          onPress={handleReEstimate}
+          disabled={isReEstimating}
+          accessibilityLabel="Re-estimate nutrition with AI"
+          accessibilityHint="Uses AI to generate new nutrition estimates based on the current title and image"
+          accessibilityState={{ busy: isReEstimating }}
+        >
+          {isReEstimating ? (
+            <ActivityIndicator size="small" color={colors.accent} />
           ) : (
-            <NutritionViewCard log={originalLog} />
+            <ArrowsClockwiseIcon size={16} color={colors.accent} />
           )}
-        </View>
+          <Text style={[styles.reEstimateButtonText, { color: colors.accent }]}>
+            {isReEstimating ? "Estimating..." : "Re-estimate with AI"}
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-        {/* Re-estimation Button - Available in both modes */}
-        <View style={styles.actionsSection}>
-          <TouchableOpacity
-            style={[
-              styles.reEstimateButton,
-              {
-                backgroundColor: "transparent",
-                borderColor: colors.accent,
-                opacity: isReEstimating ? 0.6 : 1,
-              },
-            ]}
-            onPress={handleReEstimate}
-            disabled={isReEstimating}
-            accessibilityLabel="Re-estimate nutrition with AI"
-            accessibilityHint="Uses AI to generate new nutrition estimates based on the current title and image"
-            accessibilityState={{ busy: isReEstimating }}
-          >
-            {isReEstimating ? (
-              <ActivityIndicator size="small" color={colors.accent} />
-            ) : (
-              <ArrowsClockwiseIcon size={16} color={colors.accent} />
-            )}
-            <Text
-              style={[styles.reEstimateButtonText, { color: colors.accent }]}
-            >
-              {isReEstimating ? "Estimating..." : "Re-estimate with AI"}
-            </Text>
-          </TouchableOpacity>
-        </View>
+      {/* Metadata Section */}
+      {originalLog && <MetadataSection log={originalLog} />}
 
-        {/* Metadata Section - Only in view mode */}
-        {!isEditing && <MetadataSection log={originalLog} />}
-
-        {/* Delete Button */}
-        <View style={styles.deleteSection}>
-          <TouchableOpacity
-            onPress={handleDelete}
-            accessibilityLabel="Delete food log"
-            accessibilityHint="Permanently deletes this log entry. This action cannot be undone."
-            accessibilityRole="button"
-          >
-            <Text style={[styles.deleteButtonText, { color: colors.error }]}>
-              Delete Log
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      {/* Delete Button */}
+      <View style={styles.deleteSection}>
+        <TouchableOpacity
+          onPress={handleDelete}
+          accessibilityLabel="Delete food log"
+          accessibilityHint="Permanently deletes this log entry. This action cannot be undone."
+          accessibilityRole="button"
+        >
+          <Text style={[styles.deleteButtonText, { color: colors.error }]}>
+            Delete Log
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -431,6 +329,9 @@ const createStyles = (colors: any, theme: any) =>
     },
     contentContainer: {
       paddingBottom: theme.spacing.xxl,
+      paddingHorizontal: theme.spacing.pageMargins.horizontal,
+      paddingVertical: theme.spacing.lg,
+      gap: theme.spacing.lg,
     },
     errorContainer: {
       flex: 1,
@@ -440,22 +341,12 @@ const createStyles = (colors: any, theme: any) =>
     errorText: {
       ...theme.typography.Body,
     },
-    headerRightContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      paddingRight: 10,
-    },
     navButtonText: {
       ...theme.typography.Body,
       fontSize: 17,
     },
-    navButtonDone: {
-      ...theme.typography.Headline,
-      fontWeight: "600",
-    },
     generalSection: {
-      paddingHorizontal: theme.spacing.pageMargins.horizontal,
-      paddingVertical: theme.spacing.lg,
+     
     },
     title: {
       ...theme.typography.Title1,
@@ -465,35 +356,13 @@ const createStyles = (colors: any, theme: any) =>
       ...theme.typography.Body,
       lineHeight: 22,
     },
-    titleInput: {
-      ...theme.typography.Title1,
-      borderWidth: 1,
-      borderRadius: theme.components.buttons.cornerRadius,
-      padding: theme.spacing.md,
-      marginBottom: theme.spacing.md,
-      minHeight: 50,
-      textAlignVertical: "top",
-    },
-    descriptionInput: {
-      ...theme.typography.Body,
-      borderWidth: 1,
-      borderRadius: theme.components.buttons.cornerRadius,
-      padding: theme.spacing.md,
-      minHeight: 80,
-      textAlignVertical: "top",
-    },
     nutritionSection: {
-      marginVertical: theme.spacing.lg,
     },
     nutritionHeader: {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      paddingHorizontal: theme.spacing.pageMargins.horizontal,
       marginBottom: theme.spacing.md,
-    },
-    sectionTitle: {
-      ...theme.typography.Headline,
     },
     favoriteButton: {
       flexDirection: "row",
@@ -506,7 +375,6 @@ const createStyles = (colors: any, theme: any) =>
       fontWeight: "500",
     },
     actionsSection: {
-      paddingHorizontal: theme.spacing.pageMargins.horizontal,
       alignItems: "center",
       marginVertical: theme.spacing.lg,
     },
