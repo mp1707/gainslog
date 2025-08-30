@@ -23,6 +23,7 @@ import {
   ConfidenceBadge,
   InputAccessory,
   InputAccessoryView,
+  SkeletonPill,
 } from "@/components/shared";
 
 const titleAccessoryViewID = "edit-title-input-accessory";
@@ -152,10 +153,13 @@ export default function Edit() {
         <View style={styles.section}>
           <View style={styles.sectionTitle}>
             <AppText role="Headline">Nutrition</AppText>
-            <ConfidenceBadge
-              estimationConfidence={editLog?.estimationConfidence}
-              isLoading={isReEstimating}
-            />
+            {isReEstimating ? (
+              <SkeletonPill width={80} height={28} />
+            ) : (
+              <ConfidenceBadge
+                estimationConfidence={editLog?.estimationConfidence}
+              />
+            )}
           </View>
           <NutritionEditCard
             log={editLog}

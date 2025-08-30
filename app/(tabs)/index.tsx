@@ -1,6 +1,12 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import {
+  SafeAreaView,
+  StyleSheet,
+  View,
+  FlatList,
+  ListRenderItem,
+} from "react-native";
 import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
 import { useAppStore } from "@/store/useAppStore";
 import { DateNavigationHeader } from "@/components/daily-food-logs/DateNavigationHeader";
@@ -95,41 +101,50 @@ export default function TodayTab() {
     safeNavigate(`/edit/${foodLog.id}`);
   };
 
+  const keyExtractor = useCallback((item: FoodLog) => item.id, []);
+
+  const renderItem: ListRenderItem<FoodLog> = useCallback(
+    ({ item }) => (
+      <SwipeToFunctions
+        onDelete={() => {
+          deleteFoodLog(item.id);
+        }}
+        onFavorite={() => toggleFavorite(item)}
+        onTap={() => handleNavigateToDetailPage(item)}
+      >
+        <LogCard foodLog={item} isLoading={item.isEstimating} />
+      </SwipeToFunctions>
+    ),
+    [deleteFoodLog, toggleFavorite, handleNavigateToDetailPage]
+  );
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
         <DateNavigationHeader />
-        <ScrollView
+        <FlatList
+          data={todayFoodLogs}
+          keyExtractor={keyExtractor}
+          renderItem={renderItem}
           style={styles.scrollView}
           contentContainerStyle={[
             styles.contentContainer,
             { paddingBottom: dynamicBottomPadding },
           ]}
+          ListHeaderComponent={
+            <NutrientSummary
+              percentages={dailyPercentages}
+              targets={dailyTargets || defaultTargets}
+              totals={dailyTotals}
+            />
+          }
           showsVerticalScrollIndicator={false}
-        >
-          <NutrientSummary
-            percentages={dailyPercentages}
-            targets={dailyTargets || defaultTargets}
-            totals={dailyTotals}
-          />
-
-          {todayFoodLogs.map((foodLog) => (
-            <SwipeToFunctions
-              key={foodLog.id}
-              onDelete={() => {
-                deleteFoodLog(foodLog.id);
-              }}
-              onFavorite={() => toggleFavorite(foodLog)}
-              onTap={() => handleNavigateToDetailPage(foodLog)}
-            >
-              <LogCard
-                key={foodLog.id}
-                foodLog={foodLog}
-                isLoading={foodLog.isEstimating}
-              />
-            </SwipeToFunctions>
-          ))}
-        </ScrollView>
+          removeClippedSubviews
+          initialNumToRender={6}
+          maxToRenderPerBatch={8}
+          windowSize={7}
+          updateCellsBatchingPeriod={50}
+        />
       </SafeAreaView>
     </GestureHandlerRootView>
   );
