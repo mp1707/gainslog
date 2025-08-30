@@ -104,10 +104,6 @@ export default function Create() {
     back();
   }, [back]);
 
-  const handleSave = useCallback(() => {
-    // This would be for manual save, but we're focusing on AI estimation
-    back();
-  }, [back]);
 
   const { showImagePickerAlert } = useImageSelection({
     onImageSelected: (imageUrl: string) => {

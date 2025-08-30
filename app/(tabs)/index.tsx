@@ -10,8 +10,10 @@ import { useTheme } from "@/theme/ThemeProvider";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
 import { FoodLog } from "@/types/models";
 import { Toast } from "toastify-react-native";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
 export default function TodayTab() {
+  const { safeNavigate } = useNavigationGuard();
   const { dynamicBottomPadding } = useTabBarSpacing();
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
@@ -89,6 +91,10 @@ export default function TodayTab() {
     }
   };
 
+  const handleNavigateToDetailPage = (foodLog: FoodLog) => {
+    safeNavigate(`/food-log-detail/${foodLog.id}`);
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
@@ -114,6 +120,7 @@ export default function TodayTab() {
                 deleteFoodLog(foodLog.id);
               }}
               onFavorite={() => toggleFavorite(foodLog)}
+              onTap={() => handleNavigateToDetailPage(foodLog)}
             >
               <LogCard
                 key={foodLog.id}
