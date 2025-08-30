@@ -11,8 +11,8 @@ import { Favorite, FoodLog } from "@/types/models";
 import { useTheme } from "@/theme";
 import { Card } from "@/components/Card";
 import { AppText } from "@/components";
-import { SkeletonPill } from "@/components/shared/SkeletonPill";
-import { getConfidenceInfo } from "@/utils/nutrition";
+import { SkeletonPill, ConfidenceBadge } from "@/components/shared";
+import { getConfidenceLevel } from "@/utils/getConfidenceLevel";
 import { createStyles } from "./LogCard.styles";
 import { NutritionList } from "./NutritionList";
 
@@ -31,37 +31,19 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
   // Animation values for staggered reveal
   const titleOpacity = useSharedValue(isLoading ? 0 : 1);
   const descriptionOpacity = useSharedValue(isLoading ? 0 : 1);
-  const confidenceOpacity = useSharedValue(isLoading ? 0 : 1);
   const nutritionOpacity = useSharedValue(isLoading ? 0 : 1);
 
   // Flash animation for confidence feedback
   const flashOpacity = useSharedValue(0);
 
   const displayTitle = foodLog.title || "New Log";
-  const confidenceInfo =
+  const estimationConfidence =
     "estimationConfidence" in foodLog
-      ? getConfidenceInfo(foodLog.estimationConfidence ?? 0)
+      ? foodLog.estimationConfidence
       : undefined;
-  const ConfidenceIcon = confidenceInfo?.icon;
 
-  const getConfidenceStyles = (level: string) => {
-    const styleMap = {
-      high: { badge: styles.confidenceHigh, text: styles.confidenceHighText },
-      medium: {
-        badge: styles.confidenceMedium,
-        text: styles.confidenceMediumText,
-      },
-      low: { badge: styles.confidenceLow, text: styles.confidenceLowText },
-      uncertain: {
-        badge: styles.confidenceUncertain,
-        text: styles.confidenceUncertainText,
-      },
-    };
-    return styleMap[level as keyof typeof styleMap];
-  };
-
-  const confidenceStyles =
-    confidenceInfo && getConfidenceStyles(confidenceInfo.level);
+  // Get confidence info for flash overlay color
+  const confidenceInfo = getConfidenceLevel(estimationConfidence);
 
   useEffect(() => {
     const wasLoading = previousLoadingRef.current;
@@ -82,39 +64,35 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
         150,
         withSpring(1, { stiffness: 400, damping: 30 })
       );
-      confidenceOpacity.value = withDelay(
-        300,
-        withSpring(1, { stiffness: 400, damping: 30 })
-      );
       nutritionOpacity.value = withDelay(
-        450,
+        300,
         withSpring(1, { stiffness: 400, damping: 30 })
       );
 
-      // Confidence flash animation - starts after a brief delay
-      flashOpacity.value = withDelay(
-        300,
-        withSpring(0.6, { stiffness: 400, damping: 30 }, (finished) => {
-          if (finished) {
-            flashOpacity.value = withDelay(
-              300,
-              withSpring(0, { stiffness: 400, damping: 30 })
-            );
-          }
-        })
-      );
+      // Flash animation for confidence feedback - starts after content loads
+      if (estimationConfidence !== undefined) {
+        flashOpacity.value = withDelay(
+          450,
+          withSpring(0.6, { stiffness: 400, damping: 30 }, (finished) => {
+            if (finished) {
+              flashOpacity.value = withDelay(
+                300,
+                withSpring(0, { stiffness: 400, damping: 30 })
+              );
+            }
+          })
+        );
+      }
     } else if (!isLoading && !wasLoading) {
       // If card renders without loading, show content immediately without animation
       titleOpacity.value = 1;
       descriptionOpacity.value = 1;
-      confidenceOpacity.value = 1;
       nutritionOpacity.value = 1;
       flashOpacity.value = 0;
     } else if (isLoading) {
       // Hide content during loading
       titleOpacity.value = 0;
       descriptionOpacity.value = 0;
-      confidenceOpacity.value = 0;
       nutritionOpacity.value = 0;
       flashOpacity.value = 0;
     }
@@ -141,18 +119,10 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
     ],
   }));
 
-  const confidenceAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: confidenceOpacity.value,
-    transform: [
-      {
-        scale: 0.95 + confidenceOpacity.value * 0.05,
-      },
-    ],
-  }));
-
   const flashAnimatedStyle = useAnimatedStyle(() => ({
     opacity: flashOpacity.value,
   }));
+
 
   return (
     <View style={styles.cardContainer}>
@@ -191,32 +161,12 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
             )}
 
             {/* Confidence Badge Section */}
-            {confidenceInfo && confidenceStyles && ConfidenceIcon && (
-              <View style={styles.confidenceContainer}>
-                {isLoading ? (
-                  <SkeletonPill width={80} height={28} />
-                ) : (
-                  <Animated.View style={confidenceAnimatedStyle}>
-                    <View
-                      style={[styles.confidenceBadge, confidenceStyles.badge]}
-                      accessibilityRole="text"
-                      accessibilityLabel={confidenceInfo.accessibilityLabel}
-                    >
-                      <ConfidenceIcon
-                        size={14}
-                        color={confidenceStyles.text.color}
-                        weight="fill"
-                      />
-                      <AppText
-                        style={[styles.confidenceText, confidenceStyles.text]}
-                      >
-                        {confidenceInfo.label}
-                      </AppText>
-                    </View>
-                  </Animated.View>
-                )}
-              </View>
-            )}
+            <ConfidenceBadge
+              estimationConfidence={estimationConfidence}
+              isLoading={isLoading}
+              wasLoading={previousLoadingRef.current}
+              style={styles.confidenceContainerSpacing}
+            />
           </View>
 
           <View style={styles.rightSection}>
@@ -234,12 +184,12 @@ export const LogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
         </View>
       </Card>
 
-      {/* Confidence flash overlay */}
-      {confidenceStyles && (
+      {/* Flash overlay for confidence feedback */}
+      {estimationConfidence !== undefined && (
         <Animated.View
           style={[
             styles.flashOverlay,
-            { backgroundColor: confidenceStyles.badge.backgroundColor },
+            { backgroundColor: confidenceInfo.color.background },
             flashAnimatedStyle,
           ]}
           pointerEvents="none"

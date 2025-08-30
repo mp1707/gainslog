@@ -1,0 +1,1 @@
+- phosphor-react-native has deprecated its old icons the new ones are named the same but have "Icon" at the end. so "Camera" is deprecated and "CameraIcon" is correct now.

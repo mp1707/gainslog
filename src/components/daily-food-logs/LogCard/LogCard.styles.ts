@@ -28,50 +28,13 @@ export const createStyles = (colors: Colors) =>
       alignItems: "flex-start",
       minWidth: "35%",
     },
-    confidenceContainer: {
+    confidenceContainerSpacing: {
       marginTop: theme.spacing.sm,
-      alignItems: "flex-start",
     },
     title: {},
     description: {
       fontStyle: "italic",
       marginTop: theme.spacing.xs,
-    },
-    confidenceBadge: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: theme.spacing.xs,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.xs,
-      borderRadius: theme.spacing.sm,
-    },
-    confidenceText: {
-      fontSize: theme.typography.Caption.fontSize,
-      fontWeight: "600" as const,
-    },
-    confidenceHigh: {
-      backgroundColor: colors.confidence.high.background,
-    },
-    confidenceHighText: {
-      color: colors.confidence.high.text,
-    },
-    confidenceMedium: {
-      backgroundColor: colors.confidence.medium.background,
-    },
-    confidenceMediumText: {
-      color: colors.confidence.medium.text,
-    },
-    confidenceLow: {
-      backgroundColor: colors.confidence.low.background,
-    },
-    confidenceLowText: {
-      color: colors.confidence.low.text,
-    },
-    confidenceUncertain: {
-      backgroundColor: colors.confidence.uncertain.background,
-    },
-    confidenceUncertainText: {
-      color: colors.confidence.uncertain.text,
     },
     pressOverlay: {
       position: "absolute",

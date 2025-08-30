@@ -19,7 +19,11 @@ import { useState } from "react";
 import { NutritionEditCard } from "@/components/edit-page/NutritionEditCard";
 import { SparkleIcon } from "phosphor-react-native";
 import { useEstimation } from "@/hooks/useEstimation";
-import { InputAccessory, InputAccessoryView } from "@/components/shared";
+import {
+  ConfidenceBadge,
+  InputAccessory,
+  InputAccessoryView,
+} from "@/components/shared";
 
 const titleAccessoryViewID = "edit-title-input-accessory";
 const descriptionAccessoryViewID = "edit-description-input-accessory";
@@ -147,7 +151,13 @@ export default function Edit() {
           />
         </View>
         <View style={styles.section}>
-          <AppText role="Headline">Nutrition</AppText>
+          <View style={styles.sectionTitle}>
+            <AppText role="Headline">Nutrition</AppText>
+            <ConfidenceBadge
+              estimationConfidence={editLog?.estimationConfidence}
+              isLoading={isReEstimating}
+            />
+          </View>
           <NutritionEditCard
             log={editLog}
             onUpdateNutrition={handleUpdateNutrition}
@@ -203,5 +213,11 @@ const createStyles = (colors: Colors, theme: Theme) =>
     bottomContainer: {
       paddingBottom: theme.spacing.xl + 50,
       backgroundColor: colors.secondaryBackground,
+    },
+    sectionTitle: {
+      gap: theme.spacing.sm,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
     },
   });
