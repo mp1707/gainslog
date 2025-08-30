@@ -9,9 +9,8 @@ import Animated, {
   withTiming,
   runOnJS,
   interpolate,
-  Extrapolate,
-  FadeOutLeft,
-  Layout,
+  Extrapolation,
+  LinearTransition,
   Easing,
 } from "react-native-reanimated";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -49,9 +48,9 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
   const gestureDirection = useSharedValue<
     "unknown" | "horizontal" | "vertical"
   >("unknown");
-  
+
   // Persistent swipe state tracking
-  const isLeftSwiped = useSharedValue(false);  // Track left swipe state (delete)
+  const isLeftSwiped = useSharedValue(false); // Track left swipe state (delete)
   const isRightSwiped = useSharedValue(false); // Track right swipe state (favorite)
 
   // Press animation shared values
@@ -253,7 +252,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
             if (translationX < 0 && onDelete) {
               // Swiping left for delete
               translateX.value = translationX;
-              
+
               // Check if we should dismiss right swipe state when swiping left
               if (isRightSwiped.value && translationX < -10) {
                 isRightSwiped.value = false;
@@ -261,18 +260,24 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
             } else if (translationX > 0 && onFavorite) {
               // Swiping right for favorite
               translateX.value = translationX;
-              
+
               // Check if we should dismiss left swipe state when swiping right
               if (isLeftSwiped.value && translationX > 10) {
                 isLeftSwiped.value = false;
               }
             } else if (isLeftSwiped.value || isRightSwiped.value) {
               // Handle swipe back to center when in persistent swipe state
-              if (isLeftSwiped.value && translationX > -ACTION_BUTTON_WIDTH / 2) {
+              if (
+                isLeftSwiped.value &&
+                translationX > -ACTION_BUTTON_WIDTH / 2
+              ) {
                 // Swiping back from left swipe position
                 translateX.value = translationX;
-              } else if (isRightSwiped.value && translationX < ACTION_BUTTON_WIDTH / 2) {
-                // Swiping back from right swipe position  
+              } else if (
+                isRightSwiped.value &&
+                translationX < ACTION_BUTTON_WIDTH / 2
+              ) {
+                // Swiping back from right swipe position
                 translateX.value = translationX;
               }
             }
@@ -303,7 +308,10 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
                   isLeftSwiped.value = true;
                 }
                 translateX.value = withSpring(-ACTION_BUTTON_WIDTH);
-              } else if (isLeftSwiped.value && translationX > -ACTION_BUTTON_WIDTH / 2) {
+              } else if (
+                isLeftSwiped.value &&
+                translationX > -ACTION_BUTTON_WIDTH / 2
+              ) {
                 // Dismiss left swipe state when swiping back to center
                 isLeftSwiped.value = false;
                 translateX.value = withSpring(0);
@@ -331,7 +339,10 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
                   isRightSwiped.value = true;
                 }
                 translateX.value = withSpring(ACTION_BUTTON_WIDTH);
-              } else if (isRightSwiped.value && translationX < ACTION_BUTTON_WIDTH / 2) {
+              } else if (
+                isRightSwiped.value &&
+                translationX < ACTION_BUTTON_WIDTH / 2
+              ) {
                 // Dismiss right swipe state when swiping back to center
                 isRightSwiped.value = false;
                 translateX.value = withSpring(0);
@@ -344,16 +355,24 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
               }
             } else if (isLeftSwiped.value || isRightSwiped.value) {
               // Handle swipe back to center from persistent state
-              if (isLeftSwiped.value && translationX > -ACTION_BUTTON_WIDTH / 2) {
+              if (
+                isLeftSwiped.value &&
+                translationX > -ACTION_BUTTON_WIDTH / 2
+              ) {
                 isLeftSwiped.value = false;
                 translateX.value = withSpring(0);
-              } else if (isRightSwiped.value && translationX < ACTION_BUTTON_WIDTH / 2) {
+              } else if (
+                isRightSwiped.value &&
+                translationX < ACTION_BUTTON_WIDTH / 2
+              ) {
                 isRightSwiped.value = false;
                 translateX.value = withSpring(0);
               } else {
                 // Stay in current swiped position
                 translateX.value = withSpring(
-                  isLeftSwiped.value ? -ACTION_BUTTON_WIDTH : ACTION_BUTTON_WIDTH
+                  isLeftSwiped.value
+                    ? -ACTION_BUTTON_WIDTH
+                    : ACTION_BUTTON_WIDTH
                 );
               }
             } else {
@@ -396,13 +415,20 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
         })
         .onFinalize(() => {
           // Only reset position if not deleting and not in persistent swipe state
-          if (!isDeleting.value && !isLeftSwiped.value && !isRightSwiped.value) {
+          if (
+            !isDeleting.value &&
+            !isLeftSwiped.value &&
+            !isRightSwiped.value
+          ) {
             translateX.value = withSpring(0);
           } else if (!isDeleting.value) {
             // Maintain swiped position if in persistent state
             translateX.value = withSpring(
-              isLeftSwiped.value ? -ACTION_BUTTON_WIDTH : 
-              isRightSwiped.value ? ACTION_BUTTON_WIDTH : 0
+              isLeftSwiped.value
+                ? -ACTION_BUTTON_WIDTH
+                : isRightSwiped.value
+                ? ACTION_BUTTON_WIDTH
+                : 0
             );
           }
 
@@ -455,7 +481,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
       Math.abs(translationValue),
       [0, ACTION_THRESHOLD / 3, ACTION_THRESHOLD / 2],
       [0, 0.8, 1],
-      Extrapolate.CLAMP
+      Extrapolation.CLAMP
     );
 
     const width = Math.max(
@@ -485,7 +511,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
       translationValue,
       [0, ACTION_THRESHOLD / 3, ACTION_THRESHOLD / 2],
       [0, 0.8, 1],
-      Extrapolate.CLAMP
+      Extrapolation.CLAMP
     );
 
     const width = Math.max(translationValue * 1.1, ACTION_BUTTON_WIDTH + 20);
@@ -501,7 +527,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
       Math.abs(Math.min(translateX.value, 0)),
       [0, ACTION_THRESHOLD, ACTION_COMPLETE_THRESHOLD],
       [0.8, 1, 1.1],
-      Extrapolate.CLAMP
+      Extrapolation.CLAMP
     );
 
     return {
@@ -514,7 +540,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
       Math.max(translateX.value, 0),
       [0, ACTION_THRESHOLD, ACTION_COMPLETE_THRESHOLD],
       [0.8, 1, 1.1],
-      Extrapolate.CLAMP
+      Extrapolation.CLAMP
     );
 
     return {
@@ -524,8 +550,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
 
   return (
     <Animated.View
-      layout={Layout.springify().damping(18).stiffness(150).mass(1)}
-      exiting={FadeOutLeft.duration(250)}
+      layout={LinearTransition.springify().damping(18).stiffness(150).mass(1)}
     >
       <Animated.View
         style={[
