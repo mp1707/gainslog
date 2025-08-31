@@ -10,11 +10,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
 import {
-  ChartLineUpIcon,
-  BarbellIcon,
-  ShieldCheckIcon,
-  TrophyIcon,
-} from "phosphor-react-native";
+  TrendingUp,
+  Dumbbell,
+  ShieldCheck,
+  Trophy,
+} from "lucide-react-native";
 
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
@@ -69,15 +69,15 @@ const METHODS: Record<
 const getIconForMethod = (methodId: string) => {
   switch (methodId) {
     case "optimal_growth":
-      return ChartLineUpIcon;
+      return TrendingUp;
     case "dedicated_athlete":
-      return BarbellIcon;
+      return Dumbbell;
     case "anabolic_insurance":
-      return ShieldCheckIcon;
+      return ShieldCheck;
     case "max_preservation":
-      return TrophyIcon;
+      return Trophy;
     default:
-      return ChartLineUpIcon;
+      return TrendingUp;
   }
 };
 
@@ -164,7 +164,7 @@ export default function ProteinGoalsScreen() {
                   title={method.title}
                   description={method.description}
                   icon={IconComponent}
-                  iconColor={colors.primaryText}
+                  iconColor={colors.accent}
                   isSelected={selectedMethod === method.id}
                   onSelect={() => handleMethodSelect(method.id)}
                   dailyTarget={{

@@ -19,12 +19,12 @@ import { AppText, Button } from "@/components";
 import { useAppStore } from "@/store/useAppStore";
 import { formatDateToLocalString } from "@/utils/dateHelpers";
 import {
-  BarbellIcon,
-  BreadIcon,
-  CaretDownIcon,
-  DropIcon,
-  FireIcon,
-} from "phosphor-react-native";
+  Dumbbell,
+  Cookie,
+  ChevronDown,
+  Droplet,
+  Flame,
+} from "lucide-react-native";
 
 if (
   Platform.OS === "android" &&
@@ -57,10 +57,10 @@ const RING_SPACING = 2;
 // Helper components remain the same
 const getIcon = (label: string, color: string) => {
   switch (label) {
-    case "Calories": return <FireIcon size={20} color={color} weight="fill" />;
-    case "Protein": return <BarbellIcon size={20} color={color} weight="fill" />;
-    case "Carbs": return <BreadIcon size={20} color={color} weight="fill" />;
-    case "Fat": return <DropIcon size={20} color={color} weight="fill" />;
+    case "Calories": return <Flame size={20} color={color} fill={color} strokeWidth={0} />;
+    case "Protein": return <Dumbbell size={20} color={color} fill={color} strokeWidth={0} />;
+    case "Carbs": return <Cookie size={20} color={color} fill={color} strokeWidth={0} />;
+    case "Fat": return <Droplet size={20} color={color} fill={color} strokeWidth={0} />;
     default: return null;
   }
 };
@@ -159,7 +159,7 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({ percentages, t
       <View style={styles.contentContainer}>
         <View style={styles.titleHeader}>
           <AppText role="Title2">Summary</AppText>
-          <Button onPress={toggleDatePicker} icon={<CaretDownIcon size={20} color={colors.secondaryText} />} iconPosition="right" size="small" variant="secondary">
+          <Button onPress={toggleDatePicker} icon={<ChevronDown size={20} color={colors.secondaryText} strokeWidth={1.5} />} iconPosition="right" size="small" variant="secondary">
             {formattedDate}
           </Button>
         </View>

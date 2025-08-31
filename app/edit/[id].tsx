@@ -14,7 +14,7 @@ import {
 import { FoodLog } from "@/types/models";
 import { useState } from "react";
 import { NutritionEditCard } from "@/components/edit-page/NutritionEditCard";
-import { CameraIcon, SparkleIcon } from "phosphor-react-native";
+import { Camera, Sparkles } from "lucide-react-native";
 import { useEstimation } from "@/hooks/useEstimation";
 import { ConfidenceBadge, SkeletonPill } from "@/components/shared";
 import {
@@ -150,7 +150,7 @@ export default function Edit() {
             <Button
               variant="secondary"
               onPress={showImagePickerAlert}
-              icon={<CameraIcon size={20} color={colors.primaryText} />}
+              icon={<Camera size={20} color={colors.primaryText} strokeWidth={1.5} />}
             />
           </View>
           <View style={styles.buttonWrapperRight}>
@@ -159,13 +159,14 @@ export default function Edit() {
               onPress={handleReEstimate}
               disabled={!caNreEstimate || isReEstimating}
               icon={
-                <SparkleIcon
+                <Sparkles
                   size={20}
                   color={
                     !caNreEstimate || isReEstimating
                       ? colors.disabledText
                       : colors.white
                   }
+                  strokeWidth={1.5}
                 />
               }
             >

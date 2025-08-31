@@ -14,7 +14,7 @@ import { useKeyboardOffset } from "@/hooks/useKeyboardOffset";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
 import { Card, AppText } from "src/components";
-import { CaretRightIcon } from "phosphor-react-native";
+import { ChevronRight } from "lucide-react-native";
 import { AppearanceCard } from "@/components/settings/AppearanceCard";
 import { SettingsSection } from "@/components/settings/SettingsSection";
 
@@ -115,10 +115,11 @@ export default function SettingsTab() {
                         : "Next step: set calories"
                     }
                   />
-                  <CaretRightIcon
+                  <ChevronRight
                     size={16}
                     color={colors.secondaryText}
                     style={{ marginLeft: 8 }}
+                    strokeWidth={1.5}
                   />
                 </View>
               </TouchableOpacity>
@@ -170,10 +171,11 @@ export default function SettingsTab() {
                       accessibilityLabel="Next step: set protein"
                     />
                   ) : null}
-                  <CaretRightIcon
+                  <ChevronRight
                     size={16}
                     color={colors.secondaryText}
                     style={{ marginLeft: 8 }}
+                    strokeWidth={1.5}
                   />
                 </View>
               </TouchableOpacity>
@@ -212,10 +214,11 @@ export default function SettingsTab() {
                       accessibilityLabel="Fat target ready"
                     />
                   )}
-                  <CaretRightIcon
+                  <ChevronRight
                     size={16}
                     color={colors.secondaryText}
                     style={{ marginLeft: 8 }}
+                    strokeWidth={1.5}
                   />
                 </View>
               </TouchableOpacity>
@@ -254,10 +257,11 @@ export default function SettingsTab() {
                       accessibilityLabel="Carb target ready"
                     />
                   )}
-                  <CaretRightIcon
+                  <ChevronRight
                     size={16}
                     color={colors.secondaryText}
                     style={{ marginLeft: 8 }}
+                    strokeWidth={1.5}
                   />
                 </View>
               </TouchableOpacity>

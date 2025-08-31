@@ -1,159 +1,242 @@
-import { Tabs } from "expo-router";
-import React, { useEffect } from "react";
-import { TouchableOpacity, View, StyleSheet } from "react-native";
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
+import { Tabs, usePathname } from "expo-router"; // CHANGE 1: Import usePathname
+import React from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  interpolate,
+} from "react-native-reanimated";
 import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import * as Haptics from "expo-haptics";
 import {
   NotebookPen,
   LayoutGrid,
   Plus,
   Settings,
   Sparkles,
-  Rocket,
-  CalendarDays,
 } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 
-// --- Custom Animated Tab Bar Icon with "Pill" ---
-// This component handles the visual state for our default tabs.
-const TabBarIcon = ({ Icon, focused, color, size }: { Icon: React.ElementType; focused: boolean; color: string; size: number; }) => {
-  const scale = useSharedValue(0);
-
-  useEffect(() => {
-    scale.value = withSpring(focused ? 1 : 0, { damping: 15, stiffness: 200 });
-  }, [focused, scale]);
-
-  const animatedPillStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-      opacity: scale.value,
-    };
-  });
-
+// --- Visual Component & FAB (No changes needed in these) ---
+const AnimatedIconAndLabel = ({
+  Icon,
+  label,
+  isFocused,
+  activeColor,
+  inactiveColor,
+}: any) => {
+  const animatedFocusStyle = useAnimatedStyle(
+    () => ({
+      transform: [
+        {
+          translateY: withSpring(isFocused ? -2 : 0, {
+            damping: 15,
+            stiffness: 200,
+          }),
+        },
+      ],
+    }),
+    [isFocused]
+  );
+  const animatedLabelStyle = useAnimatedStyle(
+    () => ({
+      // opacity: withSpring(isFocused ? 1 : 0, { damping: 15, stiffness: 200 }),
+      transform: [
+        {
+          translateY: withSpring(isFocused ? 0 : 1, {
+            damping: 15,
+            stiffness: 200,
+          }),
+        },
+      ],
+    }),
+    [isFocused]
+  );
   return (
-    <View style={styles.iconContainer}>
-      <Animated.View style={[styles.pill, { backgroundColor: color + '1A' }, animatedPillStyle]} />
-      <Icon color={color} size={size} strokeWidth={focused ? 2.5 : 2} />
-    </View>
+    <Animated.View style={[styles.iconLabelWrapper, animatedFocusStyle]}>
+      <Icon
+        color={isFocused ? activeColor : inactiveColor}
+        size={26}
+        strokeWidth={isFocused ? 2.5 : 2}
+      />
+      <Animated.Text
+        style={[styles.label, { color: isFocused ? activeColor : inactiveColor }, animatedLabelStyle]}
+      >
+        {label}
+      </Animated.Text>
+    </Animated.View>
+  );
+};
+const AnimatedFAB = ({ onPress, children, backgroundColor }: any) => {
+  const pressProgress = useSharedValue(0);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        scale: withSpring(interpolate(pressProgress.value, [0, 1], [1, 0.9]), {
+          damping: 15,
+          stiffness: 400,
+        }),
+      },
+    ],
+  }));
+  return (
+    <Pressable
+      onPressIn={() => (pressProgress.value = 1)}
+      onPressOut={() => (pressProgress.value = 0)}
+      onPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        onPress();
+      }}
+      style={styles.newButtonWrapper}
+    >
+      <Animated.View
+        style={[styles.newButton, { backgroundColor }, animatedStyle]}
+      >
+        {children}
+      </Animated.View>
+    </Pressable>
   );
 };
 
+// --- MAIN LAYOUT ---
 export default function TabLayout() {
   const { safePush } = useNavigationGuard();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
+
+  const createTabBarButton =
+    (
+      screenName: "index" | "overview" | "settings" | "pro",
+      Icon: React.ElementType,
+      label: string
+    ) =>
+    (props: BottomTabBarButtonProps) => {
+      const { onPress } = props;
+
+      // CHANGE 2: Use usePathname for a direct URL check
+      const pathname = usePathname();
+
+      // CHANGE 3: Define the target path for this button
+      // For the index tab, the path is '/', for others it is '/[screenName]'
+      const targetPath = screenName === "index" ? "/" : `/${screenName}`;
+      const isFocused = pathname === targetPath;
+
+      const pressProgress = useSharedValue(0);
+      const animatedPressStyle = useAnimatedStyle(() => ({
+        transform: [
+          {
+            scale: withSpring(
+              isFocused
+                ? 1
+                : interpolate(pressProgress.value, [0, 1], [1, 0.9]),
+              {
+                damping: 15,
+                stiffness: 400,
+              }
+            ),
+          },
+        ],
+      }));
+
+      return (
+        <Pressable
+          onPressIn={() => (pressProgress.value = 1)}
+          onPressOut={() => (pressProgress.value = 0)}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            onPress?.();
+          }}
+          style={styles.tabItemContainer}
+          accessibilityLabel={label}
+        >
+          <Animated.View style={animatedPressStyle}>
+            <AnimatedIconAndLabel
+              Icon={Icon}
+              label={label}
+              isFocused={isFocused}
+              activeColor={colors.accent}
+              inactiveColor={colors.secondaryText}
+            />
+          </Animated.View>
+        </Pressable>
+      );
+    };
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: colors.secondaryText,
-        tabBarShowLabel: false, // Hiding labels for a cleaner, icon-centric look
+        tabBarShowLabel: false,
         tabBarStyle: {
           backgroundColor: colors.primaryBackground,
           borderTopColor: colors.border,
-          height: 84, // Increased height for a more modern feel and safe area padding
+          height: 55 + insets.bottom,
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          tabBarIcon: ({ color, focused, size }) => (
-            <TabBarIcon Icon={NotebookPen} color={color} size={size ?? 26} focused={focused} />
-          ),
-          tabBarAccessibilityLabel: "Food Log",
+          tabBarButton: createTabBarButton("index", NotebookPen, "Log"),
         }}
       />
       <Tabs.Screen
         name="overview"
         options={{
-          tabBarIcon: ({ color, focused, size }) => (
-            <TabBarIcon Icon={CalendarDays} color={color} size={size ?? 26} focused={focused} />
-          ),
-          tabBarAccessibilityLabel: "Overview",
+          tabBarButton: createTabBarButton("overview", LayoutGrid, "Stats"),
         }}
       />
-      {/* --- Custom Primary Action Button --- */}
       <Tabs.Screen
         name="new"
         options={{
-          tabBarIcon: ({ size }) => (
-            <Plus color={colors.primaryBackground} size={size ?? 30} strokeWidth={2.5} />
-          ),
-          tabBarButton: (props) => (
-            <TouchableOpacity
+          tabBarButton: () => (
+            <AnimatedFAB
               onPress={() => safePush("/create")}
-              style={styles.newButtonWrapper}
-              activeOpacity={0.8}
+              backgroundColor={colors.accent}
             >
-              <Animated.View style={[styles.newButton, { backgroundColor: colors.accent }]}>
-                {props.children}
-              </Animated.View>
-            </TouchableOpacity>
+              <Plus
+                color={colors.primaryBackground}
+                size={30}
+                strokeWidth={2.5}
+              />
+            </AnimatedFAB>
           ),
-          tabBarAccessibilityLabel: "Log New Meal",
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          tabBarIcon: ({ color, focused, size }) => (
-            <TabBarIcon Icon={Settings} color={color} size={size ?? 26} focused={focused} />
-          ),
-          tabBarAccessibilityLabel: "Settings",
+          tabBarButton: createTabBarButton("settings", Settings, "Settings"),
         }}
       />
       <Tabs.Screen
         name="pro"
-        options={{
-          tabBarIcon: ({ color, focused, size }) => (
-            <TabBarIcon Icon={Rocket} color={color} size={size ?? 26} focused={focused} />
-          ),
-          tabBarAccessibilityLabel: "Pro Features",
-        }}
+        options={{ tabBarButton: createTabBarButton("pro", Sparkles, "Pro") }}
       />
     </Tabs>
   );
 }
 
+// --- STYLES ---
 const styles = StyleSheet.create({
-  // Styles for the default pill icon
-  iconContainer: {
-    flex: 1,
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pill: {
-    position: 'absolute',
-    width: 60,
-    height: 34,
-    borderRadius: 17,
-  },
-  // Styles for the central "New" button
-  newButtonWrapper: {
-    flex: 1,
-    alignItems: 'center',
-  },
+  tabItemContainer: { flex: 1, alignItems: "center", justifyContent: "center" },
+  iconLabelWrapper: { alignItems: "center", justifyContent: "center" },
+  label: { fontSize: 11, fontWeight: "600", marginTop: 2 },
+  newButtonWrapper: { flex: 1, justifyContent: "center", alignItems: "center" },
   newButton: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: 'blue', // This will be replaced by theme color
-    justifyContent: 'center',
-    alignItems: 'center',
-    // Raise the button
+    justifyContent: "center",
+    alignItems: "center",
     transform: [{ translateY: -18 }],
-    // Shadow for iOS
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 5,
-    // Shadow for Android
     elevation: 8,
   },
 });

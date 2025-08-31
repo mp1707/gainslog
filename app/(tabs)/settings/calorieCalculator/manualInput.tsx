@@ -5,15 +5,9 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  Alert,
-} from "react-native";
+import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CaretRightIcon } from "phosphor-react-native";
+import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/theme";
@@ -23,7 +17,6 @@ import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
-
 
 const isValidCalories = (calories: number | undefined) =>
   calories !== undefined && calories >= 1000 && calories <= 7000;
@@ -105,7 +98,7 @@ const ManualCalorieInputScreen = () => {
               keyboardAppearance={colorScheme}
               style={styles.caloriesInput}
               accessibilityLabel="Calorie input"
-                selectTextOnFocus
+              selectTextOnFocus
             />
             <Text style={styles.unitText}>calories</Text>
           </View>
@@ -121,7 +114,16 @@ const ManualCalorieInputScreen = () => {
             variant="primary"
             onPress={handleSave}
             iconPosition="right"
-            icon={<CaretRightIcon size={20} color={colors.primaryText} />}
+            disabled={!isValidCalories(calories)}
+            icon={
+              <ChevronRight
+                size={20}
+                color={
+                  isValidCalories(calories) ? colors.white : colors.disabledText
+                }
+                strokeWidth={1.5}
+              />
+            }
           >
             Save Goal
           </Button>

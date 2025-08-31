@@ -3,7 +3,7 @@ import { View, ScrollView, KeyboardAvoidingView, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
-import { TrendDownIcon, EqualsIcon, TrendUpIcon } from "phosphor-react-native";
+import { TrendingDown, Equal, TrendingUp } from "lucide-react-native";
 import { useTheme } from "@/theme/ThemeProvider";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { Button } from "@/components/shared/Button";
@@ -109,7 +109,7 @@ export default function Step3GoalsScreen() {
             <SelectionCard
               title="Lose Weight"
               description="Create a calorie deficit to lose weight gradually"
-              icon={TrendDownIcon}
+              icon={TrendingDown}
               iconColor={colors.error}
               isSelected={selectedGoal === "lose"}
               onSelect={() => handleGoalSelect("lose")}
@@ -125,7 +125,7 @@ export default function Step3GoalsScreen() {
             <SelectionCard
               title="Maintain Weight"
               description="Eat at maintenance calories to stay at current weight"
-              icon={EqualsIcon}
+              icon={Equal}
               iconColor={colors.success}
               isSelected={selectedGoal === "maintain"}
               onSelect={() => handleGoalSelect("maintain")}
@@ -141,7 +141,7 @@ export default function Step3GoalsScreen() {
             <SelectionCard
               title="Gain Weight"
               description="Create a calorie surplus to gain weight gradually"
-              icon={TrendUpIcon}
+              icon={TrendingUp}
               iconColor={colors.semantic.protein}
               isSelected={selectedGoal === "gain"}
               onSelect={() => handleGoalSelect("gain")}

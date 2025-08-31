@@ -10,7 +10,7 @@ import Animated, {
   FadeIn,
   FadeOut,
 } from "react-native-reanimated";
-import { StopIcon } from "phosphor-react-native";
+import { Square } from "lucide-react-native";
 import { useTheme } from "@/theme";
 import { createStyles } from "./TranscriptionOverlay.styles";
 
@@ -162,10 +162,11 @@ export const TranscriptionOverlay: React.FC<TranscriptionOverlayProps> = ({
             accessibilityHint="Tap to stop voice transcription and apply the text"
             entering={FadeIn.delay(200).duration(300)}
           >
-            <StopIcon 
+            <Square 
               size={32} 
               color={colors.white}
-              weight="fill"
+              fill={colors.white}
+              strokeWidth={0}
             />
           </AnimatedPressable>
         </View>

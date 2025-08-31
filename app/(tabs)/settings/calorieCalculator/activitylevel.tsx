@@ -10,12 +10,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import {
-  HouseIcon,
-  PersonIcon,
-  BicycleIcon,
-  FlameIcon,
-  LightningIcon,
-} from "phosphor-react-native";
+  Home,
+  User,
+  Bike,
+  Flame,
+  Zap,
+} from "lucide-react-native";
 
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
@@ -89,17 +89,17 @@ export default function Step2ActivityLevelScreen() {
               const getIcon = (id: string) => {
                 switch (id) {
                   case "sedentary":
-                    return HouseIcon;
+                    return Home;
                   case "light":
-                    return PersonIcon;
+                    return User;
                   case "moderate":
-                    return BicycleIcon;
+                    return Bike;
                   case "active":
-                    return FlameIcon;
+                    return Flame;
                   case "veryactive":
-                    return LightningIcon;
+                    return Zap;
                   default:
-                    return PersonIcon;
+                    return User;
                 }
               };
 

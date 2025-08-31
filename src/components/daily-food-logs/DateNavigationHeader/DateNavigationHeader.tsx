@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { View, TouchableOpacity, Platform } from "react-native";
-import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
+import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useTheme } from "@/theme";
 import { createStyles } from "./DateNavigationHeader.styles";
@@ -66,10 +66,10 @@ export const DateNavigationHeader = ({
             onPress={handleNavigatePrevious}
             variant="secondary"
             icon={
-              <CaretLeftIcon
+              <ChevronLeft
                 size={16}
                 color={colors.secondaryText}
-                weight="regular"
+                strokeWidth={1.5}
               />
             }
           />
@@ -99,10 +99,10 @@ export const DateNavigationHeader = ({
             variant="secondary"
             disabled={!canGoNext}
             icon={
-              <CaretRightIcon
+              <ChevronRight
                 size={16}
                 color={!canGoNext ? colors.disabledText : colors.secondaryText}
-                weight="regular"
+                strokeWidth={1.5}
               />
             }
           />

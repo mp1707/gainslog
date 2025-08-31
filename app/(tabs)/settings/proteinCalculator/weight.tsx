@@ -1,13 +1,7 @@
 import React, { useState, useMemo, useRef, useCallback } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  Alert,
-} from "react-native";
+import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CaretRightIcon } from "phosphor-react-native";
+import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
@@ -16,7 +10,6 @@ import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
-
 
 const isValidWeight = (weight: number | undefined) =>
   weight !== undefined && weight >= 30 && weight <= 300;
@@ -92,7 +85,16 @@ const ProteinWeightSelectionScreen = () => {
             variant="primary"
             onPress={handleContinue}
             iconPosition="right"
-            icon={<CaretRightIcon size={20} color={colors.primaryText} />}
+            disabled={!isValidWeight(weight)}
+            icon={
+              <ChevronRight
+                size={20}
+                color={
+                  isValidWeight(weight) ? colors.white : colors.disabledText
+                }
+                strokeWidth={2.5}
+              />
+            }
           >
             Continue
           </Button>

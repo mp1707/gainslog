@@ -10,7 +10,7 @@ import {
   InteractionManager,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CaretRightIcon } from "phosphor-react-native";
+import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
@@ -100,7 +100,16 @@ const WeightSelectionScreen = () => {
             variant="primary"
             onPress={handleContinue}
             iconPosition="right"
-            icon={<CaretRightIcon size={20} color={colors.primaryText} />}
+            disabled={!isValidWeight(weight)}
+            icon={
+              <ChevronRight
+                size={20}
+                color={
+                  isValidWeight(weight) ? colors.white : colors.disabledText
+                }
+                strokeWidth={1.5}
+              />
+            }
           >
             Continue
           </Button>

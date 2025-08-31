@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
-import { CaretRightIcon } from "phosphor-react-native";
+import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { Colors, Theme, useTheme } from "@/theme";
 import { ProgressBar } from "@/components/settings/ProgressBar";
@@ -89,8 +89,17 @@ const AgeSelectionScreen = () => {
             variant="primary"
             onPress={handleContinue}
             iconPosition="right"
-            icon={<CaretRightIcon size={20} color={colors.primaryText} />}
-          >Continue</Button>
+            disabled={!isValidAge(age)}
+            icon={
+              <ChevronRight
+                size={20}
+                color={isValidAge(age) ? colors.white : colors.disabledText}
+                strokeWidth={1.5}
+              />
+            }
+          >
+            Continue
+          </Button>
         </Card>
       </KeyboardStickyView>
     </SafeAreaView>

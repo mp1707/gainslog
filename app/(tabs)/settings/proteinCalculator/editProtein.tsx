@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from "react";
 import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { PencilIcon, CalculatorIcon } from "phosphor-react-native";
+import { Edit, Calculator } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
@@ -43,7 +43,7 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
             <SelectionCard
               title="Edit Current Value"
               description="Manually adjust your current protein target"
-              icon={PencilIcon}
+              icon={Edit}
               iconColor={colors.semantic.protein}
               isSelected={false}
               onSelect={handleEditCurrent}
@@ -54,7 +54,7 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
             <SelectionCard
               title="Start Fresh Calculation"
               description="Recalculate your protein from the beginning"
-              icon={CalculatorIcon}
+              icon={Calculator}
               iconColor={colors.accent}
               isSelected={false}
               onSelect={handleStartFresh}

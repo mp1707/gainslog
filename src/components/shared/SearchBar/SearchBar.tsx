@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, PixelRatio, TouchableOpacity, TextInput } from "react-native";
-import { MagnifyingGlassIcon, XIcon } from "phosphor-react-native";
+import { Search, X } from "lucide-react-native";
 import { useTheme } from "@/theme";
 
 interface SearchBarProps {
@@ -47,7 +47,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           zIndex: 1,
         }}
       >
-        <MagnifyingGlassIcon size={18} color={colors.secondaryText} />
+        <Search size={18} color={colors.secondaryText} strokeWidth={1.5} />
       </View>
       <TextInput
         value={value}
@@ -93,7 +93,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           accessibilityLabel="Clear search"
           accessibilityRole="button"
         >
-          <XIcon size={14} color={colors.primaryText} />
+          <X size={14} color={colors.primaryText} strokeWidth={1.5} />
         </TouchableOpacity>
       )}
     </View>

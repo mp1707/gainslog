@@ -2,10 +2,10 @@ import React, { useMemo, useCallback } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
-  FireIcon,
-  LightningIcon,
-  PencilSimpleIcon,
-} from "phosphor-react-native";
+  Flame,
+  Zap,
+  Edit2,
+} from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
@@ -34,7 +34,7 @@ const GuidelineRow = ({
 
   return (
     <View style={styles.guidelineRow}>
-      <Icon size={24} color={colors.secondaryText} weight={"regular"} />
+      <Icon size={24} color={colors.secondaryText} strokeWidth={1.5} />
       <View style={styles.guidelineTextContainer}>
         <Text style={styles.guidelineLabel}>
           {label} ({range})
@@ -80,7 +80,7 @@ const EditFatScreen = React.memo(function EditFatScreen() {
         <SelectionCard
           title="Edit Current Value"
           description="Manually adjust your fat target"
-          icon={PencilSimpleIcon}
+          icon={Edit2}
           iconColor={colors.accent}
           isSelected={false}
           onSelect={handleEditCurrent}
@@ -102,13 +102,13 @@ const EditFatScreen = React.memo(function EditFatScreen() {
               label="Muscle Gain"
               range="25-30%"
               description="Leaves more calories for carbohydrates"
-              Icon={LightningIcon}
+              Icon={Zap}
             />
             <GuidelineRow
               label="Fat Loss"
               range="30-35%"
               description="Supports satiety during a calorie deficit"
-              Icon={FireIcon}
+              Icon={Flame}
             />
           </View>
 

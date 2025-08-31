@@ -6,7 +6,7 @@ import { Colors, Theme } from "@/theme/theme";
 import { useTheme } from "@/theme/ThemeProvider";
 import { Favorite, FoodLog } from "@/types/models";
 import { useRouter } from "expo-router";
-import { SparkleIcon, CameraIcon, MicrophoneIcon } from "phosphor-react-native";
+import { Sparkles, Camera, Mic } from "lucide-react-native";
 import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import {
   ScrollView,
@@ -226,14 +226,14 @@ export default function Create() {
               <Button
                 variant="secondary"
                 onPress={showImagePickerAlert}
-                icon={<CameraIcon size={20} color={colors.primaryText} />}
+                icon={<Camera size={20} color={colors.primaryText} strokeWidth={1.5} />}
               />
             </View>
             <View style={styles.buttonWrapperCenter}>
               <Button
                 variant="secondary"
                 onPress={startRecording}
-                icon={<MicrophoneIcon size={20} color={colors.primaryText} />}
+                icon={<Mic size={20} color={colors.primaryText} strokeWidth={1.5} />}
               />
             </View>
             <View style={styles.buttonWrapperRight}>
@@ -242,9 +242,10 @@ export default function Create() {
                 onPress={handleEstimation}
                 disabled={!canContine}
                 icon={
-                  <SparkleIcon
+                  <Sparkles
                     size={20}
                     color={canContine ? colors.white : colors.disabledText}
+                    strokeWidth={1.5}
                   />
                 }
               >

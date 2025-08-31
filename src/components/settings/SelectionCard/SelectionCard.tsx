@@ -8,7 +8,7 @@ import Animated, {
   withSpring,
   Easing,
 } from "react-native-reanimated";
-import type { Icon } from "phosphor-react-native";
+import type { LucideIcon } from "lucide-react-native";
 
 import { useTheme } from "@/theme";
 import { createStyles } from "./SelectionCard.styles";
@@ -21,7 +21,7 @@ export interface SelectionCardProps {
   description: string;
 
   // Icon (required)
-  icon: Icon;
+  icon: LucideIcon;
   iconColor: string;
 
   // Optional content section

@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from "react";
 import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { GenderMaleIcon, GenderFemaleIcon } from "phosphor-react-native";
+import { User } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { SelectionCard } from "@/components/settings/SelectionCard";
@@ -65,7 +65,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
             <SelectionCard
               title="Male"
               description="Biological male"
-              icon={GenderMaleIcon}
+              icon={User}
               iconColor="#4A90E2"
               isSelected={userSettings?.sex === "male"}
               onSelect={() => handleSexSelect("male")}
@@ -76,7 +76,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
             <SelectionCard
               title="Female"
               description="Biological female"
-              icon={GenderFemaleIcon}
+              icon={User}
               iconColor="#E24A90"
               isSelected={userSettings?.sex === "female"}
               onSelect={() => handleSexSelect("female")}

@@ -33,7 +33,6 @@
     "expo-updates": "~0.28.17",
     "immer": "^10.1.1",
     "lucide-react-native": "^0.542.0",
-    "phosphor-react-native": "^3.0.0",
     "react": "19.0.0",
     "react-native": "0.79.5",
     "react-native-gesture-handler": "~2.24.0",

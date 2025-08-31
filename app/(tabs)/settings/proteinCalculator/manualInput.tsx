@@ -1,12 +1,7 @@
 import React, { useState, useRef, useCallback } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-} from "react-native";
+import { View, Text, TextInput, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CaretRightIcon } from "phosphor-react-native";
+import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
@@ -16,7 +11,6 @@ import { calculateCarbsFromMacros } from "@/utils/nutritionCalculations";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
-
 
 const ManualProteinInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
@@ -88,7 +82,14 @@ const ManualProteinInputScreen = () => {
             variant="primary"
             onPress={handleSave}
             iconPosition="right"
-            icon={<CaretRightIcon size={20} color={colors.primaryText} />}
+            disabled={!protein}
+            icon={
+              <ChevronRight
+                size={20}
+                color={!protein ? colors.disabledText : colors.white}
+                strokeWidth={2.5}
+              />
+            }
           >
             Save Goal
           </Button>

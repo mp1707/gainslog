@@ -7,11 +7,11 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import {
-  CheckCircleIcon,
-  WarningIcon,
-  WarningCircleIcon,
-  QuestionIcon,
-} from "phosphor-react-native";
+  CheckCircle,
+  AlertTriangle,
+  AlertCircle,
+  HelpCircle,
+} from "lucide-react-native";
 import { AppText } from "@/components";
 import { SkeletonPill } from "@/components/shared/SkeletonPill";
 import { getConfidenceLevel } from "@/utils/getConfidenceLevel";
@@ -35,13 +35,13 @@ export const ConfidenceBadge: React.FC<ConfidenceBadgeProps> = ({
   const getIconAndLabel = (level: number) => {
     switch (level) {
       case 3: // high
-        return { Icon: CheckCircleIcon, label: "High Accuracy" };
+        return { Icon: CheckCircle, label: "High Accuracy" };
       case 2: // medium
-        return { Icon: WarningIcon, label: "Medium Accuracy" };
+        return { Icon: AlertTriangle, label: "Medium Accuracy" };
       case 1: // low
-        return { Icon: WarningCircleIcon, label: "Low Accuracy" };
+        return { Icon: AlertCircle, label: "Low Accuracy" };
       default: // uncertain
-        return { Icon: QuestionIcon, label: "Uncertain" };
+        return { Icon: HelpCircle, label: "Uncertain" };
     }
   };
 
@@ -62,7 +62,7 @@ export const ConfidenceBadge: React.FC<ConfidenceBadgeProps> = ({
         accessibilityRole="text"
         accessibilityLabel={`${label} estimation`}
       >
-        <Icon size={14} color={confidenceInfo.color.text} weight="fill" />
+        <Icon size={14} color={confidenceInfo.color.text} fill={confidenceInfo.color.text} strokeWidth={0} />
         <AppText style={[styles.text, { color: confidenceInfo.color.text }]}>
           {label}
         </AppText>

@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from "react";
 import { View, TouchableOpacity } from "react-native";
-import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
+import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import { useTheme } from "@/theme";
 import { AppText } from "@/components/shared/AppText";
 import { createStyles } from "./MonthPicker.styles";
@@ -63,10 +63,10 @@ export function MonthPicker({
         accessibilityLabel="Previous month"
         accessibilityHint="Moves selection to the previous month"
       >
-        <CaretLeftIcon
+        <ChevronLeft
           size={16}
           color={colors.secondaryText}
-          weight="regular"
+          strokeWidth={1.5}
         />
       </TouchableOpacity>
       <View style={styles.monthTextContainer}>
@@ -92,10 +92,10 @@ export function MonthPicker({
         }
         accessibilityState={{ disabled: isAtCurrentMonth }}
       >
-        <CaretRightIcon
+        <ChevronRight
           size={16}
           color={isAtCurrentMonth ? colors.disabledText : colors.secondaryText}
-          weight="regular"
+          strokeWidth={1.5}
         />
       </TouchableOpacity>
     </View>

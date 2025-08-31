@@ -1,14 +1,8 @@
 import React, { useState, useRef, useCallback } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  Alert,
-} from "react-native";
+import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
-import { CaretRightIcon } from "phosphor-react-native";
+import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
@@ -17,7 +11,6 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
-
 
 const isValidHeight = (height: number | undefined) =>
   height !== undefined && height >= 100 && height <= 250;
@@ -102,7 +95,16 @@ const HeightSelectionScreen = () => {
             variant="primary"
             onPress={handleContinue}
             iconPosition="right"
-            icon={<CaretRightIcon size={20} color={colors.primaryText} />}
+            disabled={!isValidHeight(height) || isNavigating}
+            icon={
+              <ChevronRight
+                size={20}
+                color={
+                  isValidHeight(height) ? colors.white : colors.disabledText
+                }
+                strokeWidth={2.5}
+              />
+            }
           >
             Continue
           </Button>
