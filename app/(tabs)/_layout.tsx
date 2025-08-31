@@ -1,10 +1,12 @@
-import { router, Tabs } from "expo-router";
+import { Tabs } from "expo-router";
 import { ForkKnifeIcon, GearSixIcon, PlusIcon } from "phosphor-react-native";
 import { useTheme } from "@/theme";
 import React from "react";
 import { TouchableOpacity } from "react-native";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
 export default function TabLayout() {
+  const { safePush } = useNavigationGuard();
   const { colors } = useTheme();
   return (
     <>
@@ -62,7 +64,7 @@ export default function TabLayout() {
               <TouchableOpacity
                 {...nullToUndefined(props)}
                 onPress={() => {
-                  router.push("/create");
+                  safePush("/create");
                 }}
               >
                 {children}

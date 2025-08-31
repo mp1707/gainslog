@@ -2,11 +2,12 @@ import React, { useMemo } from "react";
 import { View, TouchableOpacity, Platform } from "react-native";
 import { CaretLeftIcon, CaretRightIcon } from "phosphor-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { PageHeader } from "@/components/shared/PageHeader";
 import { useTheme } from "@/theme";
 import { createStyles } from "./DateNavigationHeader.styles";
 import { useAppStore } from "@/store/useAppStore";
 import { formatDateToLocalString, navigateDate } from "@/utils/dateHelpers";
+import { Card } from "@/components/Card";
+import { Button } from "@/components/shared/Button";
 
 interface DateNavigationHeaderProps {
   compact?: boolean;
@@ -52,24 +53,28 @@ export const DateNavigationHeader = ({
           textColor: colors.primaryText,
           accentColor: colors.accent,
         })}
-        style={{ marginLeft: -20 }}
+        style={styles.datepicker}
       />
     );
   }
 
   return (
-    <PageHeader>
+    <Card>
       <View style={styles.container}>
-        <TouchableOpacity
-          onPress={handleNavigatePrevious}
-          style={styles.navigationButton}
-        >
-          <CaretLeftIcon
-            size={16}
-            color={colors.secondaryText}
-            weight="regular"
+        <View style={styles.button}>
+          <Button
+            onPress={handleNavigatePrevious}
+            shape="square"
+            variant="secondary"
+            icon={
+              <CaretLeftIcon
+                size={16}
+                color={colors.secondaryText}
+                weight="regular"
+              />
+            }
           />
-        </TouchableOpacity>
+        </View>
 
         <View style={styles.datePickerContainer}>
           <DateTimePicker
@@ -89,21 +94,22 @@ export const DateNavigationHeader = ({
           />
         </View>
 
-        <TouchableOpacity
-          onPress={handleNavigateNext}
-          style={[
-            styles.navigationButton,
-            !canGoNext && styles.navigationButtonDisabled,
-          ]}
-          disabled={!canGoNext}
-        >
-          <CaretRightIcon
-            size={16}
-            color={!canGoNext ? colors.disabledText : colors.secondaryText}
-            weight="regular"
+        <View style={styles.button}>
+          <Button
+            onPress={handleNavigateNext}
+            shape="square"
+            variant="secondary"
+            disabled={!canGoNext}
+            icon={
+              <CaretRightIcon
+                size={16}
+                color={!canGoNext ? colors.disabledText : colors.secondaryText}
+                weight="regular"
+              />
+            }
           />
-        </TouchableOpacity>
+        </View>
       </View>
-    </PageHeader>
+    </Card>
   );
 };

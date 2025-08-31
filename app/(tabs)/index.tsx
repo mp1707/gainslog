@@ -17,6 +17,7 @@ import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
 import { FoodLog } from "@/types/models";
 import { Toast } from "toastify-react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { AppText } from "@/components/index";
 
 export default function TodayTab() {
   const { safeNavigate } = useNavigationGuard();
@@ -131,7 +132,6 @@ export default function TodayTab() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
-        <DateNavigationHeader />
         <FlatList
           data={todayFoodLogs}
           keyExtractor={keyExtractor}
@@ -143,11 +143,16 @@ export default function TodayTab() {
             { paddingBottom: dynamicBottomPadding },
           ]}
           ListHeaderComponent={
-            <NutrientSummary
-              percentages={dailyPercentages}
-              targets={dailyTargets || defaultTargets}
-              totals={dailyTotals}
-            />
+            <View style={styles.header}>
+              <AppText role="Title2">Summary</AppText>
+              <DateNavigationHeader />
+              <NutrientSummary
+                percentages={dailyPercentages}
+                targets={dailyTargets || defaultTargets}
+                totals={dailyTotals}
+              />
+              <AppText role="Title2">Logs</AppText>
+            </View>
           }
           showsVerticalScrollIndicator={false}
           removeClippedSubviews
@@ -177,6 +182,9 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       flex: 1,
     },
     contentContainer: {
+      gap: themeObj.spacing.md,
+    },
+    header: {
       gap: themeObj.spacing.md,
     },
   });

@@ -31,6 +31,7 @@ export const useStyles = () => useThemedStyles((colors, theme) => StyleSheet.cre
     fontSize: theme.typography.Headline.fontSize,
     fontFamily: theme.typography.Headline.fontFamily,
     color: colors.accent,
+    fontWeight: 'bold',
   },
 
   saveButtonDisabled: {
