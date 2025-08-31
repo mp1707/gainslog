@@ -11,11 +11,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { CaretRightIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
-import { useTheme } from "@/theme";
+import { Colors, Theme, useTheme } from "@/theme";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { InputAccessory } from "@/components/shared/InputAccessory";
 import { useAppStore } from "@/store/useAppStore";
+import { KeyboardStickyView } from "react-native-keyboard-controller";
+import { Card } from "@/components/Card";
+import { Button } from "@/components/index";
 
 const inputAccessoryViewID = "age-input-accessory";
 
@@ -78,40 +80,26 @@ const AgeSelectionScreen = () => {
             selectTextOnFocus
           />
         </View>
-
         <View style={styles.spacer} />
-
-        {Platform.OS === "android" && (
-          <TouchableOpacity
-            style={styles.continueButton}
-            onPress={handleContinue}
-            disabled={isNavigating}
-          >
-            <Text style={styles.continueButtonText}>Continue</Text>
-            <CaretRightIcon size={20} color={colors.white} />
-          </TouchableOpacity>
-        )}
       </View>
 
-      {Platform.OS === "ios" && (
-        <InputAccessory
-          accessibilityLabel="Continue"
-          nativeID={inputAccessoryViewID}
-          primaryAction={{
-            icon: CaretRightIcon,
-            label: "Continue",
-            onPress: handleContinue,
-            isValid: isValidAge(age),
-          }}
-        />
-      )}
+      <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
+        <Card style={styles.keyboardAccessory}>
+          <Button
+            variant="primary"
+            onPress={handleContinue}
+            iconPosition="right"
+            icon={<CaretRightIcon size={20} color={colors.primaryText} />}
+          >Continue</Button>
+        </Card>
+      </KeyboardStickyView>
     </SafeAreaView>
   );
 };
 
 export default AgeSelectionScreen;
 
-const createStyles = (colors: any, themeObj: any) => {
+const createStyles = (colors: Colors, themeObj: Theme) => {
   const { spacing, typography, components } = themeObj;
   return StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.primaryBackground },
@@ -157,6 +145,14 @@ const createStyles = (colors: any, themeObj: any) => {
       fontFamily: typography.Headline.fontFamily,
       color: colors.white,
       marginRight: spacing.sm,
+    },
+    keyboardAccessory: {
+      padding: themeObj.spacing.sm,
+      marginHorizontal: themeObj.spacing.md,
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: themeObj.spacing.sm,
     },
   });
 };

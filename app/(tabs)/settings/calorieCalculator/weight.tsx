@@ -16,8 +16,10 @@ import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { InputAccessory } from "@/components/shared/InputAccessory";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
+import { KeyboardStickyView } from "react-native-keyboard-controller";
+import { Card } from "@/components/Card";
+import { Button } from "@/components/index";
 
 const inputAccessoryViewID = "weight-input-accessory";
 
@@ -91,31 +93,19 @@ const WeightSelectionScreen = () => {
         </View>
 
         <View style={styles.spacer} />
-
-        {Platform.OS === "android" && (
-          <TouchableOpacity
-            style={styles.continueButton}
-            onPress={handleContinue}
-            disabled={isNavigating}
-          >
-            <Text style={styles.continueButtonText}>Continue</Text>
-            <CaretRightIcon size={20} color={colors.white} />
-          </TouchableOpacity>
-        )}
       </View>
-
-      {Platform.OS === "ios" && (
-        <InputAccessory
-          accessibilityLabel="Continue"
-          nativeID={inputAccessoryViewID}
-          primaryAction={{
-            icon: CaretRightIcon,
-            label: "Continue",
-            onPress: handleContinue,
-            isValid: isValidWeight(weight),
-          }}
-        />
-      )}
+      <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
+        <Card style={styles.keyboardAccessory}>
+          <Button
+            variant="primary"
+            onPress={handleContinue}
+            iconPosition="right"
+            icon={<CaretRightIcon size={20} color={colors.primaryText} />}
+          >
+            Continue
+          </Button>
+        </Card>
+      </KeyboardStickyView>
     </SafeAreaView>
   );
 };
@@ -186,6 +176,14 @@ const createStyles = (colors: any, themeObj: any) => {
       textAlign: "center",
       minWidth: 100,
       backgroundColor: "transparent",
+    },
+    keyboardAccessory: {
+      padding: themeObj.spacing.sm,
+      marginHorizontal: themeObj.spacing.md,
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: themeObj.spacing.sm,
     },
   });
 };

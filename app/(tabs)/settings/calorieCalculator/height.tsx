@@ -3,9 +3,7 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
-  Platform,
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -16,9 +14,10 @@ import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { ProgressBar } from "@/components/settings/ProgressBar";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { InputAccessory } from "@/components/shared/InputAccessory";
+import { KeyboardStickyView } from "react-native-keyboard-controller";
+import { Card } from "@/components/Card";
+import { Button } from "@/components/index";
 
-const inputAccessoryViewID = "height-input-accessory";
 
 const isValidHeight = (height: number | undefined) =>
   height !== undefined && height >= 100 && height <= 250;
@@ -88,7 +87,6 @@ const HeightSelectionScreen = () => {
               keyboardAppearance={colorScheme}
               style={styles.heightInput}
               accessibilityLabel="Height input"
-              inputAccessoryViewID={inputAccessoryViewID}
               selectTextOnFocus
             />
             <Text style={styles.unitText}>cm</Text>
@@ -96,31 +94,20 @@ const HeightSelectionScreen = () => {
         </View>
 
         <View style={styles.spacer} />
-
-        {Platform.OS === "android" && (
-          <TouchableOpacity
-            style={styles.continueButton}
-            onPress={handleContinue}
-            disabled={isNavigating}
-          >
-            <Text style={styles.continueButtonText}>Continue</Text>
-            <CaretRightIcon size={20} color={colors.white} />
-          </TouchableOpacity>
-        )}
       </View>
 
-      {Platform.OS === "ios" && (
-        <InputAccessory
-          accessibilityLabel="Continue"
-          nativeID={inputAccessoryViewID}
-          primaryAction={{
-            icon: CaretRightIcon,
-            label: "Continue",
-            onPress: handleContinue,
-            isValid: isValidHeight(height),
-          }}
-        />
-      )}
+      <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
+        <Card style={styles.keyboardAccessory}>
+          <Button
+            variant="primary"
+            onPress={handleContinue}
+            iconPosition="right"
+            icon={<CaretRightIcon size={20} color={colors.primaryText} />}
+          >
+            Continue
+          </Button>
+        </Card>
+      </KeyboardStickyView>
     </SafeAreaView>
   );
 };
@@ -163,30 +150,20 @@ const createStyles = (colors: any, themeObj: any) => {
       marginLeft: spacing.sm,
     },
     spacer: { flex: 1 },
-    continueButton: {
-      backgroundColor: colors.accent,
-      borderRadius: components.buttons.cornerRadius,
-      paddingVertical: spacing.md,
-      paddingHorizontal: spacing.lg,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      minHeight: 50,
-      marginHorizontal: spacing.pageMargins.horizontal,
-      marginBottom: spacing.lg,
-    },
-    continueButtonText: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      color: colors.white,
-      marginRight: spacing.sm,
-    },
     heightInput: {
       fontSize: 48,
       fontFamily: typography.Title1.fontFamily,
       color: colors.primaryText,
       textAlign: "center",
       minWidth: 100,
+    },
+    keyboardAccessory: {
+      padding: themeObj.spacing.sm,
+      marginHorizontal: themeObj.spacing.md,
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: themeObj.spacing.sm,
     },
   });
 };

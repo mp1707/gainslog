@@ -30,6 +30,7 @@ import { generateFoodLogId } from "@/utils/idGenerator";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
+import { SearchBar } from "@/components/shared/SearchBar/SearchBar";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -54,13 +55,16 @@ export default function Create() {
     estimationConfidence: 0,
   });
 
-  useEffect(() => {
-    setNewLog({
-      ...newLog,
-      logDate: selectedDate,
-    });
-  }, [selectedDate]);
+  const [searchQuery, setSearchQuery] = useState("");
 
+  const filteredFavorites = useMemo(() => {
+    if (!searchQuery.trim()) return favorites;
+    return favorites.filter(
+      (favorite) =>
+        favorite.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        favorite.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [favorites, searchQuery]);
   const styles = createStyles(colors, theme, !!newLog.imageUrl);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const textInputRef = useRef<TextInput>(null);
@@ -71,6 +75,12 @@ export default function Create() {
   }, [newLog.estimationConfidence]);
 
   useDelayedAutofocus(textInputRef);
+  useEffect(() => {
+    setNewLog({
+      ...newLog,
+      logDate: selectedDate,
+    });
+  }, [selectedDate]);
 
   const canContine =
     newLog?.description?.trim() !== "" || newLog.imageUrl !== "";
@@ -201,7 +211,12 @@ export default function Create() {
             contentContainerStyle={[styles.contentContainer]}
             showsVerticalScrollIndicator={false}
           >
-            {favorites.map((favorite) => (
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Search favorites"
+            />
+            {filteredFavorites.map((favorite) => (
               <SwipeToFunctions
                 key={favorite.id}
                 onDelete={() => deleteFavorite(favorite.id)}

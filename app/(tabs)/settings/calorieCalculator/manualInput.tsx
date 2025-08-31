@@ -9,9 +9,7 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
-  Platform,
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -20,11 +18,12 @@ import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
-import { InputAccessory } from "@/components/shared/InputAccessory";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
+import { KeyboardStickyView } from "react-native-keyboard-controller";
+import { Card } from "@/components/Card";
+import { Button } from "@/components/index";
 
-const inputAccessoryViewID = "calories-input-accessory";
 
 const isValidCalories = (calories: number | undefined) =>
   calories !== undefined && calories >= 1000 && calories <= 7000;
@@ -106,8 +105,7 @@ const ManualCalorieInputScreen = () => {
               keyboardAppearance={colorScheme}
               style={styles.caloriesInput}
               accessibilityLabel="Calorie input"
-              inputAccessoryViewID={inputAccessoryViewID}
-              selectTextOnFocus
+                selectTextOnFocus
             />
             <Text style={styles.unitText}>calories</Text>
           </View>
@@ -115,31 +113,20 @@ const ManualCalorieInputScreen = () => {
         </View>
 
         <View style={styles.spacer} />
-
-        {Platform.OS === "android" && (
-          <TouchableOpacity
-            style={styles.continueButton}
-            onPress={handleSave}
-            disabled={isNavigating}
-          >
-            <Text style={styles.continueButtonText}>Save Goal</Text>
-            <CaretRightIcon size={20} color={colors.white} />
-          </TouchableOpacity>
-        )}
       </View>
 
-      {Platform.OS === "ios" && (
-        <InputAccessory
-          accessibilityLabel="Save Goal"
-          nativeID={inputAccessoryViewID}
-          primaryAction={{
-            icon: CaretRightIcon,
-            label: "Save Goal",
-            onPress: handleSave,
-            isValid: isValidCalories(calories),
-          }}
-        />
-      )}
+      <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
+        <Card style={styles.keyboardAccessory}>
+          <Button
+            variant="primary"
+            onPress={handleSave}
+            iconPosition="right"
+            icon={<CaretRightIcon size={20} color={colors.primaryText} />}
+          >
+            Save Goal
+          </Button>
+        </Card>
+      </KeyboardStickyView>
     </SafeAreaView>
   );
 };
@@ -189,30 +176,20 @@ const createStyles = (colors: any, themeObj: any) => {
       marginTop: spacing.md,
     },
     spacer: { flex: 1 },
-    continueButton: {
-      backgroundColor: colors.accent,
-      borderRadius: components.buttons.cornerRadius,
-      paddingVertical: spacing.md,
-      paddingHorizontal: spacing.lg,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      minHeight: 50,
-      marginHorizontal: spacing.pageMargins.horizontal,
-      marginBottom: spacing.lg,
-    },
-    continueButtonText: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      color: colors.white,
-      marginRight: spacing.sm,
-    },
     caloriesInput: {
       fontSize: 48,
       fontFamily: typography.Title1.fontFamily,
       color: colors.primaryText,
       textAlign: "center",
       minWidth: 100,
+    },
+    keyboardAccessory: {
+      padding: themeObj.spacing.sm,
+      marginHorizontal: themeObj.spacing.md,
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: themeObj.spacing.sm,
     },
   });
 };
