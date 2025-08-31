@@ -20,6 +20,8 @@ export const createStyles = (colors: Colors, theme: Theme) =>
 
     datePickerContainer: {
       flex: 2,
+      alignItems: "center",
+      paddingRight: 7,
     },
 
     // Mini summary overlay (no layout shift)

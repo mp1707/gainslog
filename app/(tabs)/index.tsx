@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useRef, useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   SafeAreaView,
@@ -24,6 +24,7 @@ export default function TodayTab() {
   const { dynamicBottomPadding } = useTabBarSpacing();
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const flatListRef = useRef<FlatList>(null);
   const {
     foodLogs,
     selectedDate,
@@ -37,6 +38,10 @@ export default function TodayTab() {
   const todayFoodLogs = useMemo(() => {
     return foodLogs.filter((log) => log.logDate === selectedDate).reverse();
   }, [foodLogs, selectedDate]);
+
+  useEffect(() => {
+    flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
+  }, [todayFoodLogs.length]);
 
   const dailyTotals = useMemo(() => {
     return todayFoodLogs.reduce(
@@ -133,6 +138,7 @@ export default function TodayTab() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
         <FlatList
+          ref={flatListRef}
           data={todayFoodLogs}
           keyExtractor={keyExtractor}
           renderItem={renderItem}
