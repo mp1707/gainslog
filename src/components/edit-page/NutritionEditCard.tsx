@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { useTheme, useThemedStyles } from "@/theme";
 import { FoodLog } from "@/types/models";
 import { SkeletonPill } from "../shared";
+import { TextInput } from "../shared/TextInput";
 
 interface NutritionEditRowProps {
   label: string;
@@ -25,7 +26,7 @@ const NutritionEditRow: React.FC<NutritionEditRowProps> = ({
   onBlur,
   onFocus,
 }) => {
-  const { colors, colorScheme } = useTheme();
+  const { colors, colorScheme, theme } = useTheme();
   const styles = useThemedStyles(createRowStyles);
 
   return (
@@ -43,23 +44,19 @@ const NutritionEditRow: React.FC<NutritionEditRowProps> = ({
           <SkeletonPill width={60} height={30} />
         ) : (
           <TextInput
-            style={[
-              styles.nutritionInput,
-              {
-                color: colors.primaryText,
-                backgroundColor: colors.primaryBackground,
-                borderColor: colors.border,
-              },
-            ]}
+            containerStyle={[styles.nutritionInput]}
             value={String(value || "")}
             onChangeText={onChangeText}
             keyboardType="numeric"
             textAlign="right"
             placeholder="0"
-            placeholderTextColor={colors.secondaryText}
             onBlur={onBlur}
             onFocus={onFocus}
-            keyboardAppearance={colorScheme}
+            fontSize="Body"
+            style={{
+              backgroundColor: colors.primaryBackground,
+              borderRadius: theme.components.cards.cornerRadius,
+            }}
           />
         )}
         <Text style={[styles.unitText, { color: colors.secondaryText }]}>
@@ -186,15 +183,10 @@ const createRowStyles = (colors: any, themeObj: any) =>
       flexDirection: "row",
       alignItems: "center",
       minWidth: 100,
+      gap: themeObj.spacing.xs,
     },
     nutritionInput: {
-      ...themeObj.typography.Body,
-      borderWidth: 1,
-      borderRadius: 8,
-      paddingHorizontal: themeObj.spacing.sm,
-      paddingVertical: themeObj.spacing.xs,
       minWidth: 60,
-      textAlign: "right",
     },
     unitText: {
       ...themeObj.typography.Caption,

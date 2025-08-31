@@ -9,7 +9,6 @@ import {
   Keyboard,
   ScrollView,
   StyleSheet,
-  TextInput,
   View,
 } from "react-native";
 import { FoodLog } from "@/types/models";
@@ -24,6 +23,7 @@ import {
   KeyboardStickyView,
 } from "react-native-keyboard-controller";
 import { useImageSelection } from "@/hooks/useImageSelection";
+import { TextInput } from "@/components/shared/TextInput";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -95,7 +95,7 @@ export default function Edit() {
         style={[styles.scrollView]}
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="handled"
-        bottomOffset={100}
+        bottomOffset={130}
       >
         <ImageDisplay
           imageUrl={editLog?.imageUrl}
@@ -109,8 +109,7 @@ export default function Edit() {
               editLog && setEditLog({ ...editLog, title: text })
             }
             placeholder="Enter title"
-            style={styles.textInput}
-            keyboardAppearance={colorScheme}
+            style={styles.textInputContainer}
           />
         </View>
         <View style={styles.section}>
@@ -122,8 +121,7 @@ export default function Edit() {
             }
             placeholder="Enter description"
             multiline
-            style={[styles.textInput, { minHeight: 100 }]}
-            keyboardAppearance={colorScheme}
+            style={[styles.textInputContainer, { minHeight: 100 }]}
           />
         </View>
         <View style={styles.section}>
@@ -196,16 +194,10 @@ const createStyles = (colors: Colors, theme: Theme) =>
       gap: theme.spacing.lg,
       backgroundColor: colors.primaryBackground,
     },
-    textInput: {
-      ...theme.typography.Body,
-      borderWidth: 1,
-      borderRadius: theme.components.buttons.cornerRadius,
-      padding: theme.spacing.md,
-      minHeight: 50,
-      textAlignVertical: "top",
-      color: colors.primaryText,
+    textInputContainer: {
       backgroundColor: colors.secondaryBackground,
-      borderColor: colors.border,
+      borderRadius: theme.components.buttons.cornerRadius,
+      minHeight: 50,
     },
     section: {
       gap: theme.spacing.sm,

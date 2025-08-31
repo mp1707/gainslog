@@ -1,5 +1,4 @@
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
-// import { TextInput } from "@/components/shared/TextInput";
 import { Toggle } from "@/components/shared/Toggle";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { useAppStore } from "@/store/useAppStore";
@@ -10,27 +9,28 @@ import { useRouter } from "expo-router";
 import { SparkleIcon, CameraIcon, MicrophoneIcon } from "phosphor-react-native";
 import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
-  TextInput,
+  TextInput as RNTextInput,
   View,
 } from "react-native";
 import { useAudioTranscription } from "@/hooks/useAudioTranscription";
 import { useImageSelection } from "@/hooks/useImageSelection";
-import { TranscriptionOverlay } from "@/components/shared/TranscriptionOverlay";
 import { useEstimation } from "@/hooks/useEstimation";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
 import { LogCard } from "@/components/daily-food-logs";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { generateFoodLogId } from "@/utils/idGenerator";
-import { KeyboardStickyView } from "react-native-keyboard-controller";
+import {
+  KeyboardAwareScrollView,
+  KeyboardStickyView,
+} from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
 import { SearchBar } from "@/components/shared/SearchBar/SearchBar";
+import { TranscriptionOverlay } from "@/components/shared/TranscriptionOverlay";
+import { TextInput } from "@/components/shared/TextInput";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -67,7 +67,7 @@ export default function Create() {
   }, [favorites, searchQuery]);
   const styles = createStyles(colors, theme, !!newLog.imageUrl);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const textInputRef = useRef<TextInput>(null);
+  const textInputRef = useRef<RNTextInput>(null);
   const estimateLabel = useMemo(() => {
     if (newLog.estimationConfidence && newLog.estimationConfidence > 0)
       return "Re-estimate";
@@ -171,37 +171,32 @@ export default function Create() {
         />
       </View>
       {estimationType === "ai" && (
-        <ScrollView
+        <KeyboardAwareScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="interactive"
+          bottomOffset={250}
         >
           <View style={styles.content}>
             <ImageDisplay
               imageUrl={newLog.imageUrl}
               isUploading={isUploadingImage}
             />
-            <Pressable
+            <TextInput
+              ref={textInputRef}
+              value={newLog.description || ""}
+              onChangeText={(text) =>
+                setNewLog({ ...newLog, description: text })
+              }
+              placeholder="e.g. 100g of chicken breast"
+              multiline={true}
+              inputAccessoryViewID={inputAccessoryViewID}
+              fontSize="Title2"
               style={styles.textInputContainer}
-              onPress={() => textInputRef.current?.focus()}
-            >
-              <TextInput
-                ref={textInputRef}
-                value={newLog.description || ""}
-                onChangeText={(text) =>
-                  setNewLog({ ...newLog, description: text })
-                }
-                placeholder="e.g. 100g of chicken breast"
-                placeholderTextColor={colors.secondaryText}
-                style={styles.textInput}
-                multiline={true}
-                inputAccessoryViewID={inputAccessoryViewID}
-                keyboardAppearance={colorScheme}
-              />
-            </Pressable>
+            />
           </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
       )}
 
       {estimationType === "favorites" && (
@@ -310,18 +305,7 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
       backgroundColor: colors.secondaryBackground,
     },
     textInputContainer: {
-      flex: 1,
-      minHeight: hasImage ? 150 : 200,
-    },
-    textInput: {
-      flex: 1,
-      minHeight: hasImage ? 100 : 120,
-      borderWidth: 0,
-      backgroundColor: "transparent",
-      color: colors.primaryText,
-      padding: theme.spacing.md,
-      textAlignVertical: "top",
-      ...theme.typography.Title2,
+      minHeight: 150,
     },
     favoritesScrollview: {
       paddingVertical: theme.spacing.md,
