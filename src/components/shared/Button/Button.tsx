@@ -12,7 +12,6 @@ import { useTheme } from "../../../theme";
 interface ButtonProps {
   onPress: () => void;
   disabled?: boolean;
-  shape?: "round" | "square";
   variant?: "primary" | "secondary" | "tertiary" | "destructive";
   size?: "small" | "medium" | "large";
   children?: React.ReactNode;
@@ -27,7 +26,6 @@ interface ButtonProps {
 export const Button: React.FC<ButtonProps> = ({
   onPress,
   disabled = false,
-  shape = "round",
   variant = "primary",
   size = "medium",
   children,
@@ -46,14 +44,14 @@ export const Button: React.FC<ButtonProps> = ({
     React.isValidElement(children) &&
     children.type === ActivityIndicator;
 
-  // Combine shape and size for style key
-  const shapeSize = `${shape}${size.charAt(0).toUpperCase() + size.slice(1)}`;
+  // Use size for style key
+  const sizeKey = size;
 
   // Get base styles
   const baseStyles: ViewStyle[] = [
     styles.base,
     styles[variant as keyof typeof styles] as ViewStyle,
-    styles[shapeSize as keyof typeof styles] as ViewStyle,
+    styles[sizeKey as keyof typeof styles] as ViewStyle,
   ];
 
   // Add pressed state styles
@@ -90,7 +88,7 @@ export const Button: React.FC<ButtonProps> = ({
   }
 
   // Add size-specific text styles
-  const textStyleKey = `${shapeSize}Text` as keyof typeof styles;
+  const textStyleKey = `${size}Text` as keyof typeof styles;
   if (styles[textStyleKey]) {
     textStyles.push(styles[textStyleKey]);
   }
@@ -138,8 +136,6 @@ export const Button: React.FC<ButtonProps> = ({
         <Text 
           style={textStyles} 
           numberOfLines={numberOfLines}
-          adjustsFontSizeToFit={shape === "round"}
-          minimumFontScale={0.8}
         >
           {children}
         </Text>
@@ -159,8 +155,6 @@ export const Button: React.FC<ButtonProps> = ({
         <Text 
           style={[textStyles, { flexShrink: 1 }]} 
           numberOfLines={numberOfLines}
-          adjustsFontSizeToFit={shape === "round"}
-          minimumFontScale={0.8}
         >
           {children}
         </Text>

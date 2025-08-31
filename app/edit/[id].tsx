@@ -150,7 +150,6 @@ export default function Edit() {
         <Card style={styles.keyboardAccessory}>
           <View style={styles.buttonWrapperLeft}>
             <Button
-              shape="square"
               variant="secondary"
               onPress={showImagePickerAlert}
               icon={<CameraIcon size={20} color={colors.primaryText} />}
@@ -158,7 +157,6 @@ export default function Edit() {
           </View>
           <View style={styles.buttonWrapperRight}>
             <Button
-              shape="square"
               variant="primary"
               onPress={handleReEstimate}
               disabled={!caNreEstimate || isReEstimating}

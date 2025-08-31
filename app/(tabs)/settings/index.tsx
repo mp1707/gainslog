@@ -268,7 +268,6 @@ export default function SettingsTab() {
                 onPress={() => resetTargets(resetDailyTargets)}
                 variant="destructive"
                 size="medium"
-                shape="round"
                 accessibilityLabel="Reset daily targets"
                 accessibilityHint="Resets all nutrition targets to zero and clears saved calculations"
                 style={styles.resetButton}

@@ -64,7 +64,6 @@ export const DateNavigationHeader = ({
         <View style={styles.button}>
           <Button
             onPress={handleNavigatePrevious}
-            shape="square"
             variant="secondary"
             icon={
               <CaretLeftIcon
@@ -97,7 +96,6 @@ export const DateNavigationHeader = ({
         <View style={styles.button}>
           <Button
             onPress={handleNavigateNext}
-            shape="square"
             variant="secondary"
             disabled={!canGoNext}
             icon={

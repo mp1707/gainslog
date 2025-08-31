@@ -219,7 +219,6 @@ export default function Create() {
           <Card style={styles.keyboardAccessory}>
             <View style={styles.buttonWrapperLeft}>
               <Button
-                shape="square"
                 variant="secondary"
                 onPress={showImagePickerAlert}
                 icon={<CameraIcon size={20} color={colors.primaryText} />}
@@ -227,7 +226,6 @@ export default function Create() {
             </View>
             <View style={styles.buttonWrapperCenter}>
               <Button
-                shape="square"
                 variant="secondary"
                 onPress={startRecording}
                 icon={<MicrophoneIcon size={20} color={colors.primaryText} />}
@@ -235,7 +233,6 @@ export default function Create() {
             </View>
             <View style={styles.buttonWrapperRight}>
               <Button
-                shape="square"
                 variant="primary"
                 onPress={handleEstimation}
                 disabled={!canContine}

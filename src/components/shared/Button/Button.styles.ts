@@ -60,33 +60,8 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
     backgroundColor: componentStyles.buttons.destructive.active.backgroundColor,
   },
 
-  // Shape styles - Round (circular buttons)
-  roundSmall: {
-    minWidth: spacing.xl,
-    minHeight: spacing.xl,
-    borderRadius: spacing.md,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: spacing.xs,
-  },
-
-  roundMedium: {
-    minWidth: spacing.xxl,
-    minHeight: spacing.xxl,
-    borderRadius: spacing.lg,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.sm,
-  },
-
-  roundLarge: {
-    minWidth: 56,
-    minHeight: 56,
-    borderRadius: 28,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.sm,
-  },
-
-  // Shape styles - Square (full-width buttons)
-  squareSmall: {
+  // Size styles
+  small: {
     width: "100%",
     minHeight: spacing.xl,
     paddingHorizontal: spacing.md,
@@ -94,7 +69,7 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
     borderRadius: componentStyles.buttons.cornerRadius,
   },
 
-  squareMedium: {
+  medium: {
     width: "100%",
     minHeight: 44,
     paddingHorizontal: spacing.md,
@@ -102,7 +77,7 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
     borderRadius: componentStyles.buttons.cornerRadius,
   },
 
-  squareLarge: {
+  large: {
     width: "100%",
     minHeight: 56,
     paddingHorizontal: spacing.md,
@@ -140,39 +115,20 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
     color: componentStyles.buttons.primary.disabled.textColor,
   },
 
-  // Round text styles (for icon-only buttons)
-  roundSmallText: {
-    fontFamily: typography.Caption.fontFamily,
-    fontSize: typography.Caption.fontSize,
-    fontWeight: typography.Caption.fontWeight,
-  },
-
-  roundMediumText: {
-    fontFamily: typography.Subhead.fontFamily,
-    fontSize: typography.Subhead.fontSize,
-    fontWeight: typography.Subhead.fontWeight,
-  },
-
-  roundLargeText: {
-    fontFamily: typography.Body.fontFamily,
-    fontSize: typography.Body.fontSize,
-    fontWeight: typography.Body.fontWeight,
-  },
-
-  // Square text styles (for text buttons)
-  squareSmallText: {
+  // Size-specific text styles
+  smallText: {
     fontFamily: typography.Button.fontFamily,
     fontSize: typography.Caption.fontSize,
     fontWeight: typography.Button.fontWeight,
   },
 
-  squareMediumText: {
+  mediumText: {
     fontFamily: typography.Button.fontFamily,
     fontSize: typography.Button.fontSize,
     fontWeight: typography.Button.fontWeight,
   },
 
-  squareLargeText: {
+  largeText: {
     fontFamily: typography.Button.fontFamily,
     fontSize: typography.Headline.fontSize,
     fontWeight: typography.Button.fontWeight,
