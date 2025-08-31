@@ -6,7 +6,8 @@ import {
   ViewStyle,
   TextStyle,
 } from "react-native";
-import { styles } from "./Button.styles";
+import { createStyles } from "./Button.styles";
+import { useTheme } from "../../../theme";
 
 interface ButtonProps {
   onPress: () => void;
@@ -35,6 +36,8 @@ export const Button: React.FC<ButtonProps> = ({
   accessibilityLabel,
   accessibilityHint,
 }) => {
+  const { colors, colorScheme } = useTheme();
+  const styles = createStyles(colors, colorScheme);
   const [isPressed, setIsPressed] = useState(false);
   const isLoading =
     children &&

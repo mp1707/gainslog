@@ -1,11 +1,43 @@
 import { Stack } from "expo-router";
-import { ThemeProvider } from "@/theme";
+import { ThemeProvider, useTheme } from "@/theme";
 import React, { useEffect } from "react";
 import ToastManager from "toastify-react-native";
 import { useFonts } from "../src/hooks/useFonts";
 import { View, Text, ActivityIndicator } from "react-native";
 import { theme } from "../src/theme";
 import { useAppStore } from "@/store/useAppStore";
+import { KeyboardProvider } from "react-native-keyboard-controller";
+
+function ThemedStack() {
+  const { colors } = useTheme();
+  
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: colors.primaryBackground },
+      }}
+    >
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen
+        name="create"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.primaryBackground },
+        }}
+      />
+      <Stack.Screen
+        name="edit/[id]"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.primaryBackground },
+        }}
+      />
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
   const { fontsLoaded, error } = useFonts();
@@ -56,29 +88,11 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen
-          name="create"
-          options={{
-            presentation: "modal",
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="edit/[id]"
-          options={{
-            presentation: "modal",
-            headerShown: false,
-          }}
-        />
-      </Stack>
-      <ToastManager />
-    </ThemeProvider>
+    <KeyboardProvider>
+      <ThemeProvider>
+        <ThemedStack />
+        <ToastManager />
+      </ThemeProvider>
+    </KeyboardProvider>
   );
 }

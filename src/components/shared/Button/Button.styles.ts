@@ -1,10 +1,14 @@
 import { StyleSheet } from "react-native";
-import { theme } from "../../../theme";
+import { theme, ColorScheme } from "../../../theme";
 
-const colors = theme.getColors();
-const { typography, spacing, components } = theme;
+type Colors = ReturnType<typeof theme.getColors>;
+type ComponentStyles = ReturnType<typeof theme.getComponentStyles>;
 
-export const styles = StyleSheet.create({
+export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
+  const { typography, spacing } = theme;
+  const componentStyles = theme.getComponentStyles(colorScheme);
+
+  return StyleSheet.create({
   // Base button styles
   base: {
     justifyContent: "center",
@@ -14,46 +18,46 @@ export const styles = StyleSheet.create({
 
   // Variant styles - Primary
   primary: {
-    backgroundColor: components.buttons.primary.default.backgroundColor,
-    borderRadius: components.buttons.cornerRadius,
+    backgroundColor: componentStyles.buttons.primary.default.backgroundColor,
+    borderRadius: componentStyles.buttons.cornerRadius,
   },
 
   primaryPressed: {
-    backgroundColor: components.buttons.primary.active.backgroundColor,
+    backgroundColor: componentStyles.buttons.primary.active.backgroundColor,
   },
 
   // Variant styles - Secondary
   secondary: {
-    backgroundColor: components.buttons.secondary.default.backgroundColor,
-    borderWidth: components.buttons.secondary.default.borderWidth,
-    borderColor: components.buttons.secondary.default.borderColor,
-    borderRadius: components.buttons.cornerRadius,
+    backgroundColor: componentStyles.buttons.secondary.default.backgroundColor,
+    borderWidth: componentStyles.buttons.secondary.default.borderWidth,
+    borderColor: componentStyles.buttons.secondary.default.borderColor,
+    borderRadius: componentStyles.buttons.cornerRadius,
   },
 
   secondaryPressed: {
-    backgroundColor: components.buttons.secondary.active.backgroundColor,
+    backgroundColor: componentStyles.buttons.secondary.active.backgroundColor,
   },
 
   // Variant styles - Tertiary (outline style)
   tertiary: {
-    backgroundColor: colors.secondaryBackground,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: components.buttons.cornerRadius,
+    backgroundColor: componentStyles.buttons.tertiary.default.backgroundColor,
+    borderWidth: componentStyles.buttons.tertiary.default.borderWidth,
+    borderColor: componentStyles.buttons.tertiary.default.borderColor,
+    borderRadius: componentStyles.buttons.cornerRadius,
   },
 
   tertiaryPressed: {
-    backgroundColor: colors.primaryBackground,
+    backgroundColor: componentStyles.buttons.tertiary.active.backgroundColor,
   },
 
-  // Variant styles - Destructive (using accent as destructive for now)
+  // Variant styles - Destructive
   destructive: {
-    backgroundColor: colors.accent,
-    borderRadius: components.buttons.cornerRadius,
+    backgroundColor: componentStyles.buttons.destructive.default.backgroundColor,
+    borderRadius: componentStyles.buttons.cornerRadius,
   },
 
   destructivePressed: {
-    backgroundColor: colors.accent, // Could be darker variant
+    backgroundColor: componentStyles.buttons.destructive.active.backgroundColor,
   },
 
   // Shape styles - Round (circular buttons)
@@ -80,31 +84,31 @@ export const styles = StyleSheet.create({
     width: "100%",
     height: spacing.xl,
     paddingHorizontal: spacing.md,
-    borderRadius: components.buttons.cornerRadius,
+    borderRadius: componentStyles.buttons.cornerRadius,
   },
 
   squareMedium: {
     width: "100%",
     height: spacing.xxl,
     paddingHorizontal: spacing.md,
-    borderRadius: components.buttons.cornerRadius,
+    borderRadius: componentStyles.buttons.cornerRadius,
   },
 
   squareLarge: {
     width: "100%",
     height: 56,
     paddingHorizontal: spacing.md,
-    borderRadius: components.buttons.cornerRadius,
+    borderRadius: componentStyles.buttons.cornerRadius,
   },
 
   // Disabled state
   disabled: {
-    backgroundColor: components.buttons.primary.disabled.backgroundColor,
+    backgroundColor: componentStyles.buttons.primary.disabled.backgroundColor,
   },
 
   // Text styles - Base
   text: {
-    color: components.buttons.primary.default.textColor,
+    color: componentStyles.buttons.primary.default.textColor,
     textAlign: "center",
     fontFamily: typography.Button.fontFamily,
     fontSize: typography.Button.fontSize,
@@ -113,17 +117,17 @@ export const styles = StyleSheet.create({
 
   // Text styles for secondary variant
   secondaryText: {
-    color: components.buttons.secondary.default.textColor,
+    color: componentStyles.buttons.secondary.default.textColor,
   },
 
   // Text styles for tertiary variant
   tertiaryText: {
-    color: colors.primaryText,
+    color: componentStyles.buttons.tertiary.default.textColor,
   },
 
   // Text styles for disabled state
   disabledText: {
-    color: components.buttons.primary.disabled.textColor,
+    color: componentStyles.buttons.primary.disabled.textColor,
   },
 
   // Round text styles (for icon-only buttons)
@@ -182,4 +186,5 @@ export const styles = StyleSheet.create({
   iconOnly: {
     margin: 0,
   },
-});
+  });
+};

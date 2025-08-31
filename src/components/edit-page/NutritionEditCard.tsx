@@ -25,7 +25,7 @@ const NutritionEditRow: React.FC<NutritionEditRowProps> = ({
   onBlur,
   onFocus,
 }) => {
-  const { colors } = useTheme();
+  const { colors, colorScheme } = useTheme();
   const styles = useThemedStyles(createRowStyles);
 
   return (
@@ -59,6 +59,7 @@ const NutritionEditRow: React.FC<NutritionEditRowProps> = ({
             placeholderTextColor={colors.secondaryText}
             onBlur={onBlur}
             onFocus={onFocus}
+            keyboardAppearance={colorScheme}
           />
         )}
         <Text style={[styles.unitText, { color: colors.secondaryText }]}>

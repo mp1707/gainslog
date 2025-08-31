@@ -245,38 +245,136 @@ const components = {
   },
   buttons: {
     cornerRadius: 12,
-    primary: {
-      default: {
-        backgroundColor: lightColors.accent,
-        textColor: lightColors.white,
+    lightMode: {
+      primary: {
+        default: {
+          backgroundColor: lightColors.accent,
+          textColor: lightColors.white,
+        },
+        active: {
+          backgroundColor: "#4527A0",
+          textColor: lightColors.white,
+        },
+        disabled: {
+          backgroundColor: lightColors.disabledBackground,
+          textColor: lightColors.disabledText,
+        },
       },
-      active: {
-        backgroundColor: "#4527A0",
-        textColor: lightColors.white,
+      secondary: {
+        default: {
+          backgroundColor: "transparent",
+          textColor: lightColors.accent,
+          borderWidth: 1.5,
+          borderColor: lightColors.accent,
+        },
+        active: {
+          backgroundColor: "rgba(98, 0, 234, 0.1)",
+          textColor: lightColors.accent,
+          borderWidth: 1.5,
+          borderColor: lightColors.accent,
+        },
+        disabled: {
+          backgroundColor: "transparent",
+          textColor: lightColors.disabledText,
+          borderWidth: 1.5,
+          borderColor: lightColors.disabledBackground,
+        },
       },
-      disabled: {
-        backgroundColor: lightColors.disabledBackground,
-        textColor: lightColors.disabledText,
+      tertiary: {
+        default: {
+          backgroundColor: lightColors.secondaryBackground,
+          textColor: lightColors.primaryText,
+          borderWidth: 1,
+          borderColor: lightColors.border,
+        },
+        active: {
+          backgroundColor: lightColors.primaryBackground,
+          textColor: lightColors.primaryText,
+        },
+        disabled: {
+          backgroundColor: lightColors.disabledBackground,
+          textColor: lightColors.disabledText,
+        },
+      },
+      destructive: {
+        default: {
+          backgroundColor: lightColors.accent,
+          textColor: lightColors.white,
+        },
+        active: {
+          backgroundColor: lightColors.accent,
+          textColor: lightColors.white,
+        },
+        disabled: {
+          backgroundColor: lightColors.disabledBackground,
+          textColor: lightColors.disabledText,
+        },
       },
     },
-    secondary: {
-      default: {
-        backgroundColor: "transparent",
-        textColor: lightColors.accent,
-        borderWidth: 1.5,
-        borderColor: lightColors.accent,
+    darkMode: {
+      primary: {
+        default: {
+          backgroundColor: darkColors.accent,
+          textColor: darkColors.white,
+        },
+        active: {
+          backgroundColor: "#8E5AFF",
+          textColor: darkColors.white,
+        },
+        disabled: {
+          backgroundColor: darkColors.disabledBackground,
+          textColor: darkColors.disabledText,
+        },
       },
-      active: {
-        backgroundColor: "rgba(98, 0, 234, 0.1)",
-        textColor: lightColors.accent,
-        borderWidth: 1.5,
-        borderColor: lightColors.accent,
+      secondary: {
+        default: {
+          backgroundColor: "transparent",
+          textColor: darkColors.accent,
+          borderWidth: 1.5,
+          borderColor: darkColors.accent,
+        },
+        active: {
+          backgroundColor: "rgba(124, 77, 255, 0.15)",
+          textColor: darkColors.accent,
+          borderWidth: 1.5,
+          borderColor: darkColors.accent,
+        },
+        disabled: {
+          backgroundColor: "transparent",
+          textColor: darkColors.disabledText,
+          borderWidth: 1.5,
+          borderColor: darkColors.disabledBackground,
+        },
       },
-      disabled: {
-        backgroundColor: "transparent",
-        textColor: lightColors.disabledText,
-        borderWidth: 1.5,
-        borderColor: lightColors.disabledBackground,
+      tertiary: {
+        default: {
+          backgroundColor: darkColors.secondaryBackground,
+          textColor: darkColors.primaryText,
+          borderWidth: 1,
+          borderColor: darkColors.border,
+        },
+        active: {
+          backgroundColor: darkColors.primaryBackground,
+          textColor: darkColors.primaryText,
+        },
+        disabled: {
+          backgroundColor: darkColors.disabledBackground,
+          textColor: darkColors.disabledText,
+        },
+      },
+      destructive: {
+        default: {
+          backgroundColor: darkColors.accent,
+          textColor: darkColors.white,
+        },
+        active: {
+          backgroundColor: darkColors.accent,
+          textColor: darkColors.white,
+        },
+        disabled: {
+          backgroundColor: darkColors.disabledBackground,
+          textColor: darkColors.disabledText,
+        },
       },
     },
   },
@@ -353,6 +451,12 @@ const getComponentStyles = (scheme?: "light" | "dark") => {
       ...(currentScheme === "dark"
         ? components.cards.darkMode
         : components.cards.lightMode),
+    },
+    buttons: {
+      ...components.buttons,
+      ...(currentScheme === "dark"
+        ? components.buttons.darkMode
+        : components.buttons.lightMode),
     },
     aiActionTargets: {
       ...components.aiActionTargets,
