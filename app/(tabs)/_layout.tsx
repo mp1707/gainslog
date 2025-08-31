@@ -16,9 +16,13 @@ import {
   Plus,
   Settings,
   Sparkles,
+  Calendar,
+  Crown,
+  Rocket,
 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
+import { transform } from "@babel/core";
 
 // --- Visual Component & FAB (No changes needed in these) ---
 const AnimatedIconAndLabel = ({
@@ -110,14 +114,16 @@ export default function TabLayout() {
   const { safePush } = useNavigationGuard();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  
-  const tabBarHeight = useTheme().theme.spacing.xl + useTheme().theme.spacing.lg; // 32 + 24 = 56 (close to original 55)
-  
+
+  const tabBarHeight =
+    useTheme().theme.spacing.xl + useTheme().theme.spacing.lg; // 32 + 24 = 56 (close to original 55)
+
   const themedStyles = useThemedStyles((colors, theme) => ({
-    tabItemContainer: { 
-      flex: 1, 
-      alignItems: "center" as const, 
-      justifyContent: "center" as const 
+    tabItemContainer: {
+      flex: 1,
+      alignItems: "center" as const,
+      justifyContent: "center" as const,
+      transform: [{ translateY: 4 }],
     },
   }));
 
@@ -200,7 +206,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="overview"
         options={{
-          tabBarButton: createTabBarButton("overview", LayoutGrid, "Stats"),
+          tabBarButton: createTabBarButton("overview", Calendar, "Overview"),
         }}
       />
       <Tabs.Screen
@@ -228,7 +234,7 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="pro"
-        options={{ tabBarButton: createTabBarButton("pro", Sparkles, "Pro") }}
+        options={{ tabBarButton: createTabBarButton("pro", Rocket, "Pro") }}
       />
     </Tabs>
   );
@@ -236,27 +242,27 @@ export default function TabLayout() {
 
 // --- THEMED STYLES ---
 const createStyles = (colors: any, theme: any) => ({
-  iconLabelWrapper: { 
-    alignItems: "center" as const, 
-    justifyContent: "center" as const 
+  iconLabelWrapper: {
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
   },
-  label: { 
+  label: {
     fontSize: theme.typography.Caption.fontSize,
-    fontWeight: theme.typography.Caption.fontWeight as any,
+    fontWeight: theme.typography.Caption.fontWeight,
     marginTop: theme.spacing.xs / 2,
   },
-  newButtonWrapper: { 
-    flex: 1, 
-    justifyContent: "center" as const, 
-    alignItems: "center" as const 
-  },
-  newButton: {
-    width: theme.spacing.unit * 7.5, // 60
-    height: theme.spacing.unit * 7.5, // 60
-    borderRadius: theme.spacing.unit * 3.75, // 30
+  newButtonWrapper: {
+    flex: 1,
     justifyContent: "center" as const,
     alignItems: "center" as const,
-    transform: [{ translateY: -theme.spacing.unit * 2.25 }], // -18
+    transform: [{ translateY: -theme.spacing.unit }],
+  },
+  newButton: {
+    width: theme.spacing.unit * 7.5,
+    height: theme.spacing.unit * 7.5,
+    borderRadius: theme.spacing.unit * 3.75,
+    justifyContent: "center" as const,
+    alignItems: "center" as const,
     shadowColor: "#000000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
@@ -268,7 +274,7 @@ const createStyles = (colors: any, theme: any) => ({
 // Create a fallback styles object for the components defined before TabLayout
 const fallbackTheme = {
   typography: { Caption: { fontSize: 13, fontWeight: "400" } },
-  spacing: { unit: 8, xs: 4 }
+  spacing: { unit: 8, xs: 4 },
 };
 const fallbackColors = { primaryText: "#000" };
 const styles = createStyles(fallbackColors, fallbackTheme);
