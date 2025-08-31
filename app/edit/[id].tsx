@@ -173,7 +173,7 @@ export default function Edit() {
                 />
               }
             >
-              {isReEstimating ? "Working on it..." : "Re-estimate nutrition"}
+              {isReEstimating ? "estimating" : "Re-estimate"}
             </Button>
           </View>
         </Card>

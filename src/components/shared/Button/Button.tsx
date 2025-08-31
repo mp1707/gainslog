@@ -21,6 +21,7 @@ interface ButtonProps {
   style?: any;
   accessibilityLabel?: string;
   accessibilityHint?: string;
+  numberOfLines?: number;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -35,6 +36,7 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   accessibilityLabel,
   accessibilityHint,
+  numberOfLines,
 }) => {
   const { colors, colorScheme } = useTheme();
   const styles = createStyles(colors, colorScheme);
@@ -93,6 +95,15 @@ export const Button: React.FC<ButtonProps> = ({
     textStyles.push(styles[textStyleKey]);
   }
 
+  // Calculate icon size based on font size
+  const currentFontSize = textStyles.reduce((fontSize, style) => {
+    return style && typeof style === 'object' && 'fontSize' in style 
+      ? (style as any).fontSize || fontSize 
+      : fontSize;
+  }, 16); // fallback to 16
+  
+  const iconSize = Math.max(16, currentFontSize * 1.2); // Icon is 20% larger than text
+
   // Determine content layout
   const hasIcon = !!icon;
   const hasText = !!children;
@@ -114,12 +125,25 @@ export const Button: React.FC<ButtonProps> = ({
 
     if (isIconOnly) {
       return React.cloneElement(icon!, {
-        style: [icon!.props.style, styles.iconOnly],
+        style: [
+          icon!.props.style, 
+          styles.iconOnly,
+          { fontSize: iconSize, width: iconSize, height: iconSize }
+        ],
       });
     }
 
     if (isTextOnly) {
-      return <Text style={textStyles}>{children}</Text>;
+      return (
+        <Text 
+          style={textStyles} 
+          numberOfLines={numberOfLines}
+          adjustsFontSizeToFit={shape === "round"}
+          minimumFontScale={0.8}
+        >
+          {children}
+        </Text>
+      );
     }
 
     if (hasIconAndText) {
@@ -127,10 +151,20 @@ export const Button: React.FC<ButtonProps> = ({
         style: [
           icon!.props.style,
           styles[iconPosition === "left" ? "iconLeft" : "iconRight"],
+          { fontSize: iconSize, width: iconSize, height: iconSize }
         ],
       });
 
-      const textElement = <Text style={textStyles}>{children}</Text>;
+      const textElement = (
+        <Text 
+          style={[textStyles, { flexShrink: 1 }]} 
+          numberOfLines={numberOfLines}
+          adjustsFontSizeToFit={shape === "round"}
+          minimumFontScale={0.8}
+        >
+          {children}
+        </Text>
+      );
 
       return (
         <React.Fragment>

@@ -62,40 +62,51 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
 
   // Shape styles - Round (circular buttons)
   roundSmall: {
-    width: spacing.xl,
-    height: spacing.xl,
+    minWidth: spacing.xl,
+    minHeight: spacing.xl,
     borderRadius: spacing.md,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: spacing.xs,
   },
 
   roundMedium: {
-    width: spacing.xxl,
-    height: spacing.xxl,
+    minWidth: spacing.xxl,
+    minHeight: spacing.xxl,
     borderRadius: spacing.lg,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
   },
 
   roundLarge: {
-    width: 56,
-    height: 56,
+    minWidth: 56,
+    minHeight: 56,
     borderRadius: 28,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
   },
 
   // Shape styles - Square (full-width buttons)
   squareSmall: {
     width: "100%",
-    height: spacing.xl,
+    minHeight: spacing.xl,
     paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     borderRadius: componentStyles.buttons.cornerRadius,
   },
 
   squareMedium: {
     width: "100%",
+    minHeight: 44,
     paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     borderRadius: componentStyles.buttons.cornerRadius,
   },
 
   squareLarge: {
     width: "100%",
+    minHeight: 56,
     paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
     borderRadius: componentStyles.buttons.cornerRadius,
   },
 
@@ -111,6 +122,7 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
     fontFamily: typography.Button.fontFamily,
     fontSize: typography.Button.fontSize,
     fontWeight: typography.Button.fontWeight,
+    flexShrink: 1,
   },
 
   // Text styles for secondary variant
@@ -171,14 +183,16 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    flexWrap: "nowrap",
+    minHeight: 44,
   },
 
   iconLeft: {
-    marginRight: spacing.xs,
+    marginRight: spacing.sm,
   },
 
   iconRight: {
-    marginLeft: spacing.xs,
+    marginLeft: spacing.sm,
   },
 
   iconOnly: {
