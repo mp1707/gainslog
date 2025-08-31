@@ -211,11 +211,6 @@ export default function Create() {
             contentContainerStyle={[styles.contentContainer]}
             showsVerticalScrollIndicator={false}
           >
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Search favorites"
-            />
             {filteredFavorites.map((favorite) => (
               <SwipeToFunctions
                 key={favorite.id}
@@ -265,6 +260,18 @@ export default function Create() {
         </KeyboardStickyView>
       )}
 
+      {estimationType === "favorites" && (
+        <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
+          <Card style={styles.keyboardAccessory}>
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Search favorites"
+            />
+          </Card>
+        </KeyboardStickyView>
+      )}
+
       <TranscriptionOverlay
         visible={isRecording}
         liveTranscription={liveTranscription}
@@ -290,6 +297,7 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
     toggleContainer: {
       marginHorizontal: theme.spacing.md,
       marginVertical: theme.spacing.md,
+      gap: theme.spacing.lg,
     },
     content: {
       flex: 1,
