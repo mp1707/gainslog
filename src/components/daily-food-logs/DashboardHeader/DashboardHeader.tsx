@@ -1,11 +1,8 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useEffect } from "react";
 import {
   View,
   StyleSheet,
   Platform,
-  Modal,
-  Pressable,
-  Dimensions,
   UIManager,
 } from "react-native";
 import { Canvas, Circle, Path, Skia, Group } from "@shopify/react-native-skia";
@@ -14,13 +11,7 @@ import Animated, {
   withSpring,
   withDelay,
   useDerivedValue,
-  useAnimatedStyle,
-  withTiming,
-  FadeIn,
-  FadeOut,
 } from "react-native-reanimated";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import * as Haptics from "expo-haptics";
 import { Colors, Theme, useTheme } from "@/theme";
 import { AppText, Button } from "@/components";
 import { useAppStore } from "@/store/useAppStore";
@@ -40,8 +31,6 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 // Interfaces and Configs remain the same
 interface NutrientValues {
@@ -124,64 +113,10 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
   targets,
   totals,
 }) => {
-  const { colors, theme, colorScheme } = useTheme();
+  const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
-  const { selectedDate, setSelectedDate } = useAppStore();
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const { selectedDate, showDatePicker } = useAppStore();
 
-  // Animation values for popover
-  const popoverScale = useSharedValue(0.9);
-  const popoverOpacity = useSharedValue(0);
-  const backdropOpacity = useSharedValue(0);
-
-  // Animated styles for popover
-  const animatedPopoverStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: popoverScale.value }],
-    opacity: popoverOpacity.value,
-  }));
-
-  const animatedBackdropStyle = useAnimatedStyle(() => ({
-    opacity: backdropOpacity.value,
-  }));
-
-  // Logic and animations
-  const handleDateChange = (_: any, date?: Date) => {
-    if (date) {
-      Haptics.selectionAsync();
-      setSelectedDate(formatDateToLocalString(date));
-    }
-    closeDatePicker();
-  };
-
-  const openDatePicker = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setShowDatePicker(true);
-    // Animate in
-    backdropOpacity.value = withTiming(0.4, { duration: 200 });
-    popoverOpacity.value = withTiming(1, { duration: 200 });
-    popoverScale.value = withSpring(1, {
-      damping: 15,
-      stiffness: 200,
-      overshootClamping: false,
-    });
-  };
-
-  const closeDatePicker = () => {
-    // Animate out
-    backdropOpacity.value = withTiming(0, { duration: 150 });
-    popoverOpacity.value = withTiming(0, { duration: 150 });
-    popoverScale.value = withTiming(0.95, { duration: 150 });
-    // Close modal after animation
-    setTimeout(() => setShowDatePicker(false), 150);
-  };
-
-  const toggleDatePicker = () => {
-    if (showDatePicker) {
-      closeDatePicker();
-    } else {
-      openDatePicker();
-    }
-  };
   const formattedDate = useMemo(() => {
     const today = new Date();
     const yesterday = new Date();
@@ -266,7 +201,7 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
         <View style={styles.titleHeader}>
           <AppText role="Title2">Summary</AppText>
           <Button
-            onPress={toggleDatePicker}
+            onPress={showDatePicker}
             icon={
               <ChevronDown
                 size={20}
@@ -284,43 +219,6 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
           </Button>
         </View>
 
-        {/* Date Picker Popover */}
-        <Modal
-          visible={showDatePicker}
-          transparent
-          animationType="none"
-          statusBarTranslucent
-          onRequestClose={closeDatePicker}
-        >
-          {/* Backdrop */}
-          <AnimatedPressable
-            style={[styles.popoverBackdrop, animatedBackdropStyle]}
-            onPress={closeDatePicker}
-            accessibilityLabel="Close date picker"
-            accessibilityRole="button"
-          />
-          
-          {/* Popover Content */}
-          <View style={styles.popoverContainer}>
-            <Animated.View 
-              style={[styles.popoverContent, animatedPopoverStyle]}
-              entering={FadeIn.duration(200)}
-              exiting={FadeOut.duration(150)}
-            >
-              <DateTimePicker
-                value={new Date(selectedDate + "T00:00:00")}
-                mode="date"
-                display="inline"
-                onChange={handleDateChange}
-                maximumDate={new Date()}
-                {...(Platform.OS === "ios" && {
-                  themeVariant: colorScheme,
-                  accentColor: colors.accent,
-                })}
-              />
-            </Animated.View>
-          </View>
-        </Modal>
 
         <View style={styles.summaryContent}>
           <View style={styles.ringsContainer}>
@@ -420,34 +318,6 @@ const createStyles = (colors: Colors, theme: Theme) => {
     statTotalValue: {
       ...theme.typography.Caption,
       color: colors.secondaryText,
-    },
-    popoverBackdrop: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(0, 0, 0, 0.4)",
-      width: screenWidth,
-      height: screenHeight,
-    },
-    popoverContainer: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      paddingHorizontal: theme.spacing.lg,
-    },
-    popoverContent: {
-      backgroundColor: colors.secondaryBackground,
-      borderRadius: theme.spacing.md,
-      padding: theme.spacing.sm,
-      shadowColor: "rgba(0, 0, 0, 0.15)",
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 1,
-      shadowRadius: 24,
-      elevation: 8,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border,
     },
   });
 };

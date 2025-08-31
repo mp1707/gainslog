@@ -13,6 +13,7 @@ type AppState = {
   // UI state
   selectedDate: string; // YYYY-MM-DD (for day view)
   selectedMonth: string; // YYYY-MM (for month view)
+  isDatePickerVisible: boolean;
 
   // Logs
   addFoodLog: (log: FoodLog) => void;
@@ -32,6 +33,8 @@ type AppState = {
   // UI
   setSelectedDate: (date: string) => void;
   setSelectedMonth: (month: string) => void;
+  showDatePicker: () => void;
+  hideDatePicker: () => void;
 };
 
 export const useAppStore = create<AppState>()(
@@ -42,9 +45,10 @@ export const useAppStore = create<AppState>()(
       dailyTargets: undefined,
       userSettings: undefined,
 
-      // default to today’s date & current month
+      // default to today's date & current month
       selectedDate: new Date().toISOString().split("T")[0], // YYYY-MM-DD
       selectedMonth: new Date().toISOString().slice(0, 7), // YYYY-MM
+      isDatePickerVisible: false,
 
       // Logs
       addFoodLog: (log) =>
@@ -108,6 +112,16 @@ export const useAppStore = create<AppState>()(
       setSelectedMonth: (month) =>
         set((state) => {
           state.selectedMonth = month;
+        }),
+
+      showDatePicker: () =>
+        set((state) => {
+          state.isDatePickerVisible = true;
+        }),
+
+      hideDatePicker: () =>
+        set((state) => {
+          state.isDatePickerVisible = false;
         }),
     })),
     {

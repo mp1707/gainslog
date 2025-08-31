@@ -7,10 +7,12 @@ import { View, Text, ActivityIndicator } from "react-native";
 import { theme } from "../src/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { KeyboardProvider } from "react-native-keyboard-controller";
+import { DatePickerModal } from "@/components/shared/DatePickerModal";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 function ThemedStack() {
   const { colors } = useTheme();
-  
+
   return (
     <Stack
       screenOptions={{
@@ -90,8 +92,11 @@ export default function RootLayout() {
   return (
     <KeyboardProvider>
       <ThemeProvider>
-        <ThemedStack />
-        <ToastManager />
+        <GestureHandlerRootView>
+          <ThemedStack />
+          <ToastManager />
+          <DatePickerModal />
+        </GestureHandlerRootView>
       </ThemeProvider>
     </KeyboardProvider>
   );
