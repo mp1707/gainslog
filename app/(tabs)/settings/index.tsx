@@ -81,7 +81,7 @@ export default function SettingsTab() {
             <Card>
               {/* Calories Setting Card */}
               <TouchableOpacity
-                style={styles.settingCard}
+                style={styles.firstSettingsRow}
                 onPress={() =>
                   isCaloriesSet
                     ? safeNavigate("/settings/calorieCalculator/editCalories")
@@ -126,7 +126,7 @@ export default function SettingsTab() {
               {/* Protein Setting Card */}
               <TouchableOpacity
                 style={[
-                  styles.settingCard,
+                  styles.settingsRow,
                   styles.settingCardWithBorder,
                   { opacity: proteinEnabled ? 1 : 0.5 },
                 ]}
@@ -181,7 +181,7 @@ export default function SettingsTab() {
               {/* Fat Setting Card */}
               <TouchableOpacity
                 style={[
-                  styles.settingCard,
+                  styles.settingsRow,
                   styles.settingCardWithBorder,
                   { opacity: fatEnabled ? 1 : 0.5 },
                 ]}
@@ -223,7 +223,7 @@ export default function SettingsTab() {
               {/* Carbs Setting Card */}
               <TouchableOpacity
                 style={[
-                  styles.settingCard,
+                  styles.lastSettingsRow,
                   styles.settingCardWithBorder,
                   { opacity: carbsEnabled ? 1 : 0.5 },
                 ]}
@@ -347,13 +347,35 @@ const createStyles = (
       minWidth: 200,
     },
     settingCard: {
-      paddingHorizontal: spacing.lg,
+      // paddingHorizontal: spacing.lg,
       paddingVertical: spacing.md,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
       backgroundColor: "transparent",
     },
+    firstSettingsRow: {
+      paddingBottom: spacing.md,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      backgroundColor: "transparent",
+    },
+    settingsRow: {
+      paddingVertical: spacing.md,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      backgroundColor: "transparent",
+    },
+    lastSettingsRow: {
+      paddingTop: spacing.md,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      backgroundColor: "transparent",
+    },
+
     settingCardWithBorder: {
       borderTopWidth: 1,
       borderTopColor: colors.border,

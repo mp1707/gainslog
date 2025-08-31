@@ -9,7 +9,7 @@ import {
 } from "react-native-reanimated";
 import { useTheme } from "@/theme";
 import { Card } from "@/components/Card";
-import { NutrientStat } from "@/components/shared/NutrientStat";
+import { AppText } from "@/components";
 import { createStyles } from "./NutrientSummary.styles";
 
 // TypeScript interface for component props
@@ -244,37 +244,50 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
 
         {/* Nutrition Stats */}
         <View style={styles.statsContainer}>
-          <NutrientStat
-            label="Kcal"
-            currentValue={safeTotals.calories}
-            goalValue={safeTargets.calories}
-            color={colors.semantic.calories}
-            style={styles.statItem}
-          />
-          <NutrientStat
-            label="Protein"
-            currentValue={safeTotals.protein}
-            goalValue={safeTargets.protein}
-            unit="g"
-            color={colors.semantic.protein}
-            style={styles.statItem}
-          />
-          <NutrientStat
-            label="Carbs"
-            currentValue={safeTotals.carbs}
-            goalValue={safeTargets.carbs}
-            unit="g"
-            color={colors.semantic.carbs}
-            style={styles.statItem}
-          />
-          <NutrientStat
-            label="Fat"
-            currentValue={safeTotals.fat}
-            goalValue={safeTargets.fat}
-            unit="g"
-            color={colors.semantic.fat}
-            style={styles.statItem}
-          />
+          <View style={styles.nutritionRow}>
+            <View
+              style={[
+                styles.nutritionDot,
+                { backgroundColor: colors.semantic.calories },
+              ]}
+            />
+            <AppText style={styles.nutritionText}>
+              {Math.round(safeTotals.calories)} / {Math.round(safeTargets.calories)} kcal
+            </AppText>
+          </View>
+          <View style={styles.nutritionRow}>
+            <View
+              style={[
+                styles.nutritionDot,
+                { backgroundColor: colors.semantic.protein },
+              ]}
+            />
+            <AppText style={styles.nutritionText}>
+              {Math.round(safeTotals.protein)} / {Math.round(safeTargets.protein)}g Protein
+            </AppText>
+          </View>
+          <View style={styles.nutritionRow}>
+            <View
+              style={[
+                styles.nutritionDot,
+                { backgroundColor: colors.semantic.carbs },
+              ]}
+            />
+            <AppText style={styles.nutritionText}>
+              {Math.round(safeTotals.carbs)} / {Math.round(safeTargets.carbs)}g Carbs
+            </AppText>
+          </View>
+          <View style={styles.nutritionRow}>
+            <View
+              style={[
+                styles.nutritionDot,
+                { backgroundColor: colors.semantic.fat },
+              ]}
+            />
+            <AppText style={styles.nutritionText}>
+              {Math.round(safeTotals.fat)} / {Math.round(safeTargets.fat)}g Fat
+            </AppText>
+          </View>
         </View>
       </View>
     </Card>

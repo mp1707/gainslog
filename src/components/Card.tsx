@@ -24,7 +24,7 @@ export const Card: React.FC<CardProps> = ({
   const cardStyle: ViewStyle = {
     backgroundColor: cardConfig.backgroundColor,
     borderRadius: cardConfig.cornerRadius,
-    padding: padding ?? theme.spacing.md,
+    padding: padding ?? theme.spacing.lg,
     // Shadow styles
     shadowColor: elevated ? cardConfig.shadowColor : undefined,
     shadowOffset: elevated ? cardConfig.shadowOffset : undefined,

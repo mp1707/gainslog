@@ -9,8 +9,6 @@ import {
 } from "react-native";
 import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
 import { useAppStore } from "@/store/useAppStore";
-import { DateNavigationHeader } from "@/components/daily-food-logs/DateNavigationHeader";
-import { NutrientSummary } from "@/components/daily-food-logs/NutrientSummary";
 import { LogCard } from "@/components/daily-food-logs/LogCard";
 import { useTheme } from "@/theme/ThemeProvider";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
@@ -18,6 +16,7 @@ import { FoodLog } from "@/types/models";
 import { Toast } from "toastify-react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { AppText } from "@/components/index";
+import { DashboardHeader } from "@/components/daily-food-logs/DashboardHeader/DashboardHeader";
 
 export default function TodayTab() {
   const { safeNavigate } = useNavigationGuard();
@@ -150,9 +149,7 @@ export default function TodayTab() {
           ]}
           ListHeaderComponent={
             <View style={styles.header}>
-              <AppText role="Title2">Summary</AppText>
-              <DateNavigationHeader />
-              <NutrientSummary
+              <DashboardHeader
                 percentages={dailyPercentages}
                 targets={dailyTargets || defaultTargets}
                 totals={dailyTotals}

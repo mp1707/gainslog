@@ -42,11 +42,21 @@ export const createStyles = (colors: Colors) =>
     statsContainer: {
       flex: 1,
       flexDirection: 'column',
-      gap: theme.spacing.sm,
+      gap: theme.spacing.xs,
     },
-    // Override the NutrientStat width for vertical layout
-    statItem: {
-      width: '100%',
-      marginBottom: 0,
+    nutritionRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    nutritionDot: {
+      width: theme.spacing.sm,
+      height: theme.spacing.sm,
+      borderRadius: theme.spacing.xs,
+      marginRight: theme.spacing.sm,
+    },
+    nutritionText: {
+      fontSize: theme.typography.Subhead.fontSize,
+      fontWeight: '600' as const,
+      color: colors.primaryText,
     },
   });

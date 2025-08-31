@@ -62,7 +62,6 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
 
   // Size styles
   small: {
-    width: "100%",
     minHeight: spacing.xl,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
@@ -118,7 +117,7 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
   // Size-specific text styles
   smallText: {
     fontFamily: typography.Button.fontFamily,
-    fontSize: typography.Caption.fontSize,
+    fontSize: typography.Body.fontSize,
     fontWeight: typography.Button.fontWeight,
   },
 

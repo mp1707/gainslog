@@ -288,7 +288,7 @@ const StaticLogCard: React.FC<LogCardProps> = ({ foodLog }) => {
 
   return (
     <View style={styles.cardContainer}>
-      <Card elevated={false} style={styles.card}>
+      <Card style={styles.card}>
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
             <AppText role="Headline" style={styles.title} numberOfLines={2}>
