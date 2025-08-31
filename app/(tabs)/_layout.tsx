@@ -1,13 +1,13 @@
 import { Tabs, usePathname } from "expo-router"; // CHANGE 1: Import usePathname
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
   interpolate,
 } from "react-native-reanimated";
-import { useTheme } from "@/theme";
+import { useTheme, useThemedStyles } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
 import {
@@ -63,7 +63,11 @@ const AnimatedIconAndLabel = ({
         strokeWidth={isFocused ? 2.5 : 2}
       />
       <Animated.Text
-        style={[styles.label, { color: isFocused ? activeColor : inactiveColor }, animatedLabelStyle]}
+        style={[
+          styles.label,
+          { color: isFocused ? activeColor : inactiveColor },
+          animatedLabelStyle,
+        ]}
       >
         {label}
       </Animated.Text>
@@ -106,6 +110,16 @@ export default function TabLayout() {
   const { safePush } = useNavigationGuard();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  
+  const tabBarHeight = useTheme().theme.spacing.xl + useTheme().theme.spacing.lg; // 32 + 24 = 56 (close to original 55)
+  
+  const themedStyles = useThemedStyles((colors, theme) => ({
+    tabItemContainer: { 
+      flex: 1, 
+      alignItems: "center" as const, 
+      justifyContent: "center" as const 
+    },
+  }));
 
   const createTabBarButton =
     (
@@ -145,11 +159,11 @@ export default function TabLayout() {
         <Pressable
           onPressIn={() => (pressProgress.value = 1)}
           onPressOut={() => (pressProgress.value = 0)}
-          onPress={() => {
+          onPress={(e) => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            onPress?.();
+            onPress?.(e);
           }}
-          style={styles.tabItemContainer}
+          style={themedStyles.tabItemContainer}
           accessibilityLabel={label}
         >
           <Animated.View style={animatedPressStyle}>
@@ -173,7 +187,7 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: colors.primaryBackground,
           borderTopColor: colors.border,
-          height: 55 + insets.bottom,
+          height: tabBarHeight + insets.bottom,
         },
       }}
     >
@@ -220,23 +234,41 @@ export default function TabLayout() {
   );
 }
 
-// --- STYLES ---
-const styles = StyleSheet.create({
-  tabItemContainer: { flex: 1, alignItems: "center", justifyContent: "center" },
-  iconLabelWrapper: { alignItems: "center", justifyContent: "center" },
-  label: { fontSize: 11, fontWeight: "600", marginTop: 2 },
-  newButtonWrapper: { flex: 1, justifyContent: "center", alignItems: "center" },
+// --- THEMED STYLES ---
+const createStyles = (colors: any, theme: any) => ({
+  iconLabelWrapper: { 
+    alignItems: "center" as const, 
+    justifyContent: "center" as const 
+  },
+  label: { 
+    fontSize: theme.typography.Caption.fontSize,
+    fontWeight: theme.typography.Caption.fontWeight as any,
+    marginTop: theme.spacing.xs / 2,
+  },
+  newButtonWrapper: { 
+    flex: 1, 
+    justifyContent: "center" as const, 
+    alignItems: "center" as const 
+  },
   newButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    transform: [{ translateY: -18 }],
-    shadowColor: "#000",
+    width: theme.spacing.unit * 7.5, // 60
+    height: theme.spacing.unit * 7.5, // 60
+    borderRadius: theme.spacing.unit * 3.75, // 30
+    justifyContent: "center" as const,
+    alignItems: "center" as const,
+    transform: [{ translateY: -theme.spacing.unit * 2.25 }], // -18
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 5,
     elevation: 8,
   },
 });
+
+// Create a fallback styles object for the components defined before TabLayout
+const fallbackTheme = {
+  typography: { Caption: { fontSize: 13, fontWeight: "400" } },
+  spacing: { unit: 8, xs: 4 }
+};
+const fallbackColors = { primaryText: "#000" };
+const styles = createStyles(fallbackColors, fallbackTheme);

@@ -1,11 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import { View, ViewStyle } from "react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withDelay,
-  withSpring,
-} from "react-native-reanimated";
 import {
   CheckCircle,
   AlertTriangle,
@@ -13,7 +7,6 @@ import {
   HelpCircle,
 } from "lucide-react-native";
 import { AppText } from "@/components";
-import { SkeletonPill } from "@/components/shared/SkeletonPill";
 import { getConfidenceLevel } from "@/utils/getConfidenceLevel";
 import { createStyles } from "./ConfidenceBadge.styles";
 
@@ -62,7 +55,12 @@ export const ConfidenceBadge: React.FC<ConfidenceBadgeProps> = ({
         accessibilityRole="text"
         accessibilityLabel={`${label} estimation`}
       >
-        <Icon size={14} color={confidenceInfo.color.text} fill={confidenceInfo.color.text} strokeWidth={0} />
+        <Icon
+          size={20}
+          color={confidenceInfo.color.text}
+          fill={confidenceInfo.color.background}
+          strokeWidth={2}
+        />
         <AppText style={[styles.text, { color: confidenceInfo.color.text }]}>
           {label}
         </AppText>

@@ -24,6 +24,10 @@ import {
   ChevronDown,
   Droplet,
   Flame,
+  BicepsFlexed,
+  Drumstick,
+  Ham,
+  Wheat,
 } from "lucide-react-native";
 
 if (
@@ -57,26 +61,51 @@ const RING_SPACING = 2;
 // Helper components remain the same
 const getIcon = (label: string, color: string) => {
   switch (label) {
-    case "Calories": return <Flame size={20} color={color} fill={color} strokeWidth={0} />;
-    case "Protein": return <Dumbbell size={20} color={color} fill={color} strokeWidth={0} />;
-    case "Carbs": return <Cookie size={20} color={color} fill={color} strokeWidth={0} />;
-    case "Fat": return <Droplet size={20} color={color} fill={color} strokeWidth={0} />;
-    default: return null;
+    case "Calories":
+      return <Flame size={20} color={color} fill={color} strokeWidth={0} />;
+    case "Protein":
+      return <BicepsFlexed size={20} color={color} fill={color} strokeWidth={0} />;
+    case "Carbs":
+      return <Wheat size={20} color={color} fill={color} strokeWidth={0} />;
+    case "Fat":
+      return <Droplet size={20} color={color} fill={color} strokeWidth={0} />;
+    default:
+      return null;
   }
 };
-const StatRow = ({ color, label, current, total, unit }: { color: string; label: string; current: number; total: number; unit: string; }) => {
+const StatRow = ({
+  color,
+  label,
+  current,
+  total,
+  unit,
+}: {
+  color: string;
+  label: string;
+  current: number;
+  total: number;
+  unit: string;
+}) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   return (
     <View style={styles.statRow}>
-      <View style={[styles.statIconBackground, { backgroundColor: color + "20" }]}>
+      <View
+        style={[styles.statIconBackground, { backgroundColor: color + "20" }]}
+      >
         {getIcon(label, color)}
       </View>
       <View style={styles.statTextContainer}>
         <AppText style={styles.statLabel}>{label}</AppText>
         <View style={styles.statValues}>
-          <AppText style={styles.statCurrentValue}>{Math.round(current)}</AppText>
-          <AppText style={styles.statTotalValue}>{" "}/ {Math.round(total)}{unit}</AppText>
+          <AppText style={styles.statCurrentValue}>
+            {Math.round(current)}
+          </AppText>
+          <AppText style={styles.statTotalValue}>
+            {" "}
+            / {Math.round(total)}
+            {unit}
+          </AppText>
         </View>
       </View>
     </View>
@@ -84,7 +113,11 @@ const StatRow = ({ color, label, current, total, unit }: { color: string; label:
 };
 
 // --- MAIN HEADER COMPONENT ---
-export const DashboardHeader: React.FC<NutrientSummaryProps> = ({ percentages, targets, totals }) => {
+export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
+  percentages,
+  targets,
+  totals,
+}) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const { selectedDate, setSelectedDate } = useAppStore();
@@ -105,15 +138,28 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({ percentages, t
     yesterday.setDate(today.getDate() - 1);
     if (selectedDate === formatDateToLocalString(today)) return "Today";
     if (selectedDate === formatDateToLocalString(yesterday)) return "Yesterday";
-    return new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" });
+    return new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+    });
   }, [selectedDate]);
-  
+
   const containerSize = 160;
   const center = containerSize / 2;
-  const progress = useSharedValue({ calories: 0, protein: 0, carbs: 0, fat: 0 });
+  const progress = useSharedValue({
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  });
 
   useEffect(() => {
-    const safePercentages = { calories: percentages.calories || 0, protein: percentages.protein || 0, carbs: percentages.carbs || 0, fat: percentages.fat || 0 };
+    const safePercentages = {
+      calories: percentages.calories || 0,
+      protein: percentages.protein || 0,
+      carbs: percentages.carbs || 0,
+      fat: percentages.fat || 0,
+    };
     const targetValues = {
       calories: Math.min(1, Math.max(0, safePercentages.calories / 100)),
       protein: Math.min(1, Math.max(0, safePercentages.protein / 100)),
@@ -134,17 +180,27 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({ percentages, t
     let currentRadius = outerRadius;
     for (let i = 0; i < RING_CONFIG.length; i++) {
       radii.push(currentRadius);
-      if (i < RING_CONFIG.length - 1) currentRadius -= STROKE_WIDTH + RING_SPACING;
+      if (i < RING_CONFIG.length - 1)
+        currentRadius -= STROKE_WIDTH + RING_SPACING;
     }
     return radii;
   }, [outerRadius]);
-  
-  const ringColors = { calories: colors.semantic.calories, protein: colors.semantic.protein, carbs: colors.semantic.carbs, fat: colors.semantic.fat };
-  const ringPaths = useMemo(() => ringRadii.map((radius) => {
-    const path = Skia.Path.Make();
-    path.addCircle(center, center, radius);
-    return path;
-  }), [ringRadii, center]);
+
+  const ringColors = {
+    calories: colors.semantic.calories,
+    protein: colors.semantic.protein,
+    carbs: colors.semantic.carbs,
+    fat: colors.semantic.fat,
+  };
+  const ringPaths = useMemo(
+    () =>
+      ringRadii.map((radius) => {
+        const path = Skia.Path.Make();
+        path.addCircle(center, center, radius);
+        return path;
+      }),
+    [ringRadii, center]
+  );
 
   const animatedPathEnd = {
     calories: useDerivedValue(() => progress.value.calories),
@@ -159,23 +215,64 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({ percentages, t
       <View style={styles.contentContainer}>
         <View style={styles.titleHeader}>
           <AppText role="Title2">Summary</AppText>
-          <Button onPress={toggleDatePicker} icon={<ChevronDown size={20} color={colors.secondaryText} strokeWidth={1.5} />} iconPosition="right" size="small" variant="secondary">
+          <Button
+            onPress={toggleDatePicker}
+            icon={
+              <ChevronDown
+                size={20}
+                color={colors.secondaryText}
+                strokeWidth={1.5}
+              />
+            }
+            iconPosition="right"
+            size="small"
+            variant="secondary"
+          >
             {formattedDate}
           </Button>
         </View>
 
         {showDatePicker && (
-          <DateTimePicker value={new Date(selectedDate + "T00:00:00")} mode="date" display="inline" onChange={handleDateChange} maximumDate={new Date()} {...(Platform.OS === "ios" && { themeVariant: colorScheme, accentColor: colors.accent })} />
+          <DateTimePicker
+            value={new Date(selectedDate + "T00:00:00")}
+            mode="date"
+            display="inline"
+            onChange={handleDateChange}
+            maximumDate={new Date()}
+            {...(Platform.OS === "ios" && {
+              themeVariant: colorScheme,
+              accentColor: colors.accent,
+            })}
+          />
         )}
 
         <View style={styles.summaryContent}>
           <View style={styles.ringsContainer}>
             <Canvas style={{ width: containerSize, height: containerSize }}>
-              <Group transform={[{ rotate: -Math.PI / 2 }]} origin={{ x: center, y: center }}>
+              <Group
+                transform={[{ rotate: -Math.PI / 2 }]}
+                origin={{ x: center, y: center }}
+              >
                 {RING_CONFIG.map((config, index) => (
                   <React.Fragment key={config.key}>
-                    <Circle cx={center} cy={center} r={ringRadii[index]} color={colors.disabledBackground} style="stroke" strokeWidth={STROKE_WIDTH} opacity={0.5} />
-                    <Path path={ringPaths[index]} color={ringColors[config.colorKey]} style="stroke" strokeWidth={STROKE_WIDTH} strokeCap="round" start={0} end={animatedPathEnd[config.key]} />
+                    <Circle
+                      cx={center}
+                      cy={center}
+                      r={ringRadii[index]}
+                      color={colors.disabledBackground}
+                      style="stroke"
+                      strokeWidth={STROKE_WIDTH}
+                      opacity={0.5}
+                    />
+                    <Path
+                      path={ringPaths[index]}
+                      color={ringColors[config.colorKey]}
+                      style="stroke"
+                      strokeWidth={STROKE_WIDTH}
+                      strokeCap="round"
+                      start={0}
+                      end={animatedPathEnd[config.key]}
+                    />
                   </React.Fragment>
                 ))}
               </Group>
@@ -183,7 +280,14 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({ percentages, t
           </View>
           <View style={styles.statsContainer}>
             {RING_CONFIG.map((config) => (
-              <StatRow key={config.key} color={ringColors[config.colorKey]} label={config.label} current={totals[config.key] || 0} total={targets[config.key] || 0} unit={config.key === "calories" ? "kcal" : "g"} />
+              <StatRow
+                key={config.key}
+                color={ringColors[config.colorKey]}
+                label={config.label}
+                current={totals[config.key] || 0}
+                total={targets[config.key] || 0}
+                unit={config.key === "calories" ? "kcal" : "g"}
+              />
             ))}
           </View>
         </View>
@@ -219,12 +323,27 @@ const createStyles = (colors: Colors, theme: Theme) => {
     },
     ringsContainer: {},
     statsContainer: { flex: 1, gap: theme.spacing.sm },
-    statRow: { flexDirection: "row", alignItems: "center", gap: theme.spacing.md },
+    statRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.md,
+    },
     statIconBackground: { borderRadius: 100, padding: theme.spacing.sm },
     statTextContainer: { flex: 1 },
-    statLabel: { ...theme.typography.Body, color: colors.secondaryText, marginBottom: 2 },
+    statLabel: {
+      ...theme.typography.Body,
+      color: colors.secondaryText,
+      marginBottom: 2,
+    },
     statValues: { flexDirection: "row", alignItems: "baseline" },
-    statCurrentValue: { ...theme.typography.Body, fontWeight: "600", color: colors.primaryText },
-    statTotalValue: { ...theme.typography.Caption, color: colors.secondaryText },
+    statCurrentValue: {
+      ...theme.typography.Body,
+      fontWeight: "600",
+      color: colors.primaryText,
+    },
+    statTotalValue: {
+      ...theme.typography.Caption,
+      color: colors.secondaryText,
+    },
   });
 };
