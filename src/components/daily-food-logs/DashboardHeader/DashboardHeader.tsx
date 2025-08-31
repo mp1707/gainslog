@@ -1,7 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import {
   View,
-  TouchableOpacity,
   StyleSheet,
   Platform,
   LayoutAnimation,
@@ -16,7 +15,7 @@ import {
 } from "react-native-reanimated";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Colors, Theme, useTheme } from "@/theme";
-import { AppText, Button, Card } from "@/components"; // Assuming AppText is in components/index
+import { AppText, Button, Card } from "@/components";
 import { useAppStore } from "@/store/useAppStore";
 import { formatDateToLocalString } from "@/utils/dateHelpers";
 import {
@@ -25,10 +24,8 @@ import {
   CaretDownIcon,
   DropIcon,
   FireIcon,
-  FlameIcon,
 } from "phosphor-react-native";
 
-// Enable LayoutAnimation on Android
 if (
   Platform.OS === "android" &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -49,7 +46,6 @@ interface NutrientSummaryProps {
   totals: NutrientValues;
 }
 
-// --- CONFIG & TYPES ---
 const RING_CONFIG = [
   { key: "calories", colorKey: "calories" as const, label: "Calories" },
   { key: "protein", colorKey: "protein" as const, label: "Protein" },
@@ -57,341 +53,8 @@ const RING_CONFIG = [
   { key: "fat", colorKey: "fat" as const, label: "Fat" },
 ] as const;
 
-const STROKE_WIDTH = 16; // Increased for a more satisfying, thick look
+const STROKE_WIDTH = 16;
 const RING_SPACING = 2;
-
-// --- SUB-COMPONENTS for better hierarchy ---
-const StatRow = ({
-  color,
-  label,
-  current,
-  total,
-  unit,
-}: {
-  color: string;
-  label: string;
-  current: number;
-  total: number;
-  unit: string;
-}) => {
-  const { colors, theme, colorScheme } = useTheme();
-  const styles = useMemo(
-    () => createStyles(colors, theme, colorScheme),
-    [colors, theme]
-  );
-
-  return (
-    <View style={styles.statRow}>
-      {/* <View style={[styles.statDot, { backgroundColor: color }]} /> */}
-      <View style={[styles.statIconBackgroun, { backgroundColor: color + 20 }]}>
-        {getIcon(label, color)}
-      </View>
-      <View style={styles.statTextContainer}>
-        <AppText style={styles.statLabel}>{label}</AppText>
-        <View style={styles.statValues}>
-          <AppText style={styles.statCurrentValue}>
-            {Math.round(current)}
-          </AppText>
-          <AppText style={styles.statTotalValue}>
-            {" "}
-            / {Math.round(total)}
-            {unit}
-          </AppText>
-        </View>
-      </View>
-    </View>
-  );
-};
-
-// --- MAIN HEADER COMPONENT ---
-export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
-  percentages,
-  targets,
-  totals,
-}) => {
-  const { colors, theme, colorScheme } = useTheme();
-  const styles = useMemo(
-    () => createStyles(colors, theme, colorScheme),
-    [colors, theme]
-  );
-  const { selectedDate, setSelectedDate } = useAppStore();
-  const [showDatePicker, setShowDatePicker] = useState(false);
-
-  // --- Date Logic ---
-  const handleDateChange = (_: any, date?: Date) => {
-    setShowDatePicker(false);
-    if (date) {
-      setSelectedDate(formatDateToLocalString(date));
-    }
-  };
-
-  const toggleDatePicker = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowDatePicker(!showDatePicker);
-  };
-
-  const formattedDate = useMemo(() => {
-    const today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-
-    if (selectedDate === formatDateToLocalString(today)) return "Today";
-    if (selectedDate === formatDateToLocalString(yesterday)) return "Yesterday";
-
-    // Fallback to a more readable format
-    return new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-    });
-  }, [selectedDate]);
-
-  // --- Animation & Skia Logic (adapted from your NutrientSummary) ---
-  const containerSize = 160;
-  const center = containerSize / 2;
-
-  const progress = useSharedValue({
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
-  });
-
-  useEffect(() => {
-    const safePercentages = {
-      calories: percentages.calories || 0,
-      protein: percentages.protein || 0,
-      carbs: percentages.carbs || 0,
-      fat: percentages.fat || 0,
-    };
-
-    const targetValues = {
-      calories: Math.min(1, Math.max(0, safePercentages.calories / 100)),
-      protein: Math.min(1, Math.max(0, safePercentages.protein / 100)),
-      carbs: Math.min(1, Math.max(0, safePercentages.carbs / 100)),
-      fat: Math.min(1, Math.max(0, safePercentages.fat / 100)),
-    };
-
-    // Staggered spring animations
-    progress.value = {
-      calories: withDelay(0, withSpring(targetValues.calories)),
-      protein: withDelay(100, withSpring(targetValues.protein)),
-      carbs: withDelay(200, withSpring(targetValues.carbs)),
-      fat: withDelay(300, withSpring(targetValues.fat)),
-    };
-  }, [percentages, progress]);
-
-  // Your existing Skia logic, slightly refactored for clarity
-  const outerRadius = center - STROKE_WIDTH / 2;
-  const ringRadii = useMemo(() => {
-    const radii = [];
-    let currentRadius = outerRadius;
-    for (let i = 0; i < RING_CONFIG.length; i++) {
-      radii.push(currentRadius);
-      if (i < RING_CONFIG.length - 1) {
-        currentRadius -= STROKE_WIDTH + RING_SPACING;
-      }
-    }
-    return radii;
-  }, [outerRadius]);
-
-  const ringColors = {
-    calories: colors.semantic.calories,
-    protein: colors.semantic.protein,
-    carbs: colors.semantic.carbs,
-    fat: colors.semantic.fat,
-  };
-
-  const ringPaths = useMemo(
-    () =>
-      ringRadii.map((radius) => {
-        const path = Skia.Path.Make();
-        path.addCircle(center, center, radius);
-        return path;
-      }),
-    [ringRadii, center]
-  );
-
-  const animatedPathEnd = {
-    calories: useDerivedValue(() => progress.value.calories),
-    protein: useDerivedValue(() => progress.value.protein),
-    carbs: useDerivedValue(() => progress.value.carbs),
-    fat: useDerivedValue(() => progress.value.fat),
-  };
-
-  // --- Render ---
-  return (
-    <View style={styles.container}>
-      {/* === TOP HEADER: TITLE & DATE === */}
-      <View style={styles.titleHeader}>
-        <AppText role="Title2">Summary</AppText>
-        <View>
-          <Button
-            onPress={toggleDatePicker}
-            icon={<CaretDownIcon size={20} color={colors.secondaryText} />}
-            iconPosition="right"
-            size="small"
-            variant="secondary"
-            style={styles.button}
-          >
-            {formattedDate}
-          </Button>
-        </View>
-      </View>
-      {showDatePicker && (
-        <DateTimePicker
-          value={new Date(selectedDate + "T00:00:00")}
-          mode="date"
-          display="inline"
-          onChange={handleDateChange}
-          maximumDate={new Date()}
-          {...(Platform.OS === "ios" && {
-            themeVariant: colorScheme,
-            accentColor: colors.accent,
-          })}
-        />
-      )}
-
-      {/* === BOTTOM HEADER: NUTRIENT SUMMARY === */}
-      <Card style={styles.innnerContainer}>
-        {/* Left Side: Rings */}
-        <View style={styles.ringsContainer}>
-          <Canvas style={{ width: containerSize, height: containerSize }}>
-            <Group
-              transform={[{ rotate: -Math.PI / 2 }]}
-              origin={{ x: center, y: center }}
-            >
-              {RING_CONFIG.map((config, index) => (
-                <React.Fragment key={config.key}>
-                  <Circle
-                    cx={center}
-                    cy={center}
-                    r={ringRadii[index]}
-                    color={colors.disabledBackground}
-                    style="stroke"
-                    strokeWidth={STROKE_WIDTH}
-                    opacity={0.5}
-                  />
-                  <Path
-                    path={ringPaths[index]}
-                    color={ringColors[config.colorKey]}
-                    style="stroke"
-                    strokeWidth={STROKE_WIDTH}
-                    strokeCap="round"
-                    start={0}
-                    end={animatedPathEnd[config.key]}
-                  />
-                </React.Fragment>
-              ))}
-            </Group>
-          </Canvas>
-        </View>
-
-        {/* Right Side: Stats List */}
-        <View style={styles.statsContainer}>
-          {RING_CONFIG.map((config) => (
-            <StatRow
-              key={config.key}
-              color={ringColors[config.colorKey]}
-              label={config.label}
-              current={totals[config.key] || 0}
-              total={targets[config.key] || 0}
-              unit={config.key === "calories" ? "kcal" : "g"}
-            />
-          ))}
-        </View>
-      </Card>
-    </View>
-  );
-};
-
-// --- STYLESHEET ---
-const createStyles = (
-  colors: Colors,
-  theme: Theme,
-  colorScheme: "dark" | "light"
-) => {
-  const cardStyles = theme.getComponentStyles(colorScheme);
-  return StyleSheet.create({
-    container: {
-      gap: theme.spacing.xl, // Consistent gap for the whole component
-    },
-    innnerContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: theme.spacing.lg,
-    },
-    titleHeader: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginTop: theme.spacing.sm, // Give a little space from the top
-    },
-    summaryContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      backgroundColor: colors.secondaryBackground,
-      borderRadius: 20, // More pronounced, modern radius
-      padding: theme.spacing.lg, // Generous padding
-    },
-    ringsContainer: {
-      // flex: 0.45,
-    },
-    statsContainer: {
-      flex: 1,
-      gap: theme.spacing.sm, // Vertical gap between stat rows
-    },
-    // Stat Row Styles
-    statRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: theme.spacing.md,
-    },
-    statIconBackgroun: {
-      borderRadius: "100%",
-      padding: theme.spacing.sm,
-    },
-    statDot: {
-      width: 10,
-      height: 10,
-      borderRadius: 5,
-      marginRight: theme.spacing.md,
-    },
-    statTextContainer: {
-      flex: 1,
-    },
-    statLabel: {
-      ...theme.typography.Body,
-      color: colors.secondaryText,
-      marginBottom: 2,
-    },
-    statValues: {
-      flexDirection: "row",
-      alignItems: "baseline",
-    },
-    statCurrentValue: {
-      ...theme.typography.Body,
-      fontWeight: "600",
-      color: colors.primaryText,
-    },
-    statTotalValue: {
-      ...theme.typography.Caption,
-      color: colors.secondaryText,
-    },
-    logsTitle: {
-      marginTop: theme.spacing.sm,
-    },
-    button: {
-      borderWidth: 0,
-      shadowColor: cardStyles.cards.shadowColor,
-
-      shadowOffset: cardStyles.cards.shadowOffset,
-      shadowOpacity: cardStyles.cards.shadowOpacity,
-      shadowRadius: cardStyles.cards.shadowRadius,
-      elevation: 2, // For Android shadow
-    },
-  });
-};
 
 const getIcon = (label: string, color: string) => {
   switch (label) {
@@ -404,6 +67,178 @@ const getIcon = (label: string, color: string) => {
     case "Fat":
       return <DropIcon size={20} color={color} weight="fill" />;
     default:
-      return <FlameIcon size={20} color={color} weight="fill" />;
+      return null;
   }
+};
+
+const StatRow = ({ color, label, current, total, unit }: { color: string; label: string; current: number; total: number; unit: string; }) => {
+  const { colors, theme } = useTheme();
+  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  return (
+    <View style={styles.statRow}>
+      <View style={[styles.statIconBackground, { backgroundColor: color + "20" }]}>
+        {getIcon(label, color)}
+      </View>
+      <View style={styles.statTextContainer}>
+        <AppText style={styles.statLabel}>{label}</AppText>
+        <View style={styles.statValues}>
+          <AppText style={styles.statCurrentValue}>{Math.round(current)}</AppText>
+          <AppText style={styles.statTotalValue}>{" "}/ {Math.round(total)}{unit}</AppText>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+export const DashboardHeader: React.FC<NutrientSummaryProps> = ({ percentages, targets, totals }) => {
+  const { colors, theme, colorScheme } = useTheme();
+  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const { selectedDate, setSelectedDate } = useAppStore();
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const handleDateChange = (_: any, date?: Date) => {
+    setShowDatePicker(false);
+    if (date) setSelectedDate(formatDateToLocalString(date));
+  };
+  const toggleDatePicker = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setShowDatePicker(!showDatePicker);
+  };
+  const formattedDate = useMemo(() => {
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+    if (selectedDate === formatDateToLocalString(today)) return "Today";
+    if (selectedDate === formatDateToLocalString(yesterday)) return "Yesterday";
+    return new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  }, [selectedDate]);
+
+  const containerSize = 160;
+  const center = containerSize / 2;
+  const progress = useSharedValue({ calories: 0, protein: 0, carbs: 0, fat: 0 });
+
+  useEffect(() => {
+    const safePercentages = { calories: percentages.calories || 0, protein: percentages.protein || 0, carbs: percentages.carbs || 0, fat: percentages.fat || 0 };
+    const targetValues = {
+      calories: Math.min(1, Math.max(0, safePercentages.calories / 100)),
+      protein: Math.min(1, Math.max(0, safePercentages.protein / 100)),
+      carbs: Math.min(1, Math.max(0, safePercentages.carbs / 100)),
+      fat: Math.min(1, Math.max(0, safePercentages.fat / 100)),
+    };
+    progress.value = {
+      calories: withDelay(0, withSpring(targetValues.calories)),
+      protein: withDelay(100, withSpring(targetValues.protein)),
+      carbs: withDelay(200, withSpring(targetValues.carbs)),
+      fat: withDelay(300, withSpring(targetValues.fat)),
+    };
+  }, [percentages, progress]);
+
+  const outerRadius = center - STROKE_WIDTH / 2;
+  const ringRadii = useMemo(() => {
+    const radii = [];
+    let currentRadius = outerRadius;
+    for (let i = 0; i < RING_CONFIG.length; i++) {
+      radii.push(currentRadius);
+      if (i < RING_CONFIG.length - 1) currentRadius -= STROKE_WIDTH + RING_SPACING;
+    }
+    return radii;
+  }, [outerRadius]);
+
+  const ringColors = { calories: colors.semantic.calories, protein: colors.semantic.protein, carbs: colors.semantic.carbs, fat: colors.semantic.fat };
+  const ringPaths = useMemo(() => ringRadii.map((radius) => {
+    const path = Skia.Path.Make();
+    path.addCircle(center, center, radius);
+    return path;
+  }), [ringRadii, center]);
+
+  const animatedPathEnd = {
+    calories: useDerivedValue(() => progress.value.calories),
+    protein: useDerivedValue(() => progress.value.protein),
+    carbs: useDerivedValue(() => progress.value.carbs),
+    fat: useDerivedValue(() => progress.value.fat),
+  };
+
+  return (
+    <View>
+      <View style={styles.contentContainer}>
+        <View style={styles.titleHeader}>
+          <AppText role="Title2">Summary</AppText>
+          <Button onPress={toggleDatePicker} icon={<CaretDownIcon size={20} color={colors.secondaryText} />} iconPosition="right" size="small" variant="secondary">
+            {formattedDate}
+          </Button>
+        </View>
+      </View>
+
+      {showDatePicker && (
+        <View style={styles.contentContainer}>
+          <DateTimePicker value={new Date(selectedDate + "T00:00:00")} mode="date" display="inline" onChange={handleDateChange} maximumDate={new Date()} {...(Platform.OS === "ios" && { themeVariant: colorScheme, accentColor: colors.accent })} />
+        </View>
+      )}
+
+      {/* THIS IS THE CORRECTED PART */}
+      <Card style={styles.summaryContainer}>
+        <View style={styles.ringsContainer}>
+          <Canvas style={{ width: containerSize, height: containerSize }}>
+            <Group transform={[{ rotate: -Math.PI / 2 }]} origin={{ x: center, y: center }}>
+              {RING_CONFIG.map((config, index) => (
+                <React.Fragment key={config.key}>
+                  <Circle cx={center} cy={center} r={ringRadii[index]} color={colors.disabledBackground} style="stroke" strokeWidth={STROKE_WIDTH} opacity={0.5} />
+                  <Path path={ringPaths[index]} color={ringColors[config.colorKey]} style="stroke" strokeWidth={STROKE_WIDTH} strokeCap="round" start={0} end={animatedPathEnd[config.key]} />
+                </React.Fragment>
+              ))}
+            </Group>
+          </Canvas>
+        </View>
+        <View style={styles.statsContainer}>
+          {RING_CONFIG.map((config) => (
+            <StatRow key={config.key} color={ringColors[config.colorKey]} label={config.label} current={totals[config.key] || 0} total={targets[config.key] || 0} unit={config.key === "calories" ? "kcal" : "g"} />
+          ))}
+        </View>
+      </Card>
+      
+      <View style={styles.contentContainer}>
+        <AppText role="Title2">Logs</AppText>
+      </View>
+    </View>
+  );
+};
+
+const createStyles = (colors: Colors, theme: Theme) => {
+  return StyleSheet.create({
+    contentContainer: {
+      paddingHorizontal: theme.spacing.md,
+      marginBottom: theme.spacing.md,
+    },
+    titleHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginTop: theme.spacing.sm,
+    },
+    // THE CRITICAL CHANGE IS HERE:
+    summaryContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: theme.spacing.lg,
+      // REMOVED marginHorizontal
+      // ADDED paddingHorizontal to align content internally
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.lg,
+      marginBottom: theme.spacing.lg,
+      // Ensure the card's own default padding doesn't interfere
+      padding: 0, 
+      // Make sure the border radius is 0 so it looks like a section, not a card
+      borderRadius: 0,
+    },
+    ringsContainer: {},
+    statsContainer: { flex: 1, gap: theme.spacing.sm },
+    statRow: { flexDirection: "row", alignItems: "center", gap: theme.spacing.md },
+    statIconBackground: { borderRadius: 100, padding: theme.spacing.sm },
+    statTextContainer: { flex: 1 },
+    statLabel: { ...theme.typography.Body, color: colors.secondaryText, marginBottom: 2 },
+    statValues: { flexDirection: "row", alignItems: "baseline" },
+    statCurrentValue: { ...theme.typography.Body, fontWeight: "600", color: colors.primaryText },
+    statTotalValue: { ...theme.typography.Caption, color: colors.secondaryText },
+  });
 };

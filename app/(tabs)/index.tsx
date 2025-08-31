@@ -15,7 +15,6 @@ import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
 import { FoodLog } from "@/types/models";
 import { Toast } from "toastify-react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { AppText } from "@/components/index";
 import { DashboardHeader } from "@/components/daily-food-logs/DashboardHeader/DashboardHeader";
 
 export default function TodayTab() {
@@ -44,14 +43,12 @@ export default function TodayTab() {
 
   const dailyTotals = useMemo(() => {
     return todayFoodLogs.reduce(
-      (acc, log) => {
-        return {
-          calories: acc.calories + log.calories,
-          protein: acc.protein + log.protein,
-          carbs: acc.carbs + log.carbs,
-          fat: acc.fat + log.fat,
-        };
-      },
+      (acc, log) => ({
+        calories: acc.calories + log.calories,
+        protein: acc.protein + log.protein,
+        carbs: acc.carbs + log.carbs,
+        fat: acc.fat + log.fat,
+      }),
       { calories: 0, protein: 0, carbs: 0, fat: 0 }
     );
   }, [todayFoodLogs]);
@@ -66,7 +63,6 @@ export default function TodayTab() {
     ) {
       return { calories: 0, protein: 0, carbs: 0, fat: 0 };
     }
-
     return {
       calories: (dailyTotals.calories / dailyTargets.calories) * 100,
       protein: (dailyTotals.protein / dailyTargets.protein) * 100,
@@ -75,12 +71,7 @@ export default function TodayTab() {
     };
   }, [dailyTotals, dailyTargets]);
 
-  const defaultTargets = {
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
-  };
+  const defaultTargets = { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
   const toggleFavorite = (foodLog: FoodLog) => {
     const isFavorite = favorites.some((favorite) => favorite.id === foodLog.id);
@@ -88,16 +79,7 @@ export default function TodayTab() {
       deleteFavorite(foodLog.id);
       Toast.error("Favorite removed");
     } else {
-      addFavorite({
-        id: foodLog.id,
-        title: foodLog.title,
-        description: foodLog.description,
-        imageUrl: foodLog.imageUrl,
-        calories: foodLog.calories,
-        protein: foodLog.protein,
-        carbs: foodLog.carbs,
-        fat: foodLog.fat,
-      });
+      addFavorite({ ...foodLog });
       Toast.success("Favorite added");
     }
   };
@@ -107,8 +89,6 @@ export default function TodayTab() {
   };
 
   const keyExtractor = useCallback((item: FoodLog) => item.id, []);
-
-  // Optimize FlatList performance with known item dimensions
   const getItemLayout = useCallback(
     (_: any, index: number) => ({
       length: 120, // Estimated LogCard height including gap
@@ -120,17 +100,22 @@ export default function TodayTab() {
 
   const renderItem: ListRenderItem<FoodLog> = useCallback(
     ({ item }) => (
-      <SwipeToFunctions
-        onDelete={() => {
-          deleteFoodLog(item.id);
-        }}
-        onFavorite={() => toggleFavorite(item)}
-        onTap={() => handleNavigateToDetailPage(item)}
-      >
-        <LogCard foodLog={item} isLoading={item.isEstimating} />
-      </SwipeToFunctions>
+      <View style={{ paddingHorizontal: theme.spacing.md }}>
+        <SwipeToFunctions
+          onDelete={() => deleteFoodLog(item.id)}
+          onFavorite={() => toggleFavorite(item)}
+          onTap={() => handleNavigateToDetailPage(item)}
+        >
+          <LogCard foodLog={item} isLoading={item.isEstimating} />
+        </SwipeToFunctions>
+      </View>
     ),
-    [deleteFoodLog, toggleFavorite, handleNavigateToDetailPage]
+    [
+      deleteFoodLog,
+      toggleFavorite,
+      handleNavigateToDetailPage,
+      theme.spacing.md,
+    ]
   );
 
   return (
@@ -148,14 +133,11 @@ export default function TodayTab() {
             { paddingBottom: dynamicBottomPadding },
           ]}
           ListHeaderComponent={
-            <View style={styles.header}>
-              <DashboardHeader
-                percentages={dailyPercentages}
-                targets={dailyTargets || defaultTargets}
-                totals={dailyTotals}
-              />
-              <AppText role="Title2">Logs</AppText>
-            </View>
+            <DashboardHeader
+              percentages={dailyPercentages}
+              targets={dailyTargets || defaultTargets}
+              totals={dailyTotals}
+            />
           }
           showsVerticalScrollIndicator={false}
           removeClippedSubviews
@@ -180,14 +162,9 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     scrollView: {
       paddingVertical: themeObj.spacing.md,
-      paddingHorizontal: themeObj.spacing.md,
-      gap: themeObj.spacing.md,
       flex: 1,
     },
     contentContainer: {
-      gap: themeObj.spacing.md,
-    },
-    header: {
       gap: themeObj.spacing.md,
     },
   });

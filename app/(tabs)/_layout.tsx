@@ -1,5 +1,11 @@
 import { Tabs } from "expo-router";
-import { ForkKnifeIcon, GearSixIcon, PlusIcon } from "phosphor-react-native";
+import {
+  ChartBarIcon,
+  ForkKnifeIcon,
+  GearSixIcon,
+  PlusIcon,
+  StarIcon,
+} from "phosphor-react-native";
 import { useTheme } from "@/theme";
 import React from "react";
 import { TouchableOpacity } from "react-native";
@@ -35,12 +41,12 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="settings"
+          name="overview"
           options={{
-            title: "Settings",
+            title: "Overview",
             headerShown: false, // Let the stack handle the header
             tabBarIcon: ({ color, focused, size }) => (
-              <GearSixIcon
+              <ChartBarIcon
                 color={color}
                 size={size ?? 24}
                 weight={focused ? "fill" : "regular"}
@@ -69,6 +75,34 @@ export default function TabLayout() {
               >
                 {children}
               </TouchableOpacity>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: "Settings",
+            headerShown: false, // Let the stack handle the header
+            tabBarIcon: ({ color, focused, size }) => (
+              <GearSixIcon
+                color={color}
+                size={size ?? 24}
+                weight={focused ? "fill" : "regular"}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="pro"
+          options={{
+            title: "Pro",
+            headerShown: false, // Let the stack handle the header
+            tabBarIcon: ({ color, focused, size }) => (
+              <StarIcon
+                color={color}
+                size={size ?? 24}
+                weight={focused ? "fill" : "regular"}
+              />
             ),
           }}
         />
