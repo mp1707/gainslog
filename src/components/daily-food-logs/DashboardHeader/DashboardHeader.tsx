@@ -15,7 +15,7 @@ import {
 } from "react-native-reanimated";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Colors, Theme, useTheme } from "@/theme";
-import { AppText, Button, Card } from "@/components";
+import { AppText, Button } from "@/components";
 import { useAppStore } from "@/store/useAppStore";
 import { formatDateToLocalString } from "@/utils/dateHelpers";
 import {
@@ -33,44 +33,37 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+// Interfaces and Configs remain the same
 interface NutrientValues {
   calories?: number;
   protein?: number;
   carbs?: number;
   fat?: number;
 }
-
 interface NutrientSummaryProps {
   percentages: NutrientValues;
   targets: NutrientValues;
   totals: NutrientValues;
 }
-
 const RING_CONFIG = [
   { key: "calories", colorKey: "calories" as const, label: "Calories" },
   { key: "protein", colorKey: "protein" as const, label: "Protein" },
   { key: "carbs", colorKey: "carbs" as const, label: "Carbs" },
   { key: "fat", colorKey: "fat" as const, label: "Fat" },
 ] as const;
-
 const STROKE_WIDTH = 16;
 const RING_SPACING = 2;
 
+// Helper components remain the same
 const getIcon = (label: string, color: string) => {
   switch (label) {
-    case "Calories":
-      return <FireIcon size={20} color={color} weight="fill" />;
-    case "Protein":
-      return <BarbellIcon size={20} color={color} weight="fill" />;
-    case "Carbs":
-      return <BreadIcon size={20} color={color} weight="fill" />;
-    case "Fat":
-      return <DropIcon size={20} color={color} weight="fill" />;
-    default:
-      return null;
+    case "Calories": return <FireIcon size={20} color={color} weight="fill" />;
+    case "Protein": return <BarbellIcon size={20} color={color} weight="fill" />;
+    case "Carbs": return <BreadIcon size={20} color={color} weight="fill" />;
+    case "Fat": return <DropIcon size={20} color={color} weight="fill" />;
+    default: return null;
   }
 };
-
 const StatRow = ({ color, label, current, total, unit }: { color: string; label: string; current: number; total: number; unit: string; }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
@@ -90,12 +83,14 @@ const StatRow = ({ color, label, current, total, unit }: { color: string; label:
   );
 };
 
+// --- MAIN HEADER COMPONENT ---
 export const DashboardHeader: React.FC<NutrientSummaryProps> = ({ percentages, targets, totals }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const { selectedDate, setSelectedDate } = useAppStore();
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+  // Logic and animations remain the same
   const handleDateChange = (_: any, date?: Date) => {
     setShowDatePicker(false);
     if (date) setSelectedDate(formatDateToLocalString(date));
@@ -112,7 +107,7 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({ percentages, t
     if (selectedDate === formatDateToLocalString(yesterday)) return "Yesterday";
     return new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" });
   }, [selectedDate]);
-
+  
   const containerSize = 160;
   const center = containerSize / 2;
   const progress = useSharedValue({ calories: 0, protein: 0, carbs: 0, fat: 0 });
@@ -143,7 +138,7 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({ percentages, t
     }
     return radii;
   }, [outerRadius]);
-
+  
   const ringColors = { calories: colors.semantic.calories, protein: colors.semantic.protein, carbs: colors.semantic.carbs, fat: colors.semantic.fat };
   const ringPaths = useMemo(() => ringRadii.map((radius) => {
     const path = Skia.Path.Make();
@@ -158,8 +153,9 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({ percentages, t
     fat: useDerivedValue(() => progress.value.fat),
   };
 
+  // --- RENDER ---
   return (
-    <View>
+    <View style={styles.plateContainer}>
       <View style={styles.contentContainer}>
         <View style={styles.titleHeader}>
           <AppText role="Title2">Summary</AppText>
@@ -167,69 +163,59 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({ percentages, t
             {formattedDate}
           </Button>
         </View>
-      </View>
 
-      {showDatePicker && (
-        <View style={styles.contentContainer}>
+        {showDatePicker && (
           <DateTimePicker value={new Date(selectedDate + "T00:00:00")} mode="date" display="inline" onChange={handleDateChange} maximumDate={new Date()} {...(Platform.OS === "ios" && { themeVariant: colorScheme, accentColor: colors.accent })} />
-        </View>
-      )}
+        )}
 
-      {/* THIS IS THE CORRECTED PART */}
-      <Card style={styles.summaryContainer}>
-        <View style={styles.ringsContainer}>
-          <Canvas style={{ width: containerSize, height: containerSize }}>
-            <Group transform={[{ rotate: -Math.PI / 2 }]} origin={{ x: center, y: center }}>
-              {RING_CONFIG.map((config, index) => (
-                <React.Fragment key={config.key}>
-                  <Circle cx={center} cy={center} r={ringRadii[index]} color={colors.disabledBackground} style="stroke" strokeWidth={STROKE_WIDTH} opacity={0.5} />
-                  <Path path={ringPaths[index]} color={ringColors[config.colorKey]} style="stroke" strokeWidth={STROKE_WIDTH} strokeCap="round" start={0} end={animatedPathEnd[config.key]} />
-                </React.Fragment>
-              ))}
-            </Group>
-          </Canvas>
+        <View style={styles.summaryContent}>
+          <View style={styles.ringsContainer}>
+            <Canvas style={{ width: containerSize, height: containerSize }}>
+              <Group transform={[{ rotate: -Math.PI / 2 }]} origin={{ x: center, y: center }}>
+                {RING_CONFIG.map((config, index) => (
+                  <React.Fragment key={config.key}>
+                    <Circle cx={center} cy={center} r={ringRadii[index]} color={colors.disabledBackground} style="stroke" strokeWidth={STROKE_WIDTH} opacity={0.5} />
+                    <Path path={ringPaths[index]} color={ringColors[config.colorKey]} style="stroke" strokeWidth={STROKE_WIDTH} strokeCap="round" start={0} end={animatedPathEnd[config.key]} />
+                  </React.Fragment>
+                ))}
+              </Group>
+            </Canvas>
+          </View>
+          <View style={styles.statsContainer}>
+            {RING_CONFIG.map((config) => (
+              <StatRow key={config.key} color={ringColors[config.colorKey]} label={config.label} current={totals[config.key] || 0} total={targets[config.key] || 0} unit={config.key === "calories" ? "kcal" : "g"} />
+            ))}
+          </View>
         </View>
-        <View style={styles.statsContainer}>
-          {RING_CONFIG.map((config) => (
-            <StatRow key={config.key} color={ringColors[config.colorKey]} label={config.label} current={totals[config.key] || 0} total={targets[config.key] || 0} unit={config.key === "calories" ? "kcal" : "g"} />
-          ))}
-        </View>
-      </Card>
-      
-      <View style={styles.contentContainer}>
-        <AppText role="Title2">Logs</AppText>
       </View>
     </View>
   );
 };
 
+// --- STYLESHEET ---
 const createStyles = (colors: Colors, theme: Theme) => {
   return StyleSheet.create({
+    plateContainer: {
+      backgroundColor: colors.secondaryBackground,
+      paddingBottom: theme.spacing.lg,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+    },
     contentContainer: {
       paddingHorizontal: theme.spacing.md,
-      marginBottom: theme.spacing.md,
     },
     titleHeader: {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      marginTop: theme.spacing.sm,
+      paddingTop: theme.spacing.md, // Use paddingTop instead of marginTop
     },
-    // THE CRITICAL CHANGE IS HERE:
-    summaryContainer: {
+    summaryContent: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
       gap: theme.spacing.lg,
-      // REMOVED marginHorizontal
-      // ADDED paddingHorizontal to align content internally
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.lg,
-      marginBottom: theme.spacing.lg,
-      // Ensure the card's own default padding doesn't interfere
-      padding: 0, 
-      // Make sure the border radius is 0 so it looks like a section, not a card
-      borderRadius: 0,
+      marginTop: theme.spacing.md,
     },
     ringsContainer: {},
     statsContainer: { flex: 1, gap: theme.spacing.sm },

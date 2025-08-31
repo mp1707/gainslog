@@ -16,6 +16,7 @@ import { FoodLog } from "@/types/models";
 import { Toast } from "toastify-react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { DashboardHeader } from "@/components/daily-food-logs/DashboardHeader/DashboardHeader";
+import { AppText } from "@/components/index";
 
 export default function TodayTab() {
   const { safeNavigate } = useNavigationGuard();
@@ -133,11 +134,13 @@ export default function TodayTab() {
             { paddingBottom: dynamicBottomPadding },
           ]}
           ListHeaderComponent={
-            <DashboardHeader
-              percentages={dailyPercentages}
-              targets={dailyTargets || defaultTargets}
-              totals={dailyTotals}
-            />
+            <View>
+              <DashboardHeader
+                percentages={dailyPercentages}
+                targets={dailyTargets || defaultTargets}
+                totals={dailyTotals}
+              />
+            </View>
           }
           showsVerticalScrollIndicator={false}
           removeClippedSubviews
@@ -166,6 +169,17 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     contentContainer: {
       gap: themeObj.spacing.md,
+    },
+    logsTitle: {
+      paddingHorizontal: themeObj.spacing.md,
+      marginTop: themeObj.spacing.lg,
+      marginBottom: themeObj.spacing.sm,
+
+      // --- NEW HIERARCHY STYLES ---
+      ...themeObj.typography.Caption, // Use a smaller typography preset
+      fontWeight: "600",
+      color: colors.secondaryText,
+      textTransform: "uppercase", // The key change for the "eyebrow" style
     },
   });
 };
