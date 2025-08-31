@@ -20,7 +20,7 @@ import {
 } from "react-native";
 import { useAudioTranscription } from "@/hooks/useAudioTranscription";
 import { useImageSelection } from "@/hooks/useImageSelection";
-import { TranscriptionOverlay } from "@/components/shared/TextInput/TranscriptionOverlay";
+// import { TranscriptionOverlay } from "@/components/shared/TextInput/TranscriptionOverlay";
 import { useEstimation } from "@/hooks/useEstimation";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
