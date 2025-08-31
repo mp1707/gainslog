@@ -1,5 +1,5 @@
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
-import { AppText, Button } from "@/components/index";
+import { AppText, Button, Card } from "@/components/index";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { useAppStore } from "@/store/useAppStore";
 import { Colors, Theme } from "@/theme/theme";
@@ -11,23 +11,19 @@ import {
   StyleSheet,
   TextInput,
   View,
-  Animated,
 } from "react-native";
 import { FoodLog } from "@/types/models";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { NutritionEditCard } from "@/components/edit-page/NutritionEditCard";
 import { CameraIcon, SparkleIcon } from "phosphor-react-native";
 import { useEstimation } from "@/hooks/useEstimation";
+import { ConfidenceBadge, SkeletonPill } from "@/components/shared";
 import {
-  ConfidenceBadge,
-  InputAccessory,
-  SkeletonPill,
-} from "@/components/shared";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+  KeyboardAvoidingView,
+  KeyboardAwareScrollView,
+  KeyboardStickyView,
+} from "react-native-keyboard-controller";
 import { useImageSelection } from "@/hooks/useImageSelection";
-
-const titleAccessoryViewID = "edit-title-input-accessory";
-const descriptionAccessoryViewID = "edit-description-input-accessory";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -89,20 +85,17 @@ export default function Edit() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior="padding"
-      keyboardVerticalOffset={70}
-    >
+    <View style={styles.container}>
       <ModalHeader
         onCancel={handleCancel}
         onSave={handleDone}
         disabled={false}
       />
-      <ScrollView
+      <KeyboardAwareScrollView
         style={[styles.scrollView]}
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="handled"
+        bottomOffset={100}
       >
         <ImageDisplay
           imageUrl={editLog?.imageUrl}
@@ -118,21 +111,6 @@ export default function Edit() {
             placeholder="Enter title"
             style={styles.textInput}
             keyboardAppearance={colorScheme}
-            // onFocus={() => setIsKeyboardVisible(true)}
-            // onBlur={() => setIsKeyboardVisible(false)}
-            inputAccessoryViewID={titleAccessoryViewID}
-          />
-          <InputAccessory
-            nativeID={titleAccessoryViewID}
-            primaryAction={{
-              icon: SparkleIcon,
-              label: isReEstimating
-                ? "Working on it..."
-                : "Re-estimate nutrition",
-              onPress: handleReEstimate,
-              isValid: caNreEstimate && !isReEstimating,
-            }}
-            accessibilityLabel="Re-estimate nutrition"
           />
         </View>
         <View style={styles.section}>
@@ -146,22 +124,7 @@ export default function Edit() {
             multiline
             style={[styles.textInput, { minHeight: 100 }]}
             keyboardAppearance={colorScheme}
-            // onFocus={() => setIsKeyboardVisible(true)}
-            // onBlur={() => setIsKeyboardVisible(false)}
-            inputAccessoryViewID={descriptionAccessoryViewID}
           />
-          {/* <InputAccessory
-            nativeID={descriptionAccessoryViewID}
-            primaryAction={{
-              icon: SparkleIcon,
-              label: isReEstimating
-                ? "Working on it..."
-                : "Re-estimate nutrition",
-              onPress: handleReEstimate,
-              isValid: caNreEstimate && !isReEstimating,
-            }}
-            accessibilityLabel="Re-estimate nutrition"
-          /> */}
         </View>
         <View style={styles.section}>
           <View style={styles.sectionTitle}>
@@ -179,47 +142,43 @@ export default function Edit() {
             onUpdateNutrition={handleUpdateNutrition}
             isStale={changesWereMade}
             isLoading={isReEstimating}
-            // onBlur={() => setIsKeyboardVisible(false)}
-            // onFocus={() => setIsKeyboardVisible(true)}
           />
         </View>
-      </ScrollView>
-      <View
-        style={[
-          styles.bottomContainer,
-          // { transform: [{ translateY: height }] },
-        ]}
-      >
-        <View style={styles.buttonWrapperLeft}>
-          <Button
-            shape="square"
-            variant="secondary"
-            onPress={showImagePickerAlert}
-            icon={<CameraIcon size={20} color={colors.accent} />}
-          />
-        </View>
-        <View style={styles.buttonWrapperRight}>
-          <Button
-            shape="square"
-            variant="primary"
-            onPress={handleReEstimate}
-            disabled={!caNreEstimate || isReEstimating}
-            icon={
-              <SparkleIcon
-                size={20}
-                color={
-                  !caNreEstimate || isReEstimating
-                    ? colors.disabledText
-                    : colors.white
-                }
-              />
-            }
-          >
-            {isReEstimating ? "Working on it..." : "Re-estimate nutrition"}
-          </Button>
-        </View>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
+
+      <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
+        <Card style={styles.keyboardAccessory}>
+          <View style={styles.buttonWrapperLeft}>
+            <Button
+              shape="square"
+              variant="secondary"
+              onPress={showImagePickerAlert}
+              icon={<CameraIcon size={20} color={colors.primaryText} />}
+            />
+          </View>
+          <View style={styles.buttonWrapperRight}>
+            <Button
+              shape="square"
+              variant="primary"
+              onPress={handleReEstimate}
+              disabled={!caNreEstimate || isReEstimating}
+              icon={
+                <SparkleIcon
+                  size={20}
+                  color={
+                    !caNreEstimate || isReEstimating
+                      ? colors.disabledText
+                      : colors.white
+                  }
+                />
+              }
+            >
+              {isReEstimating ? "Working on it..." : "Re-estimate nutrition"}
+            </Button>
+          </View>
+        </Card>
+      </KeyboardStickyView>
+    </View>
   );
 }
 
@@ -227,7 +186,6 @@ const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      marginBottom: theme.spacing.lg,
       backgroundColor: colors.primaryBackground,
     },
     scrollView: {
@@ -255,12 +213,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
       gap: theme.spacing.sm,
     },
     bottomContainer: {
-      padding: theme.spacing.md,
-      backgroundColor: colors.primaryBackground,
-      flexDirection: "row",
-      justifyContent: "center",
-      alignItems: "center",
-      gap: theme.spacing.md,
+      // marginBottom: theme.spacing.xl,
     },
     buttonWrapperLeft: {
       flex: 1,
@@ -273,5 +226,13 @@ const createStyles = (colors: Colors, theme: Theme) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
+    },
+    keyboardAccessory: {
+      padding: theme.spacing.sm,
+      marginHorizontal: theme.spacing.md,
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: theme.spacing.sm,
     },
   });

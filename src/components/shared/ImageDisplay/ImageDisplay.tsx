@@ -16,11 +16,13 @@ import { createStyles } from "./ImageDisplay.styles";
 interface ImageDisplayProps {
   imageUrl?: string;
   isUploading: boolean;
+  deleteImage?: () => void;
 }
 
 export const ImageDisplay: React.FC<ImageDisplayProps> = ({
   imageUrl,
   isUploading,
+  deleteImage,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme, colorScheme);

@@ -2,21 +2,12 @@ import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 // import { TextInput } from "@/components/shared/TextInput";
 import { Toggle } from "@/components/shared/Toggle";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
-import {
-  InputAccessory,
-  InputAccessoryView,
-} from "@/components/shared/InputAccessory";
 import { useAppStore } from "@/store/useAppStore";
 import { Colors, Theme } from "@/theme/theme";
 import { useTheme } from "@/theme/ThemeProvider";
 import { Favorite, FoodLog } from "@/types/models";
 import { useRouter } from "expo-router";
-import {
-  SparkleIcon,
-  PencilIcon,
-  CameraIcon,
-  MicrophoneIcon,
-} from "phosphor-react-native";
+import { SparkleIcon, CameraIcon, MicrophoneIcon } from "phosphor-react-native";
 import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import {
   KeyboardAvoidingView,
@@ -36,12 +27,14 @@ import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
 import { LogCard } from "@/components/daily-food-logs";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { generateFoodLogId } from "@/utils/idGenerator";
+import { KeyboardStickyView } from "react-native-keyboard-controller";
+import { Card } from "@/components/Card";
+import { Button } from "@/components/index";
 
 const inputAccessoryViewID = "create-input-accessory";
 
 export default function Create() {
   const { colors, theme, colorScheme } = useTheme();
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [estimationType, setEstimationType] = useState<
     "ai" | "favorites" | "manual"
   >("ai");
@@ -103,7 +96,6 @@ export default function Create() {
     back();
   }, [back]);
 
-
   const { showImagePickerAlert } = useImageSelection({
     onImageSelected: (imageUrl: string) => {
       setNewLog((prev) => ({
@@ -124,10 +116,6 @@ export default function Create() {
       setIsUploadingImage(false);
     },
   });
-
-  const handleImageInput = useCallback(() => {
-    showImagePickerAlert();
-  }, [showImagePickerAlert]);
 
   const handleEstimation = useCallback(() => {
     startEstimation({
@@ -153,10 +141,7 @@ export default function Create() {
   }, []);
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
+    <View style={styles.container}>
       <ModalHeader
         onCancel={handleCancel}
         onSave={handleEstimation}
@@ -172,7 +157,6 @@ export default function Create() {
           ]}
           onChange={(value: "ai" | "favorites" | "manual") => {
             setEstimationType(value);
-            setIsKeyboardVisible(false);
           }}
         />
       </View>
@@ -202,8 +186,6 @@ export default function Create() {
                 placeholderTextColor={colors.secondaryText}
                 style={styles.textInput}
                 multiline={true}
-                onFocus={() => setIsKeyboardVisible(true)}
-                onBlur={() => setIsKeyboardVisible(false)}
                 inputAccessoryViewID={inputAccessoryViewID}
                 keyboardAppearance={colorScheme}
               />
@@ -232,57 +214,51 @@ export default function Create() {
         </GestureHandlerRootView>
       )}
 
-      {!isKeyboardVisible && estimationType === "ai" && (
-        <View style={styles.bottomContainer}>
-          <InputAccessoryView
-            primaryAction={{
-              icon: SparkleIcon,
-              label: estimateLabel,
-              onPress: handleEstimation,
-              isValid: canContine,
-            }}
-            secondaryAction={{
-              icon: CameraIcon,
-              label: "",
-              onPress: handleImageInput,
-            }}
-            tertiaryAction={{
-              icon: MicrophoneIcon,
-              label: "",
-              onPress: startRecording,
-            }}
-            accessibilityLabel="Main controls"
-          />
-        </View>
+      {estimationType === "ai" && (
+        <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
+          <Card style={styles.keyboardAccessory}>
+            <View style={styles.buttonWrapperLeft}>
+              <Button
+                shape="square"
+                variant="secondary"
+                onPress={showImagePickerAlert}
+                icon={<CameraIcon size={20} color={colors.primaryText} />}
+              />
+            </View>
+            <View style={styles.buttonWrapperCenter}>
+              <Button
+                shape="square"
+                variant="secondary"
+                onPress={startRecording}
+                icon={<MicrophoneIcon size={20} color={colors.primaryText} />}
+              />
+            </View>
+            <View style={styles.buttonWrapperRight}>
+              <Button
+                shape="square"
+                variant="primary"
+                onPress={handleEstimation}
+                disabled={!canContine}
+                icon={
+                  <SparkleIcon
+                    size={20}
+                    color={canContine ? colors.white : colors.disabledText}
+                  />
+                }
+              >
+                {estimateLabel}
+              </Button>
+            </View>
+          </Card>
+        </KeyboardStickyView>
       )}
 
-      {/* InputAccessory for TextInput */}
-      <InputAccessory
-        nativeID={inputAccessoryViewID}
-        primaryAction={{
-          icon: SparkleIcon,
-          label: estimateLabel,
-          onPress: handleEstimation,
-          isValid: canContine,
-        }}
-        secondaryAction={{
-          icon: CameraIcon,
-          label: "",
-          onPress: handleImageInput,
-        }}
-        tertiaryAction={{
-          icon: MicrophoneIcon,
-          label: "",
-          onPress: startRecording,
-        }}
-        accessibilityLabel="Demo buttons"
-      />
       <TranscriptionOverlay
         visible={isRecording}
         liveTranscription={liveTranscription}
         onStop={toggleRecording}
       />
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -335,5 +311,22 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
     },
     contentContainer: {
       gap: theme.spacing.md,
+    },
+    keyboardAccessory: {
+      padding: theme.spacing.sm,
+      marginHorizontal: theme.spacing.md,
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: theme.spacing.sm,
+    },
+    buttonWrapperLeft: {
+      flex: 1,
+    },
+    buttonWrapperCenter: {
+      flex: 1,
+    },
+    buttonWrapperRight: {
+      flex: 2,
     },
   });

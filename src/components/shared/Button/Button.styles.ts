@@ -89,14 +89,12 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
 
   squareMedium: {
     width: "100%",
-    height: spacing.xxl,
     paddingHorizontal: spacing.md,
     borderRadius: componentStyles.buttons.cornerRadius,
   },
 
   squareLarge: {
     width: "100%",
-    height: 56,
     paddingHorizontal: spacing.md,
     borderRadius: componentStyles.buttons.cornerRadius,
   },
