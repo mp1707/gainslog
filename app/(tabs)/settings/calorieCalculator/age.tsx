@@ -28,7 +28,7 @@ const AgeSelectionScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { userSettings, setUserSettings } = useAppStore();
-  const { safeNavigate, isNavigating } = useNavigationGuard();
+  const { safeNavigate } = useNavigationGuard();
   const [age, setAge] = useState<number | undefined>(userSettings?.age);
   const inputRef = useRef<TextInput>(null);
 

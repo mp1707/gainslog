@@ -95,7 +95,7 @@ const darkColors = {
   secondaryText: "#8D8D93",
   border: "#38383A",
   white: "#FFFFFF",
-  disabledBackground: "rgba(242, 242, 247, 0.15)",
+  disabledBackground: "hsla(240, 24%, 96%, 0.15)",
   disabledText: "rgba(242, 242, 247, 0.4)",
   
   // Subtle UI elements (for de-emphasized components)

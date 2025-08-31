@@ -18,6 +18,7 @@ import { FoodLog } from "@/types/models";
 import { Toast } from "toastify-react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { AppText } from "@/components/index";
+import NutrientRings from "@/components/daily-food-logs/NutrientSummary/NewNutrientSummary";
 
 export default function TodayTab() {
   const { safeNavigate } = useNavigationGuard();
@@ -152,10 +153,16 @@ export default function TodayTab() {
             <View style={styles.header}>
               <AppText role="Title2">Summary</AppText>
               <DateNavigationHeader />
-              <NutrientSummary
+              {/* <NutrientSummary
                 percentages={dailyPercentages}
                 targets={dailyTargets || defaultTargets}
                 totals={dailyTotals}
+              /> */}
+              <NutrientRings
+                percentages={dailyPercentages}
+                targets={dailyTargets || defaultTargets}
+                totals={dailyTotals}
+                size={260}
               />
               <AppText role="Title2">Logs</AppText>
             </View>
