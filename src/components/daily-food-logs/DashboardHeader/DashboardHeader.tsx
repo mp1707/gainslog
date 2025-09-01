@@ -1,38 +1,18 @@
-import React, { useMemo, useState, useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  Platform,
-  Modal,
-  Pressable,
-  Dimensions,
-  UIManager,
-} from "react-native";
+import React, { useMemo, useEffect } from "react";
+import { View, StyleSheet, Platform, UIManager } from "react-native";
 import { Canvas, Circle, Path, Skia, Group } from "@shopify/react-native-skia";
 import Animated, {
   useSharedValue,
   withSpring,
   withDelay,
   useDerivedValue,
-  useAnimatedStyle,
-  withTiming,
-  FadeIn,
-  FadeOut,
 } from "react-native-reanimated";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import * as Haptics from "expo-haptics";
 import { Colors, Theme, useTheme } from "@/theme";
-import { AppText, Button } from "@/components";
+import { AppText } from "@/components";
 import { useAppStore } from "@/store/useAppStore";
-import { formatDateToLocalString } from "@/utils/dateHelpers";
-import {
-  ChevronDown,
-  Droplet,
-  Flame,
-  BicepsFlexed,
-  Wheat,
-} from "lucide-react-native";
+import { Droplet, Flame, BicepsFlexed, Wheat } from "lucide-react-native";
 import { ProgressRings } from "@/components/shared/ProgressRings";
+import { DateSlider } from "@/components/shared/DateSlider";
 
 if (
   Platform.OS === "android" &&
@@ -40,9 +20,6 @@ if (
 ) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 // Interfaces and Configs remain the same
 interface NutrientValues {
@@ -77,6 +54,24 @@ const RING_CONFIG = [
 ] as const;
 const STROKE_WIDTH = 16;
 const RING_SPACING = 2;
+
+// Helper functions
+const formatSelectedDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  const today = new Date();
+  const isToday = date.toDateString() === today.toDateString();
+  
+  if (isToday) {
+    return "Today";
+  }
+  
+  const options: Intl.DateTimeFormatOptions = { 
+    weekday: 'long', 
+    month: 'long', 
+    day: 'numeric' 
+  };
+  return date.toLocaleDateString('en-US', options);
+};
 
 // Helper components remain the same
 const getIcon = (label: string, color: string) => {
@@ -140,75 +135,9 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
   targets,
   totals,
 }) => {
-  const { colors, theme, colorScheme } = useTheme();
+  const { colors, theme } = useTheme();
+  const { selectedDate } = useAppStore();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
-  const { selectedDate, setSelectedDate } = useAppStore();
-  const [showDatePicker, setShowDatePicker] = useState(false);
-
-  // Animation values for popover
-  const popoverScale = useSharedValue(0.9);
-  const popoverOpacity = useSharedValue(0);
-  const backdropOpacity = useSharedValue(0);
-
-  // Animated styles for popover
-  const animatedPopoverStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: popoverScale.value }],
-    opacity: popoverOpacity.value,
-  }));
-
-  const animatedBackdropStyle = useAnimatedStyle(() => ({
-    opacity: backdropOpacity.value,
-  }));
-
-  // Logic and animations
-  const handleDateChange = (_: any, date?: Date) => {
-    if (date) {
-      Haptics.selectionAsync();
-      setSelectedDate(formatDateToLocalString(date));
-    }
-    closeDatePicker();
-  };
-
-  const openDatePicker = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setShowDatePicker(true);
-    // Animate in
-    backdropOpacity.value = withTiming(0.4, { duration: 200 });
-    popoverOpacity.value = withTiming(1, { duration: 200 });
-    popoverScale.value = withSpring(1, {
-      damping: 15,
-      stiffness: 200,
-      overshootClamping: false,
-    });
-  };
-
-  const closeDatePicker = () => {
-    // Animate out
-    backdropOpacity.value = withTiming(0, { duration: 150 });
-    popoverOpacity.value = withTiming(0, { duration: 150 });
-    popoverScale.value = withTiming(0.95, { duration: 150 });
-    // Close modal after animation
-    setTimeout(() => setShowDatePicker(false), 150);
-  };
-
-  const toggleDatePicker = () => {
-    if (showDatePicker) {
-      closeDatePicker();
-    } else {
-      openDatePicker();
-    }
-  };
-  const formattedDate = useMemo(() => {
-    const today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-    if (selectedDate === formatDateToLocalString(today)) return "Today";
-    if (selectedDate === formatDateToLocalString(yesterday)) return "Yesterday";
-    return new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-    });
-  }, [selectedDate]);
 
   const containerSize = 175;
   const center = containerSize / 2;
@@ -278,66 +207,13 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
   // --- RENDER ---
   return (
     <View style={styles.plateContainer}>
+      <View style={styles.headingContainer}>
+        <AppText style={styles.dayHeading}>
+          {formatSelectedDate(selectedDate)}
+        </AppText>
+      </View>
+      <DateSlider />
       <View style={styles.contentContainer}>
-        <View style={styles.titleHeader}>
-          <AppText role="Title2">Summary</AppText>
-          <Button
-            onPress={toggleDatePicker}
-            icon={
-              <ChevronDown
-                size={20}
-                color={colors.secondaryText}
-                strokeWidth={1.5}
-              />
-            }
-            iconPosition="right"
-            size="small"
-            variant="secondary"
-            accessibilityLabel={`Selected date: ${formattedDate}`}
-            accessibilityHint="Opens date selection popover"
-          >
-            {formattedDate}
-          </Button>
-        </View>
-
-        {/* Date Picker Popover */}
-        <Modal
-          visible={showDatePicker}
-          transparent
-          animationType="none"
-          statusBarTranslucent
-          onRequestClose={closeDatePicker}
-        >
-          {/* Backdrop */}
-          <AnimatedPressable
-            style={[styles.popoverBackdrop, animatedBackdropStyle]}
-            onPress={closeDatePicker}
-            accessibilityLabel="Close date picker"
-            accessibilityRole="button"
-          />
-
-          {/* Popover Content */}
-          <View style={styles.popoverContainer}>
-            <Animated.View
-              style={[styles.popoverContent, animatedPopoverStyle]}
-              entering={FadeIn.duration(200)}
-              exiting={FadeOut.duration(150)}
-            >
-              <DateTimePicker
-                value={new Date(selectedDate + "T00:00:00")}
-                mode="date"
-                display="inline"
-                onChange={handleDateChange}
-                maximumDate={new Date()}
-                {...(Platform.OS === "ios" && {
-                  themeVariant: colorScheme,
-                  accentColor: colors.accent,
-                })}
-              />
-            </Animated.View>
-          </View>
-        </Modal>
-
         <View style={styles.summaryContent}>
           <ProgressRings
             percentages={percentages}
@@ -372,14 +248,18 @@ const createStyles = (colors: Colors, theme: Theme) => {
       borderBottomWidth: StyleSheet.hairlineWidth,
       borderBottomColor: colors.border,
     },
+    headingContainer: {
+      paddingHorizontal: theme.spacing.md,
+      paddingTop: theme.spacing.md,
+      paddingBottom: theme.spacing.sm,
+    },
+    dayHeading: {
+      ...theme.typography.Title2,
+      color: colors.primaryText,
+      textAlign: "center",
+    },
     contentContainer: {
       paddingHorizontal: theme.spacing.md,
-    },
-    titleHeader: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      paddingTop: theme.spacing.md, // Use paddingTop instead of marginTop
     },
     summaryContent: {
       flexDirection: "row",
@@ -411,34 +291,6 @@ const createStyles = (colors: Colors, theme: Theme) => {
     statTotalValue: {
       ...theme.typography.Caption,
       color: colors.secondaryText,
-    },
-    popoverBackdrop: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(0, 0, 0, 0.4)",
-      width: screenWidth,
-      height: screenHeight,
-    },
-    popoverContainer: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      paddingHorizontal: theme.spacing.lg,
-    },
-    popoverContent: {
-      backgroundColor: colors.secondaryBackground,
-      borderRadius: theme.spacing.md,
-      padding: theme.spacing.sm,
-      shadowColor: "rgba(0, 0, 0, 0.15)",
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 1,
-      shadowRadius: 24,
-      elevation: 8,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border,
     },
   });
 };
