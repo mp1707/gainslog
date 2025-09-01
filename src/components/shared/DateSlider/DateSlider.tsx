@@ -32,10 +32,6 @@ import { CalendarDays } from "lucide-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as Haptics from "expo-haptics";
 
-interface DateSliderProps {
-  // Note: Interface matches requirement but we'll use foodLogs from store
-}
-
 interface DayData {
   date: string; // YYYY-MM-DD
   weekday: string; // Single letter: M, T, W, etc.
@@ -108,76 +104,78 @@ interface DayItemProps {
   styles: any;
 }
 
-const DayItem: React.FC<DayItemProps> = React.memo(({ item, isSelected, onPress, styles }) => {
-  // Individual animation values per item
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(1);
+const DayItem: React.FC<DayItemProps> = React.memo(
+  ({ item, isSelected, onPress, styles }) => {
+    // Individual animation values per item
+    const scale = useSharedValue(1);
+    const opacity = useSharedValue(1);
 
-  // Individual press handlers per item
-  const handlePressIn = useCallback(() => {
-    scale.value = withSpring(0.95, {
-      stiffness: 400,
-      damping: 30,
+    // Individual press handlers per item
+    const handlePressIn = useCallback(() => {
+      scale.value = withSpring(0.95, {
+        stiffness: 400,
+        damping: 30,
+      });
+      opacity.value = withTiming(0.8, { duration: 100 });
+    }, [scale, opacity]);
+
+    const handlePressOut = useCallback(() => {
+      scale.value = withSpring(1, {
+        stiffness: 400,
+        damping: 30,
+      });
+      opacity.value = withTiming(1, { duration: 100 });
+    }, [scale, opacity]);
+
+    // Individual animated style per item
+    const animatedStyle = useAnimatedStyle(() => {
+      return {
+        transform: [{ scale: scale.value }],
+        opacity: opacity.value,
+      };
     });
-    opacity.value = withTiming(0.8, { duration: 100 });
-  }, [scale, opacity]);
 
-  const handlePressOut = useCallback(() => {
-    scale.value = withSpring(1, {
-      stiffness: 400,
-      damping: 30,
-    });
-    opacity.value = withTiming(1, { duration: 100 });
-  }, [scale, opacity]);
-
-  // Individual animated style per item
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-      opacity: opacity.value,
-    };
-  });
-
-  return (
-    <Pressable
-      style={styles.itemContainer}
-      onPress={() => onPress(item.date)}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      accessibilityLabel={`Select ${item.date}`}
-      accessibilityRole="button"
-    >
-      <Animated.View style={animatedStyle}>
-        <View
-          style={[
-            styles.weekdayContainer,
-            isSelected && styles.selectedWeekdayContainer,
-          ]}
-        >
-          <Text
+    return (
+      <Pressable
+        style={styles.itemContainer}
+        onPress={() => onPress(item.date)}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        accessibilityLabel={`Select ${item.date}`}
+        accessibilityRole="button"
+      >
+        <Animated.View style={animatedStyle}>
+          <View
             style={[
-              styles.weekdayText,
-              isSelected && styles.selectedWeekdayText,
+              styles.weekdayContainer,
+              isSelected && styles.selectedWeekdayContainer,
             ]}
           >
-            {item.weekday}
-          </Text>
-        </View>
-        <View style={styles.progressContainer}>
-          <ProgressRings
-            percentages={item.percentages}
-            size={45}
-            strokeWidth={4}
-            spacing={1}
-            padding={1}
-          />
-        </View>
-      </Animated.View>
-    </Pressable>
-  );
-});
+            <Text
+              style={[
+                styles.weekdayText,
+                isSelected && styles.selectedWeekdayText,
+              ]}
+            >
+              {item.weekday}
+            </Text>
+          </View>
+          <View style={styles.progressContainer}>
+            <ProgressRings
+              percentages={item.percentages}
+              size={45}
+              strokeWidth={4}
+              spacing={1}
+              padding={1}
+            />
+          </View>
+        </Animated.View>
+      </Pressable>
+    );
+  }
+);
 
-export const DateSlider: React.FC<DateSliderProps> = () => {
+export const DateSlider = () => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = useMemo(
     () => createStyles(colors, theme, ITEM_WIDTH),

@@ -38,7 +38,7 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
   spacing = 2,
   padding = 2,
 }) => {
-  const { colors, theme } = useTheme();
+  const { colors, theme, colorScheme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
   const center = size / 2;
@@ -106,7 +106,7 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
   };
 
   return (
-    <Animated.View style={styles.container}>
+    <Animated.View key={colorScheme} style={styles.container}>
       <Canvas style={{ width: size, height: size }}>
         <Group
           transform={[{ rotate: -Math.PI / 2 }]}
@@ -114,10 +114,8 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
         >
           {RING_CONFIG.map((config, index) => (
             <React.Fragment key={config.key}>
-              <Circle
-                cx={center}
-                cy={center}
-                r={ringRadii[index]}
+              <Path
+                path={ringPaths[index]}
                 color={colors.disabledBackground}
                 style="stroke"
                 strokeWidth={strokeWidth}
