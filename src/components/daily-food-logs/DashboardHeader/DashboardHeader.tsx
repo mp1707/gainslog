@@ -32,6 +32,7 @@ import {
   BicepsFlexed,
   Wheat,
 } from "lucide-react-native";
+import { ProgressRings } from "@/components/shared/ProgressRings";
 
 if (
   Platform.OS === "android" &&
@@ -55,6 +56,19 @@ interface NutrientSummaryProps {
   targets: NutrientValues;
   totals: NutrientValues;
 }
+
+interface NutrientValues {
+  calories?: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
+}
+interface ProgressRingsProps {
+  percentages: NutrientValues;
+  size?: number;
+  strokeWidth?: number;
+  spacing?: number;
+}
 const RING_CONFIG = [
   { key: "calories", colorKey: "calories" as const, label: "Calories" },
   { key: "protein", colorKey: "protein" as const, label: "Protein" },
@@ -70,7 +84,9 @@ const getIcon = (label: string, color: string) => {
     case "Calories":
       return <Flame size={20} color={color} fill={color} strokeWidth={0} />;
     case "Protein":
-      return <BicepsFlexed size={20} color={color} fill={color} strokeWidth={0} />;
+      return (
+        <BicepsFlexed size={20} color={color} fill={color} strokeWidth={0} />
+      );
     case "Carbs":
       return <Wheat size={20} color={color} fill={color} strokeWidth={0} />;
     case "Fat":
@@ -194,7 +210,7 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
     });
   }, [selectedDate]);
 
-  const containerSize = 160;
+  const containerSize = 175;
   const center = containerSize / 2;
   const progress = useSharedValue({
     calories: 0,
@@ -299,10 +315,10 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
             accessibilityLabel="Close date picker"
             accessibilityRole="button"
           />
-          
+
           {/* Popover Content */}
           <View style={styles.popoverContainer}>
-            <Animated.View 
+            <Animated.View
               style={[styles.popoverContent, animatedPopoverStyle]}
               entering={FadeIn.duration(200)}
               exiting={FadeOut.duration(150)}
@@ -323,37 +339,12 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
         </Modal>
 
         <View style={styles.summaryContent}>
-          <View style={styles.ringsContainer}>
-            <Canvas style={{ width: containerSize, height: containerSize }}>
-              <Group
-                transform={[{ rotate: -Math.PI / 2 }]}
-                origin={{ x: center, y: center }}
-              >
-                {RING_CONFIG.map((config, index) => (
-                  <React.Fragment key={config.key}>
-                    <Circle
-                      cx={center}
-                      cy={center}
-                      r={ringRadii[index]}
-                      color={colors.disabledBackground}
-                      style="stroke"
-                      strokeWidth={STROKE_WIDTH}
-                      opacity={0.5}
-                    />
-                    <Path
-                      path={ringPaths[index]}
-                      color={ringColors[config.colorKey]}
-                      style="stroke"
-                      strokeWidth={STROKE_WIDTH}
-                      strokeCap="round"
-                      start={0}
-                      end={animatedPathEnd[config.key]}
-                    />
-                  </React.Fragment>
-                ))}
-              </Group>
-            </Canvas>
-          </View>
+          <ProgressRings
+            percentages={percentages}
+            size={containerSize}
+            strokeWidth={STROKE_WIDTH}
+            spacing={RING_SPACING}
+          />
           <View style={styles.statsContainer}>
             {RING_CONFIG.map((config) => (
               <StatRow
