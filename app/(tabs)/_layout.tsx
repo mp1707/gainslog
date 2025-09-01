@@ -7,7 +7,7 @@ import Animated, {
   withSpring,
   interpolate,
 } from "react-native-reanimated";
-import { useTheme, useThemedStyles } from "@/theme";
+import { Colors, Theme, useTheme, useThemedStyles } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
 import {
@@ -22,7 +22,7 @@ import {
 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
-import { transform } from "@babel/core";
+
 
 // --- Visual Component & FAB (No changes needed in these) ---
 const AnimatedIconAndLabel = ({
@@ -32,19 +32,6 @@ const AnimatedIconAndLabel = ({
   activeColor,
   inactiveColor,
 }: any) => {
-  const animatedFocusStyle = useAnimatedStyle(
-    () => ({
-      transform: [
-        {
-          translateY: withSpring(isFocused ? -2 : 0, {
-            damping: 15,
-            stiffness: 200,
-          }),
-        },
-      ],
-    }),
-    [isFocused]
-  );
   const animatedLabelStyle = useAnimatedStyle(
     () => ({
       // opacity: withSpring(isFocused ? 1 : 0, { damping: 15, stiffness: 200 }),
@@ -60,10 +47,11 @@ const AnimatedIconAndLabel = ({
     [isFocused]
   );
   return (
-    <Animated.View style={[styles.iconLabelWrapper, animatedFocusStyle]}>
+    <Animated.View style={styles.iconLabelWrapper}>
       <Icon
         color={isFocused ? activeColor : inactiveColor}
         size={26}
+        fill={isFocused ? activeColor + 15 : "none"}
         strokeWidth={isFocused ? 2.5 : 2}
       />
       <Animated.Text
@@ -241,7 +229,7 @@ export default function TabLayout() {
 }
 
 // --- THEMED STYLES ---
-const createStyles = (colors: any, theme: any) => ({
+const createStyles = (colors: Colors, theme: Theme) => ({
   iconLabelWrapper: {
     alignItems: "center" as const,
     justifyContent: "center" as const,
@@ -255,11 +243,10 @@ const createStyles = (colors: any, theme: any) => ({
     flex: 1,
     justifyContent: "center" as const,
     alignItems: "center" as const,
-    transform: [{ translateY: -theme.spacing.unit }],
   },
   newButton: {
-    width: theme.spacing.unit * 7.5,
-    height: theme.spacing.unit * 7.5,
+    width: theme.spacing.unit * 6,
+    height: theme.spacing.unit * 6,
     borderRadius: theme.spacing.unit * 3.75,
     justifyContent: "center" as const,
     alignItems: "center" as const,
@@ -277,4 +264,4 @@ const fallbackTheme = {
   spacing: { unit: 8, xs: 4 },
 };
 const fallbackColors = { primaryText: "#000" };
-const styles = createStyles(fallbackColors, fallbackTheme);
+const styles = createStyles(fallbackColors as Colors, fallbackTheme as Theme);
