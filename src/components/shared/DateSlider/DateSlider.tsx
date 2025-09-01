@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useCallback } from "react";
+import React, { useMemo, useRef, useCallback, useEffect } from "react";
 import { View, FlatList, Pressable, Dimensions } from "react-native";
 import { AppText } from "@/components";
 import { ProgressRings } from "@/components/shared/ProgressRings";
@@ -26,7 +26,8 @@ const WEEKS_TO_SHOW = 4; // 2 weeks before, current week, 1 week ahead
 
 // Calculate dynamic item width to fit exactly 7 days on screen
 const SCREEN_WIDTH = Dimensions.get("window").width;
-const ITEM_WIDTH = SCREEN_WIDTH / 7;
+const HORIZONTAL_PADDING = 40;
+const ITEM_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING) / 7;
 
 export const DateSlider: React.FC<DateSliderProps> = () => {
   const { colors, theme } = useTheme();
@@ -158,8 +159,21 @@ export const DateSlider: React.FC<DateSliderProps> = () => {
     []
   );
 
+  // Scroll to initial position after component mounts
+  useEffect(() => {
+    if (initialContentOffset > 0) {
+      // Use requestAnimationFrame to ensure FlatList is fully mounted
+      requestAnimationFrame(() => {
+        flatListRef.current?.scrollToOffset({
+          offset: initialContentOffset,
+          animated: false,
+        });
+      });
+    }
+  }, [initialContentOffset]);
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingHorizontal: HORIZONTAL_PADDING / 2 }]}>
       <FlatList
         ref={flatListRef}
         data={dateRange}
@@ -174,7 +188,6 @@ export const DateSlider: React.FC<DateSliderProps> = () => {
         windowSize={3}
         removeClippedSubviews={true}
         contentContainerStyle={{}}
-        contentOffset={{ x: initialContentOffset, y: 0 }}
       />
     </View>
   );

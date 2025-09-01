@@ -197,13 +197,6 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
     [ringRadii, center]
   );
 
-  const animatedPathEnd = {
-    calories: useDerivedValue(() => progress.value.calories),
-    protein: useDerivedValue(() => progress.value.protein),
-    carbs: useDerivedValue(() => progress.value.carbs),
-    fat: useDerivedValue(() => progress.value.fat),
-  };
-
   // --- RENDER ---
   return (
     <View style={styles.plateContainer}>
