@@ -47,6 +47,9 @@ export const createStyles = (colors: Colors, theme: Theme, itemWidth: number) =>
       flex: 1,
       backgroundColor: "rgba(0, 0, 0, 0.3)",
     },
+    modalBackdropTouchable: {
+      flex: 1,
+    },
     modalContent: {
       position: "absolute",
       backgroundColor: colors.primaryBackground,

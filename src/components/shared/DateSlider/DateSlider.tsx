@@ -14,13 +14,20 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+  runOnJS,
+} from "react-native-reanimated";
 import { AppText } from "@/components";
 import { ProgressRings } from "@/components/shared/ProgressRings";
 import { Button } from "@/components/shared/Button";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { createStyles } from "./DateSlider.styles";
-import { Calendar } from "lucide-react-native";
+import { CalendarDays } from "lucide-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 interface DateSliderProps {
@@ -100,15 +107,49 @@ export const DateSlider: React.FC<DateSliderProps> = () => {
   );
   const flatListRef = useRef<FlatList>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [buttonLayout, setButtonLayout] = useState({
-    x: 0,
-    y: 0,
-    width: 0,
-    height: 0,
-  });
+  
+  // Reanimated values for modal animation
+  const modalOpacity = useSharedValue(0);
+  const modalTranslateY = useSharedValue(-100);
+  const backdropOpacity = useSharedValue(0);
 
   const { foodLogs, selectedDate, setSelectedDate, dailyTargets } =
     useAppStore();
+
+  // Animated style for modal content
+  const animatedModalStyle = useAnimatedStyle(() => {
+    return {
+      opacity: modalOpacity.value,
+      transform: [{ translateY: modalTranslateY.value }],
+    };
+  });
+
+  // Animated style for backdrop
+  const animatedBackdropStyle = useAnimatedStyle(() => {
+    return {
+      opacity: backdropOpacity.value,
+    };
+  });
+
+  // Animation functions
+  const animateModalIn = useCallback(() => {
+    backdropOpacity.value = withTiming(1, { duration: 200 });
+    modalOpacity.value = withTiming(1, { duration: 300 });
+    modalTranslateY.value = withSpring(0, {
+      stiffness: 300,
+      damping: 30,
+    });
+  }, [modalOpacity, modalTranslateY, backdropOpacity]);
+
+  const animateModalOut = useCallback(() => {
+    backdropOpacity.value = withTiming(0, { duration: 200 });
+    modalOpacity.value = withTiming(0, { duration: 200 });
+    modalTranslateY.value = withTiming(-100, { duration: 200 }, (finished) => {
+      if (finished) {
+        runOnJS(setIsModalVisible)(false);
+      }
+    });
+  }, [modalOpacity, modalTranslateY, backdropOpacity]);
 
   // Generate date range for the slider - always start on Monday
   const dateRange = useMemo(() => {
@@ -189,7 +230,7 @@ export const DateSlider: React.FC<DateSliderProps> = () => {
   const handleDatePickerChange = useCallback(
     (_event: any, selectedDate?: Date) => {
       if (Platform.OS === "android") {
-        setIsModalVisible(false);
+        animateModalOut();
       }
       if (selectedDate) {
         const dateString = selectedDate.toISOString().split("T")[0];
@@ -199,16 +240,23 @@ export const DateSlider: React.FC<DateSliderProps> = () => {
         // Keep modal open on iOS for better UX
       }
     },
-    [setSelectedDate]
+    [setSelectedDate, animateModalOut]
   );
 
   const handleCalendarPress = useCallback(() => {
     setIsModalVisible(true);
   }, []);
 
+  // Trigger animation when modal becomes visible
+  useEffect(() => {
+    if (isModalVisible) {
+      animateModalIn();
+    }
+  }, [isModalVisible, animateModalIn]);
+
   const handleModalClose = useCallback(() => {
-    setIsModalVisible(false);
-  }, []);
+    animateModalOut();
+  }, [animateModalOut]);
 
   const renderDayItem = useCallback(
     ({ item }: { item: DayData }) => {
@@ -279,7 +327,7 @@ export const DateSlider: React.FC<DateSliderProps> = () => {
           <Button
             onPress={handleCalendarPress}
             variant="secondary"
-            icon={<Calendar size={16} color={colors.secondaryText} />}
+            icon={<CalendarDays size={18} color={colors.secondaryText} />}
             accessibilityLabel="Open date picker"
           />
         </View>
@@ -313,27 +361,29 @@ export const DateSlider: React.FC<DateSliderProps> = () => {
       <Modal
         visible={isModalVisible}
         transparent={true}
-        animationType="fade"
+        animationType="none"
         onRequestClose={handleModalClose}
       >
-        <TouchableOpacity
-          style={styles.modalBackdrop}
-          activeOpacity={1}
-          onPress={handleModalClose}
-        >
-          <View
+        <Animated.View style={[styles.modalBackdrop, animatedBackdropStyle]}>
+          <TouchableOpacity
+            style={styles.modalBackdropTouchable}
+            activeOpacity={1}
+            onPress={handleModalClose}
+          >
+          <Animated.View
             style={[
               styles.modalContent,
               {
-                top: buttonLayout.y + buttonLayout.height + 8,
+                top: "20%",
                 right: 16,
               },
+              animatedModalStyle,
             ]}
           >
             <DateTimePicker
               value={new Date(selectedDate + "T00:00:00")}
               mode="date"
-              display={Platform.OS === "ios" ? "compact" : "default"}
+              display={Platform.OS === "ios" ? "inline" : "default"}
               onChange={handleDatePickerChange}
               maximumDate={new Date()}
               {...(Platform.OS === "ios" && {
@@ -350,8 +400,9 @@ export const DateSlider: React.FC<DateSliderProps> = () => {
                 <AppText style={styles.closeButtonText}>Done</AppText>
               </TouchableOpacity>
             )}
-          </View>
-        </TouchableOpacity>
+          </Animated.View>
+          </TouchableOpacity>
+        </Animated.View>
       </Modal>
     </View>
   );
