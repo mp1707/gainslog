@@ -1,10 +1,27 @@
-import React, { useMemo, useRef, useCallback, useEffect } from "react";
-import { View, FlatList, Pressable, Dimensions } from "react-native";
+import React, {
+  useMemo,
+  useRef,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+import {
+  View,
+  FlatList,
+  Pressable,
+  Dimensions,
+  Modal,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
 import { AppText } from "@/components";
 import { ProgressRings } from "@/components/shared/ProgressRings";
+import { Button } from "@/components/shared/Button";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { createStyles } from "./DateSlider.styles";
+import { Calendar } from "lucide-react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 interface DateSliderProps {
   // Note: Interface matches requirement but we'll use foodLogs from store
@@ -29,13 +46,66 @@ const SCREEN_WIDTH = Dimensions.get("window").width;
 const HORIZONTAL_PADDING = 40;
 const ITEM_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING) / 7;
 
+// Smart date formatting function
+const formatSelectedDateHeader = (dateString: string): string => {
+  const date = new Date(dateString + "T00:00:00");
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  // Reset time components for comparison
+  const todayDateOnly = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+  const yesterdayDateOnly = new Date(
+    yesterday.getFullYear(),
+    yesterday.getMonth(),
+    yesterday.getDate()
+  );
+  const tomorrowDateOnly = new Date(
+    tomorrow.getFullYear(),
+    tomorrow.getMonth(),
+    tomorrow.getDate()
+  );
+  const inputDateOnly = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()
+  );
+
+  if (inputDateOnly.getTime() === todayDateOnly.getTime()) {
+    return "Today";
+  } else if (inputDateOnly.getTime() === yesterdayDateOnly.getTime()) {
+    return "Yesterday";
+  } else if (inputDateOnly.getTime() === tomorrowDateOnly.getTime()) {
+    return "Tomorrow";
+  } else {
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+    });
+  }
+};
+
 export const DateSlider: React.FC<DateSliderProps> = () => {
-  const { colors, theme } = useTheme();
+  const { colors, theme, colorScheme } = useTheme();
   const styles = useMemo(
     () => createStyles(colors, theme, ITEM_WIDTH),
     [colors, theme]
   );
   const flatListRef = useRef<FlatList>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [buttonLayout, setButtonLayout] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  });
 
   const { foodLogs, selectedDate, setSelectedDate, dailyTargets } =
     useAppStore();
@@ -47,7 +117,7 @@ export const DateSlider: React.FC<DateSliderProps> = () => {
     const todayWeekStart = new Date(today);
     const todayDayOfWeek = (today.getDay() + 6) % 7; // Convert to Monday=0 format
     todayWeekStart.setDate(today.getDate() - todayDayOfWeek);
-    
+
     const startDate = new Date(todayWeekStart);
     startDate.setDate(todayWeekStart.getDate() - (WEEKS_TO_SHOW - 1) * 7);
 
@@ -98,7 +168,9 @@ export const DateSlider: React.FC<DateSliderProps> = () => {
 
   // Calculate initial content offset to show the week containing selected date
   const initialContentOffset = useMemo(() => {
-    const selectedDateIndex = dateRange.findIndex((day) => day.date === selectedDate);
+    const selectedDateIndex = dateRange.findIndex(
+      (day) => day.date === selectedDate
+    );
     if (selectedDateIndex >= 0) {
       // Find which week (0-based) the selected date is in
       const weekIndex = Math.floor(selectedDateIndex / 7);
@@ -113,6 +185,30 @@ export const DateSlider: React.FC<DateSliderProps> = () => {
     },
     [setSelectedDate]
   );
+
+  const handleDatePickerChange = useCallback(
+    (_event: any, selectedDate?: Date) => {
+      if (Platform.OS === "android") {
+        setIsModalVisible(false);
+      }
+      if (selectedDate) {
+        const dateString = selectedDate.toISOString().split("T")[0];
+        setSelectedDate(dateString);
+      }
+      if (Platform.OS === "ios") {
+        // Keep modal open on iOS for better UX
+      }
+    },
+    [setSelectedDate]
+  );
+
+  const handleCalendarPress = useCallback(() => {
+    setIsModalVisible(true);
+  }, []);
+
+  const handleModalClose = useCallback(() => {
+    setIsModalVisible(false);
+  }, []);
 
   const renderDayItem = useCallback(
     ({ item }: { item: DayData }) => {
@@ -173,22 +269,90 @@ export const DateSlider: React.FC<DateSliderProps> = () => {
   }, [initialContentOffset]);
 
   return (
-    <View style={[styles.container, { paddingHorizontal: HORIZONTAL_PADDING / 2 }]}>
-      <FlatList
-        ref={flatListRef}
-        data={dateRange}
-        renderItem={renderDayItem}
-        keyExtractor={keyExtractor}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={ITEM_WIDTH * 7} // Snap to weeks
-        decelerationRate="fast"
-        getItemLayout={getItemLayout}
-        initialNumToRender={14} // 2 weeks
-        windowSize={3}
-        removeClippedSubviews={true}
-        contentContainerStyle={{}}
-      />
+    <View style={styles.container}>
+      {/* Header Section */}
+      <View style={styles.header}>
+        <AppText role="Title2" style={styles.headerTitle}>
+          {formatSelectedDateHeader(selectedDate)}
+        </AppText>
+        <View style={styles.headerButtonContainer}>
+          <Button
+            onPress={handleCalendarPress}
+            variant="secondary"
+            icon={<Calendar size={16} color={colors.secondaryText} />}
+            accessibilityLabel="Open date picker"
+          />
+        </View>
+      </View>
+
+      {/* Date Slider */}
+      <View
+        style={[
+          styles.sliderContainer,
+          { paddingHorizontal: HORIZONTAL_PADDING / 2 },
+        ]}
+      >
+        <FlatList
+          ref={flatListRef}
+          data={dateRange}
+          renderItem={renderDayItem}
+          keyExtractor={keyExtractor}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={ITEM_WIDTH * 7} // Snap to weeks
+          decelerationRate="fast"
+          getItemLayout={getItemLayout}
+          initialNumToRender={14} // 2 weeks
+          windowSize={3}
+          removeClippedSubviews={true}
+          contentContainerStyle={{}}
+        />
+      </View>
+
+      {/* Date Picker Modal */}
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={handleModalClose}
+      >
+        <TouchableOpacity
+          style={styles.modalBackdrop}
+          activeOpacity={1}
+          onPress={handleModalClose}
+        >
+          <View
+            style={[
+              styles.modalContent,
+              {
+                top: buttonLayout.y + buttonLayout.height + 8,
+                right: 16,
+              },
+            ]}
+          >
+            <DateTimePicker
+              value={new Date(selectedDate + "T00:00:00")}
+              mode="date"
+              display={Platform.OS === "ios" ? "compact" : "default"}
+              onChange={handleDatePickerChange}
+              maximumDate={new Date()}
+              {...(Platform.OS === "ios" && {
+                themeVariant: colorScheme,
+                textColor: colors.primaryText,
+                accentColor: colors.accent,
+              })}
+            />
+            {Platform.OS === "ios" && (
+              <TouchableOpacity
+                onPress={handleModalClose}
+                style={styles.closeButton}
+              >
+                <AppText style={styles.closeButtonText}>Done</AppText>
+              </TouchableOpacity>
+            )}
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 };

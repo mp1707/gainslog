@@ -60,17 +60,17 @@ const formatSelectedDate = (dateString: string): string => {
   const date = new Date(dateString);
   const today = new Date();
   const isToday = date.toDateString() === today.toDateString();
-  
+
   if (isToday) {
     return "Today";
   }
-  
-  const options: Intl.DateTimeFormatOptions = { 
-    weekday: 'long', 
-    month: 'long', 
-    day: 'numeric' 
+
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
   };
-  return date.toLocaleDateString('en-US', options);
+  return date.toLocaleDateString("en-US", options);
 };
 
 // Helper components remain the same
@@ -200,11 +200,6 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
   // --- RENDER ---
   return (
     <View style={styles.plateContainer}>
-      <View style={styles.headingContainer}>
-        <AppText style={styles.dayHeading}>
-          {formatSelectedDate(selectedDate)}
-        </AppText>
-      </View>
       <DateSlider />
       <View style={styles.contentContainer}>
         <View style={styles.summaryContent}>
