@@ -13,6 +13,7 @@ import {
   Modal,
   TouchableOpacity,
   Platform,
+  Text,
 } from "react-native";
 import Animated, {
   useSharedValue,
@@ -29,6 +30,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { createStyles } from "./DateSlider.styles";
 import { CalendarDays } from "lucide-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import * as Haptics from "expo-haptics";
 
 interface DateSliderProps {
   // Note: Interface matches requirement but we'll use foodLogs from store
@@ -50,7 +52,7 @@ const WEEKS_TO_SHOW = 4; // 2 weeks before, current week, 1 week ahead
 
 // Calculate dynamic item width to fit exactly 7 days on screen
 const SCREEN_WIDTH = Dimensions.get("window").width;
-const HORIZONTAL_PADDING = 40;
+const HORIZONTAL_PADDING = 20;
 const ITEM_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING) / 7;
 
 // Smart date formatting function
@@ -99,6 +101,82 @@ const formatSelectedDateHeader = (dateString: string): string => {
   }
 };
 
+interface DayItemProps {
+  item: DayData;
+  isSelected: boolean;
+  onPress: (date: string) => void;
+  styles: any;
+}
+
+const DayItem: React.FC<DayItemProps> = React.memo(({ item, isSelected, onPress, styles }) => {
+  // Individual animation values per item
+  const scale = useSharedValue(1);
+  const opacity = useSharedValue(1);
+
+  // Individual press handlers per item
+  const handlePressIn = useCallback(() => {
+    scale.value = withSpring(0.95, {
+      stiffness: 400,
+      damping: 30,
+    });
+    opacity.value = withTiming(0.8, { duration: 100 });
+  }, [scale, opacity]);
+
+  const handlePressOut = useCallback(() => {
+    scale.value = withSpring(1, {
+      stiffness: 400,
+      damping: 30,
+    });
+    opacity.value = withTiming(1, { duration: 100 });
+  }, [scale, opacity]);
+
+  // Individual animated style per item
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+      opacity: opacity.value,
+    };
+  });
+
+  return (
+    <Pressable
+      style={styles.itemContainer}
+      onPress={() => onPress(item.date)}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      accessibilityLabel={`Select ${item.date}`}
+      accessibilityRole="button"
+    >
+      <Animated.View style={animatedStyle}>
+        <View
+          style={[
+            styles.weekdayContainer,
+            isSelected && styles.selectedWeekdayContainer,
+          ]}
+        >
+          <Text
+            style={[
+              styles.weekdayText,
+              isSelected && styles.selectedWeekdayText,
+            ]}
+          >
+            {item.weekday}
+          </Text>
+        </View>
+        <View style={styles.progressContainer}>
+          <ProgressRings
+            percentages={item.percentages}
+            size={45}
+            strokeWidth={4}
+            spacing={1}
+            padding={1}
+          />
+        </View>
+      </Animated.View>
+    </Pressable>
+  );
+});
+
 export const DateSlider: React.FC<DateSliderProps> = () => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = useMemo(
@@ -107,7 +185,7 @@ export const DateSlider: React.FC<DateSliderProps> = () => {
   );
   const flatListRef = useRef<FlatList>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  
+
   // Reanimated values for modal animation
   const modalOpacity = useSharedValue(0);
   const modalTranslateY = useSharedValue(-100);
@@ -222,6 +300,7 @@ export const DateSlider: React.FC<DateSliderProps> = () => {
 
   const handleDateSelect = useCallback(
     (date: string) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       setSelectedDate(date);
     },
     [setSelectedDate]
@@ -263,30 +342,12 @@ export const DateSlider: React.FC<DateSliderProps> = () => {
       const isSelected = item.date === selectedDate;
 
       return (
-        <Pressable
-          style={styles.itemContainer}
-          onPress={() => handleDateSelect(item.date)}
-          accessibilityLabel={`Select ${item.date}`}
-          accessibilityRole="button"
-        >
-          <AppText
-            style={[
-              styles.weekdayText,
-              isSelected && styles.selectedWeekdayText,
-            ]}
-          >
-            {item.weekday}
-          </AppText>
-          <View style={styles.progressContainer}>
-            <ProgressRings
-              percentages={item.percentages}
-              size={45}
-              strokeWidth={4}
-              spacing={1}
-              padding={1}
-            />
-          </View>
-        </Pressable>
+        <DayItem
+          item={item}
+          isSelected={isSelected}
+          onPress={handleDateSelect}
+          styles={styles}
+        />
       );
     },
     [selectedDate, styles, handleDateSelect]
@@ -370,37 +431,37 @@ export const DateSlider: React.FC<DateSliderProps> = () => {
             activeOpacity={1}
             onPress={handleModalClose}
           >
-          <Animated.View
-            style={[
-              styles.modalContent,
-              {
-                top: "20%",
-                right: 16,
-              },
-              animatedModalStyle,
-            ]}
-          >
-            <DateTimePicker
-              value={new Date(selectedDate + "T00:00:00")}
-              mode="date"
-              display={Platform.OS === "ios" ? "inline" : "default"}
-              onChange={handleDatePickerChange}
-              maximumDate={new Date()}
-              {...(Platform.OS === "ios" && {
-                themeVariant: colorScheme,
-                textColor: colors.primaryText,
-                accentColor: colors.accent,
-              })}
-            />
-            {Platform.OS === "ios" && (
-              <TouchableOpacity
-                onPress={handleModalClose}
-                style={styles.closeButton}
-              >
-                <AppText style={styles.closeButtonText}>Done</AppText>
-              </TouchableOpacity>
-            )}
-          </Animated.View>
+            <Animated.View
+              style={[
+                styles.modalContent,
+                {
+                  top: "20%",
+                  right: 16,
+                },
+                animatedModalStyle,
+              ]}
+            >
+              <DateTimePicker
+                value={new Date(selectedDate + "T00:00:00")}
+                mode="date"
+                display={Platform.OS === "ios" ? "inline" : "default"}
+                onChange={handleDatePickerChange}
+                maximumDate={new Date()}
+                {...(Platform.OS === "ios" && {
+                  themeVariant: colorScheme,
+                  textColor: colors.primaryText,
+                  accentColor: colors.accent,
+                })}
+              />
+              {Platform.OS === "ios" && (
+                <TouchableOpacity
+                  onPress={handleModalClose}
+                  style={styles.closeButton}
+                >
+                  <AppText style={styles.closeButtonText}>Done</AppText>
+                </TouchableOpacity>
+              )}
+            </Animated.View>
           </TouchableOpacity>
         </Animated.View>
       </Modal>

@@ -29,15 +29,25 @@ export const createStyles = (colors: Colors, theme: Theme, itemWidth: number) =>
       height: 100,
       width: itemWidth,
     },
+    weekdayContainer: {
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: theme.spacing.xs / 2,
+      borderRadius: 12,
+      alignSelf: "center",
+      marginBottom: theme.spacing.xs,
+    },
+    selectedWeekdayContainer: {
+      backgroundColor: `${colors.subtleBackground}`, 
+    },
     weekdayText: {
       ...theme.typography.Caption,
       fontWeight: "600",
       color: colors.secondaryText,
-      marginBottom: theme.spacing.xs,
       textAlign: "center",
     },
     selectedWeekdayText: {
-      color: colors.accent,
+      fontWeight: "900",
+      color: colors.primaryText,
     },
     progressContainer: {
       alignItems: "center",
