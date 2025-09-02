@@ -1,18 +1,13 @@
 import React, { useMemo, useEffect } from "react";
 import { View, StyleSheet, Platform, UIManager } from "react-native";
 import { Canvas, Circle, Path, Skia, Group } from "@shopify/react-native-skia";
-import Animated, {
+import {
   useSharedValue,
   withSpring,
   withDelay,
-  useDerivedValue,
-  useAnimatedStyle,
-  interpolate,
-  Extrapolation,
 } from "react-native-reanimated";
 import { Colors, Theme, useTheme } from "@/theme";
 import { AppText } from "@/components";
-import { useAppStore } from "@/store/useAppStore";
 import { Droplet, Flame, BicepsFlexed, Wheat } from "lucide-react-native";
 import { ProgressRings } from "@/components/shared/ProgressRings";
 
@@ -34,9 +29,6 @@ interface NutrientSummaryProps {
   percentages: NutrientValues;
   targets: NutrientValues;
   totals: NutrientValues;
-  scrollY?: {
-    value: number;
-  };
 }
 
 interface NutrientValues {
@@ -110,14 +102,12 @@ const StatRow = ({
   );
 };
 
-const COMPACT_THRESHOLD = 100;
 
 // --- MAIN HEADER COMPONENT ---
 export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
   percentages,
   targets,
   totals,
-  scrollY,
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
@@ -151,36 +141,6 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
     };
   }, [percentages, progress]);
 
-  // Animated styles for compact mode
-  const headerAnimatedStyle = useAnimatedStyle(() => {
-    if (!scrollY) return {};
-
-    const opacity = interpolate(
-      scrollY.value,
-      [0, COMPACT_THRESHOLD],
-      [1, 0],
-      Extrapolation.CLAMP
-    );
-
-    const scale = interpolate(
-      scrollY.value,
-      [0, COMPACT_THRESHOLD],
-      [1, 0.9],
-      Extrapolation.CLAMP
-    );
-
-    const translateY = interpolate(
-      scrollY.value,
-      [0, COMPACT_THRESHOLD],
-      [0, -20],
-      Extrapolation.CLAMP
-    );
-
-    return {
-      opacity,
-      transform: [{ scale }, { translateY }],
-    };
-  });
 
   const ringColors = {
     calories: colors.semantic.calories,
@@ -192,7 +152,7 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
   // --- RENDER ---
   return (
     <View style={styles.plateContainer}>
-      <Animated.View style={[styles.contentContainer, headerAnimatedStyle]}>
+      <View style={styles.contentContainer}>
         <View style={styles.summaryContent}>
           <ProgressRings
             percentages={percentages}
@@ -213,7 +173,7 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
             ))}
           </View>
         </View>
-      </Animated.View>
+      </View>
     </View>
   );
 };
@@ -223,7 +183,6 @@ const createStyles = (colors: Colors, theme: Theme) => {
   return StyleSheet.create({
     plateContainer: {
       paddingBottom: theme.spacing.lg,
-      borderBottomWidth: StyleSheet.hairlineWidth,
     },
     headingContainer: {
       paddingHorizontal: theme.spacing.md,

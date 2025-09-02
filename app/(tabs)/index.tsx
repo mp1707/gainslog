@@ -1,4 +1,3 @@
-import React, { useMemo, useCallback, useRef, useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   SafeAreaView,
@@ -7,13 +6,7 @@ import {
   FlatList,
   ListRenderItem,
 } from "react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  interpolate,
-  Extrapolation,
-} from "react-native-reanimated";
+import React, { useMemo, useCallback, useRef, useEffect } from "react";
 import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
 import { useAppStore } from "@/store/useAppStore";
 import { LogCard } from "@/components/daily-food-logs/LogCard";
@@ -28,10 +21,8 @@ import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
 
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList<FoodLog>);
-
-const HEADER_HEIGHT = 280;
-const COMPACT_THRESHOLD = 100;
+const HEADER_HEIGHT = 200;
+const DASHBOARD_OFFSET = HEADER_HEIGHT - 50;
 
 export default function TodayTab() {
   const { safeNavigate } = useNavigationGuard();
@@ -39,9 +30,6 @@ export default function TodayTab() {
   const { colors, theme, colorScheme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const flatListRef = useRef<FlatList>(null);
-
-  // Animation values
-  const scrollY = useSharedValue(0);
 
   const {
     foodLogs,
@@ -108,13 +96,6 @@ export default function TodayTab() {
     safeNavigate(`/edit/${foodLog.id}`);
   };
 
-  // Scroll handler
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollY.value = event.contentOffset.y;
-    },
-  });
-
   const keyExtractor = useCallback((item: FoodLog) => item.id, []);
   const getItemLayout = useCallback(
     (_: any, index: number) => ({
@@ -149,6 +130,12 @@ export default function TodayTab() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
         <View style={{ flex: 1 }}>
+          <LinearGradient
+            colors={[colors.primaryBackground, "transparent"]}
+            locations={[0, 1]}
+            style={styles.gradientOverlay}
+            pointerEvents="none"
+          />
           <MaskedView
             style={styles.headerContainer}
             maskElement={
@@ -163,7 +150,8 @@ export default function TodayTab() {
               <DateSlider />
             </BlurView>
           </MaskedView>
-          <AnimatedFlatList
+
+          <FlatList
             ref={flatListRef}
             data={todayFoodLogs}
             keyExtractor={keyExtractor}
@@ -174,7 +162,7 @@ export default function TodayTab() {
               styles.contentContainer,
               {
                 paddingBottom: dynamicBottomPadding,
-                marginTop: HEADER_HEIGHT - COMPACT_THRESHOLD,
+                marginTop: DASHBOARD_OFFSET,
               },
             ]}
             ListHeaderComponent={
@@ -183,12 +171,9 @@ export default function TodayTab() {
                   percentages={dailyPercentages}
                   targets={dailyTargets || defaultTargets}
                   totals={dailyTotals}
-                  scrollY={scrollY}
                 />
               </View>
             }
-            onScroll={scrollHandler}
-            scrollEventThrottle={16}
             showsVerticalScrollIndicator={false}
             removeClippedSubviews
             initialNumToRender={6}
@@ -217,7 +202,15 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       left: 0,
       right: 0,
       height: HEADER_HEIGHT,
-      zIndex: 10,
+      zIndex: 12,
+    },
+    gradientOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: HEADER_HEIGHT,
+      zIndex: 11,
     },
     blurContainer: {
       flex: 1,
