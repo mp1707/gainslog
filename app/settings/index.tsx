@@ -4,9 +4,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   TouchableOpacity,
-  Alert,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { StatusIcon } from "@/components/shared/StatusIcon";
@@ -17,6 +15,8 @@ import { Card, AppText } from "src/components";
 import { ChevronRight } from "lucide-react-native";
 import { AppearanceCard } from "@/components/settings/AppearanceCard";
 import { SettingsSection } from "@/components/settings/SettingsSection";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { useRouter } from "expo-router";
 
 export default function SettingsTab() {
   const isLoadingTargets = false;
@@ -24,6 +24,7 @@ export default function SettingsTab() {
   const keyboardOffset = useKeyboardOffset(true);
   const { safeNavigate, isNavigating } = useNavigationGuard();
   const { dailyTargets } = useAppStore();
+  const { back } = useRouter();
 
   const styles = useMemo(
     () => createStyles(colors, themeObj, keyboardOffset),
@@ -38,16 +39,22 @@ export default function SettingsTab() {
   const fatEnabled = isProteinSet;
   const carbsEnabled = isFatSet;
 
+  const handleCancel = () => {
+    back();
+  };
+
+  const handleSave = () => {
+    back();
+  };
+
   if (isLoadingTargets) {
     return (
-      <SafeAreaView
-        style={[styles.container, styles.centered]}
-        edges={["left", "right"]}
-      >
+      <View style={[styles.container, styles.centered]}>
+        <ModalHeader onCancel={handleCancel} onSave={handleSave} />
         <AppText role="Body" color="secondary">
           Loading settings...
         </AppText>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -60,7 +67,8 @@ export default function SettingsTab() {
 
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-      <SafeAreaView style={styles.container} edges={["left", "right", "top"]}>
+      <View style={styles.container}>
+        <ModalHeader onCancel={handleCancel} onSave={handleSave} />
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -283,38 +291,10 @@ export default function SettingsTab() {
             </View> */}
           </SettingsSection>
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
-
-const resetTargets = (resetDailyTargets: () => void) => {
-  Alert.alert(
-    "Reset Daily Targets",
-    "This will reset all your daily nutrition targets to zero and clear any saved calculations. This action cannot be undone.\\n\\nAre you sure you want to continue?",
-    [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Reset",
-        style: "destructive",
-        onPress: () => {
-          try {
-            resetDailyTargets();
-            Alert.alert(
-              "Success",
-              "Daily targets have been reset successfully."
-            );
-          } catch (error) {
-            // Error is already handled in the store
-          }
-        },
-      },
-    ]
-  );
-};
 
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];

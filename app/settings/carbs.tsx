@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import {
@@ -8,13 +7,25 @@ import {
   calculateCarbsFromMacros,
 } from "@/utils/nutritionCalculations";
 import type { ColorScheme, Theme } from "@/theme";
+import { useRouter } from "expo-router";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 
 const CarbsScreen = React.memo(function CarbsScreen() {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const styles = createStyles(colors, themeObj, colorScheme);
   const { dailyTargets, userSettings } = useAppStore();
+  const { back } = useRouter();
   const fatPercentage = userSettings?.fatCalculationPercentage || 0;
   const carbsEnabled = dailyTargets?.protein && dailyTargets?.fat;
+
+  const handleCancel = () => {
+    back();
+  };
+
+  const handleSave = () => {
+    // Carbs are automatically calculated, so just go back
+    back();
+  };
 
   // Calculate carbs value
   const fatGrams = React.useMemo(
@@ -45,7 +56,9 @@ const CarbsScreen = React.memo(function CarbsScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right", "bottom"]}>
+    <View style={styles.container}>
+      <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={false} />
+      
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Carbohydrate Target</Text>
@@ -96,7 +109,7 @@ const CarbsScreen = React.memo(function CarbsScreen() {
           )}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 });
 

@@ -6,7 +6,6 @@ import {
   Text,
   Alert,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
 import {
@@ -25,6 +24,8 @@ import {
   calculateCarbsFromMacros,
   calculateFatGramsFromPercentage,
 } from "@/utils/nutritionCalculations";
+import { useRouter } from "expo-router";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 
 const METHODS: Record<
   NonNullable<UserSettings["proteinGoalType"]>,
@@ -87,10 +88,21 @@ export default function ProteinGoalsScreen() {
   const { userSettings, setUserSettings, dailyTargets, setDailyTargets } =
     useAppStore();
   const { safeDismissTo, safeReplace } = useNavigationGuard();
+  const { back } = useRouter();
   const weight = userSettings?.weight || 0;
   const [selectedMethod, setSelectedMethod] = useState<
     UserSettings["proteinGoalType"] | undefined
   >(undefined);
+
+  const handleCancel = () => {
+    back();
+  };
+
+  const handleSave = () => {
+    if (selectedMethod) {
+      handleMethodSelect(selectedMethod);
+    }
+  };
 
   const proteinGoals = useMemo(() => {
     return {
@@ -104,8 +116,6 @@ export default function ProteinGoalsScreen() {
   const handleMethodSelect = async (
     method: UserSettings["proteinGoalType"]
   ) => {
-    setSelectedMethod(method);
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (!userSettings) return;
     setUserSettings({ ...userSettings, proteinGoalType: method });
     const newDailyTargets = {
@@ -131,11 +141,19 @@ export default function ProteinGoalsScreen() {
     }, 300);
   };
 
+  const handleMethodPreselect = (
+    method: UserSettings["proteinGoalType"]
+  ) => {
+    setSelectedMethod(method);
+  };
+
   const methods = Object.values(METHODS);
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <SafeAreaView style={styles.container} edges={["left", "right"]}>
+      <View style={styles.container}>
+        <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!selectedMethod} />
+        
         {/* Content */}
         <ScrollView
           style={styles.content}
@@ -166,7 +184,7 @@ export default function ProteinGoalsScreen() {
                   icon={IconComponent}
                   iconColor={colors.accent}
                   isSelected={selectedMethod === method.id}
-                  onSelect={() => handleMethodSelect(method.id)}
+                  onSelect={() => handleMethodPreselect(method.id)}
                   dailyTarget={{
                     value: proteinGoal,
                     unit: "g",
@@ -187,7 +205,7 @@ export default function ProteinGoalsScreen() {
             </Text>
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -266,9 +284,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       color: colors.secondaryText,
       textAlign: "center",
       lineHeight: 18,
-    },
-    progressContainer: {
-      padding: themeObj.spacing.md,
     },
   });
 };

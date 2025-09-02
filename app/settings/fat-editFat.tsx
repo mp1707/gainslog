@@ -1,6 +1,5 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import {
   Flame,
   Zap,
@@ -16,6 +15,8 @@ import {
   calculateMaxFatPercentage,
 } from "@/utils/nutritionCalculations";
 import type { ColorScheme, Theme } from "@/theme";
+import { useRouter } from "expo-router";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 
 // GuidelineRow Component: No changes needed here, as it inherits styles from the parent.
 const GuidelineRow = ({
@@ -50,6 +51,18 @@ const EditFatScreen = React.memo(function EditFatScreen() {
   const styles = createStyles(colors, themeObj, colorScheme);
   const { dailyTargets, userSettings } = useAppStore();
   const { safeReplace } = useNavigationGuard();
+  const { back } = useRouter();
+  const [selectedOption, setSelectedOption] = useState<boolean>(false);
+
+  const handleCancel = () => {
+    back();
+  };
+
+  const handleSave = () => {
+    if (selectedOption) {
+      handleEditCurrent();
+    }
+  };
 
   const fatGrams = calculateFatGramsFromPercentage(
     dailyTargets?.calories || 0,
@@ -66,8 +79,14 @@ const EditFatScreen = React.memo(function EditFatScreen() {
     safeReplace("/settings/fat-manualInput");
   }, [safeReplace]);
 
+  const handleEditCurrentPreselect = () => {
+    setSelectedOption(true);
+  };
+
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right", "bottom"]}>
+    <View style={styles.container}>
+      <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!selectedOption} />
+      
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Fat Target</Text>
@@ -82,8 +101,8 @@ const EditFatScreen = React.memo(function EditFatScreen() {
           description="Manually adjust your fat target"
           icon={Edit2}
           iconColor={colors.accent}
-          isSelected={false}
-          onSelect={handleEditCurrent}
+          isSelected={selectedOption}
+          onSelect={handleEditCurrentPreselect}
           accessibilityLabel="Edit current fat value manually"
           accessibilityHint="Opens a screen to manually input your fat percentage"
         />
@@ -119,7 +138,7 @@ const EditFatScreen = React.memo(function EditFatScreen() {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 });
 

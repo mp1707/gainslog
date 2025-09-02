@@ -7,17 +7,17 @@ import {
   StyleSheet,
   Platform,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { Colors, Theme, useTheme } from "@/theme";
-import { ProgressBar } from "@/components/settings/ProgressBar";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useAppStore } from "@/store/useAppStore";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { useRouter } from "expo-router";
 
 const inputAccessoryViewID = "age-input-accessory";
 
@@ -29,6 +29,7 @@ const AgeSelectionScreen = () => {
   const styles = createStyles(colors, themeObj);
   const { userSettings, setUserSettings } = useAppStore();
   const { safeNavigate } = useNavigationGuard();
+  const { back } = useRouter();
   const [age, setAge] = useState<number | undefined>(userSettings?.age);
   const inputRef = useRef<TextInput>(null);
 
@@ -48,15 +49,19 @@ const AgeSelectionScreen = () => {
     setAge(newAge);
   };
 
+  const handleCancel = () => {
+    back();
+  };
+
+  const handleSave = () => {
+    if (isValidAge(age)) {
+      handleContinue();
+    }
+  };
+
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right"]}>
-      <View style={styles.progressContainer}>
-        <ProgressBar
-          totalSteps={6}
-          currentStep={2}
-          accessibilityLabel="Step 2 of 6"
-        />
-      </View>
+    <View style={styles.container}>
+      <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!isValidAge(age)} />
 
       <View style={styles.content}>
         <View style={styles.textSection}>
@@ -102,7 +107,7 @@ const AgeSelectionScreen = () => {
           </Button>
         </Card>
       </KeyboardStickyView>
-    </SafeAreaView>
+    </View>
   );
 };
 

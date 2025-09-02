@@ -1,16 +1,16 @@
 import React, { useState, useRef, useCallback } from "react";
 import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
-import { ProgressBar } from "@/components/settings/ProgressBar";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
+import { useRouter } from "expo-router";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 
 const isValidHeight = (height: number | undefined) =>
   height !== undefined && height >= 100 && height <= 250;
@@ -24,8 +24,17 @@ const HeightSelectionScreen = () => {
     userSettings?.height
   );
   const inputRef = useRef<TextInput>(null);
+  const { back } = useRouter();
 
   useDelayedAutofocus(inputRef);
+
+  const handleCancel = () => {
+    back();
+  };
+
+  const handleSave = () => {
+    handleContinue();
+  };
 
   const handleHeightChange = (heightText: string) => {
     const newHeight = Number(heightText);
@@ -52,15 +61,9 @@ const HeightSelectionScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right"]}>
-      <View style={styles.progressContainer}>
-        <ProgressBar
-          totalSteps={6}
-          currentStep={4}
-          accessibilityLabel={`Calculator progress: step 4 of 6`}
-        />
-      </View>
-
+    <View style={styles.container}>
+      <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!isValidHeight(height)} />
+      
       <View style={styles.content}>
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>How tall are you?</Text>
@@ -110,7 +113,7 @@ const HeightSelectionScreen = () => {
           </Button>
         </Card>
       </KeyboardStickyView>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -120,7 +123,6 @@ const createStyles = (colors: any, themeObj: any) => {
   const { spacing, typography, components } = themeObj;
   return StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.primaryBackground },
-    progressContainer: { padding: spacing.md },
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,

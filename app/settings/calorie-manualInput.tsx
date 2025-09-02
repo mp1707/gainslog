@@ -1,12 +1,9 @@
 import React, {
   useState,
   useEffect,
-  useMemo,
   useRef,
-  useCallback,
 } from "react";
 import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 
@@ -17,6 +14,8 @@ import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
+import { useRouter } from "expo-router";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 
 const isValidCalories = (calories: number | undefined) =>
   calories !== undefined && calories >= 1000 && calories <= 7000;
@@ -25,12 +24,21 @@ const ManualCalorieInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { dailyTargets, setDailyTargets } = useAppStore();
-  const { safeDismissTo, isNavigating } = useNavigationGuard();
+  const { safeDismissTo } = useNavigationGuard();
+  const { back } = useRouter();
 
   const [calories, setCalories] = useState<number | undefined>(
     dailyTargets?.calories
   );
   const inputRef = useRef<TextInput>(null);
+
+  const handleCancel = () => {
+    back();
+  };
+
+  const handleSaveFromHeader = () => {
+    handleSave();
+  };
 
   useEffect(() => {
     if (dailyTargets?.calories && dailyTargets.calories > 0) {
@@ -77,7 +85,9 @@ const ManualCalorieInputScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right"]}>
+    <View style={styles.container}>
+      <ModalHeader onCancel={handleCancel} onSave={handleSaveFromHeader} disabled={!isValidCalories(calories)} />
+      
       <View style={styles.content}>
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Enter your daily calorie goal</Text>
@@ -129,14 +139,14 @@ const ManualCalorieInputScreen = () => {
           </Button>
         </Card>
       </KeyboardStickyView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 export default ManualCalorieInputScreen;
 
 const createStyles = (colors: any, themeObj: any) => {
-  const { spacing, typography, components } = themeObj;
+  const { spacing, typography } = themeObj;
   return StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.primaryBackground },
     content: {

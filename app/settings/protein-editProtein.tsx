@@ -1,6 +1,5 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { View, Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Edit, Calculator } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
@@ -8,13 +7,29 @@ import { useAppStore } from "@/store/useAppStore";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 
 const EditProteinScreen = React.memo(function EditProteinScreen() {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { dailyTargets } = useAppStore();
   const { safeReplace } = useNavigationGuard();
+  const { back } = useRouter();
   const proteinTarget = dailyTargets?.protein || 0;
+  const [selectedOption, setSelectedOption] = useState<'edit' | 'fresh' | null>(null);
+
+  const handleCancel = () => {
+    back();
+  };
+
+  const handleSave = () => {
+    if (selectedOption === 'edit') {
+      handleEditCurrent();
+    } else if (selectedOption === 'fresh') {
+      handleStartFresh();
+    }
+  };
 
   const handleEditCurrent = useCallback(async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -26,8 +41,18 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
     safeReplace("/settings/protein-weight");
   }, [safeReplace]);
 
+  const handleEditCurrentPreselect = () => {
+    setSelectedOption('edit');
+  };
+
+  const handleStartFreshPreselect = () => {
+    setSelectedOption('fresh');
+  };
+
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right"]}>
+    <View style={styles.container}>
+      <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!selectedOption} />
+      
       {/* Content */}
       <View style={styles.content}>
         <View style={styles.textSection}>
@@ -45,8 +70,8 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
               description="Manually adjust your current protein target"
               icon={Edit}
               iconColor={colors.semantic.protein}
-              isSelected={false}
-              onSelect={handleEditCurrent}
+              isSelected={selectedOption === 'edit'}
+              onSelect={handleEditCurrentPreselect}
               accessibilityLabel="Edit current protein value manually"
               accessibilityHint="Opens manual input screen with your current protein value pre-filled"
             />
@@ -56,8 +81,8 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
               description="Recalculate your protein from the beginning"
               icon={Calculator}
               iconColor={colors.accent}
-              isSelected={false}
-              onSelect={handleStartFresh}
+              isSelected={selectedOption === 'fresh'}
+              onSelect={handleStartFreshPreselect}
               accessibilityLabel="Start fresh protein calculation"
               accessibilityHint="Begins the full protein calculation process from weight input"
             />
@@ -67,7 +92,7 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
         {/* Spacer to push content up and provide consistent spacing */}
         <View style={styles.spacer} />
       </View>
-    </SafeAreaView>
+    </View>
   );
 });
 
@@ -85,7 +110,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       backgroundColor: colors.primaryBackground,
     },
     content: {
-      // flex: 1,
+      flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
       justifyContent: "flex-start",
       alignItems: "stretch",

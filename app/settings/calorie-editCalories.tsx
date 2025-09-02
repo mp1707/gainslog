@@ -1,6 +1,5 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { View, Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Edit, Calculator } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 
@@ -9,13 +8,29 @@ import { useAppStore } from "@/store/useAppStore";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 
 const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { dailyTargets } = useAppStore();
   const { safeReplace } = useNavigationGuard();
+  const { back } = useRouter();
   const currentCalories = dailyTargets?.calories || 0;
+  const [selectedOption, setSelectedOption] = useState<'edit' | 'fresh' | null>(null);
+
+  const handleCancel = () => {
+    back();
+  };
+
+  const handleSave = () => {
+    if (selectedOption === 'edit') {
+      handleEditCurrent();
+    } else if (selectedOption === 'fresh') {
+      handleStartFresh();
+    }
+  };
 
   const handleEditCurrent = useCallback(async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -27,8 +42,18 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
     safeReplace("/settings/calorie-sex");
   }, [safeReplace]);
 
+  const handleEditCurrentPreselect = () => {
+    setSelectedOption('edit');
+  };
+
+  const handleStartFreshPreselect = () => {
+    setSelectedOption('fresh');
+  };
+
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right"]}>
+    <View style={styles.container}>
+      <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!selectedOption} />
+      
       {/* Content */}
       <View style={styles.content}>
         <View style={styles.textSection}>
@@ -46,8 +71,8 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
               description="Manually adjust your current calorie target"
               icon={Edit}
               iconColor={colors.semantic.protein}
-              isSelected={false}
-              onSelect={handleEditCurrent}
+              isSelected={selectedOption === 'edit'}
+              onSelect={handleEditCurrentPreselect}
               accessibilityLabel="Edit current calorie value manually"
               accessibilityHint="Opens manual input screen with your current calorie value pre-filled"
             />
@@ -57,8 +82,8 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
               description="Recalculate your calories from the beginning"
               icon={Calculator}
               iconColor={colors.accent}
-              isSelected={false}
-              onSelect={handleStartFresh}
+              isSelected={selectedOption === 'fresh'}
+              onSelect={handleStartFreshPreselect}
               accessibilityLabel="Start fresh calorie calculation"
               accessibilityHint="Begins the full calorie calculation process from sex selection"
             />
@@ -68,7 +93,7 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
         {/* Spacer to push content up and provide consistent spacing */}
         <View style={styles.spacer} />
       </View>
-    </SafeAreaView>
+    </View>
   );
 });
 

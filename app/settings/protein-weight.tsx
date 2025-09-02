@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useRef, useCallback } from "react";
 import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
@@ -10,6 +9,8 @@ import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
+import { useRouter } from "expo-router";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 
 const isValidWeight = (weight: number | undefined) =>
   weight !== undefined && weight >= 30 && weight <= 300;
@@ -19,12 +20,21 @@ const ProteinWeightSelectionScreen = () => {
   const styles = createStyles(colors, themeObj);
   const { userSettings, setUserSettings } = useAppStore();
   const { safeNavigate, isNavigating } = useNavigationGuard();
+  const { back } = useRouter();
   const [weight, setWeight] = useState<number | undefined>(
     userSettings?.weight
   );
   const inputRef = useRef<TextInput>(null);
 
   useDelayedAutofocus(inputRef);
+
+  const handleCancel = () => {
+    back();
+  };
+
+  const handleSave = () => {
+    handleContinue();
+  };
 
   const handleWeightChange = (weightText: string) => {
     const newWeight = Number(weightText);
@@ -50,7 +60,9 @@ const ProteinWeightSelectionScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right"]}>
+    <View style={styles.container}>
+      <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!isValidWeight(weight)} />
+      
       <View style={styles.content}>
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>What's your weight?</Text>
@@ -100,14 +112,14 @@ const ProteinWeightSelectionScreen = () => {
           </Button>
         </Card>
       </KeyboardStickyView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 export default ProteinWeightSelectionScreen;
 
 const createStyles = (colors: any, themeObj: any) => {
-  const { spacing, typography, components } = themeObj;
+  const { spacing, typography } = themeObj;
   return StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.primaryBackground },
     content: {
@@ -143,7 +155,6 @@ const createStyles = (colors: any, themeObj: any) => {
       marginLeft: spacing.sm,
     },
     spacer: { flex: 1, minHeight: 64 },
-    progressContainer: { padding: spacing.md },
     weightInput: {
       fontSize: 48,
       fontFamily: typography.Title1.fontFamily,

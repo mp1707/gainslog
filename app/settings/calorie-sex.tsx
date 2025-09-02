@@ -1,20 +1,22 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { View, Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { User } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
-import { ProgressBar } from "@/components/settings/ProgressBar";
 import { UserSettings } from "@/types/models";
 import { useAppStore } from "@/store/useAppStore";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { useRouter } from "expo-router";
 
 const SexSelectionScreen = React.memo(function SexSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
   const { userSettings, setUserSettings } = useAppStore();
   const { safeNavigate } = useNavigationGuard();
+  const { back } = useRouter();
+  const [selectedSex, setSelectedSex] = useState<UserSettings["sex"] | undefined>(userSettings?.sex);
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -23,6 +25,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
 
   const handleSexSelect = useCallback(
     async (sex: UserSettings["sex"]) => {
+      setSelectedSex(sex);
       const newSettings: UserSettings = {
         sex,
         age: userSettings?.age ?? 30,
@@ -41,15 +44,19 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
     [userSettings, setUserSettings, safeNavigate]
   );
 
+  const handleCancel = () => {
+    back();
+  };
+
+  const handleSave = () => {
+    if (selectedSex) {
+      handleSexSelect(selectedSex);
+    }
+  };
+
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right"]}>
-      <View style={styles.progressContainer}>
-        <ProgressBar
-          totalSteps={6}
-          currentStep={1}
-          accessibilityLabel={`Calculator progress: step 1 of 6`}
-        />
-      </View>
+    <View style={styles.container}>
+      <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!selectedSex} />
 
       {/* Content */}
       <View style={styles.content}>
@@ -67,8 +74,8 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
               description="Biological male"
               icon={User}
               iconColor="#4A90E2"
-              isSelected={userSettings?.sex === "male"}
-              onSelect={() => handleSexSelect("male")}
+              isSelected={selectedSex === "male"}
+              onSelect={() => setSelectedSex("male")}
               accessibilityLabel="Select male as biological sex"
               accessibilityHint="This will help calculate your calorie needs and advance to the next step"
             />
@@ -78,8 +85,8 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
               description="Biological female"
               icon={User}
               iconColor="#E24A90"
-              isSelected={userSettings?.sex === "female"}
-              onSelect={() => handleSexSelect("female")}
+              isSelected={selectedSex === "female"}
+              onSelect={() => setSelectedSex("female")}
               accessibilityLabel="Select female as biological sex"
               accessibilityHint="This will help calculate your calorie needs and advance to the next step"
             />
@@ -89,7 +96,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
         {/* Spacer to push content up and provide consistent spacing */}
         <View style={styles.spacer} />
       </View>
-    </SafeAreaView>
+    </View>
   );
 });
 

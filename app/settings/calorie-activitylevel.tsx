@@ -6,8 +6,7 @@ import {
   TouchableOpacity,
   Text,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import {
   Home,
@@ -22,25 +21,34 @@ import { useAppStore } from "@/store/useAppStore";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { ACTIVITY_LEVELS } from "@/components/settings/calculationMethods";
-import { ProgressBar } from "@/components/settings/ProgressBar";
 import { StyleSheet } from "react-native";
 import { UserSettings } from "@/types/models";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 
 export default function Step2ActivityLevelScreen() {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { userSettings, setUserSettings } = useAppStore();
   const { safeNavigate } = useNavigationGuard();
+  const { back } = useRouter();
 
   const [selectedActivityLevel, setSelectedActivityLevel] = useState<
     UserSettings["activityLevel"] | undefined
   >(userSettings?.activityLevel);
 
+  const handleCancel = () => {
+    back();
+  };
+
+  const handleSave = () => {
+    if (selectedActivityLevel) {
+      handleActivityLevelSelect(selectedActivityLevel);
+    }
+  };
+
   const handleActivityLevelSelect = async (
     activityLevel: UserSettings["activityLevel"]
   ) => {
-    setSelectedActivityLevel(activityLevel);
-
     if (!userSettings) return;
 
     setUserSettings({
@@ -55,19 +63,19 @@ export default function Step2ActivityLevelScreen() {
     }, 300);
   };
 
+  const handleActivityLevelPreselect = (
+    activityLevel: UserSettings["activityLevel"]
+  ) => {
+    setSelectedActivityLevel(activityLevel);
+  };
+
   const activityLevels = Object.values(ACTIVITY_LEVELS);
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        <View style={styles.progressContainer}>
-          <ProgressBar
-            totalSteps={6}
-            currentStep={5}
-            accessibilityLabel={`Calculator progress: step 5 of 6`}
-          />
-        </View>
-
+      <View style={styles.container}>
+        <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!selectedActivityLevel} />
+        
         {/* Content */}
         <ScrollView
           style={styles.content}
@@ -111,7 +119,7 @@ export default function Step2ActivityLevelScreen() {
                   icon={getIcon(activityLevel.id)}
                   iconColor={colors.secondaryText}
                   isSelected={selectedActivityLevel === activityLevel.id}
-                  onSelect={() => handleActivityLevelSelect(activityLevel.id)}
+                  onSelect={() => handleActivityLevelPreselect(activityLevel.id)}
                   accessibilityLabel={`${activityLevel.title} activity level`}
                   accessibilityHint={`Calculate calories for ${activityLevel.description.toLowerCase()}`}
                 />
@@ -119,7 +127,7 @@ export default function Step2ActivityLevelScreen() {
             })}
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -163,9 +171,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     methodsSection: {
       marginBottom: spacing.lg,
       gap: spacing.md,
-    },
-    progressContainer: {
-      padding: themeObj.spacing.md,
     },
   });
 };

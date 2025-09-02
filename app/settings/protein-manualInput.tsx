@@ -1,6 +1,5 @@
 import React, { useState, useRef, useCallback } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
@@ -11,18 +10,29 @@ import { calculateCarbsFromMacros } from "@/utils/nutritionCalculations";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
+import { useRouter } from "expo-router";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 
 const ManualProteinInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { dailyTargets, setDailyTargets } = useAppStore();
-  const { safeDismissTo, isNavigating } = useNavigationGuard();
+  const { safeDismissTo } = useNavigationGuard();
+  const { back } = useRouter();
   const [protein, setProtein] = useState<number | undefined>(
     dailyTargets?.protein || 0
   );
   const inputRef = useRef<TextInput>(null);
 
   useDelayedAutofocus(inputRef);
+
+  const handleCancel = () => {
+    back();
+  };
+
+  const handleSaveFromHeader = () => {
+    handleSave();
+  };
 
   const handleProteinChange = (proteinText: string) => {
     const newProtein = proteinText === "" ? 0 : Number(proteinText);
@@ -45,7 +55,9 @@ const ManualProteinInputScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right"]}>
+    <View style={styles.container}>
+      <ModalHeader onCancel={handleCancel} onSave={handleSaveFromHeader} disabled={!protein} />
+      
       <View style={styles.content}>
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Enter your daily protein goal</Text>
@@ -95,14 +107,14 @@ const ManualProteinInputScreen = () => {
           </Button>
         </Card>
       </KeyboardStickyView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 export default ManualProteinInputScreen;
 
 const createStyles = (colors: any, themeObj: any) => {
-  const { spacing, typography, components } = themeObj;
+  const { spacing, typography } = themeObj;
   return StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.primaryBackground },
     content: {

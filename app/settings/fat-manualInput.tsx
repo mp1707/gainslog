@@ -6,7 +6,6 @@ import React, {
   useCallback,
 } from "react";
 import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
@@ -21,17 +20,28 @@ import {
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
+import { useRouter } from "expo-router";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 
 const ManualFatInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { dailyTargets, setDailyTargets, userSettings, setUserSettings } =
     useAppStore();
-  const { safeDismissTo, isNavigating } = useNavigationGuard();
+  const { safeDismissTo } = useNavigationGuard();
+  const { back } = useRouter();
   const [fatPercent, setFatPercent] = useState<number>(
     userSettings?.fatCalculationPercentage || 30
   );
   const inputRef = useRef<TextInput>(null);
+
+  const handleCancel = () => {
+    back();
+  };
+
+  const handleSaveFromHeader = () => {
+    handleSave();
+  };
 
   const maxFatPercentage = calculateMaxFatPercentage(
     dailyTargets?.calories || 0,
@@ -67,7 +77,9 @@ const ManualFatInputScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right"]}>
+    <View style={styles.container}>
+      <ModalHeader onCancel={handleCancel} onSave={handleSaveFromHeader} disabled={!fatPercent} />
+      
       <View style={styles.content}>
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Enter your daily fat goal</Text>
@@ -117,14 +129,14 @@ const ManualFatInputScreen = () => {
           </Button>
         </Card>
       </KeyboardStickyView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 export default ManualFatInputScreen;
 
 const createStyles = (colors: any, themeObj: any) => {
-  const { spacing, typography, components } = themeObj;
+  const { spacing, typography } = themeObj;
   return StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.primaryBackground },
     content: {

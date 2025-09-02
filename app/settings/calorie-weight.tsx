@@ -9,17 +9,17 @@ import {
   Alert,
   InteractionManager,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
-import { ProgressBar } from "@/components/settings/ProgressBar";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
+import { useRouter } from "expo-router";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 
 const inputAccessoryViewID = "weight-input-accessory";
 
@@ -35,8 +35,17 @@ const WeightSelectionScreen = () => {
     userSettings?.weight
   );
   const inputRef = useRef<TextInput>(null);
+  const { back } = useRouter();
 
   useDelayedAutofocus(inputRef);
+
+  const handleCancel = () => {
+    back();
+  };
+
+  const handleSave = () => {
+    handleContinue();
+  };
 
   const handleWeightChange = (weightText: string) => {
     const newWeight = Number(weightText);
@@ -62,11 +71,9 @@ const WeightSelectionScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right"]}>
-      <View style={styles.progressContainer}>
-        <ProgressBar totalSteps={6} currentStep={3} />
-      </View>
-
+    <View style={styles.container}>
+      <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!isValidWeight(weight)} />
+      
       <View style={styles.content}>
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>What’s your weight?</Text>
@@ -115,7 +122,7 @@ const WeightSelectionScreen = () => {
           </Button>
         </Card>
       </KeyboardStickyView>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -158,7 +165,6 @@ const createStyles = (colors: any, themeObj: any) => {
       marginLeft: spacing.sm,
     },
     spacer: { flex: 1, minHeight: 64 },
-    progressContainer: { padding: spacing.md },
     continueButton: {
       backgroundColor: colors.accent,
       borderRadius: components.buttons.cornerRadius,

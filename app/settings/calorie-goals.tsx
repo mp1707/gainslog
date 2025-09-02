@@ -1,18 +1,17 @@
 import React, { useState, useMemo } from "react";
 import { View, ScrollView, KeyboardAvoidingView, Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
 import { TrendingDown, Equal, TrendingUp } from "lucide-react-native";
 import { useTheme } from "@/theme/ThemeProvider";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { Button } from "@/components/shared/Button";
-import { ProgressBar } from "@/components/settings/ProgressBar";
 import type { UserSettings } from "@/types/models";
 import { StyleSheet } from "react-native";
 import { useAppStore } from "@/store/useAppStore";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { useRouter } from "expo-router";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 
 export default function Step3GoalsScreen() {
   const { colors, theme: themeObj } = useTheme();
@@ -25,6 +24,16 @@ export default function Step3GoalsScreen() {
   >(undefined);
 
   const { back, dismissAll } = useRouter();
+
+  const handleCancel = () => {
+    back();
+  };
+
+  const handleSave = () => {
+    if (selectedGoal) {
+      handleGoalSelect(selectedGoal);
+    }
+  };
 
   // Calculate calorie goals based on stored params and activity level
   const calorieGoals = !userSettings
@@ -65,10 +74,8 @@ export default function Step3GoalsScreen() {
 
   if (!calorieGoals) {
     return (
-      <SafeAreaView
-        style={[styles.container, styles.centered]}
-        edges={["left", "right"]}
-      >
+      <View style={[styles.container, styles.centered]}>
+        <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={true} />
         <Text style={styles.errorText}>
           Missing calculation data. Please start over.
         </Text>
@@ -79,20 +86,14 @@ export default function Step3GoalsScreen() {
         >
           Go Back
         </Button>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <SafeAreaView style={styles.container} edges={["left", "right"]}>
-        <View style={styles.progressContainer}>
-          <ProgressBar
-            totalSteps={6}
-            currentStep={6}
-            accessibilityLabel={`Calculator progress: step 6 of 6`}
-          />
-        </View>
+      <View style={styles.container}>
+        <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!selectedGoal} />
 
         {/* Content */}
         <ScrollView
@@ -167,7 +168,7 @@ export default function Step3GoalsScreen() {
             </Text>
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </KeyboardAvoidingView>
   );
 }

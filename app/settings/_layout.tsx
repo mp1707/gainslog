@@ -34,30 +34,34 @@ export default function SettingsLayout() {
           headerShown: false,
         }}
       />
-      
+
       {/* Calorie Calculator Routes */}
       <Stack.Screen
         name="calorie-sex"
         options={{
           title: "",
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name="calorie-age"
         options={{
           title: "",
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name="calorie-weight"
         options={{
           title: "",
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name="calorie-height"
         options={{
           title: "",
+          headerShown: false,
         }}
       />
       <Stack.Screen
@@ -70,58 +74,67 @@ export default function SettingsLayout() {
         name="calorie-goals"
         options={{
           title: "",
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name="calorie-manualInput"
         options={{
           title: "",
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name="calorie-editCalories"
         options={{
           title: "",
+          headerShown: false,
         }}
       />
-      
+
       {/* Protein Calculator Routes */}
       <Stack.Screen
         name="protein-weight"
         options={{
           title: "",
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name="protein-goals"
         options={{
           title: "",
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name="protein-manualInput"
         options={{
           title: "",
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name="protein-editProtein"
         options={{
           title: "",
+          headerShown: false,
         }}
       />
-      
+
       {/* Fat Calculator Routes */}
       <Stack.Screen
         name="fat-editFat"
         options={{
           title: "",
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name="fat-manualInput"
         options={{
           title: "",
+          headerShown: false,
         }}
       />
     </Stack>
