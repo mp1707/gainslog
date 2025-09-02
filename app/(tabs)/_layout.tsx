@@ -52,8 +52,8 @@ export default function TabLayout() {
       <Tabs.Screen name="index" />
       <Tabs.Screen name="overview" />
       <Tabs.Screen name="new" options={{ href: null }} />
-      <Tabs.Screen name="settings" options={{ href: null }} />
-      <Tabs.Screen name="pro" options={{ href: null }} />
+      {/* <Tabs.Screen name="settings" options={{ href: null }} /> */}
+      {/* <Tabs.Screen name="pro" options={{ href: null }} /> */}
     </Tabs>
   );
 }

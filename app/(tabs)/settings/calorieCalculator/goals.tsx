@@ -12,6 +12,7 @@ import type { UserSettings } from "@/types/models";
 import { StyleSheet } from "react-native";
 import { useAppStore } from "@/store/useAppStore";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
+import { useRouter } from "expo-router";
 
 export default function Step3GoalsScreen() {
   const { colors, theme: themeObj } = useTheme();
@@ -22,6 +23,8 @@ export default function Step3GoalsScreen() {
   const [selectedGoal, setSelectedGoal] = useState<
     UserSettings["calorieGoalType"] | undefined
   >(undefined);
+
+  const { back, dismissAll } = useRouter();
 
   // Calculate calorie goals based on stored params and activity level
   const calorieGoals = !userSettings
@@ -56,7 +59,7 @@ export default function Step3GoalsScreen() {
     setDailyTargets(newDailyTargets);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setTimeout(() => {
-      safeDismissTo("/settings");
+      dismissAll();
     }, 300);
   };
 

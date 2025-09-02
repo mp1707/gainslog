@@ -10,7 +10,7 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 
 function ThemedStack() {
   const { colors } = useTheme();
-  
+
   return (
     <Stack
       screenOptions={{
@@ -21,6 +21,14 @@ function ThemedStack() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen
         name="create"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.primaryBackground },
+        }}
+      />
+      <Stack.Screen
+        name="userSettings"
         options={{
           presentation: "modal",
           headerShown: false,
