@@ -15,6 +15,7 @@ import {
   Platform,
   Text,
 } from "react-native";
+import { BlurView } from "expo-blur";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -424,21 +425,22 @@ export const DateSlider = () => {
         onRequestClose={handleModalClose}
       >
         <Animated.View style={[styles.modalBackdrop, animatedBackdropStyle]}>
-          <TouchableOpacity
-            style={styles.modalBackdropTouchable}
-            activeOpacity={1}
-            onPress={handleModalClose}
+          <BlurView
+            intensity={20}
+            tint={colorScheme}
+            style={styles.blurContainer}
           >
-            <Animated.View
-              style={[
-                styles.modalContent,
-                {
-                  top: "20%",
-                  right: 16,
-                },
-                animatedModalStyle,
-              ]}
+            <TouchableOpacity
+              style={styles.modalBackdropTouchable}
+              activeOpacity={1}
+              onPress={handleModalClose}
             >
+              <Animated.View
+                style={[
+                  styles.modalContent,
+                  animatedModalStyle,
+                ]}
+              >
               <DateTimePicker
                 value={new Date(selectedDate + "T00:00:00")}
                 mode="date"
@@ -459,8 +461,9 @@ export const DateSlider = () => {
                   <AppText style={styles.closeButtonText}>Done</AppText>
                 </TouchableOpacity>
               )}
-            </Animated.View>
-          </TouchableOpacity>
+              </Animated.View>
+            </TouchableOpacity>
+          </BlurView>
         </Animated.View>
       </Modal>
     </View>

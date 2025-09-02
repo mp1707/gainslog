@@ -29,6 +29,8 @@ export default function TodayTab() {
   const { dynamicBottomPadding } = useTabBarSpacing();
   const { colors, theme, colorScheme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+
+  const transparentBackground = colors.primaryBackground + "00";
   const flatListRef = useRef<FlatList>(null);
 
   const {
@@ -131,7 +133,7 @@ export default function TodayTab() {
       <SafeAreaView style={styles.container}>
         <View style={{ flex: 1 }}>
           <LinearGradient
-            colors={[colors.primaryBackground, "transparent"]}
+            colors={[colors.primaryBackground, transparentBackground]}
             locations={[0, 1]}
             style={styles.gradientOverlay}
             pointerEvents="none"
@@ -140,13 +142,21 @@ export default function TodayTab() {
             style={styles.headerContainer}
             maskElement={
               <LinearGradient
-                colors={["black", "black", "transparent"]}
+                colors={[
+                  colors.secondaryBackground,
+                  colors.secondaryBackground,
+                  "transparent",
+                ]}
                 locations={[0, 0.7, 1]}
                 style={{ flex: 1 }}
               />
             }
           >
-            <BlurView intensity={20} tint="dark" style={styles.blurContainer}>
+            <BlurView
+              intensity={20}
+              tint={colorScheme}
+              style={styles.blurContainer}
+            >
               <DateSlider />
             </BlurView>
           </MaskedView>
