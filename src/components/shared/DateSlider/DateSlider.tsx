@@ -16,9 +16,13 @@ import {
   Text,
 } from "react-native";
 import { BlurView } from "expo-blur";
+
+// Create animated BlurView
+const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  useAnimatedProps,
   withSpring,
   withTiming,
   runOnJS,
@@ -187,8 +191,8 @@ export const DateSlider = () => {
 
   // Reanimated values for modal animation
   const modalOpacity = useSharedValue(0);
-  const modalTranslateY = useSharedValue(-100);
-  const backdropOpacity = useSharedValue(0);
+  const modalTranslateY = useSharedValue(-50);
+  const blurIntensity = useSharedValue(0);
 
   const { foodLogs, selectedDate, setSelectedDate, dailyTargets } =
     useAppStore();
@@ -201,32 +205,60 @@ export const DateSlider = () => {
     };
   });
 
-  // Animated style for backdrop
-  const animatedBackdropStyle = useAnimatedStyle(() => {
+  // Animated props for BlurView
+  const animatedBlurProps = useAnimatedProps(() => {
     return {
-      opacity: backdropOpacity.value,
+      intensity: blurIntensity.value,
     };
   });
 
   // Animation functions
   const animateModalIn = useCallback(() => {
-    backdropOpacity.value = withTiming(1, { duration: 200 });
-    modalOpacity.value = withTiming(1, { duration: 300 });
-    modalTranslateY.value = withSpring(0, {
+    blurIntensity.value = withSpring(25, {
       stiffness: 300,
       damping: 30,
     });
-  }, [modalOpacity, modalTranslateY, backdropOpacity]);
+    modalOpacity.value = withSpring(1, {
+      stiffness: 400,
+      damping: 30,
+    });
+    modalTranslateY.value = withSpring(0, {
+      stiffness: 400,
+      damping: 30,
+    });
+  }, [modalOpacity, modalTranslateY, blurIntensity]);
 
   const animateModalOut = useCallback(() => {
-    backdropOpacity.value = withTiming(0, { duration: 200 });
+    blurIntensity.value = withTiming(0, { duration: 250 });
     modalOpacity.value = withTiming(0, { duration: 200 });
-    modalTranslateY.value = withTiming(-100, { duration: 200 }, (finished) => {
+    modalTranslateY.value = withTiming(-50, { duration: 200 }, (finished) => {
       if (finished) {
         runOnJS(setIsModalVisible)(false);
       }
     });
-  }, [modalOpacity, modalTranslateY, backdropOpacity]);
+  }, [modalOpacity, modalTranslateY, blurIntensity]);
+
+  // Memoize daily totals for performance
+  const dailyTotalsByDate = useMemo(() => {
+    const totals = new Map<
+      string,
+      { calories: number; protein: number; carbs: number; fat: number }
+    >();
+    foodLogs.forEach((log) => {
+      const currentTotals = totals.get(log.logDate) || {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+      };
+      currentTotals.calories += log.calories;
+      currentTotals.protein += log.protein;
+      currentTotals.carbs += log.carbs;
+      currentTotals.fat += log.fat;
+      totals.set(log.logDate, currentTotals);
+    });
+    return totals;
+  }, [foodLogs]);
 
   // Generate date range for the slider - always start on Monday
   const dateRange = useMemo(() => {
@@ -248,17 +280,13 @@ export const DateSlider = () => {
       const dateString = currentDate.toISOString().split("T")[0];
       const weekdayIndex = (currentDate.getDay() + 6) % 7; // Convert to Monday=0 format
 
-      // Calculate daily totals for this date
-      const dayLogs = foodLogs.filter((log) => log.logDate === dateString);
-      const dailyTotals = dayLogs.reduce(
-        (acc, log) => ({
-          calories: acc.calories + log.calories,
-          protein: acc.protein + log.protein,
-          carbs: acc.carbs + log.carbs,
-          fat: acc.fat + log.fat,
-        }),
-        { calories: 0, protein: 0, carbs: 0, fat: 0 }
-      );
+      // Use the memoized map for quick lookups
+      const dailyTotals = dailyTotalsByDate.get(dateString) || {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+      };
 
       // Calculate percentages
       const percentages = {
@@ -282,7 +310,7 @@ export const DateSlider = () => {
     }
 
     return dates;
-  }, [foodLogs, dailyTargets]);
+  }, [dailyTotalsByDate, dailyTargets]);
 
   // Calculate initial content offset to show the week containing selected date
   const initialContentOffset = useMemo(() => {
@@ -307,21 +335,23 @@ export const DateSlider = () => {
 
   const handleDatePickerChange = useCallback(
     (_event: any, selectedDate?: Date) => {
-      if (Platform.OS === "android") {
-        animateModalOut();
-      }
       if (selectedDate) {
-        const dateString = selectedDate.toISOString().split("T")[0];
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        // Format date in local timezone to avoid date jumping
+        const year = selectedDate.getFullYear();
+        const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+        const day = String(selectedDate.getDate()).padStart(2, '0');
+        const dateString = `${year}-${month}-${day}`;
         setSelectedDate(dateString);
       }
-      if (Platform.OS === "ios") {
-        // Keep modal open on iOS for better UX
-      }
+      // Close modal on both platforms after date selection
+      animateModalOut();
     },
     [setSelectedDate, animateModalOut]
   );
 
   const handleCalendarPress = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsModalVisible(true);
   }, []);
 
@@ -424,47 +454,38 @@ export const DateSlider = () => {
         animationType="none"
         onRequestClose={handleModalClose}
       >
-        <Animated.View style={[styles.modalBackdrop, animatedBackdropStyle]}>
-          <BlurView
-            intensity={20}
-            tint={colorScheme}
+        <View style={styles.modalBackdrop}>
+          <AnimatedBlurView
             style={styles.blurContainer}
+            animatedProps={animatedBlurProps}
+            tint={colorScheme}
           >
             <TouchableOpacity
               style={styles.modalBackdropTouchable}
               activeOpacity={1}
               onPress={handleModalClose}
             >
-              <Animated.View
-                style={[
-                  styles.modalContent,
-                  animatedModalStyle,
-                ]}
-              >
-              <DateTimePicker
-                value={new Date(selectedDate + "T00:00:00")}
-                mode="date"
-                display={Platform.OS === "ios" ? "inline" : "default"}
-                onChange={handleDatePickerChange}
-                maximumDate={new Date()}
-                {...(Platform.OS === "ios" && {
-                  themeVariant: colorScheme,
-                  textColor: colors.primaryText,
-                  accentColor: colors.accent,
-                })}
-              />
-              {Platform.OS === "ios" && (
-                <TouchableOpacity
-                  onPress={handleModalClose}
-                  style={styles.closeButton}
-                >
-                  <AppText style={styles.closeButtonText}>Done</AppText>
-                </TouchableOpacity>
-              )}
+              <Animated.View style={[styles.modalContent, animatedModalStyle]}>
+                <DateTimePicker
+                  value={(() => {
+                    // Create date in local timezone to avoid date jumping
+                    const [year, month, day] = selectedDate.split('-');
+                    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                  })()}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "inline" : "default"}
+                  onChange={handleDatePickerChange}
+                  maximumDate={new Date()}
+                  {...(Platform.OS === "ios" && {
+                    themeVariant: colorScheme,
+                    textColor: colors.primaryText,
+                    accentColor: colors.accent,
+                  })}
+                />
               </Animated.View>
             </TouchableOpacity>
-          </BlurView>
-        </Animated.View>
+          </AnimatedBlurView>
+        </View>
       </Modal>
     </View>
   );

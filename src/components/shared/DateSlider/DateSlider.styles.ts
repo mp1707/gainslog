@@ -37,7 +37,7 @@ export const createStyles = (colors: Colors, theme: Theme, itemWidth: number) =>
       marginBottom: theme.spacing.xs,
     },
     selectedWeekdayContainer: {
-      backgroundColor: `${colors.subtleBackground}`, 
+      backgroundColor: `${colors.subtleBackground}`,
     },
     weekdayText: {
       ...theme.typography.Caption,
@@ -55,20 +55,19 @@ export const createStyles = (colors: Colors, theme: Theme, itemWidth: number) =>
     },
     modalBackdrop: {
       flex: 1,
-      backgroundColor: "rgba(0, 0, 0, 0.1)",
     },
     blurContainer: {
       flex: 1,
     },
     modalBackdropTouchable: {
       flex: 1,
-      justifyContent: "center",
+      paddingTop: "40%",
       alignItems: "center",
     },
     modalContent: {
-      backgroundColor: colors.primaryBackground,
+      backgroundColor: colors.secondaryBackground,
       borderRadius: theme.spacing.md,
-      padding: theme.spacing.lg,
+      padding: theme.spacing.md,
       shadowColor: "#000",
       shadowOffset: {
         width: 0,
@@ -77,8 +76,6 @@ export const createStyles = (colors: Colors, theme: Theme, itemWidth: number) =>
       shadowOpacity: 0.3,
       shadowRadius: 12,
       elevation: 8,
-      minWidth: 280,
-      maxWidth: 340,
     },
     closeButton: {
       marginTop: theme.spacing.sm,

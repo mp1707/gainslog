@@ -83,16 +83,21 @@ export default function TodayTab() {
 
   const defaultTargets = { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
-  const toggleFavorite = (foodLog: FoodLog) => {
-    const isFavorite = favorites.some((favorite) => favorite.id === foodLog.id);
-    if (isFavorite) {
-      deleteFavorite(foodLog.id);
-      Toast.error("Favorite removed");
-    } else {
-      addFavorite({ ...foodLog });
-      Toast.success("Favorite added");
-    }
-  };
+  const toggleFavorite = useCallback(
+    (foodLog: FoodLog) => {
+      const isFavorite = favorites.some(
+        (favorite) => favorite.id === foodLog.id
+      );
+      if (isFavorite) {
+        deleteFavorite(foodLog.id);
+        Toast.error("Favorite removed");
+      } else {
+        addFavorite({ ...foodLog });
+        Toast.success("Favorite added");
+      }
+    },
+    [favorites, addFavorite, deleteFavorite]
+  );
 
   const handleNavigateToDetailPage = (foodLog: FoodLog) => {
     safeNavigate(`/edit/${foodLog.id}`);
