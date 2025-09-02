@@ -21,6 +21,7 @@ interface ButtonProps {
   accessibilityLabel?: string;
   accessibilityHint?: string;
   numberOfLines?: number;
+  grow?: boolean;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -35,6 +36,7 @@ export const Button: React.FC<ButtonProps> = ({
   accessibilityLabel,
   accessibilityHint,
   numberOfLines,
+  grow = true,
 }) => {
   const { colors, colorScheme } = useTheme();
   const styles = createStyles(colors, colorScheme);
@@ -108,6 +110,15 @@ export const Button: React.FC<ButtonProps> = ({
   const isIconOnly = hasIcon && !hasText;
   const isTextOnly = hasText && !hasIcon;
   const hasIconAndText = hasIcon && hasText;
+
+  // Add grow styles after determining content layout
+  if (!grow) {
+    baseStyles.push({ 
+      width: 'auto', 
+      minWidth: isIconOnly ? 44 : undefined, // Maintain minimum touch target for icon-only buttons
+      paddingHorizontal: isIconOnly ? 12 : 16
+    });
+  }
 
   const renderContent = () => {
     if (isLoading) {

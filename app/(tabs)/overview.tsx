@@ -1,5 +1,37 @@
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { useTheme } from "@/theme";
+
 export default function Overview() {
-  // This screen should never be shown because the tab press is intercepted
-  // to open the create modal instead. If you see this, the tab button override failed.
-  return null;
+  const { colors, theme } = useTheme();
+  
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.primaryBackground,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: theme.spacing.md,
+    },
+    title: {
+      ...theme.typography.Title1,
+      color: colors.primaryText,
+      textAlign: "center",
+      marginBottom: theme.spacing.md,
+    },
+    subtitle: {
+      ...theme.typography.Body,
+      color: colors.secondaryText,
+      textAlign: "center",
+    },
+  });
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Overview</Text>
+      <Text style={styles.subtitle}>
+        This is the Overview screen. Add your overview functionality here.
+      </Text>
+    </View>
+  );
 }
