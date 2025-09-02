@@ -371,7 +371,7 @@ export const DateSlider = () => {
   );
   const handleSettingsPress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    safePush("/userSettings");
+    safePush("/settings");
   }, [safePush]);
 
   // Scroll to initial position after component mounts

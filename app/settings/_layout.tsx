@@ -41,21 +41,18 @@ export default function SettingsLayout() {
         name="calorieCalculator"
         options={{
           headerShown: false,
-          presentation: "modal",
         }}
       />
       <Stack.Screen
         name="proteinCalculator"
         options={{
           headerShown: false,
-          presentation: "modal",
         }}
       />
       <Stack.Screen
         name="fatCalculator"
         options={{
           headerShown: false,
-          presentation: "modal",
         }}
       />
     </Stack>

@@ -28,7 +28,7 @@ function ThemedStack() {
         }}
       />
       <Stack.Screen
-        name="userSettings"
+        name="settings"
         options={{
           presentation: "modal",
           headerShown: false,
