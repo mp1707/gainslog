@@ -21,7 +21,7 @@ import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
 
-const HEADER_HEIGHT = 200;
+const HEADER_HEIGHT = 265;
 const DASHBOARD_OFFSET = HEADER_HEIGHT - 50;
 
 export default function TodayTab() {
@@ -29,8 +29,8 @@ export default function TodayTab() {
   const { dynamicBottomPadding } = useTabBarSpacing();
   const { colors, theme, colorScheme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
-
   const transparentBackground = colors.primaryBackground + "00";
+
   const flatListRef = useRef<FlatList>(null);
 
   const {
@@ -135,69 +135,66 @@ export default function TodayTab() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={styles.container}>
-        <View style={{ flex: 1 }}>
+      <FlatList
+        ref={flatListRef}
+        data={todayFoodLogs}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
+        getItemLayout={getItemLayout}
+        style={styles.fullScreenScrollView}
+        contentContainerStyle={[
+          styles.contentContainer,
+          {
+            paddingBottom: dynamicBottomPadding,
+            marginTop: DASHBOARD_OFFSET,
+          },
+        ]}
+        ListHeaderComponent={
+          <View>
+            <DashboardHeader
+              percentages={dailyPercentages}
+              targets={dailyTargets || defaultTargets}
+              totals={dailyTotals}
+            />
+          </View>
+        }
+        showsVerticalScrollIndicator={false}
+        removeClippedSubviews
+        initialNumToRender={6}
+        maxToRenderPerBatch={8}
+        windowSize={7}
+        updateCellsBatchingPeriod={50}
+      />
+      <LinearGradient
+        colors={[colors.primaryBackground, transparentBackground]}
+        locations={[0.65, 1]}
+        style={styles.gradientOverlay}
+        pointerEvents="none"
+      />
+      <MaskedView
+        style={styles.headerWrapper}
+        maskElement={
           <LinearGradient
-            colors={[colors.primaryBackground, transparentBackground]}
-            locations={[0, 1]}
-            style={styles.gradientOverlay}
-            pointerEvents="none"
-          />
-          <MaskedView
-            style={styles.headerContainer}
-            maskElement={
-              <LinearGradient
-                colors={[
-                  colors.secondaryBackground,
-                  colors.secondaryBackground,
-                  "transparent",
-                ]}
-                locations={[0, 0.7, 1]}
-                style={{ flex: 1 }}
-              />
-            }
-          >
-            <BlurView
-              intensity={20}
-              tint={colorScheme}
-              style={styles.blurContainer}
-            >
-              <DateSlider />
-            </BlurView>
-          </MaskedView>
-
-          <FlatList
-            ref={flatListRef}
-            data={todayFoodLogs}
-            keyExtractor={keyExtractor}
-            renderItem={renderItem}
-            getItemLayout={getItemLayout}
-            style={styles.scrollView}
-            contentContainerStyle={[
-              styles.contentContainer,
-              {
-                paddingBottom: dynamicBottomPadding,
-                marginTop: DASHBOARD_OFFSET,
-              },
+            colors={[
+              colors.secondaryBackground,
+              colors.secondaryBackground,
+              "transparent",
             ]}
-            ListHeaderComponent={
-              <View>
-                <DashboardHeader
-                  percentages={dailyPercentages}
-                  targets={dailyTargets || defaultTargets}
-                  totals={dailyTotals}
-                />
-              </View>
-            }
-            showsVerticalScrollIndicator={false}
-            removeClippedSubviews
-            initialNumToRender={6}
-            maxToRenderPerBatch={8}
-            windowSize={7}
-            updateCellsBatchingPeriod={50}
+            locations={[0, 0.7, 1]}
+            style={{ flex: 1 }}
           />
-        </View>
-      </SafeAreaView>
+        }
+      >
+        <BlurView
+          intensity={20}
+          tint={colorScheme}
+          style={styles.blurContainer}
+        >
+          <SafeAreaView>
+            <DateSlider />
+          </SafeAreaView>
+        </BlurView>
+      </MaskedView>
     </GestureHandlerRootView>
   );
 }
@@ -211,7 +208,11 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       flex: 1,
       backgroundColor: colors.primaryBackground,
     },
-    headerContainer: {
+    fullScreenScrollView: {
+      flex: 1,
+      backgroundColor: colors.primaryBackground,
+    },
+    headerWrapper: {
       position: "absolute",
       top: 0,
       left: 0,
@@ -219,12 +220,16 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       height: HEADER_HEIGHT,
       zIndex: 12,
     },
+    headerContainer: {
+      height: HEADER_HEIGHT,
+    },
     gradientOverlay: {
       position: "absolute",
       top: 0,
       left: 0,
       right: 0,
       height: HEADER_HEIGHT,
+      opacity: 0.6,
       zIndex: 11,
     },
     blurContainer: {

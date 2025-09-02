@@ -111,6 +111,10 @@ interface DayItemProps {
 
 const DayItem: React.FC<DayItemProps> = React.memo(
   ({ item, isSelected, onPress, styles }) => {
+    const { colors } = useTheme();
+    const today = new Date().toISOString().split("T")[0];
+    const isToday = item.date === today;
+    
     return (
       <Pressable
         style={({ pressed }) => [
@@ -131,6 +135,7 @@ const DayItem: React.FC<DayItemProps> = React.memo(
             style={[
               styles.weekdayText,
               isSelected && styles.selectedWeekdayText,
+              isToday && { color: colors.accent, fontWeight: '800' },
             ]}
           >
             {item.weekday}
