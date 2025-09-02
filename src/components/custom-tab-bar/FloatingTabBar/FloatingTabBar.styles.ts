@@ -10,6 +10,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       right: 0,
       alignItems: "center",
       width: "100%",
+      zIndex: 99,
     },
     content: {
       flexDirection: "row",

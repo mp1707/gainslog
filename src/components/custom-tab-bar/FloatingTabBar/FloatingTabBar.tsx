@@ -5,6 +5,7 @@ import { useTheme } from "@/theme";
 import { createStyles } from "./FloatingTabBar.styles";
 import { FloatingSegmentedControl } from "../FloatingSegmentedControl";
 import { FloatingNewButton } from "../FloatingNewButton";
+import { BlurredBackground } from "@/components/shared";
 
 interface FloatingTabBarProps {
   selectedIndex: number;
@@ -24,26 +25,34 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
   const insets = useSafeAreaInsets();
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          paddingBottom: insets.bottom,
-        },
-      ]}
-    >
-      <View style={styles.content}>
-        <View style={styles.segmentedControlWrapper}>
-          <FloatingSegmentedControl
-            selectedIndex={selectedIndex}
-            onSegmentChange={onSegmentChange}
-            segments={segments}
-          />
-        </View>
-        <View style={styles.segmentedButtonWrapper}>
-          <FloatingNewButton onPress={onNewPress} />
+    <>
+      <BlurredBackground 
+        position="bottom" 
+        height={90}
+        intensity={10}
+        opacity={0.6}
+      />
+      <View
+        style={[
+          styles.container,
+          {
+            paddingBottom: insets.bottom,
+          },
+        ]}
+      >
+        <View style={styles.content}>
+          <View style={styles.segmentedControlWrapper}>
+            <FloatingSegmentedControl
+              selectedIndex={selectedIndex}
+              onSegmentChange={onSegmentChange}
+              segments={segments}
+            />
+          </View>
+          <View style={styles.segmentedButtonWrapper}>
+            <FloatingNewButton onPress={onNewPress} />
+          </View>
         </View>
       </View>
-    </View>
+    </>
   );
 };

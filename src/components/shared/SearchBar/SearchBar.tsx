@@ -27,7 +27,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       style={{
         width: "100%",
         position: "relative",
-        backgroundColor: colors.primaryText === "#1A1A1A" ? "#F2F2F7" : "#2C2C2E",
+        backgroundColor:
+          colors.primaryText === "#1A1A1A" ? "#F2F2F7" : "#2C2C2E",
         borderRadius: 12,
         borderWidth: 2,
         borderColor: isFocused ? colors.accent : "transparent",
@@ -64,7 +65,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         autoCorrect={false}
         style={{
           paddingLeft: theme.spacing.lg + theme.spacing.sm,
-          paddingRight: value ? theme.spacing.lg + theme.spacing.sm : theme.spacing.md,
+          paddingRight: value
+            ? theme.spacing.lg + theme.spacing.sm
+            : theme.spacing.md,
           backgroundColor: "transparent",
           borderWidth: 0,
           minHeight: scaledHeight - containerPadding * 2,

@@ -169,7 +169,7 @@ export const DateSlider = () => {
   const modalOpacity = useSharedValue(0);
   const modalTranslateY = useSharedValue(-50);
   const blurIntensity = useSharedValue(0);
-  const { safeNavigate } = useNavigationGuard();
+  const { safePush } = useNavigationGuard();
 
   const { foodLogs, selectedDate, setSelectedDate, dailyTargets } =
     useAppStore();
@@ -371,8 +371,8 @@ export const DateSlider = () => {
   );
   const handleSettingsPress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    safeNavigate("/(tabs)/settings/");
-  }, [safeNavigate]);
+    safePush("/(tabs)/settings/");
+  }, [safePush]);
 
   // Scroll to initial position after component mounts
   useEffect(() => {

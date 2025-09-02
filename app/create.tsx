@@ -31,11 +31,12 @@ import { Button } from "@/components/index";
 import { SearchBar } from "@/components/shared/SearchBar/SearchBar";
 import { TranscriptionOverlay } from "@/components/shared/TranscriptionOverlay";
 import { TextInput } from "@/components/shared/TextInput";
+import { BlurredBackground } from "@/components/shared";
 
 const inputAccessoryViewID = "create-input-accessory";
 
 export default function Create() {
-  const { colors, theme, colorScheme } = useTheme();
+  const { colors, theme } = useTheme();
   const [estimationType, setEstimationType] = useState<
     "ai" | "favorites" | "manual"
   >("ai");
@@ -226,14 +227,22 @@ export default function Create() {
               <Button
                 variant="secondary"
                 onPress={showImagePickerAlert}
-                icon={<Camera size={20} color={colors.primaryText} strokeWidth={1.5} />}
+                icon={
+                  <Camera
+                    size={20}
+                    color={colors.primaryText}
+                    strokeWidth={1.5}
+                  />
+                }
               />
             </View>
             <View style={styles.buttonWrapperCenter}>
               <Button
                 variant="secondary"
                 onPress={startRecording}
-                icon={<Mic size={20} color={colors.primaryText} strokeWidth={1.5} />}
+                icon={
+                  <Mic size={20} color={colors.primaryText} strokeWidth={1.5} />
+                }
               />
             </View>
             <View style={styles.buttonWrapperRight}>
@@ -257,15 +266,25 @@ export default function Create() {
       )}
 
       {estimationType === "favorites" && (
-        <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
-          <Card style={styles.keyboardAccessory}>
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Search favorites"
-            />
-          </Card>
-        </KeyboardStickyView>
+        <>
+          <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
+            <Card style={styles.keyboardAccessory}>
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search favorites"
+              />
+            </Card>
+            <View style={{ transform: [{ translateY: 10 }] }}>
+              <BlurredBackground
+                position="bottom"
+                height={90}
+                intensity={10}
+                opacity={0.6}
+              />
+            </View>
+          </KeyboardStickyView>
+        </>
       )}
 
       <TranscriptionOverlay
@@ -324,6 +343,7 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
       justifyContent: "center",
       alignItems: "center",
       gap: theme.spacing.sm,
+      zIndex: 99,
     },
     buttonWrapperLeft: {
       flex: 1,
