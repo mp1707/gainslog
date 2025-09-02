@@ -16,9 +16,6 @@ import {
   Text,
 } from "react-native";
 import { BlurView } from "expo-blur";
-
-// Create animated BlurView
-const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -27,6 +24,9 @@ import Animated, {
   withTiming,
   runOnJS,
 } from "react-native-reanimated";
+
+// Create animated BlurView
+const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 import { AppText } from "@/components";
 import { ProgressRings } from "@/components/shared/ProgressRings";
 import { Button } from "@/components/shared/Button";
@@ -111,70 +111,40 @@ interface DayItemProps {
 
 const DayItem: React.FC<DayItemProps> = React.memo(
   ({ item, isSelected, onPress, styles }) => {
-    // Individual animation values per item
-    const scale = useSharedValue(1);
-    const opacity = useSharedValue(1);
-
-    // Individual press handlers per item
-    const handlePressIn = useCallback(() => {
-      scale.value = withSpring(0.95, {
-        stiffness: 400,
-        damping: 30,
-      });
-      opacity.value = withTiming(0.8, { duration: 100 });
-    }, [scale, opacity]);
-
-    const handlePressOut = useCallback(() => {
-      scale.value = withSpring(1, {
-        stiffness: 400,
-        damping: 30,
-      });
-      opacity.value = withTiming(1, { duration: 100 });
-    }, [scale, opacity]);
-
-    // Individual animated style per item
-    const animatedStyle = useAnimatedStyle(() => {
-      return {
-        transform: [{ scale: scale.value }],
-        opacity: opacity.value,
-      };
-    });
-
     return (
       <Pressable
-        style={styles.itemContainer}
+        style={({ pressed }) => [
+          styles.itemContainer,
+          pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
+        ]}
         onPress={() => onPress(item.date)}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
         accessibilityLabel={`Select ${item.date}`}
         accessibilityRole="button"
       >
-        <Animated.View style={animatedStyle}>
-          <View
+        <View
+          style={[
+            styles.weekdayContainer,
+            isSelected && styles.selectedWeekdayContainer,
+          ]}
+        >
+          <Text
             style={[
-              styles.weekdayContainer,
-              isSelected && styles.selectedWeekdayContainer,
+              styles.weekdayText,
+              isSelected && styles.selectedWeekdayText,
             ]}
           >
-            <Text
-              style={[
-                styles.weekdayText,
-                isSelected && styles.selectedWeekdayText,
-              ]}
-            >
-              {item.weekday}
-            </Text>
-          </View>
-          <View style={styles.progressContainer}>
-            <ProgressRings
-              percentages={item.percentages}
-              size={45}
-              strokeWidth={4}
-              spacing={1}
-              padding={1}
-            />
-          </View>
-        </Animated.View>
+            {item.weekday}
+          </Text>
+        </View>
+        <View style={styles.progressContainer}>
+          <ProgressRings
+            percentages={item.percentages}
+            size={45}
+            strokeWidth={4}
+            spacing={1}
+            padding={1}
+          />
+        </View>
       </Pressable>
     );
   }
