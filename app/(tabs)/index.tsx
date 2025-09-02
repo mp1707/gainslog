@@ -7,6 +7,13 @@ import {
   FlatList,
   ListRenderItem,
 } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  interpolate,
+  Extrapolation,
+} from "react-native-reanimated";
 import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
 import { useAppStore } from "@/store/useAppStore";
 import { LogCard } from "@/components/daily-food-logs/LogCard";
@@ -16,14 +23,26 @@ import { FoodLog } from "@/types/models";
 import { Toast } from "toastify-react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { DashboardHeader } from "@/components/daily-food-logs/DashboardHeader/DashboardHeader";
-import { AppText } from "@/components/index";
+import { DateSlider } from "@/components/shared/DateSlider";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
+import MaskedView from "@react-native-masked-view/masked-view";
+
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList<FoodLog>);
+
+const HEADER_HEIGHT = 280;
+const COMPACT_THRESHOLD = 100;
 
 export default function TodayTab() {
   const { safeNavigate } = useNavigationGuard();
   const { dynamicBottomPadding } = useTabBarSpacing();
-  const { colors, theme } = useTheme();
+  const { colors, theme, colorScheme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const flatListRef = useRef<FlatList>(null);
+
+  // Animation values
+  const scrollY = useSharedValue(0);
+
   const {
     foodLogs,
     selectedDate,
@@ -89,6 +108,13 @@ export default function TodayTab() {
     safeNavigate(`/edit/${foodLog.id}`);
   };
 
+  // Scroll handler
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
+
   const keyExtractor = useCallback((item: FoodLog) => item.id, []);
   const getItemLayout = useCallback(
     (_: any, index: number) => ({
@@ -122,33 +148,55 @@ export default function TodayTab() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
-        <FlatList
-          ref={flatListRef}
-          data={todayFoodLogs}
-          keyExtractor={keyExtractor}
-          renderItem={renderItem}
-          getItemLayout={getItemLayout}
-          style={styles.scrollView}
-          contentContainerStyle={[
-            styles.contentContainer,
-            { paddingBottom: dynamicBottomPadding },
-          ]}
-          ListHeaderComponent={
-            <View>
-              <DashboardHeader
-                percentages={dailyPercentages}
-                targets={dailyTargets || defaultTargets}
-                totals={dailyTotals}
+        <View style={{ flex: 1 }}>
+          <MaskedView
+            style={styles.headerContainer}
+            maskElement={
+              <LinearGradient
+                colors={["black", "black", "transparent"]}
+                locations={[0, 0.7, 1]}
+                style={{ flex: 1 }}
               />
-            </View>
-          }
-          showsVerticalScrollIndicator={false}
-          removeClippedSubviews
-          initialNumToRender={6}
-          maxToRenderPerBatch={8}
-          windowSize={7}
-          updateCellsBatchingPeriod={50}
-        />
+            }
+          >
+            <BlurView intensity={20} tint="dark" style={styles.blurContainer}>
+              <DateSlider />
+            </BlurView>
+          </MaskedView>
+          <AnimatedFlatList
+            ref={flatListRef}
+            data={todayFoodLogs}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
+            getItemLayout={getItemLayout}
+            style={styles.scrollView}
+            contentContainerStyle={[
+              styles.contentContainer,
+              {
+                paddingBottom: dynamicBottomPadding,
+                marginTop: HEADER_HEIGHT - COMPACT_THRESHOLD,
+              },
+            ]}
+            ListHeaderComponent={
+              <View>
+                <DashboardHeader
+                  percentages={dailyPercentages}
+                  targets={dailyTargets || defaultTargets}
+                  totals={dailyTotals}
+                  scrollY={scrollY}
+                />
+              </View>
+            }
+            onScroll={scrollHandler}
+            scrollEventThrottle={16}
+            showsVerticalScrollIndicator={false}
+            removeClippedSubviews
+            initialNumToRender={6}
+            maxToRenderPerBatch={8}
+            windowSize={7}
+            updateCellsBatchingPeriod={50}
+          />
+        </View>
       </SafeAreaView>
     </GestureHandlerRootView>
   );
@@ -162,6 +210,17 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
+    },
+    headerContainer: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: HEADER_HEIGHT,
+      zIndex: 10,
+    },
+    blurContainer: {
+      flex: 1,
     },
     scrollView: {
       paddingVertical: themeObj.spacing.md,

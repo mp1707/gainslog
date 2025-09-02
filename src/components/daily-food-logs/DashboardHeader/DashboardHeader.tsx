@@ -6,13 +6,15 @@ import Animated, {
   withSpring,
   withDelay,
   useDerivedValue,
+  useAnimatedStyle,
+  interpolate,
+  Extrapolation,
 } from "react-native-reanimated";
 import { Colors, Theme, useTheme } from "@/theme";
 import { AppText } from "@/components";
 import { useAppStore } from "@/store/useAppStore";
 import { Droplet, Flame, BicepsFlexed, Wheat } from "lucide-react-native";
 import { ProgressRings } from "@/components/shared/ProgressRings";
-import { DateSlider } from "@/components/shared/DateSlider";
 
 if (
   Platform.OS === "android" &&
@@ -32,6 +34,9 @@ interface NutrientSummaryProps {
   percentages: NutrientValues;
   targets: NutrientValues;
   totals: NutrientValues;
+  scrollY?: {
+    value: number;
+  };
 }
 
 interface NutrientValues {
@@ -39,12 +44,6 @@ interface NutrientValues {
   protein?: number;
   carbs?: number;
   fat?: number;
-}
-interface ProgressRingsProps {
-  percentages: NutrientValues;
-  size?: number;
-  strokeWidth?: number;
-  spacing?: number;
 }
 const RING_CONFIG = [
   { key: "calories", colorKey: "calories" as const, label: "Calories" },
@@ -54,24 +53,6 @@ const RING_CONFIG = [
 ] as const;
 const STROKE_WIDTH = 16;
 const RING_SPACING = 2;
-
-// Helper functions
-const formatSelectedDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  const today = new Date();
-  const isToday = date.toDateString() === today.toDateString();
-
-  if (isToday) {
-    return "Today";
-  }
-
-  const options: Intl.DateTimeFormatOptions = {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  };
-  return date.toLocaleDateString("en-US", options);
-};
 
 // Helper components remain the same
 const getIcon = (label: string, color: string) => {
@@ -129,18 +110,19 @@ const StatRow = ({
   );
 };
 
+const COMPACT_THRESHOLD = 100;
+
 // --- MAIN HEADER COMPONENT ---
 export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
   percentages,
   targets,
   totals,
+  scrollY,
 }) => {
   const { colors, theme } = useTheme();
-  const { selectedDate } = useAppStore();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
   const containerSize = 175;
-  const center = containerSize / 2;
   const progress = useSharedValue({
     calories: 0,
     protein: 0,
@@ -169,17 +151,36 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
     };
   }, [percentages, progress]);
 
-  const outerRadius = center - STROKE_WIDTH / 2;
-  const ringRadii = useMemo(() => {
-    const radii = [];
-    let currentRadius = outerRadius;
-    for (let i = 0; i < RING_CONFIG.length; i++) {
-      radii.push(currentRadius);
-      if (i < RING_CONFIG.length - 1)
-        currentRadius -= STROKE_WIDTH + RING_SPACING;
-    }
-    return radii;
-  }, [outerRadius]);
+  // Animated styles for compact mode
+  const headerAnimatedStyle = useAnimatedStyle(() => {
+    if (!scrollY) return {};
+
+    const opacity = interpolate(
+      scrollY.value,
+      [0, COMPACT_THRESHOLD],
+      [1, 0],
+      Extrapolation.CLAMP
+    );
+
+    const scale = interpolate(
+      scrollY.value,
+      [0, COMPACT_THRESHOLD],
+      [1, 0.9],
+      Extrapolation.CLAMP
+    );
+
+    const translateY = interpolate(
+      scrollY.value,
+      [0, COMPACT_THRESHOLD],
+      [0, -20],
+      Extrapolation.CLAMP
+    );
+
+    return {
+      opacity,
+      transform: [{ scale }, { translateY }],
+    };
+  });
 
   const ringColors = {
     calories: colors.semantic.calories,
@@ -187,21 +188,11 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
     carbs: colors.semantic.carbs,
     fat: colors.semantic.fat,
   };
-  const ringPaths = useMemo(
-    () =>
-      ringRadii.map((radius) => {
-        const path = Skia.Path.Make();
-        path.addCircle(center, center, radius);
-        return path;
-      }),
-    [ringRadii, center]
-  );
 
   // --- RENDER ---
   return (
     <View style={styles.plateContainer}>
-      <DateSlider />
-      <View style={styles.contentContainer}>
+      <Animated.View style={[styles.contentContainer, headerAnimatedStyle]}>
         <View style={styles.summaryContent}>
           <ProgressRings
             percentages={percentages}
@@ -222,7 +213,7 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
             ))}
           </View>
         </View>
-      </View>
+      </Animated.View>
     </View>
   );
 };
@@ -231,10 +222,8 @@ export const DashboardHeader: React.FC<NutrientSummaryProps> = ({
 const createStyles = (colors: Colors, theme: Theme) => {
   return StyleSheet.create({
     plateContainer: {
-      backgroundColor: colors.secondaryBackground,
       paddingBottom: theme.spacing.lg,
       borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: colors.border,
     },
     headingContainer: {
       paddingHorizontal: theme.spacing.md,
