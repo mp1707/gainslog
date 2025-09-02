@@ -33,9 +33,10 @@ import { Button } from "@/components/shared/Button";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { createStyles } from "./DateSlider.styles";
-import { CalendarDays } from "lucide-react-native";
+import { CalendarDays, Settings } from "lucide-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as Haptics from "expo-haptics";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
 interface DayData {
   date: string; // YYYY-MM-DD
@@ -114,12 +115,12 @@ const DayItem: React.FC<DayItemProps> = React.memo(
     const { colors } = useTheme();
     const today = new Date().toISOString().split("T")[0];
     const isToday = item.date === today;
-    
+
     return (
       <Pressable
         style={({ pressed }) => [
           styles.itemContainer,
-          pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] }
+          pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] },
         ]}
         onPress={() => onPress(item.date)}
         accessibilityLabel={`Select ${item.date}`}
@@ -135,7 +136,7 @@ const DayItem: React.FC<DayItemProps> = React.memo(
             style={[
               styles.weekdayText,
               isSelected && styles.selectedWeekdayText,
-              isToday && { color: colors.accent, fontWeight: '800' },
+              isToday && { color: colors.accent, fontWeight: "800" },
             ]}
           >
             {item.weekday}
@@ -168,6 +169,7 @@ export const DateSlider = () => {
   const modalOpacity = useSharedValue(0);
   const modalTranslateY = useSharedValue(-50);
   const blurIntensity = useSharedValue(0);
+  const { safeNavigate } = useNavigationGuard();
 
   const { foodLogs, selectedDate, setSelectedDate, dailyTargets } =
     useAppStore();
@@ -314,8 +316,8 @@ export const DateSlider = () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         // Format date in local timezone to avoid date jumping
         const year = selectedDate.getFullYear();
-        const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-        const day = String(selectedDate.getDate()).padStart(2, '0');
+        const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+        const day = String(selectedDate.getDate()).padStart(2, "0");
         const dateString = `${year}-${month}-${day}`;
         setSelectedDate(dateString);
       }
@@ -367,6 +369,10 @@ export const DateSlider = () => {
     }),
     []
   );
+  const handleSettingsPress = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    safeNavigate("/(tabs)/settings/");
+  }, [safeNavigate]);
 
   // Scroll to initial position after component mounts
   useEffect(() => {
@@ -390,10 +396,20 @@ export const DateSlider = () => {
         </AppText>
         <View style={styles.headerButtonContainer}>
           <Button
+            onPress={handleSettingsPress}
+            variant="secondary"
+            size="small"
+            icon={<Settings size={16} color={colors.secondaryText} />}
+            accessibilityLabel="Open settings"
+            grow={false}
+            style={{ width: 40, height: 40 }}
+          />
+          <Button
             onPress={handleCalendarPress}
             variant="secondary"
             icon={<CalendarDays size={18} color={colors.secondaryText} />}
             accessibilityLabel="Open date picker"
+            grow={false}
           />
         </View>
       </View>
@@ -444,8 +460,12 @@ export const DateSlider = () => {
                 <DateTimePicker
                   value={(() => {
                     // Create date in local timezone to avoid date jumping
-                    const [year, month, day] = selectedDate.split('-');
-                    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                    const [year, month, day] = selectedDate.split("-");
+                    return new Date(
+                      parseInt(year),
+                      parseInt(month) - 1,
+                      parseInt(day)
+                    );
                   })()}
                   mode="date"
                   display={Platform.OS === "ios" ? "inline" : "default"}

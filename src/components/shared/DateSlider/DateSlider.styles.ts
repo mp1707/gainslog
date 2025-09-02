@@ -14,11 +14,11 @@ export const createStyles = (colors: Colors, theme: Theme, itemWidth: number) =>
       paddingTop: theme.spacing.md,
     },
     headerButtonContainer: {
-      flex: 1,
+      flexDirection: "row",
+      gap: theme.spacing.sm,
     },
     headerTitle: {
       color: colors.primaryText,
-      flex: 6,
     },
     sliderContainer: {
       height: 100,
