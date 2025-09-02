@@ -103,7 +103,7 @@ const darkColors = {
   subtleBorder: "rgba(255, 255, 255, 0.12)",
 
   // Main Accent & System Colors
-  accent: "#7C4DFF", // A brighter magenta for dark mode
+  accent: "#44EBD4", // A brighter magenta for dark mode
   recording: "#FF665A",
   error: "#FF665A",
   warning: "#FFD54F",
