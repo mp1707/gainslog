@@ -1,85 +1,81 @@
 import React, { useState, useMemo, useRef, useCallback } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-} from "react-native";
+import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
-import { Colors, Theme, useTheme } from "@/theme";
-import { ProgressBar } from "@/components/settings/ProgressBar";
-import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
 
-const inputAccessoryViewID = "age-input-accessory";
+const isValidWeight = (weight: number | undefined) =>
+  weight !== undefined && weight >= 30 && weight <= 300;
 
-const isValidAge = (age: number | undefined) =>
-  age !== undefined && age >= 15 && age <= 100;
-
-const AgeSelectionScreen = () => {
+const ProteinWeightSelectionScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { userSettings, setUserSettings } = useAppStore();
-  const { safeNavigate } = useNavigationGuard();
-  const [age, setAge] = useState<number | undefined>(userSettings?.age);
+  const { safeNavigate, isNavigating } = useNavigationGuard();
+  const [weight, setWeight] = useState<number | undefined>(
+    userSettings?.weight
+  );
   const inputRef = useRef<TextInput>(null);
 
   useDelayedAutofocus(inputRef);
 
-  const handleContinue = async () => {
-    if (!isValidAge(age)) return;
-    if (!age) return;
-    if (!userSettings) return;
-    setUserSettings({ ...userSettings, age: age });
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    safeNavigate("/settings/calorieCalculator/weight");
+  const handleWeightChange = (weightText: string) => {
+    const newWeight = Number(weightText);
+    setWeight(newWeight);
   };
 
-  const handleAgeChange = (age: string) => {
-    const newAge = Number(age);
-    setAge(newAge);
+  const handleContinue = async () => {
+    if (!userSettings) return;
+    if (!weight) return;
+
+    if (!isValidWeight(weight)) {
+      Alert.alert(
+        "Invalid Weight",
+        "Please enter a weight between 30 and 300 kg.",
+        [{ text: "OK" }]
+      );
+      return;
+    }
+
+    setUserSettings({ ...userSettings, weight });
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    safeNavigate("/settings/protein-goals");
   };
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
-      <View style={styles.progressContainer}>
-        <ProgressBar
-          totalSteps={6}
-          currentStep={2}
-          accessibilityLabel="Step 2 of 6"
-        />
-      </View>
-
       <View style={styles.content}>
         <View style={styles.textSection}>
-          <Text style={styles.subtitle}>How old are you?</Text>
+          <Text style={styles.subtitle}>What's your weight?</Text>
           <Text style={styles.description}>
-            Your age helps us calculate your calorie needs.
+            Your weight is needed to calculate personalized protein
+            recommendations.
           </Text>
         </View>
 
         <View style={styles.inputSection}>
-          <TextInput
-            ref={inputRef}
-            value={age ? age.toString() : ""}
-            onChangeText={handleAgeChange}
-            placeholder="30"
-            keyboardType="numeric"
-            keyboardAppearance={colorScheme}
-            style={styles.ageInput}
-            accessibilityLabel="Age input"
-            inputAccessoryViewID={inputAccessoryViewID}
-            selectTextOnFocus
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              ref={inputRef}
+              value={weight ? weight.toString() : ""}
+              onChangeText={handleWeightChange}
+              placeholder="70"
+              keyboardType="numeric"
+              keyboardAppearance={colorScheme}
+              style={styles.weightInput}
+              selectTextOnFocus
+            />
+            <Text style={styles.unitText}>kg</Text>
+          </View>
         </View>
+
         <View style={styles.spacer} />
       </View>
 
@@ -89,12 +85,14 @@ const AgeSelectionScreen = () => {
             variant="primary"
             onPress={handleContinue}
             iconPosition="right"
-            disabled={!isValidAge(age)}
+            disabled={!isValidWeight(weight)}
             icon={
               <ChevronRight
                 size={20}
-                color={isValidAge(age) ? colors.white : colors.disabledText}
-                strokeWidth={1.5}
+                color={
+                  isValidWeight(weight) ? colors.white : colors.disabledText
+                }
+                strokeWidth={2.5}
               />
             }
           >
@@ -106,16 +104,16 @@ const AgeSelectionScreen = () => {
   );
 };
 
-export default AgeSelectionScreen;
+export default ProteinWeightSelectionScreen;
 
-const createStyles = (colors: Colors, themeObj: Theme) => {
+const createStyles = (colors: any, themeObj: any) => {
   const { spacing, typography, components } = themeObj;
   return StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.primaryBackground },
-    progressContainer: { padding: spacing.md },
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
+      justifyContent: "flex-start",
       gap: spacing.xxl,
     },
     textSection: { paddingTop: spacing.lg, gap: spacing.sm },
@@ -130,30 +128,29 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
       textAlign: "center",
+      lineHeight: 22,
     },
     inputSection: { alignItems: "center" },
-    ageInput: {
+    inputContainer: {
+      flexDirection: "row",
+      alignItems: "baseline",
+      justifyContent: "center",
+    },
+    unitText: {
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
+      color: colors.secondaryText,
+      marginLeft: spacing.sm,
+    },
+    spacer: { flex: 1, minHeight: 64 },
+    progressContainer: { padding: spacing.md },
+    weightInput: {
       fontSize: 48,
       fontFamily: typography.Title1.fontFamily,
       color: colors.primaryText,
       textAlign: "center",
       minWidth: 100,
-    },
-    spacer: { flex: 1 },
-    continueButton: {
-      backgroundColor: colors.accent,
-      borderRadius: components.buttons.cornerRadius,
-      paddingVertical: spacing.md,
-      flexDirection: "row",
-      justifyContent: "center",
-      marginHorizontal: spacing.pageMargins.horizontal,
-      marginBottom: spacing.lg,
-    },
-    continueButtonText: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      color: colors.white,
-      marginRight: spacing.sm,
+      backgroundColor: "transparent",
     },
     keyboardAccessory: {
       padding: themeObj.spacing.sm,

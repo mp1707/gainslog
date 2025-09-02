@@ -26,10 +26,7 @@ export default function SettingsLayout() {
         headerRight: () => <CancelButton onPress={handleCancel} />,
       }}
     >
-      {/* BEFORE: You had headerShown: false here.
-        AFTER: We give it a title and let it be shown.
-        This is the main fix for the unmounting/flicker issue.
-      */}
+      {/* Settings main page */}
       <Stack.Screen
         name="index"
         options={{
@@ -37,22 +34,94 @@ export default function SettingsLayout() {
           headerShown: false,
         }}
       />
+      
+      {/* Calorie Calculator Routes */}
       <Stack.Screen
-        name="calorieCalculator"
+        name="calorie-sex"
         options={{
-          headerShown: false,
+          title: "",
         }}
       />
       <Stack.Screen
-        name="proteinCalculator"
+        name="calorie-age"
         options={{
-          headerShown: false,
+          title: "",
         }}
       />
       <Stack.Screen
-        name="fatCalculator"
+        name="calorie-weight"
         options={{
-          headerShown: false,
+          title: "",
+        }}
+      />
+      <Stack.Screen
+        name="calorie-height"
+        options={{
+          title: "",
+        }}
+      />
+      <Stack.Screen
+        name="calorie-activitylevel"
+        options={{
+          title: "Activity Level",
+        }}
+      />
+      <Stack.Screen
+        name="calorie-goals"
+        options={{
+          title: "",
+        }}
+      />
+      <Stack.Screen
+        name="calorie-manualInput"
+        options={{
+          title: "",
+        }}
+      />
+      <Stack.Screen
+        name="calorie-editCalories"
+        options={{
+          title: "",
+        }}
+      />
+      
+      {/* Protein Calculator Routes */}
+      <Stack.Screen
+        name="protein-weight"
+        options={{
+          title: "",
+        }}
+      />
+      <Stack.Screen
+        name="protein-goals"
+        options={{
+          title: "",
+        }}
+      />
+      <Stack.Screen
+        name="protein-manualInput"
+        options={{
+          title: "",
+        }}
+      />
+      <Stack.Screen
+        name="protein-editProtein"
+        options={{
+          title: "",
+        }}
+      />
+      
+      {/* Fat Calculator Routes */}
+      <Stack.Screen
+        name="fat-editFat"
+        options={{
+          title: "",
+        }}
+      />
+      <Stack.Screen
+        name="fat-manualInput"
+        options={{
+          title: "",
         }}
       />
     </Stack>

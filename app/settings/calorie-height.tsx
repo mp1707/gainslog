@@ -48,7 +48,7 @@ const HeightSelectionScreen = () => {
     setUserSettings({ ...userSettings, height });
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    safeNavigate("/settings/calorieCalculator/activitylevel");
+    safeNavigate("/settings/calorie-activitylevel");
   };
 
   return (

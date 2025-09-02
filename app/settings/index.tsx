@@ -84,8 +84,8 @@ export default function SettingsTab() {
                 style={styles.firstSettingsRow}
                 onPress={() =>
                   isCaloriesSet
-                    ? safeNavigate("/settings/calorieCalculator/editCalories")
-                    : safeNavigate("/settings/calorieCalculator/sex")
+                    ? safeNavigate("/settings/calorie-editCalories")
+                    : safeNavigate("/settings/calorie-sex")
                 }
                 disabled={isNavigating}
                 accessibilityRole="button"
@@ -133,8 +133,8 @@ export default function SettingsTab() {
                 ]}
                 onPress={() =>
                   isProteinSet
-                    ? safeNavigate("/settings/proteinCalculator/editProtein")
-                    : safeNavigate("/settings/proteinCalculator/weight")
+                    ? safeNavigate("/settings/protein-editProtein")
+                    : safeNavigate("/settings/protein-weight")
                 }
                 disabled={!proteinEnabled || isNavigating}
                 accessibilityRole="button"
@@ -187,7 +187,7 @@ export default function SettingsTab() {
                   styles.settingCardWithBorder,
                   { opacity: fatEnabled ? 1 : 0.5 },
                 ]}
-                onPress={() => safeNavigate("/settings/fatCalculator/editFat")}
+                onPress={() => safeNavigate("/settings/fat-editFat")}
                 disabled={!fatEnabled || isNavigating}
                 accessibilityRole="button"
                 accessibilityLabel="Fat setting"

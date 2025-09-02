@@ -36,7 +36,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
 
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-      safeNavigate("/settings/calorieCalculator/age");
+      safeNavigate("/settings/calorie-age");
     },
     [userSettings, setUserSettings, safeNavigate]
   );

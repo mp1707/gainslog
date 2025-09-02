@@ -18,12 +18,12 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
 
   const handleEditCurrent = useCallback(async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    safeReplace("/settings/proteinCalculator/manualInput");
+    safeReplace("/settings/protein-manualInput");
   }, [safeReplace]);
 
   const handleStartFresh = useCallback(async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    safeReplace("/settings/proteinCalculator/weight");
+    safeReplace("/settings/protein-weight");
   }, [safeReplace]);
 
   return (
