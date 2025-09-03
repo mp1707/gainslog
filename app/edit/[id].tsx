@@ -194,7 +194,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.secondaryBackground,
+      backgroundColor: colors.primaryBackground,
     },
     scrollView: {
       flex: 1,
@@ -205,7 +205,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
       gap: theme.spacing.lg,
     },
     textInputContainer: {
-      backgroundColor: colors.primaryBackground,
+      backgroundColor: colors.secondaryBackground,
       borderRadius: theme.components.buttons.cornerRadius,
       minHeight: 50,
     },

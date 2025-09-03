@@ -11,6 +11,7 @@ export const useStyles = () => useThemedStyles((colors, theme) => StyleSheet.cre
     paddingVertical: theme.spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
+    backgroundColor: colors.secondaryBackground,
   },
 
   buttonContainer: {

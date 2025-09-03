@@ -305,7 +305,7 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.secondaryBackground,
+      backgroundColor: colors.primaryBackground,
     },
     scrollView: {
       flex: 1,
