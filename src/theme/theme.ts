@@ -13,9 +13,10 @@ const lightColors = {
   secondaryText: "#8E8E93",
   border: "#EAEAEA",
   white: "#FFFFFF",
+  black: "#000000",
   disabledBackground: "rgba(26, 26, 26, 0.1)",
   disabledText: "rgba(26, 26, 26, 0.4)",
-  
+
   // Subtle UI elements (for de-emphasized components)
   subtleBackground: "rgba(0, 0, 0, 0.03)",
   subtleBorder: "rgba(0, 0, 0, 0.08)",
@@ -95,9 +96,10 @@ const darkColors = {
   secondaryText: "#8D8D93",
   border: "#38383A",
   white: "#FFFFFF",
+  black: "#000000",
   disabledBackground: "hsla(240, 24%, 96%, 0.15)",
   disabledText: "rgba(242, 242, 247, 0.4)",
-  
+
   // Subtle UI elements (for de-emphasized components)
   subtleBackground: "rgba(255, 255, 255, 0.05)",
   subtleBorder: "rgba(255, 255, 255, 0.12)",
@@ -249,7 +251,7 @@ const components = {
       primary: {
         default: {
           backgroundColor: lightColors.accent,
-          textColor: lightColors.white,
+          textColor: lightColors.black,
         },
         active: {
           backgroundColor: "#4527A0",
@@ -315,10 +317,10 @@ const components = {
       primary: {
         default: {
           backgroundColor: darkColors.accent,
-          textColor: darkColors.white,
+          textColor: darkColors.black,
         },
         active: {
-          backgroundColor: "#8E5AFF",
+          backgroundColor: darkColors.accent + "CC", // Slightly lighter on active
           textColor: darkColors.white,
         },
         disabled: {

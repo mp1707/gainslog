@@ -101,7 +101,7 @@ const ManualProteinInputScreen = () => {
             icon={
               <ChevronRight
                 size={20}
-                color={!protein ? colors.disabledText : colors.white}
+                color={!protein ? colors.disabledText : colors.black}
                 strokeWidth={2.5}
               />
             }

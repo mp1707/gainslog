@@ -132,7 +132,7 @@ const ManualCalorieInputScreen = () => {
               <ChevronRight
                 size={20}
                 color={
-                  isValidCalories(calories) ? colors.white : colors.disabledText
+                  isValidCalories(calories) ? colors.black : colors.disabledText
                 }
                 strokeWidth={1.5}
               />

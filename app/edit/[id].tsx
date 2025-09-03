@@ -167,7 +167,7 @@ export default function Edit() {
                   color={
                     !caNreEstimate || isReEstimating
                       ? colors.disabledText
-                      : colors.white
+                      : colors.black
                   }
                   strokeWidth={1.5}
                 />

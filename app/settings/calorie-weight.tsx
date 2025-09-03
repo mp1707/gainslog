@@ -115,7 +115,7 @@ const WeightSelectionScreen = () => {
               <ChevronRight
                 size={20}
                 color={
-                  isValidWeight(weight) ? colors.white : colors.disabledText
+                  isValidWeight(weight) ? colors.black : colors.disabledText
                 }
                 strokeWidth={1.5}
               />
@@ -183,7 +183,7 @@ const createStyles = (colors: any, themeObj: any) => {
     continueButtonText: {
       fontSize: typography.Headline.fontSize,
       fontFamily: typography.Headline.fontFamily,
-      color: colors.white,
+      color: colors.black,
       fontWeight: "600",
       marginRight: spacing.sm,
     },

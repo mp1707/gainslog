@@ -105,7 +105,7 @@ const ProteinWeightSelectionScreen = () => {
               <ChevronRight
                 size={20}
                 color={
-                  isValidWeight(weight) ? colors.white : colors.disabledText
+                  isValidWeight(weight) ? colors.black : colors.disabledText
                 }
                 strokeWidth={2.5}
               />

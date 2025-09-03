@@ -106,7 +106,7 @@ const HeightSelectionScreen = () => {
               <ChevronRight
                 size={20}
                 color={
-                  isValidHeight(height) ? colors.white : colors.disabledText
+                  isValidHeight(height) ? colors.black : colors.disabledText
                 }
                 strokeWidth={2.5}
               />

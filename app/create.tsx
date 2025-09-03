@@ -33,6 +33,7 @@ import { SearchBar } from "@/components/shared/SearchBar/SearchBar";
 import { TranscriptionOverlay } from "@/components/shared/TranscriptionOverlay";
 import { TextInput } from "@/components/shared/TextInput";
 import { BlurredBackground } from "@/components/shared";
+import { BlurView } from "expo-blur";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -175,6 +176,13 @@ export default function Create() {
             setEstimationType(value);
           }}
         />
+        {estimationType === "favorites" && (
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search favorites"
+          />
+        )}
       </View>
       {estimationType === "ai" && (
         <KeyboardAwareScrollView
@@ -258,7 +266,7 @@ export default function Create() {
                 icon={
                   <Sparkles
                     size={20}
-                    color={canContine ? colors.white : colors.disabledText}
+                    color={canContine ? colors.black : colors.disabledText}
                     strokeWidth={1.5}
                   />
                 }
@@ -268,28 +276,6 @@ export default function Create() {
             </View>
           </Card>
         </KeyboardStickyView>
-      )}
-
-      {estimationType === "favorites" && (
-        <>
-          <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
-            <Card style={styles.keyboardAccessory}>
-              <SearchBar
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder="Search favorites"
-              />
-            </Card>
-            <View style={{ transform: [{ translateY: 20 }] }}>
-              <BlurredBackground
-                position="bottom"
-                height={80}
-                intensity={5}
-                opacity={0.5}
-              />
-            </View>
-          </KeyboardStickyView>
-        </>
       )}
 
       <TranscriptionOverlay
@@ -317,7 +303,7 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
     toggleContainer: {
       marginHorizontal: theme.spacing.md,
       marginVertical: theme.spacing.md,
-      gap: theme.spacing.lg,
+      gap: theme.spacing.md,
     },
     content: {
       flex: 1,
@@ -333,7 +319,6 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
       minHeight: 150,
     },
     favoritesScrollview: {
-      paddingVertical: theme.spacing.md,
       paddingHorizontal: theme.spacing.md,
       gap: theme.spacing.md,
       flex: 1,
@@ -342,12 +327,14 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
       gap: theme.spacing.md,
     },
     keyboardAccessory: {
-      padding: theme.spacing.sm,
       marginHorizontal: theme.spacing.md,
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
       gap: theme.spacing.sm,
+      borderRadius: 16,
+      padding: theme.spacing.sm,
+      overflow: "hidden",
       zIndex: 99,
     },
     buttonWrapperLeft: {

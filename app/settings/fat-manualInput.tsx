@@ -123,7 +123,7 @@ const ManualFatInputScreen = () => {
             icon={
               <ChevronRight
                 size={20}
-                color={!fatPercent ? colors.disabledText : colors.white}
+                color={!fatPercent ? colors.disabledText : colors.black}
                 strokeWidth={2.5}
               />
             }

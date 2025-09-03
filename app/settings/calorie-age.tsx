@@ -101,7 +101,7 @@ const AgeSelectionScreen = () => {
             icon={
               <ChevronRight
                 size={20}
-                color={isValidAge(age) ? colors.white : colors.disabledText}
+                color={isValidAge(age) ? colors.black : colors.disabledText}
                 strokeWidth={1.5}
               />
             }
@@ -160,7 +160,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     continueButtonText: {
       fontSize: typography.Headline.fontSize,
       fontFamily: typography.Headline.fontFamily,
-      color: colors.white,
+      color: colors.black,
       marginRight: spacing.sm,
     },
     keyboardAccessory: {
