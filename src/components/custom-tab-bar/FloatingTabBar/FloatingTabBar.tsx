@@ -11,7 +11,7 @@ import { useTheme } from "@/theme";
 import { createStyles } from "./FloatingTabBar.styles";
 import { FloatingSegmentedControl } from "../FloatingSegmentedControl";
 import { FloatingNewButton } from "../FloatingNewButton";
-import { BlurredBackground } from "@/components/shared";
+import { BlurView } from "expo-blur";
 
 interface FloatingTabBarProps {
   selectedIndex: number;
@@ -56,12 +56,12 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
 
   return (
     <>
-      <BlurredBackground
+      {/* <BlurredBackground
         position="bottom"
         height={85} // Slightly increased for better coverage
         intensity={5} // Enhanced blur for more premium feel
         opacity={0.5} // Increased opacity for better definition
-      />
+      /> */}
       <Animated.View
         style={[
           styles.container,
@@ -72,16 +72,18 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
         ]}
       >
         <View style={styles.content}>
-          <View style={styles.segmentedControlWrapper}>
-            <FloatingSegmentedControl
-              selectedIndex={selectedIndex}
-              onSegmentChange={onSegmentChange}
-              segments={segments}
-            />
-          </View>
-          <View style={styles.segmentedButtonWrapper}>
-            <FloatingNewButton onPress={onNewPress} />
-          </View>
+          <BlurView intensity={10} style={styles.background}>
+            <View style={styles.segmentedControlWrapper}>
+              <FloatingSegmentedControl
+                selectedIndex={selectedIndex}
+                onSegmentChange={onSegmentChange}
+                segments={segments}
+              />
+            </View>
+            <View style={styles.segmentedButtonWrapper}>
+              <FloatingNewButton onPress={onNewPress} />
+            </View>
+          </BlurView>
         </View>
       </Animated.View>
     </>
