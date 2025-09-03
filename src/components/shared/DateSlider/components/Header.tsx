@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { View } from "react-native";
 import { CalendarDays, Settings } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
@@ -7,11 +7,11 @@ import { AppText } from "@/components";
 import { Button } from "@/components/shared/Button";
 import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { useAppStore } from "@/store/useAppStore";
+import { createStyles } from "./Header.styles";
 
-interface DateSliderHeaderProps {
-  selectedDate: string;
+interface HeaderProps {
   onCalendarPress: () => void;
-  styles: any;
 }
 
 // Smart date formatting function
@@ -51,13 +51,11 @@ const formatSelectedDateHeader = (dateString: string): string => {
   }
 };
 
-export const DateSliderHeader: React.FC<DateSliderHeaderProps> = ({
-  selectedDate,
-  onCalendarPress,
-  styles,
-}) => {
-  const { colors } = useTheme();
+export const Header: React.FC<HeaderProps> = ({ onCalendarPress }) => {
+  const { colors, theme } = useTheme();
+  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const { safePush } = useNavigationGuard();
+  const { selectedDate } = useAppStore();
 
   const handleSettingsPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

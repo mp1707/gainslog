@@ -26,7 +26,7 @@ import Animated, {
 // Create animated BlurView
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 import { DayData, DayItem } from "./components/DayItem";
-import { DateSliderHeader } from "./components/DateSliderHeader";
+import { Header } from "./components/Header";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { createStyles } from "./DateSlider.styles";
@@ -280,11 +280,7 @@ export const DateSlider = () => {
 
   return (
     <View style={styles.container}>
-      <DateSliderHeader
-        selectedDate={selectedDate}
-        onCalendarPress={handleCalendarPress}
-        styles={styles}
-      />
+      <Header onCalendarPress={handleCalendarPress} />
 
       <View
         style={[

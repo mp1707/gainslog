@@ -15,11 +15,12 @@ import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
 import { FoodLog } from "@/types/models";
 import { Toast } from "toastify-react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { DashboardHeader } from "@/components/daily-food-logs/DashboardHeader/DashboardHeader";
+import { NutrientSummary } from "@/components/daily-food-logs/NutrientSummary/NutrientSummary";
 import { DateSlider } from "@/components/shared/DateSlider";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
+import DashboardHeader from "@/components/shared/DateSlider/DashboardHeader";
 
 const HEADER_HEIGHT = 265;
 const DASHBOARD_OFFSET = HEADER_HEIGHT - 50;
@@ -151,7 +152,7 @@ export default function TodayTab() {
         ]}
         ListHeaderComponent={
           <View>
-            <DashboardHeader
+            <NutrientSummary
               percentages={dailyPercentages}
               targets={dailyTargets || defaultTargets}
               totals={dailyTotals}
@@ -192,6 +193,7 @@ export default function TodayTab() {
         >
           <SafeAreaView>
             <DateSlider />
+            {/* <DashboardHeader /> */}
           </SafeAreaView>
         </BlurView>
       </MaskedView>

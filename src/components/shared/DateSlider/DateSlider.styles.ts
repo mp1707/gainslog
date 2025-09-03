@@ -6,20 +6,6 @@ export const createStyles = (colors: Colors, theme: Theme, itemWidth: number) =>
     container: {
       // Remove fixed height to accommodate header
     },
-    header: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      paddingHorizontal: theme.spacing.lg,
-      paddingTop: theme.spacing.md,
-    },
-    headerButtonContainer: {
-      flexDirection: "row",
-      gap: theme.spacing.sm,
-    },
-    headerTitle: {
-      color: colors.primaryText,
-    },
     sliderContainer: {
       height: 100,
     },
