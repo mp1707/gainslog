@@ -21,7 +21,7 @@ const lightColors = {
   subtleBorder: "rgba(0, 0, 0, 0.08)",
 
   // Main Accent & System Colors
-  accent: "#6200EA", // A striking magenta for a bold accent
+  accent: "#2DCEC4", // A striking magenta for a bold accent
   recording: "#FF3D00",
   error: "#FF3D00",
   warning: "#FFAB00",

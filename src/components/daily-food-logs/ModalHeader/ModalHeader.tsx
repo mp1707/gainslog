@@ -1,40 +1,66 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useStyles } from "./ModalHeader.styles";
-import { DateNavigationHeader } from "../DateNavigationHeader";
 
 interface ModalHeaderProps {
-  disabled?: boolean;
-  onCancel: () => void;
-  onSave: () => void;
+  leftButton: {
+    label: string;
+    onPress: () => void;
+  };
+  rightButton?: {
+    label: string;
+    onPress: () => void;
+    disabled?: boolean;
+  };
+  centerContent?: React.ReactNode;
 }
 
 export const ModalHeader: React.FC<ModalHeaderProps> = ({
-  disabled = false,
-  onCancel,
-  onSave,
+  leftButton,
+  rightButton,
+  centerContent,
 }) => {
   const styles = useStyles();
 
   return (
     <View style={styles.header}>
-      <TouchableOpacity
-        onPress={onCancel}
-        accessibilityRole="button"
-        accessibilityLabel="Cancel"
-        hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
-      >
-        <Text style={styles.cancelButton}>Cancel</Text>
-      </TouchableOpacity>
-      {/* <Text style={styles.title}>New Log</Text> */}
-      <DateNavigationHeader compact={true} />
-      <TouchableOpacity onPress={onSave} disabled={disabled}>
-        <Text
-          style={[styles.saveButton, disabled && styles.saveButtonDisabled]}
-        >
-          Done
-        </Text>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        {leftButton && (
+          <TouchableOpacity
+            onPress={leftButton.onPress}
+            accessibilityRole="button"
+            accessibilityLabel={leftButton.label}
+            hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
+          >
+            <Text style={styles.cancelButton}>{leftButton.label}</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      
+      <View style={styles.centerContainer}>
+        {centerContent}
+      </View>
+      
+      <View style={styles.rightButtonContainer}>
+        {rightButton && (
+          <TouchableOpacity 
+            onPress={rightButton.onPress} 
+            disabled={rightButton.disabled}
+            accessibilityRole="button"
+            accessibilityLabel={rightButton.label}
+            hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
+          >
+            <Text
+              style={[
+                styles.saveButton, 
+                rightButton.disabled && styles.saveButtonDisabled
+              ]}
+            >
+              {rightButton.label}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };

@@ -1,4 +1,5 @@
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { DateNavigationHeader } from "@/components/daily-food-logs/DateNavigationHeader";
 import { Toggle } from "@/components/shared/Toggle";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { useAppStore } from "@/store/useAppStore";
@@ -154,9 +155,13 @@ export default function Create() {
   return (
     <View style={styles.container}>
       <ModalHeader
-        onCancel={handleCancel}
-        onSave={handleEstimation}
-        disabled={!canContine}
+        leftButton={{ label: "Cancel", onPress: handleCancel }}
+        rightButton={{
+          label: "Done",
+          onPress: handleEstimation,
+          disabled: !canContine,
+        }}
+        centerContent={<DateNavigationHeader compact={true} />}
       />
       <View style={styles.toggleContainer}>
         <Toggle
@@ -275,12 +280,12 @@ export default function Create() {
                 placeholder="Search favorites"
               />
             </Card>
-            <View style={{ transform: [{ translateY: 10 }] }}>
+            <View style={{ transform: [{ translateY: 20 }] }}>
               <BlurredBackground
                 position="bottom"
-                height={90}
-                intensity={10}
-                opacity={0.6}
+                height={80}
+                intensity={5}
+                opacity={0.5}
               />
             </View>
           </KeyboardStickyView>
@@ -300,7 +305,7 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.primaryBackground,
+      backgroundColor: colors.secondaryBackground,
     },
     scrollView: {
       flex: 1,

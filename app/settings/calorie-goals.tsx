@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import { View, ScrollView, KeyboardAvoidingView, Text } from "react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
@@ -19,20 +19,10 @@ export default function Step3GoalsScreen() {
   const { userSettings, setUserSettings, dailyTargets, setDailyTargets } =
     useAppStore();
   const { safeDismissTo, safeReplace } = useNavigationGuard();
-  const [selectedGoal, setSelectedGoal] = useState<
-    UserSettings["calorieGoalType"] | undefined
-  >(undefined);
-
   const { back, dismissAll } = useRouter();
 
   const handleCancel = () => {
     back();
-  };
-
-  const handleSave = () => {
-    if (selectedGoal) {
-      handleGoalSelect(selectedGoal);
-    }
   };
 
   // Calculate calorie goals based on stored params and activity level
@@ -53,7 +43,6 @@ export default function Step3GoalsScreen() {
   const handleGoalSelect = async (
     goalType: UserSettings["calorieGoalType"]
   ) => {
-    setSelectedGoal(goalType);
     if (!userSettings) return;
     if (!calorieGoals) return;
     if (!goalType) return;
@@ -75,7 +64,9 @@ export default function Step3GoalsScreen() {
   if (!calorieGoals) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={true} />
+        <ModalHeader 
+          leftButton={{ label: "Back", onPress: handleCancel }}
+        />
         <Text style={styles.errorText}>
           Missing calculation data. Please start over.
         </Text>
@@ -93,7 +84,9 @@ export default function Step3GoalsScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <View style={styles.container}>
-        <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!selectedGoal} />
+        <ModalHeader 
+          leftButton={{ label: "Back", onPress: handleCancel }}
+        />
 
         {/* Content */}
         <ScrollView
@@ -115,7 +108,7 @@ export default function Step3GoalsScreen() {
               description="Create a calorie deficit to lose weight gradually"
               icon={TrendingDown}
               iconColor={colors.error}
-              isSelected={selectedGoal === "lose"}
+              isSelected={false}
               onSelect={() => handleGoalSelect("lose")}
               dailyTarget={{
                 value: calorieGoals.lose,
@@ -131,7 +124,7 @@ export default function Step3GoalsScreen() {
               description="Eat at maintenance calories to stay at current weight"
               icon={Equal}
               iconColor={colors.success}
-              isSelected={selectedGoal === "maintain"}
+              isSelected={false}
               onSelect={() => handleGoalSelect("maintain")}
               dailyTarget={{
                 value: calorieGoals.maintain,
@@ -147,7 +140,7 @@ export default function Step3GoalsScreen() {
               description="Create a calorie surplus to gain weight gradually"
               icon={TrendingUp}
               iconColor={colors.semantic.protein}
-              isSelected={selectedGoal === "gain"}
+              isSelected={false}
               onSelect={() => handleGoalSelect("gain")}
               dailyTarget={{
                 value: calorieGoals.gain,

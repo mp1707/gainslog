@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   View,
   ScrollView,
@@ -32,18 +32,8 @@ export default function Step2ActivityLevelScreen() {
   const { safeNavigate } = useNavigationGuard();
   const { back } = useRouter();
 
-  const [selectedActivityLevel, setSelectedActivityLevel] = useState<
-    UserSettings["activityLevel"] | undefined
-  >(userSettings?.activityLevel);
-
   const handleCancel = () => {
     back();
-  };
-
-  const handleSave = () => {
-    if (selectedActivityLevel) {
-      handleActivityLevelSelect(selectedActivityLevel);
-    }
   };
 
   const handleActivityLevelSelect = async (
@@ -63,18 +53,15 @@ export default function Step2ActivityLevelScreen() {
     }, 300);
   };
 
-  const handleActivityLevelPreselect = (
-    activityLevel: UserSettings["activityLevel"]
-  ) => {
-    setSelectedActivityLevel(activityLevel);
-  };
 
   const activityLevels = Object.values(ACTIVITY_LEVELS);
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <View style={styles.container}>
-        <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!selectedActivityLevel} />
+        <ModalHeader 
+          leftButton={{ label: "Back", onPress: handleCancel }}
+        />
         
         {/* Content */}
         <ScrollView
@@ -118,8 +105,8 @@ export default function Step2ActivityLevelScreen() {
                   description={activityLevel.description}
                   icon={getIcon(activityLevel.id)}
                   iconColor={colors.secondaryText}
-                  isSelected={selectedActivityLevel === activityLevel.id}
-                  onSelect={() => handleActivityLevelPreselect(activityLevel.id)}
+                  isSelected={false}
+                  onSelect={() => handleActivityLevelSelect(activityLevel.id)}
                   accessibilityLabel={`${activityLevel.title} activity level`}
                   accessibilityHint={`Calculate calories for ${activityLevel.description.toLowerCase()}`}
                 />

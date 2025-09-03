@@ -5,20 +5,18 @@ import { useAppStore } from "@/store/useAppStore";
 import { Colors, Theme } from "@/theme/theme";
 import { useTheme } from "@/theme/ThemeProvider";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {
-  Keyboard,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { Keyboard, StyleSheet, View } from "react-native";
 import { FoodLog } from "@/types/models";
 import { useState } from "react";
 import { NutritionEditCard } from "@/components/edit-page/NutritionEditCard";
 import { Camera, Sparkles } from "lucide-react-native";
 import { useEstimation } from "@/hooks/useEstimation";
-import { ConfidenceBadge, SkeletonPill } from "@/components/shared";
 import {
-  KeyboardAvoidingView,
+  BlurredBackground,
+  ConfidenceBadge,
+  SkeletonPill,
+} from "@/components/shared";
+import {
   KeyboardAwareScrollView,
   KeyboardStickyView,
 } from "react-native-keyboard-controller";
@@ -87,9 +85,8 @@ export default function Edit() {
   return (
     <View style={styles.container}>
       <ModalHeader
-        onCancel={handleCancel}
-        onSave={handleDone}
-        disabled={false}
+        leftButton={{ label: "Cancel", onPress: handleCancel }}
+        rightButton={{ label: "Done", onPress: handleDone, disabled: false }}
       />
       <KeyboardAwareScrollView
         style={[styles.scrollView]}
@@ -150,7 +147,13 @@ export default function Edit() {
             <Button
               variant="secondary"
               onPress={showImagePickerAlert}
-              icon={<Camera size={20} color={colors.primaryText} strokeWidth={1.5} />}
+              icon={
+                <Camera
+                  size={20}
+                  color={colors.primaryText}
+                  strokeWidth={1.5}
+                />
+              }
             />
           </View>
           <View style={styles.buttonWrapperRight}>
@@ -174,6 +177,14 @@ export default function Edit() {
             </Button>
           </View>
         </Card>
+        <View style={{ transform: [{ translateY: 10 }] }}>
+          <BlurredBackground
+            position="bottom"
+            height={90}
+            intensity={10}
+            opacity={0.6}
+          />
+        </View>
       </KeyboardStickyView>
     </View>
   );
@@ -183,20 +194,18 @@ const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.primaryBackground,
+      backgroundColor: colors.secondaryBackground,
     },
     scrollView: {
       flex: 1,
-      backgroundColor: colors.primaryBackground,
     },
     contentContainer: {
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.md,
       gap: theme.spacing.lg,
-      backgroundColor: colors.primaryBackground,
     },
     textInputContainer: {
-      backgroundColor: colors.secondaryBackground,
+      backgroundColor: colors.primaryBackground,
       borderRadius: theme.components.buttons.cornerRadius,
       minHeight: 50,
     },
@@ -225,5 +234,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
       justifyContent: "center",
       alignItems: "center",
       gap: theme.spacing.sm,
+      backgroundColor: colors.primaryBackground,
+      zIndex: 99,
     },
   });

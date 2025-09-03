@@ -13,6 +13,22 @@ export const useStyles = () => useThemedStyles((colors, theme) => StyleSheet.cre
     borderBottomColor: colors.border,
   },
 
+  buttonContainer: {
+    flex: 1,
+    alignItems: 'flex-start',
+  },
+
+  rightButtonContainer: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+
+  centerContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   title: {
     fontSize: theme.typography.Title2.fontSize,
     fontFamily: theme.typography.Title2.fontFamily,

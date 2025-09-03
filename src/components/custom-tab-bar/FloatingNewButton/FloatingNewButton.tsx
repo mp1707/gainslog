@@ -55,8 +55,7 @@ export const FloatingNewButton: React.FC<FloatingNewButtonProps> = ({
     >
       <Animated.View style={[styles.button, animatedStyle]}>
         <Plus
-          color={colors.white}
-          size={24}
+          color={colors.primaryBackground}
           strokeWidth={2.5}
         />
       </Animated.View>

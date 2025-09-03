@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState } from "react";
+import React, { useMemo, useCallback } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import {
   Flame,
@@ -52,16 +52,8 @@ const EditFatScreen = React.memo(function EditFatScreen() {
   const { dailyTargets, userSettings } = useAppStore();
   const { safeReplace } = useNavigationGuard();
   const { back } = useRouter();
-  const [selectedOption, setSelectedOption] = useState<boolean>(false);
-
   const handleCancel = () => {
     back();
-  };
-
-  const handleSave = () => {
-    if (selectedOption) {
-      handleEditCurrent();
-    }
   };
 
   const fatGrams = calculateFatGramsFromPercentage(
@@ -79,13 +71,11 @@ const EditFatScreen = React.memo(function EditFatScreen() {
     safeReplace("/settings/fat-manualInput");
   }, [safeReplace]);
 
-  const handleEditCurrentPreselect = () => {
-    setSelectedOption(true);
-  };
-
   return (
     <View style={styles.container}>
-      <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!selectedOption} />
+      <ModalHeader 
+        leftButton={{ label: "Cancel", onPress: handleCancel }}
+      />
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.textSection}>
@@ -101,8 +91,8 @@ const EditFatScreen = React.memo(function EditFatScreen() {
           description="Manually adjust your fat target"
           icon={Edit2}
           iconColor={colors.accent}
-          isSelected={selectedOption}
-          onSelect={handleEditCurrentPreselect}
+          isSelected={false}
+          onSelect={handleEditCurrent}
           accessibilityLabel="Edit current fat value manually"
           accessibilityHint="Opens a screen to manually input your fat percentage"
         />

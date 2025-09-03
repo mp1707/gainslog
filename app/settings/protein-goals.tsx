@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   View,
   ScrollView,
@@ -90,18 +90,8 @@ export default function ProteinGoalsScreen() {
   const { safeDismissTo, safeReplace } = useNavigationGuard();
   const { back } = useRouter();
   const weight = userSettings?.weight || 0;
-  const [selectedMethod, setSelectedMethod] = useState<
-    UserSettings["proteinGoalType"] | undefined
-  >(undefined);
-
   const handleCancel = () => {
     back();
-  };
-
-  const handleSave = () => {
-    if (selectedMethod) {
-      handleMethodSelect(selectedMethod);
-    }
   };
 
   const proteinGoals = useMemo(() => {
@@ -141,18 +131,15 @@ export default function ProteinGoalsScreen() {
     }, 300);
   };
 
-  const handleMethodPreselect = (
-    method: UserSettings["proteinGoalType"]
-  ) => {
-    setSelectedMethod(method);
-  };
 
   const methods = Object.values(METHODS);
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <View style={styles.container}>
-        <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!selectedMethod} />
+        <ModalHeader 
+          leftButton={{ label: "Back", onPress: handleCancel }}
+        />
         
         {/* Content */}
         <ScrollView
@@ -183,8 +170,8 @@ export default function ProteinGoalsScreen() {
                   description={method.description}
                   icon={IconComponent}
                   iconColor={colors.accent}
-                  isSelected={selectedMethod === method.id}
-                  onSelect={() => handleMethodPreselect(method.id)}
+                  isSelected={false}
+                  onSelect={() => handleMethodSelect(method.id)}
                   dailyTarget={{
                     value: proteinGoal,
                     unit: "g",

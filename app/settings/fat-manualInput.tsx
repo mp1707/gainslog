@@ -78,7 +78,10 @@ const ManualFatInputScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ModalHeader onCancel={handleCancel} onSave={handleSaveFromHeader} disabled={!fatPercent} />
+      <ModalHeader 
+        leftButton={{ label: "Cancel", onPress: handleCancel }}
+        rightButton={{ label: "Save", onPress: handleSaveFromHeader, disabled: !fatPercent }}
+      />
       
       <View style={styles.content}>
         <View style={styles.textSection}>

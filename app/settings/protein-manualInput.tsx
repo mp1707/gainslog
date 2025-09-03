@@ -56,7 +56,10 @@ const ManualProteinInputScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ModalHeader onCancel={handleCancel} onSave={handleSaveFromHeader} disabled={!protein} />
+      <ModalHeader 
+        leftButton={{ label: "Cancel", onPress: handleCancel }}
+        rightButton={{ label: "Save", onPress: handleSaveFromHeader, disabled: !protein }}
+      />
       
       <View style={styles.content}>
         <View style={styles.textSection}>

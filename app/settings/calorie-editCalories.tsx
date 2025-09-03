@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState } from "react";
+import React, { useMemo, useCallback } from "react";
 import { View, Text } from "react-native";
 import { Edit, Calculator } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
@@ -18,18 +18,8 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
   const { safeReplace } = useNavigationGuard();
   const { back } = useRouter();
   const currentCalories = dailyTargets?.calories || 0;
-  const [selectedOption, setSelectedOption] = useState<'edit' | 'fresh' | null>(null);
-
   const handleCancel = () => {
     back();
-  };
-
-  const handleSave = () => {
-    if (selectedOption === 'edit') {
-      handleEditCurrent();
-    } else if (selectedOption === 'fresh') {
-      handleStartFresh();
-    }
   };
 
   const handleEditCurrent = useCallback(async () => {
@@ -42,17 +32,11 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
     safeReplace("/settings/calorie-sex");
   }, [safeReplace]);
 
-  const handleEditCurrentPreselect = () => {
-    setSelectedOption('edit');
-  };
-
-  const handleStartFreshPreselect = () => {
-    setSelectedOption('fresh');
-  };
-
   return (
     <View style={styles.container}>
-      <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!selectedOption} />
+      <ModalHeader 
+        leftButton={{ label: "Cancel", onPress: handleCancel }}
+      />
       
       {/* Content */}
       <View style={styles.content}>
@@ -71,8 +55,8 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
               description="Manually adjust your current calorie target"
               icon={Edit}
               iconColor={colors.semantic.protein}
-              isSelected={selectedOption === 'edit'}
-              onSelect={handleEditCurrentPreselect}
+              isSelected={false}
+              onSelect={handleEditCurrent}
               accessibilityLabel="Edit current calorie value manually"
               accessibilityHint="Opens manual input screen with your current calorie value pre-filled"
             />
@@ -82,8 +66,8 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
               description="Recalculate your calories from the beginning"
               icon={Calculator}
               iconColor={colors.accent}
-              isSelected={selectedOption === 'fresh'}
-              onSelect={handleStartFreshPreselect}
+              isSelected={false}
+              onSelect={handleStartFresh}
               accessibilityLabel="Start fresh calorie calculation"
               accessibilityHint="Begins the full calorie calculation process from sex selection"
             />

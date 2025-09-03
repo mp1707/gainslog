@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState } from "react";
+import React, { useMemo, useCallback } from "react";
 import { View, Text } from "react-native";
 import { Edit, Calculator } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
@@ -17,18 +17,8 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
   const { safeReplace } = useNavigationGuard();
   const { back } = useRouter();
   const proteinTarget = dailyTargets?.protein || 0;
-  const [selectedOption, setSelectedOption] = useState<'edit' | 'fresh' | null>(null);
-
   const handleCancel = () => {
     back();
-  };
-
-  const handleSave = () => {
-    if (selectedOption === 'edit') {
-      handleEditCurrent();
-    } else if (selectedOption === 'fresh') {
-      handleStartFresh();
-    }
   };
 
   const handleEditCurrent = useCallback(async () => {
@@ -41,17 +31,11 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
     safeReplace("/settings/protein-weight");
   }, [safeReplace]);
 
-  const handleEditCurrentPreselect = () => {
-    setSelectedOption('edit');
-  };
-
-  const handleStartFreshPreselect = () => {
-    setSelectedOption('fresh');
-  };
-
   return (
     <View style={styles.container}>
-      <ModalHeader onCancel={handleCancel} onSave={handleSave} disabled={!selectedOption} />
+      <ModalHeader 
+        leftButton={{ label: "Cancel", onPress: handleCancel }}
+      />
       
       {/* Content */}
       <View style={styles.content}>
@@ -70,8 +54,8 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
               description="Manually adjust your current protein target"
               icon={Edit}
               iconColor={colors.semantic.protein}
-              isSelected={selectedOption === 'edit'}
-              onSelect={handleEditCurrentPreselect}
+              isSelected={false}
+              onSelect={handleEditCurrent}
               accessibilityLabel="Edit current protein value manually"
               accessibilityHint="Opens manual input screen with your current protein value pre-filled"
             />
@@ -81,8 +65,8 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
               description="Recalculate your protein from the beginning"
               icon={Calculator}
               iconColor={colors.accent}
-              isSelected={selectedOption === 'fresh'}
-              onSelect={handleStartFreshPreselect}
+              isSelected={false}
+              onSelect={handleStartFresh}
               accessibilityLabel="Start fresh protein calculation"
               accessibilityHint="Begins the full protein calculation process from weight input"
             />

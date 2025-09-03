@@ -50,7 +50,10 @@ export default function SettingsTab() {
   if (isLoadingTargets) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <ModalHeader onCancel={handleCancel} onSave={handleSave} />
+        <ModalHeader 
+          leftButton={{ label: "Cancel", onPress: handleCancel }}
+          rightButton={{ label: "Save", onPress: handleSave }}
+        />
         <AppText role="Body" color="secondary">
           Loading settings...
         </AppText>
@@ -68,7 +71,10 @@ export default function SettingsTab() {
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <View style={styles.container}>
-        <ModalHeader onCancel={handleCancel} onSave={handleSave} />
+        <ModalHeader 
+          leftButton={{ label: "Cancel", onPress: handleCancel }}
+          rightButton={{ label: "Save", onPress: handleSave }}
+        />
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}

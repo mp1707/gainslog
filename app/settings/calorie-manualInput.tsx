@@ -86,7 +86,10 @@ const ManualCalorieInputScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ModalHeader onCancel={handleCancel} onSave={handleSaveFromHeader} disabled={!isValidCalories(calories)} />
+      <ModalHeader 
+        leftButton={{ label: "Cancel", onPress: handleCancel }}
+        rightButton={{ label: "Save", onPress: handleSaveFromHeader, disabled: !isValidCalories(calories) }}
+      />
       
       <View style={styles.content}>
         <View style={styles.textSection}>

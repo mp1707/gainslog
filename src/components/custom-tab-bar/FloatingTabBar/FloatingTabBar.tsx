@@ -1,5 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withDelay,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/theme";
 import { createStyles } from "./FloatingTabBar.styles";
@@ -24,20 +30,45 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
   const styles = createStyles(colors, theme);
   const insets = useSafeAreaInsets();
 
+  const mountProgress = useSharedValue(0);
+
+  useEffect(() => {
+    // Subtle slide-up animation on mount
+    mountProgress.value = withDelay(
+      100,
+      withSpring(1, {
+        damping: 20,
+        stiffness: 200,
+      })
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: (1 - mountProgress.value) * 20,
+        },
+      ],
+      opacity: mountProgress.value,
+    };
+  });
+
   return (
     <>
-      <BlurredBackground 
-        position="bottom" 
-        height={90}
-        intensity={10}
-        opacity={0.6}
+      <BlurredBackground
+        position="bottom"
+        height={85} // Slightly increased for better coverage
+        intensity={5} // Enhanced blur for more premium feel
+        opacity={0.5} // Increased opacity for better definition
       />
-      <View
+      <Animated.View
         style={[
           styles.container,
           {
-            paddingBottom: insets.bottom,
+            paddingBottom: insets.bottom + theme.spacing.sm,
           },
+          animatedStyle,
         ]}
       >
         <View style={styles.content}>
@@ -52,7 +83,7 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
             <FloatingNewButton onPress={onNewPress} />
           </View>
         </View>
-      </View>
+      </Animated.View>
     </>
   );
 };

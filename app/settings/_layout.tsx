@@ -68,6 +68,7 @@ export default function SettingsLayout() {
         name="calorie-activitylevel"
         options={{
           title: "Activity Level",
+          headerShown: false,
         }}
       />
       <Stack.Screen
