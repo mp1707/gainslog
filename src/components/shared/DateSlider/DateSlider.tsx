@@ -9,29 +9,14 @@ import {
   View,
   FlatList,
   Dimensions,
-  Modal,
-  TouchableOpacity,
-  Platform,
 } from "react-native";
-import { BlurView } from "expo-blur";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  useAnimatedProps,
-  withSpring,
-  withTiming,
-  runOnJS,
-} from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
 
-// Create animated BlurView
-const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 import { DayData, DayItem } from "./components/DayItem";
 import { Header } from "./components/Header";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { createStyles } from "./DateSlider.styles";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import * as Haptics from "expo-haptics";
 
 const WEEKDAY_LETTERS = ["M", "T", "W", "T", "F", "S", "S"];
 const WEEKS_TO_LOAD_AT_ONCE = 5;
@@ -42,17 +27,12 @@ const HORIZONTAL_PADDING = 20;
 const ITEM_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING) / 7;
 
 export const DateSlider = () => {
-  const { colors, theme, colorScheme } = useTheme();
+  const { colors, theme } = useTheme();
   const styles = useMemo(
     () => createStyles(colors, theme, ITEM_WIDTH),
     [colors, theme]
   );
   const flatListRef = useRef<FlatList>(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
-  const modalOpacity = useSharedValue(0);
-  const modalTranslateY = useSharedValue(-50);
-  const blurIntensity = useSharedValue(0);
 
   const { foodLogs, selectedDate, setSelectedDate, dailyTargets } =
     useAppStore();
@@ -60,30 +40,6 @@ export const DateSlider = () => {
   const [pastWeeksLoaded, setPastWeeksLoaded] = useState(WEEKS_TO_LOAD_AT_ONCE);
   const [isLoading, setIsLoading] = useState(false);
 
-  const animatedModalStyle = useAnimatedStyle(() => ({
-    opacity: modalOpacity.value,
-    transform: [{ translateY: modalTranslateY.value }],
-  }));
-
-  const animatedBlurProps = useAnimatedProps(() => ({
-    intensity: blurIntensity.value,
-  }));
-
-  const animateModalIn = useCallback(() => {
-    blurIntensity.value = withSpring(25, { stiffness: 300, damping: 30 });
-    modalOpacity.value = withSpring(1, { stiffness: 400, damping: 30 });
-    modalTranslateY.value = withSpring(0, { stiffness: 400, damping: 30 });
-  }, [blurIntensity, modalOpacity, modalTranslateY]);
-
-  const animateModalOut = useCallback(() => {
-    blurIntensity.value = withTiming(0, { duration: 250 });
-    modalOpacity.value = withTiming(0, { duration: 200 });
-    modalTranslateY.value = withTiming(-50, { duration: 200 }, (finished) => {
-      if (finished) {
-        runOnJS(setIsModalVisible)(false);
-      }
-    });
-  }, [blurIntensity, modalOpacity, modalTranslateY]);
 
   const dailyTotalsByDate = useMemo(() => {
     const totals = new Map<
@@ -169,42 +125,23 @@ export const DateSlider = () => {
     [setSelectedDate]
   );
 
-  const handleDatePickerChange = useCallback(
-    (_event: any, newSelectedDate?: Date) => {
-      animateModalOut();
-      if (newSelectedDate) {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        const dateString = newSelectedDate.toISOString().split("T")[0];
-        setSelectedDate(dateString);
+  const handleDateChange = useCallback(
+    (dateString: string) => {
+      setSelectedDate(dateString);
 
-        const today = new Date();
-        const newDate = new Date(dateString);
-        const diffTime = today.getTime() - newDate.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        const diffWeeks = Math.ceil(diffDays / 7);
+      const today = new Date();
+      const newDate = new Date(dateString);
+      const diffTime = today.getTime() - newDate.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const diffWeeks = Math.ceil(diffDays / 7);
 
-        if (diffWeeks > pastWeeksLoaded) {
-          setPastWeeksLoaded(diffWeeks + WEEKS_TO_LOAD_AT_ONCE);
-        }
+      if (diffWeeks > pastWeeksLoaded) {
+        setPastWeeksLoaded(diffWeeks + WEEKS_TO_LOAD_AT_ONCE);
       }
     },
-    [setSelectedDate, animateModalOut, pastWeeksLoaded]
+    [setSelectedDate, pastWeeksLoaded]
   );
 
-  const handleCalendarPress = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setIsModalVisible(true);
-  }, []);
-
-  useEffect(() => {
-    if (isModalVisible) {
-      animateModalIn();
-    }
-  }, [isModalVisible, animateModalIn]);
-
-  const handleModalClose = useCallback(() => {
-    animateModalOut();
-  }, [animateModalOut]);
 
   const renderDayItem = useCallback(
     ({ item }: { item: DayData }) => (
@@ -280,7 +217,7 @@ export const DateSlider = () => {
 
   return (
     <View style={styles.container}>
-      <Header onCalendarPress={handleCalendarPress} />
+      <Header onDateChange={handleDateChange} />
 
       <View
         style={[
@@ -305,42 +242,6 @@ export const DateSlider = () => {
           contentContainerStyle={{}}
         />
       </View>
-
-      <Modal
-        visible={isModalVisible}
-        transparent={true}
-        animationType="none"
-        onRequestClose={handleModalClose}
-      >
-        <View style={styles.modalBackdrop}>
-          <AnimatedBlurView
-            style={styles.blurContainer}
-            animatedProps={animatedBlurProps}
-            tint={colorScheme}
-          >
-            <TouchableOpacity
-              style={styles.modalBackdropTouchable}
-              activeOpacity={1}
-              onPress={handleModalClose}
-            >
-              <Animated.View style={[styles.modalContent, animatedModalStyle]}>
-                <DateTimePicker
-                  value={new Date(selectedDate + "T00:00:00")}
-                  mode="date"
-                  display={Platform.OS === "ios" ? "inline" : "default"}
-                  onChange={handleDatePickerChange}
-                  maximumDate={new Date()}
-                  {...(Platform.OS === "ios" && {
-                    themeVariant: colorScheme,
-                    textColor: colors.primaryText,
-                    accentColor: colors.accent,
-                  })}
-                />
-              </Animated.View>
-            </TouchableOpacity>
-          </AnimatedBlurView>
-        </View>
-      </Modal>
     </View>
   );
 };

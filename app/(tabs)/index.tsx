@@ -20,7 +20,6 @@ import { DateSlider } from "@/components/shared/DateSlider";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
-import DashboardHeader from "@/components/shared/DateSlider/DashboardHeader";
 
 const HEADER_HEIGHT = 265;
 const DASHBOARD_OFFSET = HEADER_HEIGHT - 50;
@@ -193,7 +192,6 @@ export default function TodayTab() {
         >
           <SafeAreaView>
             <DateSlider />
-            {/* <DashboardHeader /> */}
           </SafeAreaView>
         </BlurView>
       </MaskedView>
