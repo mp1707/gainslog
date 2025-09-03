@@ -4,6 +4,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
@@ -11,19 +12,20 @@ import { StatusIcon } from "@/components/shared/StatusIcon";
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
-import { Card, AppText } from "src/components";
+import { Card, AppText, Button } from "src/components";
 import { ChevronRight } from "lucide-react-native";
 import { AppearanceCard } from "@/components/settings/AppearanceCard";
 import { SettingsSection } from "@/components/settings/SettingsSection";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { useRouter } from "expo-router";
+import { seedFoodLogs } from "@/utils/seed";
 
 export default function SettingsTab() {
   const isLoadingTargets = false;
   const { colors, theme: themeObj } = useTheme();
   const keyboardOffset = useKeyboardOffset(true);
   const { safeNavigate, isNavigating } = useNavigationGuard();
-  const { dailyTargets } = useAppStore();
+  const { dailyTargets, clearAllLogs } = useAppStore();
   const { back } = useRouter();
 
   const styles = useMemo(
@@ -45,6 +47,29 @@ export default function SettingsTab() {
 
   const handleSave = () => {
     back();
+  };
+
+  const handleSeedData = () => {
+    seedFoodLogs();
+  };
+
+  const handleClearAllLogs = () => {
+    Alert.alert(
+      "Clear All Food Logs",
+      "Are you sure you want to delete all food logs? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete All",
+          style: "destructive",
+          onPress: () => clearAllLogs(),
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   if (isLoadingTargets) {
@@ -296,6 +321,42 @@ export default function SettingsTab() {
               </Button>
             </View> */}
           </SettingsSection>
+
+          <SettingsSection
+            title="Development Tools"
+            subtitle="Tools for testing and development"
+          >
+            <Card>
+              <View style={styles.seedButtonContainer}>
+                <Button
+                  onPress={handleSeedData}
+                  variant="secondary"
+                  size="medium"
+                  accessibilityLabel="Seed test data"
+                  accessibilityHint="Populates the app with test food logs for the last 120 days"
+                  style={styles.seedButton}
+                >
+                  <AppText role="Button">
+                    Seed Test Data
+                  </AppText>
+                </Button>
+              </View>
+              <View style={styles.seedButtonContainer}>
+                <Button
+                  onPress={handleClearAllLogs}
+                  variant="destructive"
+                  size="medium"
+                  accessibilityLabel="Clear all food logs"
+                  accessibilityHint="Removes all food logs from the app database"
+                  style={styles.seedButton}
+                >
+                  <AppText role="Button" color="white">
+                    Clear All Food Logs
+                  </AppText>
+                </Button>
+              </View>
+            </Card>
+          </SettingsSection>
         </ScrollView>
       </View>
     </KeyboardAvoidingView>
@@ -334,6 +395,13 @@ const createStyles = (
       alignItems: "center",
     },
     resetButton: {
+      minWidth: 200,
+    },
+    seedButtonContainer: {
+      paddingVertical: spacing.md,
+      alignItems: "center",
+    },
+    seedButton: {
       minWidth: 200,
     },
     settingCard: {

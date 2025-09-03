@@ -20,6 +20,7 @@ type AppState = {
   deleteFoodLog: (id: string) => void;
   clearAllLogs: () => void;
   cleanupIncompleteEstimations: () => void;
+  setFoodlogs: (logs: FoodLog[]) => void;
 
   // Favorites
   addFavorite: (fav: Favorite) => void;
@@ -75,6 +76,11 @@ export const useAppStore = create<AppState>()(
               (log.title !== "" && log.title !== null) ||
               log.isEstimating === false
           );
+        }),
+
+      setFoodlogs: (logs) =>
+        set((state) => {
+          state.foodLogs = logs;
         }),
 
       // Favorites
