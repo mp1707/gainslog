@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { View, Text } from "react-native";
 import { Edit, Calculator } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
@@ -18,16 +18,19 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
   const { safeReplace } = useNavigationGuard();
   const { back } = useRouter();
   const currentCalories = dailyTargets?.calories || 0;
+  const [selectedOption, setSelectedOption] = useState<'edit' | 'fresh' | undefined>();
   const handleCancel = () => {
     back();
   };
 
   const handleEditCurrent = useCallback(async () => {
+    setSelectedOption('edit');
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     safeReplace("/settings/calorie-manualInput");
   }, [safeReplace]);
 
   const handleStartFresh = useCallback(async () => {
+    setSelectedOption('fresh');
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     safeReplace("/settings/calorie-sex");
   }, [safeReplace]);
@@ -55,7 +58,7 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
               description="Manually adjust your current calorie target"
               icon={Edit}
               iconColor={colors.semantic.protein}
-              isSelected={false}
+              isSelected={selectedOption === 'edit'}
               onSelect={handleEditCurrent}
               accessibilityLabel="Edit current calorie value manually"
               accessibilityHint="Opens manual input screen with your current calorie value pre-filled"
@@ -66,7 +69,7 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
               description="Recalculate your calories from the beginning"
               icon={Calculator}
               iconColor={colors.accent}
-              isSelected={false}
+              isSelected={selectedOption === 'fresh'}
               onSelect={handleStartFresh}
               accessibilityLabel="Start fresh calorie calculation"
               accessibilityHint="Begins the full calorie calculation process from sex selection"

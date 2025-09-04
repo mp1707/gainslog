@@ -8,12 +8,7 @@ import {
 } from "react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
-import {
-  TrendingUp,
-  Dumbbell,
-  ShieldCheck,
-  Trophy,
-} from "lucide-react-native";
+import { TrendingUp, Dumbbell, ShieldCheck, Trophy } from "lucide-react-native";
 
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
@@ -87,18 +82,23 @@ export default function ProteinGoalsScreen() {
   const styles = createStyles(colors, themeObj);
   const { userSettings, setUserSettings, dailyTargets, setDailyTargets } =
     useAppStore();
-  const { safeDismissTo, safeReplace } = useNavigationGuard();
+  const { safeDismissTo } = useNavigationGuard();
   const { back } = useRouter();
   const weight = userSettings?.weight || 0;
   const handleCancel = () => {
     back();
   };
+  const [selectedMethodId, setSelectedMethodId] = React.useState<
+    UserSettings["proteinGoalType"] | undefined
+  >();
 
   const proteinGoals = useMemo(() => {
     return {
       optimal_growth: Math.round(weight * METHODS.optimal_growth.factor),
       dedicated_athlete: Math.round(weight * METHODS.dedicated_athlete.factor),
-      anabolic_insurance: Math.round(weight * METHODS.anabolic_insurance.factor),
+      anabolic_insurance: Math.round(
+        weight * METHODS.anabolic_insurance.factor
+      ),
       max_preservation: Math.round(weight * METHODS.max_preservation.factor),
     };
   }, [userSettings]);
@@ -125,22 +125,20 @@ export default function ProteinGoalsScreen() {
       ),
     };
     setDailyTargets(newDailyTargets);
+    setSelectedMethodId(method);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setTimeout(() => {
       safeDismissTo("/settings");
     }, 300);
   };
 
-
   const methods = Object.values(METHODS);
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <View style={styles.container}>
-        <ModalHeader 
-          leftButton={{ label: "Back", onPress: handleCancel }}
-        />
-        
+        <ModalHeader leftButton={{ label: "Back", onPress: handleCancel }} />
+
         {/* Content */}
         <ScrollView
           style={styles.content}
@@ -160,7 +158,8 @@ export default function ProteinGoalsScreen() {
 
           <View style={styles.methodsSection}>
             {methods.map((method) => {
-              const proteinGoal = proteinGoals[method.id as keyof typeof proteinGoals];
+              const proteinGoal =
+                proteinGoals[method.id as keyof typeof proteinGoals];
               const IconComponent = getIconForMethod(method.id as string);
 
               return (
@@ -170,7 +169,7 @@ export default function ProteinGoalsScreen() {
                   description={method.description}
                   icon={IconComponent}
                   iconColor={colors.accent}
-                  isSelected={false}
+                  isSelected={selectedMethodId === method.id}
                   onSelect={() => handleMethodSelect(method.id)}
                   dailyTarget={{
                     value: proteinGoal,

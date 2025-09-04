@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { View, Text } from "react-native";
 import { User } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
@@ -16,6 +16,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
   const { userSettings, setUserSettings } = useAppStore();
   const { safeNavigate } = useNavigationGuard();
   const { back } = useRouter();
+  const [selectedSex, setSelectedSex] = useState<UserSettings["sex"] | undefined>();
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -24,6 +25,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
 
   const handleSexSelect = useCallback(
     async (sex: UserSettings["sex"]) => {
+      setSelectedSex(sex);
       const newSettings: UserSettings = {
         sex,
         age: userSettings?.age ?? 30,
@@ -69,7 +71,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
               description="Biological male"
               icon={User}
               iconColor="#4A90E2"
-              isSelected={false}
+              isSelected={selectedSex === "male"}
               onSelect={() => handleSexSelect("male")}
               accessibilityLabel="Select male as biological sex"
               accessibilityHint="This will help calculate your calorie needs and advance to the next step"
@@ -80,7 +82,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
               description="Biological female"
               icon={User}
               iconColor="#E24A90"
-              isSelected={false}
+              isSelected={selectedSex === "female"}
               onSelect={() => handleSexSelect("female")}
               accessibilityLabel="Select female as biological sex"
               accessibilityHint="This will help calculate your calorie needs and advance to the next step"

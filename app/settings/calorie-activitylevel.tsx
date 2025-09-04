@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   View,
   ScrollView,
@@ -31,6 +31,7 @@ export default function Step2ActivityLevelScreen() {
   const { userSettings, setUserSettings } = useAppStore();
   const { safeNavigate } = useNavigationGuard();
   const { back } = useRouter();
+  const [selectedActivity, setSelectedActivity] = useState<UserSettings["activityLevel"] | undefined>();
 
   const handleCancel = () => {
     back();
@@ -41,6 +42,7 @@ export default function Step2ActivityLevelScreen() {
   ) => {
     if (!userSettings) return;
 
+    setSelectedActivity(activityLevel);
     setUserSettings({
       ...userSettings,
       activityLevel,
@@ -105,7 +107,7 @@ export default function Step2ActivityLevelScreen() {
                   description={activityLevel.description}
                   icon={getIcon(activityLevel.id)}
                   iconColor={colors.secondaryText}
-                  isSelected={false}
+                  isSelected={selectedActivity === activityLevel.id}
                   onSelect={() => handleActivityLevelSelect(activityLevel.id)}
                   accessibilityLabel={`${activityLevel.title} activity level`}
                   accessibilityHint={`Calculate calories for ${activityLevel.description.toLowerCase()}`}

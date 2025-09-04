@@ -18,9 +18,6 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
     // Selected state
     selectedCard: {
       borderColor: colors.accent,
-      backgroundColor: colorScheme === "light"
-        ? "rgba(98, 0, 234, 0.05)"
-        : "rgba(124, 77, 255, 0.1)",
     },
 
     // Content container

@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import {
   Flame,
@@ -52,6 +52,7 @@ const EditFatScreen = React.memo(function EditFatScreen() {
   const { dailyTargets, userSettings } = useAppStore();
   const { safeReplace } = useNavigationGuard();
   const { back } = useRouter();
+  const [selectedOption, setSelectedOption] = useState<'edit' | undefined>();
   const handleCancel = () => {
     back();
   };
@@ -67,6 +68,7 @@ const EditFatScreen = React.memo(function EditFatScreen() {
   );
 
   const handleEditCurrent = useCallback(async () => {
+    setSelectedOption('edit');
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     safeReplace("/settings/fat-manualInput");
   }, [safeReplace]);
@@ -91,7 +93,7 @@ const EditFatScreen = React.memo(function EditFatScreen() {
           description="Manually adjust your fat target"
           icon={Edit2}
           iconColor={colors.accent}
-          isSelected={false}
+          isSelected={selectedOption === 'edit'}
           onSelect={handleEditCurrent}
           accessibilityLabel="Edit current fat value manually"
           accessibilityHint="Opens a screen to manually input your fat percentage"

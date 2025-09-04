@@ -36,7 +36,6 @@ export interface SelectionCardProps {
   accessibilityHint?: string;
 }
 
-
 export const SelectionCard: React.FC<SelectionCardProps> = ({
   isSelected,
   onSelect,
@@ -103,12 +102,7 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
               <IconComponent size={24} color={finalIconColor} />
             </View>
             <View style={styles.textContainer}>
-              <Text
-                style={[
-                  styles.title,
-                  isSelected && styles.selectedTitle,
-                ]}
-              >
+              <Text style={[styles.title, isSelected && styles.selectedTitle]}>
                 {title}
               </Text>
               <Text style={styles.description}>{description}</Text>

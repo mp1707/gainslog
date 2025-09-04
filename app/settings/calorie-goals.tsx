@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { View, ScrollView, KeyboardAvoidingView, Text } from "react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
@@ -20,6 +20,7 @@ export default function Step3GoalsScreen() {
     useAppStore();
   const { safeDismissTo, safeReplace } = useNavigationGuard();
   const { back, dismissAll } = useRouter();
+  const [selectedGoal, setSelectedGoal] = useState<UserSettings["calorieGoalType"] | undefined>();
 
   const handleCancel = () => {
     back();
@@ -46,6 +47,7 @@ export default function Step3GoalsScreen() {
     if (!userSettings) return;
     if (!calorieGoals) return;
     if (!goalType) return;
+    setSelectedGoal(goalType);
     setUserSettings({ ...userSettings, calorieGoalType: goalType });
     const newDailyTargets = {
       ...dailyTargets,
@@ -108,7 +110,7 @@ export default function Step3GoalsScreen() {
               description="Create a calorie deficit to lose weight gradually"
               icon={TrendingDown}
               iconColor={colors.error}
-              isSelected={false}
+              isSelected={selectedGoal === "lose"}
               onSelect={() => handleGoalSelect("lose")}
               dailyTarget={{
                 value: calorieGoals.lose,
@@ -124,7 +126,7 @@ export default function Step3GoalsScreen() {
               description="Eat at maintenance calories to stay at current weight"
               icon={Equal}
               iconColor={colors.success}
-              isSelected={false}
+              isSelected={selectedGoal === "maintain"}
               onSelect={() => handleGoalSelect("maintain")}
               dailyTarget={{
                 value: calorieGoals.maintain,
@@ -140,7 +142,7 @@ export default function Step3GoalsScreen() {
               description="Create a calorie surplus to gain weight gradually"
               icon={TrendingUp}
               iconColor={colors.semantic.protein}
-              isSelected={false}
+              isSelected={selectedGoal === "gain"}
               onSelect={() => handleGoalSelect("gain")}
               dailyTarget={{
                 value: calorieGoals.gain,

@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { View, Text } from "react-native";
 import { Edit, Calculator } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
@@ -17,16 +17,19 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
   const { safeReplace } = useNavigationGuard();
   const { back } = useRouter();
   const proteinTarget = dailyTargets?.protein || 0;
+  const [selectedOption, setSelectedOption] = useState<'edit' | 'fresh' | undefined>();
   const handleCancel = () => {
     back();
   };
 
   const handleEditCurrent = useCallback(async () => {
+    setSelectedOption('edit');
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     safeReplace("/settings/protein-manualInput");
   }, [safeReplace]);
 
   const handleStartFresh = useCallback(async () => {
+    setSelectedOption('fresh');
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     safeReplace("/settings/protein-weight");
   }, [safeReplace]);
@@ -54,7 +57,7 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
               description="Manually adjust your current protein target"
               icon={Edit}
               iconColor={colors.semantic.protein}
-              isSelected={false}
+              isSelected={selectedOption === 'edit'}
               onSelect={handleEditCurrent}
               accessibilityLabel="Edit current protein value manually"
               accessibilityHint="Opens manual input screen with your current protein value pre-filled"
@@ -65,7 +68,7 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
               description="Recalculate your protein from the beginning"
               icon={Calculator}
               iconColor={colors.accent}
-              isSelected={false}
+              isSelected={selectedOption === 'fresh'}
               onSelect={handleStartFresh}
               accessibilityLabel="Start fresh protein calculation"
               accessibilityHint="Begins the full protein calculation process from weight input"

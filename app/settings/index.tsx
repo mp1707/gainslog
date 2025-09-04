@@ -41,11 +41,7 @@ export default function SettingsTab() {
   const fatEnabled = isProteinSet;
   const carbsEnabled = isFatSet;
 
-  const handleCancel = () => {
-    back();
-  };
-
-  const handleSave = () => {
+  const handleClose = () => {
     back();
   };
 
@@ -75,10 +71,7 @@ export default function SettingsTab() {
   if (isLoadingTargets) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <ModalHeader 
-          leftButton={{ label: "Cancel", onPress: handleCancel }}
-          rightButton={{ label: "Save", onPress: handleSave }}
-        />
+        <ModalHeader leftButton={{ label: "Cancel", onPress: handleClose }} />
         <AppText role="Body" color="secondary">
           Loading settings...
         </AppText>
@@ -96,10 +89,7 @@ export default function SettingsTab() {
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <View style={styles.container}>
-        <ModalHeader 
-          leftButton={{ label: "Cancel", onPress: handleCancel }}
-          rightButton={{ label: "Save", onPress: handleSave }}
-        />
+        <ModalHeader leftButton={{ label: "Close", onPress: handleClose }} />
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -336,9 +326,7 @@ export default function SettingsTab() {
                   accessibilityHint="Populates the app with test food logs for the last 120 days"
                   style={styles.seedButton}
                 >
-                  <AppText role="Button">
-                    Seed Test Data
-                  </AppText>
+                  <AppText role="Button">Seed Test Data</AppText>
                 </Button>
               </View>
               <View style={styles.seedButtonContainer}>
