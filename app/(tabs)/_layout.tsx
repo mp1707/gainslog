@@ -1,7 +1,7 @@
 import { Tabs, usePathname, useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { FloatingTabBar } from "@/components/custom-tab-bar";
+import { CustomTabBar } from "@/components/custom-tab-bar";
 
 
 // --- MAIN LAYOUT ---
@@ -34,7 +34,7 @@ export default function TabLayout() {
   };
 
   const customTabBar = () => (
-    <FloatingTabBar
+    <CustomTabBar
       selectedIndex={selectedIndex}
       onSegmentChange={handleSegmentChange}
       onNewPress={handleNewPress}

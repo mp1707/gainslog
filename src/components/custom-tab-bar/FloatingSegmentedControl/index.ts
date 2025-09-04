@@ -1,1 +1,0 @@
-export { FloatingSegmentedControl } from "./FloatingSegmentedControl";

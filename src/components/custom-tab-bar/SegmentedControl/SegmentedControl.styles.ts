@@ -63,4 +63,12 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       borderWidth: 0.5,
       borderColor: colors.subtleBorder,
     },
+     background: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.lg, // Increased gap for better proportion
+      borderRadius: 100,
+      padding: theme.spacing.sm,
+      overflow: "hidden",
+    },
   });

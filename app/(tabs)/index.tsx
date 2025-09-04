@@ -1,4 +1,3 @@
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   SafeAreaView,
   StyleSheet,
@@ -134,7 +133,7 @@ export default function TodayTab() {
   );
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <>
       <FlatList
         ref={flatListRef}
         data={todayFoodLogs}
@@ -195,7 +194,7 @@ export default function TodayTab() {
           </SafeAreaView>
         </BlurView>
       </MaskedView>
-    </GestureHandlerRootView>
+    </>
   );
 }
 

@@ -7,6 +7,7 @@ import { View, Text, ActivityIndicator } from "react-native";
 import { theme } from "../src/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { KeyboardProvider } from "react-native-keyboard-controller";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 function ThemedStack() {
   const { colors } = useTheme();
@@ -96,11 +97,13 @@ export default function RootLayout() {
   }
 
   return (
-    <KeyboardProvider>
-      <ThemeProvider>
-        <ThemedStack />
-        <ToastManager />
-      </ThemeProvider>
-    </KeyboardProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <KeyboardProvider>
+        <ThemeProvider>
+          <ThemedStack />
+          <ToastManager />
+        </ThemeProvider>
+      </KeyboardProvider>
+    </GestureHandlerRootView>
   );
 }

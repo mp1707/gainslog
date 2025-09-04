@@ -23,4 +23,11 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       width: 48, // Perfect square for circular button
       borderRadius: 24, // Half of width/height for perfect circle
     },
+    background: {
+      flexDirection: "row",
+      alignItems: "center",
+      borderRadius: 100,
+      padding: theme.spacing.sm,
+      overflow: "hidden",
+    },
   });

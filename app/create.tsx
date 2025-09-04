@@ -20,7 +20,6 @@ import { useEstimation } from "@/hooks/useEstimation";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
 import { LogCard } from "@/components/daily-food-logs";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { generateFoodLogId } from "@/utils/idGenerator";
 import {
   KeyboardAwareScrollView,
@@ -211,23 +210,21 @@ export default function Create() {
       )}
 
       {estimationType === "favorites" && (
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <ScrollView
-            style={styles.favoritesScrollview}
-            contentContainerStyle={[styles.contentContainer]}
-            showsVerticalScrollIndicator={false}
-          >
-            {filteredFavorites.map((favorite) => (
-              <SwipeToFunctions
-                key={favorite.id}
-                onDelete={() => deleteFavorite(favorite.id)}
-                onTap={() => handleCreateLogFromFavorite(favorite)}
-              >
-                <LogCard key={favorite.id} foodLog={favorite} />
-              </SwipeToFunctions>
-            ))}
-          </ScrollView>
-        </GestureHandlerRootView>
+        <ScrollView
+          style={styles.favoritesScrollview}
+          contentContainerStyle={[styles.contentContainer]}
+          showsVerticalScrollIndicator={false}
+        >
+          {filteredFavorites.map((favorite) => (
+            <SwipeToFunctions
+              key={favorite.id}
+              onDelete={() => deleteFavorite(favorite.id)}
+              onTap={() => handleCreateLogFromFavorite(favorite)}
+            >
+              <LogCard key={favorite.id} foodLog={favorite} />
+            </SwipeToFunctions>
+          ))}
+        </ScrollView>
       )}
 
       {estimationType === "ai" && (

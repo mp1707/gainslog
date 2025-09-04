@@ -12,10 +12,12 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       width: "100%",
       zIndex: 99,
       // Enhanced container styling for better hierarchy
-      paddingTop: theme.spacing.sm,
     },
     content: {
       width: "100%",
+      paddingTop: theme.spacing.sm,
+      flexDirection: "row",
+      gap: theme.spacing.lg, // Increased gap for better proportion
       paddingHorizontal: theme.spacing.xl,
       shadowColor: "#000",
       shadowOffset: {
@@ -28,18 +30,11 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     },
     segmentedControlWrapper: {
       flex: 4.2, // Slightly adjusted ratio for better balance with larger button
-      height: 48,
+      height: 48 + theme.spacing.sm * 2, // Adjusted for padding
     },
     segmentedButtonWrapper: {
       alignItems: "center",
       justifyContent: "center",
-    },
-    background: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: theme.spacing.lg, // Increased gap for better proportion
-      borderRadius: 100,
-      padding: theme.spacing.sm,
-      overflow: "hidden",
+      position: "relative", // Allow absolute positioning of overlay
     },
   });
