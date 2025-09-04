@@ -151,22 +151,20 @@ const AnimatedLogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
             )}
 
             {/* Description Section */}
-            {isLoading ? (
+            {false ? (
               <View style={{ marginTop: 4 }}>
                 <SkeletonPill width="90%" height={18} />
               </View>
             ) : (
               foodLog.description && (
-                <Animated.View style={descriptionAnimatedStyle}>
-                  <AppText
-                    role="Body"
-                    color="secondary"
-                    style={styles.description}
-                    numberOfLines={2}
-                  >
-                    {foodLog.description}
-                  </AppText>
-                </Animated.View>
+                <AppText
+                  role="Body"
+                  color="secondary"
+                  style={styles.description}
+                  numberOfLines={2}
+                >
+                  {foodLog.description}
+                </AppText>
               )
             )}
 

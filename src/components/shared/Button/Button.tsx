@@ -6,6 +6,12 @@ import {
   ViewStyle,
   TextStyle,
 } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  interpolate,
+} from "react-native-reanimated";
 import { createStyles } from "./Button.styles";
 import { useTheme } from "../../../theme";
 
@@ -41,6 +47,22 @@ export const Button: React.FC<ButtonProps> = ({
   const { colors, colorScheme } = useTheme();
   const styles = createStyles(colors, colorScheme);
   const [isPressed, setIsPressed] = useState(false);
+
+  // Animation state
+  const pressProgress = useSharedValue(0);
+
+  // Animated style for scaling
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        scale: withSpring(interpolate(pressProgress.value, [0, 1], [1, 0.95]), {
+          damping: 15,
+          stiffness: 400,
+        }),
+      },
+    ],
+  }));
+
   const isLoading =
     children &&
     React.isValidElement(children) &&
@@ -97,11 +119,11 @@ export const Button: React.FC<ButtonProps> = ({
 
   // Calculate icon size based on font size
   const currentFontSize = textStyles.reduce((fontSize, style) => {
-    return style && typeof style === 'object' && 'fontSize' in style 
-      ? (style as any).fontSize || fontSize 
+    return style && typeof style === "object" && "fontSize" in style
+      ? (style as any).fontSize || fontSize
       : fontSize;
   }, 16); // fallback to 16
-  
+
   const iconSize = Math.max(16, currentFontSize * 1.2); // Icon is 20% larger than text
 
   // Determine content layout
@@ -110,15 +132,6 @@ export const Button: React.FC<ButtonProps> = ({
   const isIconOnly = hasIcon && !hasText;
   const isTextOnly = hasText && !hasIcon;
   const hasIconAndText = hasIcon && hasText;
-
-  // Add grow styles after determining content layout
-  if (!grow) {
-    baseStyles.push({ 
-      width: 'auto', 
-      minWidth: isIconOnly ? 44 : undefined, // Maintain minimum touch target for icon-only buttons
-      paddingHorizontal: isIconOnly ? 12 : 16
-    });
-  }
 
   const renderContent = () => {
     if (isLoading) {
@@ -135,19 +148,16 @@ export const Button: React.FC<ButtonProps> = ({
     if (isIconOnly) {
       return React.cloneElement(icon!, {
         style: [
-          icon!.props.style, 
+          icon!.props.style,
           styles.iconOnly,
-          { fontSize: iconSize, width: iconSize, height: iconSize }
+          { fontSize: iconSize, width: iconSize, height: iconSize },
         ],
       });
     }
 
     if (isTextOnly) {
       return (
-        <Text 
-          style={textStyles} 
-          numberOfLines={numberOfLines}
-        >
+        <Text style={textStyles} numberOfLines={numberOfLines}>
           {children}
         </Text>
       );
@@ -158,13 +168,13 @@ export const Button: React.FC<ButtonProps> = ({
         style: [
           icon!.props.style,
           styles[iconPosition === "left" ? "iconLeft" : "iconRight"],
-          { fontSize: iconSize, width: iconSize, height: iconSize }
+          { fontSize: iconSize, width: iconSize, height: iconSize },
         ],
       });
 
       const textElement = (
-        <Text 
-          style={[textStyles, { flexShrink: 1 }]} 
+        <Text
+          style={[textStyles, { flexShrink: 1 }]}
           numberOfLines={numberOfLines}
         >
           {children}
@@ -183,24 +193,34 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   return (
-    <Pressable
-      style={[
-        ...baseStyles,
-        (hasIconAndText || isIconOnly) && styles.iconContainer,
-      ]}
-      onPress={onPress}
-      onPressIn={() => setIsPressed(true)}
-      onPressOut={() => setIsPressed(false)}
-      disabled={disabled}
-      accessibilityRole="button"
-      accessibilityLabel={
-        accessibilityLabel ||
-        (typeof children === "string" ? children : undefined)
-      }
-      accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled }}
-    >
-      {renderContent()}
-    </Pressable>
+    <Animated.View style={[grow && styles.fullWidth, animatedStyle]}>
+      <Pressable
+        style={[
+          ...baseStyles,
+          grow ? styles.fullWidth : styles.compact,
+          animatedStyle,
+          (hasIconAndText || isIconOnly) && styles.iconContainer,
+        ]}
+        onPress={onPress}
+        onPressIn={() => {
+          setIsPressed(true);
+          pressProgress.value = 1;
+        }}
+        onPressOut={() => {
+          setIsPressed(false);
+          pressProgress.value = 0;
+        }}
+        disabled={disabled}
+        accessibilityRole="button"
+        accessibilityLabel={
+          accessibilityLabel ||
+          (typeof children === "string" ? children : undefined)
+        }
+        accessibilityHint={accessibilityHint}
+        accessibilityState={{ disabled }}
+      >
+        {renderContent()}
+      </Pressable>
+    </Animated.View>
   );
 };

@@ -254,7 +254,7 @@ const components = {
           textColor: lightColors.black,
         },
         active: {
-          backgroundColor: "#4527A0",
+          backgroundColor: lightColors.accent + "CC", // Slightly lighter on active
           textColor: lightColors.white,
         },
         disabled: {

@@ -1,9 +1,5 @@
 import { FoodLog } from "@/types/models";
 import { generateFoodLogId } from "./idGenerator";
-import {
-  estimateNutritionDescriptionBased,
-  estimateNutritionImageBased,
-} from "@/lib/supabase";
 
 export type EstimationInput = Omit<
   FoodLog,

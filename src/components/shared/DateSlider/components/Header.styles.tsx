@@ -8,7 +8,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      paddingHorizontal: theme.spacing.lg,
+      paddingHorizontal: theme.spacing.md,
       paddingTop: theme.spacing.md,
     },
     headerButtonContainer: {
