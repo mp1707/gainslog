@@ -177,14 +177,6 @@ export default function Edit() {
             </Button>
           </View>
         </Card>
-        <View style={{ transform: [{ translateY: 10 }] }}>
-          <BlurredBackground
-            position="bottom"
-            height={90}
-            intensity={10}
-            opacity={0.6}
-          />
-        </View>
       </KeyboardStickyView>
     </View>
   );
@@ -234,7 +226,6 @@ const createStyles = (colors: Colors, theme: Theme) =>
       justifyContent: "center",
       alignItems: "center",
       gap: theme.spacing.sm,
-      backgroundColor: colors.primaryBackground,
       zIndex: 99,
     },
   });
