@@ -22,6 +22,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       height: 48,
       width: 48, // Perfect square for circular button
       borderRadius: 24, // Half of width/height for perfect circle
+      zIndex: 999,
     },
     background: {
       flexDirection: "row",
