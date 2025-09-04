@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -13,8 +13,9 @@ import Animated, {
   SharedValue,
 } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
-import { Camera, Mic, LucideProps } from "lucide-react-native";
+import { Camera, Mic } from "lucide-react-native";
 import { useTheme } from "@/theme";
+import { AppText } from "@/components/shared/AppText";
 import { createStyles } from "./DropZones.styles";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
@@ -31,7 +32,11 @@ interface DropZonesProps {
 interface DropZoneItemProps {
   title: string;
   subtitle: string;
-  IconComponent: React.FC<LucideProps>;
+  IconComponent: React.FC<{
+    size?: number;
+    color?: string;
+    strokeWidth?: number;
+  }>;
   isGestureActive: SharedValue<boolean>;
   gestureX: SharedValue<number>;
   gestureY: SharedValue<number>;
@@ -64,7 +69,7 @@ const DropZoneItem: React.FC<DropZoneItemProps> = ({
         active: isGestureActive.value,
       };
     },
-    (current, previous) => {
+    (current) => {
       if (current === null) return;
       if (!current.active) {
         if (isActive.value) isActive.value = false;
@@ -83,7 +88,7 @@ const DropZoneItem: React.FC<DropZoneItemProps> = ({
 
       if (isInside && !isActive.value) {
         isActive.value = true;
-        runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
+        runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Soft);
       } else if (!isInside && isActive.value) {
         isActive.value = false;
       }
@@ -107,6 +112,12 @@ const DropZoneItem: React.FC<DropZoneItemProps> = ({
           }),
         },
       ],
+      // Apply border when active
+      borderWidth: withSpring(isActive.value ? 2 : 0, {
+        damping: 15,
+        stiffness: 250,
+      }),
+      borderColor: colors.accent,
     };
   });
 
@@ -130,7 +141,13 @@ const DropZoneItem: React.FC<DropZoneItemProps> = ({
   });
 
   return (
-    <Animated.View ref={animatedRef} style={[styles.dropZone, containerStyle]}>
+    <Animated.View
+      ref={animatedRef}
+      style={[
+        styles.dropZone,
+        containerStyle,
+      ]}
+    >
       <LinearGradient
         colors={dropZoneGradientColors}
         style={StyleSheet.absoluteFill}
@@ -146,8 +163,20 @@ const DropZoneItem: React.FC<DropZoneItemProps> = ({
         </Animated.View>
         <IconComponent color={colors.primaryText} strokeWidth={1.5} size={48} />
       </Animated.View>
-      <Text style={styles.dropZoneTitle}>{title}</Text>
-      <Text style={styles.dropZoneSubtitle}>{subtitle}</Text>
+      <AppText
+        role="Title2"
+        color="primary"
+        style={{ textAlign: "center", marginBottom: 4 }}
+      >
+        {title}
+      </AppText>
+      <AppText
+        role="Body"
+        color="secondary"
+        style={{ textAlign: "center", maxWidth: "85%" }}
+      >
+        {subtitle}
+      </AppText>
     </Animated.View>
   );
 };
