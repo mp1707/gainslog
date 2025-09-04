@@ -1,5 +1,4 @@
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
-import { DateNavigationHeader } from "@/components/daily-food-logs/DateNavigationHeader";
 import { Toggle } from "@/components/shared/Toggle";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { useAppStore } from "@/store/useAppStore";
@@ -28,10 +27,12 @@ import {
   KeyboardStickyView,
 } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
-import { Button } from "@/components/index";
+import { AppText, Button } from "@/components/index";
 import { SearchBar } from "@/components/shared/SearchBar/SearchBar";
 import { TranscriptionOverlay } from "@/components/shared/TranscriptionOverlay";
 import { TextInput } from "@/components/shared/TextInput";
+import { DatePickerButton } from "@/components/shared/DatePickerButton";
+import { formatDate } from "@/utils/formatDate";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -86,15 +87,17 @@ export default function Create() {
   const canContine =
     newLog?.description?.trim() !== "" || newLog.imageUrl !== "";
 
-  const { isRecording, liveTranscription, stopRecording, startRecording } = useTranscription();
+  const { isRecording, liveTranscription, stopRecording, startRecording } =
+    useTranscription();
 
   const handleTranscriptionStop = useCallback(async () => {
     if (liveTranscription.trim()) {
       setNewLog((prev) => ({
         ...prev,
-        description: prev.description !== "" 
-          ? prev.description + " " + liveTranscription.trim() 
-          : liveTranscription.trim(),
+        description:
+          prev.description !== ""
+            ? prev.description + " " + liveTranscription.trim()
+            : liveTranscription.trim(),
       }));
     }
     await stopRecording();
@@ -149,18 +152,16 @@ export default function Create() {
     back();
   }, []);
 
+  const formattedDate = formatDate(selectedDate);
+
   return (
     <View style={styles.container}>
-      <ModalHeader
-        leftButton={{ label: "Cancel", onPress: handleCancel }}
-        rightButton={{
-          label: "Done",
-          onPress: handleEstimation,
-          disabled: !canContine,
-        }}
-        centerContent={<DateNavigationHeader compact={true} />}
-      />
+      <ModalHeader leftButton={{ label: "Cancel", onPress: handleCancel }} />
       <View style={styles.toggleContainer}>
+        <View style={styles.headerContainer}>
+          <AppText role="Title2">{formattedDate}</AppText>
+          <DatePickerButton />
+        </View>
         <Toggle
           value={estimationType}
           options={[
@@ -294,6 +295,12 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
     scrollContent: {
       flexGrow: 1,
       paddingBottom: theme.spacing.lg,
+    },
+    headerContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: theme.spacing.md,
     },
     toggleContainer: {
       marginHorizontal: theme.spacing.md,

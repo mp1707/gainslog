@@ -10,47 +10,11 @@ import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useAppStore } from "@/store/useAppStore";
 import { createStyles } from "./Header.styles";
+import { formatDate } from "@/utils/formatDate";
 
 interface HeaderProps {
   onDateChange: (date: string) => void;
 }
-
-// Smart date formatting function
-const formatSelectedDateHeader = (dateString: string): string => {
-  const date = new Date(dateString + "T00:00:00");
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-
-  // Reset time components for comparison
-  const todayDateOnly = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  );
-  const yesterdayDateOnly = new Date(
-    yesterday.getFullYear(),
-    yesterday.getMonth(),
-    yesterday.getDate()
-  );
-  const inputDateOnly = new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate()
-  );
-
-  if (inputDateOnly.getTime() === todayDateOnly.getTime()) {
-    return "Today";
-  } else if (inputDateOnly.getTime() === yesterdayDateOnly.getTime()) {
-    return "Yesterday";
-  } else {
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "short",
-      day: "numeric",
-    });
-  }
-};
 
 export const Header: React.FC<HeaderProps> = ({ onDateChange }) => {
   const { colors, theme } = useTheme();
@@ -67,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({ onDateChange }) => {
     <>
       <View style={styles.header}>
         <AppText role="Title2" style={styles.headerTitle}>
-          {formatSelectedDateHeader(selectedDate)}
+          {formatDate(selectedDate)}
         </AppText>
         <View style={styles.headerButtonContainer}>
           <Button
