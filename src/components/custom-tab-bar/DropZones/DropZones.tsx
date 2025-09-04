@@ -11,39 +11,32 @@ import Animated, {
   runOnJS,
   interpolate,
   SharedValue,
+  withDelay,
+  interpolateColor, // Import interpolateColor for background animation
 } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
 import { Camera, Mic } from "lucide-react-native";
 import { useTheme } from "@/theme";
 import { AppText } from "@/components/shared/AppText";
 import { createStyles } from "./DropZones.styles";
-import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 
-// Define the new props required to track the user's gesture
-interface DropZonesProps {
-  isVisible: boolean;
-  isGestureActive: SharedValue<boolean>;
-  gestureX: SharedValue<number>;
-  gestureY: SharedValue<number>;
-}
-
-// Add a new prop to handle the entry animation scale
+// --- New Prop for positioning (top/bottom item) ---
 interface DropZoneItemProps {
   title: string;
   subtitle: string;
   IconComponent: React.FC<{
     size?: number;
     color?: string;
-    strokeWidth?: number;
+    weight?: "thin" | "light" | "regular" | "bold" | "fill" | "duotone";
   }>;
   isGestureActive: SharedValue<boolean>;
   gestureX: SharedValue<number>;
   gestureY: SharedValue<number>;
-  entryScale: SharedValue<number>; // New prop
+  onActivate: () => void; // Action to perform on release
+  position: "top" | "bottom"; // To apply correct border radius
 }
 
-// A self-contained component for each drop zone.
 const DropZoneItem: React.FC<DropZoneItemProps> = ({
   title,
   subtitle,
@@ -51,26 +44,29 @@ const DropZoneItem: React.FC<DropZoneItemProps> = ({
   isGestureActive,
   gestureX,
   gestureY,
-  entryScale, // Accept the new prop
+  onActivate,
+  position,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
-  const { styles, dropZoneGradientColors, iconGlowGradientColors } =
-    createStyles(colors, theme, colorScheme);
+  const styles = createStyles(colors, theme, colorScheme);
 
   const isActive = useSharedValue(false);
   const animatedRef = useAnimatedRef<View>();
 
   useAnimatedReaction(
-    () => {
-      // We now depend on the shared values passed from the parent
-      return {
-        gx: gestureX.value,
-        gy: gestureY.value,
-        active: isGestureActive.value,
-      };
-    },
-    (current) => {
+    () => ({
+      gx: gestureX.value,
+      gy: gestureY.value,
+      active: isGestureActive.value,
+    }),
+    (current, previous) => {
       if (current === null) return;
+
+      // Check if gesture ended while active
+      if (previous?.active && !current.active && isActive.value) {
+        // runOnJS(onActivate)();
+      }
+
       if (!current.active) {
         if (isActive.value) isActive.value = false;
         return;
@@ -88,170 +84,133 @@ const DropZoneItem: React.FC<DropZoneItemProps> = ({
 
       if (isInside && !isActive.value) {
         isActive.value = true;
-        runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Soft);
+        runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
       } else if (!isInside && isActive.value) {
         isActive.value = false;
+        runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
       }
     },
-    // The dependency array is empty because useAnimatedReaction automatically
-    // subscribes to any shared values read inside its worklet.
     []
   );
 
-  const containerStyle = useAnimatedStyle(() => {
-    // Combine the entry scale and the hover scale into one value.
-    const finalScale = entryScale.value * (isActive.value ? 1.05 : 1);
+  // --- Refined Animation for iOS-style hover ---
+  const itemAnimatedStyle = useAnimatedStyle(() => {
+    // Determine background color based on active state for a subtle press effect
+    const backgroundColor = interpolateColor(
+      isActive.value ? 1 : 0,
+      [0, 1],
+      [styles.itemBackgroundColor.color, styles.itemActiveBackgroundColor.color]
+    );
+
     return {
-      // Apply a spring animation to the combined final scale.
-      transform: [
-        {
-          scale: withSpring(finalScale, {
-            damping: 15,
-            stiffness: 250,
-            mass: 0.5,
-          }),
-        },
-      ],
-      // Apply border when active
-      borderWidth: withSpring(isActive.value ? 2 : 0, {
-        damping: 15,
-        stiffness: 250,
-      }),
-      borderColor: colors.accent,
+      backgroundColor,
+      // Apply subtle scale on hover for physical feedback
+      transform: [{ scale: withSpring(isActive.value ? 1.02 : 1) }],
     };
   });
 
-  const iconContainerStyle = useAnimatedStyle(() => {
-    const scale = withSpring(isActive.value ? 1.15 : 1, {
-      damping: 10,
-      stiffness: 300,
-    });
-    return {
-      transform: [{ scale }],
-    };
-  });
-
-  const iconGlowStyle = useAnimatedStyle(() => {
-    const opacity = withTiming(isActive.value ? 1 : 0.8);
-    const scale = withSpring(isActive.value ? 1.1 : 1);
-    return {
-      opacity,
-      transform: [{ scale }],
-    };
-  });
+  const positionStyle = position === "top" ? styles.topItem : styles.bottomItem;
 
   return (
     <Animated.View
       ref={animatedRef}
-      style={[
-        styles.dropZone,
-        containerStyle,
-      ]}
+      style={[styles.dropZoneItem, positionStyle, itemAnimatedStyle]}
     >
-      <LinearGradient
-        colors={dropZoneGradientColors}
-        style={StyleSheet.absoluteFill}
-      />
-      <Animated.View style={[styles.iconContainer, iconContainerStyle]}>
-        <Animated.View
-          style={[styles.iconGlow, { position: "absolute" }, iconGlowStyle]}
-        >
-          <LinearGradient
-            colors={iconGlowGradientColors}
-            style={StyleSheet.absoluteFill}
-          />
-        </Animated.View>
-        <IconComponent color={colors.primaryText} strokeWidth={1.5} size={48} />
-      </Animated.View>
-      <AppText
-        role="Title2"
-        color="primary"
-        style={{ textAlign: "center", marginBottom: 4 }}
-      >
-        {title}
-      </AppText>
-      <AppText
-        role="Body"
-        color="secondary"
-        style={{ textAlign: "center", maxWidth: "85%" }}
-      >
-        {subtitle}
-      </AppText>
+      <View style={styles.iconContainer}>
+        <IconComponent color={colors.primaryText} weight="light" size={24} />
+      </View>
+      <View style={styles.textContainer}>
+        <AppText role="Headline" color="primary">
+          {title}
+        </AppText>
+        <AppText role="Subhead" color="secondary" style={{ marginTop: 2 }}>
+          {subtitle}
+        </AppText>
+      </View>
     </Animated.View>
   );
 };
+
+// --- Main DropZones Component ---
+interface DropZonesProps {
+  isVisible: boolean;
+  isGestureActive: SharedValue<boolean>;
+  gestureX: SharedValue<number>;
+  gestureY: SharedValue<number>;
+  onCameraActivate: () => void;
+  onVoiceActivate: () => void;
+}
 
 export const DropZones: React.FC<DropZonesProps> = ({
   isVisible,
   isGestureActive,
   gestureX,
   gestureY,
+  onCameraActivate,
+  onVoiceActivate,
 }) => {
-  const { colorScheme } = useTheme();
-  const { styles } = createStyles(
-    useTheme().colors,
-    useTheme().theme,
-    colorScheme
-  );
+  const { colors, theme, colorScheme } = useTheme();
+  const styles = createStyles(colors, theme, colorScheme);
 
-  const overlayOpacity = useSharedValue(0);
-  const dropZoneScale = useSharedValue(0.95);
+  const animationProgress = useSharedValue(0);
 
   useEffect(() => {
-    if (isVisible) {
-      overlayOpacity.value = withTiming(1, { duration: 150 });
-      dropZoneScale.value = withSpring(1, {
-        damping: 15,
-        stiffness: 250,
-        mass: 0.5,
-      });
-    } else {
-      overlayOpacity.value = withTiming(0, { duration: 200 });
-      dropZoneScale.value = withTiming(0.95, { duration: 200 });
-    }
+    animationProgress.value = withSpring(isVisible ? 1 : 0, {
+      damping: 18,
+      stiffness: 250,
+      mass: 0.7,
+    });
   }, [isVisible]);
 
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: overlayOpacity.value,
-    // When the overlay is not visible, it should not block any touches.
+    opacity: animationProgress.value,
     pointerEvents: isVisible ? "auto" : "none",
   }));
 
-  const dropZoneContainerAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(overlayOpacity.value, [0.5, 1], [0, 1]),
-  }));
+  const containerAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(animationProgress.value, [0, 0.5], [0, 1]),
+      transform: [
+        { scale: interpolate(animationProgress.value, [0, 1], [0.9, 1]) },
+        // You could add a slight translation from bottom here if desired
+        // { translateY: interpolate(animationProgress.value, [0, 1], [50, 0]) },
+      ],
+    };
+  });
 
-  // The component is now always rendered, but its visibility and interactivity
-  // are controlled by the `isVisible` prop driving the animations.
   return (
     <Animated.View style={[styles.overlay, overlayAnimatedStyle]}>
       <BlurView
-        intensity={30}
+        intensity={25}
         tint={colorScheme}
         style={StyleSheet.absoluteFill}
       >
-        <View style={styles.dimOverlay} />
         <Animated.View
-          style={[styles.dropZonesContainer, dropZoneContainerAnimatedStyle]}
+          style={[styles.dropZonesContainer, containerAnimatedStyle]}
         >
-          <DropZoneItem
-            title="Snap Meal"
-            subtitle="Quickly capture a photo of your food"
-            IconComponent={Camera}
-            isGestureActive={isGestureActive}
-            gestureX={gestureX}
-            gestureY={gestureY}
-            entryScale={dropZoneScale}
-          />
-          <DropZoneItem
-            title="Record Log"
-            subtitle="Describe your meal in a few seconds"
-            IconComponent={Mic}
-            isGestureActive={isGestureActive}
-            gestureX={gestureX}
-            gestureY={gestureY}
-            entryScale={dropZoneScale}
-          />
+          <View style={styles.actionGroupContainer}>
+            <DropZoneItem
+              title="Camera"
+              subtitle="Snap your meal"
+              IconComponent={Camera}
+              isGestureActive={isGestureActive}
+              gestureX={gestureX}
+              gestureY={gestureY}
+              onActivate={onCameraActivate}
+              position="top"
+            />
+            <View style={styles.divider} />
+            <DropZoneItem
+              title="Recording"
+              subtitle="Describe your meal"
+              IconComponent={Mic}
+              isGestureActive={isGestureActive}
+              gestureX={gestureX}
+              gestureY={gestureY}
+              onActivate={onVoiceActivate}
+              position="bottom"
+            />
+          </View>
         </Animated.View>
       </BlurView>
     </Animated.View>
