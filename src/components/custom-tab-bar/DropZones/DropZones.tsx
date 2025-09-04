@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text, Dimensions } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -10,40 +10,43 @@ import { BlurView } from "expo-blur";
 import { Camera, Mic } from "lucide-react-native";
 import { useTheme } from "@/theme";
 import { createStyles } from "./DropZones.styles";
+import { LinearGradient } from "expo-linear-gradient";
 
 interface DropZonesProps {
   isVisible: boolean;
 }
 
 export const DropZones: React.FC<DropZonesProps> = ({ isVisible }) => {
-  const { colors, theme } = useTheme();
-  const styles = createStyles(colors, theme);
+  // Correctly destructure colorScheme from useTheme
+  const { colors, theme, colorScheme } = useTheme();
+
+  // Pass all required arguments to the createStyles function
+  const { styles, dropZoneGradientColors, iconGlowGradientColors } =
+    createStyles(colors, theme, colorScheme);
 
   const overlayOpacity = useSharedValue(0);
-  const dropZoneScale = useSharedValue(0.9);
+  const dropZoneScale = useSharedValue(0.95);
 
   useEffect(() => {
     if (isVisible) {
-      // Animate in with smooth timing
-      overlayOpacity.value = withTiming(1, { duration: 200 });
-      dropZoneScale.value = withSpring(1, { damping: 20, stiffness: 300 });
+      overlayOpacity.value = withTiming(1, { duration: 150 });
+      dropZoneScale.value = withSpring(1, {
+        damping: 15,
+        stiffness: 250,
+        mass: 0.5,
+      });
     } else {
-      // Animate out quickly
-      overlayOpacity.value = withTiming(0, { duration: 150 });
-      dropZoneScale.value = withTiming(0.95, { duration: 150 });
+      overlayOpacity.value = withTiming(0, { duration: 200 });
+      dropZoneScale.value = withTiming(0.95, { duration: 200 });
     }
-  }, [isVisible]);
+  }, [isVisible, overlayOpacity, dropZoneScale]);
 
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
     opacity: overlayOpacity.value,
   }));
 
   const dropZoneAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        scale: dropZoneScale.value,
-      },
-    ],
+    transform: [{ scale: dropZoneScale.value }],
   }));
 
   if (!isVisible) {
@@ -52,31 +55,52 @@ export const DropZones: React.FC<DropZonesProps> = ({ isVisible }) => {
 
   return (
     <Animated.View style={[styles.overlay, overlayAnimatedStyle]}>
-      <BlurView intensity={20} style={styles.blurView}>
+      {/* The tint prop now correctly uses the colorScheme value */}
+      <BlurView
+        intensity={30}
+        tint={colorScheme}
+        style={StyleSheet.absoluteFill}
+      >
         <View style={styles.dimOverlay} />
 
         <Animated.View
           style={[styles.dropZonesContainer, dropZoneAnimatedStyle]}
         >
           {/* Camera Drop Zone - Top */}
-          <View style={[styles.dropZone, styles.cameraZone]}>
+          <View style={styles.dropZone}>
+            <LinearGradient
+              colors={dropZoneGradientColors}
+              style={StyleSheet.absoluteFill}
+            />
             <View style={styles.iconContainer}>
-              <Camera color={colors.black} strokeWidth={2} size={48} />
+              <LinearGradient
+                colors={iconGlowGradientColors}
+                style={styles.iconGlow}
+              />
+              <Camera color={colors.primaryText} strokeWidth={2} size={48} />
             </View>
-            <Text style={styles.dropZoneTitle}>Take Image</Text>
+            <Text style={styles.dropZoneTitle}>Snap Meal</Text>
             <Text style={styles.dropZoneSubtitle}>
-              Drag here to capture photo
+              Quickly capture a photo of your food
             </Text>
           </View>
 
           {/* Microphone Drop Zone - Bottom */}
-          <View style={[styles.dropZone, styles.microphoneZone]}>
+          <View style={styles.dropZone}>
+            <LinearGradient
+              colors={dropZoneGradientColors}
+              style={StyleSheet.absoluteFill}
+            />
             <View style={styles.iconContainer}>
-              <Mic color={colors.black} strokeWidth={2} size={48} />
+              <LinearGradient
+                colors={iconGlowGradientColors}
+                style={styles.iconGlow}
+              />
+              <Mic color={colors.primaryText} strokeWidth={2} size={48} />
             </View>
-            <Text style={styles.dropZoneTitle}>Start Recording</Text>
+            <Text style={styles.dropZoneTitle}>Record Log</Text>
             <Text style={styles.dropZoneSubtitle}>
-              Drag here to record audio
+              Describe your meal in a few seconds
             </Text>
           </View>
         </Animated.View>

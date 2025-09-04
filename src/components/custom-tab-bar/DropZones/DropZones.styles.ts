@@ -1,96 +1,81 @@
 import { StyleSheet, Dimensions } from "react-native";
-import type { Colors, Theme } from "@/theme";
+import type { Colors, Theme, ColorScheme } from "@/theme";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-export const createStyles = (colors: Colors, theme: Theme) =>
-  StyleSheet.create({
+export const createStyles = (
+  colors: Colors,
+  theme: Theme,
+  colorScheme: ColorScheme
+) => {
+  const isDarkMode = colorScheme === "dark";
+
+  // By adding `as const`, we tell TypeScript to infer the type as a readonly tuple
+  // (e.g., `readonly ["rgba(...)", "rgba(...)"]`) instead of a mutable `string[]`.
+  // This satisfies the type requirement for the LinearGradient component's `colors` prop.
+  const dropZoneGradientColors = isDarkMode
+    ? (["rgba(36, 36, 38, 0.85)", "rgba(28, 28, 30, 0.95)"] as const)
+    : (["rgba(255, 255, 255, 0.85)", "rgba(242, 242, 247, 0.95)"] as const);
+
+  const iconGlowGradientColors = isDarkMode
+    ? ([`${colors.accent}30`, `${colors.accent}00`] as const)
+    : ([`${colors.accent}40`, `${colors.accent}05`] as const);
+
+  const styles = StyleSheet.create({
     overlay: {
       position: "absolute",
       top: 0,
       left: 0,
       right: 0,
       bottom: 0,
-      zIndex: 1000, // High z-index to appear above everything
-      pointerEvents: "none", // Allow gestures to pass through
-    },
-    blurView: {
-      flex: 1,
-      position: "relative",
+      zIndex: 1000,
     },
     dimOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor:
-        colors.primaryBackground === colors.black
-          ? "rgba(0, 0, 0, 0.7)" // Darker overlay for dark mode
-          : "rgba(0, 0, 0, 0.6)", // Slightly darker for light mode
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: isDarkMode ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.2)",
     },
     dropZonesContainer: {
       flex: 1,
-      justifyContent: "flex-end", // Align to bottom for thumb accessibility
-      paddingHorizontal: theme.spacing.xl,
-      paddingTop: 60, // Reduced safe area top
-      paddingBottom: 140, // More space from bottom to account for tab bar
-      gap: theme.spacing.lg, // Space between zones
+      justifyContent: "flex-end",
+      paddingHorizontal: theme.spacing.md,
+      paddingTop: 60,
+      paddingBottom: 120,
+      gap: theme.spacing.md,
     },
     dropZone: {
-      height: SCREEN_HEIGHT * 0.3, // 30% of screen height as requested
-      borderRadius: theme.spacing.xl,
-      borderWidth: 3,
-      borderStyle: "dashed",
-      borderColor: colors.accent,
-      backgroundColor:
-        colors.primaryBackground === colors.black
-          ? "rgba(255, 255, 255, 0.12)" // More visible in dark mode
-          : "rgba(255, 255, 255, 0.15)", // More visible in light mode
+      height: SCREEN_HEIGHT * 0.3,
+      borderRadius: theme.spacing.xl + theme.spacing.sm,
       alignItems: "center",
       justifyContent: "center",
       padding: theme.spacing.xl,
-    },
-    cameraZone: {
-      // Additional styling for camera zone if needed
-    },
-    microphoneZone: {
-      // Additional styling for microphone zone if needed
+      overflow: "hidden",
     },
     iconContainer: {
-      width: 80,
-      height: 80,
-      borderRadius: 40,
-      backgroundColor: colors.accent,
+      width: 90,
+      height: 90,
       alignItems: "center",
       justifyContent: "center",
       marginBottom: theme.spacing.lg,
-      shadowColor: colors.accent,
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      shadowOpacity: 0.3,
-      shadowRadius: 12,
-      elevation: 8,
+    },
+    iconGlow: {
+      position: "absolute",
+      width: "100%",
+      height: "100%",
+      borderRadius: 45,
     },
     dropZoneTitle: {
       ...theme.typography.Title2,
-      color: colors.accent,
-      fontWeight: "700",
+      color: colors.primaryText,
       textAlign: "center",
-      marginBottom: theme.spacing.sm,
+      marginBottom: theme.spacing.xs,
     },
     dropZoneSubtitle: {
       ...theme.typography.Body,
-      color:
-        colors.primaryBackground === colors.black
-          ? colors.primaryText // High contrast in dark mode
-          : colors.secondaryText, // Keep secondary in light mode
+      color: colors.secondaryText,
       textAlign: "center",
-      opacity:
-        colors.primaryBackground === colors.black
-          ? 0.9 // Higher opacity in dark mode for better visibility
-          : 0.8,
+      maxWidth: "85%",
     },
   });
+
+  return { styles, dropZoneGradientColors, iconGlowGradientColors };
+};
