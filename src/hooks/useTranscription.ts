@@ -23,6 +23,7 @@ export const useTranscription = (): UseTranscriptionReturn => {
   }, []);
 
   const handleEnd = useCallback(() => {
+    setLiveTranscription("");
     setIsRecording(false);
   }, []);
 
@@ -35,16 +36,19 @@ export const useTranscription = (): UseTranscriptionReturn => {
   }, []);
 
   const handleError = useCallback((event: any) => {
-    console.error("Speech recognition error:", event.error);
-    setIsRecording(false);
-    setLiveTranscription("");
+    // i don't want to spam the console with errors, just because the user didnt speak
+    // console.error("Speech recognition error:", event.error);
+    // setIsRecording(false);
+    // setLiveTranscription("");
   }, []);
 
   const handleVolumeChange = useCallback((event: any) => {
     // Map decibel values (-2 to 10+) to 0-100 scale
     const dbValue = event.value || -2;
     // Map -2 dB (silent) to 0%, 10 dB (loud) to 100%
-    const normalizedVolume = Math.round(Math.max(0, Math.min(100, (dbValue + 2) * 8.33)));
+    const normalizedVolume = Math.round(
+      Math.max(0, Math.min(100, (dbValue + 2) * 8.33))
+    );
     setVolumeLevel(normalizedVolume);
   }, []);
 

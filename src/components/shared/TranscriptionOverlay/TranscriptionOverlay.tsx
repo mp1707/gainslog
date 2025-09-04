@@ -12,23 +12,24 @@ import Animated, {
 } from "react-native-reanimated";
 import { Square } from "lucide-react-native";
 import { useTheme } from "@/theme";
+import { useTranscription } from "@/hooks/useTranscription";
+import Waveform from "./Waveform";
 import { createStyles } from "./TranscriptionOverlay.styles";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 interface TranscriptionOverlayProps {
   visible: boolean;
-  liveTranscription: string;
   onStop: () => void;
 }
 
 export const TranscriptionOverlay: React.FC<TranscriptionOverlayProps> = ({
   visible,
-  liveTranscription,
   onStop,
 }) => {
   const { colors } = useTheme();
   const styles = createStyles(colors);
+  const { liveTranscription, volumeLevel, isRecording } = useTranscription();
 
   // Animation values
   const scaleAnimation = useSharedValue(1);
@@ -79,7 +80,10 @@ export const TranscriptionOverlay: React.FC<TranscriptionOverlayProps> = ({
     const baseHeight = 80;
     const textLength = liveTranscription.length;
     const estimatedLines = Math.ceil(textLength / 40); // Rough estimate of characters per line
-    const dynamicHeight = Math.max(baseHeight, baseHeight + (estimatedLines - 1) * 24);
+    const dynamicHeight = Math.max(
+      baseHeight,
+      baseHeight + (estimatedLines - 1) * 24
+    );
 
     // Animate height with spring physics
     containerHeight.value = withSpring(dynamicHeight, {
@@ -94,7 +98,7 @@ export const TranscriptionOverlay: React.FC<TranscriptionOverlayProps> = ({
         damping: 10,
         stiffness: 300,
       });
-      
+
       // Return to normal scale
       setTimeout(() => {
         containerScale.value = withSpring(1, {
@@ -128,32 +132,34 @@ export const TranscriptionOverlay: React.FC<TranscriptionOverlayProps> = ({
       animationType="fade"
       statusBarTranslucent
     >
-      <Animated.View 
+      <Animated.View
         style={styles.overlay}
         entering={FadeIn.duration(200)}
         exiting={FadeOut.duration(200)}
       >
         <View style={styles.contentContainer}>
+          {/* Waveform Visualization */}
+          <Waveform volumeLevel={volumeLevel} isActive={isRecording} />
+
           {/* Transcription Display */}
-          <Animated.View 
+          <Animated.View
             style={[styles.transcriptionContainer, animatedContainerStyle]}
             entering={FadeIn.delay(100).duration(300)}
           >
-            <Text style={[
-              styles.transcriptionText,
-              !liveTranscription && styles.placeholderText
-            ]}>
-              {liveTranscription || "Listening... Speak clearly into your device"}
+            <Text
+              style={[
+                styles.transcriptionText,
+                !liveTranscription && styles.placeholderText,
+              ]}
+            >
+              {liveTranscription ||
+                "Listening... Speak clearly into your device"}
             </Text>
           </Animated.View>
 
           {/* Stop Button */}
           <AnimatedPressable
-            style={[
-              styles.stopButton,
-              animatedScaleStyle,
-              animatedPulseStyle,
-            ]}
+            style={[styles.stopButton, animatedScaleStyle, animatedPulseStyle]}
             onPress={onStop}
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
@@ -162,8 +168,8 @@ export const TranscriptionOverlay: React.FC<TranscriptionOverlayProps> = ({
             accessibilityHint="Tap to stop voice transcription and apply the text"
             entering={FadeIn.delay(200).duration(300)}
           >
-            <Square 
-              size={32} 
+            <Square
+              size={32}
               color={colors.white}
               fill={colors.white}
               strokeWidth={0}

@@ -15,7 +15,7 @@ import {
   TextInput as RNTextInput,
   View,
 } from "react-native";
-import { useAudioTranscription } from "@/hooks/useAudioTranscription";
+import { useTranscription } from "@/hooks/useTranscription";
 import { useImageSelection } from "@/hooks/useImageSelection";
 import { useEstimation } from "@/hooks/useEstimation";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
@@ -32,8 +32,6 @@ import { Button } from "@/components/index";
 import { SearchBar } from "@/components/shared/SearchBar/SearchBar";
 import { TranscriptionOverlay } from "@/components/shared/TranscriptionOverlay";
 import { TextInput } from "@/components/shared/TextInput";
-import { BlurredBackground } from "@/components/shared";
-import { BlurView } from "expo-blur";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -88,21 +86,19 @@ export default function Create() {
   const canContine =
     newLog?.description?.trim() !== "" || newLog.imageUrl !== "";
 
-  // Audio transcription hook
-  const handleTranscriptionComplete = useCallback((text: string) => {
-    setNewLog((prev) => ({
-      ...prev,
-      description:
-        prev.description !== "" ? prev.description + " " + text : text,
-    }));
-  }, []);
+  const { isRecording, liveTranscription, stopRecording, startRecording } = useTranscription();
 
-  const { isRecording, liveTranscription, toggleRecording, startRecording } =
-    useAudioTranscription({
-      onTranscriptionComplete: handleTranscriptionComplete,
-      initialValue: "",
-      disabled: false,
-    });
+  const handleTranscriptionStop = useCallback(async () => {
+    if (liveTranscription.trim()) {
+      setNewLog((prev) => ({
+        ...prev,
+        description: prev.description !== "" 
+          ? prev.description + " " + liveTranscription.trim() 
+          : liveTranscription.trim(),
+      }));
+    }
+    await stopRecording();
+  }, [liveTranscription, stopRecording]);
 
   const { back } = useRouter();
   const handleCancel = useCallback(() => {
@@ -280,8 +276,7 @@ export default function Create() {
 
       <TranscriptionOverlay
         visible={isRecording}
-        liveTranscription={liveTranscription}
-        onStop={toggleRecording}
+        onStop={handleTranscriptionStop}
       />
     </View>
   );
