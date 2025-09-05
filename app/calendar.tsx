@@ -1,6 +1,8 @@
 import React, {
   useMemo,
   useCallback,
+  useState,
+  useRef,
 } from "react";
 import {
   View,
@@ -15,7 +17,7 @@ import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { CalendarGrid } from "@/components/shared/DatePicker/components/CalendarGrid";
-import type { FoodLog } from "@/types/models";
+import { useOptimizedNutritionData, generateMonthKeys } from "@/hooks/useOptimizedNutritionData";
 
 interface MonthData {
   year: number;
@@ -23,20 +25,11 @@ interface MonthData {
   key: string;
 }
 
-interface DailyNutritionData {
-  [dateKey: string]: {
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
-}
-
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function Calendar() {
-  const { colors, theme } = useTheme();
-  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { selectedDate, setSelectedDate, foodLogs, dailyTargets } = useAppStore();
   const router = useRouter();
 
@@ -66,37 +59,23 @@ export default function Calendar() {
     return monthsData.findIndex(m => m.year === currentYear && m.month === currentMonth);
   }, [monthsData, currentYear, currentMonth]);
 
-  // Calculate daily nutrition data from food logs
-  const dailyNutritionData = useMemo((): DailyNutritionData => {
-    const data: DailyNutritionData = {};
-    
-    foodLogs.forEach((log: FoodLog) => {
-      if (!data[log.logDate]) {
-        data[log.logDate] = { calories: 0, protein: 0, carbs: 0, fat: 0 };
-      }
-      data[log.logDate].calories += log.calories;
-      data[log.logDate].protein += log.protein;
-      data[log.logDate].carbs += log.carbs;
-      data[log.logDate].fat += log.fat;
-    });
-    
-    return data;
-  }, [foodLogs]);
+  // Track the currently visible/active month for progress ring rendering
+  const [activeMonth, setActiveMonth] = useState<{year: number; month: number}>({
+    year: currentYear,
+    month: currentMonth,
+  });
 
-  // Calculate percentages for progress rings
-  const getDailyPercentages = useCallback((dateKey: string) => {
-    const dayData = dailyNutritionData[dateKey];
-    if (!dayData || !dailyTargets) {
-      return { calories: 0, protein: 0, carbs: 0, fat: 0 };
-    }
+  // Generate relevant month keys for optimized nutrition data calculation
+  const relevantMonths = useMemo(() => {
+    return generateMonthKeys(currentYear, currentMonth, 6);
+  }, [currentYear, currentMonth]);
 
-    return {
-      calories: dailyTargets.calories ? (dayData.calories / dailyTargets.calories) * 100 : 0,
-      protein: dailyTargets.protein ? (dayData.protein / dailyTargets.protein) * 100 : 0,
-      carbs: dailyTargets.carbs ? (dayData.carbs / dailyTargets.carbs) * 100 : 0,
-      fat: dailyTargets.fat ? (dayData.fat / dailyTargets.fat) * 100 : 0,
-    };
-  }, [dailyNutritionData, dailyTargets]);
+  // Use optimized nutrition data hook
+  const { getDailyPercentages } = useOptimizedNutritionData(
+    foodLogs,
+    dailyTargets,
+    relevantMonths
+  );
 
   // Event handlers
   const handleCancel = useCallback(() => {
@@ -109,17 +88,38 @@ export default function Calendar() {
     router.back();
   }, [setSelectedDate, router]);
 
+  // Handle viewable items change to track active month
+  const onViewableItemsChanged = useCallback(({ viewableItems }: any) => {
+    if (viewableItems.length > 0) {
+      const visibleItem = viewableItems[0].item as MonthData;
+      setActiveMonth({
+        year: visibleItem.year,
+        month: visibleItem.month,
+      });
+    }
+  }, []);
+
+  const viewabilityConfig = useRef({
+    itemVisiblePercentThreshold: 50,
+  });
+
   // Render month item for FlatList
-  const renderMonthItem = useCallback(({ item }: { item: MonthData }) => (
-    <CalendarGrid
-      year={item.year}
-      month={item.month}
-      selectedDate={selectedDate}
-      getDailyPercentages={getDailyPercentages}
-      onDateSelect={handleDateSelect}
-      width={screenWidth}
-    />
-  ), [selectedDate, getDailyPercentages, handleDateSelect]);
+  const renderMonthItem = useCallback(({ item }: { item: MonthData }) => {
+    // Only show full progress rings for the currently active/visible month
+    const isActiveMonth = item.year === activeMonth.year && item.month === activeMonth.month;
+    
+    return (
+      <CalendarGrid
+        year={item.year}
+        month={item.month}
+        selectedDate={selectedDate}
+        getDailyPercentages={getDailyPercentages}
+        onDateSelect={handleDateSelect}
+        width={screenWidth}
+        useSimplifiedRings={!isActiveMonth}
+      />
+    );
+  }, [selectedDate, getDailyPercentages, handleDateSelect, activeMonth]);
 
   return (
     <View style={styles.container}>
@@ -134,6 +134,8 @@ export default function Calendar() {
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           initialScrollIndex={initialScrollIndex}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig.current}
           getItemLayout={(_, index) => ({
             length: screenWidth,
             offset: screenWidth * index,
@@ -145,7 +147,7 @@ export default function Calendar() {
   );
 }
 
-const createStyles = (colors: any, theme: any) =>
+const createStyles = (colors: any) =>
   StyleSheet.create({
     container: {
       flex: 1,

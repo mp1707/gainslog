@@ -21,6 +21,7 @@ interface CalendarGridProps {
   };
   onDateSelect: (dateKey: string) => void;
   width: number;
+  useSimplifiedRings?: boolean;
 }
 
 const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
@@ -29,13 +30,14 @@ const MONTH_NAMES = [
   "July", "August", "September", "October", "November", "December"
 ];
 
-export const CalendarGrid: React.FC<CalendarGridProps> = ({
+const CalendarGridComponent: React.FC<CalendarGridProps> = ({
   year,
   month,
   selectedDate,
   getDailyPercentages,
   onDateSelect,
   width,
+  useSimplifiedRings = false,
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
@@ -142,6 +144,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                 isSelected={dayData.isSelected}
                 percentages={getDailyPercentages(dayData.dateKey)}
                 onPress={onDateSelect}
+                useSimplifiedRings={useSimplifiedRings}
               />
             ))}
           </View>
@@ -150,3 +153,17 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
     </View>
   );
 };
+
+// Memoized component with custom comparison for optimal performance
+export const CalendarGrid = React.memo(CalendarGridComponent, (prevProps, nextProps) => {
+  // Only re-render if essential props change
+  return (
+    prevProps.year === nextProps.year &&
+    prevProps.month === nextProps.month &&
+    prevProps.selectedDate === nextProps.selectedDate &&
+    prevProps.width === nextProps.width &&
+    prevProps.getDailyPercentages === nextProps.getDailyPercentages &&
+    prevProps.onDateSelect === nextProps.onDateSelect &&
+    prevProps.useSimplifiedRings === nextProps.useSimplifiedRings
+  );
+});

@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { View, TouchableOpacity } from "react-native";
 import { AppText } from "@/components";
 import { ProgressRings } from "@/components/shared/ProgressRings";
+import { SimpleProgressIndicator } from "@/components/shared/ProgressRings/SimpleProgressIndicator";
 import { useTheme } from "@/theme";
 import { createStyles } from "./CalendarDay.styles";
 import { isToday } from "@/utils/dateHelpers";
@@ -18,20 +19,20 @@ interface CalendarDayProps {
     fat?: number;
   };
   onPress: (dateKey: string) => void;
+  useSimplifiedRings?: boolean;
 }
 
-export const CalendarDay: React.FC<CalendarDayProps> = ({
+const CalendarDayComponent: React.FC<CalendarDayProps> = ({
   dateKey,
   day,
   isCurrentMonth,
   isSelected,
   percentages,
   onPress,
+  useSimplifiedRings = false,
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
-  
-  const isDayToday = useMemo(() => isToday(dateKey), [dateKey]);
   
   const handlePress = () => {
     if (isCurrentMonth) {
@@ -39,41 +40,32 @@ export const CalendarDay: React.FC<CalendarDayProps> = ({
     }
   };
 
-  // Get container style based on state
-  const containerStyle = useMemo(() => {
+  // Optimize all styling and state calculations in one useMemo
+  const { containerStyle, textStyle, isDayToday } = useMemo(() => {
+    const todayCheck = isToday(dateKey);
+    
+    let containerStyles, textStyles;
+    
     if (!isCurrentMonth) {
-      return [styles.container, styles.containerDisabled];
+      containerStyles = [styles.container, styles.containerDisabled];
+      textStyles = [styles.dayText, styles.dayTextDisabled];
     } else if (isSelected) {
-      return [styles.container, styles.containerSelected];
-    } else if (isDayToday) {
-      return [styles.container, styles.containerToday];
+      containerStyles = [styles.container, styles.containerSelected];
+      textStyles = [styles.dayText, styles.dayTextSelected];
+    } else if (todayCheck) {
+      containerStyles = [styles.container, styles.containerToday];
+      textStyles = [styles.dayText, styles.dayTextToday];
+    } else {
+      containerStyles = styles.container;
+      textStyles = styles.dayText;
     }
     
-    return styles.container;
-  }, [
-    styles,
-    isCurrentMonth,
-    isSelected,
-    isDayToday,
-  ]);
-
-  // Get text style based on state
-  const textStyle = useMemo(() => {
-    if (!isCurrentMonth) {
-      return [styles.dayText, styles.dayTextDisabled];
-    } else if (isSelected) {
-      return [styles.dayText, styles.dayTextSelected];
-    } else if (isDayToday) {
-      return [styles.dayText, styles.dayTextToday];
-    }
-    
-    return styles.dayText;
-  }, [
-    styles,
-    isCurrentMonth,
-    isSelected,
-    isDayToday,
-  ]);
+    return {
+      containerStyle: containerStyles,
+      textStyle: textStyles,
+      isDayToday: todayCheck,
+    };
+  }, [styles, isCurrentMonth, isSelected, dateKey]);
 
   return (
     <TouchableOpacity
@@ -83,13 +75,20 @@ export const CalendarDay: React.FC<CalendarDayProps> = ({
       activeOpacity={0.7}
     >
       <View style={styles.ringsContainer}>
-        <ProgressRings
-          percentages={percentages}
-          size={32}
-          strokeWidth={3}
-          spacing={1}
-          padding={1}
-        />
+        {useSimplifiedRings ? (
+          <SimpleProgressIndicator
+            percentages={percentages}
+            size={36}
+          />
+        ) : (
+          <ProgressRings
+            percentages={percentages}
+            size={36}
+            strokeWidth={3}
+            spacing={1}
+            padding={1}
+          />
+        )}
       </View>
       <AppText role="Caption" style={textStyle}>
         {day}
@@ -97,3 +96,21 @@ export const CalendarDay: React.FC<CalendarDayProps> = ({
     </TouchableOpacity>
   );
 };
+
+// Memoized component for optimal performance
+export const CalendarDay = React.memo(CalendarDayComponent, (prevProps, nextProps) => {
+  // Only re-render if props actually change
+  return (
+    prevProps.dateKey === nextProps.dateKey &&
+    prevProps.day === nextProps.day &&
+    prevProps.isCurrentMonth === nextProps.isCurrentMonth &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.useSimplifiedRings === nextProps.useSimplifiedRings &&
+    prevProps.onPress === nextProps.onPress &&
+    // Deep comparison for percentages object
+    prevProps.percentages.calories === nextProps.percentages.calories &&
+    prevProps.percentages.protein === nextProps.percentages.protein &&
+    prevProps.percentages.carbs === nextProps.percentages.carbs &&
+    prevProps.percentages.fat === nextProps.percentages.fat
+  );
+});
