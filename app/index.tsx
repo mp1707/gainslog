@@ -14,6 +14,7 @@ import React, {
 } from "react";
 import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
 import { useAppStore } from "@/store/useAppStore";
+import { selectLogsForDate, selectDailyTotals, selectDailyPercentages } from "@/store/selectors";
 import { LogCard } from "@/components/daily-food-logs/LogCard";
 import { useTheme } from "@/theme/ThemeProvider";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
@@ -51,53 +52,30 @@ export default function TodayTab() {
   const isGestureActive = useSharedValue(false);
   const [isDropZonesVisible, setIsDropZonesVisible] = useState(false);
 
+  // Get the entire state for selectors and individual functions
+  const state = useAppStore();
   const {
-    foodLogs,
-    selectedDate,
-    dailyTargets,
     deleteFoodLog,
     addFavorite,
     deleteFavorite,
     favorites,
-  } = useAppStore();
+  } = state;
 
   const todayFoodLogs = useMemo(() => {
-    return foodLogs.filter((log) => log.logDate === selectedDate).reverse();
-  }, [foodLogs, selectedDate]);
+    return selectLogsForDate(state, state.selectedDate).reverse();
+  }, [state.foodLogs, state.selectedDate]);
+
+  const dailyTotals = useMemo(() => {
+    return selectDailyTotals(state, state.selectedDate);
+  }, [state.foodLogs, state.selectedDate]);
+
+  const dailyPercentages = useMemo(() => {
+    return selectDailyPercentages(state, state.selectedDate);
+  }, [state.foodLogs, state.selectedDate, state.dailyTargets]);
 
   useEffect(() => {
     flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
   }, [todayFoodLogs.length]);
-
-  const dailyTotals = useMemo(() => {
-    return todayFoodLogs.reduce(
-      (acc, log) => ({
-        calories: acc.calories + log.calories,
-        protein: acc.protein + log.protein,
-        carbs: acc.carbs + log.carbs,
-        fat: acc.fat + log.fat,
-      }),
-      { calories: 0, protein: 0, carbs: 0, fat: 0 }
-    );
-  }, [todayFoodLogs]);
-
-  const dailyPercentages = useMemo(() => {
-    if (
-      !dailyTargets ||
-      !dailyTargets.calories ||
-      !dailyTargets.protein ||
-      !dailyTargets.carbs ||
-      !dailyTargets.fat
-    ) {
-      return { calories: 0, protein: 0, carbs: 0, fat: 0 };
-    }
-    return {
-      calories: (dailyTotals.calories / dailyTargets.calories) * 100,
-      protein: (dailyTotals.protein / dailyTargets.protein) * 100,
-      carbs: (dailyTotals.carbs / dailyTargets.carbs) * 100,
-      fat: (dailyTotals.fat / dailyTargets.fat) * 100,
-    };
-  }, [dailyTotals, dailyTargets]);
 
   const defaultTargets = { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
@@ -199,7 +177,7 @@ export default function TodayTab() {
           <View>
             <NutrientSummary
               percentages={dailyPercentages}
-              targets={dailyTargets || defaultTargets}
+              targets={state.dailyTargets || defaultTargets}
               totals={dailyTotals}
             />
           </View>
