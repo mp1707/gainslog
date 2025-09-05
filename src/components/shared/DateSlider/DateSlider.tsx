@@ -5,11 +5,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import {
-  View,
-  FlatList,
-  Dimensions,
-} from "react-native";
+import { View, FlatList, Dimensions } from "react-native";
 import * as Haptics from "expo-haptics";
 
 import { DayData, DayItem } from "./components/DayItem";
@@ -39,7 +35,6 @@ export const DateSlider = () => {
 
   const [pastWeeksLoaded, setPastWeeksLoaded] = useState(WEEKS_TO_LOAD_AT_ONCE);
   const [isLoading, setIsLoading] = useState(false);
-
 
   const dailyTotalsByDate = useMemo(() => {
     const totals = new Map<
@@ -124,8 +119,6 @@ export const DateSlider = () => {
     },
     [setSelectedDate]
   );
-
-
 
   const renderDayItem = useCallback(
     ({ item }: { item: DayData }) => (

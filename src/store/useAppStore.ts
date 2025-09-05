@@ -4,7 +4,7 @@ import { immer } from "zustand/middleware/immer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FoodLog, Favorite, DailyTargets, UserSettings } from "../types/models";
 
-type AppState = {
+export type AppState = {
   foodLogs: FoodLog[];
   favorites: Favorite[];
   dailyTargets?: DailyTargets;
