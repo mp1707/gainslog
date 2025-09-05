@@ -25,12 +25,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     infoPlist: {
-      NSCameraUsageDescription:
-        "This app needs access to your camera to take photos of food for logging.",
-      NSPhotoLibraryUsageDescription:
-        "This app needs access to your photo library to select food images for logging.",
-      NSMicrophoneUsageDescription:
-        "This app needs access to your microphone to record audio for food logging.",
+      // Permission descriptions are handled by the plugins below.
       ITSAppUsesNonExemptEncryption: false,
     },
     bundleIdentifier: IS_DEV
@@ -48,6 +43,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     permissions: [
       "android.permission.CAMERA",
       "android.permission.READ_EXTERNAL_STORAGE",
+      "android.permission.READ_MEDIA_IMAGES",
+      "android.permission.READ_MEDIA_VIDEO",
       "android.permission.RECORD_AUDIO",
       "android.permission.MODIFY_AUDIO_SETTINGS",
     ],
@@ -61,8 +58,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: "./assets/favicon.png",
   },
   plugins: [
-    "expo-audio",
-    "expo-image-picker",
+    [
+      "expo-image-picker",
+      {
+        photosPermission:
+          "This app needs access to your photo library to select food images for logging.",
+        cameraPermission:
+          "This app needs access to your camera to take photos of food for logging.",
+      },
+    ],
     [
       "expo-speech-recognition",
       {

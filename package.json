@@ -21,7 +21,6 @@
     "@shopify/react-native-skia": "^2.2.3",
     "@supabase/supabase-js": "^2.52.0",
     "expo": "~53.0.22",
-    "expo-audio": "^0.4.8",
     "expo-blur": "~14.1.5",
     "expo-dev-client": "~5.2.4",
     "expo-font": "^13.3.2",

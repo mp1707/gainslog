@@ -11,11 +11,7 @@ import { useState } from "react";
 import { NutritionEditCard } from "@/components/edit-page/NutritionEditCard";
 import { Camera, Sparkles } from "lucide-react-native";
 import { useEstimation } from "@/hooks/useEstimation";
-import {
-  BlurredBackground,
-  ConfidenceBadge,
-  SkeletonPill,
-} from "@/components/shared";
+import { ConfidenceBadge, SkeletonPill } from "@/components/shared";
 import {
   KeyboardAwareScrollView,
   KeyboardStickyView,
@@ -29,7 +25,7 @@ export default function Edit() {
   const originalLog = foodLogs.find((log) => log.id === id);
   const [editLog, setEditLog] = useState<FoodLog | undefined>(originalLog);
   const [isReEstimating, setIsReEstimating] = useState(false);
-  const { colors, theme, colorScheme } = useTheme();
+  const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
   const { back } = useRouter();
   const { startReEstimation } = useEstimation();
