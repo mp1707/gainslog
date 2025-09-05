@@ -29,10 +29,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       ITSAppUsesNonExemptEncryption: false,
     },
     bundleIdentifier: IS_DEV
-      ? "com.mp17.gainslog.dev"
+      ? "com.mp17.mpapps.gainslog.dev"
       : IS_PREVIEW
-      ? "com.mp17.gainslog.preview"
-      : "com.mp17.gainslog",
+      ? "com.mp17.mpapps.gainslog.preview"
+      : "com.mp17.mpapps.gainslog",
   },
   android: {
     adaptiveIcon: {

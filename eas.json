@@ -16,14 +16,16 @@
       "distribution": "internal",
       "environment": "preview",
       "env": {
-        "APP_VARIANT": "preview"
+        "APP_VARIANT": "preview",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://cjsbuqvntoimmawozpko.supabase.co"
       },
       "channel": "preview"
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "APP_VARIANT": "production"
+        "APP_VARIANT": "production",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://cjsbuqvntoimmawozpko.supabase.co"
       },
       "channel": "production"
     }
