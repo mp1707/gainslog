@@ -5,18 +5,14 @@ import * as Haptics from "expo-haptics";
 
 import { AppText } from "@/components";
 import { Button } from "@/components/shared/Button";
-import { DatePickerButton } from "@/components/shared/DatePickerButton";
+import { DatePicker } from "@/components/shared/DatePicker";
 import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useAppStore } from "@/store/useAppStore";
 import { createStyles } from "./Header.styles";
 import { formatDate } from "@/utils/formatDate";
 
-interface HeaderProps {
-  onDateChange: (date: string) => void;
-}
-
-export const Header: React.FC<HeaderProps> = ({ onDateChange }) => {
+export const Header: React.FC = () => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const { safePush } = useNavigationGuard();
@@ -43,7 +39,7 @@ export const Header: React.FC<HeaderProps> = ({ onDateChange }) => {
             grow={false}
             style={{ width: 40, height: 40 }}
           />
-          <DatePickerButton />
+          <DatePicker />
         </View>
       </View>
     </>

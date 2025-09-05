@@ -217,7 +217,7 @@ export const DateSlider = () => {
 
   return (
     <View style={styles.container}>
-      <Header onDateChange={handleDateChange} />
+      <Header />
 
       <View
         style={[
