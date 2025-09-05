@@ -125,22 +125,6 @@ export const DateSlider = () => {
     [setSelectedDate]
   );
 
-  const handleDateChange = useCallback(
-    (dateString: string) => {
-      setSelectedDate(dateString);
-
-      const today = new Date();
-      const newDate = new Date(dateString);
-      const diffTime = today.getTime() - newDate.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      const diffWeeks = Math.ceil(diffDays / 7);
-
-      if (diffWeeks > pastWeeksLoaded) {
-        setPastWeeksLoaded(diffWeeks + WEEKS_TO_LOAD_AT_ONCE);
-      }
-    },
-    [setSelectedDate, pastWeeksLoaded]
-  );
 
 
   const renderDayItem = useCallback(

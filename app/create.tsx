@@ -30,7 +30,7 @@ import { AppText, Button } from "@/components/index";
 import { SearchBar } from "@/components/shared/SearchBar/SearchBar";
 import { TranscriptionOverlay } from "@/components/shared/TranscriptionOverlay";
 import { TextInput } from "@/components/shared/TextInput";
-import { DatePickerButton } from "@/components/shared/DatePickerButton";
+import { DatePicker } from "@/components/shared/DatePicker";
 import { formatDate } from "@/utils/formatDate";
 
 const inputAccessoryViewID = "create-input-accessory";
@@ -159,7 +159,7 @@ export default function Create() {
       <View style={styles.toggleContainer}>
         <View style={styles.headerContainer}>
           <AppText role="Title2">{formattedDate}</AppText>
-          <DatePickerButton />
+          <DatePicker />
         </View>
         <Toggle
           value={estimationType}

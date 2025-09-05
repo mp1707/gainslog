@@ -44,6 +44,14 @@ function ThemedStack() {
           contentStyle: { backgroundColor: colors.primaryBackground },
         }}
       />
+      <Stack.Screen
+        name="calendar"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.primaryBackground },
+        }}
+      />
     </Stack>
   );
 }
