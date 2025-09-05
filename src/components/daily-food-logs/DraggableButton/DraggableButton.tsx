@@ -39,13 +39,6 @@ export const DraggableButton: React.FC<DraggableButtonProps> = ({
   const translateY = useSharedValue(0);
   const scale = useSharedValue(1);
 
-  const resetPosition = () => {
-    "worklet";
-    translateX.value = withSpring(0);
-    translateY.value = withSpring(0);
-    scale.value = withSpring(1);
-    isGestureActive.value = false;
-  };
 
   const panGesture = Gesture.Pan()
     .onStart(() => {
@@ -62,8 +55,10 @@ export const DraggableButton: React.FC<DraggableButtonProps> = ({
       translateY.value = event.translationY;
     })
     .onEnd(() => {
-      resetPosition();
-      // The parent doesn't need the coordinates anymore, but we can still notify it
+      translateX.value = withSpring(0);
+      translateY.value = withSpring(0);
+      scale.value = withSpring(1);
+      isGestureActive.value = false;
       runOnJS(onDragEnd)(null);
     });
 

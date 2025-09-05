@@ -34,6 +34,7 @@ export const DateSlider = () => {
     useAppStore();
 
   const [pastWeeksLoaded, setPastWeeksLoaded] = useState(WEEKS_TO_LOAD_AT_ONCE);
+  const [futureWeeksLoaded, setFutureWeeksLoaded] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
   const dailyTotalsByDate = useMemo(() => {
@@ -69,7 +70,8 @@ export const DateSlider = () => {
     const currentWeekMonday = getMondayOfWeek(today);
     const dates: DayData[] = [];
 
-    for (let weekOffset = -pastWeeksLoaded; weekOffset <= 0; weekOffset++) {
+    // Generate dates from past weeks to future weeks
+    for (let weekOffset = -pastWeeksLoaded; weekOffset <= futureWeeksLoaded; weekOffset++) {
       const weekStartDate = new Date(currentWeekMonday);
       weekStartDate.setDate(currentWeekMonday.getDate() + weekOffset * 7);
 
@@ -110,7 +112,7 @@ export const DateSlider = () => {
       }
     }
     return dates;
-  }, [pastWeeksLoaded, dailyTotalsByDate, dailyTargets, getMondayOfWeek]);
+  }, [pastWeeksLoaded, futureWeeksLoaded, dailyTotalsByDate, dailyTargets, getMondayOfWeek]);
 
   const handleDateSelect = useCallback(
     (date: string) => {
@@ -175,6 +177,7 @@ export const DateSlider = () => {
     );
 
     if (selectedDateIndex !== -1) {
+      // Selected date is already in range, just scroll to it
       const weekIndex = Math.floor(selectedDateIndex / 7);
       const offset = weekIndex * 7 * ITEM_WIDTH;
 
@@ -185,12 +188,31 @@ export const DateSlider = () => {
         });
       });
     } else {
-      // If selected date is not in range, scroll to the end (most recent date)
-      requestAnimationFrame(() => {
-        flatListRef.current?.scrollToEnd({ animated: false });
-      });
+      // Selected date is outside current range - expand range to include it
+      const today = new Date();
+      const currentWeekMonday = getMondayOfWeek(today);
+      const selectedDateObj = new Date(selectedDate);
+      const selectedWeekMonday = getMondayOfWeek(selectedDateObj);
+      
+      const weeksDifference = Math.floor(
+        (selectedWeekMonday.getTime() - currentWeekMonday.getTime()) / (7 * 24 * 60 * 60 * 1000)
+      );
+
+      if (weeksDifference < 0) {
+        // Selected date is in the past - increase pastWeeksLoaded
+        const requiredPastWeeks = Math.abs(weeksDifference);
+        if (requiredPastWeeks > pastWeeksLoaded) {
+          setPastWeeksLoaded(requiredPastWeeks + WEEKS_TO_LOAD_AT_ONCE);
+        }
+      } else if (weeksDifference > 0) {
+        // Selected date is in the future - increase futureWeeksLoaded
+        const requiredFutureWeeks = weeksDifference;
+        if (requiredFutureWeeks > futureWeeksLoaded) {
+          setFutureWeeksLoaded(requiredFutureWeeks + WEEKS_TO_LOAD_AT_ONCE);
+        }
+      }
     }
-  }, [selectedDate, dateRange]);
+  }, [selectedDate, dateRange, pastWeeksLoaded, futureWeeksLoaded, getMondayOfWeek]);
 
   return (
     <View style={styles.container}>
