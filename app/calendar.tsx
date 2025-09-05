@@ -38,12 +38,12 @@ export default function Calendar() {
   const currentYear = selectedDateObj.getFullYear();
   const currentMonth = selectedDateObj.getMonth() + 1;
 
-  // Generate months array (6 months before current, up to current month only)
+  // Generate months array (24 months before current, up to current month only)
   const monthsData = useMemo((): MonthData[] => {
     const months: MonthData[] = [];
-    const startDate = new Date(currentYear, currentMonth - 1 - 6, 1);
+    const startDate = new Date(currentYear, currentMonth - 1 - 24, 1);
     
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 25; i++) {
       const date = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
       months.push({
         year: date.getFullYear(),
@@ -67,7 +67,7 @@ export default function Calendar() {
 
   // Generate relevant month keys for optimized nutrition data calculation
   const relevantMonths = useMemo(() => {
-    return generateMonthKeys(currentYear, currentMonth, 6);
+    return generateMonthKeys(currentYear, currentMonth, 24);
   }, [currentYear, currentMonth]);
 
   // Use optimized nutrition data hook
