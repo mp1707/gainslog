@@ -19,7 +19,6 @@ function ThemedStack() {
         contentStyle: { backgroundColor: colors.primaryBackground },
       }}
     >
-      <Stack.Screen name="(tabs)" />
       <Stack.Screen
         name="create"
         options={{

@@ -19,9 +19,9 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       shadowOpacity: 0.15,
       shadowRadius: 8,
       elevation: 4,
-      height: 48,
-      width: 48, // Perfect square for circular button
-      borderRadius: 24, // Half of width/height for perfect circle
+      height: 60,
+      width: 60, // Perfect square for circular button
+      borderRadius: 30, // Half of width/height for perfect circle
       zIndex: 999,
     },
     background: {

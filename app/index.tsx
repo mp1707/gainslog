@@ -5,7 +5,13 @@ import {
   FlatList,
   ListRenderItem,
 } from "react-native";
-import React, { useMemo, useCallback, useRef, useEffect } from "react";
+import React, {
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+  useState,
+} from "react";
 import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
 import { useAppStore } from "@/store/useAppStore";
 import { LogCard } from "@/components/daily-food-logs/LogCard";
@@ -19,6 +25,13 @@ import { DateSlider } from "@/components/shared/DateSlider";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
+import {
+  useSharedValue,
+  useAnimatedReaction,
+  runOnJS,
+} from "react-native-reanimated";
+import { DraggableButton } from "@/components/daily-food-logs/DraggableButton";
+import { DropZones } from "@/components/daily-food-logs/DropZones";
 
 const HEADER_HEIGHT = 265;
 const DASHBOARD_OFFSET = HEADER_HEIGHT - 50;
@@ -31,6 +44,12 @@ export default function TodayTab() {
   const transparentBackground = colors.primaryBackground + "00";
 
   const flatListRef = useRef<FlatList>(null);
+
+  // Shared values for draggable button and drop zones
+  const gestureX = useSharedValue(0);
+  const gestureY = useSharedValue(0);
+  const isGestureActive = useSharedValue(false);
+  const [isDropZonesVisible, setIsDropZonesVisible] = useState(false);
 
   const {
     foodLogs,
@@ -101,6 +120,34 @@ export default function TodayTab() {
   const handleNavigateToDetailPage = (foodLog: FoodLog) => {
     safeNavigate(`/edit/${foodLog.id}`);
   };
+
+  // DraggableButton handlers
+  const handleDraggableButtonPress = useCallback(() => {
+    safeNavigate("/create");
+  }, [safeNavigate]);
+
+  const handleDragEnd = useCallback(
+    (targetZone: "camera" | "microphone" | null) => {
+      setIsDropZonesVisible(false);
+    },
+    []
+  );
+
+  const handleCameraActivate = useCallback(() => {
+    safeNavigate("/create?mode=camera");
+  }, [safeNavigate]);
+
+  const handleVoiceActivate = useCallback(() => {
+    safeNavigate("/create?mode=voice");
+  }, [safeNavigate]);
+
+  // Track gesture state to show/hide drop zones
+  useAnimatedReaction(
+    () => isGestureActive.value,
+    (isActive) => {
+      runOnJS(setIsDropZonesVisible)(isActive);
+    }
+  );
 
   const keyExtractor = useCallback((item: FoodLog) => item.id, []);
   const getItemLayout = useCallback(
@@ -194,6 +241,27 @@ export default function TodayTab() {
           </SafeAreaView>
         </BlurView>
       </MaskedView>
+
+      {/* Drop Zones Overlay */}
+      <DropZones
+        isVisible={isDropZonesVisible}
+        isGestureActive={isGestureActive}
+        gestureX={gestureX}
+        gestureY={gestureY}
+        onCameraActivate={handleCameraActivate}
+        onVoiceActivate={handleVoiceActivate}
+      />
+
+      {/* Draggable Button */}
+      <View style={styles.draggableButtonContainer}>
+        <DraggableButton
+          onPress={handleDraggableButtonPress}
+          onDragEnd={handleDragEnd}
+          gestureX={gestureX}
+          gestureY={gestureY}
+          isGestureActive={isGestureActive}
+        />
+      </View>
     </>
   );
 }
@@ -251,6 +319,12 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontWeight: "600",
       color: colors.secondaryText,
       textTransform: "uppercase", // The key change for the "eyebrow" style
+    },
+    draggableButtonContainer: {
+      position: "absolute",
+      bottom: themeObj.spacing.lg,
+      right: themeObj.spacing.lg,
+      zIndex: 1000, // Ensure it appears above other content
     },
   });
 };
