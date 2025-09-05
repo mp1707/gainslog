@@ -118,3 +118,25 @@ export const formatDateToLocalString = (date: Date): string => {
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
+
+/**
+ * Checks if a date is in the future (after today)
+ */
+export const isFutureDate = (dateKey: string): boolean => {
+  const today = new Date(getTodayKey() + "T00:00:00");
+  const date = new Date(dateKey + "T00:00:00");
+  return date > today;
+};
+
+/**
+ * Checks if a month is in the future (after current month)
+ */
+export const isFutureMonth = (year: number, month: number): boolean => {
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth() + 1;
+  
+  if (year > currentYear) return true;
+  if (year === currentYear && month > currentMonth) return true;
+  return false;
+};

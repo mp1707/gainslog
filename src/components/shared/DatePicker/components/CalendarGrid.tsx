@@ -7,6 +7,7 @@ import { CalendarDay } from "./CalendarDay";
 import { 
   getDaysInMonth,
   formatDateKey,
+  isFutureDate,
 } from "@/utils/dateHelpers";
 
 interface CalendarGridProps {
@@ -53,6 +54,7 @@ const CalendarGridComponent: React.FC<CalendarGridProps> = ({
       dateKey: string;
       isCurrentMonth: boolean;
       isSelected: boolean;
+      isFuture: boolean;
     }> = [];
 
     // Add previous month's trailing days
@@ -67,6 +69,7 @@ const CalendarGridComponent: React.FC<CalendarGridProps> = ({
         dateKey,
         isCurrentMonth: false,
         isSelected: false,
+        isFuture: false, // Previous month days are never future
       });
     }
 
@@ -78,22 +81,20 @@ const CalendarGridComponent: React.FC<CalendarGridProps> = ({
         dateKey,
         isCurrentMonth: true,
         isSelected: dateKey === selectedDate,
+        isFuture: isFutureDate(dateKey),
       });
     }
 
-    // Add next month's leading days to complete the grid (42 total cells = 6 rows × 7 days)
+    // Fill remaining cells with empty placeholders (no future month days)
     const totalCells = 42;
     const remainingCells = totalCells - days.length;
-    for (let day = 1; day <= remainingCells; day++) {
-      const nextMonth = month === 12 ? 1 : month + 1;
-      const nextYear = month === 12 ? year + 1 : year;
-      const dateKey = formatDateKey(nextYear, nextMonth, day);
-      
+    for (let i = 0; i < remainingCells; i++) {
       days.push({
-        day,
-        dateKey,
+        day: 0, // Use 0 to indicate empty cell
+        dateKey: '',
         isCurrentMonth: false,
         isSelected: false,
+        isFuture: false,
       });
     }
 
@@ -135,18 +136,26 @@ const CalendarGridComponent: React.FC<CalendarGridProps> = ({
       <View style={styles.calendarGrid}>
         {rows.map((row, rowIndex) => (
           <View key={rowIndex} style={styles.calendarRow}>
-            {row.map((dayData) => (
-              <CalendarDay
-                key={dayData.dateKey}
-                dateKey={dayData.dateKey}
-                day={dayData.day}
-                isCurrentMonth={dayData.isCurrentMonth}
-                isSelected={dayData.isSelected}
-                percentages={getDailyPercentages(dayData.dateKey)}
-                onPress={onDateSelect}
-                useSimplifiedRings={useSimplifiedRings}
-              />
-            ))}
+            {row.map((dayData, index) => {
+              // Skip rendering for empty cells (day === 0)
+              if (dayData.day === 0) {
+                return <View key={`empty-${index}`} style={{ flex: 1 }} />;
+              }
+              
+              return (
+                <CalendarDay
+                  key={dayData.dateKey}
+                  dateKey={dayData.dateKey}
+                  day={dayData.day}
+                  isCurrentMonth={dayData.isCurrentMonth}
+                  isSelected={dayData.isSelected}
+                  isFuture={dayData.isFuture}
+                  percentages={getDailyPercentages(dayData.dateKey)}
+                  onPress={onDateSelect}
+                  useSimplifiedRings={useSimplifiedRings}
+                />
+              );
+            })}
           </View>
         ))}
       </View>

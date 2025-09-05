@@ -38,12 +38,12 @@ export default function Calendar() {
   const currentYear = selectedDateObj.getFullYear();
   const currentMonth = selectedDateObj.getMonth() + 1;
 
-  // Generate months array (6 months before and after current)
+  // Generate months array (6 months before current, up to current month only)
   const monthsData = useMemo((): MonthData[] => {
     const months: MonthData[] = [];
     const startDate = new Date(currentYear, currentMonth - 1 - 6, 1);
     
-    for (let i = 0; i < 13; i++) {
+    for (let i = 0; i < 7; i++) {
       const date = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
       months.push({
         year: date.getFullYear(),

@@ -12,6 +12,7 @@ interface CalendarDayProps {
   day: number;
   isCurrentMonth: boolean;
   isSelected: boolean;
+  isFuture: boolean;
   percentages: {
     calories?: number;
     protein?: number;
@@ -27,6 +28,7 @@ const CalendarDayComponent: React.FC<CalendarDayProps> = ({
   day,
   isCurrentMonth,
   isSelected,
+  isFuture,
   percentages,
   onPress,
   useSimplifiedRings = false,
@@ -35,18 +37,18 @@ const CalendarDayComponent: React.FC<CalendarDayProps> = ({
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   
   const handlePress = () => {
-    if (isCurrentMonth) {
+    if (isCurrentMonth && !isFuture) {
       onPress(dateKey);
     }
   };
 
   // Optimize all styling and state calculations in one useMemo
-  const { containerStyle, textStyle, isDayToday } = useMemo(() => {
+  const { containerStyle, textStyle } = useMemo(() => {
     const todayCheck = isToday(dateKey);
     
     let containerStyles, textStyles;
     
-    if (!isCurrentMonth) {
+    if (!isCurrentMonth || isFuture) {
       containerStyles = [styles.container, styles.containerDisabled];
       textStyles = [styles.dayText, styles.dayTextDisabled];
     } else if (isSelected) {
@@ -63,15 +65,14 @@ const CalendarDayComponent: React.FC<CalendarDayProps> = ({
     return {
       containerStyle: containerStyles,
       textStyle: textStyles,
-      isDayToday: todayCheck,
     };
-  }, [styles, isCurrentMonth, isSelected, dateKey]);
+  }, [styles, isCurrentMonth, isSelected, isFuture, dateKey]);
 
   return (
     <TouchableOpacity
       style={containerStyle}
       onPress={handlePress}
-      disabled={!isCurrentMonth}
+      disabled={!isCurrentMonth || isFuture}
       activeOpacity={0.7}
     >
       <View style={styles.ringsContainer}>
@@ -105,6 +106,7 @@ export const CalendarDay = React.memo(CalendarDayComponent, (prevProps, nextProp
     prevProps.day === nextProps.day &&
     prevProps.isCurrentMonth === nextProps.isCurrentMonth &&
     prevProps.isSelected === nextProps.isSelected &&
+    prevProps.isFuture === nextProps.isFuture &&
     prevProps.useSimplifiedRings === nextProps.useSimplifiedRings &&
     prevProps.onPress === nextProps.onPress &&
     // Deep comparison for percentages object

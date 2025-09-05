@@ -113,7 +113,7 @@ export const useOptimizedNutritionData = (
 };
 
 /**
- * Helper function to generate month keys for a range
+ * Helper function to generate month keys for a range (only past and current months)
  */
 export const generateMonthKeys = (
   centerYear: number, 
@@ -122,10 +122,22 @@ export const generateMonthKeys = (
 ): string[] => {
   const months: string[] = [];
   const startDate = new Date(centerYear, centerMonth - 1 - rangeMonths, 1);
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonthNum = currentDate.getMonth() + 1;
   
-  for (let i = 0; i < rangeMonths * 2 + 1; i++) {
+  // Only generate months up to current month (no future months)
+  for (let i = 0; i < rangeMonths + 1; i++) {
     const date = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
-    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    
+    // Stop if we reach a future month
+    if (year > currentYear || (year === currentYear && month > currentMonthNum)) {
+      break;
+    }
+    
+    const monthKey = `${year}-${String(month).padStart(2, '0')}`;
     months.push(monthKey);
   }
   
