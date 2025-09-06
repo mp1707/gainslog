@@ -32,7 +32,9 @@ export default function Edit() {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const { showImagePickerAlert } = useImageSelection({
     onImageSelected: (imageUrl: string) => {
-      setEditLog((prev) => (prev ? { ...prev, imageUrl } : undefined));
+      setEditLog((prev) =>
+        prev ? { ...prev, supabaseImagePath: imageUrl } : undefined
+      );
       setIsUploadingImage(false);
     },
     onUploadStart: () => {
@@ -58,11 +60,12 @@ export default function Edit() {
 
   const changesWereMade =
     editLog.description !== originalLog.description ||
-    editLog.imageUrl !== originalLog.imageUrl;
+    editLog.supabaseImagePath !== originalLog.supabaseImagePath;
 
   const caNreEstimate =
     (changesWereMade && editLog?.description?.trim() !== "") ||
-    (editLog?.imageUrl !== "" && editLog?.imageUrl !== originalLog.imageUrl);
+    (editLog?.supabaseImagePath !== "" &&
+      editLog?.supabaseImagePath !== originalLog.supabaseImagePath);
 
   const handleUpdateNutrition = (field: string, value: number) => {
     setEditLog({ ...editLog, [field]: value });
@@ -91,7 +94,7 @@ export default function Edit() {
         bottomOffset={130}
       >
         <ImageDisplay
-          imageUrl={editLog?.imageUrl}
+          imageUrl={editLog?.supabaseImagePath}
           isUploading={isUploadingImage}
         />
         <View style={styles.section}>

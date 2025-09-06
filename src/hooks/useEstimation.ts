@@ -20,10 +20,22 @@ export const useEstimation = () => {
       const incompleteLog = createEstimationLog(logData);
       addFoodLog(incompleteLog);
 
+      const isImageEstimation =
+        logData.supabaseImagePath && logData.supabaseImagePath !== "";
+
+      const estimationFunction = isImageEstimation
+        ? () =>
+            estimateNutritionImageBased({
+              imagePath: logData.supabaseImagePath || "",
+              description: logData.description || "",
+            })
+        : () =>
+            estimateNutritionDescriptionBased({
+              description: logData.description || "",
+            });
+
       try {
-        const estimationResults = await estimateNutritionDescriptionBased({
-          description: logData.description || "",
-        });
+        const estimationResults = await estimationFunction();
         const completedLog = applyEstimationResults(
           incompleteLog,
           estimationResults
@@ -39,7 +51,6 @@ export const useEstimation = () => {
           isEstimating: false,
         });
       } catch (error) {
-        console.error("Estimation failed:", error);
         deleteFoodLog(incompleteLog.id);
       }
     },
@@ -50,13 +61,13 @@ export const useEstimation = () => {
     async (logData: FoodLog, onComplete: (log: FoodLog) => void) => {
       updateFoodLog(logData.id, { isEstimating: true });
       let estimationResults: EstimationResult;
-      if (!logData.imageUrl || logData.imageUrl === "") {
+      if (!logData.supabaseImagePath || logData.supabaseImagePath === "") {
         estimationResults = await estimateNutritionDescriptionBased({
           description: logData.description || "",
         });
       } else {
         estimationResults = await estimateNutritionImageBased({
-          imageUrl: logData.imageUrl,
+          imagePath: logData.supabaseImagePath,
           description: logData.description || "",
         });
       }
@@ -68,7 +79,7 @@ export const useEstimation = () => {
         ...logData,
         title: title,
         description: logData.description || "",
-        imageUrl: logData.imageUrl || "",
+        supabaseImagePath: logData.supabaseImagePath || "",
         calories: estimationResults.calories,
         protein: estimationResults.protein,
         carbs: estimationResults.carbs,

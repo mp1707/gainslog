@@ -82,7 +82,6 @@ export const useImageSelection = ({
       onUploadStart();
       
       const uploadedImageUrl = await uploadToSupabaseStorage(localUri);
-      
       onImageSelected(uploadedImageUrl);
     } catch (error) {
       console.error("Error processing image:", error);

@@ -4,7 +4,7 @@ export type FoodLog = {
   createdAt: string; // ISO timestamp
   title: string;
   description?: string;
-  imageUrl?: string;
+  supabaseImagePath?: string;
   calories: number;
   protein: number;
   carbs: number;

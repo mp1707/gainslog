@@ -4,8 +4,9 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   // Breakfast items
   {
     title: "Scrambled Eggs with Toast",
-    description: "Two eggs scrambled with butter, served with whole wheat toast",
-    imageUrl: "https://picsum.photos/400/300?random=1",
+    description:
+      "Two eggs scrambled with butter, served with whole wheat toast",
+    supabaseImagePath: "https://picsum.photos/400/300?random=1",
     calories: 320,
     protein: 18,
     carbs: 24,
@@ -26,7 +27,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Oatmeal with Banana",
     description: "Steel-cut oats with sliced banana and cinnamon",
-    imageUrl: "https://picsum.photos/400/300?random=2",
+    supabaseImagePath: "https://picsum.photos/400/300?random=2",
     calories: 250,
     protein: 8,
     carbs: 45,
@@ -47,7 +48,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Protein Smoothie",
     description: "Whey protein, banana, spinach, and almond milk",
-    imageUrl: "https://picsum.photos/400/300?random=3",
+    supabaseImagePath: "https://picsum.photos/400/300?random=3",
     calories: 220,
     protein: 25,
     carbs: 18,
@@ -59,8 +60,9 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   // Lunch items
   {
     title: "Grilled Chicken Salad",
-    description: "Mixed greens with grilled chicken breast, cherry tomatoes, and vinaigrette",
-    imageUrl: "https://picsum.photos/400/300?random=4",
+    description:
+      "Mixed greens with grilled chicken breast, cherry tomatoes, and vinaigrette",
+    supabaseImagePath: "https://picsum.photos/400/300?random=4",
     calories: 380,
     protein: 35,
     carbs: 12,
@@ -81,7 +83,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Quinoa Bowl",
     description: "Quinoa with roasted vegetables and tahini dressing",
-    imageUrl: "https://picsum.photos/400/300?random=5",
+    supabaseImagePath: "https://picsum.photos/400/300?random=5",
     calories: 450,
     protein: 16,
     carbs: 65,
@@ -102,7 +104,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Vegetarian Pasta",
     description: "Whole wheat pasta with marinara sauce and vegetables",
-    imageUrl: "https://picsum.photos/400/300?random=6",
+    supabaseImagePath: "https://picsum.photos/400/300?random=6",
     calories: 520,
     protein: 18,
     carbs: 78,
@@ -115,7 +117,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Grilled Salmon with Rice",
     description: "Atlantic salmon fillet with brown rice and steamed broccoli",
-    imageUrl: "https://picsum.photos/400/300?random=7",
+    supabaseImagePath: "https://picsum.photos/400/300?random=7",
     calories: 580,
     protein: 42,
     carbs: 45,
@@ -135,8 +137,9 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   },
   {
     title: "Chicken Breast with Sweet Potato",
-    description: "Baked chicken breast with roasted sweet potato and green beans",
-    imageUrl: "https://picsum.photos/400/300?random=8",
+    description:
+      "Baked chicken breast with roasted sweet potato and green beans",
+    supabaseImagePath: "https://picsum.photos/400/300?random=8",
     calories: 520,
     protein: 45,
     carbs: 42,
@@ -156,8 +159,9 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   },
   {
     title: "Pork Tenderloin with Quinoa",
-    description: "Lean pork tenderloin with quinoa pilaf and roasted vegetables",
-    imageUrl: "https://picsum.photos/400/300?random=9",
+    description:
+      "Lean pork tenderloin with quinoa pilaf and roasted vegetables",
+    supabaseImagePath: "https://picsum.photos/400/300?random=9",
     calories: 560,
     protein: 38,
     carbs: 48,
@@ -170,7 +174,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Apple with Almond Butter",
     description: "Medium apple sliced with 2 tbsp natural almond butter",
-    imageUrl: "https://picsum.photos/400/300?random=10",
+    supabaseImagePath: "https://picsum.photos/400/300?random=10",
     calories: 280,
     protein: 8,
     carbs: 28,
@@ -191,7 +195,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Protein Bar",
     description: "Chocolate chip protein bar",
-    imageUrl: "https://picsum.photos/400/300?random=11",
+    supabaseImagePath: "https://picsum.photos/400/300?random=11",
     calories: 190,
     protein: 20,
     carbs: 16,
@@ -212,7 +216,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Hummus with Vegetables",
     description: "Classic hummus with carrot sticks and bell pepper slices",
-    imageUrl: "https://picsum.photos/400/300?random=12",
+    supabaseImagePath: "https://picsum.photos/400/300?random=12",
     calories: 140,
     protein: 6,
     carbs: 16,
@@ -225,7 +229,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Sushi Roll",
     description: "Salmon avocado roll with brown rice",
-    imageUrl: "https://picsum.photos/400/300?random=13",
+    supabaseImagePath: "https://picsum.photos/400/300?random=13",
     calories: 320,
     protein: 18,
     carbs: 42,
@@ -246,7 +250,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Burrito Bowl",
     description: "Chicken, brown rice, black beans, and vegetables",
-    imageUrl: "https://picsum.photos/400/300?random=14",
+    supabaseImagePath: "https://picsum.photos/400/300?random=14",
     calories: 540,
     protein: 32,
     carbs: 58,
@@ -267,7 +271,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Smoothie Bowl",
     description: "Acai smoothie bowl with granola, banana, and berries",
-    imageUrl: "https://picsum.photos/400/300?random=15",
+    supabaseImagePath: "https://picsum.photos/400/300?random=15",
     calories: 350,
     protein: 12,
     carbs: 55,
@@ -288,7 +292,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Protein Pancakes",
     description: "Whole wheat pancakes with protein powder and maple syrup",
-    imageUrl: "https://picsum.photos/400/300?random=16",
+    supabaseImagePath: "https://picsum.photos/400/300?random=16",
     calories: 380,
     protein: 28,
     carbs: 45,
@@ -309,7 +313,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Caesar Salad",
     description: "Romaine lettuce with grilled chicken, parmesan, and dressing",
-    imageUrl: "https://picsum.photos/400/300?random=17",
+    supabaseImagePath: "https://picsum.photos/400/300?random=17",
     calories: 420,
     protein: 32,
     carbs: 12,
@@ -330,7 +334,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Energy Balls",
     description: "Date and nut energy balls with coconut",
-    imageUrl: "https://picsum.photos/400/300?random=18",
+    supabaseImagePath: "https://picsum.photos/400/300?random=18",
     calories: 180,
     protein: 6,
     carbs: 18,
@@ -351,7 +355,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Chicken Noodle Soup",
     description: "Homemade chicken soup with vegetables and egg noodles",
-    imageUrl: "https://picsum.photos/400/300?random=19",
+    supabaseImagePath: "https://picsum.photos/400/300?random=19",
     calories: 220,
     protein: 16,
     carbs: 24,
@@ -372,7 +376,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Greek Pita Wrap",
     description: "Grilled chicken with tzatziki, vegetables in pita bread",
-    imageUrl: "https://picsum.photos/400/300?random=20",
+    supabaseImagePath: "https://picsum.photos/400/300?random=20",
     calories: 390,
     protein: 28,
     carbs: 35,
@@ -393,7 +397,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Stuffed Bell Peppers",
     description: "Bell peppers stuffed with ground turkey and rice",
-    imageUrl: "https://picsum.photos/400/300?random=21",
+    supabaseImagePath: "https://picsum.photos/400/300?random=21",
     calories: 320,
     protein: 22,
     carbs: 28,
@@ -414,7 +418,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Grilled Portobello Burger",
     description: "Grilled portobello mushroom burger with whole wheat bun",
-    imageUrl: "https://picsum.photos/400/300?random=22",
+    supabaseImagePath: "https://picsum.photos/400/300?random=22",
     calories: 280,
     protein: 12,
     carbs: 42,
@@ -435,7 +439,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Kale Chips",
     description: "Baked kale chips with sea salt",
-    imageUrl: "https://picsum.photos/400/300?random=23",
+    supabaseImagePath: "https://picsum.photos/400/300?random=23",
     calories: 60,
     protein: 4,
     carbs: 8,
@@ -456,7 +460,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Turkey Meatloaf",
     description: "Lean ground turkey meatloaf with mashed cauliflower",
-    imageUrl: "https://picsum.photos/400/300?random=24",
+    supabaseImagePath: "https://picsum.photos/400/300?random=24",
     calories: 350,
     protein: 28,
     carbs: 18,
@@ -477,7 +481,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Lentil Soup",
     description: "Red lentil soup with vegetables and herbs",
-    imageUrl: "https://picsum.photos/400/300?random=25",
+    supabaseImagePath: "https://picsum.photos/400/300?random=25",
     calories: 240,
     protein: 16,
     carbs: 36,
@@ -498,7 +502,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Caprese Salad",
     description: "Fresh mozzarella, tomatoes, and basil with balsamic",
-    imageUrl: "https://picsum.photos/400/300?random=26",
+    supabaseImagePath: "https://picsum.photos/400/300?random=26",
     calories: 280,
     protein: 18,
     carbs: 12,
@@ -519,7 +523,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   {
     title: "Veggie Burger",
     description: "Black bean veggie burger with sweet potato fries",
-    imageUrl: "https://picsum.photos/400/300?random=27",
+    supabaseImagePath: "https://picsum.photos/400/300?random=27",
     calories: 420,
     protein: 16,
     carbs: 58,

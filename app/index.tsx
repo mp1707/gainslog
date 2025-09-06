@@ -14,7 +14,11 @@ import React, {
 } from "react";
 import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
 import { useAppStore } from "@/store/useAppStore";
-import { selectLogsForDate, selectDailyTotals, selectDailyPercentages } from "@/store/selectors";
+import {
+  selectLogsForDate,
+  selectDailyTotals,
+  selectDailyPercentages,
+} from "@/store/selectors";
 import { LogCard } from "@/components/daily-food-logs/LogCard";
 import { useTheme } from "@/theme/ThemeProvider";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
@@ -54,12 +58,7 @@ export default function TodayTab() {
 
   // Get the entire state for selectors and individual functions
   const state = useAppStore();
-  const {
-    deleteFoodLog,
-    addFavorite,
-    deleteFavorite,
-    favorites,
-  } = state;
+  const { deleteFoodLog, addFavorite, deleteFavorite, favorites } = state;
 
   const todayFoodLogs = useMemo(() => {
     return selectLogsForDate(state, state.selectedDate).reverse();
@@ -86,7 +85,7 @@ export default function TodayTab() {
       );
       if (isFavorite) {
         deleteFavorite(foodLog.id);
-        Toast.error("Favorite removed");
+        Toast.show({type: "success", text1: "Favorite removed"});
       } else {
         addFavorite({ ...foodLog });
         Toast.success("Favorite added");

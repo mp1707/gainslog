@@ -46,7 +46,7 @@ export default function Create() {
     id: "",
     title: "",
     description: "",
-    imageUrl: "",
+    supabaseImagePath: "",
     logDate: selectedDate,
     createdAt: new Date().toISOString(),
     calories: 0,
@@ -66,7 +66,7 @@ export default function Create() {
         favorite.description?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [favorites, searchQuery]);
-  const styles = createStyles(colors, theme, !!newLog.imageUrl);
+  const styles = createStyles(colors, theme, !!newLog.supabaseImagePath);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const textInputRef = useRef<RNTextInput>(null);
   const estimateLabel = useMemo(() => {
@@ -84,7 +84,7 @@ export default function Create() {
   }, [selectedDate]);
 
   const canContine =
-    newLog?.description?.trim() !== "" || newLog.imageUrl !== "";
+    newLog?.description?.trim() !== "" || newLog.supabaseImagePath !== "";
 
   const { isRecording, liveTranscription, stopRecording, startRecording } =
     useTranscription();
@@ -111,7 +111,7 @@ export default function Create() {
     onImageSelected: (imageUrl: string) => {
       setNewLog((prev) => ({
         ...prev,
-        imageUrl,
+        supabaseImagePath: imageUrl,
         calories: 0,
         protein: 0,
         carbs: 0,
@@ -134,7 +134,7 @@ export default function Create() {
       createdAt: newLog.createdAt,
       title: newLog.title,
       description: newLog.description,
-      imageUrl: newLog.imageUrl,
+      supabaseImagePath: newLog.supabaseImagePath,
     });
     back();
   }, [newLog, startEstimation, back]);
@@ -190,7 +190,7 @@ export default function Create() {
         >
           <View style={styles.content}>
             <ImageDisplay
-              imageUrl={newLog.imageUrl}
+              imageUrl={newLog.supabaseImagePath}
               isUploading={isUploadingImage}
             />
             <TextInput

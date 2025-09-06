@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
+import { Toast } from "toastify-react-native";
 
 export interface TextEstimateRequest {
   title?: string;
@@ -11,7 +12,7 @@ export interface DescriptionEstimateRequest {
 }
 
 export interface ImageEstimateRequest {
-  imageUrl: string;
+  imagePath: string;
   title?: string;
   description?: string;
 }
@@ -70,7 +71,7 @@ export const estimateNutritionDescriptionBased = async (
   request: DescriptionEstimateRequest
 ): Promise<FoodEstimateResponse> => {
   const response = await fetch(
-    `${supabaseUrl}/functions/v1/description-estimation`,
+    `${supabaseUrl}/functions/v1/estimateDescriptionRL`,
     {
       method: "POST",
       headers: {
@@ -101,7 +102,9 @@ export const estimateNutritionDescriptionBased = async (
 export const estimateNutritionImageBased = async (
   request: ImageEstimateRequest
 ): Promise<FoodEstimateResponse> => {
-  const response = await fetch(`${supabaseUrl}/functions/v1/image-estimation`, {
+  console.log("Starting image-based estimation with request:", request);
+
+  const response = await fetch(`${supabaseUrl}/functions/v1/estimateImageRL`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -112,12 +115,9 @@ export const estimateNutritionImageBased = async (
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error(
-      "Image-based estimation HTTP error:",
-      response.status,
-      errorText
-    );
+    if (response.status === 429) {
+      Toast.error("Rate limit exceeded. Please try again later.");
+    }
     throw new Error("AI_ESTIMATION_FAILED");
   }
 
