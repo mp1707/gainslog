@@ -20,6 +20,7 @@ import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { useRouter } from "expo-router";
 import { seedFoodLogs } from "@/utils/seed";
 import { CloseButton } from "@/components/shared/CloseButton";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 export default function SettingsTab() {
   const isLoadingTargets = false;
@@ -89,7 +90,7 @@ export default function SettingsTab() {
 
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-      <View style={styles.container}>
+      <GradientWrapper style={styles.container}>
         {/* <ModalHeader title="Settings" onClose={handleClose} /> */}
         <View style={styles.closeButton}>
           <CloseButton
@@ -339,7 +340,7 @@ export default function SettingsTab() {
             </Card>
           </SettingsSection>
         </ScrollView>
-      </View>
+      </GradientWrapper>
     </KeyboardAvoidingView>
   );
 }

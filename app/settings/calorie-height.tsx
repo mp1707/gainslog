@@ -11,6 +11,7 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
 import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const isValidHeight = (height: number | undefined) =>
   height !== undefined && height >= 100 && height <= 250;
@@ -61,7 +62,7 @@ const HeightSelectionScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <GradientWrapper style={styles.container}>
       <ModalHeader 
         title="Height"
         onClose={handleCancel}
@@ -118,7 +119,7 @@ const HeightSelectionScreen = () => {
           </Button>
         </Card>
       </KeyboardStickyView>
-    </View>
+    </GradientWrapper>
   );
 };
 

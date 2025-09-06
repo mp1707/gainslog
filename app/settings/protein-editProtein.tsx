@@ -9,6 +9,7 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const EditProteinScreen = React.memo(function EditProteinScreen() {
   const { colors, theme: themeObj } = useTheme();
@@ -35,7 +36,7 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
   }, [safeReplace]);
 
   return (
-    <View style={styles.container}>
+    <GradientWrapper style={styles.container}>
       <ModalHeader onClose={handleCancel} />
       
       {/* Content */}
@@ -77,7 +78,7 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
         {/* Spacer to push content up and provide consistent spacing */}
         <View style={styles.spacer} />
       </View>
-    </View>
+    </GradientWrapper>
   );
 });
 

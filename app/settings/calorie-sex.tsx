@@ -10,6 +10,7 @@ import { UserSettings } from "@/types/models";
 import { useAppStore } from "@/store/useAppStore";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { useRouter } from "expo-router";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const SexSelectionScreen = React.memo(function SexSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
@@ -50,7 +51,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
 
 
   return (
-    <View style={styles.container}>
+    <GradientWrapper style={styles.container}>
       <ModalHeader 
         title="Biological Sex"
         onClose={handleCancel}
@@ -96,7 +97,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
         {/* Spacer to push content up and provide consistent spacing */}
         <View style={styles.spacer} />
       </View>
-    </View>
+    </GradientWrapper>
   );
 });
 

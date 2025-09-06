@@ -40,8 +40,8 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
     secondary: {
       backgroundColor:
         componentStyles.buttons.secondary.default.backgroundColor,
-      borderWidth: componentStyles.buttons.secondary.default.borderWidth,
-      borderColor: componentStyles.buttons.secondary.default.borderColor,
+      // borderWidth: componentStyles.buttons.secondary.default.borderWidth,
+      // borderColor: componentStyles.buttons.secondary.default.borderColor,
       borderRadius: componentStyles.buttons.cornerRadius,
     },
 
@@ -51,9 +51,9 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
 
     // Variant styles - Tertiary (outline style)
     tertiary: {
-      backgroundColor: componentStyles.buttons.tertiary.default.backgroundColor,
-      borderWidth: componentStyles.buttons.tertiary.default.borderWidth,
-      borderColor: componentStyles.buttons.tertiary.default.borderColor,
+      backgroundColor: colors.subtleBackground,
+      // borderWidth: componentStyles.buttons.tertiary.default.borderWidth,
+      // borderColor: componentStyles.buttons.tertiary.default.borderColor,
       borderRadius: componentStyles.buttons.cornerRadius,
     },
 

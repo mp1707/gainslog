@@ -18,6 +18,7 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { useRouter } from "expo-router";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const inputAccessoryViewID = "age-input-accessory";
 
@@ -60,7 +61,7 @@ const AgeSelectionScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <GradientWrapper style={styles.container}>
       <ModalHeader 
         title="Age"
         onClose={handleCancel}
@@ -112,7 +113,7 @@ const AgeSelectionScreen = () => {
           </Button>
         </Card>
       </KeyboardStickyView>
-    </View>
+    </GradientWrapper>
   );
 };
 

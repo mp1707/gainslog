@@ -10,6 +10,7 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
   const { colors, theme: themeObj } = useTheme();
@@ -36,7 +37,7 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
   }, [safeReplace]);
 
   return (
-    <View style={styles.container}>
+    <GradientWrapper style={styles.container}>
       <ModalHeader 
         title="Edit Calorie Target"
         onClose={handleCancel}
@@ -83,7 +84,7 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
         {/* Spacer to push content up and provide consistent spacing */}
         <View style={styles.spacer} />
       </View>
-    </View>
+    </GradientWrapper>
   );
 });
 

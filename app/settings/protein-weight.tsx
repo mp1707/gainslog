@@ -11,6 +11,7 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
 import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const isValidWeight = (weight: number | undefined) =>
   weight !== undefined && weight >= 30 && weight <= 300;
@@ -60,7 +61,7 @@ const ProteinWeightSelectionScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <GradientWrapper style={styles.container}>
       <ModalHeader 
         title="Weight"
         onClose={handleCancel}
@@ -117,7 +118,7 @@ const ProteinWeightSelectionScreen = () => {
           </Button>
         </Card>
       </KeyboardStickyView>
-    </View>
+    </GradientWrapper>
   );
 };
 

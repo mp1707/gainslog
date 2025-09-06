@@ -12,6 +12,7 @@ import {
   generateMonthKeys,
 } from "@/hooks/useOptimizedNutritionData";
 import { CloseButton } from "@/components/shared/CloseButton";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 interface MonthData {
   year: number;
@@ -136,7 +137,7 @@ export default function Calendar() {
   );
 
   return (
-    <View style={styles.container}>
+    <GradientWrapper style={styles.container}>
       <View style={styles.headerContainer}>
         <CloseButton onPress={handleCancel} />
       </View>
@@ -158,7 +159,7 @@ export default function Calendar() {
           })}
         />
       </View>
-    </View>
+    </GradientWrapper>
   );
 }
 

@@ -23,7 +23,7 @@ export const CloseButton: React.FC<CloseButtonProps> = ({
   return (
     <Button
       onPress={onPress}
-      variant="secondary"
+      variant="tertiary"
       icon={<X size={18} color={colors.secondaryText} />}
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={accessibilityHint}

@@ -24,6 +24,7 @@ import { ACTIVITY_LEVELS } from "@/components/settings/calculationMethods";
 import { StyleSheet } from "react-native";
 import { UserSettings } from "@/types/models";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 export default function Step2ActivityLevelScreen() {
   const { colors, theme: themeObj } = useTheme();
@@ -60,7 +61,7 @@ export default function Step2ActivityLevelScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <View style={styles.container}>
+      <GradientWrapper style={styles.container}>
         <ModalHeader 
           title="Activity Level"
           onClose={handleCancel}
@@ -119,7 +120,7 @@ export default function Step2ActivityLevelScreen() {
             })}
           </View>
         </ScrollView>
-      </View>
+      </GradientWrapper>
     </KeyboardAvoidingView>
   );
 }

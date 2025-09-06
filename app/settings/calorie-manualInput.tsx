@@ -16,6 +16,7 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
 import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const isValidCalories = (calories: number | undefined) =>
   calories !== undefined && calories >= 1000 && calories <= 7000;
@@ -85,7 +86,7 @@ const ManualCalorieInputScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <GradientWrapper style={styles.container}>
       <ModalHeader 
         title="Calorie Goal"
         onClose={handleCancel}
@@ -144,7 +145,7 @@ const ManualCalorieInputScreen = () => {
           </Button>
         </Card>
       </KeyboardStickyView>
-    </View>
+    </GradientWrapper>
   );
 };
 

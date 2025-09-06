@@ -22,6 +22,7 @@ import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
 import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const ManualFatInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
@@ -77,7 +78,7 @@ const ManualFatInputScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <GradientWrapper style={styles.container}>
       <ModalHeader 
         title="Fat Goal"
         onClose={handleCancel}
@@ -134,7 +135,7 @@ const ManualFatInputScreen = () => {
           </Button>
         </Card>
       </KeyboardStickyView>
-    </View>
+    </GradientWrapper>
   );
 };
 

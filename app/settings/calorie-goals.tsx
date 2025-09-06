@@ -12,6 +12,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 export default function Step3GoalsScreen() {
   const { colors, theme: themeObj } = useTheme();
@@ -65,7 +66,7 @@ export default function Step3GoalsScreen() {
 
   if (!calorieGoals) {
     return (
-      <View style={[styles.container, styles.centered]}>
+      <GradientWrapper style={[styles.container, styles.centered]}>
         <ModalHeader 
           title="Calorie Goal"
           onClose={handleCancel}
@@ -82,13 +83,13 @@ export default function Step3GoalsScreen() {
         >
           Go Back
         </Button>
-      </View>
+      </GradientWrapper>
     );
   }
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <View style={styles.container}>
+      <GradientWrapper style={styles.container}>
         <ModalHeader 
           title="Calorie Goal"
           onClose={handleCancel}
@@ -169,7 +170,7 @@ export default function Step3GoalsScreen() {
             </Text>
           </View>
         </ScrollView>
-      </View>
+      </GradientWrapper>
     </KeyboardAvoidingView>
   );
 }

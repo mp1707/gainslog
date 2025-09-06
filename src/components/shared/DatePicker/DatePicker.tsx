@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { ComponentProps, useCallback } from "react";
 import { CalendarDays } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 
@@ -6,7 +6,11 @@ import { Button } from "@/components/shared/Button";
 import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
-export const DatePicker: React.FC = () => {
+export const DatePicker = ({
+  buttonVariant = "secondary",
+}: {
+  buttonVariant?: ComponentProps<typeof Button>["variant"];
+}) => {
   const { colors } = useTheme();
   const { safePush } = useNavigationGuard();
 
@@ -18,7 +22,7 @@ export const DatePicker: React.FC = () => {
   return (
     <Button
       onPress={handleCalendarPress}
-      variant="secondary"
+      variant={buttonVariant}
       icon={<CalendarDays size={18} color={colors.secondaryText} />}
       accessibilityLabel="Open calendar"
       grow={false}

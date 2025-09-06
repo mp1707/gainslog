@@ -14,7 +14,7 @@ import {
   TextInput as RNTextInput,
   View,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { useTranscription } from "@/hooks/useTranscription";
 import { useImageSelection } from "@/hooks/useImageSelection";
 import { useEstimation } from "@/hooks/useEstimation";
@@ -156,10 +156,7 @@ export default function Create() {
   const formattedDate = formatDate(selectedDate);
 
   return (
-    <LinearGradient
-      colors={[colors.secondaryBackground, colors.primaryBackground]}
-      style={styles.container}
-    >
+    <GradientWrapper style={styles.container}>
       <View style={styles.toggleContainer}>
         <View style={styles.headerContainer}>
           <AppText role="Title2">{formattedDate}</AppText>
@@ -170,7 +167,7 @@ export default function Create() {
               gap: theme.spacing.sm,
             }}
           >
-            <DatePicker />
+            <DatePicker buttonVariant="tertiary" />
             <CloseButton onPress={handleCancel} />
           </View>
         </View>
@@ -289,7 +286,7 @@ export default function Create() {
         visible={isRecording}
         onStop={handleTranscriptionStop}
       />
-    </LinearGradient>
+    </GradientWrapper>
   );
 }
 
@@ -311,7 +308,6 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
       alignItems: "center",
       justifyContent: "space-between",
       gap: theme.spacing.md,
-      paddingHorizontal: theme.spacing.sm,
     },
     toggleContainer: {
       marginHorizontal: theme.spacing.md,

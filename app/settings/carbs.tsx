@@ -9,6 +9,7 @@ import {
 import type { ColorScheme, Theme } from "@/theme";
 import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const CarbsScreen = React.memo(function CarbsScreen() {
   const { colors, theme: themeObj, colorScheme } = useTheme();
@@ -56,7 +57,7 @@ const CarbsScreen = React.memo(function CarbsScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <GradientWrapper style={styles.container}>
       <ModalHeader title="Carbohydrates" onClose={handleCancel} />
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -109,7 +110,7 @@ const CarbsScreen = React.memo(function CarbsScreen() {
           )}
         </View>
       </ScrollView>
-    </View>
+    </GradientWrapper>
   );
 });
 

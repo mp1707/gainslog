@@ -18,6 +18,7 @@ import {
 } from "react-native-keyboard-controller";
 import { useImageSelection } from "@/hooks/useImageSelection";
 import { TextInput } from "@/components/shared/TextInput";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -82,7 +83,7 @@ export default function Edit() {
   };
 
   return (
-    <View style={styles.container}>
+    <GradientWrapper style={styles.container}>
       <ModalHeader onClose={handleCancel} />
       <KeyboardAwareScrollView
         style={[styles.scrollView]}
@@ -174,7 +175,7 @@ export default function Edit() {
           </View>
         </Card>
       </KeyboardStickyView>
-    </View>
+    </GradientWrapper>
   );
 }
 

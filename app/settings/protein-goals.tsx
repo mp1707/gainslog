@@ -21,6 +21,7 @@ import {
 } from "@/utils/nutritionCalculations";
 import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const METHODS: Record<
   NonNullable<UserSettings["proteinGoalType"]>,
@@ -136,7 +137,7 @@ export default function ProteinGoalsScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <View style={styles.container}>
+      <GradientWrapper style={styles.container}>
         <ModalHeader 
           title="Protein Goal"
           onClose={handleCancel}
@@ -196,7 +197,7 @@ export default function ProteinGoalsScreen() {
             </Text>
           </View>
         </ScrollView>
-      </View>
+      </GradientWrapper>
     </KeyboardAvoidingView>
   );
 }

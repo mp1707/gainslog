@@ -17,6 +17,7 @@ import {
 import type { ColorScheme, Theme } from "@/theme";
 import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 // GuidelineRow Component: No changes needed here, as it inherits styles from the parent.
 const GuidelineRow = ({
@@ -74,7 +75,7 @@ const EditFatScreen = React.memo(function EditFatScreen() {
   }, [safeReplace]);
 
   return (
-    <View style={styles.container}>
+    <GradientWrapper style={styles.container}>
       <ModalHeader 
         title="Fat Target"
         onClose={handleCancel}
@@ -133,7 +134,7 @@ const EditFatScreen = React.memo(function EditFatScreen() {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </GradientWrapper>
   );
 });
 
