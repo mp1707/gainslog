@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
-import { env } from "./env";
 
 export interface TextEstimateRequest {
   title?: string;
@@ -26,8 +25,8 @@ export interface FoodEstimateResponse {
   fat: number;
 }
 
-const supabaseUrl = env.SUPABASE_URL;
-const supabaseAnonKey = env.SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
@@ -70,15 +69,18 @@ export const estimateNutritionTextBased = async (
 export const estimateNutritionDescriptionBased = async (
   request: DescriptionEstimateRequest
 ): Promise<FoodEstimateResponse> => {
-  const response = await fetch(`${supabaseUrl}/functions/v1/description-estimation`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${supabaseAnonKey}`,
-      apikey: supabaseAnonKey,
-    },
-    body: JSON.stringify(request),
-  });
+  const response = await fetch(
+    `${supabaseUrl}/functions/v1/description-estimation`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${supabaseAnonKey}`,
+        apikey: supabaseAnonKey,
+      },
+      body: JSON.stringify(request),
+    }
+  );
 
   if (!response.ok) {
     const errorText = await response.text();
