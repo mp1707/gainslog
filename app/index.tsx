@@ -23,7 +23,7 @@ import { LogCard } from "@/components/daily-food-logs/LogCard";
 import { useTheme } from "@/theme/ThemeProvider";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
 import { FoodLog } from "@/types/models";
-import { Toast } from "toastify-react-native";
+import { showFavoriteAddedToast, showFavoriteRemovedToast } from "@/lib/toast";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { NutrientSummary } from "@/components/daily-food-logs/NutrientSummary/NutrientSummary";
 import { DateSlider } from "@/components/shared/DateSlider";
@@ -85,10 +85,10 @@ export default function TodayTab() {
       );
       if (isFavorite) {
         deleteFavorite(foodLog.id);
-        Toast.show({type: "success", text1: "Favorite removed"});
+        showFavoriteRemovedToast("Removed from favorites", foodLog.title);
       } else {
         addFavorite({ ...foodLog });
-        Toast.success("Favorite added");
+        showFavoriteAddedToast("Added to favorites", foodLog.title);
       }
     },
     [favorites, addFavorite, deleteFavorite]

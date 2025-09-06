@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
-import { Toast } from "toastify-react-native";
+import { showErrorToast } from "./toast";
 
 export interface TextEstimateRequest {
   title?: string;
@@ -116,7 +116,7 @@ export const estimateNutritionImageBased = async (
 
   if (!response.ok) {
     if (response.status === 429) {
-      Toast.error("Rate limit exceeded. Please try again later.");
+      showErrorToast("Rate limit exceeded", "Please try again later.");
     }
     throw new Error("AI_ESTIMATION_FAILED");
   }
