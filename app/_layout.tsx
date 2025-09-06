@@ -8,6 +8,12 @@ import { theme } from "../src/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { ToastShowParams } from "toastify-react-native/utils/interfaces";
+import {
+  SafeAreaFrameContext,
+  SafeAreaInsetsContext,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 function ThemedStack() {
   const { colors } = useTheme();
@@ -56,6 +62,7 @@ function ThemedStack() {
 }
 
 export default function RootLayout() {
+  const insets = useSafeAreaInsets();
   const { fontsLoaded, error } = useFonts();
   const cleanupIncompleteEstimations = useAppStore(
     (state) => state.cleanupIncompleteEstimations
@@ -103,12 +110,32 @@ export default function RootLayout() {
     );
   }
 
+  // Custom toast configuration
+  const toastConfig = {
+    success: (props: ToastShowParams) => (
+      <View
+        style={{
+          backgroundColor: "#4CAF50",
+          padding: 16,
+          borderRadius: 10,
+          marginTop: insets.top,
+        }}
+      >
+        <Text style={{ color: "white", fontWeight: "bold" }}>
+          {props.text1}
+        </Text>
+        {props.text2 && <Text style={{ color: "white" }}>{props.text2}</Text>}
+      </View>
+    ),
+    // Override other toast types as needed
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardProvider>
         <ThemeProvider>
           <ThemedStack />
-          <ToastManager />
+          <ToastManager config={toastConfig} />
         </ThemeProvider>
       </KeyboardProvider>
     </GestureHandlerRootView>
