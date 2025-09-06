@@ -38,7 +38,10 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
   return (
     <View style={styles.container}>
       <ModalHeader 
-        leftButton={{ label: "Cancel", onPress: handleCancel }}
+        title="Edit Calorie Target"
+        onClose={handleCancel}
+        closeAccessibilityLabel="Cancel editing"
+        closeAccessibilityHint="Returns to previous screen without saving changes"
       />
       
       {/* Content */}

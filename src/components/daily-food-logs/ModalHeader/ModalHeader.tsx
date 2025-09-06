@@ -1,65 +1,41 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text } from "react-native";
+import { CloseButton } from "@/components/shared/CloseButton";
 import { useStyles } from "./ModalHeader.styles";
 
 interface ModalHeaderProps {
-  leftButton: {
-    label: string;
-    onPress: () => void;
-  };
-  rightButton?: {
-    label: string;
-    onPress: () => void;
-    disabled?: boolean;
-  };
-  centerContent?: React.ReactNode;
+  title?: string;
+  onClose: () => void;
+  closeAccessibilityLabel?: string;
+  closeAccessibilityHint?: string;
 }
 
 export const ModalHeader: React.FC<ModalHeaderProps> = ({
-  leftButton,
-  rightButton,
-  centerContent,
+  title,
+  onClose,
+  closeAccessibilityLabel,
+  closeAccessibilityHint,
 }) => {
   const styles = useStyles();
 
   return (
     <View style={styles.header}>
-      <View style={styles.buttonContainer}>
-        {leftButton && (
-          <TouchableOpacity
-            onPress={leftButton.onPress}
-            accessibilityRole="button"
-            accessibilityLabel={leftButton.label}
-            hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
-          >
-            <Text style={styles.cancelButton}>{leftButton.label}</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-      
+      <CloseButton
+        onPress={onClose}
+        accessibilityLabel={closeAccessibilityLabel}
+        accessibilityHint={closeAccessibilityHint}
+        style={styles.invisibleCloseButton}
+      />
       <View style={styles.centerContainer}>
-        {centerContent}
+        {title && <Text style={styles.title}>{title}</Text>}
       </View>
-      
-      <View style={styles.rightButtonContainer}>
-        {rightButton && (
-          <TouchableOpacity 
-            onPress={rightButton.onPress} 
-            disabled={rightButton.disabled}
-            accessibilityRole="button"
-            accessibilityLabel={rightButton.label}
-            hitSlop={{ top: 8, left: 8, right: 8, bottom: 8 }}
-          >
-            <Text
-              style={[
-                styles.saveButton, 
-                rightButton.disabled && styles.saveButtonDisabled
-              ]}
-            >
-              {rightButton.label}
-            </Text>
-          </TouchableOpacity>
-        )}
+
+      <View style={styles.closeButtonContainer}>
+        <CloseButton
+          onPress={onClose}
+          accessibilityLabel={closeAccessibilityLabel}
+          accessibilityHint={closeAccessibilityHint}
+        />
       </View>
     </View>
   );

@@ -1,23 +1,17 @@
-import React, {
-  useMemo,
-  useCallback,
-  useState,
-  useRef,
-} from "react";
-import {
-  View,
-  FlatList,
-  Dimensions,
-  StyleSheet,
-} from "react-native";
+import React, { useMemo, useCallback, useState, useRef } from "react";
+import { View, FlatList, Dimensions, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
-import { useTheme } from "@/theme";
+import { Colors, Theme, useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { CalendarGrid } from "@/components/shared/DatePicker/components/CalendarGrid";
-import { useOptimizedNutritionData, generateMonthKeys } from "@/hooks/useOptimizedNutritionData";
+import {
+  useOptimizedNutritionData,
+  generateMonthKeys,
+} from "@/hooks/useOptimizedNutritionData";
+import { CloseButton } from "@/components/shared/CloseButton";
 
 interface MonthData {
   year: number;
@@ -25,16 +19,20 @@ interface MonthData {
   key: string;
 }
 
-const { width: screenWidth } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get("window");
 
 export default function Calendar() {
-  const { colors } = useTheme();
-  const styles = useMemo(() => createStyles(colors), [colors]);
-  const { selectedDate, setSelectedDate, foodLogs, dailyTargets } = useAppStore();
+  const { colors, theme } = useTheme();
+  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const { selectedDate, setSelectedDate, foodLogs, dailyTargets } =
+    useAppStore();
   const router = useRouter();
 
   // Get current selected date components
-  const selectedDateObj = useMemo(() => new Date(selectedDate + "T00:00:00"), [selectedDate]);
+  const selectedDateObj = useMemo(
+    () => new Date(selectedDate + "T00:00:00"),
+    [selectedDate]
+  );
   const currentYear = selectedDateObj.getFullYear();
   const currentMonth = selectedDateObj.getMonth() + 1;
 
@@ -42,9 +40,13 @@ export default function Calendar() {
   const monthsData = useMemo((): MonthData[] => {
     const months: MonthData[] = [];
     const startDate = new Date(currentYear, currentMonth - 1 - 24, 1);
-    
+
     for (let i = 0; i < 25; i++) {
-      const date = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
+      const date = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth() + i,
+        1
+      );
       months.push({
         year: date.getFullYear(),
         month: date.getMonth() + 1,
@@ -56,11 +58,16 @@ export default function Calendar() {
 
   // Find initial scroll index
   const initialScrollIndex = useMemo(() => {
-    return monthsData.findIndex(m => m.year === currentYear && m.month === currentMonth);
+    return monthsData.findIndex(
+      (m) => m.year === currentYear && m.month === currentMonth
+    );
   }, [monthsData, currentYear, currentMonth]);
 
   // Track the currently visible/active month for progress ring rendering
-  const [activeMonth, setActiveMonth] = useState<{year: number; month: number}>({
+  const [activeMonth, setActiveMonth] = useState<{
+    year: number;
+    month: number;
+  }>({
     year: currentYear,
     month: currentMonth,
   });
@@ -82,11 +89,14 @@ export default function Calendar() {
     router.back();
   }, [router]);
 
-  const handleDateSelect = useCallback((dateKey: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setSelectedDate(dateKey);
-    router.back();
-  }, [setSelectedDate, router]);
+  const handleDateSelect = useCallback(
+    (dateKey: string) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      setSelectedDate(dateKey);
+      router.back();
+    },
+    [setSelectedDate, router]
+  );
 
   // Handle viewable items change to track active month
   const onViewableItemsChanged = useCallback(({ viewableItems }: any) => {
@@ -104,27 +114,32 @@ export default function Calendar() {
   });
 
   // Render month item for FlatList
-  const renderMonthItem = useCallback(({ item }: { item: MonthData }) => {
-    // Only show full progress rings for the currently active/visible month
-    const isActiveMonth = item.year === activeMonth.year && item.month === activeMonth.month;
-    
-    return (
-      <CalendarGrid
-        year={item.year}
-        month={item.month}
-        selectedDate={selectedDate}
-        getDailyPercentages={getDailyPercentages}
-        onDateSelect={handleDateSelect}
-        width={screenWidth}
-        useSimplifiedRings={!isActiveMonth}
-      />
-    );
-  }, [selectedDate, getDailyPercentages, handleDateSelect, activeMonth]);
+  const renderMonthItem = useCallback(
+    ({ item }: { item: MonthData }) => {
+      // Only show full progress rings for the currently active/visible month
+      const isActiveMonth =
+        item.year === activeMonth.year && item.month === activeMonth.month;
+
+      return (
+        <CalendarGrid
+          year={item.year}
+          month={item.month}
+          selectedDate={selectedDate}
+          getDailyPercentages={getDailyPercentages}
+          onDateSelect={handleDateSelect}
+          width={screenWidth}
+          useSimplifiedRings={!isActiveMonth}
+        />
+      );
+    },
+    [selectedDate, getDailyPercentages, handleDateSelect, activeMonth]
+  );
 
   return (
     <View style={styles.container}>
-      <ModalHeader leftButton={{ label: "Cancel", onPress: handleCancel }} />
-      
+      <View style={styles.headerContainer}>
+        <CloseButton onPress={handleCancel} />
+      </View>
       <View style={styles.calendarContainer}>
         <FlatList
           data={monthsData}
@@ -147,7 +162,7 @@ export default function Calendar() {
   );
 }
 
-const createStyles = (colors: any) =>
+const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -155,5 +170,11 @@ const createStyles = (colors: any) =>
     },
     calendarContainer: {
       flex: 1,
+    },
+    headerContainer: {
+      width: "100%",
+      alignItems: "flex-end",
+      paddingTop: theme.spacing.lg,
+      paddingHorizontal: theme.spacing.md,
     },
   });

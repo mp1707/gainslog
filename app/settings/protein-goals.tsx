@@ -137,7 +137,12 @@ export default function ProteinGoalsScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <View style={styles.container}>
-        <ModalHeader leftButton={{ label: "Back", onPress: handleCancel }} />
+        <ModalHeader 
+          title="Protein Goal"
+          onClose={handleCancel}
+          closeAccessibilityLabel="Go back"
+          closeAccessibilityHint="Returns to previous screen"
+        />
 
         {/* Content */}
         <ScrollView

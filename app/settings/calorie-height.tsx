@@ -63,8 +63,10 @@ const HeightSelectionScreen = () => {
   return (
     <View style={styles.container}>
       <ModalHeader 
-        leftButton={{ label: "Back", onPress: handleCancel }}
-        rightButton={{ label: "Save", onPress: handleSave, disabled: !isValidHeight(height) }}
+        title="Height"
+        onClose={handleCancel}
+        closeAccessibilityLabel="Go back"
+        closeAccessibilityHint="Returns to previous screen without saving changes"
       />
       
       <View style={styles.content}>

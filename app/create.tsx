@@ -14,6 +14,7 @@ import {
   TextInput as RNTextInput,
   View,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useTranscription } from "@/hooks/useTranscription";
 import { useImageSelection } from "@/hooks/useImageSelection";
 import { useEstimation } from "@/hooks/useEstimation";
@@ -32,6 +33,7 @@ import { TranscriptionOverlay } from "@/components/shared/TranscriptionOverlay";
 import { TextInput } from "@/components/shared/TextInput";
 import { DatePicker } from "@/components/shared/DatePicker";
 import { formatDate } from "@/utils/formatDate";
+import { CloseButton } from "@/components/shared/CloseButton";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -154,12 +156,23 @@ export default function Create() {
   const formattedDate = formatDate(selectedDate);
 
   return (
-    <View style={styles.container}>
-      <ModalHeader leftButton={{ label: "Cancel", onPress: handleCancel }} />
+    <LinearGradient
+      colors={[colors.secondaryBackground, colors.primaryBackground]}
+      style={styles.container}
+    >
       <View style={styles.toggleContainer}>
         <View style={styles.headerContainer}>
           <AppText role="Title2">{formattedDate}</AppText>
-          <DatePicker />
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: theme.spacing.sm,
+            }}
+          >
+            <DatePicker />
+            <CloseButton onPress={handleCancel} />
+          </View>
         </View>
         <Toggle
           value={estimationType}
@@ -276,7 +289,7 @@ export default function Create() {
         visible={isRecording}
         onStop={handleTranscriptionStop}
       />
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -284,7 +297,7 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.primaryBackground,
+      paddingTop: theme.spacing.md,
     },
     scrollView: {
       flex: 1,
@@ -298,6 +311,7 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
       alignItems: "center",
       justifyContent: "space-between",
       gap: theme.spacing.md,
+      paddingHorizontal: theme.spacing.sm,
     },
     toggleContainer: {
       marginHorizontal: theme.spacing.md,

@@ -57,8 +57,10 @@ const ManualProteinInputScreen = () => {
   return (
     <View style={styles.container}>
       <ModalHeader 
-        leftButton={{ label: "Cancel", onPress: handleCancel }}
-        rightButton={{ label: "Save", onPress: handleSaveFromHeader, disabled: !protein }}
+        title="Protein Goal"
+        onClose={handleCancel}
+        closeAccessibilityLabel="Cancel editing"
+        closeAccessibilityHint="Returns to previous screen without saving changes"
       />
       
       <View style={styles.content}>

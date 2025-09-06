@@ -9,7 +9,6 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ThemedToastManager } from "@/components/shared/Toasts";
 
-
 function ThemedStack() {
   const { colors } = useTheme();
 
@@ -25,7 +24,10 @@ function ThemedStack() {
         options={{
           presentation: "modal",
           headerShown: false,
-          contentStyle: { backgroundColor: colors.primaryBackground },
+          contentStyle: {
+            borderRadius: "10%",
+            overflow: "hidden",
+          },
         }}
       />
       <Stack.Screen
@@ -33,7 +35,10 @@ function ThemedStack() {
         options={{
           presentation: "modal",
           headerShown: false,
-          contentStyle: { backgroundColor: colors.primaryBackground },
+          contentStyle: {
+            borderRadius: "10%",
+            overflow: "hidden",
+          },
         }}
       />
       <Stack.Screen
@@ -41,7 +46,10 @@ function ThemedStack() {
         options={{
           presentation: "modal",
           headerShown: false,
-          contentStyle: { backgroundColor: colors.primaryBackground },
+          contentStyle: {
+            borderRadius: "10%",
+            overflow: "hidden",
+          },
         }}
       />
       <Stack.Screen
@@ -49,7 +57,10 @@ function ThemedStack() {
         options={{
           presentation: "modal",
           headerShown: false,
-          contentStyle: { backgroundColor: colors.primaryBackground },
+          contentStyle: {
+            borderRadius: "10%",
+            overflow: "hidden",
+          },
         }}
       />
     </Stack>

@@ -62,8 +62,10 @@ const ProteinWeightSelectionScreen = () => {
   return (
     <View style={styles.container}>
       <ModalHeader 
-        leftButton={{ label: "Back", onPress: handleCancel }}
-        rightButton={{ label: "Save", onPress: handleSave, disabled: !isValidWeight(weight) }}
+        title="Weight"
+        onClose={handleCancel}
+        closeAccessibilityLabel="Go back"
+        closeAccessibilityHint="Returns to previous screen without saving changes"
       />
       
       <View style={styles.content}>

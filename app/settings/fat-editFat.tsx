@@ -76,7 +76,10 @@ const EditFatScreen = React.memo(function EditFatScreen() {
   return (
     <View style={styles.container}>
       <ModalHeader 
-        leftButton={{ label: "Cancel", onPress: handleCancel }}
+        title="Fat Target"
+        onClose={handleCancel}
+        closeAccessibilityLabel="Cancel fat target editing"
+        closeAccessibilityHint="Returns to previous screen without saving changes"
       />
       
       <ScrollView contentContainerStyle={styles.scrollContent}>

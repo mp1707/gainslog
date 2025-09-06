@@ -52,7 +52,10 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
   return (
     <View style={styles.container}>
       <ModalHeader 
-        leftButton={{ label: "Back", onPress: handleCancel }}
+        title="Biological Sex"
+        onClose={handleCancel}
+        closeAccessibilityLabel="Go back"
+        closeAccessibilityHint="Returns to previous screen"
       />
 
       {/* Content */}

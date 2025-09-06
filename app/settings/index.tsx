@@ -19,6 +19,7 @@ import { SettingsSection } from "@/components/settings/SettingsSection";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { useRouter } from "expo-router";
 import { seedFoodLogs } from "@/utils/seed";
+import { CloseButton } from "@/components/shared/CloseButton";
 
 export default function SettingsTab() {
   const isLoadingTargets = false;
@@ -71,7 +72,7 @@ export default function SettingsTab() {
   if (isLoadingTargets) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <ModalHeader leftButton={{ label: "Cancel", onPress: handleClose }} />
+        <ModalHeader onClose={handleClose} />
         <AppText role="Body" color="secondary">
           Loading settings...
         </AppText>
@@ -89,7 +90,14 @@ export default function SettingsTab() {
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <View style={styles.container}>
-        <ModalHeader leftButton={{ label: "Close", onPress: handleClose }} />
+        {/* <ModalHeader title="Settings" onClose={handleClose} /> */}
+        <View style={styles.closeButton}>
+          <CloseButton
+            onPress={handleClose}
+            accessibilityLabel={"Go back"}
+            accessibilityHint={"Returns to previous screen"}
+          />
+        </View>
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -295,21 +303,6 @@ export default function SettingsTab() {
                 </View>
               </TouchableOpacity>
             </Card>
-
-            {/* <View style={styles.resetButtonContainer}>
-              <Button
-                onPress={() => resetTargets(resetDailyTargets)}
-                variant="destructive"
-                size="medium"
-                accessibilityLabel="Reset daily targets"
-                accessibilityHint="Resets all nutrition targets to zero and clears saved calculations"
-                style={styles.resetButton}
-              >
-                <AppText role="Button" color="white">
-                  Reset daily targets
-                </AppText>
-              </Button>
-            </View> */}
           </SettingsSection>
 
           <SettingsSection
@@ -366,6 +359,12 @@ const createStyles = (
       flex: 1,
       backgroundColor: colors.primaryBackground,
     },
+    closeButton: {
+      position: "absolute",
+      top: spacing.lg,
+      right: spacing.md,
+      zIndex: 15,
+    },
     centered: {
       justifyContent: "center",
       alignItems: "center",
@@ -375,7 +374,7 @@ const createStyles = (
     },
     scrollContent: {
       paddingHorizontal: themeObj.spacing.pageMargins.horizontal,
-      paddingTop: spacing.lg,
+      paddingTop: spacing.xxl + spacing.md, 
       paddingBottom: bottomPadding || spacing.xl,
     },
     resetButtonContainer: {

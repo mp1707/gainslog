@@ -67,7 +67,10 @@ export default function Step3GoalsScreen() {
     return (
       <View style={[styles.container, styles.centered]}>
         <ModalHeader 
-          leftButton={{ label: "Back", onPress: handleCancel }}
+          title="Calorie Goal"
+          onClose={handleCancel}
+          closeAccessibilityLabel="Go back"
+          closeAccessibilityHint="Returns to previous screen"
         />
         <Text style={styles.errorText}>
           Missing calculation data. Please start over.
@@ -87,7 +90,10 @@ export default function Step3GoalsScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <View style={styles.container}>
         <ModalHeader 
-          leftButton={{ label: "Back", onPress: handleCancel }}
+          title="Calorie Goal"
+          onClose={handleCancel}
+          closeAccessibilityLabel="Go back"
+          closeAccessibilityHint="Returns to previous screen"
         />
 
         {/* Content */}

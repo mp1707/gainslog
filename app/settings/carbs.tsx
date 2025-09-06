@@ -57,10 +57,7 @@ const CarbsScreen = React.memo(function CarbsScreen() {
 
   return (
     <View style={styles.container}>
-      <ModalHeader 
-        leftButton={{ label: "Cancel", onPress: handleCancel }}
-        rightButton={{ label: "Save", onPress: handleSave, disabled: false }}
-      />
+      <ModalHeader title="Carbohydrates" onClose={handleCancel} />
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.textSection}>

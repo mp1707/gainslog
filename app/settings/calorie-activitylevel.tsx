@@ -62,7 +62,10 @@ export default function Step2ActivityLevelScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <View style={styles.container}>
         <ModalHeader 
-          leftButton={{ label: "Back", onPress: handleCancel }}
+          title="Activity Level"
+          onClose={handleCancel}
+          closeAccessibilityLabel="Go back"
+          closeAccessibilityHint="Returns to previous screen"
         />
         
         {/* Content */}

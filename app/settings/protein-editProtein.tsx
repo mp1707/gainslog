@@ -36,9 +36,7 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
 
   return (
     <View style={styles.container}>
-      <ModalHeader 
-        leftButton={{ label: "Cancel", onPress: handleCancel }}
-      />
+      <ModalHeader onClose={handleCancel} />
       
       {/* Content */}
       <View style={styles.content}>

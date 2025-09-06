@@ -83,10 +83,7 @@ export default function Edit() {
 
   return (
     <View style={styles.container}>
-      <ModalHeader
-        leftButton={{ label: "Cancel", onPress: handleCancel }}
-        rightButton={{ label: "Done", onPress: handleDone, disabled: false }}
-      />
+      <ModalHeader onClose={handleCancel} />
       <KeyboardAwareScrollView
         style={[styles.scrollView]}
         contentContainerStyle={styles.contentContainer}
