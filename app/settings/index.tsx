@@ -19,7 +19,8 @@ import { SettingsSection } from "@/components/settings/SettingsSection";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { useRouter } from "expo-router";
 import { seedFoodLogs } from "@/utils/seed";
-import { CloseButton } from "@/components/shared/CloseButton";
+import { RoundButton } from "@/components/shared/RoundButton";
+import { X } from "lucide-react-native";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 export default function SettingsTab() {
@@ -93,10 +94,12 @@ export default function SettingsTab() {
       <GradientWrapper style={styles.container}>
         {/* <ModalHeader title="Settings" onClose={handleClose} /> */}
         <View style={styles.closeButton}>
-          <CloseButton
+          <RoundButton
             onPress={handleClose}
-            accessibilityLabel={"Go back"}
-            accessibilityHint={"Returns to previous screen"}
+            Icon={X}
+            variant="tertiary"
+            accessibilityLabel="Go back"
+            accessibilityHint="Returns to previous screen"
           />
         </View>
         <ScrollView
@@ -362,7 +365,7 @@ const createStyles = (
     },
     closeButton: {
       position: "absolute",
-      top: spacing.lg,
+      top: spacing.md,
       right: spacing.md,
       zIndex: 15,
     },

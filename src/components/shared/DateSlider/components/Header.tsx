@@ -2,15 +2,14 @@ import React, { useMemo } from "react";
 import { View } from "react-native";
 import { Settings } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
-
 import { AppText } from "@/components";
-import { Button } from "@/components/shared/Button";
 import { DatePicker } from "@/components/shared/DatePicker";
 import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useAppStore } from "@/store/useAppStore";
 import { createStyles } from "./Header.styles";
 import { formatDate } from "@/utils/formatDate";
+import { RoundButton } from "../../RoundButton";
 
 export const Header: React.FC = () => {
   const { colors, theme } = useTheme();
@@ -30,16 +29,13 @@ export const Header: React.FC = () => {
           {formatDate(selectedDate)}
         </AppText>
         <View style={styles.headerButtonContainer}>
-          <Button
+          <RoundButton
             onPress={handleSettingsPress}
-            variant="secondary"
-            size="small"
-            icon={<Settings size={16} color={colors.secondaryText} />}
+            Icon={Settings}
+            variant="tertiary"
             accessibilityLabel="Open settings"
-            grow={false}
-            style={{ width: 40, height: 40 }}
           />
-          <DatePicker />
+          <DatePicker buttonVariant="tertiary"/>
         </View>
       </View>
     </>

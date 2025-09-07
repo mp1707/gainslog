@@ -20,7 +20,8 @@ import {
   calculateFatGramsFromPercentage,
 } from "@/utils/nutritionCalculations";
 import { useRouter } from "expo-router";
-import { CloseButton } from "@/components/shared/CloseButton";
+import { RoundButton } from "@/components/shared/RoundButton";
+import { X } from "lucide-react-native";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const METHODS: Record<
@@ -139,10 +140,12 @@ export default function ProteinGoalsScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <GradientWrapper style={styles.container}>
         <View style={styles.closeButton}>
-          <CloseButton
+          <RoundButton
             onPress={handleCancel}
-            accessibilityLabel={"Go back"}
-            accessibilityHint={"Returns to previous screen"}
+            Icon={X}
+            variant="tertiary"
+            accessibilityLabel="Go back"
+            accessibilityHint="Returns to previous screen"
           />
         </View>
 

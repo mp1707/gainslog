@@ -9,7 +9,8 @@ import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { CloseButton } from "@/components/shared/CloseButton";
+import { RoundButton } from "@/components/shared/RoundButton";
+import { X } from "lucide-react-native";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
@@ -39,10 +40,12 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.closeButton}>
-        <CloseButton
+        <RoundButton
           onPress={handleCancel}
-          accessibilityLabel={"Go back"}
-          accessibilityHint={"Returns to previous screen"}
+          Icon={X}
+          variant="tertiary"
+          accessibilityLabel="Go back"
+          accessibilityHint="Returns to previous screen"
         />
       </View>
       

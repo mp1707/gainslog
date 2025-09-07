@@ -19,7 +19,8 @@ import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
 import { useRouter } from "expo-router";
-import { CloseButton } from "@/components/shared/CloseButton";
+import { RoundButton } from "@/components/shared/RoundButton";
+import { X } from "lucide-react-native";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const inputAccessoryViewID = "weight-input-accessory";
@@ -74,10 +75,12 @@ const WeightSelectionScreen = () => {
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.closeButton}>
-        <CloseButton
+        <RoundButton
           onPress={handleCancel}
-          accessibilityLabel={"Go back"}
-          accessibilityHint={"Returns to previous screen"}
+          Icon={X}
+          variant="tertiary"
+          accessibilityLabel="Go back"
+          accessibilityHint="Returns to previous screen"
         />
       </View>
       

@@ -16,7 +16,8 @@ import { useAppStore } from "@/store/useAppStore";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
-import { CloseButton } from "@/components/shared/CloseButton";
+import { RoundButton } from "@/components/shared/RoundButton";
+import { X } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
@@ -63,10 +64,12 @@ const AgeSelectionScreen = () => {
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.closeButton}>
-        <CloseButton
+        <RoundButton
           onPress={handleCancel}
-          accessibilityLabel={"Go back"}
-          accessibilityHint={"Returns to previous screen"}
+          Icon={X}
+          variant="tertiary"
+          accessibilityLabel="Go back"
+          accessibilityHint="Returns to previous screen"
         />
       </View>
 
@@ -120,13 +123,19 @@ const AgeSelectionScreen = () => {
 
 export default AgeSelectionScreen;
 
-const createStyles = (colors: Colors, themeObj: Theme) => {
-  const { spacing, typography, components } = themeObj;
+const createStyles = (colors: Colors, theme: Theme) => {
+  const { spacing, typography, components } = theme;
   return StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.primaryBackground },
+    headerContainer: {
+      width: "100%",
+      alignItems: "flex-end",
+      paddingTop: theme.spacing.md,
+      paddingHorizontal: theme.spacing.md,
+    },
     closeButton: {
       position: "absolute",
-      top: spacing.lg,
+      top: spacing.md,
       right: spacing.md,
       zIndex: 15,
     },
@@ -174,12 +183,12 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       marginRight: spacing.sm,
     },
     keyboardAccessory: {
-      padding: themeObj.spacing.sm,
-      marginHorizontal: themeObj.spacing.md,
+      padding: theme.spacing.sm,
+      marginHorizontal: theme.spacing.md,
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
-      gap: themeObj.spacing.sm,
+      gap: theme.spacing.sm,
     },
   });
 };

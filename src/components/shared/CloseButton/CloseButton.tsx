@@ -1,7 +1,7 @@
 import React from "react";
 import { X } from "lucide-react-native";
 import { useTheme } from "@/theme";
-import { Button } from "../Button";
+import { Button } from "../ButtonDeprecated";
 import styles from "toastify-react-native/components/styles";
 
 interface CloseButtonProps {

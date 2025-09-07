@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback, useState } from "react";
 import { View, Text } from "react-native";
-import { User } from "lucide-react-native";
+import { ChevronLeft, User } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { SelectionCard } from "@/components/settings/SelectionCard";
@@ -8,7 +8,8 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
 import { UserSettings } from "@/types/models";
 import { useAppStore } from "@/store/useAppStore";
-import { CloseButton } from "@/components/shared/CloseButton";
+import { RoundButton } from "@/components/shared/RoundButton";
+import { X } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
@@ -16,8 +17,10 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
   const { userSettings, setUserSettings } = useAppStore();
   const { safeNavigate } = useNavigationGuard();
-  const { back } = useRouter();
-  const [selectedSex, setSelectedSex] = useState<UserSettings["sex"] | undefined>();
+  const { back, dismissTo } = useRouter();
+  const [selectedSex, setSelectedSex] = useState<
+    UserSettings["sex"] | undefined
+  >();
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -46,20 +49,30 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
   );
 
   const handleCancel = () => {
+    dismissTo("/");
+  };
+  const handleBack = () => {
     back();
   };
 
-
   return (
     <GradientWrapper style={styles.container}>
-      <View style={styles.closeButton}>
-        <CloseButton
+      <View style={styles.headerContainer}>
+        <RoundButton
+          onPress={handleBack}
+          Icon={ChevronLeft}
+          variant="tertiary"
+          accessibilityLabel="Go back"
+          accessibilityHint="Returns to previous screen"
+        />
+        <RoundButton
           onPress={handleCancel}
-          accessibilityLabel={"Go back"}
-          accessibilityHint={"Returns to previous screen"}
+          Icon={X}
+          variant="tertiary"
+          accessibilityLabel="Close setup"
+          accessibilityHint="Exits the setup and returns to the home screen"
         />
       </View>
-
       {/* Content */}
       <View style={styles.content}>
         <View style={styles.textSection}>
@@ -107,13 +120,14 @@ export default SexSelectionScreen;
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
 
-const createStyles = (colors: Colors, themeObj: Theme) => {
-  const { spacing, typography } = themeObj;
+const createStyles = (colors: Colors, theme: Theme) => {
+  const { spacing, typography } = theme;
 
   return StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
+      gap: theme.spacing.md,
     },
     centered: {
       justifyContent: "center",
@@ -124,11 +138,13 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
     },
-    closeButton: {
-      position: "absolute",
-      top: spacing.lg,
-      right: spacing.md,
-      zIndex: 15,
+    headerContainer: {
+      width: "100%",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-end",
+      paddingTop: theme.spacing.md,
+      paddingHorizontal: theme.spacing.md,
     },
     content: {
       flex: 1,
@@ -138,7 +154,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       gap: spacing.xxl,
     },
     textSection: {
-      paddingTop: spacing.xxl + spacing.md,
       gap: spacing.sm,
     },
     subtitle: {
@@ -170,7 +185,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     manualInputButton: {
       paddingVertical: spacing.md,
       paddingHorizontal: spacing.lg,
-      borderRadius: themeObj.components.buttons.cornerRadius,
+      borderRadius: theme.components.buttons.cornerRadius,
       borderWidth: 1,
       borderColor: colors.border,
       backgroundColor: colors.secondaryBackground,
@@ -188,7 +203,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       minHeight: spacing.xxl * 2, // Ensure minimum spacing
     },
     progressContainer: {
-      padding: themeObj.spacing.md,
+      padding: theme.spacing.md,
     },
   });
 };

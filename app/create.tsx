@@ -33,7 +33,8 @@ import { TranscriptionOverlay } from "@/components/shared/TranscriptionOverlay";
 import { TextInput } from "@/components/shared/TextInput";
 import { DatePicker } from "@/components/shared/DatePicker";
 import { formatDate } from "@/utils/formatDate";
-import { CloseButton } from "@/components/shared/CloseButton";
+import { RoundButton } from "@/components/shared/RoundButton";
+import { X } from "lucide-react-native";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -168,7 +169,12 @@ export default function Create() {
             }}
           >
             <DatePicker buttonVariant="tertiary" />
-            <CloseButton onPress={handleCancel} />
+            <RoundButton
+              onPress={handleCancel}
+              Icon={X}
+              variant="tertiary"
+              accessibilityLabel="Close create screen"
+            />
           </View>
         </View>
         <Toggle

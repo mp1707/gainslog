@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text } from "react-native";
-import { CloseButton } from "@/components/shared/CloseButton";
+import { RoundButton } from "@/components/shared/RoundButton";
+import { X } from "lucide-react-native";
 import { useStyles } from "./ModalHeader.styles";
 
 interface ModalHeaderProps {
@@ -20,9 +21,11 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({
 
   return (
     <View style={styles.header}>
-      <CloseButton
+      <RoundButton
         onPress={onClose}
-        accessibilityLabel={closeAccessibilityLabel}
+        Icon={X}
+        variant="tertiary"
+        accessibilityLabel={closeAccessibilityLabel || "Close"}
         accessibilityHint={closeAccessibilityHint}
         style={styles.invisibleCloseButton}
       />
@@ -31,9 +34,11 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({
       </View>
 
       <View style={styles.closeButtonContainer}>
-        <CloseButton
+        <RoundButton
           onPress={onClose}
-          accessibilityLabel={closeAccessibilityLabel}
+          Icon={X}
+          variant="tertiary"
+          accessibilityLabel={closeAccessibilityLabel || "Close"}
           accessibilityHint={closeAccessibilityHint}
         />
       </View>

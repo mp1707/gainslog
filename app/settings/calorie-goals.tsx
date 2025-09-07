@@ -5,13 +5,14 @@ import * as Haptics from "expo-haptics";
 import { TrendingDown, Equal, TrendingUp } from "lucide-react-native";
 import { useTheme } from "@/theme/ThemeProvider";
 import { SelectionCard } from "@/components/settings/SelectionCard";
-import { Button } from "@/components/shared/Button";
+import { Button } from "@/components/shared/ButtonDeprecated";
 import type { UserSettings } from "@/types/models";
 import { StyleSheet } from "react-native";
 import { useAppStore } from "@/store/useAppStore";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { useRouter } from "expo-router";
-import { CloseButton } from "@/components/shared/CloseButton";
+import { RoundButton } from "@/components/shared/RoundButton";
+import { X } from "lucide-react-native";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 export default function Step3GoalsScreen() {
@@ -21,7 +22,9 @@ export default function Step3GoalsScreen() {
     useAppStore();
   const { safeDismissTo, safeReplace } = useNavigationGuard();
   const { back, dismissAll } = useRouter();
-  const [selectedGoal, setSelectedGoal] = useState<UserSettings["calorieGoalType"] | undefined>();
+  const [selectedGoal, setSelectedGoal] = useState<
+    UserSettings["calorieGoalType"] | undefined
+  >();
 
   const handleCancel = () => {
     back();
@@ -66,12 +69,14 @@ export default function Step3GoalsScreen() {
 
   if (!calorieGoals) {
     return (
-      <GradientWrapper style={[styles.container, styles.centered]}>
+      <GradientWrapper style={styles.container}>
         <View style={styles.closeButton}>
-          <CloseButton
+          <RoundButton
             onPress={handleCancel}
-            accessibilityLabel={"Go back"}
-            accessibilityHint={"Returns to previous screen"}
+            Icon={X}
+            variant="tertiary"
+            accessibilityLabel="Go back"
+            accessibilityHint="Returns to previous screen"
           />
         </View>
         <Text style={styles.errorText}>
@@ -92,10 +97,12 @@ export default function Step3GoalsScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <GradientWrapper style={styles.container}>
         <View style={styles.closeButton}>
-          <CloseButton
+          <RoundButton
             onPress={handleCancel}
-            accessibilityLabel={"Go back"}
-            accessibilityHint={"Returns to previous screen"}
+            Icon={X}
+            variant="tertiary"
+            accessibilityLabel="Go back"
+            accessibilityHint="Returns to previous screen"
           />
         </View>
 
@@ -187,16 +194,14 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
+      justifyContent: "center",
+      alignItems: "center",
     },
     closeButton: {
       position: "absolute",
       top: spacing.lg,
       right: spacing.md,
       zIndex: 15,
-    },
-    centered: {
-      justifyContent: "center",
-      alignItems: "center",
     },
     errorText: {
       fontSize: typography.Body.fontSize,

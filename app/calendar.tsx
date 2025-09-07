@@ -2,8 +2,6 @@ import React, { useMemo, useCallback, useState, useRef } from "react";
 import { View, FlatList, Dimensions, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
-
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { Colors, Theme, useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { CalendarGrid } from "@/components/shared/DatePicker/components/CalendarGrid";
@@ -11,8 +9,9 @@ import {
   useOptimizedNutritionData,
   generateMonthKeys,
 } from "@/hooks/useOptimizedNutritionData";
-import { CloseButton } from "@/components/shared/CloseButton";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { RoundButton } from "@/components/shared/RoundButton";
+import { X } from "lucide-react-native";
 
 interface MonthData {
   year: number;
@@ -139,7 +138,12 @@ export default function Calendar() {
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.headerContainer}>
-        <CloseButton onPress={handleCancel} />
+        <RoundButton
+          onPress={handleCancel}
+          Icon={X}
+          variant="tertiary"
+          accessibilityLabel="Close calendar"
+        />
       </View>
       <View style={styles.calendarContainer}>
         <FlatList
@@ -168,6 +172,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
+      gap: theme.spacing.md,
     },
     calendarContainer: {
       flex: 1,

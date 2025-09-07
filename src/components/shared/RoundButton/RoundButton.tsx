@@ -1,11 +1,5 @@
 import React, { useCallback } from "react";
-import {
-  Pressable,
-  PressableProps,
-  Text,
-  View,
-  PixelRatio,
-} from "react-native";
+import { Pressable, PressableProps, PixelRatio } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -14,29 +8,24 @@ import Animated, {
 import * as Haptics from "expo-haptics";
 import { LucideIcon } from "lucide-react-native";
 import { useTheme } from "@/theme";
-import { createStyles } from "./Button.styles";
+import { createStyles } from "./RoundButton.styles";
 
-export type ButtonVariant = "primary" | "secondary" | "tertiary";
-export type IconPlacement = "left" | "right";
+export type RoundButtonVariant = "primary" | "secondary" | "tertiary";
 
-export interface ButtonProps extends Omit<PressableProps, "children"> {
-  label: string;
-  variant: ButtonVariant;
-  Icon?: LucideIcon;
-  iconPlacement?: IconPlacement;
+export interface RoundButtonProps extends Omit<PressableProps, "children"> {
+  Icon: LucideIcon;
+  variant: RoundButtonVariant;
   iconSize?: number;
   disabled?: boolean;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export const Button = React.memo<ButtonProps>(
+export const RoundButton = React.memo<RoundButtonProps>(
   ({
-    label,
-    variant,
     Icon,
-    iconPlacement = "left",
-    iconSize = 18,
+    variant,
+    iconSize = 22,
     disabled = false,
     onPress,
     onPressIn,
@@ -44,15 +33,19 @@ export const Button = React.memo<ButtonProps>(
     style,
     ...pressableProps
   }) => {
-    const { colors, theme, colorScheme } = useTheme();
-    const fontScale = PixelRatio.getFontScale();
-    const styles = createStyles(colors, theme, colorScheme, fontScale);
+    const { colors, colorScheme, theme } = useTheme();
+    const styles = createStyles(colors, theme, colorScheme);
 
     const scale = useSharedValue(1);
-    const adjustedIconSize = iconSize * fontScale;
+    const fontScale = PixelRatio.getFontScale();
 
-    // Get text color based on variant
-    const getTextColor = () => {
+    // Dynamic sizing based on icon size and font scaling
+    const adjustedIconSize = iconSize * fontScale;
+    const padding = Math.max(12 * fontScale, 12);
+    const containerSize = adjustedIconSize + padding * 2;
+
+    // Get icon color based on variant
+    const getIconColor = () => {
       if (disabled) return colors.disabledText;
 
       switch (variant) {
@@ -95,7 +88,7 @@ export const Button = React.memo<ButtonProps>(
     const handlePressIn = useCallback(
       (event: any) => {
         if (!disabled) {
-          scale.value = withSpring(0.98, {
+          scale.value = withSpring(0.95, {
             stiffness: 400,
             damping: 30,
           });
@@ -133,61 +126,23 @@ export const Button = React.memo<ButtonProps>(
       transform: [{ scale: scale.value }],
     }));
 
-    const renderIcon = () => {
-      if (!Icon) return null;
-
-      return (
-        <View
-          style={[
-            styles.iconContainer,
-            iconPlacement === "left" ? styles.iconLeft : styles.iconRight,
-          ]}
-        >
-          <Icon size={adjustedIconSize} color={getTextColor()} />
-        </View>
-      );
-    };
-
-    const renderContent = () => {
-      const iconElement = renderIcon();
-      const textElement = (
-        <Text
-          style={[
-            styles.label,
-            disabled
-              ? styles.labelDisabled
-              : variant === "primary"
-              ? styles.labelPrimary
-              : variant === "secondary"
-              ? styles.labelSecondary
-              : styles.labelTertiary,
-          ]}
-        >
-          {label}
-        </Text>
-      );
-
-      if (!Icon) return textElement;
-
-      return (
-        <>
-          {iconPlacement === "left" && iconElement}
-          {textElement}
-          {iconPlacement === "right" && iconElement}
-        </>
-      );
-    };
-
     return (
       <AnimatedPressable
-        style={[animatedStyle, style]}
+        style={[
+          styles.container,
+          {
+            width: containerSize,
+            height: containerSize,
+          },
+          animatedStyle,
+          style,
+        ]}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         onPress={handlePress}
         disabled={disabled}
         accessible={true}
         accessibilityRole="button"
-        accessibilityLabel={label}
         accessibilityState={{ disabled }}
         {...pressableProps}
       >
@@ -196,11 +151,17 @@ export const Button = React.memo<ButtonProps>(
             style={[
               styles.container,
               {
+                width: containerSize,
+                height: containerSize,
                 backgroundColor: getBackgroundColor(pressed),
               },
             ]}
           >
-            {renderContent()}
+            <Icon
+              size={adjustedIconSize}
+              color={getIconColor()}
+              strokeWidth={1.5}
+            />
           </Animated.View>
         )}
       </AnimatedPressable>

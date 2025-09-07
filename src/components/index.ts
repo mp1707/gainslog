@@ -6,7 +6,7 @@ export { SemanticBadge } from "./SemanticBadge";
 export { AppIcon } from "./AppIcon";
 
 // Re-export shared Button atom to centralize imports
-export { Button } from "@/components/shared/Button";
+export { Button } from "@/components/shared/ButtonDeprecated";
 
 // Export types
 export type { TypographyRole } from "./shared/AppText";

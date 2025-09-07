@@ -1,17 +1,14 @@
 import React, { ComponentProps, useCallback } from "react";
 import { CalendarDays } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
-
-import { Button } from "@/components/shared/Button";
-import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { RoundButton } from "../RoundButton";
 
 export const DatePicker = ({
   buttonVariant = "secondary",
 }: {
-  buttonVariant?: ComponentProps<typeof Button>["variant"];
+  buttonVariant?: ComponentProps<typeof RoundButton>["variant"];
 }) => {
-  const { colors } = useTheme();
   const { safePush } = useNavigationGuard();
 
   const handleCalendarPress = useCallback(() => {
@@ -20,12 +17,11 @@ export const DatePicker = ({
   }, [safePush]);
 
   return (
-    <Button
+    <RoundButton
       onPress={handleCalendarPress}
       variant={buttonVariant}
-      icon={<CalendarDays size={18} color={colors.secondaryText} />}
+      Icon={CalendarDays}
       accessibilityLabel="Open calendar"
-      grow={false}
     />
   );
 };

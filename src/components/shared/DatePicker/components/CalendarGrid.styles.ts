@@ -8,7 +8,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     },
     monthHeader: {
       alignItems: "center",
-      paddingVertical: theme.spacing.lg,
+      paddingBottom: theme.spacing.lg,
     },
     monthTitle: {
       color: colors.primaryText,
