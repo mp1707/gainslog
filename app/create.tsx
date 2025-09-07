@@ -25,7 +25,6 @@ import {
   KeyboardAwareScrollView,
   KeyboardStickyView,
 } from "react-native-keyboard-controller";
-import { Card } from "@/components/Card";
 import { AppText, Button } from "@/components/index";
 import { SearchBar } from "@/components/shared/SearchBar/SearchBar";
 import { TranscriptionOverlay } from "@/components/shared/TranscriptionOverlay";

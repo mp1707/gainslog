@@ -2,12 +2,13 @@ import { Stack } from "expo-router";
 import { ThemeProvider, useTheme } from "@/theme";
 import React, { useEffect } from "react";
 import { useFonts } from "../src/hooks/useFonts";
-import { View, Text, ActivityIndicator } from "react-native";
+import { View, Text, ActivityIndicator, Platform } from "react-native";
 import { theme } from "../src/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ThemedToastManager } from "@/components/shared/Toasts";
+import Purchases, { LOG_LEVEL } from "react-native-purchases";
 
 function ThemedStack() {
   const { colors } = useTheme();
@@ -63,6 +64,17 @@ function ThemedStack() {
           },
         }}
       />
+      <Stack.Screen
+        name="camera"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+          contentStyle: {
+            borderRadius: "10%",
+            overflow: "hidden",
+          },
+        }}
+      />
     </Stack>
   );
 }
@@ -79,7 +91,15 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, cleanupIncompleteEstimations]);
 
-  // No explicit load needed; zustand persist rehydrates
+  // useEffect(() => {
+  //   Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
+
+  //   if (Platform.OS === "ios") {
+  //     Purchases.configure({ apiKey: process.env.EXPO_PUBLIC_REVENUECAT_DEV_API_KEY });
+  //   } else if (Platform.OS === "android") {
+  //     // Purchases.configure({ apiKey: "<revenuecat_project_google_api_key>" });
+  //   }
+  // }, []);
 
   // Show loading screen while fonts are loading
   if (!fontsLoaded) {

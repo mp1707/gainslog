@@ -10,7 +10,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     : IS_PREVIEW
     ? "MacroLoop (Preview)"
     : "MacroLoop",
-  slug: "macroloop",
+  slug: "gainslog",
   version: "1.0.0",
   orientation: "portrait",
   icon: "./assets/icon.png",
@@ -29,10 +29,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       ITSAppUsesNonExemptEncryption: false,
     },
     bundleIdentifier: IS_DEV
-      ? "com.mp17.mpapps.macroloop.dev"
+      ? "com.mp17.mpapps.gainslog.dev"
       : IS_PREVIEW
-      ? "com.mp17.mpapps.macroloop.preview"
-      : "com.mp17.mpapps.macroloop",
+      ? "com.mp17.mpapps.gainslog.preview"
+      : "com.mp17.mpapps.gainslog",
   },
   android: {
     adaptiveIcon: {
@@ -49,22 +49,29 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "android.permission.MODIFY_AUDIO_SETTINGS",
     ],
     package: IS_DEV
-      ? "com.mp17.macroloop.dev"
+      ? "com.mp17.gainslog.dev"
       : IS_PREVIEW
-      ? "com.mp17.macroloop.preview"
-      : "com.mp17.macroloop",
+      ? "com.mp17.gainslog.preview"
+      : "com.mp17.gainslog",
   },
   web: {
     favicon: "./assets/favicon.png",
   },
   plugins: [
     [
-      "expo-image-picker",
+      "expo-camera",
       {
-        photosPermission:
-          "This app needs access to your photo library to select food images for logging.",
-        cameraPermission:
-          "This app needs access to your camera to take photos of food for logging.",
+        cameraPermission: "Allow MacroLoop to access your camera",
+        microphonePermission: "Allow MacroLoop to access your microphone",
+        recordAudioAndroid: true,
+      },
+    ],
+    [
+      "expo-media-library",
+      {
+        photosPermission: "Allow MacroLoop to access your photos.",
+        savePhotosPermission: "Allow MacroLoop to save photos.",
+        isAccessMediaLocationEnabled: true,
       },
     ],
     [

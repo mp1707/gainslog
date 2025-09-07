@@ -106,12 +106,17 @@ export default function SettingsTab() {
           keyboardShouldPersistTaps="handled"
         >
           <SettingsSection
+            title="Pro"
+            subtitle="Get Pro and start your journey today!"
+          >
+            <Button label="Get MacroLoop Pro" variant="primary" />
+          </SettingsSection>
+          <SettingsSection
             title="Appearance"
             subtitle="Customize the visual appearance of your app"
           >
             <AppearanceCard />
           </SettingsSection>
-
           <SettingsSection
             title="Nutrition Tracking"
             subtitle="Set up your daily targets"
@@ -305,7 +310,6 @@ export default function SettingsTab() {
               </TouchableOpacity>
             </Card>
           </SettingsSection>
-
           <SettingsSection
             title="Development Tools"
             subtitle="Tools for testing and development"
@@ -365,7 +369,7 @@ const createStyles = (
     },
     scrollContent: {
       paddingHorizontal: themeObj.spacing.pageMargins.horizontal,
-      paddingTop: spacing.xxl + spacing.md, 
+      paddingTop: spacing.xxl + spacing.md,
       paddingBottom: bottomPadding || spacing.xl,
     },
     resetButtonContainer: {

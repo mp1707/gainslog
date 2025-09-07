@@ -20,6 +20,7 @@ import { useTheme } from "@/theme";
 import { AppText } from "@/components/shared/AppText";
 import { createStyles } from "./DropZones.styles";
 import * as Haptics from "expo-haptics";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
 // --- New Prop for positioning (top/bottom item) ---
 interface DropZoneItemProps {
@@ -49,6 +50,7 @@ const DropZoneItem: React.FC<DropZoneItemProps> = ({
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme, colorScheme);
+  const { safeNavigate } = useNavigationGuard();
 
   const isActive = useSharedValue(false);
   const animatedRef = useAnimatedRef<View>();
@@ -92,6 +94,11 @@ const DropZoneItem: React.FC<DropZoneItemProps> = ({
     },
     []
   );
+
+  const handleActivate = () => {
+    onActivate();
+    safeNavigate("/camera");
+  };
 
   // --- Refined Animation for iOS-style hover ---
   const itemAnimatedStyle = useAnimatedStyle(() => {

@@ -1,5 +1,5 @@
 import { Alert } from "react-native";
-import * as ExpoImagePicker from "expo-image-picker";
+// import * as ExpoImagePicker from "expo-image-picker";
 import { uploadToSupabaseStorage } from "@/utils/uploadToSupabaseStorage";
 
 interface UseImageSelectionOptions {
@@ -22,59 +22,59 @@ export const useImageSelection = ({
   };
 
   const handleCameraPress = async () => {
-    try {
-      const permissionResult =
-        await ExpoImagePicker.requestCameraPermissionsAsync();
+    // try {
+    //   const permissionResult =
+    //     await ExpoImagePicker.requestCameraPermissionsAsync();
 
-      if (permissionResult.status !== "granted") {
-        Alert.alert(
-          "Permission Required",
-          "Camera access is required to take photos"
-        );
-        return;
-      }
+    //   if (permissionResult.status !== "granted") {
+    //     Alert.alert(
+    //       "Permission Required",
+    //       "Camera access is required to take photos"
+    //     );
+    //     return;
+    //   }
 
-      const result = await ExpoImagePicker.launchCameraAsync({
-        mediaTypes: ["images"],
-        allowsEditing: false,
-        quality: 1,
-      });
+    //   const result = await ExpoImagePicker.launchCameraAsync({
+    //     mediaTypes: ["images"],
+    //     allowsEditing: false,
+    //     quality: 1,
+    //   });
 
-      if (result.canceled) return;
+    //   if (result.canceled) return;
 
-      await processSelectedImage(result.assets[0].uri);
-    } catch (error) {
-      console.error("Error launching camera:", error);
-      Alert.alert("Error", "Failed to access camera");
-    }
+    //   await processSelectedImage(result.assets[0].uri);
+    // } catch (error) {
+    //   console.error("Error launching camera:", error);
+    //   Alert.alert("Error", "Failed to access camera");
+    // }
   };
 
   const handleLibraryPress = async () => {
-    try {
-      const permissionResult =
-        await ExpoImagePicker.requestMediaLibraryPermissionsAsync();
+    // try {  
+    //   const permissionResult =
+    //     await ExpoImagePicker.requestMediaLibraryPermissionsAsync();
 
-      if (permissionResult.status !== "granted") {
-        Alert.alert(
-          "Permission Required",
-          "Photo library access is required to select images"
-        );
-        return;
-      }
+    //   if (permissionResult.status !== "granted") {
+    //     Alert.alert(
+    //       "Permission Required",
+    //       "Photo library access is required to select images"
+    //     );
+    //     return;
+    //   }
 
-      const result = await ExpoImagePicker.launchImageLibraryAsync({
-        mediaTypes: ["images"],
-        allowsEditing: false,
-        quality: 1,
-      });
+    //   const result = await ExpoImagePicker.launchImageLibraryAsync({
+    //     mediaTypes: ["images"],
+    //     allowsEditing: false,
+    //     quality: 1,
+    //   });
 
-      if (result.canceled) return;
+    //   if (result.canceled) return;
 
-      await processSelectedImage(result.assets[0].uri);
-    } catch (error) {
-      console.error("Error launching image library:", error);
-      Alert.alert("Error", "Failed to access photo library");
-    }
+    //   await processSelectedImage(result.assets[0].uri);
+    // } catch (error) {
+    //   console.error("Error launching image library:", error);
+    //   Alert.alert("Error", "Failed to access photo library");
+    // }
   };
 
   const processSelectedImage = async (localUri: string) => {
