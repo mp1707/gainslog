@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -21,6 +21,8 @@ import { AppText } from "@/components/shared/AppText";
 import { createStyles } from "./DropZones.styles";
 import * as Haptics from "expo-haptics";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { usePermissions } from "expo-media-library";
+import { useCameraPermissions } from "expo-camera";
 
 // --- New Prop for positioning (top/bottom item) ---
 interface DropZoneItemProps {
@@ -50,7 +52,6 @@ const DropZoneItem: React.FC<DropZoneItemProps> = ({
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme, colorScheme);
-  const { safeNavigate } = useNavigationGuard();
 
   const isActive = useSharedValue(false);
   const animatedRef = useAnimatedRef<View>();
@@ -66,7 +67,7 @@ const DropZoneItem: React.FC<DropZoneItemProps> = ({
 
       // Check if gesture ended while active
       if (previous?.active && !current.active && isActive.value) {
-        // runOnJS(onActivate)();
+        runOnJS(onActivate)();
       }
 
       if (!current.active) {
@@ -94,11 +95,6 @@ const DropZoneItem: React.FC<DropZoneItemProps> = ({
     },
     []
   );
-
-  const handleActivate = () => {
-    onActivate();
-    safeNavigate("/camera");
-  };
 
   // --- Refined Animation for iOS-style hover ---
   const itemAnimatedStyle = useAnimatedStyle(() => {
@@ -158,6 +154,7 @@ export const DropZones: React.FC<DropZonesProps> = ({
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme, colorScheme);
+  const { safeNavigate } = useNavigationGuard();
 
   const animationProgress = useSharedValue(0);
 
@@ -185,6 +182,31 @@ export const DropZones: React.FC<DropZonesProps> = ({
     };
   });
 
+  const [medialibraryPermission, requestMediaLibraryPermission] =
+    usePermissions();
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+
+  async function handleCameraDrop() {
+    const allPermissions = await requestAllPermissions();
+    if (allPermissions) {
+      safeNavigate("/camera");
+    }
+  }
+
+  async function requestAllPermissions() {
+    const cameraStatus = await requestCameraPermission();
+    if (!cameraStatus.granted) {
+      Alert.alert("Error", "Camera permission is required.");
+      return false;
+    }
+    const libraryStatus = await requestCameraPermission();
+    if (!libraryStatus.granted) {
+      Alert.alert("Error", "Camera permission is required.");
+      return false;
+    }
+    return true;
+  }
+
   return (
     <Animated.View style={[styles.overlay, overlayAnimatedStyle]}>
       <BlurView
@@ -203,7 +225,7 @@ export const DropZones: React.FC<DropZonesProps> = ({
               isGestureActive={isGestureActive}
               gestureX={gestureX}
               gestureY={gestureY}
-              onActivate={onCameraActivate}
+              onActivate={handleCameraDrop}
               position="top"
             />
             <View style={styles.divider} />
