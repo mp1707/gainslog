@@ -1,11 +1,9 @@
-import React, { useState, useMemo, useRef, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
-  Platform,
 } from "react-native";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { ChevronRight } from "lucide-react-native";
@@ -16,8 +14,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
-import { RoundButton } from "@/components/shared/RoundButton";
-import { X } from "lucide-react-native";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { useRouter } from "expo-router";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
@@ -32,6 +29,7 @@ const AgeSelectionScreen = () => {
   const { userSettings, setUserSettings } = useAppStore();
   const { safeNavigate } = useNavigationGuard();
   const { back } = useRouter();
+  const router = useRouter();
   const [age, setAge] = useState<number | undefined>(userSettings?.age);
   const inputRef = useRef<TextInput>(null);
 
@@ -52,26 +50,16 @@ const AgeSelectionScreen = () => {
   };
 
   const handleCancel = () => {
-    back();
+    router.dismissTo("/");
   };
 
-  const handleSave = () => {
-    if (isValidAge(age)) {
-      handleContinue();
-    }
+  const handleBack = () => {
+    back();
   };
 
   return (
     <GradientWrapper style={styles.container}>
-      <View style={styles.closeButton}>
-        <RoundButton
-          onPress={handleCancel}
-          Icon={X}
-          variant="tertiary"
-          accessibilityLabel="Go back"
-          accessibilityHint="Returns to previous screen"
-        />
-      </View>
+      <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
 
       <View style={styles.content}>
         <View style={styles.textSection}>
@@ -126,18 +114,10 @@ export default AgeSelectionScreen;
 const createStyles = (colors: Colors, theme: Theme) => {
   const { spacing, typography, components } = theme;
   return StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.primaryBackground },
-    headerContainer: {
-      width: "100%",
-      alignItems: "flex-end",
-      paddingTop: theme.spacing.md,
-      paddingHorizontal: theme.spacing.md,
-    },
-    closeButton: {
-      position: "absolute",
-      top: spacing.md,
-      right: spacing.md,
-      zIndex: 15,
+    container: { 
+      flex: 1, 
+      backgroundColor: colors.primaryBackground,
+      gap: theme.spacing.md
     },
     progressContainer: { padding: spacing.md },
     content: {
@@ -145,7 +125,7 @@ const createStyles = (colors: Colors, theme: Theme) => {
       paddingHorizontal: spacing.pageMargins.horizontal,
       gap: spacing.xxl,
     },
-    textSection: { paddingTop: spacing.xxl + spacing.md, gap: spacing.sm },
+    textSection: { gap: spacing.sm },
     subtitle: {
       fontSize: typography.Title2.fontSize,
       fontFamily: typography.Title2.fontFamily,

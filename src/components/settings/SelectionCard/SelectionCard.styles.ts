@@ -10,8 +10,6 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
     card: {
       ...componentStyles.cards,
       borderRadius: componentStyles.cards.cornerRadius,
-      borderWidth: 2,
-      borderColor: colors.border,
       padding: spacing.lg,
     },
 

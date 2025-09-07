@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback, useState } from "react";
 import { View, Text } from "react-native";
-import { ChevronLeft, User } from "lucide-react-native";
+import { User } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { SelectionCard } from "@/components/settings/SelectionCard";
@@ -8,8 +8,7 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
 import { UserSettings } from "@/types/models";
 import { useAppStore } from "@/store/useAppStore";
-import { RoundButton } from "@/components/shared/RoundButton";
-import { X } from "lucide-react-native";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { useRouter } from "expo-router";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
@@ -57,22 +56,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
 
   return (
     <GradientWrapper style={styles.container}>
-      <View style={styles.headerContainer}>
-        <RoundButton
-          onPress={handleBack}
-          Icon={ChevronLeft}
-          variant="tertiary"
-          accessibilityLabel="Go back"
-          accessibilityHint="Returns to previous screen"
-        />
-        <RoundButton
-          onPress={handleCancel}
-          Icon={X}
-          variant="tertiary"
-          accessibilityLabel="Close setup"
-          accessibilityHint="Exits the setup and returns to the home screen"
-        />
-      </View>
+      <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
       {/* Content */}
       <View style={styles.content}>
         <View style={styles.textSection}>
@@ -137,14 +121,6 @@ const createStyles = (colors: Colors, theme: Theme) => {
       fontSize: typography.Body.fontSize,
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
-    },
-    headerContainer: {
-      width: "100%",
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "flex-end",
-      paddingTop: theme.spacing.md,
-      paddingHorizontal: theme.spacing.md,
     },
     content: {
       flex: 1,

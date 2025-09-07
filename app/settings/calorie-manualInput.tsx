@@ -15,8 +15,7 @@ import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
 import { useRouter } from "expo-router";
-import { RoundButton } from "@/components/shared/RoundButton";
-import { X } from "lucide-react-native";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const isValidCalories = (calories: number | undefined) =>
@@ -28,6 +27,7 @@ const ManualCalorieInputScreen = () => {
   const { dailyTargets, setDailyTargets } = useAppStore();
   const { safeDismissTo } = useNavigationGuard();
   const { back } = useRouter();
+  const router = useRouter();
 
   const [calories, setCalories] = useState<number | undefined>(
     dailyTargets?.calories
@@ -35,11 +35,11 @@ const ManualCalorieInputScreen = () => {
   const inputRef = useRef<TextInput>(null);
 
   const handleCancel = () => {
-    back();
+    router.dismissTo("/");
   };
 
-  const handleSaveFromHeader = () => {
-    handleSave();
+  const handleBack = () => {
+    back();
   };
 
   useEffect(() => {
@@ -88,15 +88,7 @@ const ManualCalorieInputScreen = () => {
 
   return (
     <GradientWrapper style={styles.container}>
-      <View style={styles.closeButton}>
-        <RoundButton
-          onPress={handleCancel}
-          Icon={X}
-          variant="tertiary"
-          accessibilityLabel="Go back"
-          accessibilityHint="Returns to previous screen"
-        />
-      </View>
+      <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
       
       <View style={styles.content}>
         <View style={styles.textSection}>
@@ -158,19 +150,17 @@ export default ManualCalorieInputScreen;
 const createStyles = (colors: any, themeObj: any) => {
   const { spacing, typography } = themeObj;
   return StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.primaryBackground },
-    closeButton: {
-      position: "absolute",
-      top: spacing.lg,
-      right: spacing.md,
-      zIndex: 15,
+    container: { 
+      flex: 1, 
+      backgroundColor: colors.primaryBackground,
+      gap: themeObj.spacing.md
     },
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
       gap: spacing.xxl,
     },
-    textSection: { paddingTop: spacing.xxl + spacing.md, gap: spacing.sm },
+    textSection: { gap: spacing.sm },
     subtitle: {
       fontSize: typography.Title2.fontSize,
       fontFamily: typography.Title2.fontFamily,

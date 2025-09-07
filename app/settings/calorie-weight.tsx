@@ -19,8 +19,7 @@ import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
 import { useRouter } from "expo-router";
-import { RoundButton } from "@/components/shared/RoundButton";
-import { X } from "lucide-react-native";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const inputAccessoryViewID = "weight-input-accessory";
@@ -38,15 +37,16 @@ const WeightSelectionScreen = () => {
   );
   const inputRef = useRef<TextInput>(null);
   const { back } = useRouter();
+  const router = useRouter();
 
   useDelayedAutofocus(inputRef);
 
   const handleCancel = () => {
-    back();
+    router.dismissTo("/");
   };
 
-  const handleSave = () => {
-    handleContinue();
+  const handleBack = () => {
+    back();
   };
 
   const handleWeightChange = (weightText: string) => {
@@ -74,15 +74,7 @@ const WeightSelectionScreen = () => {
 
   return (
     <GradientWrapper style={styles.container}>
-      <View style={styles.closeButton}>
-        <RoundButton
-          onPress={handleCancel}
-          Icon={X}
-          variant="tertiary"
-          accessibilityLabel="Go back"
-          accessibilityHint="Returns to previous screen"
-        />
-      </View>
+      <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
       
       <View style={styles.content}>
         <View style={styles.textSection}>
@@ -141,12 +133,10 @@ export default WeightSelectionScreen;
 const createStyles = (colors: any, themeObj: any) => {
   const { spacing, typography, components } = themeObj;
   return StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.primaryBackground },
-    closeButton: {
-      position: "absolute",
-      top: spacing.lg,
-      right: spacing.md,
-      zIndex: 15,
+    container: { 
+      flex: 1, 
+      backgroundColor: colors.primaryBackground,
+      gap: themeObj.spacing.md
     },
     content: {
       flex: 1,
@@ -154,7 +144,7 @@ const createStyles = (colors: any, themeObj: any) => {
       justifyContent: "flex-start",
       gap: spacing.xxl,
     },
-    textSection: { paddingTop: spacing.xxl + spacing.md, gap: spacing.sm },
+    textSection: { gap: spacing.sm },
     subtitle: {
       fontSize: typography.Title2.fontSize,
       fontFamily: typography.Title2.fontFamily,

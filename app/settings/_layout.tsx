@@ -138,6 +138,15 @@ export default function SettingsLayout() {
           headerShown: false,
         }}
       />
+
+      {/* Carb Calculator Routes */}
+      <Stack.Screen
+        name="carbs"
+        options={{
+          title: "",
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

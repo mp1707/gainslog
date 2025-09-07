@@ -11,8 +11,7 @@ import { StyleSheet } from "react-native";
 import { useAppStore } from "@/store/useAppStore";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { useRouter } from "expo-router";
-import { RoundButton } from "@/components/shared/RoundButton";
-import { X } from "lucide-react-native";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 export default function Step3GoalsScreen() {
@@ -22,11 +21,16 @@ export default function Step3GoalsScreen() {
     useAppStore();
   const { safeDismissTo, safeReplace } = useNavigationGuard();
   const { back, dismissAll } = useRouter();
+  const router = useRouter();
   const [selectedGoal, setSelectedGoal] = useState<
     UserSettings["calorieGoalType"] | undefined
   >();
 
   const handleCancel = () => {
+    router.dismissTo("/");
+  };
+
+  const handleBack = () => {
     back();
   };
 
@@ -70,15 +74,7 @@ export default function Step3GoalsScreen() {
   if (!calorieGoals) {
     return (
       <GradientWrapper style={styles.container}>
-        <View style={styles.closeButton}>
-          <RoundButton
-            onPress={handleCancel}
-            Icon={X}
-            variant="tertiary"
-            accessibilityLabel="Go back"
-            accessibilityHint="Returns to previous screen"
-          />
-        </View>
+        <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
         <Text style={styles.errorText}>
           Missing calculation data. Please start over.
         </Text>
@@ -96,15 +92,7 @@ export default function Step3GoalsScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <GradientWrapper style={styles.container}>
-        <View style={styles.closeButton}>
-          <RoundButton
-            onPress={handleCancel}
-            Icon={X}
-            variant="tertiary"
-            accessibilityLabel="Go back"
-            accessibilityHint="Returns to previous screen"
-          />
-        </View>
+        <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
 
         {/* Content */}
         <ScrollView
@@ -194,14 +182,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    closeButton: {
-      position: "absolute",
-      top: spacing.lg,
-      right: spacing.md,
-      zIndex: 15,
+      gap: themeObj.spacing.md,
     },
     errorText: {
       fontSize: typography.Body.fontSize,
@@ -218,7 +199,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     scrollContent: {
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.xxl + spacing.md,
       paddingBottom: 100,
     },
     textSection: {

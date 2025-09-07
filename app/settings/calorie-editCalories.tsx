@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback, useState } from "react";
 import { View, Text } from "react-native";
-import { Edit, Calculator } from "lucide-react-native";
+import { Edit, Calculator, ChevronLeft } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 
 import { useTheme } from "@/theme";
@@ -9,9 +9,8 @@ import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { RoundButton } from "@/components/shared/RoundButton";
-import { X } from "lucide-react-native";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 
 const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
   const { colors, theme: themeObj } = useTheme();
@@ -19,36 +18,35 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
   const { dailyTargets } = useAppStore();
   const { safeReplace } = useNavigationGuard();
   const { back } = useRouter();
+  const router = useRouter();
   const currentCalories = dailyTargets?.calories || 0;
-  const [selectedOption, setSelectedOption] = useState<'edit' | 'fresh' | undefined>();
+  const [selectedOption, setSelectedOption] = useState<
+    "edit" | "fresh" | undefined
+  >();
   const handleCancel = () => {
+    router.dismissTo("/");
+  };
+
+  const handleBack = () => {
     back();
   };
 
   const handleEditCurrent = useCallback(async () => {
-    setSelectedOption('edit');
+    setSelectedOption("edit");
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     safeReplace("/settings/calorie-manualInput");
   }, [safeReplace]);
 
   const handleStartFresh = useCallback(async () => {
-    setSelectedOption('fresh');
+    setSelectedOption("fresh");
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     safeReplace("/settings/calorie-sex");
   }, [safeReplace]);
 
   return (
     <GradientWrapper style={styles.container}>
-      <View style={styles.closeButton}>
-        <RoundButton
-          onPress={handleCancel}
-          Icon={X}
-          variant="tertiary"
-          accessibilityLabel="Go back"
-          accessibilityHint="Returns to previous screen"
-        />
-      </View>
-      
+      <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
+
       {/* Content */}
       <View style={styles.content}>
         <View style={styles.textSection}>
@@ -66,7 +64,7 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
               description="Manually adjust your current calorie target"
               icon={Edit}
               iconColor={colors.semantic.protein}
-              isSelected={selectedOption === 'edit'}
+              isSelected={selectedOption === "edit"}
               onSelect={handleEditCurrent}
               accessibilityLabel="Edit current calorie value manually"
               accessibilityHint="Opens manual input screen with your current calorie value pre-filled"
@@ -77,7 +75,7 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
               description="Recalculate your calories from the beginning"
               icon={Calculator}
               iconColor={colors.accent}
-              isSelected={selectedOption === 'fresh'}
+              isSelected={selectedOption === "fresh"}
               onSelect={handleStartFresh}
               accessibilityLabel="Start fresh calorie calculation"
               accessibilityHint="Begins the full calorie calculation process from sex selection"
@@ -104,12 +102,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
-    },
-    closeButton: {
-      position: "absolute",
-      top: spacing.lg,
-      right: spacing.md,
-      zIndex: 15,
+      gap: themeObj.spacing.md,
     },
     content: {
       flex: 1,
@@ -119,7 +112,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       gap: spacing.xxl,
     },
     textSection: {
-      paddingTop: spacing.xxl + spacing.md,
       gap: spacing.sm,
     },
     subtitle: {

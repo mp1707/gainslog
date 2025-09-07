@@ -11,8 +11,7 @@ import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
 import { useRouter } from "expo-router";
-import { RoundButton } from "@/components/shared/RoundButton";
-import { X } from "lucide-react-native";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const ManualProteinInputScreen = () => {
@@ -21,6 +20,7 @@ const ManualProteinInputScreen = () => {
   const { dailyTargets, setDailyTargets } = useAppStore();
   const { safeDismissTo } = useNavigationGuard();
   const { back } = useRouter();
+  const router = useRouter();
   const [protein, setProtein] = useState<number | undefined>(
     dailyTargets?.protein || 0
   );
@@ -29,11 +29,11 @@ const ManualProteinInputScreen = () => {
   useDelayedAutofocus(inputRef);
 
   const handleCancel = () => {
-    back();
+    router.dismissTo("/");
   };
 
-  const handleSaveFromHeader = () => {
-    handleSave();
+  const handleBack = () => {
+    back();
   };
 
   const handleProteinChange = (proteinText: string) => {
@@ -58,15 +58,7 @@ const ManualProteinInputScreen = () => {
 
   return (
     <GradientWrapper style={styles.container}>
-      <View style={styles.closeButton}>
-        <RoundButton
-          onPress={handleCancel}
-          Icon={X}
-          variant="tertiary"
-          accessibilityLabel="Go back"
-          accessibilityHint="Returns to previous screen"
-        />
-      </View>
+      <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
       
       <View style={styles.content}>
         <View style={styles.textSection}>

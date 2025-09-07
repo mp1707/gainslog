@@ -8,8 +8,7 @@ import {
 } from "@/utils/nutritionCalculations";
 import type { ColorScheme, Theme } from "@/theme";
 import { useRouter } from "expo-router";
-import { RoundButton } from "@/components/shared/RoundButton";
-import { X } from "lucide-react-native";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const CarbsScreen = React.memo(function CarbsScreen() {
@@ -17,15 +16,15 @@ const CarbsScreen = React.memo(function CarbsScreen() {
   const styles = createStyles(colors, themeObj, colorScheme);
   const { dailyTargets, userSettings } = useAppStore();
   const { back } = useRouter();
+  const router = useRouter();
   const fatPercentage = userSettings?.fatCalculationPercentage || 0;
   const carbsEnabled = dailyTargets?.protein && dailyTargets?.fat;
 
   const handleCancel = () => {
-    back();
+    router.dismissTo("/");
   };
 
-  const handleSave = () => {
-    // Carbs are automatically calculated, so just go back
+  const handleBack = () => {
     back();
   };
 
@@ -59,16 +58,8 @@ const CarbsScreen = React.memo(function CarbsScreen() {
 
   return (
     <GradientWrapper style={styles.container}>
-      <View style={styles.closeButton}>
-        <RoundButton
-          onPress={handleCancel}
-          Icon={X}
-          variant="tertiary"
-          accessibilityLabel="Go back"
-          accessibilityHint="Returns to previous screen"
-        />
-      </View>
-      
+      <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Carbohydrate Target</Text>
@@ -138,12 +129,7 @@ const createStyles = (
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
-    },
-    closeButton: {
-      position: "absolute",
-      top: spacing.lg,
-      right: spacing.md,
-      zIndex: 15,
+      gap: themeObj.spacing.md,
     },
     centered: {
       justifyContent: "center",
@@ -155,7 +141,7 @@ const createStyles = (
       gap: spacing.md,
     },
     textSection: {
-      paddingTop: spacing.xxl + spacing.md,
+      gap: spacing.sm,
     },
     subtitle: {
       fontSize: typography.Title2.fontSize,
@@ -183,8 +169,6 @@ const createStyles = (
     infoCard: {
       ...componentStyles.cards,
       borderRadius: componentStyles.cards.cornerRadius,
-      borderWidth: 2,
-      borderColor: colors.border,
       padding: spacing.lg,
     },
     cardHeader: {

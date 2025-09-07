@@ -1,47 +1,38 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { RoundButton } from "@/components/shared/RoundButton";
-import { X } from "lucide-react-native";
-import { useStyles } from "./ModalHeader.styles";
+import { ChevronLeft, X } from "lucide-react-native";
+import { createStyles } from "./ModalHeader.styles";
+import { useTheme } from "@/theme/ThemeProvider";
 
 interface ModalHeaderProps {
-  title?: string;
-  onClose: () => void;
-  closeAccessibilityLabel?: string;
-  closeAccessibilityHint?: string;
+  handleBack: () => void;
+  handleCancel: () => void;
 }
 
 export const ModalHeader: React.FC<ModalHeaderProps> = ({
-  title,
-  onClose,
-  closeAccessibilityLabel,
-  closeAccessibilityHint,
+  handleBack,
+  handleCancel,
 }) => {
-  const styles = useStyles();
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
 
   return (
-    <View style={styles.header}>
+    <View style={styles.container}>
       <RoundButton
-        onPress={onClose}
+        onPress={handleBack}
+        Icon={ChevronLeft}
+        variant="tertiary"
+        accessibilityLabel="Go back"
+        accessibilityHint="Returns to previous screen"
+      />
+      <RoundButton
+        onPress={handleCancel}
         Icon={X}
         variant="tertiary"
-        accessibilityLabel={closeAccessibilityLabel || "Close"}
-        accessibilityHint={closeAccessibilityHint}
-        style={styles.invisibleCloseButton}
+        accessibilityLabel="Close setup"
+        accessibilityHint="Exits the setup and returns to the home screen"
       />
-      <View style={styles.centerContainer}>
-        {title && <Text style={styles.title}>{title}</Text>}
-      </View>
-
-      <View style={styles.closeButtonContainer}>
-        <RoundButton
-          onPress={onClose}
-          Icon={X}
-          variant="tertiary"
-          accessibilityLabel={closeAccessibilityLabel || "Close"}
-          accessibilityHint={closeAccessibilityHint}
-        />
-      </View>
     </View>
   );
 };

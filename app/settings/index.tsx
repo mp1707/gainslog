@@ -16,7 +16,6 @@ import { Card, AppText, Button } from "src/components";
 import { ChevronRight } from "lucide-react-native";
 import { AppearanceCard } from "@/components/settings/AppearanceCard";
 import { SettingsSection } from "@/components/settings/SettingsSection";
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { useRouter } from "expo-router";
 import { seedFoodLogs } from "@/utils/seed";
 import { RoundButton } from "@/components/shared/RoundButton";
@@ -74,7 +73,6 @@ export default function SettingsTab() {
   if (isLoadingTargets) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <ModalHeader onClose={handleClose} />
         <AppText role="Body" color="secondary">
           Loading settings...
         </AppText>
@@ -92,7 +90,6 @@ export default function SettingsTab() {
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <GradientWrapper style={styles.container}>
-        {/* <ModalHeader title="Settings" onClose={handleClose} /> */}
         <View style={styles.closeButton}>
           <RoundButton
             onPress={handleClose}

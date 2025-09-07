@@ -20,8 +20,7 @@ import {
   calculateFatGramsFromPercentage,
 } from "@/utils/nutritionCalculations";
 import { useRouter } from "expo-router";
-import { RoundButton } from "@/components/shared/RoundButton";
-import { X } from "lucide-react-native";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const METHODS: Record<
@@ -86,8 +85,13 @@ export default function ProteinGoalsScreen() {
     useAppStore();
   const { safeDismissTo } = useNavigationGuard();
   const { back } = useRouter();
+  const router = useRouter();
   const weight = userSettings?.weight || 0;
   const handleCancel = () => {
+    router.dismissTo("/");
+  };
+
+  const handleBack = () => {
     back();
   };
   const [selectedMethodId, setSelectedMethodId] = React.useState<
@@ -139,15 +143,7 @@ export default function ProteinGoalsScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <GradientWrapper style={styles.container}>
-        <View style={styles.closeButton}>
-          <RoundButton
-            onPress={handleCancel}
-            Icon={X}
-            variant="tertiary"
-            accessibilityLabel="Go back"
-            accessibilityHint="Returns to previous screen"
-          />
-        </View>
+        <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
 
         {/* Content */}
         <ScrollView
@@ -216,12 +212,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
-    },
-    closeButton: {
-      position: "absolute",
-      top: spacing.lg,
-      right: spacing.md,
-      zIndex: 15,
+      gap: themeObj.spacing.md,
     },
     centered: {
       justifyContent: "center",
@@ -242,7 +233,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     scrollContent: {
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.xxl + spacing.md,
       paddingBottom: 100,
     },
     textSection: {

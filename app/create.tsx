@@ -1,4 +1,3 @@
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { Toggle } from "@/components/shared/Toggle";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { useAppStore } from "@/store/useAppStore";
@@ -245,46 +244,28 @@ export default function Create() {
 
       {estimationType === "ai" && (
         <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
-          <Card style={styles.keyboardAccessory}>
-            <View style={styles.buttonWrapperLeft}>
-              <Button
-                variant="secondary"
+          <View style={styles.keyboardAccessory}>
+            <View style={styles.mediaActionContainer}>
+              <RoundButton
+                variant="tertiary"
                 onPress={showImagePickerAlert}
-                icon={
-                  <Camera
-                    size={20}
-                    color={colors.primaryText}
-                    strokeWidth={1.5}
-                  />
-                }
+                Icon={Camera}
               />
-            </View>
-            <View style={styles.buttonWrapperCenter}>
-              <Button
-                variant="secondary"
+              <RoundButton
+                variant="tertiary"
                 onPress={startRecording}
-                icon={
-                  <Mic size={20} color={colors.primaryText} strokeWidth={1.5} />
-                }
+                Icon={Mic}
               />
             </View>
-            <View style={styles.buttonWrapperRight}>
-              <Button
-                variant="primary"
-                onPress={handleEstimation}
-                disabled={!canContine}
-                icon={
-                  <Sparkles
-                    size={20}
-                    color={canContine ? colors.black : colors.disabledText}
-                    strokeWidth={1.5}
-                  />
-                }
-              >
-                {estimateLabel}
-              </Button>
-            </View>
-          </Card>
+
+            <Button
+              variant="primary"
+              label={estimateLabel}
+              onPress={handleEstimation}
+              disabled={!canContine}
+              Icon={Sparkles}
+            />
+          </View>
         </KeyboardStickyView>
       )}
 
@@ -313,7 +294,7 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      gap: theme.spacing.md,
+      paddingLeft: theme.spacing.sm,
     },
     toggleContainer: {
       marginHorizontal: theme.spacing.md,
@@ -342,9 +323,9 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
       gap: theme.spacing.md,
     },
     keyboardAccessory: {
-      marginHorizontal: theme.spacing.md,
+      marginHorizontal: theme.spacing.sm,
       flexDirection: "row",
-      justifyContent: "center",
+      justifyContent: "space-between",
       alignItems: "center",
       gap: theme.spacing.sm,
       borderRadius: 16,
@@ -352,13 +333,9 @@ const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
       overflow: "hidden",
       zIndex: 99,
     },
-    buttonWrapperLeft: {
-      flex: 1,
-    },
-    buttonWrapperCenter: {
-      flex: 1,
-    },
-    buttonWrapperRight: {
-      flex: 2,
+    mediaActionContainer: {
+      flexDirection: "row",
+      gap: theme.spacing.sm,
+      justifyContent: "flex-end",
     },
   });

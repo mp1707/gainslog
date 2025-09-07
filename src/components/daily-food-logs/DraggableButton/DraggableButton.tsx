@@ -13,7 +13,7 @@ import { Plus } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { createStyles } from "./DraggableButton.styles";
-import { BlurView } from "expo-blur";
+import { RoundButton } from "@/components/shared/RoundButton";
 
 interface DraggableButtonProps {
   onPress: () => void;
@@ -38,7 +38,6 @@ export const DraggableButton: React.FC<DraggableButtonProps> = ({
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const scale = useSharedValue(1);
-
 
   const panGesture = Gesture.Pan()
     .onStart(() => {
@@ -94,11 +93,7 @@ export const DraggableButton: React.FC<DraggableButtonProps> = ({
     <GestureDetector gesture={composedGesture}>
       <View style={styles.container}>
         <Animated.View style={animatedStyle}>
-          <BlurView intensity={10} style={styles.background}>
-            <View style={styles.button}>
-              <Plus color={colors.primaryBackground} strokeWidth={2.5} />
-            </View>
-          </BlurView>
+          <RoundButton Icon={Plus} iconSize={36} variant={"primary"} />
         </Animated.View>
       </View>
     </GestureDetector>

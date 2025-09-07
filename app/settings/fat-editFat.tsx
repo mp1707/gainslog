@@ -1,10 +1,6 @@
 import React, { useMemo, useCallback, useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import {
-  Flame,
-  Zap,
-  Edit2,
-} from "lucide-react-native";
+import { Flame, Zap, Edit2 } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
@@ -16,8 +12,7 @@ import {
 } from "@/utils/nutritionCalculations";
 import type { ColorScheme, Theme } from "@/theme";
 import { useRouter } from "expo-router";
-import { RoundButton } from "@/components/shared/RoundButton";
-import { X } from "lucide-react-native";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 // GuidelineRow Component: No changes needed here, as it inherits styles from the parent.
@@ -54,8 +49,13 @@ const EditFatScreen = React.memo(function EditFatScreen() {
   const { dailyTargets, userSettings } = useAppStore();
   const { safeReplace } = useNavigationGuard();
   const { back } = useRouter();
-  const [selectedOption, setSelectedOption] = useState<'edit' | undefined>();
+  const router = useRouter();
+  const [selectedOption, setSelectedOption] = useState<"edit" | undefined>();
   const handleCancel = () => {
+    router.dismissTo("/");
+  };
+
+  const handleBack = () => {
     back();
   };
 
@@ -70,23 +70,14 @@ const EditFatScreen = React.memo(function EditFatScreen() {
   );
 
   const handleEditCurrent = useCallback(async () => {
-    setSelectedOption('edit');
+    setSelectedOption("edit");
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     safeReplace("/settings/fat-manualInput");
   }, [safeReplace]);
 
   return (
     <GradientWrapper style={styles.container}>
-      <View style={styles.closeButton}>
-        <RoundButton
-          onPress={handleCancel}
-          Icon={X}
-          variant="tertiary"
-          accessibilityLabel="Go back"
-          accessibilityHint="Returns to previous screen"
-        />
-      </View>
-      
+      <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Fat Target</Text>
@@ -101,7 +92,7 @@ const EditFatScreen = React.memo(function EditFatScreen() {
           description="Manually adjust your fat target"
           icon={Edit2}
           iconColor={colors.accent}
-          isSelected={selectedOption === 'edit'}
+          isSelected={selectedOption === "edit"}
           onSelect={handleEditCurrent}
           accessibilityLabel="Edit current fat value manually"
           accessibilityHint="Opens a screen to manually input your fat percentage"
@@ -159,21 +150,14 @@ const createStyles = (
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
-    },
-    closeButton: {
-      position: "absolute",
-      top: spacing.lg,
-      right: spacing.md,
-      zIndex: 15,
+      gap: themeObj.spacing.md,
     },
     scrollContent: {
       paddingHorizontal: spacing.pageMargins.horizontal,
       paddingBottom: spacing.xxl, // Ensures space at the bottom for better scrolling
       gap: spacing.md,
     },
-    textSection: {
-      paddingTop: spacing.xxl + spacing.md,
-    },
+    textSection: {},
     subtitle: {
       fontSize: typography.Title2.fontSize,
       fontFamily: typography.Title2.fontFamily,
@@ -192,8 +176,6 @@ const createStyles = (
     infoCard: {
       ...componentStyles.cards,
       borderRadius: componentStyles.cards.cornerRadius,
-      borderWidth: 2,
-      borderColor: colors.border,
       padding: spacing.lg,
     },
     cardHeader: {

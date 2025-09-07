@@ -8,8 +8,7 @@ import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { RoundButton } from "@/components/shared/RoundButton";
-import { X } from "lucide-react-native";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const EditProteinScreen = React.memo(function EditProteinScreen() {
@@ -18,36 +17,35 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
   const { dailyTargets } = useAppStore();
   const { safeReplace } = useNavigationGuard();
   const { back } = useRouter();
+  const router = useRouter();
   const proteinTarget = dailyTargets?.protein || 0;
-  const [selectedOption, setSelectedOption] = useState<'edit' | 'fresh' | undefined>();
+  const [selectedOption, setSelectedOption] = useState<
+    "edit" | "fresh" | undefined
+  >();
   const handleCancel = () => {
+    router.dismissTo("/");
+  };
+
+  const handleBack = () => {
     back();
   };
 
   const handleEditCurrent = useCallback(async () => {
-    setSelectedOption('edit');
+    setSelectedOption("edit");
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     safeReplace("/settings/protein-manualInput");
   }, [safeReplace]);
 
   const handleStartFresh = useCallback(async () => {
-    setSelectedOption('fresh');
+    setSelectedOption("fresh");
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     safeReplace("/settings/protein-weight");
   }, [safeReplace]);
 
   return (
     <GradientWrapper style={styles.container}>
-      <View style={styles.closeButton}>
-        <RoundButton
-          onPress={handleCancel}
-          Icon={X}
-          variant="tertiary"
-          accessibilityLabel="Go back"
-          accessibilityHint="Returns to previous screen"
-        />
-      </View>
-      
+      <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
+
       {/* Content */}
       <View style={styles.content}>
         <View style={styles.textSection}>
@@ -65,7 +63,7 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
               description="Manually adjust your current protein target"
               icon={Edit}
               iconColor={colors.semantic.protein}
-              isSelected={selectedOption === 'edit'}
+              isSelected={selectedOption === "edit"}
               onSelect={handleEditCurrent}
               accessibilityLabel="Edit current protein value manually"
               accessibilityHint="Opens manual input screen with your current protein value pre-filled"
@@ -76,7 +74,7 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
               description="Recalculate your protein from the beginning"
               icon={Calculator}
               iconColor={colors.accent}
-              isSelected={selectedOption === 'fresh'}
+              isSelected={selectedOption === "fresh"}
               onSelect={handleStartFresh}
               accessibilityLabel="Start fresh protein calculation"
               accessibilityHint="Begins the full protein calculation process from weight input"
@@ -96,19 +94,13 @@ export default EditProteinScreen;
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
 
-const createStyles = (colors: Colors, themeObj: Theme) => {
-  const { spacing, typography } = themeObj;
+const createStyles = (colors: Colors, theme: Theme) => {
+  const { spacing, typography } = theme;
 
   return StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
-    },
-    closeButton: {
-      position: "absolute",
-      top: spacing.lg,
-      right: spacing.md,
-      zIndex: 15,
     },
     content: {
       flex: 1,
