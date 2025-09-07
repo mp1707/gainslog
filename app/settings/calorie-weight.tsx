@@ -16,7 +16,6 @@ import { useAppStore } from "@/store/useAppStore";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
-import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
 import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
@@ -31,7 +30,7 @@ const WeightSelectionScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { userSettings, setUserSettings } = useAppStore();
-  const { safeNavigate, isNavigating } = useNavigationGuard();
+  const { safeNavigate } = useNavigationGuard();
   const [weight, setWeight] = useState<number | undefined>(
     userSettings?.weight
   );
@@ -104,25 +103,16 @@ const WeightSelectionScreen = () => {
         <View style={styles.spacer} />
       </View>
       <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
-        <Card style={styles.keyboardAccessory}>
+        <View style={styles.keyboardAccessory}>
           <Button
             variant="primary"
+            label="Continue"
+            Icon={ChevronRight}
+            iconPlacement="right"
             onPress={handleContinue}
-            iconPosition="right"
             disabled={!isValidWeight(weight)}
-            icon={
-              <ChevronRight
-                size={20}
-                color={
-                  isValidWeight(weight) ? colors.black : colors.disabledText
-                }
-                strokeWidth={1.5}
-              />
-            }
-          >
-            Continue
-          </Button>
-        </Card>
+          />
+        </View>
       </KeyboardStickyView>
     </GradientWrapper>
   );
@@ -199,12 +189,9 @@ const createStyles = (colors: any, themeObj: any) => {
       backgroundColor: "transparent",
     },
     keyboardAccessory: {
-      padding: themeObj.spacing.sm,
-      marginHorizontal: themeObj.spacing.md,
+      marginHorizontal: themeObj.spacing.sm,
       flexDirection: "row",
-      justifyContent: "center",
-      alignItems: "center",
-      gap: themeObj.spacing.sm,
+      justifyContent: "flex-end",
     },
   });
 };

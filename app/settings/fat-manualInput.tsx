@@ -18,7 +18,6 @@ import {
   calculateMaxFatPercentage,
 } from "@/utils/nutritionCalculations";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
-import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
 import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
@@ -113,23 +112,16 @@ const ManualFatInputScreen = () => {
       </View>
 
       <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
-        <Card style={styles.keyboardAccessory}>
+        <View style={styles.keyboardAccessory}>
           <Button
             variant="primary"
+            label="Save Goal"
+            Icon={ChevronRight}
+            iconPlacement="right"
             onPress={handleSave}
-            iconPosition="right"
             disabled={!fatPercent}
-            icon={
-              <ChevronRight
-                size={20}
-                color={!fatPercent ? colors.disabledText : colors.black}
-                strokeWidth={2.5}
-              />
-            }
-          >
-            Save Goal
-          </Button>
-        </Card>
+          />
+        </View>
       </KeyboardStickyView>
     </GradientWrapper>
   );
@@ -192,12 +184,9 @@ const createStyles = (colors: any, themeObj: any) => {
       minWidth: 100,
     },
     keyboardAccessory: {
-      padding: themeObj.spacing.sm,
-      marginHorizontal: themeObj.spacing.md,
+      marginHorizontal: themeObj.spacing.sm,
       flexDirection: "row",
-      justifyContent: "center",
-      alignItems: "center",
-      gap: themeObj.spacing.sm,
+      justifyContent: "flex-end",
     },
   });
 };

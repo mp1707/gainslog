@@ -5,7 +5,7 @@ import * as Haptics from "expo-haptics";
 import { TrendingDown, Equal, TrendingUp } from "lucide-react-native";
 import { useTheme } from "@/theme/ThemeProvider";
 import { SelectionCard } from "@/components/settings/SelectionCard";
-import { Button } from "@/components/shared/ButtonDeprecated";
+import { Button } from "@/components/shared/Button";
 import type { UserSettings } from "@/types/models";
 import { StyleSheet } from "react-native";
 import { useAppStore } from "@/store/useAppStore";
@@ -79,12 +79,12 @@ export default function Step3GoalsScreen() {
           Missing calculation data. Please start over.
         </Text>
         <Button
+          variant="primary"
+          label="Go Back"
           onPress={() => safeReplace("/settings")}
           disabled={false}
           style={styles.backButton}
-        >
-          Go Back
-        </Button>
+        />
       </GradientWrapper>
     );
   }

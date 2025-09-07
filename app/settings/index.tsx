@@ -313,29 +313,19 @@ export default function SettingsTab() {
             <Card>
               <View style={styles.seedButtonContainer}>
                 <Button
-                  onPress={handleSeedData}
+                  label="Seed Test Data"
                   variant="secondary"
-                  size="medium"
-                  accessibilityLabel="Seed test data"
-                  accessibilityHint="Populates the app with test food logs for the last 120 days"
+                  onPress={handleSeedData}
                   style={styles.seedButton}
-                >
-                  <AppText role="Button">Seed Test Data</AppText>
-                </Button>
+                />
               </View>
               <View style={styles.seedButtonContainer}>
                 <Button
+                  label="Clear All Food Logs"
+                  variant="secondary"
                   onPress={handleClearAllLogs}
-                  variant="destructive"
-                  size="medium"
-                  accessibilityLabel="Clear all food logs"
-                  accessibilityHint="Removes all food logs from the app database"
                   style={styles.seedButton}
-                >
-                  <AppText role="Button" color="white">
-                    Clear All Food Logs
-                  </AppText>
-                </Button>
+                />
               </View>
             </Card>
           </SettingsSection>

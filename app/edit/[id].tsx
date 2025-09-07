@@ -9,7 +9,7 @@ import { Keyboard, StyleSheet, View } from "react-native";
 import { FoodLog } from "@/types/models";
 import { useState } from "react";
 import { NutritionEditCard } from "@/components/edit-page/NutritionEditCard";
-import { Camera, Sparkles } from "lucide-react-native";
+import { Camera, Sparkles, X } from "lucide-react-native";
 import { useEstimation } from "@/hooks/useEstimation";
 import { ConfidenceBadge, SkeletonPill } from "@/components/shared";
 import {
@@ -19,6 +19,7 @@ import {
 import { useImageSelection } from "@/hooks/useImageSelection";
 import { TextInput } from "@/components/shared/TextInput";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { RoundButton } from "@/components/shared/RoundButton";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -82,9 +83,18 @@ export default function Edit() {
     Keyboard.dismiss();
   };
 
+  const estimateLabel = isReEstimating ? "estimating" : "Re-estimate";
+
   return (
     <GradientWrapper style={styles.container}>
-      <ModalHeader onClose={handleCancel} />
+      <View style={styles.closeButton}>
+        <RoundButton
+          Icon={X}
+          onPress={handleCancel}
+          variant={"tertiary"}
+          accessibilityLabel="Close"
+        />
+      </View>
       <KeyboardAwareScrollView
         style={[styles.scrollView]}
         contentContainerStyle={styles.contentContainer}
@@ -139,41 +149,21 @@ export default function Edit() {
       </KeyboardAwareScrollView>
 
       <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
-        <Card style={styles.keyboardAccessory}>
-          <View style={styles.buttonWrapperLeft}>
-            <Button
-              variant="secondary"
-              onPress={showImagePickerAlert}
-              icon={
-                <Camera
-                  size={20}
-                  color={colors.primaryText}
-                  strokeWidth={1.5}
-                />
-              }
-            />
-          </View>
-          <View style={styles.buttonWrapperRight}>
-            <Button
-              variant="primary"
-              onPress={handleReEstimate}
-              disabled={!caNreEstimate || isReEstimating}
-              icon={
-                <Sparkles
-                  size={20}
-                  color={
-                    !caNreEstimate || isReEstimating
-                      ? colors.disabledText
-                      : colors.black
-                  }
-                  strokeWidth={1.5}
-                />
-              }
-            >
-              {isReEstimating ? "estimating" : "Re-estimate"}
-            </Button>
-          </View>
-        </Card>
+        <View style={styles.keyboardAccessory}>
+          <RoundButton
+            variant="tertiary"
+            onPress={showImagePickerAlert}
+            Icon={Camera}
+          />
+
+          <Button
+            variant="primary"
+            label={estimateLabel}
+            onPress={handleReEstimate}
+            disabled={!caNreEstimate || isReEstimating}
+            Icon={Sparkles}
+          />
+        </View>
       </KeyboardStickyView>
     </GradientWrapper>
   );
@@ -187,6 +177,13 @@ const createStyles = (colors: Colors, theme: Theme) =>
     },
     scrollView: {
       flex: 1,
+      paddingTop: theme.spacing.xxl + theme.spacing.md,
+    },
+    closeButton: {
+      position: "absolute",
+      top: theme.spacing.md,
+      right: theme.spacing.md,
+      zIndex: 15,
     },
     contentContainer: {
       paddingHorizontal: theme.spacing.md,
@@ -217,12 +214,14 @@ const createStyles = (colors: Colors, theme: Theme) =>
       alignItems: "center",
     },
     keyboardAccessory: {
-      padding: theme.spacing.sm,
-      marginHorizontal: theme.spacing.md,
+      marginHorizontal: theme.spacing.sm,
       flexDirection: "row",
-      justifyContent: "center",
+      justifyContent: "space-between",
       alignItems: "center",
       gap: theme.spacing.sm,
+      borderRadius: 16,
+
+      overflow: "hidden",
       zIndex: 99,
     },
   });

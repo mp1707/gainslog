@@ -257,7 +257,6 @@ export default function Create() {
                 Icon={Mic}
               />
             </View>
-
             <Button
               variant="primary"
               label={estimateLabel}

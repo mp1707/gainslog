@@ -1,10 +1,5 @@
 import React, { useState, useRef } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-} from "react-native";
+import { View, Text, TextInput, StyleSheet } from "react-native";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
@@ -87,23 +82,16 @@ const AgeSelectionScreen = () => {
       </View>
 
       <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
-        <Card style={styles.keyboardAccessory}>
+        <View style={styles.keyboardAccessory}>
           <Button
             variant="primary"
+            label="Continue"
+            Icon={ChevronRight}
+            iconPlacement="right"
             onPress={handleContinue}
-            iconPosition="right"
             disabled={!isValidAge(age)}
-            icon={
-              <ChevronRight
-                size={20}
-                color={isValidAge(age) ? colors.black : colors.disabledText}
-                strokeWidth={1.5}
-              />
-            }
-          >
-            Continue
-          </Button>
-        </Card>
+          />
+        </View>
       </KeyboardStickyView>
     </GradientWrapper>
   );
@@ -114,10 +102,10 @@ export default AgeSelectionScreen;
 const createStyles = (colors: Colors, theme: Theme) => {
   const { spacing, typography, components } = theme;
   return StyleSheet.create({
-    container: { 
-      flex: 1, 
+    container: {
+      flex: 1,
       backgroundColor: colors.primaryBackground,
-      gap: theme.spacing.md
+      gap: theme.spacing.md,
     },
     progressContainer: { padding: spacing.md },
     content: {
@@ -163,12 +151,9 @@ const createStyles = (colors: Colors, theme: Theme) => {
       marginRight: spacing.sm,
     },
     keyboardAccessory: {
-      padding: theme.spacing.sm,
-      marginHorizontal: theme.spacing.md,
+      marginHorizontal: theme.spacing.sm,
       flexDirection: "row",
-      justifyContent: "center",
-      alignItems: "center",
-      gap: theme.spacing.sm,
+      justifyContent: "flex-end",
     },
   });
 };
