@@ -1,6 +1,6 @@
 # Comprehensive Design Style Guide
 
-## Gainslog: AI Food Tracker Design Ethos: Focused Motivation
+## MacroLoop: AI Food Tracker Design Ethos: Focused Motivation
 
 ### 1. Look & Feel: "Focused Motivation"
 

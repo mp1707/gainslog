@@ -33,8 +33,13 @@ export default function Calendar() {
     () => new Date(selectedDate + "T00:00:00"),
     [selectedDate]
   );
-  const currentYear = selectedDateObj.getFullYear();
-  const currentMonth = selectedDateObj.getMonth() + 1;
+  const selectedYear = selectedDateObj.getFullYear();
+  const selectedMonth = selectedDateObj.getMonth() + 1;
+
+  // Get actual current date for month generation
+  const actualCurrentDate = useMemo(() => new Date(), []);
+  const currentYear = actualCurrentDate.getFullYear();
+  const currentMonth = actualCurrentDate.getMonth() + 1;
 
   // Generate months array (24 months before current, up to current month only)
   const monthsData = useMemo((): MonthData[] => {
@@ -56,20 +61,20 @@ export default function Calendar() {
     return months;
   }, [currentYear, currentMonth]);
 
-  // Find initial scroll index
+  // Find initial scroll index (scroll to selected date's month)
   const initialScrollIndex = useMemo(() => {
     return monthsData.findIndex(
-      (m) => m.year === currentYear && m.month === currentMonth
+      (m) => m.year === selectedYear && m.month === selectedMonth
     );
-  }, [monthsData, currentYear, currentMonth]);
+  }, [monthsData, selectedYear, selectedMonth]);
 
   // Track the currently visible/active month for progress ring rendering
   const [activeMonth, setActiveMonth] = useState<{
     year: number;
     month: number;
   }>({
-    year: currentYear,
-    month: currentMonth,
+    year: selectedYear,
+    month: selectedMonth,
   });
 
   // Generate relevant month keys for optimized nutrition data calculation
