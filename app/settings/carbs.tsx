@@ -8,7 +8,7 @@ import {
 } from "@/utils/nutritionCalculations";
 import type { ColorScheme, Theme } from "@/theme";
 import { useRouter } from "expo-router";
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { CloseButton } from "@/components/shared/CloseButton";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const CarbsScreen = React.memo(function CarbsScreen() {
@@ -58,7 +58,13 @@ const CarbsScreen = React.memo(function CarbsScreen() {
 
   return (
     <GradientWrapper style={styles.container}>
-      <ModalHeader title="Carbohydrates" onClose={handleCancel} />
+      <View style={styles.closeButton}>
+        <CloseButton
+          onPress={handleCancel}
+          accessibilityLabel={"Go back"}
+          accessibilityHint={"Returns to previous screen"}
+        />
+      </View>
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.textSection}>
@@ -130,6 +136,12 @@ const createStyles = (
       flex: 1,
       backgroundColor: colors.primaryBackground,
     },
+    closeButton: {
+      position: "absolute",
+      top: spacing.lg,
+      right: spacing.md,
+      zIndex: 15,
+    },
     centered: {
       justifyContent: "center",
       alignItems: "center",
@@ -140,7 +152,7 @@ const createStyles = (
       gap: spacing.md,
     },
     textSection: {
-      paddingTop: spacing.lg,
+      paddingTop: spacing.xxl + spacing.md,
     },
     subtitle: {
       fontSize: typography.Title2.fontSize,

@@ -42,7 +42,6 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
         componentStyles.buttons.secondary.default.backgroundColor,
       // borderWidth: componentStyles.buttons.secondary.default.borderWidth,
       // borderColor: componentStyles.buttons.secondary.default.borderColor,
-      borderRadius: componentStyles.buttons.cornerRadius,
     },
 
     secondaryPressed: {
@@ -53,8 +52,6 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
     tertiary: {
       backgroundColor: colors.subtleBackground,
       // borderWidth: componentStyles.buttons.tertiary.default.borderWidth,
-      // borderColor: componentStyles.buttons.tertiary.default.borderColor,
-      borderRadius: componentStyles.buttons.cornerRadius,
     },
 
     tertiaryPressed: {
@@ -65,7 +62,6 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
     destructive: {
       backgroundColor:
         componentStyles.buttons.destructive.default.backgroundColor,
-      borderRadius: componentStyles.buttons.cornerRadius,
     },
 
     destructivePressed: {
@@ -85,8 +81,8 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
       width: "100%",
       minHeight: 44,
       paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      borderRadius: componentStyles.buttons.cornerRadius,
+      paddingVertical: spacing.md,
+      borderRadius: "100%",
     },
 
     large: {

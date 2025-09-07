@@ -16,7 +16,7 @@ import {
 } from "@/utils/nutritionCalculations";
 import type { ColorScheme, Theme } from "@/theme";
 import { useRouter } from "expo-router";
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { CloseButton } from "@/components/shared/CloseButton";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 // GuidelineRow Component: No changes needed here, as it inherits styles from the parent.
@@ -76,12 +76,13 @@ const EditFatScreen = React.memo(function EditFatScreen() {
 
   return (
     <GradientWrapper style={styles.container}>
-      <ModalHeader 
-        title="Fat Target"
-        onClose={handleCancel}
-        closeAccessibilityLabel="Cancel fat target editing"
-        closeAccessibilityHint="Returns to previous screen without saving changes"
-      />
+      <View style={styles.closeButton}>
+        <CloseButton
+          onPress={handleCancel}
+          accessibilityLabel={"Go back"}
+          accessibilityHint={"Returns to previous screen"}
+        />
+      </View>
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.textSection}>
@@ -156,13 +157,19 @@ const createStyles = (
       flex: 1,
       backgroundColor: colors.primaryBackground,
     },
+    closeButton: {
+      position: "absolute",
+      top: spacing.lg,
+      right: spacing.md,
+      zIndex: 15,
+    },
     scrollContent: {
       paddingHorizontal: spacing.pageMargins.horizontal,
       paddingBottom: spacing.xxl, // Ensures space at the bottom for better scrolling
       gap: spacing.md,
     },
     textSection: {
-      paddingTop: spacing.lg,
+      paddingTop: spacing.xxl + spacing.md,
     },
     subtitle: {
       fontSize: typography.Title2.fontSize,

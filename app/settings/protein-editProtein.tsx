@@ -8,7 +8,7 @@ import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { CloseButton } from "@/components/shared/CloseButton";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const EditProteinScreen = React.memo(function EditProteinScreen() {
@@ -37,7 +37,13 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
 
   return (
     <GradientWrapper style={styles.container}>
-      <ModalHeader onClose={handleCancel} />
+      <View style={styles.closeButton}>
+        <CloseButton
+          onPress={handleCancel}
+          accessibilityLabel={"Go back"}
+          accessibilityHint={"Returns to previous screen"}
+        />
+      </View>
       
       {/* Content */}
       <View style={styles.content}>
@@ -95,6 +101,12 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       flex: 1,
       backgroundColor: colors.primaryBackground,
     },
+    closeButton: {
+      position: "absolute",
+      top: spacing.lg,
+      right: spacing.md,
+      zIndex: 15,
+    },
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
@@ -103,7 +115,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       gap: spacing.xxl,
     },
     textSection: {
-      paddingTop: spacing.lg,
+      paddingTop: spacing.xxl + spacing.md,
       gap: spacing.sm,
     },
     subtitle: {

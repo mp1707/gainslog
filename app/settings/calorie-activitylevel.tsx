@@ -23,7 +23,7 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { ACTIVITY_LEVELS } from "@/components/settings/calculationMethods";
 import { StyleSheet } from "react-native";
 import { UserSettings } from "@/types/models";
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { CloseButton } from "@/components/shared/CloseButton";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 export default function Step2ActivityLevelScreen() {
@@ -62,12 +62,13 @@ export default function Step2ActivityLevelScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <GradientWrapper style={styles.container}>
-        <ModalHeader 
-          title="Activity Level"
-          onClose={handleCancel}
-          closeAccessibilityLabel="Go back"
-          closeAccessibilityHint="Returns to previous screen"
-        />
+        <View style={styles.closeButton}>
+          <CloseButton
+            onPress={handleCancel}
+            accessibilityLabel={"Go back"}
+            accessibilityHint={"Returns to previous screen"}
+          />
+        </View>
         
         {/* Content */}
         <ScrollView
@@ -136,12 +137,18 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       flex: 1,
       backgroundColor: colors.primaryBackground,
     },
+    closeButton: {
+      position: "absolute",
+      top: spacing.lg,
+      right: spacing.md,
+      zIndex: 15,
+    },
     content: {
       flex: 1,
     },
     scrollContent: {
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.lg,
+      paddingTop: spacing.xxl + spacing.md,
       paddingBottom: 100,
     },
     textSection: {

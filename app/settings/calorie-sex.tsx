@@ -8,7 +8,7 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
 import { UserSettings } from "@/types/models";
 import { useAppStore } from "@/store/useAppStore";
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { CloseButton } from "@/components/shared/CloseButton";
 import { useRouter } from "expo-router";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
@@ -52,12 +52,13 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
 
   return (
     <GradientWrapper style={styles.container}>
-      <ModalHeader 
-        title="Biological Sex"
-        onClose={handleCancel}
-        closeAccessibilityLabel="Go back"
-        closeAccessibilityHint="Returns to previous screen"
-      />
+      <View style={styles.closeButton}>
+        <CloseButton
+          onPress={handleCancel}
+          accessibilityLabel={"Go back"}
+          accessibilityHint={"Returns to previous screen"}
+        />
+      </View>
 
       {/* Content */}
       <View style={styles.content}>
@@ -123,6 +124,12 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
     },
+    closeButton: {
+      position: "absolute",
+      top: spacing.lg,
+      right: spacing.md,
+      zIndex: 15,
+    },
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
@@ -131,7 +138,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       gap: spacing.xxl,
     },
     textSection: {
-      paddingTop: spacing.lg,
+      paddingTop: spacing.xxl + spacing.md,
       gap: spacing.sm,
     },
     subtitle: {

@@ -175,7 +175,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
     headerContainer: {
       width: "100%",
       alignItems: "flex-end",
-      paddingTop: theme.spacing.lg,
+      paddingTop: theme.spacing.md,
       paddingHorizontal: theme.spacing.md,
     },
   });

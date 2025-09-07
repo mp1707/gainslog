@@ -20,7 +20,7 @@ import {
   calculateFatGramsFromPercentage,
 } from "@/utils/nutritionCalculations";
 import { useRouter } from "expo-router";
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { CloseButton } from "@/components/shared/CloseButton";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const METHODS: Record<
@@ -138,12 +138,13 @@ export default function ProteinGoalsScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <GradientWrapper style={styles.container}>
-        <ModalHeader 
-          title="Protein Goal"
-          onClose={handleCancel}
-          closeAccessibilityLabel="Go back"
-          closeAccessibilityHint="Returns to previous screen"
-        />
+        <View style={styles.closeButton}>
+          <CloseButton
+            onPress={handleCancel}
+            accessibilityLabel={"Go back"}
+            accessibilityHint={"Returns to previous screen"}
+          />
+        </View>
 
         {/* Content */}
         <ScrollView
@@ -213,6 +214,12 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       flex: 1,
       backgroundColor: colors.primaryBackground,
     },
+    closeButton: {
+      position: "absolute",
+      top: spacing.lg,
+      right: spacing.md,
+      zIndex: 15,
+    },
     centered: {
       justifyContent: "center",
       alignItems: "center",
@@ -232,7 +239,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     scrollContent: {
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.lg,
+      paddingTop: spacing.xxl + spacing.md,
       paddingBottom: 100,
     },
     textSection: {

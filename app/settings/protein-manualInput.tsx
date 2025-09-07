@@ -11,7 +11,7 @@ import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
 import { useRouter } from "expo-router";
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { CloseButton } from "@/components/shared/CloseButton";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const ManualProteinInputScreen = () => {
@@ -57,12 +57,13 @@ const ManualProteinInputScreen = () => {
 
   return (
     <GradientWrapper style={styles.container}>
-      <ModalHeader 
-        title="Protein Goal"
-        onClose={handleCancel}
-        closeAccessibilityLabel="Cancel editing"
-        closeAccessibilityHint="Returns to previous screen without saving changes"
-      />
+      <View style={styles.closeButton}>
+        <CloseButton
+          onPress={handleCancel}
+          accessibilityLabel={"Go back"}
+          accessibilityHint={"Returns to previous screen"}
+        />
+      </View>
       
       <View style={styles.content}>
         <View style={styles.textSection}>
@@ -123,12 +124,18 @@ const createStyles = (colors: any, themeObj: any) => {
   const { spacing, typography } = themeObj;
   return StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.primaryBackground },
+    closeButton: {
+      position: "absolute",
+      top: spacing.lg,
+      right: spacing.md,
+      zIndex: 15,
+    },
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
       gap: spacing.xxl,
     },
-    textSection: { paddingTop: spacing.lg, gap: spacing.sm },
+    textSection: { paddingTop: spacing.xxl + spacing.md, gap: spacing.sm },
     subtitle: {
       fontSize: typography.Title2.fontSize,
       fontFamily: typography.Title2.fontFamily,

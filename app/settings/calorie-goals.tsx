@@ -11,7 +11,7 @@ import { StyleSheet } from "react-native";
 import { useAppStore } from "@/store/useAppStore";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { useRouter } from "expo-router";
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
+import { CloseButton } from "@/components/shared/CloseButton";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 export default function Step3GoalsScreen() {
@@ -67,12 +67,13 @@ export default function Step3GoalsScreen() {
   if (!calorieGoals) {
     return (
       <GradientWrapper style={[styles.container, styles.centered]}>
-        <ModalHeader 
-          title="Calorie Goal"
-          onClose={handleCancel}
-          closeAccessibilityLabel="Go back"
-          closeAccessibilityHint="Returns to previous screen"
-        />
+        <View style={styles.closeButton}>
+          <CloseButton
+            onPress={handleCancel}
+            accessibilityLabel={"Go back"}
+            accessibilityHint={"Returns to previous screen"}
+          />
+        </View>
         <Text style={styles.errorText}>
           Missing calculation data. Please start over.
         </Text>
@@ -90,12 +91,13 @@ export default function Step3GoalsScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <GradientWrapper style={styles.container}>
-        <ModalHeader 
-          title="Calorie Goal"
-          onClose={handleCancel}
-          closeAccessibilityLabel="Go back"
-          closeAccessibilityHint="Returns to previous screen"
-        />
+        <View style={styles.closeButton}>
+          <CloseButton
+            onPress={handleCancel}
+            accessibilityLabel={"Go back"}
+            accessibilityHint={"Returns to previous screen"}
+          />
+        </View>
 
         {/* Content */}
         <ScrollView
@@ -186,6 +188,12 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       flex: 1,
       backgroundColor: colors.primaryBackground,
     },
+    closeButton: {
+      position: "absolute",
+      top: spacing.lg,
+      right: spacing.md,
+      zIndex: 15,
+    },
     centered: {
       justifyContent: "center",
       alignItems: "center",
@@ -205,7 +213,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     scrollContent: {
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.lg,
+      paddingTop: spacing.xxl + spacing.md,
       paddingBottom: 100,
     },
     textSection: {
