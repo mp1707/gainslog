@@ -172,7 +172,6 @@ const createStyles = (colors: Colors, theme: Theme) =>
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
-      gap: theme.spacing.md,
     },
     calendarContainer: {
       flex: 1,

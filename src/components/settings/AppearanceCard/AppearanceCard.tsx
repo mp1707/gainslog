@@ -1,8 +1,7 @@
 import React from "react";
 import { View, Switch, StyleSheet } from "react-native";
 import { useTheme } from "@/theme";
-import { SettingCard } from "@/components/settings/SettingCard/SettingCard";
-import { AppText } from "src/components";
+import { AppText, Card } from "src/components";
 
 export const AppearanceCard: React.FC = () => {
   const { theme, colorScheme, toggleColorScheme } = useTheme();
@@ -23,7 +22,7 @@ export const AppearanceCard: React.FC = () => {
   });
 
   return (
-    <SettingCard>
+    <Card>
       <View style={styles.settingRow}>
         <View style={styles.settingInfo}>
           <AppText role="Headline" style={styles.settingLabel}>
@@ -39,6 +38,6 @@ export const AppearanceCard: React.FC = () => {
           accessibilityLabel="Toggle theme"
         />
       </View>
-    </SettingCard>
+    </Card>
   );
 };
