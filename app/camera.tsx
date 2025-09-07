@@ -1,4 +1,5 @@
 import { AppText, Button } from "@/components/index";
+import { MediaLibraryPreview } from "@/components/camera/MediaLibraryPreview";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { Colors, Theme } from "@/theme/theme";
@@ -40,11 +41,13 @@ export default function Camera() {
             <RoundButton
               Icon={CameraIcon}
               onPress={takePicture}
-              variant={"secondary"}
+              variant={"primary"}
               iconSize={40}
               style={styles.cameraButton}
             />
           </View>
+
+          <MediaLibraryPreview onImageSelected={setLocalImageURI} />
         </CameraView>
       )}
       <RoundButton

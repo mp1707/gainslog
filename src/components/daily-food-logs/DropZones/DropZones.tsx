@@ -199,9 +199,9 @@ export const DropZones: React.FC<DropZonesProps> = ({
       Alert.alert("Error", "Camera permission is required.");
       return false;
     }
-    const libraryStatus = await requestCameraPermission();
+    const libraryStatus = await requestMediaLibraryPermission();
     if (!libraryStatus.granted) {
-      Alert.alert("Error", "Camera permission is required.");
+      Alert.alert("Error", "Library permission is required.");
       return false;
     }
     return true;
