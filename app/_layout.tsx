@@ -9,9 +9,20 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ThemedToastManager } from "@/components/shared/Toasts";
 import Purchases, { LOG_LEVEL } from "react-native-purchases";
+// import * as SplashScreen from "expo-splash-screen";
 
 function ThemedStack() {
-  const { colors } = useTheme();
+  const {
+    colors,
+    // isThemeLoaded
+  } = useTheme();
+  const { fontsLoaded } = useFonts();
+
+  // useEffect(() => {
+  //   if (fontsLoaded && isThemeLoaded) {
+  //     SplashScreen.hideAsync();
+  //   }
+  // }, [fontsLoaded, isThemeLoaded]);
 
   return (
     <Stack
@@ -80,16 +91,13 @@ function ThemedStack() {
 }
 
 export default function RootLayout() {
-  const { fontsLoaded, error } = useFonts();
   const cleanupIncompleteEstimations = useAppStore(
     (state) => state.cleanupIncompleteEstimations
   );
 
   useEffect(() => {
-    if (fontsLoaded) {
-      cleanupIncompleteEstimations();
-    }
-  }, [fontsLoaded, cleanupIncompleteEstimations]);
+    cleanupIncompleteEstimations();
+  }, [cleanupIncompleteEstimations]);
 
   // useEffect(() => {
   //   Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
@@ -100,40 +108,6 @@ export default function RootLayout() {
   //     // Purchases.configure({ apiKey: "<revenuecat_project_google_api_key>" });
   //   }
   // }, []);
-
-  // Show loading screen while fonts are loading
-  if (!fontsLoaded) {
-    const colors = theme.getColors();
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: colors.primaryBackground,
-        }}
-      >
-        <ActivityIndicator size="large" color={colors.accent} />
-        <Text
-          style={{ marginTop: 16, fontSize: 16, color: colors.secondaryText }}
-        >
-          Loading...
-        </Text>
-        {error && (
-          <Text
-            style={{
-              marginTop: 8,
-              fontSize: 14,
-              color: colors.error,
-              textAlign: "center",
-            }}
-          >
-            Font loading error: {error}
-          </Text>
-        )}
-      </View>
-    );
-  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
