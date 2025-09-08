@@ -18,6 +18,7 @@ interface ThemeContextType {
   colorScheme: ColorScheme;
   colors: Colors;
   theme: typeof theme;
+  isThemeLoaded: boolean;
   setColorScheme: (scheme: ColorScheme) => void;
   toggleColorScheme: () => void;
 }
@@ -30,6 +31,7 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [colorScheme, setColorSchemeState] = useState<ColorScheme>("light");
+  const [isThemeLoaded, setIsThemeLoaded] = useState(false);
   // Track whether user manually selected a theme
   const manualPreferenceRef = useRef(false);
 
@@ -49,6 +51,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       } else {
         setColorSchemeState(Appearance.getColorScheme() || "light");
       }
+      setIsThemeLoaded(true);
     })();
   }, []);
 
@@ -89,16 +92,17 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       colorScheme,
       colors,
       theme,
+      isThemeLoaded,
       setColorScheme,
       toggleColorScheme,
     }),
-    [colorScheme, colors, setColorScheme, toggleColorScheme]
+    [colorScheme, colors, isThemeLoaded, setColorScheme, toggleColorScheme]
   );
 
   return (
     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
-}
+};
 
 export const useTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);

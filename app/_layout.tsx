@@ -9,20 +9,17 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ThemedToastManager } from "@/components/shared/Toasts";
 import Purchases, { LOG_LEVEL } from "react-native-purchases";
-// import * as SplashScreen from "expo-splash-screen";
+import * as SplashScreen from "expo-splash-screen";
 
 function ThemedStack() {
-  const {
-    colors,
-    // isThemeLoaded
-  } = useTheme();
+  const { colors, isThemeLoaded } = useTheme();
   const { fontsLoaded } = useFonts();
 
-  // useEffect(() => {
-  //   if (fontsLoaded && isThemeLoaded) {
-  //     SplashScreen.hideAsync();
-  //   }
-  // }, [fontsLoaded, isThemeLoaded]);
+  useEffect(() => {
+    if (fontsLoaded && isThemeLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, isThemeLoaded]);
 
   return (
     <Stack
