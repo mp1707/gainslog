@@ -32,11 +32,12 @@ export default function Camera() {
           <Image src={localImageURI} style={styles.image} />
         </View>
       ) : (
-        <CameraView
-          style={styles.camera}
-          ref={cameraRef}
-          onCameraReady={() => setIsCameraReady(true)}
-        >
+        <>
+          <CameraView
+            style={styles.camera}
+            ref={cameraRef}
+            onCameraReady={() => setIsCameraReady(true)}
+          />
           <View style={styles.contentContainer}>
             <RoundButton
               Icon={CameraIcon}
@@ -46,9 +47,8 @@ export default function Camera() {
               style={styles.cameraButton}
             />
           </View>
-
           <MediaLibraryPreview onImageSelected={setLocalImageURI} />
-        </CameraView>
+        </>
       )}
       <RoundButton
         Icon={X}
@@ -73,17 +73,16 @@ const createStyles = (colors: Colors, theme: Theme) =>
     },
     camera: {
       flex: 1,
-      justifyContent: "flex-end",
-      alignItems: "center",
     },
-    cameraButton: {
-      padding: theme.spacing.md,
-    },
+    cameraButton: {},
     image: {
       height: "100%",
       width: "100%",
     },
     contentContainer: {
+      position: "absolute",
+      bottom: theme.spacing.sm,
+      alignSelf: "center",
       padding: theme.spacing.lg,
     },
   });
