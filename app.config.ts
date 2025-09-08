@@ -13,15 +13,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: "gainslog",
   version: "1.0.0",
   orientation: "portrait",
-  icon: "./assets/icon.png",
+  icon: "./assets/ios-dark.png",
   userInterfaceStyle: "light",
   newArchEnabled: true,
   scheme: "macroloop",
-  splash: {
-    image: "./assets/splash-icon.png",
-    resizeMode: "contain",
-    backgroundColor: "#ffffff",
-  },
   ios: {
     supportsTablet: true,
     infoPlist: {
@@ -33,6 +28,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       : IS_PREVIEW
       ? "com.mp17.mpapps.gainslog.preview"
       : "com.mp17.mpapps.gainslog",
+    icon: {
+      dark: "./assets/ios-dark.png",
+      light: "./assets/ios-light.png",
+      tinted: "./assets/ios-tinted.png",
+    },
   },
   android: {
     adaptiveIcon: {
@@ -58,6 +58,18 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: "./assets/favicon.png",
   },
   plugins: [
+    [
+      "expo-splash-screen",
+      {
+        backgroundColor: "#ffffff",
+        image: "./assets/splash-icon.png",
+        dark: {
+          image: "./assets/splash-icon-dark.png",
+          backgroundColor: "#000000",
+        },
+        imageWidth: 200,
+      },
+    ],
     [
       "expo-camera",
       {
