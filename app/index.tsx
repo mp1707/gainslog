@@ -36,7 +36,8 @@ import {
   runOnJS,
 } from "react-native-reanimated";
 import { DraggableButton } from "@/components/daily-food-logs/DraggableButton";
-import { DropZones } from "@/components/daily-food-logs/DropZones";
+import { RoundButton } from "@/components/shared/RoundButton";
+import { Plus } from "lucide-react-native";
 
 const HEADER_HEIGHT = 265;
 const DASHBOARD_OFFSET = HEADER_HEIGHT - 50;
@@ -49,13 +50,6 @@ export default function TodayTab() {
   const transparentBackground = colors.primaryBackground + "00";
 
   const flatListRef = useRef<FlatList>(null);
-
-  // Shared values for draggable button and drop zones
-  const gestureX = useSharedValue(0);
-  const gestureY = useSharedValue(0);
-  const isGestureActive = useSharedValue(false);
-  const [isDropZonesVisible, setIsDropZonesVisible] = useState(false);
-
   // Get the entire state for selectors and individual functions
   const state = useAppStore();
   const { deleteFoodLog, addFavorite, deleteFavorite, favorites } = state;
@@ -97,34 +91,6 @@ export default function TodayTab() {
   const handleNavigateToDetailPage = (foodLog: FoodLog) => {
     safeNavigate(`/edit/${foodLog.id}`);
   };
-
-  // DraggableButton handlers
-  const handleDraggableButtonPress = useCallback(() => {
-    safeNavigate("/create");
-  }, [safeNavigate]);
-
-  const handleDragEnd = useCallback(
-    (targetZone: "camera" | "microphone" | null) => {
-      setIsDropZonesVisible(false);
-    },
-    []
-  );
-
-  const handleCameraActivate = useCallback(() => {
-    safeNavigate("/create?mode=camera");
-  }, [safeNavigate]);
-
-  const handleVoiceActivate = useCallback(() => {
-    safeNavigate("/create?mode=voice");
-  }, [safeNavigate]);
-
-  // Track gesture state to show/hide drop zones
-  useAnimatedReaction(
-    () => isGestureActive.value,
-    (isActive) => {
-      runOnJS(setIsDropZonesVisible)(isActive);
-    }
-  );
 
   const keyExtractor = useCallback((item: FoodLog) => item.id, []);
   const getItemLayout = useCallback(
@@ -218,25 +184,12 @@ export default function TodayTab() {
           </SafeAreaView>
         </BlurView>
       </MaskedView>
-
-      {/* Drop Zones Overlay */}
-      <DropZones
-        isVisible={isDropZonesVisible}
-        isGestureActive={isGestureActive}
-        gestureX={gestureX}
-        gestureY={gestureY}
-        onCameraActivate={handleCameraActivate}
-        onVoiceActivate={handleVoiceActivate}
-      />
-
-      {/* Draggable Button */}
-      <View style={styles.draggableButtonContainer}>
-        <DraggableButton
-          onPress={handleDraggableButtonPress}
-          onDragEnd={handleDragEnd}
-          gestureX={gestureX}
-          gestureY={gestureY}
-          isGestureActive={isGestureActive}
+      <View style={styles.buttonContainer}>
+        <RoundButton
+          Icon={Plus}
+          iconSize={36}
+          variant={"primary"}
+          onPress={() => safeNavigate("/create")}
         />
       </View>
     </>
@@ -297,7 +250,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       color: colors.secondaryText,
       textTransform: "uppercase", // The key change for the "eyebrow" style
     },
-    draggableButtonContainer: {
+    buttonContainer: {
       position: "absolute",
       bottom: themeObj.spacing.lg,
       right: themeObj.spacing.lg,
