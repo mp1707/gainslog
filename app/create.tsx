@@ -18,6 +18,7 @@ import { EstimationTab } from "@/components/create-page/EstimationTab/Estimation
 import { FavoritesTab } from "@/components/create-page/FavoritesTab/FavoritesTab";
 import { KeyboardAccessory } from "@/components/create-page/KeyboardAccessory/KeyboardAccessory";
 import { Toggle } from "@/components/shared/Toggle";
+import { uploadToSupabaseStorage } from "@/utils/uploadToSupabaseStorage";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -33,6 +34,7 @@ export default function Create() {
     title: "",
     description: "",
     supabaseImagePath: "",
+    localImagePath: "",
     logDate: selectedDate,
     createdAt: new Date().toISOString(),
     calories: 0,
@@ -83,26 +85,26 @@ export default function Create() {
     back();
   }, [back]);
 
-  const { showImagePickerAlert } = useImageSelection({
-    onImageSelected: (imageUrl: string) => {
-      setNewLog((prev) => ({
-        ...prev,
-        supabaseImagePath: imageUrl,
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-        fat: 0,
-        estimationConfidence: 0,
-      }));
-      setIsUploadingImage(false);
-    },
-    onUploadStart: () => {
-      setIsUploadingImage(true);
-    },
-    onUploadError: () => {
-      setIsUploadingImage(false);
-    },
-  });
+  // const { showImagePickerAlert } = useImageSelection({
+  //   onImageSelected: (imageUrl: string) => {
+  //     setNewLog((prev) => ({
+  //       ...prev,
+  //       supabaseImagePath: imageUrl,
+  //       calories: 0,
+  //       protein: 0,
+  //       carbs: 0,
+  //       fat: 0,
+  //       estimationConfidence: 0,
+  //     }));
+  //     setIsUploadingImage(false);
+  //   },
+  //   onUploadStart: () => {
+  //     setIsUploadingImage(true);
+  //   },
+  //   onUploadError: () => {
+  //     setIsUploadingImage(false);
+  //   },
+  // });
 
   const handleEstimation = useCallback(() => {
     startEstimation({
@@ -130,6 +132,15 @@ export default function Create() {
     [addFoodLog, selectedDate, back]
   );
 
+  const handleImage = useCallback(async (uri: string) => {
+    const uploadedImageUrl = await uploadToSupabaseStorage(uri);
+    setNewLog((prev) => ({
+      ...prev,
+      localImagePath: uri,
+      supabaseImagePath: uploadedImageUrl,
+    }));
+  }, []);
+
   const handleDescriptionChange = useCallback((description: string) => {
     setNewLog((prev) => ({ ...prev, description }));
   }, []);
@@ -154,7 +165,7 @@ export default function Create() {
         <EstimationTab
           description={newLog.description}
           onDescriptionChange={handleDescriptionChange}
-          imageUrl={newLog.supabaseImagePath}
+          imageUrl={newLog.localImagePath}
           isUploadingImage={isUploadingImage}
           textInputRef={textInputRef}
           inputAccessoryViewID={inputAccessoryViewID}
@@ -162,15 +173,13 @@ export default function Create() {
       )}
 
       {estimationType === "favorites" && (
-        <FavoritesTab
-          onCreateFromFavorite={handleCreateLogFromFavorite}
-        />
+        <FavoritesTab onCreateFromFavorite={handleCreateLogFromFavorite} />
       )}
 
       {estimationType === "ai" && (
         <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
           <KeyboardAccessory
-            onImagePicker={showImagePickerAlert}
+            onImageSelected={handleImage}
             onRecording={startRecording}
             onEstimate={handleEstimation}
             estimateLabel={estimateLabel}

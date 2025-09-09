@@ -51,15 +51,7 @@ export const createStyles = (
       color: colors.disabledText,
     },
     iconContainer: {
-      marginHorizontal: Math.max(4 * fontScale, 4),
-    },
-    iconLeft: {
-      marginRight: Math.max(8 * fontScale, 8),
-      marginLeft: 0,
-    },
-    iconRight: {
-      marginLeft: Math.max(8 * fontScale, 8),
-      marginRight: 0,
+      flexShrink: 0,
     },
   });
 };

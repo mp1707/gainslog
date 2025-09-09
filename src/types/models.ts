@@ -5,6 +5,7 @@ export type FoodLog = {
   title: string;
   description?: string;
   supabaseImagePath?: string;
+  localImagePath?: string;
   calories: number;
   protein: number;
   carbs: number;

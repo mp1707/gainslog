@@ -17,13 +17,11 @@ import { useTheme } from "@/theme";
 import { createStyles } from "./Button.styles";
 
 export type ButtonVariant = "primary" | "secondary" | "tertiary";
-export type IconPlacement = "left" | "right";
 
 export interface ButtonProps extends Omit<PressableProps, "children"> {
   label: string;
   variant: ButtonVariant;
   Icon?: LucideIcon;
-  iconPlacement?: IconPlacement;
   iconSize?: number;
   disabled?: boolean;
 }
@@ -35,7 +33,6 @@ export const Button = React.memo<ButtonProps>(
     label,
     variant,
     Icon,
-    iconPlacement = "left",
     iconSize = 18,
     disabled = false,
     onPress,
@@ -137,19 +134,13 @@ export const Button = React.memo<ButtonProps>(
       if (!Icon) return null;
 
       return (
-        <View
-          style={[
-            styles.iconContainer,
-            iconPlacement === "left" ? styles.iconLeft : styles.iconRight,
-          ]}
-        >
+        <View style={styles.iconContainer}>
           <Icon size={adjustedIconSize} color={getTextColor()} />
         </View>
       );
     };
 
     const renderContent = () => {
-      const iconElement = renderIcon();
       const textElement = (
         <Text
           numberOfLines={1}
@@ -176,15 +167,16 @@ export const Button = React.memo<ButtonProps>(
           style={{
             flexDirection: "row",
             alignItems: "center",
-            flexShrink: 1, // ✅ don’t force full width, but allow shrinking
+            justifyContent: "center",
+            flexShrink: 1,
             minWidth: 0,
+            gap: 8,
           }}
         >
-          {iconPlacement === "left" && iconElement}
-          <View style={{ flexShrink: 1, flexGrow: 1, minWidth: 0 }}>
+          {renderIcon()}
+          <View style={{ flexShrink: 1, minWidth: 0 }}>
             {textElement}
           </View>
-          {iconPlacement === "right" && iconElement}
         </View>
       );
     };

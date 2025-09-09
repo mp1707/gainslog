@@ -1,13 +1,14 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { View } from "react-native";
-import { CameraIcon, MicIcon, Sparkles } from "lucide-react-native";
+import { CameraIcon, MicIcon, ImageIcon, Sparkles } from "lucide-react-native";
+import * as ImagePicker from "expo-image-picker";
 import { useTheme } from "@/theme";
 import { Button } from "@/components";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { createStyles } from "./KeyboardAccessory.styles";
 
 interface KeyboardAccessoryProps {
-  onImagePicker?: () => void;
+  onImageSelected?: (uri: string) => void;
   onRecording?: () => void;
   onEstimate: () => void;
   estimateLabel: string;
@@ -15,7 +16,7 @@ interface KeyboardAccessoryProps {
 }
 
 export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
-  onImagePicker,
+  onImageSelected,
   onRecording,
   onEstimate,
   estimateLabel,
@@ -24,16 +25,40 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
 
+  const handleCameraPress = useCallback(async () => {
+    // ... get uri from camera
+    // onImageSelected(uri);
+  }, [onImageSelected]);
+
+  const handleMediaLibraryPress = useCallback(async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: "images",
+        allowsEditing: false,
+        quality: 1,
+      });
+
+      if (!result.canceled && result.assets[0] && onImageSelected) {
+        onImageSelected(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error("Error launching image picker:", error);
+    }
+  }, [onImageSelected]);
+
   return (
     <View style={styles.container}>
       <View style={styles.mediaActionContainer}>
-        {onImagePicker && (
-          <RoundButton
-            variant="tertiary"
-            onPress={onImagePicker}
-            Icon={CameraIcon}
-          />
-        )}
+        <RoundButton
+          variant="tertiary"
+          onPress={handleCameraPress}
+          Icon={CameraIcon}
+        />
+        <RoundButton
+          variant="tertiary"
+          onPress={handleMediaLibraryPress}
+          Icon={ImageIcon}
+        />
         {onRecording && (
           <RoundButton
             variant="tertiary"
