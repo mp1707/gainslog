@@ -42,13 +42,15 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
           />
         )}
       </View>
-      <Button
-        variant="primary"
-        label={estimateLabel}
-        onPress={onEstimate}
-        disabled={!canContinue}
-        Icon={Sparkles}
-      />
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Button
+          variant="primary"
+          label={estimateLabel}
+          onPress={onEstimate}
+          disabled={!canContinue}
+          Icon={Sparkles}
+        />
+      </View>
     </View>
   );
 };

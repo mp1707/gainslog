@@ -46,7 +46,7 @@ export const Button = React.memo<ButtonProps>(
   }) => {
     const { colors, theme, colorScheme } = useTheme();
     const fontScale = PixelRatio.getFontScale();
-    const styles = createStyles(colors, theme, colorScheme, fontScale);
+    const styles = createStyles(colors, theme, fontScale);
 
     const scale = useSharedValue(1);
     const adjustedIconSize = iconSize * fontScale;
@@ -152,6 +152,8 @@ export const Button = React.memo<ButtonProps>(
       const iconElement = renderIcon();
       const textElement = (
         <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
           style={[
             styles.label,
             disabled
@@ -170,11 +172,20 @@ export const Button = React.memo<ButtonProps>(
       if (!Icon) return textElement;
 
       return (
-        <>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            flexShrink: 1, // ✅ don’t force full width, but allow shrinking
+            minWidth: 0,
+          }}
+        >
           {iconPlacement === "left" && iconElement}
-          {textElement}
+          <View style={{ flexShrink: 1, flexGrow: 1, minWidth: 0 }}>
+            {textElement}
+          </View>
           {iconPlacement === "right" && iconElement}
-        </>
+        </View>
       );
     };
 

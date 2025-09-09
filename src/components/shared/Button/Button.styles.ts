@@ -4,20 +4,20 @@ import type { Colors, ColorScheme, Theme, Typography } from "@/theme";
 export const createStyles = (
   colors: Colors,
   theme: Theme,
-  colorScheme: ColorScheme,
   fontScale: number
 ) => {
-  const componentStyles = theme.getComponentStyles(colorScheme);
   const { typography } = theme;
   return StyleSheet.create({
     container: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      borderRadius: componentStyles.buttons.cornerRadius,
+      borderRadius: 9999,
       paddingVertical: Math.max(12 * fontScale, 12),
       paddingHorizontal: Math.max(16 * fontScale, 16),
-      minHeight: 44 * fontScale, // iOS recommended minimum tap target
+      minHeight: 44 * fontScale,
+      flexShrink: 1, // ✅ allow button to shrink if needed
+      minWidth: 0, // ✅ required so child text can ellipsize
     },
     primary: {
       backgroundColor: colors.accent,
@@ -35,6 +35,8 @@ export const createStyles = (
       ...typography.Button,
       fontSize: typography.Button.fontSize * fontScale,
       textAlign: "center",
+      flexShrink: 1,
+      minWidth: 0,
     },
     labelPrimary: {
       color: colors.black,
