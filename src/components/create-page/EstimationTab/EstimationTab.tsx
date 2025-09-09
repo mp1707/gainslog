@@ -23,8 +23,8 @@ export const EstimationTab: React.FC<EstimationTabProps> = ({
   textInputRef,
   inputAccessoryViewID,
 }) => {
-  const { colors, theme } = useTheme();
-  const styles = createStyles(colors, theme, !!imageUrl);
+  const { colors, theme, colorScheme } = useTheme();
+  const styles = createStyles(colors, theme, !!imageUrl, colorScheme);
 
   return (
     <KeyboardAwareScrollView

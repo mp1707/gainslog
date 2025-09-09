@@ -13,6 +13,7 @@ export type AppState = {
   // UI state
   selectedDate: string; // YYYY-MM-DD (for day view)
   selectedMonth: string; // YYYY-MM (for month view)
+  imageCallback?: (uri: string) => void;
 
   // Logs
   addFoodLog: (log: FoodLog) => void;
@@ -33,6 +34,7 @@ export type AppState = {
   // UI
   setSelectedDate: (date: string) => void;
   setSelectedMonth: (month: string) => void;
+  setImageCallback: (callback?: (uri: string) => void) => void;
 };
 
 export const useAppStore = create<AppState>()(
@@ -43,9 +45,10 @@ export const useAppStore = create<AppState>()(
       dailyTargets: undefined,
       userSettings: undefined,
 
-      // default to today’s date & current month
+      // default to today's date & current month
       selectedDate: new Date().toISOString().split("T")[0], // YYYY-MM-DD
       selectedMonth: new Date().toISOString().slice(0, 7), // YYYY-MM
+      imageCallback: undefined,
 
       // Logs
       addFoodLog: (log) =>
@@ -114,6 +117,11 @@ export const useAppStore = create<AppState>()(
       setSelectedMonth: (month) =>
         set((state) => {
           state.selectedMonth = month;
+        }),
+
+      setImageCallback: (callback) =>
+        set((state) => {
+          state.imageCallback = callback;
         }),
     })),
     {

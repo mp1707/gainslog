@@ -47,6 +47,7 @@ export const useEstimation = () => {
           protein: completedLog.protein,
           carbs: completedLog.carbs,
           fat: completedLog.fat,
+          localImagePath: logData.localImagePath,
           estimationConfidence: completedLog.estimationConfidence,
           isEstimating: false,
         });

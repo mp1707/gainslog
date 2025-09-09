@@ -27,7 +27,7 @@ export default function Create() {
   const [estimationType, setEstimationType] = useState<
     "ai" | "favorites" | "manual"
   >("ai");
-  const { selectedDate, addFoodLog } = useAppStore();
+  const { selectedDate, addFoodLog, setImageCallback } = useAppStore();
   const { startEstimation } = useEstimation();
   const [newLog, setNewLog] = useState<FoodLog>({
     id: "",
@@ -44,7 +44,7 @@ export default function Create() {
     estimationConfidence: 0,
   });
 
-  const styles = createStyles(colors, theme);
+  const styles = createStyles(theme);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const textInputRef = useRef<RNTextInput>(null);
   const estimateLabel = useMemo(() => {
@@ -54,12 +54,42 @@ export default function Create() {
   }, [newLog.estimationConfidence]);
 
   useDelayedAutofocus(textInputRef);
+
   useEffect(() => {
     setNewLog({
       ...newLog,
       logDate: selectedDate,
     });
   }, [selectedDate]);
+
+  const handleImageSelected = useCallback(async (uri: string) => {
+    setIsUploadingImage(true);
+    try {
+      const uploadedImageUrl = await uploadToSupabaseStorage(uri);
+      setNewLog((prev) => ({
+        ...prev,
+        localImagePath: uri,
+        supabaseImagePath: uploadedImageUrl,
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+        estimationConfidence: 0,
+      }));
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    setImageCallback(handleImageSelected);
+
+    return () => {
+      setImageCallback(undefined);
+    };
+  }, [handleImageSelected, setImageCallback]);
 
   const canContine =
     newLog?.description?.trim() !== "" || newLog.supabaseImagePath !== "";
@@ -85,27 +115,6 @@ export default function Create() {
     back();
   }, [back]);
 
-  // const { showImagePickerAlert } = useImageSelection({
-  //   onImageSelected: (imageUrl: string) => {
-  //     setNewLog((prev) => ({
-  //       ...prev,
-  //       supabaseImagePath: imageUrl,
-  //       calories: 0,
-  //       protein: 0,
-  //       carbs: 0,
-  //       fat: 0,
-  //       estimationConfidence: 0,
-  //     }));
-  //     setIsUploadingImage(false);
-  //   },
-  //   onUploadStart: () => {
-  //     setIsUploadingImage(true);
-  //   },
-  //   onUploadError: () => {
-  //     setIsUploadingImage(false);
-  //   },
-  // });
-
   const handleEstimation = useCallback(() => {
     startEstimation({
       logDate: newLog.logDate,
@@ -113,6 +122,7 @@ export default function Create() {
       title: newLog.title,
       description: newLog.description,
       supabaseImagePath: newLog.supabaseImagePath,
+      localImagePath: newLog.localImagePath,
     });
     back();
   }, [newLog, startEstimation, back]);
@@ -131,15 +141,6 @@ export default function Create() {
     },
     [addFoodLog, selectedDate, back]
   );
-
-  const handleImage = useCallback(async (uri: string) => {
-    const uploadedImageUrl = await uploadToSupabaseStorage(uri);
-    setNewLog((prev) => ({
-      ...prev,
-      localImagePath: uri,
-      supabaseImagePath: uploadedImageUrl,
-    }));
-  }, []);
 
   const handleDescriptionChange = useCallback((description: string) => {
     setNewLog((prev) => ({ ...prev, description }));
@@ -179,7 +180,8 @@ export default function Create() {
       {estimationType === "ai" && (
         <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
           <KeyboardAccessory
-            onImageSelected={handleImage}
+            onImageSelected={handleImageSelected}
+            textInputRef={textInputRef}
             onRecording={startRecording}
             onEstimate={handleEstimation}
             estimateLabel={estimateLabel}
@@ -196,7 +198,7 @@ export default function Create() {
   );
 }
 
-const createStyles = (colors: Colors, theme: Theme) =>
+const createStyles = (theme: Theme) =>
   StyleSheet.create({
     container: {
       flex: 1,

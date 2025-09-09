@@ -1,8 +1,15 @@
 import { StyleSheet } from "react-native";
-import type { Colors, Theme } from "@/theme";
+import type { Colors, ColorScheme, Theme } from "@/theme";
 
-export const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
-  StyleSheet.create({
+export const createStyles = (
+  colors: Colors,
+  theme: Theme,
+  hasImage: boolean,
+  colorScheme: ColorScheme
+) => {
+  const componentStyles = theme.getComponentStyles(colorScheme);
+
+  return StyleSheet.create({
     scrollView: {
       flex: 1,
     },
@@ -18,5 +25,8 @@ export const createStyles = (colors: Colors, theme: Theme, hasImage: boolean) =>
     },
     textInputContainer: {
       minHeight: 150,
+      backgroundColor: componentStyles.cards.backgroundColor,
+      borderRadius: componentStyles.cards.cornerRadius,
     },
   });
+};

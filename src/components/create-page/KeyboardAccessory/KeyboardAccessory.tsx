@@ -1,7 +1,8 @@
 import React, { useCallback } from "react";
-import { View } from "react-native";
+import { View, TextInput } from "react-native";
 import { CameraIcon, MicIcon, ImageIcon, Sparkles } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
+import { useRouter } from "expo-router";
 import { useTheme } from "@/theme";
 import { Button } from "@/components";
 import { RoundButton } from "@/components/shared/RoundButton";
@@ -13,6 +14,7 @@ interface KeyboardAccessoryProps {
   onEstimate: () => void;
   estimateLabel: string;
   canContinue: boolean;
+  textInputRef?: React.RefObject<TextInput | null>;
 }
 
 export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
@@ -21,16 +23,19 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   onEstimate,
   estimateLabel,
   canContinue,
+  textInputRef,
 }) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
+  const router = useRouter();
 
   const handleCameraPress = useCallback(async () => {
-    // ... get uri from camera
-    // onImageSelected(uri);
-  }, [onImageSelected]);
+    textInputRef?.current?.blur();
+    router.push("/camera");
+  }, [router]);
 
   const handleMediaLibraryPress = useCallback(async () => {
+    textInputRef?.current?.blur();
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: "images",

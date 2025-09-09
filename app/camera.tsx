@@ -35,7 +35,7 @@ export default function Camera() {
   const [isCameraReady, setIsCameraReady] = useState(false);
   const { safeDismissTo } = useNavigationGuard();
   const { startEstimation } = useEstimation();
-  const { selectedDate } = useAppStore();
+  const { selectedDate, imageCallback } = useAppStore();
 
   useDelayedAutofocus(textInputRef);
 
@@ -55,10 +55,15 @@ export default function Camera() {
   const takePicture = async () => {
     if (!isCameraReady) return;
     const image = await cameraRef.current?.takePictureAsync();
-    setLocalImageURI(image?.uri);
     
-    // Automatically upload the image to Supabase
-    if (image?.uri) {
+    if (image?.uri && imageCallback) {
+      imageCallback(image.uri);
+      safeDismissTo("/create");
+    } else if (image?.uri) {
+      // Fallback to original behavior if no callback
+      setLocalImageURI(image.uri);
+      
+      // Automatically upload the image to Supabase
       setIsUploadingImage(true);
       try {
         const uploadedImageUrl = await uploadToSupabaseStorage(image.uri);
@@ -140,7 +145,12 @@ export default function Camera() {
               style={styles.cameraButton}
             />
           </View>
-          <MediaLibraryPreview onImageSelected={setLocalImageURI} />
+          <MediaLibraryPreview 
+            onImageSelected={imageCallback ? (uri) => {
+              imageCallback(uri);
+              safeDismissTo("/create");
+            } : setLocalImageURI} 
+          />
           
           <RoundButton
             Icon={X}

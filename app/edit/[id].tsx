@@ -102,7 +102,7 @@ export default function Edit() {
         bottomOffset={130}
       >
         <ImageDisplay
-          imageUrl={editLog?.supabaseImagePath}
+          imageUrl={editLog?.localImagePath}
           isUploading={isUploadingImage}
         />
         <View style={styles.section}>

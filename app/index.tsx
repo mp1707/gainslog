@@ -5,13 +5,7 @@ import {
   FlatList,
   ListRenderItem,
 } from "react-native";
-import React, {
-  useMemo,
-  useCallback,
-  useRef,
-  useEffect,
-  useState,
-} from "react";
+import React, { useMemo, useCallback, useRef, useEffect } from "react";
 import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
 import { useAppStore } from "@/store/useAppStore";
 import {
@@ -30,12 +24,6 @@ import { DateSlider } from "@/components/shared/DateSlider";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
-import {
-  useSharedValue,
-  useAnimatedReaction,
-  runOnJS,
-} from "react-native-reanimated";
-import { DraggableButton } from "@/components/daily-food-logs/DraggableButton";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { Plus } from "lucide-react-native";
 
