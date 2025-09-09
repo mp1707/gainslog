@@ -7,9 +7,10 @@ import { useTheme } from "@/theme/ThemeProvider";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Keyboard, StyleSheet, View } from "react-native";
 import { FoodLog } from "@/types/models";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { NutritionEditCard } from "@/components/edit-page/NutritionEditCard";
-import { Camera, Sparkles, X } from "lucide-react-native";
+import { X } from "lucide-react-native";
+import { KeyboardAccessory } from "@/components/create-page/KeyboardAccessory/KeyboardAccessory";
 import { useEstimation } from "@/hooks/useEstimation";
 import { ConfidenceBadge, SkeletonPill } from "@/components/shared";
 import {
@@ -20,6 +21,7 @@ import { useImageSelection } from "@/hooks/useImageSelection";
 import { TextInput } from "@/components/shared/TextInput";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
+import { uploadToSupabaseStorage } from "@/utils/uploadToSupabaseStorage";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -32,20 +34,21 @@ export default function Edit() {
   const { back } = useRouter();
   const { startReEstimation } = useEstimation();
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const { showImagePickerAlert } = useImageSelection({
-    onImageSelected: (imageUrl: string) => {
-      setEditLog((prev) =>
-        prev ? { ...prev, supabaseImagePath: imageUrl } : undefined
-      );
-      setIsUploadingImage(false);
-    },
-    onUploadStart: () => {
-      setIsUploadingImage(true);
-    },
-    onUploadError: () => {
-      setIsUploadingImage(false);
-    },
-  });
+
+  // const { showImagePickerAlert } = useImageSelection({
+  //   onImageSelected: (imageUrl: string) => {
+  //     setEditLog((prev) =>
+  //       prev ? { ...prev, localImagePath: imageUrl } : undefined
+  //     );
+  //     setIsUploadingImage(false);
+  //   },
+  //   onUploadStart: () => {
+  //     setIsUploadingImage(true);
+  //   },
+  //   onUploadError: () => {
+  //     setIsUploadingImage(false);
+  //   },
+  // });
 
   if (!editLog) return;
   if (!originalLog) return;
@@ -53,28 +56,21 @@ export default function Edit() {
   const handleCancel = () => {
     back();
   };
-  const handleDone = () => {
-    if (editLog) {
-      updateFoodLog(id, { ...editLog, logDate: selectedDate });
-    }
-    back();
-  };
 
   const changesWereMade =
     editLog.description !== originalLog.description ||
-    editLog.supabaseImagePath !== originalLog.supabaseImagePath;
+    editLog.localImagePath !== originalLog.localImagePath;
 
-  const caNreEstimate =
+  const canReEstimate =
     (changesWereMade && editLog?.description?.trim() !== "") ||
-    (editLog?.supabaseImagePath !== "" &&
-      editLog?.supabaseImagePath !== originalLog.supabaseImagePath);
+    (editLog?.localImagePath !== "" &&
+      editLog?.localImagePath !== originalLog.localImagePath);
 
   const handleUpdateNutrition = (field: string, value: number) => {
     setEditLog({ ...editLog, [field]: value });
   };
 
   const handleReEstimate = () => {
-    console.log("handleReEstimate");
     startReEstimation(editLog, (log) => {
       setEditLog(log);
       setIsReEstimating(false);
@@ -82,6 +78,17 @@ export default function Edit() {
     setIsReEstimating(true);
     Keyboard.dismiss();
   };
+
+  const handleImageSelected = useCallback(async (uri: string) => {
+    setIsUploadingImage(true);
+    setEditLog((prev) => (prev ? { ...prev, localImagePath: uri } : undefined));
+    const uploadedImageUrl = await uploadToSupabaseStorage(uri);
+
+    setEditLog((prev) =>
+      prev ? { ...prev, supabaseImagePath: uploadedImageUrl } : undefined
+    );
+    setIsUploadingImage(false);
+  }, []);
 
   const estimateLabel = isReEstimating ? "estimating" : "Re-estimate";
 
@@ -149,21 +156,12 @@ export default function Edit() {
       </KeyboardAwareScrollView>
 
       <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
-        <View style={styles.keyboardAccessory}>
-          <RoundButton
-            variant="tertiary"
-            onPress={showImagePickerAlert}
-            Icon={Camera}
-          />
-
-          <Button
-            variant="primary"
-            label={estimateLabel}
-            onPress={handleReEstimate}
-            disabled={!caNreEstimate || isReEstimating}
-            Icon={Sparkles}
-          />
-        </View>
+        <KeyboardAccessory
+          onImageSelected={handleImageSelected}
+          onEstimate={handleReEstimate}
+          estimateLabel={estimateLabel}
+          canContinue={canReEstimate && !isReEstimating}
+        />
       </KeyboardStickyView>
     </GradientWrapper>
   );
@@ -212,16 +210,5 @@ const createStyles = (colors: Colors, theme: Theme) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-    },
-    keyboardAccessory: {
-      marginHorizontal: theme.spacing.sm,
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      gap: theme.spacing.sm,
-      borderRadius: 16,
-
-      overflow: "hidden",
-      zIndex: 99,
     },
   });

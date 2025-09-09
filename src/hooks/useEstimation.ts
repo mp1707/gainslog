@@ -81,6 +81,7 @@ export const useEstimation = () => {
         title: title,
         description: logData.description || "",
         supabaseImagePath: logData.supabaseImagePath || "",
+        localImagePath: logData.localImagePath,
         calories: estimationResults.calories,
         protein: estimationResults.protein,
         carbs: estimationResults.carbs,
