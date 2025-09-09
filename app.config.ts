@@ -5,11 +5,7 @@ const IS_PREVIEW = process.env.APP_VARIANT === "preview";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: IS_DEV
-    ? "MacroLoop (Dev)"
-    : IS_PREVIEW
-    ? "MacroLoop (Preview)"
-    : "MacroLoop",
+  name: IS_DEV ? "Macro Loop D" : IS_PREVIEW ? "Macro Loop P" : "Macro Loop",
   slug: "gainslog",
   version: "1.0.0",
   orientation: "portrait",
