@@ -1,31 +1,23 @@
-import { Toggle } from "@/components/shared/Toggle";
-import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { useAppStore } from "@/store/useAppStore";
 import { Colors, Theme } from "@/theme/theme";
 import { useTheme } from "@/theme/ThemeProvider";
 import { Favorite, FoodLog } from "@/types/models";
 import { useRouter } from "expo-router";
-import { Sparkles } from "lucide-react-native";
 import { useCallback, useMemo, useRef, useState, useEffect } from "react";
-import {
-  StyleSheet,
-  TextInput as RNTextInput,
-  View,
-} from "react-native";
+import { StyleSheet, TextInput as RNTextInput, View } from "react-native";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { useTranscription } from "@/hooks/useTranscription";
 import { useImageSelection } from "@/hooks/useImageSelection";
 import { useEstimation } from "@/hooks/useEstimation";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
-import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
 import { generateFoodLogId } from "@/utils/idGenerator";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { TranscriptionOverlay } from "@/components/shared/TranscriptionOverlay";
-import { formatDate } from "@/utils/formatDate";
 import { CreateHeader } from "@/components/create-page/CreateHeader/CreateHeader";
 import { EstimationTab } from "@/components/create-page/EstimationTab/EstimationTab";
 import { FavoritesTab } from "@/components/create-page/FavoritesTab/FavoritesTab";
 import { KeyboardAccessory } from "@/components/create-page/KeyboardAccessory/KeyboardAccessory";
+import { Toggle } from "@/components/shared/Toggle";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -34,7 +26,7 @@ export default function Create() {
   const [estimationType, setEstimationType] = useState<
     "ai" | "favorites" | "manual"
   >("ai");
-  const { selectedDate, favorites, deleteFavorite, addFoodLog } = useAppStore();
+  const { selectedDate, addFoodLog } = useAppStore();
   const { startEstimation } = useEstimation();
   const [newLog, setNewLog] = useState<FoodLog>({
     id: "",
@@ -50,16 +42,6 @@ export default function Create() {
     estimationConfidence: 0,
   });
 
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const filteredFavorites = useMemo(() => {
-    if (!searchQuery.trim()) return favorites;
-    return favorites.filter(
-      (favorite) =>
-        favorite.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        favorite.description?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [favorites, searchQuery]);
   const styles = createStyles(colors, theme);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const textInputRef = useRef<RNTextInput>(null);
@@ -133,39 +115,46 @@ export default function Create() {
     back();
   }, [newLog, startEstimation, back]);
 
-  const handleCreateLogFromFavorite = useCallback((favorite: Favorite) => {
-    addFoodLog({
-      ...favorite,
-      logDate: selectedDate,
-      createdAt: new Date().toISOString(),
-      isEstimating: false,
-      estimationConfidence: 100,
-      id: generateFoodLogId(),
-    });
-    back();
-  }, [addFoodLog, selectedDate, back]);
+  const handleCreateLogFromFavorite = useCallback(
+    (favorite: Favorite) => {
+      addFoodLog({
+        ...favorite,
+        logDate: selectedDate,
+        createdAt: new Date().toISOString(),
+        isEstimating: false,
+        estimationConfidence: 100,
+        id: generateFoodLogId(),
+      });
+      back();
+    },
+    [addFoodLog, selectedDate, back]
+  );
 
-  const handleLogChange = useCallback((updates: Partial<FoodLog>) => {
-    setNewLog(prev => ({ ...prev, ...updates }));
+  const handleDescriptionChange = useCallback((description: string) => {
+    setNewLog((prev) => ({ ...prev, description }));
   }, []);
-
-  const formattedDate = formatDate(selectedDate);
 
   return (
     <GradientWrapper style={styles.container}>
-      <CreateHeader
-        formattedDate={formattedDate}
-        estimationType={estimationType}
-        onEstimationTypeChange={setEstimationType}
-        onCancel={handleCancel}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
+      <CreateHeader onCancel={handleCancel} />
+
+      <View style={styles.toggleContainer}>
+        <Toggle
+          value={estimationType}
+          options={[
+            { label: "Estimation", value: "ai" },
+            { label: "Favorites", value: "favorites" },
+            { label: "Manual", value: "manual" },
+          ]}
+          onChange={setEstimationType}
+        />
+      </View>
 
       {estimationType === "ai" && (
         <EstimationTab
-          newLog={newLog}
-          onLogChange={handleLogChange}
+          description={newLog.description}
+          onDescriptionChange={handleDescriptionChange}
+          imageUrl={newLog.supabaseImagePath}
           isUploadingImage={isUploadingImage}
           textInputRef={textInputRef}
           inputAccessoryViewID={inputAccessoryViewID}
@@ -174,9 +163,7 @@ export default function Create() {
 
       {estimationType === "favorites" && (
         <FavoritesTab
-          filteredFavorites={filteredFavorites}
           onCreateFromFavorite={handleCreateLogFromFavorite}
-          onDeleteFavorite={deleteFavorite}
         />
       )}
 
@@ -205,5 +192,9 @@ const createStyles = (colors: Colors, theme: Theme) =>
     container: {
       flex: 1,
       paddingTop: theme.spacing.md,
+    },
+    toggleContainer: {
+      marginHorizontal: theme.spacing.md,
+      marginBottom: theme.spacing.md,
     },
   });

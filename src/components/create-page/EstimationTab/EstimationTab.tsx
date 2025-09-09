@@ -4,30 +4,27 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useTheme } from "@/theme";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { TextInput } from "@/components/shared/TextInput";
-import type { FoodLog } from "@/types/models";
 import { createStyles } from "./EstimationTab.styles";
 
 interface EstimationTabProps {
-  newLog: FoodLog;
-  onLogChange: (updates: Partial<FoodLog>) => void;
+  description?: string;
+  onDescriptionChange: (description: string) => void;
+  imageUrl?: string;
   isUploadingImage: boolean;
   textInputRef: React.RefObject<RNTextInput | null>;
   inputAccessoryViewID: string;
 }
 
 export const EstimationTab: React.FC<EstimationTabProps> = ({
-  newLog,
-  onLogChange,
+  description,
+  onDescriptionChange,
+  imageUrl,
   isUploadingImage,
   textInputRef,
   inputAccessoryViewID,
 }) => {
   const { colors, theme } = useTheme();
-  const styles = createStyles(colors, theme, !!newLog.supabaseImagePath);
-
-  const handleDescriptionChange = (text: string) => {
-    onLogChange({ description: text });
-  };
+  const styles = createStyles(colors, theme, !!imageUrl);
 
   return (
     <KeyboardAwareScrollView
@@ -38,14 +35,11 @@ export const EstimationTab: React.FC<EstimationTabProps> = ({
       bottomOffset={250}
     >
       <View style={styles.content}>
-        <ImageDisplay
-          imageUrl={newLog.supabaseImagePath}
-          isUploading={isUploadingImage}
-        />
+        <ImageDisplay imageUrl={imageUrl} isUploading={isUploadingImage} />
         <TextInput
           ref={textInputRef}
-          value={newLog.description || ""}
-          onChangeText={handleDescriptionChange}
+          value={description || ""}
+          onChangeText={onDescriptionChange}
           placeholder="e.g. 100g of chicken breast"
           multiline={true}
           inputAccessoryViewID={inputAccessoryViewID}
