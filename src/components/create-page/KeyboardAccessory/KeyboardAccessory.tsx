@@ -7,8 +7,8 @@ import { RoundButton } from "@/components/shared/RoundButton";
 import { createStyles } from "./KeyboardAccessory.styles";
 
 interface KeyboardAccessoryProps {
-  onImagePicker: () => void;
-  onRecording: () => void;
+  onImagePicker?: () => void;
+  onRecording?: () => void;
   onEstimate: () => void;
   estimateLabel: string;
   canContinue: boolean;
@@ -27,16 +27,20 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.mediaActionContainer}>
-        <RoundButton
-          variant="tertiary"
-          onPress={onImagePicker}
-          Icon={CameraIcon}
-        />
-        <RoundButton
-          variant="tertiary"
-          onPress={onRecording}
-          Icon={MicIcon}
-        />
+        {onImagePicker && (
+          <RoundButton
+            variant="tertiary"
+            onPress={onImagePicker}
+            Icon={CameraIcon}
+          />
+        )}
+        {onRecording && (
+          <RoundButton
+            variant="tertiary"
+            onPress={onRecording}
+            Icon={MicIcon}
+          />
+        )}
       </View>
       <Button
         variant="primary"
