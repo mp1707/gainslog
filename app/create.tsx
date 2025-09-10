@@ -18,12 +18,8 @@ import { EstimationTab } from "@/components/create-page/EstimationTab/Estimation
 import { FavoritesTab } from "@/components/create-page/FavoritesTab/FavoritesTab";
 import { KeyboardAccessory } from "@/components/create-page/KeyboardAccessory/KeyboardAccessory";
 import { Toggle } from "@/components/shared/Toggle";
-import * as ImageManipulator from "expo-image-manipulator";
-import * as FileSystem from "expo-file-system";
-import "react-native-get-random-values";
-import { v4 as uuidv4 } from "uuid";
 import { showErrorToast } from "@/lib/toast";
-import { uploadToSupabaseStorage } from "@/utils/uploadToSupabaseStorage";
+import { processImage } from "@/utils/processImage";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -58,30 +54,11 @@ export default function Create() {
   const handleNewImageSelected = useCallback(async (uri: string) => {
     setIsProcessingImage(true);
     try {
-      // Resize the image to a max width of 1000px, maintaining aspect ratio.
-      const resizedImage = await ImageManipulator.manipulateAsync(
-        uri,
-        [{ resize: { width: 1000 } }],
-        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
-      );
-
-      const uniqueFilename = `${uuidv4()}.jpg`;
-      // Define the permanent path in the app's sandboxed document directory.
-      const permanentPath = `${FileSystem.documentDirectory}${uniqueFilename}`;
-
-      // Move the resized image from its temporary cache location to the permanent path.
-      await FileSystem.moveAsync({
-        from: resizedImage.uri,
-        to: permanentPath,
-      });
-
-      const supabaseImagePath = await uploadToSupabaseStorage(permanentPath);
-
-      console.log("Image saved locally to:", permanentPath);
+      const { localImagePath, supabaseImagePath } = await processImage(uri);
 
       setNewLog((prev) => ({
         ...prev,
-        localImagePath: permanentPath,
+        localImagePath,
         supabaseImagePath,
         calories: 0,
         protein: 0,
