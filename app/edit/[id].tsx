@@ -4,7 +4,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { Colors, Theme } from "@/theme/theme";
 import { useTheme } from "@/theme/ThemeProvider";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Keyboard, StyleSheet, View } from "react-native";
+import { Keyboard, StyleSheet, View, ActivityIndicator } from "react-native";
 import { FoodLog } from "@/types/models";
 import { useCallback, useState, useEffect, useMemo, useRef } from "react";
 import { NutritionEditCard } from "@/components/edit-page/NutritionEditCard";
@@ -192,7 +192,7 @@ export default function Edit() {
     }
   }, [pendingLog, originalLog, updatePendingLog, startReEstimation]);
 
-  // Show loading skeleton while store is syncing (prevents white screen)
+  // Show loading spinner while store is syncing (prevents white screen)
   if (!originalLog || !pendingLog || pendingLog.id !== originalLog.id) {
     return (
       <GradientWrapper style={styles.container}>
@@ -204,36 +204,9 @@ export default function Edit() {
             accessibilityLabel="Close"
           />
         </View>
-        <KeyboardAwareScrollView
-          style={[styles.scrollView]}
-          contentContainerStyle={styles.contentContainer}
-        >
-          <View style={{ height: 200, backgroundColor: colors.secondaryBackground, borderRadius: theme.components.buttons.cornerRadius }}>
-            <SkeletonPill width={100} height={100} />
-          </View>
-          <View style={styles.section}>
-            <SkeletonPill width={80} height={22} />
-            <View style={[styles.textInputContainer, { minHeight: 50 }]}>
-              <SkeletonPill width="60%" height={18} />
-            </View>
-          </View>
-          <View style={styles.section}>
-            <SkeletonPill width={100} height={22} />
-            <View style={[styles.textInputContainer, { minHeight: 100 }]}>
-              <SkeletonPill width="80%" height={18} />
-              <SkeletonPill width="70%" height={18} style={{ marginTop: 8 }} />
-            </View>
-          </View>
-          <View style={styles.section}>
-            <View style={styles.sectionTitle}>
-              <SkeletonPill width={80} height={22} />
-              <SkeletonPill width={80} height={28} />
-            </View>
-            <View style={[styles.textInputContainer, { padding: theme.spacing.md }]}>
-              <SkeletonPill width="100%" height={60} />
-            </View>
-          </View>
-        </KeyboardAwareScrollView>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primaryText} />
+        </View>
       </GradientWrapper>
     );
   }
@@ -346,6 +319,11 @@ const createStyles = (colors: Colors, theme: Theme) =>
       gap: theme.spacing.sm,
       flexDirection: "row",
       justifyContent: "space-between",
+      alignItems: "center",
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: "center",
       alignItems: "center",
     },
   });
