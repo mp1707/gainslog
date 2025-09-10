@@ -38,15 +38,6 @@ export const uploadToSupabaseStorage = async (
       throw uploadError;
     }
 
-    // // Get the public URL for the uploaded image
-    // const { data: publicUrlData } = supabase.storage
-    //   .from("food-images")
-    //   .getPublicUrl(filename);
-
-    // if (!publicUrlData?.publicUrl) {
-    //   throw new Error("Failed to obtain public URL");
-    // }
-
     return filename;
   } catch (error) {
     console.error("Error uploading image to Supabase:", error);

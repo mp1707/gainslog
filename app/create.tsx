@@ -18,12 +18,17 @@ import { EstimationTab } from "@/components/create-page/EstimationTab/Estimation
 import { FavoritesTab } from "@/components/create-page/FavoritesTab/FavoritesTab";
 import { KeyboardAccessory } from "@/components/create-page/KeyboardAccessory/KeyboardAccessory";
 import { Toggle } from "@/components/shared/Toggle";
+import * as ImageManipulator from "expo-image-manipulator";
+import * as FileSystem from "expo-file-system";
+import "react-native-get-random-values";
+import { v4 as uuidv4 } from "uuid";
+import { showErrorToast } from "@/lib/toast";
 import { uploadToSupabaseStorage } from "@/utils/uploadToSupabaseStorage";
 
 const inputAccessoryViewID = "create-input-accessory";
 
 export default function Create() {
-  const { colors, theme } = useTheme();
+  const { theme } = useTheme();
   const [estimationType, setEstimationType] = useState<
     "ai" | "favorites" | "manual"
   >("ai");
@@ -45,31 +50,39 @@ export default function Create() {
   });
 
   const styles = createStyles(theme);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
   const textInputRef = useRef<RNTextInput>(null);
-  const estimateLabel = useMemo(() => {
-    if (newLog.estimationConfidence && newLog.estimationConfidence > 0)
-      return "Re-estimate";
-    return "Estimate";
-  }, [newLog.estimationConfidence]);
-
+  const { back } = useRouter();
   useDelayedAutofocus(textInputRef);
 
-  useEffect(() => {
-    setNewLog({
-      ...newLog,
-      logDate: selectedDate,
-    });
-  }, [selectedDate]);
-
-  const handleImageSelected = useCallback(async (uri: string) => {
-    setIsUploadingImage(true);
+  const handleNewImageSelected = useCallback(async (uri: string) => {
+    setIsProcessingImage(true);
     try {
-      const uploadedImageUrl = await uploadToSupabaseStorage(uri);
+      // Resize the image to a max width of 1000px, maintaining aspect ratio.
+      const resizedImage = await ImageManipulator.manipulateAsync(
+        uri,
+        [{ resize: { width: 1000 } }],
+        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+      );
+
+      const uniqueFilename = `${uuidv4()}.jpg`;
+      // Define the permanent path in the app's sandboxed document directory.
+      const permanentPath = `${FileSystem.documentDirectory}${uniqueFilename}`;
+
+      // Move the resized image from its temporary cache location to the permanent path.
+      await FileSystem.moveAsync({
+        from: resizedImage.uri,
+        to: permanentPath,
+      });
+
+      const supabaseImagePath = await uploadToSupabaseStorage(permanentPath);
+
+      console.log("Image saved locally to:", permanentPath);
+
       setNewLog((prev) => ({
         ...prev,
-        localImagePath: uri,
-        supabaseImagePath: uploadedImageUrl,
+        localImagePath: permanentPath,
+        supabaseImagePath,
         calories: 0,
         protein: 0,
         carbs: 0,
@@ -77,22 +90,15 @@ export default function Create() {
         estimationConfidence: 0,
       }));
     } catch (error) {
-      console.error("Error uploading image:", error);
+      console.log("Error processing image:", error);
+      showErrorToast("Error processing image", "Please try again.");
     } finally {
-      setIsUploadingImage(false);
+      setIsProcessingImage(false);
     }
   }, []);
 
-  useEffect(() => {
-    setImageCallback(handleImageSelected);
-
-    return () => {
-      setImageCallback(undefined);
-    };
-  }, [handleImageSelected, setImageCallback]);
-
-  const canContine =
-    newLog?.description?.trim() !== "" || newLog.supabaseImagePath !== "";
+  const canContinue =
+    newLog?.description?.trim() !== "" || newLog.localImagePath !== "";
 
   const { isRecording, liveTranscription, stopRecording, startRecording } =
     useTranscription();
@@ -110,7 +116,6 @@ export default function Create() {
     await stopRecording();
   }, [liveTranscription, stopRecording]);
 
-  const { back } = useRouter();
   const handleCancel = useCallback(() => {
     back();
   }, [back]);
@@ -146,6 +151,22 @@ export default function Create() {
     setNewLog((prev) => ({ ...prev, description }));
   }, []);
 
+  useEffect(() => {
+    setImageCallback(handleNewImageSelected);
+
+    return () => {
+      setImageCallback(undefined);
+    };
+  }, [handleNewImageSelected, setImageCallback]);
+
+  useEffect(() => {
+    setNewLog((prev) => ({
+      // Ensure state updates are based on previous state
+      ...prev,
+      logDate: selectedDate,
+    }));
+  }, [selectedDate]);
+
   return (
     <GradientWrapper style={styles.container}>
       <CreateHeader onCancel={handleCancel} />
@@ -167,7 +188,7 @@ export default function Create() {
           description={newLog.description}
           onDescriptionChange={handleDescriptionChange}
           imageUrl={newLog.localImagePath}
-          isUploadingImage={isUploadingImage}
+          isUploadingImage={isProcessingImage}
           textInputRef={textInputRef}
           inputAccessoryViewID={inputAccessoryViewID}
         />
@@ -180,12 +201,12 @@ export default function Create() {
       {estimationType === "ai" && (
         <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
           <KeyboardAccessory
-            onImageSelected={handleImageSelected}
+            onImageSelected={handleNewImageSelected}
             textInputRef={textInputRef}
             onRecording={startRecording}
             onEstimate={handleEstimation}
-            estimateLabel={estimateLabel}
-            canContinue={canContine}
+            estimateLabel={"Estimate"}
+            canContinue={canContinue}
           />
         </KeyboardStickyView>
       )}

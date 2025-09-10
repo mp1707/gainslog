@@ -3,6 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FoodLog, Favorite, DailyTargets, UserSettings } from "../types/models";
+import * as FileSystem from "expo-file-system"; // --- 1. IMPORT EXPO-FILE-SYSTEM ---
 
 export type AppState = {
   foodLogs: FoodLog[];
@@ -18,8 +19,8 @@ export type AppState = {
   // Logs
   addFoodLog: (log: FoodLog) => void;
   updateFoodLog: (id: string, update: Partial<FoodLog>) => void;
-  deleteFoodLog: (id: string) => void;
-  clearAllLogs: () => void;
+  deleteFoodLog: (id: string) => Promise<void>; // Make it async
+  clearAllLogs: () => Promise<void>; // Make it async
   cleanupIncompleteEstimations: () => void;
   setFoodlogs: (logs: FoodLog[]) => void;
 
@@ -39,7 +40,7 @@ export type AppState = {
 
 export const useAppStore = create<AppState>()(
   persist(
-    immer((set) => ({
+    immer((set, get) => ({
       foodLogs: [],
       favorites: [],
       dailyTargets: undefined,
@@ -62,15 +63,49 @@ export const useAppStore = create<AppState>()(
           if (log) Object.assign(log, update);
         }),
 
-      deleteFoodLog: (id) =>
+      deleteFoodLog: async (id) => {
+        // First, find the log to get its on device image path
+        const logToDelete = get().foodLogs.find((log) => log.id === id);
+
+        // If the log has a local image, delete it from the file system
+        if (logToDelete && logToDelete.localImagePath) {
+          try {
+            await FileSystem.deleteAsync(logToDelete.localImagePath, {
+              idempotent: true, // This is crucial, it won't throw an error if the file doesn't exist
+            });
+          } catch (error) {}
+        }
         set((state) => {
           state.foodLogs = state.foodLogs.filter((log) => log.id !== id);
-        }),
+        });
+      },
 
-      clearAllLogs: () =>
+      // --- 4. PROACTIVELY ENHANCE `clearAllLogs` FOR COMPLETE CLEANUP ---
+      clearAllLogs: async () => {
+        // Get all image paths that need to be deleted
+        const imagePathsToDelete = get()
+          .foodLogs.map((log) => log.localImagePath)
+          .filter((path): path is string => !!path); // Filter out any null/undefined paths
+
+        if (imagePathsToDelete.length > 0) {
+          try {
+            // Use Promise.all to delete all files concurrently for better performance
+            await Promise.all(
+              imagePathsToDelete.map((uri) =>
+                FileSystem.deleteAsync(uri, { idempotent: true })
+              )
+            );
+            console.log(`Deleted ${imagePathsToDelete.length} images.`);
+          } catch (error) {
+            console.error("Error batch deleting images:", error);
+          }
+        }
+
+        // Finally, clear the logs from the state
         set((state) => {
           state.foodLogs = [];
-        }),
+        });
+      },
 
       cleanupIncompleteEstimations: () =>
         set((state) => {
