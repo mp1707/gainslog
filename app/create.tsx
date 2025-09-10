@@ -1,16 +1,14 @@
 import { useAppStore } from "@/store/useAppStore";
-import { Colors, Theme } from "@/theme/theme";
+import { Theme } from "@/theme/theme";
 import { useTheme } from "@/theme/ThemeProvider";
-import { Favorite, FoodLog } from "@/types/models";
+import { Favorite } from "@/types/models";
 import { useRouter } from "expo-router";
-import { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { StyleSheet, TextInput as RNTextInput, View } from "react-native";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { useTranscription } from "@/hooks/useTranscription";
-import { useImageSelection } from "@/hooks/useImageSelection";
 import { useEstimation } from "@/hooks/useEstimation";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
-import { generateFoodLogId } from "@/utils/idGenerator";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { TranscriptionOverlay } from "@/components/shared/TranscriptionOverlay";
 import { CreateHeader } from "@/components/create-page/CreateHeader/CreateHeader";
@@ -20,94 +18,85 @@ import { KeyboardAccessory } from "@/components/create-page/KeyboardAccessory/Ke
 import { Toggle } from "@/components/shared/Toggle";
 import { showErrorToast } from "@/lib/toast";
 import { processImage } from "@/utils/processImage";
+import { useCreationStore } from "@/store/useCreationStore"; // ++ IMPORT the new store
 
 const inputAccessoryViewID = "create-input-accessory";
 
 export default function Create() {
   const { theme } = useTheme();
-  const [estimationType, setEstimationType] = useState<
-    "ai" | "favorites" | "manual"
-  >("ai");
-  const { selectedDate, addFoodLog, setImageCallback } = useAppStore();
-  const { startEstimation } = useEstimation();
-  const [newLog, setNewLog] = useState<FoodLog>({
-    id: "",
-    title: "",
-    description: "",
-    supabaseImagePath: "",
-    localImagePath: "",
-    logDate: selectedDate,
-    createdAt: new Date().toISOString(),
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
-    estimationConfidence: 0,
-  });
-
   const styles = createStyles(theme);
-  const [isProcessingImage, setIsProcessingImage] = useState(false);
-  const textInputRef = useRef<RNTextInput>(null);
-  const { back } = useRouter();
-  useDelayedAutofocus(textInputRef);
-
-  const handleNewImageSelected = useCallback(async (uri: string) => {
-    setIsProcessingImage(true);
-    try {
-      const { localImagePath, supabaseImagePath } = await processImage(uri);
-
-      setNewLog((prev) => ({
-        ...prev,
-        localImagePath,
-        supabaseImagePath,
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-        fat: 0,
-        estimationConfidence: 0,
-      }));
-    } catch (error) {
-      console.log("Error processing image:", error);
-      showErrorToast("Error processing image", "Please try again.");
-    } finally {
-      setIsProcessingImage(false);
-    }
-  }, []);
-
-  const canContinue =
-    newLog?.description?.trim() !== "" || newLog.localImagePath !== "";
-
+  const router = useRouter();
+  const {
+    pendingLog,
+    startNewLog,
+    clearPendingLog,
+    updatePendingLog,
+  } = useCreationStore();
+  const { selectedDate, addFoodLog } = useAppStore();
+  const { startEstimation } = useEstimation();
   const { isRecording, liveTranscription, stopRecording, startRecording } =
     useTranscription();
 
+  const [estimationType, setEstimationType] = useState<
+    "ai" | "favorites" | "manual"
+  >("ai");
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
+  const textInputRef = useRef<RNTextInput>(null);
+  useDelayedAutofocus(textInputRef);
+
+  useEffect(() => {
+    startNewLog(selectedDate);
+    return () => {
+      clearPendingLog();
+    };
+  }, [startNewLog, clearPendingLog, selectedDate]);
+
+  const handleNewImageSelected = useCallback(
+    async (uri: string) => {
+      setIsProcessingImage(true);
+      try {
+        const { localImagePath, supabaseImagePath } = await processImage(uri);
+        updatePendingLog({
+          localImagePath,
+          supabaseImagePath,
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fat: 0,
+          estimationConfidence: 0,
+        });
+      } catch (error) {
+        console.log("Error processing image:", error);
+        showErrorToast("Error processing image", "Please try again.");
+      } finally {
+        setIsProcessingImage(false);
+      }
+    },
+    [updatePendingLog]
+  );
+
   const handleTranscriptionStop = useCallback(async () => {
+    if (!pendingLog) return;
     if (liveTranscription.trim()) {
-      setNewLog((prev) => ({
-        ...prev,
+      updatePendingLog({
         description:
-          prev.description !== ""
-            ? prev.description + " " + liveTranscription.trim()
+          pendingLog.description !== ""
+            ? pendingLog.description + " " + liveTranscription.trim()
             : liveTranscription.trim(),
-      }));
+      });
     }
     await stopRecording();
-  }, [liveTranscription, stopRecording]);
+  }, [liveTranscription, stopRecording, pendingLog, updatePendingLog]);
 
   const handleCancel = useCallback(() => {
-    back();
-  }, [back]);
+    router.back();
+  }, [router]);
 
   const handleEstimation = useCallback(() => {
-    startEstimation({
-      logDate: newLog.logDate,
-      createdAt: newLog.createdAt,
-      title: newLog.title,
-      description: newLog.description,
-      supabaseImagePath: newLog.supabaseImagePath,
-      localImagePath: newLog.localImagePath,
-    });
-    back();
-  }, [newLog, startEstimation, back]);
+    if (!pendingLog) return;
+    startEstimation(pendingLog);
+    router.back();
+  }, [pendingLog, startEstimation, router]);
 
   const handleCreateLogFromFavorite = useCallback(
     (favorite: Favorite) => {
@@ -117,37 +106,32 @@ export default function Create() {
         createdAt: new Date().toISOString(),
         isEstimating: false,
         estimationConfidence: 100,
-        id: generateFoodLogId(),
+        id: favorite.id,
       });
-      back();
+      router.back();
     },
-    [addFoodLog, selectedDate, back]
+    [addFoodLog, selectedDate, router]
   );
 
-  const handleDescriptionChange = useCallback((description: string) => {
-    setNewLog((prev) => ({ ...prev, description }));
-  }, []);
+  const handleDescriptionChange = useCallback(
+    (description: string) => {
+      updatePendingLog({ description });
+    },
+    [updatePendingLog]
+  );
 
-  useEffect(() => {
-    setImageCallback(handleNewImageSelected);
+  // ++ FIX: The early return is now placed AFTER all hook calls.
+  if (!pendingLog) {
+    return null;
+  }
 
-    return () => {
-      setImageCallback(undefined);
-    };
-  }, [handleNewImageSelected, setImageCallback]);
-
-  useEffect(() => {
-    setNewLog((prev) => ({
-      // Ensure state updates are based on previous state
-      ...prev,
-      logDate: selectedDate,
-    }));
-  }, [selectedDate]);
+  // This constant now safely depends on pendingLog
+  const canContinue =
+    pendingLog.description?.trim() !== "" || !!pendingLog.localImagePath;
 
   return (
     <GradientWrapper style={styles.container}>
       <CreateHeader onCancel={handleCancel} />
-
       <View style={styles.toggleContainer}>
         <Toggle
           value={estimationType}
@@ -159,22 +143,19 @@ export default function Create() {
           onChange={setEstimationType}
         />
       </View>
-
       {estimationType === "ai" && (
         <EstimationTab
-          description={newLog.description}
+          description={pendingLog.description}
           onDescriptionChange={handleDescriptionChange}
-          imageUrl={newLog.localImagePath}
+          imageUrl={pendingLog.localImagePath}
           isUploadingImage={isProcessingImage}
           textInputRef={textInputRef}
           inputAccessoryViewID={inputAccessoryViewID}
         />
       )}
-
       {estimationType === "favorites" && (
         <FavoritesTab onCreateFromFavorite={handleCreateLogFromFavorite} />
       )}
-
       {estimationType === "ai" && (
         <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
           <KeyboardAccessory
@@ -184,10 +165,10 @@ export default function Create() {
             onEstimate={handleEstimation}
             estimateLabel={"Estimate"}
             canContinue={canContinue}
+            logId={pendingLog.id}
           />
         </KeyboardStickyView>
       )}
-
       <TranscriptionOverlay
         visible={isRecording}
         onStop={handleTranscriptionStop}

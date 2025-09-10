@@ -1,165 +1,98 @@
-import { AppText, Button } from "@/components/index";
 import { MediaLibraryPreview } from "@/components/camera/MediaLibraryPreview";
 import { RoundButton } from "@/components/shared/RoundButton";
-import { GradientWrapper } from "@/components/shared/GradientWrapper";
-import { CreateHeader } from "@/components/create-page/CreateHeader/CreateHeader";
-import { EstimationTab } from "@/components/create-page/EstimationTab/EstimationTab";
-import { KeyboardAccessory } from "@/components/create-page/KeyboardAccessory/KeyboardAccessory";
-import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { useEstimation } from "@/hooks/useEstimation";
-import { useImageSelection } from "@/hooks/useImageSelection";
-import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
-import { uploadToSupabaseStorage } from "@/utils/uploadToSupabaseStorage";
 import { Colors, Theme } from "@/theme/theme";
 import { useTheme } from "@/theme/ThemeProvider";
 import { CameraView } from "expo-camera";
 import { CameraIcon, X } from "lucide-react-native";
 import { useMemo, useRef, useState, useCallback } from "react";
-import { Image, StyleSheet, View, TextInput as RNTextInput } from "react-native";
-import { KeyboardStickyView } from "react-native-keyboard-controller";
-import { useAppStore } from "@/store/useAppStore";
-
-const inputAccessoryViewID = "camera-create-input-accessory";
+import { StyleSheet, View } from "react-native";
+import { useRouter } from "expo-router";
+import { processImage } from "@/utils/processImage"; // ++ IMPORT image processor
+import { showErrorToast } from "@/lib/toast"; // ++ IMPORT toast for error handling
+import { useCreationStore } from "@/store/useCreationStore";
 
 export default function Camera() {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const cameraRef = useRef<CameraView>(null);
-  const textInputRef = useRef<RNTextInput>(null);
-  const [localImageURI, setLocalImageURI] = useState<string | undefined>(
-    undefined
-  );
-  const [supabaseImagePath, setSupabaseImagePath] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isCameraReady, setIsCameraReady] = useState(false);
-  const { safeDismissTo } = useNavigationGuard();
-  const { startEstimation } = useEstimation();
-  const { selectedDate, imageCallback } = useAppStore();
+  const router = useRouter();
 
-  useDelayedAutofocus(textInputRef);
+  // ++ GET the updater function from our new store
+  const updatePendingLog = useCreationStore((state) => state.updatePendingLog);
 
-  const { showImagePickerAlert } = useImageSelection({
-    onImageSelected: (imageUrl: string) => {
-      setSupabaseImagePath(imageUrl);
-      setIsUploadingImage(false);
+  // -- REMOVE useLocalSearchParams for source and logId. They are no longer needed.
+
+  // ++ CREATE a single handler for any image URI (from camera or library)
+  const handleImageUri = useCallback(
+    async (uri: string) => {
+      try {
+        const { localImagePath, supabaseImagePath } = await processImage(uri);
+
+        // Update the central store with the new image and reset nutrition
+        updatePendingLog({
+          localImagePath,
+          supabaseImagePath,
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fat: 0,
+          estimationConfidence: 0,
+        });
+
+        // Simply go back. The previous screen will react to the state change.
+        if (router.canGoBack()) {
+          router.back();
+        }
+      } catch (error) {
+        console.log("Error processing image in camera:", error);
+        showErrorToast("Error processing image", "Please try again.");
+      }
     },
-    onUploadStart: () => {
-      setIsUploadingImage(true);
-    },
-    onUploadError: () => {
-      setIsUploadingImage(false);
-    },
-  });
+    [router, updatePendingLog]
+  );
 
   const takePicture = async () => {
-    if (!isCameraReady) return;
-    const image = await cameraRef.current?.takePictureAsync();
-    
-    if (image?.uri && imageCallback) {
-      imageCallback(image.uri);
-      safeDismissTo("/create");
-    } else if (image?.uri) {
-      // Fallback to original behavior if no callback
-      setLocalImageURI(image.uri);
-      
-      // Automatically upload the image to Supabase
-      setIsUploadingImage(true);
-      try {
-        const uploadedImageUrl = await uploadToSupabaseStorage(image.uri);
-        setSupabaseImagePath(uploadedImageUrl);
-      } catch (error) {
-        console.error("Error uploading image:", error);
-      } finally {
-        setIsUploadingImage(false);
-      }
+    if (!isCameraReady || !cameraRef.current) return;
+    const image = await cameraRef.current.takePictureAsync();
+    if (image?.uri) {
+      handleImageUri(image.uri); // ++ USE the new handler
     }
   };
 
-  const handleDescriptionChange = useCallback((text: string) => {
-    setDescription(text);
-  }, []);
-
+  // ++ SIMPLIFY cancel to just go back
   const handleCancel = useCallback(() => {
-    safeDismissTo("/");
-  }, [safeDismissTo]);
-
-  const canContinue = description.trim() !== "" || supabaseImagePath !== "";
-
-  const estimateLabel = useMemo(() => {
-    return "Estimate";
-  }, []);
-
-  const handleEstimation = useCallback(() => {
-    if (!localImageURI) return;
-
-    startEstimation({
-      logDate: selectedDate,
-      createdAt: new Date().toISOString(),
-      title: "",
-      description: description,
-      supabaseImagePath: supabaseImagePath,
-    });
-    
-    safeDismissTo("/");
-  }, [description, supabaseImagePath, localImageURI, selectedDate, startEstimation, safeDismissTo]);
+    if (router.canGoBack()) {
+      router.back();
+    }
+  }, [router]);
 
   return (
     <View style={styles.container}>
-      {localImageURI ? (
-        // Quick Create Interface
-        <GradientWrapper style={styles.createContainer}>
-          <CreateHeader onCancel={handleCancel} />
-          
-          <EstimationTab
-            description={description}
-            onDescriptionChange={handleDescriptionChange}
-            imageUrl={localImageURI}
-            isUploadingImage={isUploadingImage}
-            textInputRef={textInputRef}
-            inputAccessoryViewID={inputAccessoryViewID}
-          />
+      <CameraView
+        style={styles.camera}
+        ref={cameraRef}
+        onCameraReady={() => setIsCameraReady(true)}
+      />
+      <View style={styles.contentContainer}>
+        <RoundButton
+          Icon={CameraIcon}
+          onPress={takePicture}
+          variant={"primary"}
+          iconSize={40}
+          style={styles.cameraButton}
+        />
+      </View>
+      <MediaLibraryPreview
+        onImageSelected={handleImageUri} // ++ USE the new handler
+      />
 
-          <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
-            <KeyboardAccessory
-              onEstimate={handleEstimation}
-              estimateLabel={estimateLabel}
-              canContinue={canContinue}
-            />
-          </KeyboardStickyView>
-        </GradientWrapper>
-      ) : (
-        // Camera Interface
-        <>
-          <CameraView
-            style={styles.camera}
-            ref={cameraRef}
-            onCameraReady={() => setIsCameraReady(true)}
-          />
-          <View style={styles.contentContainer}>
-            <RoundButton
-              Icon={CameraIcon}
-              onPress={takePicture}
-              variant={"primary"}
-              iconSize={40}
-              style={styles.cameraButton}
-            />
-          </View>
-          <MediaLibraryPreview 
-            onImageSelected={imageCallback ? (uri) => {
-              imageCallback(uri);
-              safeDismissTo("/create");
-            } : setLocalImageURI} 
-          />
-          
-          <RoundButton
-            Icon={X}
-            style={styles.closeButton}
-            onPress={handleCancel}
-            variant="secondary"
-          />
-        </>
-      )}
+      <RoundButton
+        Icon={X}
+        style={styles.closeButton}
+        onPress={handleCancel}
+        variant="secondary"
+      />
     </View>
   );
 }
@@ -170,10 +103,6 @@ const createStyles = (colors: Colors, theme: Theme) =>
       flex: 1,
       backgroundColor: colors.primaryBackground,
     },
-    createContainer: {
-      flex: 1,
-      paddingTop: theme.spacing.md,
-    },
     closeButton: {
       position: "absolute",
       top: theme.spacing.md,
@@ -183,10 +112,6 @@ const createStyles = (colors: Colors, theme: Theme) =>
       flex: 1,
     },
     cameraButton: {},
-    image: {
-      height: "100%",
-      width: "100%",
-    },
     contentContainer: {
       position: "absolute",
       bottom: theme.spacing.sm,

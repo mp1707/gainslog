@@ -69,7 +69,7 @@ const NutritionEditRow: React.FC<NutritionEditRowProps> = ({
 
 interface NutritionEditCardProps {
   log: FoodLog;
-  onUpdateNutrition: (field: string, value: number) => void;
+  onUpdateNutrition: (field: keyof FoodLog, value: number) => void;
   isStale?: boolean;
   isLoading?: boolean;
   onBlur?: () => void;
@@ -87,7 +87,7 @@ export const NutritionEditCard: React.FC<NutritionEditCardProps> = ({
   const { colors } = useTheme();
   const styles = useThemedStyles(createCardStyles);
 
-  const handleNumericChange = (field: string, text: string) => {
+  const handleNumericChange = (field: keyof FoodLog, text: string) => {
     const numericValue = parseFloat(text) || 0;
     onUpdateNutrition(field, numericValue);
   };

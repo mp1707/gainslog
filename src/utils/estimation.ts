@@ -3,7 +3,6 @@ import { generateFoodLogId } from "./idGenerator";
 
 export type EstimationInput = Omit<
   FoodLog,
-  | "id"
   | "estimationConfidence"
   | "isEstimating"
   | "calories"
@@ -24,7 +23,6 @@ export type EstimationResult = {
 export const createEstimationLog = (logData: EstimationInput): FoodLog => {
   return {
     ...logData,
-    id: generateFoodLogId(),
     title: logData.title || "",
     calories: 0,
     protein: 0,
