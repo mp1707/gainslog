@@ -104,14 +104,16 @@ const WeightSelectionScreen = () => {
       </View>
       <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
         <View style={styles.keyboardAccessory}>
-          <Button
-            variant="primary"
-            label="Continue"
-            Icon={ChevronRight}
-            iconPlacement="right"
-            onPress={handleContinue}
-            disabled={!isValidWeight(weight)}
-          />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Button
+              variant="primary"
+              label="Continue"
+              Icon={ChevronRight}
+              iconPlacement="right"
+              onPress={handleContinue}
+              disabled={!isValidWeight(weight)}
+            />
+          </View>
         </View>
       </KeyboardStickyView>
     </GradientWrapper>
@@ -190,8 +192,15 @@ const createStyles = (colors: any, themeObj: any) => {
     },
     keyboardAccessory: {
       marginHorizontal: themeObj.spacing.sm,
+      backgroundColor: colors.secondaryBackground,
       flexDirection: "row",
-      justifyContent: "flex-end",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: themeObj.spacing.sm,
+      borderRadius: 9999,
+      padding: themeObj.spacing.sm,
+      overflow: "hidden",
+      zIndex: 99,
     },
   });
 };

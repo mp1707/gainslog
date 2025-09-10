@@ -83,14 +83,16 @@ const AgeSelectionScreen = () => {
 
       <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
         <View style={styles.keyboardAccessory}>
-          <Button
-            variant="primary"
-            label="Continue"
-            Icon={ChevronRight}
-            iconPlacement="right"
-            onPress={handleContinue}
-            disabled={!isValidAge(age)}
-          />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Button
+              variant="primary"
+              label="Continue"
+              Icon={ChevronRight}
+              iconPlacement="right"
+              onPress={handleContinue}
+              disabled={!isValidAge(age)}
+            />
+          </View>
         </View>
       </KeyboardStickyView>
     </GradientWrapper>
@@ -152,8 +154,15 @@ const createStyles = (colors: Colors, theme: Theme) => {
     },
     keyboardAccessory: {
       marginHorizontal: theme.spacing.sm,
+      backgroundColor: colors.secondaryBackground,
       flexDirection: "row",
-      justifyContent: "flex-end",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: theme.spacing.sm,
+      borderRadius: 9999,
+      padding: theme.spacing.sm,
+      overflow: "hidden",
+      zIndex: 99,
     },
   });
 };

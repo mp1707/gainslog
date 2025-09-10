@@ -1,8 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
@@ -88,7 +84,7 @@ const ManualCalorieInputScreen = () => {
   return (
     <GradientWrapper style={styles.container}>
       <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
-      
+
       <View style={styles.content}>
         <View style={styles.textSection}>
           <Text style={styles.subtitle}>Enter your daily calorie goal</Text>
@@ -121,14 +117,15 @@ const ManualCalorieInputScreen = () => {
 
       <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
         <View style={styles.keyboardAccessory}>
-          <Button
-            variant="primary"
-            label="Save Goal"
-            Icon={ChevronRight}
-            iconPlacement="right"
-            onPress={handleSave}
-            disabled={!isValidCalories(calories)}
-          />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Button
+              variant="primary"
+              label="Save Goal"
+              Icon={ChevronRight}
+              onPress={handleSave}
+              disabled={!isValidCalories(calories)}
+            />
+          </View>
         </View>
       </KeyboardStickyView>
     </GradientWrapper>
@@ -140,10 +137,10 @@ export default ManualCalorieInputScreen;
 const createStyles = (colors: any, themeObj: any) => {
   const { spacing, typography } = themeObj;
   return StyleSheet.create({
-    container: { 
-      flex: 1, 
+    container: {
+      flex: 1,
       backgroundColor: colors.primaryBackground,
-      gap: themeObj.spacing.md
+      gap: themeObj.spacing.md,
     },
     content: {
       flex: 1,
@@ -193,8 +190,15 @@ const createStyles = (colors: any, themeObj: any) => {
     },
     keyboardAccessory: {
       marginHorizontal: themeObj.spacing.sm,
+      backgroundColor: colors.secondaryBackground,
       flexDirection: "row",
-      justifyContent: "flex-end",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: themeObj.spacing.sm,
+      borderRadius: 9999,
+      padding: themeObj.spacing.sm,
+      overflow: "hidden",
+      zIndex: 99,
     },
   });
 };
