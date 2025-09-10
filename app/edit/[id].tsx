@@ -17,11 +17,13 @@ import {
   KeyboardAwareScrollView,
   KeyboardStickyView,
 } from "react-native-keyboard-controller";
-import { useImageSelection } from "@/hooks/useImageSelection";
 import { TextInput } from "@/components/shared/TextInput";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
+import { processImage } from "@/utils/processImage";
 import { uploadToSupabaseStorage } from "@/utils/uploadToSupabaseStorage";
+import * as FileSystem from "expo-file-system";
+import { showErrorToast } from "@/lib/toast";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -33,22 +35,19 @@ export default function Edit() {
   const styles = createStyles(colors, theme);
   const { back } = useRouter();
   const { startReEstimation } = useEstimation();
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
 
-  // const { showImagePickerAlert } = useImageSelection({
-  //   onImageSelected: (imageUrl: string) => {
-  //     setEditLog((prev) =>
-  //       prev ? { ...prev, localImagePath: imageUrl } : undefined
-  //     );
-  //     setIsUploadingImage(false);
-  //   },
-  //   onUploadStart: () => {
-  //     setIsUploadingImage(true);
-  //   },
-  //   onUploadError: () => {
-  //     setIsUploadingImage(false);
-  //   },
-  // });
+  const cleanupOldImage = async (imagePath: string) => {
+    if (imagePath) {
+      try {
+        const result = await FileSystem.deleteAsync(imagePath, {
+          idempotent: true,
+        });
+      } catch (error) {
+        console.log("Error deleting old image:", error);
+      }
+    }
+  };
 
   if (!editLog) return;
   if (!originalLog) return;
@@ -70,25 +69,69 @@ export default function Edit() {
     setEditLog({ ...editLog, [field]: value });
   };
 
-  const handleReEstimate = () => {
-    startReEstimation(editLog, (log) => {
-      setEditLog(log);
-      setIsReEstimating(false);
-    });
+  const handleReEstimate = async () => {
     setIsReEstimating(true);
     Keyboard.dismiss();
+
+    try {
+      let logToEstimate = editLog;
+
+      // If there's a local image and user is re-estimating (image needs fresh Supabase upload)
+      if (
+        editLog?.localImagePath &&
+        editLog.localImagePath === originalLog?.localImagePath
+      ) {
+        const newSupabaseImagePath = await uploadToSupabaseStorage(
+          editLog.localImagePath
+        );
+        logToEstimate = { ...editLog, supabaseImagePath: newSupabaseImagePath };
+        setEditLog(logToEstimate);
+      }
+
+      startReEstimation(logToEstimate, (log) => {
+        setEditLog(log);
+        setIsReEstimating(false);
+      });
+    } catch (error) {
+      console.log("Error during re-estimation:", error);
+      setIsReEstimating(false);
+    }
   };
 
-  const handleImageSelected = useCallback(async (uri: string) => {
-    setIsUploadingImage(true);
-    setEditLog((prev) => (prev ? { ...prev, localImagePath: uri } : undefined));
-    const uploadedImageUrl = await uploadToSupabaseStorage(uri);
+  const handleImageSelected = useCallback(
+    async (uri: string) => {
+      setIsProcessingImage(true);
+      try {
+        // Clean up old local image before adding new one
+        if (editLog?.localImagePath) {
+          await cleanupOldImage(editLog.localImagePath);
+        }
 
-    setEditLog((prev) =>
-      prev ? { ...prev, supabaseImagePath: uploadedImageUrl } : undefined
-    );
-    setIsUploadingImage(false);
-  }, []);
+        const { localImagePath, supabaseImagePath } = await processImage(uri);
+
+        setEditLog((prev) =>
+          prev
+            ? {
+                ...prev,
+                localImagePath,
+                supabaseImagePath,
+                // Reset nutrition values when new image is added
+                calories: 0,
+                protein: 0,
+                carbs: 0,
+                fat: 0,
+                estimationConfidence: 0,
+              }
+            : undefined
+        );
+      } catch (error) {
+        showErrorToast("Error processing image", "Please try again.");
+      } finally {
+        setIsProcessingImage(false);
+      }
+    },
+    [editLog?.localImagePath]
+  );
 
   const estimateLabel = isReEstimating ? "estimating" : "Re-estimate";
 
@@ -110,7 +153,7 @@ export default function Edit() {
       >
         <ImageDisplay
           imageUrl={editLog?.localImagePath}
-          isUploading={isUploadingImage}
+          isUploading={isProcessingImage}
         />
         <View style={styles.section}>
           <AppText role="Headline">Title</AppText>
