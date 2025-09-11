@@ -44,12 +44,12 @@ export default function Edit() {
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const isClosingRef = useRef(false);
 
-  // Initialize/refresh the draft for this id
+  // Initialize the draft once for this id; don't overwrite during edits
   useEffect(() => {
-    if (originalLog) {
+    if (originalLog && !draft) {
       startEditingDraft(originalLog);
     }
-  }, [originalLog, startEditingDraft]);
+  }, [id, originalLog, draft, startEditingDraft]);
 
   // Cleanup this draft on unmount
   useEffect(() => {
