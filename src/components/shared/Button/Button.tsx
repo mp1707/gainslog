@@ -17,6 +17,7 @@ import { useTheme } from "@/theme";
 import { createStyles } from "./Button.styles";
 
 export type ButtonVariant = "primary" | "secondary" | "tertiary";
+export type IconPlacement = "left" | "right";
 
 export interface ButtonProps extends Omit<PressableProps, "children"> {
   label: string;
@@ -24,6 +25,7 @@ export interface ButtonProps extends Omit<PressableProps, "children"> {
   Icon?: LucideIcon;
   iconSize?: number;
   disabled?: boolean;
+  iconPlacement?: IconPlacement; // default: left
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -35,6 +37,7 @@ export const Button = React.memo<ButtonProps>(
     Icon,
     iconSize = 18,
     disabled = false,
+    iconPlacement = "left",
     onPress,
     onPressIn,
     onPressOut,
@@ -173,10 +176,17 @@ export const Button = React.memo<ButtonProps>(
             gap: 8,
           }}
         >
-          {renderIcon()}
-          <View style={{ flexShrink: 1, minWidth: 0 }}>
-            {textElement}
-          </View>
+          {iconPlacement === "left" ? (
+            <>
+              {renderIcon()}
+              <View style={{ flexShrink: 1, minWidth: 0 }}>{textElement}</View>
+            </>
+          ) : (
+            <>
+              <View style={{ flexShrink: 1, minWidth: 0 }}>{textElement}</View>
+              {renderIcon()}
+            </>
+          )}
         </View>
       );
     };
