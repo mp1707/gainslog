@@ -2,50 +2,64 @@ import { create } from "zustand";
 import { FoodLog } from "@/types/models";
 import { generateFoodLogId } from "@/utils/idGenerator";
 
+type DraftsById = Record<string, FoodLog>;
+
 interface CreationState {
-  pendingLog: FoodLog | null;
-  startNewLog: (selectedDate: string) => void;
-  startEditingLog: (log: FoodLog) => void;
-  updatePendingLog: (update: Partial<FoodLog>) => void;
-  clearPendingLog: () => void;
+  draftsById: DraftsById;
+  // Create a new draft and return its id
+  startNewDraft: (selectedDate: string) => string;
+  // Start editing an existing log (copy), keyed by log.id
+  startEditingDraft: (log: FoodLog) => void;
+  // Update a draft by id
+  updateDraft: (id: string, update: Partial<FoodLog>) => void;
+  // Remove a draft by id (on unmount/dismiss)
+  clearDraft: (id: string) => void;
 }
 
 export const useCreationStore = create<CreationState>((set, get) => ({
-  pendingLog: null,
+  draftsById: {},
 
-  startNewLog: (selectedDate) => {
-    set({
-      pendingLog: {
-        id: generateFoodLogId(),
-        title: "",
-        description: "",
-        supabaseImagePath: "",
-        localImagePath: "",
-        logDate: selectedDate,
-        createdAt: new Date().toISOString(),
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-        fat: 0,
-        estimationConfidence: 0,
-      },
-    });
+  startNewDraft: (selectedDate) => {
+    const id = generateFoodLogId();
+    const draft: FoodLog = {
+      id,
+      title: "",
+      description: "",
+      supabaseImagePath: "",
+      localImagePath: "",
+      logDate: selectedDate,
+      createdAt: new Date().toISOString(),
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+      estimationConfidence: 0,
+      isEstimating: false,
+    };
+    set((state) => ({ draftsById: { ...state.draftsById, [id]: draft } }));
+    return id;
   },
 
-  startEditingLog: (log) => {
-    set({ pendingLog: { ...log } }); // Use a copy to avoid mutating the original log
+  startEditingDraft: (log) => {
+    set((state) => ({
+      draftsById: { ...state.draftsById, [log.id]: { ...log } },
+    }));
   },
 
-  updatePendingLog: (update) => {
+  updateDraft: (id, update) => {
     set((state) => {
-      if (!state.pendingLog) return {};
+      const existing = state.draftsById[id];
+      if (!existing) return {};
       return {
-        pendingLog: { ...state.pendingLog, ...update },
+        draftsById: { ...state.draftsById, [id]: { ...existing, ...update } },
       };
     });
   },
 
-  clearPendingLog: () => {
-    set({ pendingLog: null });
+  clearDraft: (id) => {
+    set((state) => {
+      const { [id]: _, ...rest } = state.draftsById;
+      return { draftsById: rest };
+    });
   },
 }));

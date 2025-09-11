@@ -7,9 +7,10 @@ import { CameraIcon, X } from "lucide-react-native";
 import { useMemo, useRef, useState, useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
-import { processImage } from "@/utils/processImage"; // ++ IMPORT image processor
-import { showErrorToast } from "@/lib/toast"; // ++ IMPORT toast for error handling
+import { processImage } from "@/utils/processImage";
+import { showErrorToast } from "@/lib/toast";
 import { useCreationStore } from "@/store/useCreationStore";
+import { useLocalSearchParams } from "expo-router";
 
 export default function Camera() {
   const { colors, theme } = useTheme();
@@ -18,19 +19,22 @@ export default function Camera() {
   const [isCameraReady, setIsCameraReady] = useState(false);
   const router = useRouter();
 
-  // ++ GET the updater function from our new store
-  const updatePendingLog = useCreationStore((state) => state.updatePendingLog);
-
-  // -- REMOVE useLocalSearchParams for source and logId. They are no longer needed.
+  const updateDraft = useCreationStore((state) => state.updateDraft);
+  const { logId } = useLocalSearchParams<{ logId?: string }>();
 
   // ++ CREATE a single handler for any image URI (from camera or library)
   const handleImageUri = useCallback(
     async (uri: string) => {
       try {
         const { localImagePath, supabaseImagePath } = await processImage(uri);
+        if (typeof logId !== "string" || !logId) {
+          // If camera isn't given a draft to update, just dismiss
+          if (router.canGoBack()) router.back();
+          return;
+        }
 
-        // Update the central store with the new image and reset nutrition
-        updatePendingLog({
+        // Update the proper draft with the new image and reset nutrition
+        updateDraft(logId, {
           localImagePath,
           supabaseImagePath,
           calories: 0,
@@ -49,7 +53,7 @@ export default function Camera() {
         showErrorToast("Error processing image", "Please try again.");
       }
     },
-    [router, updatePendingLog]
+    [router, updateDraft, logId]
   );
 
   const takePicture = async () => {

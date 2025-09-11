@@ -4,7 +4,7 @@ import { useTheme } from "@/theme/ThemeProvider";
 import { Favorite } from "@/types/models";
 import { useRouter } from "expo-router";
 import { useCallback, useRef, useState, useEffect } from "react";
-import { StyleSheet, TextInput as RNTextInput, View } from "react-native";
+import { StyleSheet, TextInput as RNTextInput, View, ActivityIndicator } from "react-native";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { useTranscription } from "@/hooks/useTranscription";
 import { useEstimation } from "@/hooks/useEstimation";
@@ -18,7 +18,8 @@ import { KeyboardAccessory } from "@/components/create-page/KeyboardAccessory/Ke
 import { Toggle } from "@/components/shared/Toggle";
 import { showErrorToast } from "@/lib/toast";
 import { processImage } from "@/utils/processImage";
-import { useCreationStore } from "@/store/useCreationStore"; // ++ IMPORT the new store
+import { useCreationStore } from "@/store/useCreationStore"; // keyed drafts store
+import { useDraft } from "@/hooks/useDraft";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -26,12 +27,9 @@ export default function Create() {
   const { theme } = useTheme();
   const styles = createStyles(theme);
   const router = useRouter();
-  const {
-    pendingLog,
-    startNewLog,
-    clearPendingLog,
-    updatePendingLog,
-  } = useCreationStore();
+  const { startNewDraft, clearDraft, updateDraft } = useCreationStore();
+  const [draftId, setDraftId] = useState<string | null>(null);
+  const draft = useDraft(draftId);
   const { selectedDate, addFoodLog } = useAppStore();
   const { startEstimation } = useEstimation();
   const { isRecording, liveTranscription, stopRecording, startRecording } =
@@ -45,18 +43,20 @@ export default function Create() {
   useDelayedAutofocus(textInputRef);
 
   useEffect(() => {
-    startNewLog(selectedDate);
+    const id = startNewDraft(selectedDate);
+    setDraftId(id);
     return () => {
-      clearPendingLog();
+      clearDraft(id);
     };
-  }, [startNewLog, clearPendingLog, selectedDate]);
+  }, [startNewDraft, clearDraft, selectedDate]);
 
   const handleNewImageSelected = useCallback(
     async (uri: string) => {
+      if (!draftId) return;
       setIsProcessingImage(true);
       try {
         const { localImagePath, supabaseImagePath } = await processImage(uri);
-        updatePendingLog({
+        updateDraft(draftId, {
           localImagePath,
           supabaseImagePath,
           calories: 0,
@@ -72,31 +72,31 @@ export default function Create() {
         setIsProcessingImage(false);
       }
     },
-    [updatePendingLog]
+    [draftId, updateDraft]
   );
 
   const handleTranscriptionStop = useCallback(async () => {
-    if (!pendingLog) return;
+    if (!draft) return;
     if (liveTranscription.trim()) {
-      updatePendingLog({
+      updateDraft(draft.id, {
         description:
-          pendingLog.description !== ""
-            ? pendingLog.description + " " + liveTranscription.trim()
+          draft.description !== ""
+            ? draft.description + " " + liveTranscription.trim()
             : liveTranscription.trim(),
       });
     }
     await stopRecording();
-  }, [liveTranscription, stopRecording, pendingLog, updatePendingLog]);
+  }, [liveTranscription, stopRecording, draft, updateDraft]);
 
   const handleCancel = useCallback(() => {
     router.back();
   }, [router]);
 
   const handleEstimation = useCallback(() => {
-    if (!pendingLog) return;
-    startEstimation(pendingLog);
+    if (!draft) return;
+    startEstimation(draft);
     router.back();
-  }, [pendingLog, startEstimation, router]);
+  }, [draft, startEstimation, router]);
 
   const handleCreateLogFromFavorite = useCallback(
     (favorite: Favorite) => {
@@ -115,19 +115,26 @@ export default function Create() {
 
   const handleDescriptionChange = useCallback(
     (description: string) => {
-      updatePendingLog({ description });
+      if (!draftId) return;
+      updateDraft(draftId, { description });
     },
-    [updatePendingLog]
+    [draftId, updateDraft]
   );
 
-  // ++ FIX: The early return is now placed AFTER all hook calls.
-  if (!pendingLog) {
-    return null;
+  // Render a lightweight loading state instead of returning null to avoid white flash
+  if (!draft) {
+    return (
+      <GradientWrapper style={styles.container}>
+        <CreateHeader onCancel={handleCancel} />
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+          <ActivityIndicator />
+        </View>
+      </GradientWrapper>
+    );
   }
 
   // This constant now safely depends on pendingLog
-  const canContinue =
-    pendingLog.description?.trim() !== "" || !!pendingLog.localImagePath;
+  const canContinue = draft.description?.trim() !== "" || !!draft.localImagePath;
 
   return (
     <GradientWrapper style={styles.container}>
@@ -145,9 +152,9 @@ export default function Create() {
       </View>
       {estimationType === "ai" && (
         <EstimationTab
-          description={pendingLog.description}
+          description={draft.description}
           onDescriptionChange={handleDescriptionChange}
-          imageUrl={pendingLog.localImagePath}
+          imageUrl={draft.localImagePath}
           isUploadingImage={isProcessingImage}
           textInputRef={textInputRef}
           inputAccessoryViewID={inputAccessoryViewID}
@@ -165,7 +172,7 @@ export default function Create() {
             onEstimate={handleEstimation}
             estimateLabel={"Estimate"}
             canContinue={canContinue}
-            logId={pendingLog.id}
+            logId={draft.id}
           />
         </KeyboardStickyView>
       )}

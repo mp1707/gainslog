@@ -24,13 +24,14 @@ import { uploadToSupabaseStorage } from "@/utils/uploadToSupabaseStorage";
 import * as FileSystem from "expo-file-system";
 import { showErrorToast } from "@/lib/toast";
 import { useCreationStore } from "@/store/useCreationStore";
+import { useDraft } from "@/hooks/useDraft";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { foodLogs } = useAppStore();
   const router = useRouter();
-  const { pendingLog, startEditingLog, clearPendingLog, updatePendingLog } =
-    useCreationStore();
+  const { startEditingDraft, clearDraft, updateDraft } = useCreationStore();
+  const draft = useDraft(typeof id === "string" ? id : undefined);
   const originalLog = useMemo(
     () => foodLogs.find((log) => log.id === id),
     [foodLogs, id]
@@ -41,79 +42,21 @@ export default function Edit() {
   const styles = createStyles(colors, theme);
   const { startReEstimation } = useEstimation();
   const [isProcessingImage, setIsProcessingImage] = useState(false);
-  const initializedLogId = useRef<string | null>(null);
-  const recoveryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isClosingRef = useRef(false);
 
-  // ++ FIX: SPLIT INTO TWO USEEFFECTS
-
-  // Effect 1: Reset initialization when URL ID parameter changes
+  // Initialize/refresh the draft for this id
   useEffect(() => {
-    if (id && initializedLogId.current && initializedLogId.current !== id) {
-      // URL changed to different log ID, reset initialization
-      initializedLogId.current = null;
-      // Clear any pending recovery timeout
-      if (recoveryTimeoutRef.current) {
-        clearTimeout(recoveryTimeoutRef.current);
-        recoveryTimeoutRef.current = null;
-      }
+    if (originalLog) {
+      startEditingDraft(originalLog);
     }
-  }, [id]);
+  }, [originalLog, startEditingDraft]);
 
-  // Effect 2: Synchronizes the store with the current log based on the URL ID.
-  // This runs only when the originalLog changes, not when pendingLog updates.
-  useEffect(() => {
-    if (originalLog && initializedLogId.current !== originalLog.id) {
-      startEditingLog(originalLog);
-      initializedLogId.current = originalLog.id;
-      
-      // Clear any pending recovery timeout since we're syncing properly
-      if (recoveryTimeoutRef.current) {
-        clearTimeout(recoveryTimeoutRef.current);
-        recoveryTimeoutRef.current = null;
-      }
-    }
-  }, [originalLog]);
-
-  // Effect 3: Recovery mechanism for race conditions
-  useEffect(() => {
-    // If we have originalLog but pendingLog doesn't match, set up recovery timeout
-    if (originalLog && (!pendingLog || pendingLog.id !== originalLog.id)) {
-      // Clear any existing timeout
-      if (recoveryTimeoutRef.current) {
-        clearTimeout(recoveryTimeoutRef.current);
-      }
-      
-      // Force sync after 500ms if still mismatched
-      recoveryTimeoutRef.current = setTimeout(() => {
-        console.log('[Edit] Recovery timeout triggered, forcing store sync');
-        startEditingLog(originalLog);
-        initializedLogId.current = originalLog.id;
-        recoveryTimeoutRef.current = null;
-      }, 500);
-    } else if (pendingLog && originalLog && pendingLog.id === originalLog.id) {
-      // Clear recovery timeout if sync is successful
-      if (recoveryTimeoutRef.current) {
-        clearTimeout(recoveryTimeoutRef.current);
-        recoveryTimeoutRef.current = null;
-      }
-    }
-
-    // Cleanup function
-    return () => {
-      if (recoveryTimeoutRef.current) {
-        clearTimeout(recoveryTimeoutRef.current);
-        recoveryTimeoutRef.current = null;
-      }
-    };
-  }, [originalLog, pendingLog, startEditingLog]);
-
-  // Effect 2: Handles cleanup ONCE when the component truly unmounts.
-  // The empty dependency array [] ensures this effect's cleanup only runs on unmount.
+  // Cleanup this draft on unmount
   useEffect(() => {
     return () => {
-      clearPendingLog();
+      if (id) clearDraft(String(id));
     };
-  }, []); // <-- Empty array is crucial here!
+  }, [id, clearDraft]);
 
   const cleanupOldImage = useCallback(async (imagePath: string) => {
     if (imagePath) {
@@ -126,19 +69,20 @@ export default function Edit() {
   }, []);
 
   const handleCancel = useCallback(() => {
-    router.back();
+    isClosingRef.current = true;
+    if (router.canGoBack()) router.back();
   }, [router]);
 
   const handleImageSelected = useCallback(
     async (uri: string) => {
-      if (!pendingLog) return;
+      if (!draft || !id) return;
       setIsProcessingImage(true);
       try {
-        if (pendingLog.localImagePath) {
-          await cleanupOldImage(pendingLog.localImagePath);
+        if (draft.localImagePath) {
+          await cleanupOldImage(draft.localImagePath);
         }
         const { localImagePath, supabaseImagePath } = await processImage(uri);
-        updatePendingLog({
+        updateDraft(String(id), {
           localImagePath,
           supabaseImagePath,
           calories: 0,
@@ -153,53 +97,56 @@ export default function Edit() {
         setIsProcessingImage(false);
       }
     },
-    [pendingLog, updatePendingLog, cleanupOldImage]
+    [id, draft, updateDraft, cleanupOldImage]
   );
 
   const handleUpdateNutrition = useCallback(
     (field: keyof FoodLog, value: number) => {
-      updatePendingLog({ [field]: value } as Partial<FoodLog>);
+      if (!id) return;
+      updateDraft(String(id), { [field]: value } as Partial<FoodLog>);
     },
-    [updatePendingLog]
+    [id, updateDraft]
   );
 
   const handleReEstimate = useCallback(async () => {
-    if (!pendingLog || !originalLog) return;
+    if (!draft || !originalLog) return;
     setIsReEstimating(true);
     Keyboard.dismiss();
     try {
-      let logToEstimate = pendingLog;
+      let logToEstimate = draft;
       if (
-        pendingLog.localImagePath &&
-        pendingLog.localImagePath === originalLog.localImagePath
+        draft.localImagePath &&
+        draft.localImagePath === originalLog.localImagePath
       ) {
         const newSupabaseImagePath = await uploadToSupabaseStorage(
-          pendingLog.localImagePath
+          draft.localImagePath
         );
         logToEstimate = {
-          ...pendingLog,
+          ...draft,
           supabaseImagePath: newSupabaseImagePath,
         };
-        updatePendingLog({ supabaseImagePath: newSupabaseImagePath });
+        updateDraft(String(draft.id), {
+          supabaseImagePath: newSupabaseImagePath,
+        });
       }
       startReEstimation(logToEstimate, (updatedLog) => {
-        updatePendingLog(updatedLog);
+        updateDraft(String(updatedLog.id), updatedLog);
         setIsReEstimating(false);
       });
     } catch (error) {
       console.log("Error during re-estimation:", error);
       setIsReEstimating(false);
     }
-  }, [pendingLog, originalLog, updatePendingLog, startReEstimation]);
+  }, [draft, originalLog, updateDraft, startReEstimation]);
 
-  // Show loading spinner while store is syncing (prevents white screen)
-  if (!originalLog || !pendingLog || pendingLog.id !== originalLog.id) {
+  // Show loading spinner until both originalLog and draft exist
+  if (!originalLog || !draft || isClosingRef.current) {
     return (
       <GradientWrapper style={styles.container}>
         <View style={styles.closeButton}>
           <RoundButton
             Icon={X}
-            onPress={() => router.back()}
+            onPress={handleCancel}
             variant={"tertiary"}
             accessibilityLabel="Close"
           />
@@ -212,13 +159,13 @@ export default function Edit() {
   }
 
   const changesWereMade =
-    pendingLog.description !== originalLog.description ||
-    pendingLog.localImagePath !== originalLog.localImagePath;
+    draft.description !== originalLog.description ||
+    draft.localImagePath !== originalLog.localImagePath;
 
   const canReEstimate =
-    (changesWereMade && pendingLog.description?.trim() !== "") ||
-    (!!pendingLog.localImagePath &&
-      pendingLog.localImagePath !== originalLog.localImagePath);
+    (changesWereMade && draft.description?.trim() !== "") ||
+    (!!draft.localImagePath &&
+      draft.localImagePath !== originalLog.localImagePath);
 
   const estimateLabel = isReEstimating ? "Estimating..." : "Re-estimate";
 
@@ -239,14 +186,16 @@ export default function Edit() {
         bottomOffset={130}
       >
         <ImageDisplay
-          imageUrl={pendingLog.localImagePath}
+          imageUrl={draft.localImagePath}
           isUploading={isProcessingImage}
         />
         <View style={styles.section}>
           <AppText role="Headline">Title</AppText>
           <TextInput
-            value={pendingLog.title}
-            onChangeText={(text) => updatePendingLog({ title: text })}
+            value={draft.title}
+            onChangeText={(text) =>
+              updateDraft(String(draft.id), { title: text })
+            }
             placeholder="Enter title"
             style={styles.textInputContainer}
           />
@@ -254,8 +203,10 @@ export default function Edit() {
         <View style={styles.section}>
           <AppText role="Headline">Description</AppText>
           <TextInput
-            value={pendingLog.description}
-            onChangeText={(text) => updatePendingLog({ description: text })}
+            value={draft.description}
+            onChangeText={(text) =>
+              updateDraft(String(draft.id), { description: text })
+            }
             placeholder="Enter description"
             multiline
             style={[styles.textInputContainer, { minHeight: 100 }]}
@@ -268,12 +219,12 @@ export default function Edit() {
               <SkeletonPill width={80} height={28} />
             ) : (
               <ConfidenceBadge
-                estimationConfidence={pendingLog.estimationConfidence}
+                estimationConfidence={draft.estimationConfidence}
               />
             )}
           </View>
           <NutritionEditCard
-            log={pendingLog}
+            log={draft}
             onUpdateNutrition={handleUpdateNutrition}
             isStale={changesWereMade}
             isLoading={isReEstimating}
@@ -286,8 +237,7 @@ export default function Edit() {
           onEstimate={handleReEstimate}
           estimateLabel={estimateLabel}
           canContinue={canReEstimate && !isReEstimating}
-          logId={id}
-          source="edit"
+          logId={String(draft.id)}
         />
       </KeyboardStickyView>
     </GradientWrapper>

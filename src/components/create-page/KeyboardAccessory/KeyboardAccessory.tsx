@@ -16,7 +16,6 @@ interface KeyboardAccessoryProps {
   canContinue: boolean;
   textInputRef?: React.RefObject<TextInput | null>;
   logId?: string;
-  source?: "create" | "edit";
 }
 
 export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
@@ -27,7 +26,6 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   canContinue,
   textInputRef,
   logId,
-  source = "create",
 }) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
@@ -36,11 +34,11 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   const handleCameraPress = useCallback(async () => {
     textInputRef?.current?.blur();
     if (logId) {
-      router.push(`/camera?source=${source}&logId=${logId}`);
+      router.push(`/camera?logId=${logId}`);
     } else {
-      router.push(`/camera?source=${source}`);
+      router.push(`/camera`);
     }
-  }, [router, logId, source]);
+  }, [router, logId]);
 
   const handleMediaLibraryPress = useCallback(async () => {
     textInputRef?.current?.blur();
