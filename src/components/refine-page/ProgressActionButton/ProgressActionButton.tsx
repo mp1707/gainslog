@@ -29,15 +29,17 @@ export const ProgressActionButton: React.FC<Props> = ({
   const styles = createStyles(colors, theme);
 
   // Press feedback scale
-  const scale = useSharedValue(1);
+  const pressScale = useSharedValue(1);
+  // Idle subtle breathing scale when processing
+  const idleScale = useSharedValue(1);
   const onPressIn = useCallback(() => {
     if (disabled || isProcessing) return;
-    scale.value = withSpring(0.98, { stiffness: 400, damping: 30 });
+    pressScale.value = withSpring(0.98, { stiffness: 400, damping: 30 });
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-  }, [disabled, isProcessing, scale]);
+  }, [disabled, isProcessing, pressScale]);
   const onPressOut = useCallback(() => {
-    scale.value = withSpring(1, { stiffness: 400, damping: 30 });
-  }, [scale]);
+    pressScale.value = withSpring(1, { stiffness: 400, damping: 30 });
+  }, [pressScale]);
 
   // Fade content out while processing
   const contentOpacity = useSharedValue(1);
@@ -90,8 +92,23 @@ export const ProgressActionButton: React.FC<Props> = ({
   }));
 
   const animatedContainer = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    // Combine idle breathing scale with press scale
+    transform: [{ scale: pressScale.value * idleScale.value }],
   }));
+
+  // Subtle breathing scale using spring while processing
+  useEffect(() => {
+    if (isProcessing) {
+      // Animate between 1.0 and 1.03 repeatedly
+      idleScale.value = withRepeat(
+        withTiming(1.03, { duration: 900, easing: Easing.inOut(Easing.ease) }),
+        -1,
+        true
+      );
+    } else {
+      idleScale.value = withSpring(1, { stiffness: 300, damping: 25 });
+    }
+  }, [isProcessing, idleScale]);
 
   return (
     <AnimatedPressable
@@ -132,4 +149,3 @@ export const ProgressActionButton: React.FC<Props> = ({
     </AnimatedPressable>
   );
 };
-

@@ -24,8 +24,9 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     meterFill: {
       height: '100%',
       borderRadius: 6,
+      overflow: 'hidden', // ensure inner effects are clipped to fill
     },
-    revealFlash: {
+    innerPulseOverlay: {
       position: 'absolute',
       left: 0,
       right: 0,
