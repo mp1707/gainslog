@@ -16,7 +16,12 @@ import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { makeSelectLogById } from "@/store/selectors";
 import type { FoodLog, FoodComponent } from "@/types/models";
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useEstimation } from "@/hooks/useEstimation";
@@ -294,7 +299,9 @@ export default function Edit() {
       {!isEditing && editedLog && (
         <FloatingAction
           onPress={handleReestimate}
-          disabled={isLoading || originalLog?.isEstimating || !componentsHaveChanged}
+          disabled={
+            isLoading || originalLog?.isEstimating || !componentsHaveChanged
+          }
         />
       )}
       {isEditing && (
@@ -335,7 +342,9 @@ export default function Edit() {
               setAddingNew(false);
               setFocusNameOnAdd(false);
             }}
-            saveDisabled={tempName.trim().length === 0 || tempAmount.trim().length === 0}
+            saveDisabled={
+              tempName.trim().length === 0 || tempAmount.trim().length === 0
+            }
           />
         </KeyboardStickyView>
       )}

@@ -1,5 +1,5 @@
 import React, { ReactNode, useMemo } from "react";
-import { View, Text, Alert, Dimensions, Pressable } from "react-native";
+import { View, Alert, Dimensions, Pressable } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -627,7 +627,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
                 deleteButtonContainerStyle,
               ]}
             >
-              <Pressable onPress={handleDelete} style={{ padding: 5 }}>
+              <Pressable onPress={() => executeDelete()} style={{ padding: 5 }}>
                 <Animated.View style={deleteButtonStyle}>
                   <FontAwesome
                     name="trash"

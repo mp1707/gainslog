@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
-import Animated, { Easing, Layout } from 'react-native-reanimated';
+import Animated, { Easing, LinearTransition } from 'react-native-reanimated';
 import { ChevronRight, Plus } from 'lucide-react-native';
 import { AppText } from '@/components';
 import { useTheme } from '@/theme';
@@ -36,7 +36,7 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
       {components.map((comp, index) => (
         <Animated.View
           key={`${comp.name}-${index}`}
-          layout={Layout.duration(220).easing(Easing.inOut(Easing.ease))}
+          layout={LinearTransition.duration(220).easing(Easing.inOut(Easing.ease))}
           style={styles.overflowHidden}
         >
           <SwipeToFunctions
