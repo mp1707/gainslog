@@ -1,12 +1,12 @@
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import Animated, { Easing, Layout } from 'react-native-reanimated';
-import { Swipeable } from 'react-native-gesture-handler';
-import { Trash2, ChevronRight, Plus } from 'lucide-react-native';
+import { ChevronRight, Plus } from 'lucide-react-native';
 import { AppText } from '@/components';
 import { useTheme } from '@/theme';
 import { createStyles } from './ComponentsList.styles';
 import type { FoodComponent } from '@/types/models';
+import { SwipeToFunctions } from '@/components/shared/SwipeToFunctions/SwipeToFunctions';
 
 interface ComponentsListProps {
   components: FoodComponent[];
@@ -39,31 +39,18 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
           layout={Layout.duration(220).easing(Easing.inOut(Easing.ease))}
           style={styles.overflowHidden}
         >
-          <Swipeable
-            renderRightActions={() => (
-              <TouchableOpacity
-                onPress={() => onDeleteItem(index)}
-                style={styles.deleteAction}
-                accessibilityLabel="Delete ingredient"
-              >
-                <Trash2 size={18} color={colors.white} />
-                <AppText role="Button" color="white">
-                  Delete
-                </AppText>
-              </TouchableOpacity>
-            )}
+          <SwipeToFunctions
+            onDelete={() => onDeleteItem(index)}
+            onTap={() => onPressItem(index, comp)}
           >
-            <TouchableOpacity
-              style={styles.componentRow}
-              onPress={() => onPressItem(index, comp)}
-            >
+            <View style={styles.componentRow}>
               <AppText style={styles.componentName}>{comp.name}</AppText>
               <AppText color="secondary" style={styles.amountText}>
                 {comp.amount}
               </AppText>
               <ChevronRight size={18} color={colors.secondaryText} />
-            </TouchableOpacity>
-          </Swipeable>
+            </View>
+          </SwipeToFunctions>
         </Animated.View>
       ))}
       <TouchableOpacity
@@ -80,4 +67,3 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
     </View>
   );
 };
-

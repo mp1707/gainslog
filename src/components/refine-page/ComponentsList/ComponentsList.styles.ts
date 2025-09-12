@@ -26,6 +26,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       alignItems: 'center',
       justifyContent: 'space-between',
       paddingVertical: theme.spacing.md,
+      backgroundColor: colors.secondaryBackground,
       gap: theme.spacing.md,
     },
     deleteAction: {

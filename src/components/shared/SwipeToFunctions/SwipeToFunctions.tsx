@@ -180,17 +180,10 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
         .activeOffsetX([-10, 10]) // Only become active for horizontal movement
         .failOffsetY([-30, 30]) // Fail if vertical movement is too large
         .onBegin(() => {
-          // Start press animation immediately on touch begin
+          // Mark as potential press but don't animate yet
+          // Avoid triggering shrink during swipe; animate only on confirmed tap
           if (!isDeleting.value) {
             isPressing.value = true;
-            scale.value = withTiming(0.97, {
-              duration: 150,
-              easing: Easing.out(Easing.quad),
-            });
-            pressFlashOpacity.value = withTiming(0.08, {
-              duration: 150,
-              easing: Easing.out(Easing.quad),
-            });
           }
         })
         .onStart(() => {
@@ -398,19 +391,41 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
           const wasJustTapping =
             isPressing.value && gestureDirection.value === "unknown";
 
-          // Reset press animation
-          if (isPressing.value) {
+          if (wasJustTapping && !isDeleting.value && onTap) {
+            // Confirmed tap: play quick press feedback then trigger tap
             isPressing.value = false;
-            scale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
-            pressFlashOpacity.value = withTiming(0, {
-              duration: 300,
+            pressFlashOpacity.value = withTiming(0.08, {
+              duration: 100,
               easing: Easing.out(Easing.quad),
             });
-          }
-
-          // Trigger tap if we were just tapping (no swipe direction determined)
-          if (wasJustTapping && !isDeleting.value && onTap) {
-            runOnJS(triggerTap)();
+            scale.value = withTiming(
+              0.97,
+              { duration: 120, easing: Easing.out(Easing.quad) },
+              () => {
+                // Return to normal and trigger tap at the end
+                scale.value = withTiming(
+                  1.0,
+                  { duration: 120, easing: Easing.out(Easing.quad) },
+                  () => {
+                    pressFlashOpacity.value = withTiming(0, {
+                      duration: 150,
+                      easing: Easing.out(Easing.quad),
+                    });
+                    runOnJS(triggerTap)();
+                  }
+                );
+              }
+            );
+          } else {
+            // Not a tap: ensure any pending press visuals are cleared
+            if (isPressing.value) {
+              isPressing.value = false;
+              scale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+              pressFlashOpacity.value = withTiming(0, {
+                duration: 300,
+                easing: Easing.out(Easing.quad),
+              });
+            }
           }
         })
         .onFinalize(() => {
