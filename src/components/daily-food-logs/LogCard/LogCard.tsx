@@ -362,11 +362,9 @@ const LogCardInner: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
 
 // Memoize wrapper to avoid unnecessary re-renders when lists scroll
 export const LogCard = memo(LogCardInner, (prev, next) => {
-  // Fast path: if loading state changes, we must re-render
+  // Re-render when loading state changes
   if (prev.isLoading !== next.isLoading) return false;
-
-  // Fast path: reference equality check first
-  if (prev.foodLog === next.foodLog) return true;
-
-  return prev.foodLog.id === next.foodLog.id;
+  // Skip only when the exact same object reference is passed
+  // If the updated log is a new object (e.g., title changed), re-render
+  return prev.foodLog === next.foodLog;
 });

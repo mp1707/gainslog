@@ -10,7 +10,14 @@ import {
   TextInput as RNTextInput,
   Pressable,
 } from "react-native";
-import { X, Plus, Trash2, Sparkles, ChevronRight } from "lucide-react-native";
+import {
+  X,
+  Plus,
+  Trash2,
+  Sparkles,
+  ChevronRight,
+  Check,
+} from "lucide-react-native";
 import {
   KeyboardAwareScrollView,
   KeyboardStickyView,
@@ -40,6 +47,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const originalLog = useAppStore(makeSelectLogById(id));
+  const updateFoodLog = useAppStore((s) => s.updateFoodLog);
   const router = useRouter();
 
   const { colors, theme, colorScheme } = useTheme();
@@ -93,7 +101,12 @@ export default function Edit() {
     confidenceWidth.value = withTiming(confidence, { duration: 350 });
   }, [confidence, confidenceWidth]);
 
-  const handleCancel = () => {
+  const handleDone = () => {
+    if (id && editedLog) {
+      const newTitle = (editedLog.title ?? '').trim();
+      // Persist title change to the original log in the store
+      updateFoodLog(id, { title: newTitle });
+    }
     router.back();
   };
 
@@ -181,9 +194,9 @@ export default function Edit() {
     <GradientWrapper style={styles.container}>
       <View style={styles.closeButton}>
         <RoundButton
-          Icon={X}
-          onPress={handleCancel}
-          variant={"tertiary"}
+          Icon={Check}
+          onPress={handleDone}
+          variant={"primary"}
           accessibilityLabel="Close"
         />
       </View>
@@ -226,14 +239,14 @@ export default function Edit() {
               <TextInput
                 placeholder="Title"
                 value={editedLog.title || ""}
-                onChangeText={(text) =>
-                  setEditedLog((prev) => {
+                onChangeText={(text) => {
+                  return setEditedLog((prev) => {
                     if (!prev) return prev;
                     const next = { ...prev, title: text };
                     setIsDirty(true);
                     return next;
-                  })
-                }
+                  });
+                }}
                 fontSize="Headline"
                 style={[styles.titleInputContainer, styles.titleInput]}
               />
@@ -279,19 +292,6 @@ export default function Edit() {
                 <AppText role="Caption" style={styles.sectionHeader}>
                   COMPONENTS
                 </AppText>
-                <RoundButton
-                  Icon={Sparkles}
-                  variant="tertiary"
-                  onPress={handleReestimate}
-                  disabled={
-                    isLoading ||
-                    originalLog?.isEstimating ||
-                    isEditing ||
-                    !editedLog ||
-                    !componentsHaveChanged
-                  }
-                  accessibilityLabel="Re-estimate accuracy"
-                />
               </View>
               {(editedLog.foodComponents || []).map((comp, index) => {
                 return (
@@ -373,6 +373,25 @@ export default function Edit() {
           />
           <View style={styles.dimColor} />
         </AnimatedPressable>
+      )}
+      {!isEditing && editedLog && (
+        <View style={styles.floatingActionContainer}>
+          <View style={styles.floatingAccessory}>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Button
+                variant="primary"
+                label="Estimate again"
+                Icon={Sparkles}
+                onPress={handleReestimate}
+                disabled={
+                  isLoading ||
+                  originalLog?.isEstimating ||
+                  !componentsHaveChanged
+                }
+              />
+            </View>
+          </View>
+        </View>
       )}
       {isEditing && (
         <KeyboardStickyView offset={{ closed: -30, opened: 0 }}>
@@ -501,6 +520,26 @@ const createStyles = (colors: Colors, theme: Theme) =>
       top: theme.spacing.md,
       right: theme.spacing.md,
       zIndex: 15,
+    },
+    floatingActionContainer: {
+      position: "absolute",
+      left: "5%",
+      right: "5%",
+      bottom: theme.spacing.lg,
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 20,
+    },
+    floatingAccessory: {
+      marginHorizontal: theme.spacing.sm,
+      backgroundColor: colors.secondaryBackground,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: theme.spacing.sm,
+      borderRadius: 9999,
+      padding: theme.spacing.sm,
+      overflow: "hidden",
     },
     contentContainer: {
       paddingHorizontal: theme.spacing.md,

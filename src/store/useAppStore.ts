@@ -56,8 +56,10 @@ export const useAppStore = create<AppState>()(
 
       updateFoodLog: (id, update) =>
         set((state) => {
-          const log = state.foodLogs.find((l) => l.id === id);
-          if (log) Object.assign(log, update);
+          // Create new objects/array so FlatList + memoized cards re-render
+          state.foodLogs = state.foodLogs.map((l) =>
+            l.id === id ? { ...l, ...update } : l
+          );
         }),
 
       deleteFoodLog: async (id) => {
