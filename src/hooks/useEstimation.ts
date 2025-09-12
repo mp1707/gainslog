@@ -11,6 +11,7 @@ import {
   estimateNutritionImageBased,
   FoodEstimateResponse,
   refineTextBased,
+  refineImageBased,
 } from "../lib";
 
 export const useEstimation = () => {
@@ -70,9 +71,10 @@ export const useEstimation = () => {
           foodComponents: editedLog.foodComponents || [],
         });
       } else {
-        estimationResults = await estimateNutritionImageBased({
+        estimationResults = await refineImageBased({
           imagePath: editedLog.supabaseImagePath,
           description: editedLog.description || "",
+          foodComponents: editedLog.foodComponents,
         });
       }
       const title =

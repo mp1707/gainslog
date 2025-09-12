@@ -275,17 +275,19 @@ export default function Edit() {
             />
 
             {/* Description input */}
-            <DescriptionCard
-              value={editedLog.description || ""}
-              onChange={(text) =>
-                setEditedLog((prev) => {
-                  if (!prev) return prev;
-                  const next = { ...prev, description: text };
-                  setIsDirty(true);
-                  return next;
-                })
-              }
-            />
+            {editedLog.description && (
+              <DescriptionCard
+                value={editedLog.description || ""}
+                onChange={(text) =>
+                  setEditedLog((prev) => {
+                    if (!prev) return prev;
+                    const next = { ...prev, description: text };
+                    setIsDirty(true);
+                    return next;
+                  })
+                }
+              />
+            )}
 
             {/* Editable component list */}
             <ComponentsList

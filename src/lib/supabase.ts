@@ -18,6 +18,13 @@ export interface ImageEstimateRequest {
   description?: string;
 }
 
+export interface ImageRefineRequest {
+  imagePath: string;
+  title?: string;
+  description?: string;
+  foodComponents: FoodComponent[];
+}
+
 export interface FoodEstimateResponse {
   generatedTitle: string;
   estimationConfidence: number;
@@ -113,6 +120,39 @@ export const estimateNutritionImageBased = async (
 ): Promise<FoodEstimateResponse> => {
   const response = await fetch(
     `${supabaseUrl}/functions/v1/imageEstimationV2`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${supabaseAnonKey}`,
+        apikey: supabaseAnonKey,
+      },
+      body: JSON.stringify(request),
+    }
+  );
+
+  if (!response.ok) {
+    if (response.status === 429) {
+      showErrorToast("Rate limit exceeded", "Please try again later.");
+    }
+    throw new Error("AI_ESTIMATION_FAILED");
+  }
+
+  const data = await response.json();
+
+  if (data.error) {
+    console.error("Image-based estimation error:", data.error);
+    throw new Error("AI_ESTIMATION_FAILED");
+  }
+
+  return data as FoodEstimateResponse;
+};
+
+export const refineImageBased = async (
+  request: ImageRefineRequest
+): Promise<FoodEstimateResponse> => {
+  const response = await fetch(
+    `${supabaseUrl}/functions/v1/refineImageEstimationV1`,
     {
       method: "POST",
       headers: {
