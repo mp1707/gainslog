@@ -25,5 +25,22 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       height: '100%',
       borderRadius: 6,
     },
+    revealFlash: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(255,255,255,0.25)',
+    },
+    shimmerOverlay: {
+      position: 'absolute',
+      left: -100,
+      top: 0,
+      bottom: 0,
+      width: 200,
+    },
+    shimmerGradient: {
+      flex: 1,
+    },
   });
-

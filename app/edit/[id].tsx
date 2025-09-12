@@ -53,6 +53,7 @@ export default function Edit() {
   const [editedLog, setEditedLog] = useState<FoodLog | undefined>(originalLog);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefined, setIsRefined] = useState(false);
+  const [revealKey, setRevealKey] = useState(0);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [addingNew, setAddingNew] = useState(false);
   const [tempName, setTempName] = useState("");
@@ -196,6 +197,7 @@ export default function Edit() {
     if (!editedLog) return;
     // Scroll to top when re-estimating to show accuracy and updates
     scrollRef.current?.scrollTo({ y: 0, animated: true });
+    setIsRefined(false);
     setIsLoading(true);
     try {
       await startReEstimation(editedLog, (log) => {
@@ -204,6 +206,9 @@ export default function Edit() {
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setIsRefined(true);
+      setRevealKey((k) => k + 1);
+      // Reset refined flag after brief celebration window
+      setTimeout(() => setIsRefined(false), 1200);
     } catch (e) {
       // You may add error toast here if desired
     } finally {
@@ -234,7 +239,11 @@ export default function Edit() {
           </View>
         ) : (
           <>
-            <ConfidenceCard value={editedLog.estimationConfidence ?? 0} />
+            <ConfidenceCard
+              value={editedLog.estimationConfidence ?? 0}
+              processing={isLoading || !!originalLog?.isEstimating}
+              reveal={isRefined}
+            />
 
             {/* Title input */}
             <TitleCard
@@ -261,6 +270,8 @@ export default function Edit() {
               protein={editedLog.protein}
               carbs={editedLog.carbs}
               fat={editedLog.fat}
+              processing={isLoading || !!originalLog?.isEstimating}
+              revealKey={revealKey}
             />
 
             {/* Description input */}
@@ -309,6 +320,8 @@ export default function Edit() {
           disabled={
             isLoading || originalLog?.isEstimating || !componentsHaveChanged
           }
+          isProcessing={isLoading || !!originalLog?.isEstimating}
+          didSucceed={isRefined}
         />
       )}
       {isEditing && (

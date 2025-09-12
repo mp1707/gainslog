@@ -26,6 +26,8 @@ export interface ButtonProps extends Omit<PressableProps, "children"> {
   iconSize?: number;
   disabled?: boolean;
   iconPlacement?: IconPlacement; // default: left
+  // Optional: customize press-in haptic intensity (default: Light)
+  hapticImpact?: Haptics.ImpactFeedbackStyle;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -38,6 +40,7 @@ export const Button = React.memo<ButtonProps>(
     iconSize = 18,
     disabled = false,
     iconPlacement = "left",
+    hapticImpact,
     onPress,
     onPressIn,
     onPressOut,
@@ -99,12 +102,13 @@ export const Button = React.memo<ButtonProps>(
             stiffness: 400,
             damping: 30,
           });
-
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          // Trigger configurable haptic on press-in for immediate feedback
+          const style = hapticImpact ?? Haptics.ImpactFeedbackStyle.Light;
+          Haptics.impactAsync(style);
         }
         onPressIn?.(event);
       },
-      [disabled, onPressIn, scale]
+      [disabled, onPressIn, scale, hapticImpact]
     );
 
     const handlePressOut = useCallback(
