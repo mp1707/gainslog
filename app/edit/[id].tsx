@@ -41,6 +41,8 @@ import * as Haptics from "expo-haptics";
 import { BlurView } from "expo-blur";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useEstimation } from "@/hooks/useEstimation";
+import { lockNav } from "@/utils/navigationLock";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Swipeable } from "react-native-gesture-handler";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -55,6 +57,7 @@ export default function Edit() {
   const styles = createStyles(colors, theme);
   const { startReEstimation } = useEstimation();
   const scrollRef = useRef<RNScrollView | null>(null);
+  const navigation = useNavigation();
 
   // Local state to hold edits (do not mutate store until confirmed)
   const [editedLog, setEditedLog] = useState<FoodLog | undefined>(originalLog);
@@ -87,6 +90,42 @@ export default function Edit() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditing]);
+
+  // Note: per-id modal, cleanup happens on unmount
+
+  // Also lock navigation when this modal unmounts (e.g., swipe-to-dismiss)
+  useEffect(() => {
+    return () => {
+      // Small lock to avoid immediately opening another modal during dismissal
+      lockNav(800);
+    };
+  }, []);
+
+  // Lock around gesture-driven dismiss transitions
+  useEffect(() => {
+    const subs: Array<() => void> = [];
+    // @ts-expect-error event names exist in React Navigation stack
+    const sub1 = navigation.addListener?.("gestureStart", () => {
+      lockNav(800);
+    });
+    // @ts-expect-error event payload includes closing flag
+    const sub2 = navigation.addListener?.("transitionStart", (e: any) => {
+      if (e?.data?.closing) lockNav(800);
+    });
+    if (typeof sub1 === "function") subs.push(sub1);
+    if (typeof sub2 === "function") subs.push(sub2);
+    return () => subs.forEach((off) => off());
+  }, [navigation]);
+
+  // On blur (when this modal loses focus), set a brief lock
+  useFocusEffect(
+    useMemo(
+      () => () => {
+        lockNav(800);
+      },
+      []
+    )
+  );
 
   // Sync when originalLog loads or changes
   useEffect(() => {

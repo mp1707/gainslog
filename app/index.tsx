@@ -19,6 +19,7 @@ import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
 import { FoodLog } from "@/types/models";
 import { showFavoriteAddedToast, showFavoriteRemovedToast } from "@/lib/toast";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { isNavLocked } from "@/utils/navigationLock";
 import { NutrientSummary } from "@/components/daily-food-logs/NutrientSummary/NutrientSummary";
 import { DateSlider } from "@/components/shared/DateSlider";
 import { BlurView } from "expo-blur";
@@ -41,6 +42,7 @@ export default function TodayTab() {
   // Get the entire state for selectors and individual functions
   const state = useAppStore();
   const { deleteFoodLog, addFavorite, deleteFavorite, favorites } = state;
+  // Note: navigation lock is handled by the edit modal lifecycle
 
   const todayFoodLogs = useMemo(() => {
     return selectLogsForDate(state, state.selectedDate).reverse();
@@ -77,6 +79,7 @@ export default function TodayTab() {
   );
 
   const handleNavigateToDetailPage = (foodLog: FoodLog) => {
+    if (isNavLocked()) return;
     safeNavigate(`/edit/${foodLog.id}`);
   };
 
@@ -111,7 +114,7 @@ export default function TodayTab() {
   );
 
   return (
-    <>
+    <View style={styles.container}>
       <FlatList
         ref={flatListRef}
         data={todayFoodLogs}
@@ -180,7 +183,7 @@ export default function TodayTab() {
           onPress={() => safeNavigate("/create")}
         />
       </View>
-    </>
+    </View>
   );
 }
 
