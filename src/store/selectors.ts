@@ -17,6 +17,22 @@ export const selectLogsForDate = (state: AppState, date: string): FoodLog[] =>
   state.foodLogs.filter((log) => log.logDate === date);
 
 /**
+ * Selects a single food log by id (non-reactive helper).
+ * Useful for one-off reads outside React components.
+ */
+export const selectLogById = (state: AppState, id: string): FoodLog | undefined =>
+  state.foodLogs.find((log) => log.id === id);
+
+/**
+ * Factory that returns a Zustand-ready selector for a given id.
+ * Use in components: `const log = useAppStore(makeSelectLogById(id));`
+ * This subscribes only to changes of the specific log, avoiding rerenders
+ * when unrelated logs change.
+ */
+export const makeSelectLogById = (id: string) => (state: AppState): FoodLog | undefined =>
+  state.foodLogs.find((log) => log.id === id);
+
+/**
  * ## Computed Selectors
  * These selectors perform calculations on the state.
  */

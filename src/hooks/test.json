@@ -1,0 +1,13 @@
+{
+  "generatedTitle": "string",
+  "foodComponents": [
+    { "name": "Beef", "amount": "30g" },
+    { "name": "Ketchup", "amount": "10ml" },
+    { "name": "Bun", "amount": "1 piece" }
+  ],
+  "calories": "integer",
+  "protein": "integer",
+  "carbs": "integer",
+  "fat": "integer",
+  "estimationConfidence": "integer"
+}

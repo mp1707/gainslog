@@ -1,14 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient } from "@supabase/supabase-js";
 import { showErrorToast } from "./toast";
+import { FoodComponent } from "@/types/models";
 
 export interface TextEstimateRequest {
-  title?: string;
-  description?: string;
+  description: string;
 }
 
-export interface DescriptionEstimateRequest {
+export interface TextRefineRequest {
   description: string;
+  foodComponents: FoodComponent[];
 }
 
 export interface ImageEstimateRequest {
@@ -24,6 +25,7 @@ export interface FoodEstimateResponse {
   protein: number;
   carbs: number;
   fat: number;
+  foodComponents: FoodComponent[];
 }
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
@@ -38,10 +40,12 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
-export const estimateNutritionTextBased = async (
+export const estimateTextBased = async (
   request: TextEstimateRequest
 ): Promise<FoodEstimateResponse> => {
-  const response = await fetch(`${supabaseUrl}/functions/v1/text-estimation`, {
+  console.log("text Estimation Request: ", request);
+
+  const response = await fetch(`${supabaseUrl}/functions/v1/textEstimationV2`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -63,15 +67,18 @@ export const estimateNutritionTextBased = async (
     console.error("AI estimation error:", data.error);
     throw new Error("AI_ESTIMATION_FAILED");
   }
+  console.log("text Estimation Response: ", data);
 
   return data as FoodEstimateResponse;
 };
 
-export const estimateNutritionDescriptionBased = async (
-  request: DescriptionEstimateRequest
+export const refineTextBased = async (
+  request: TextRefineRequest
 ): Promise<FoodEstimateResponse> => {
+  console.log("refine 🗡️ text Estimation Request: ", request);
+
   const response = await fetch(
-    `${supabaseUrl}/functions/v1/estimateDescriptionRL`,
+    `${supabaseUrl}/functions/v1/refineTextEstimationV1`,
     {
       method: "POST",
       headers: {
@@ -96,23 +103,26 @@ export const estimateNutritionDescriptionBased = async (
     throw new Error("AI_ESTIMATION_FAILED");
   }
 
+  console.log("refine 🗡️ text Estimation Response: ", data);
+
   return data as FoodEstimateResponse;
 };
 
 export const estimateNutritionImageBased = async (
   request: ImageEstimateRequest
 ): Promise<FoodEstimateResponse> => {
-  console.log("Starting image-based estimation with request:", request);
-
-  const response = await fetch(`${supabaseUrl}/functions/v1/estimateImageRL`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${supabaseAnonKey}`,
-      apikey: supabaseAnonKey,
-    },
-    body: JSON.stringify(request),
-  });
+  const response = await fetch(
+    `${supabaseUrl}/functions/v1/imageEstimationV2`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${supabaseAnonKey}`,
+        apikey: supabaseAnonKey,
+      },
+      body: JSON.stringify(request),
+    }
+  );
 
   if (!response.ok) {
     if (response.status === 429) {

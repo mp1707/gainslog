@@ -1,5 +1,6 @@
 import { FoodLog } from "@/types/models";
 import { generateFoodLogId } from "./idGenerator";
+import { FoodEstimateResponse } from "../lib";
 
 export type EstimationInput = Omit<
   FoodLog,
@@ -10,15 +11,6 @@ export type EstimationInput = Omit<
   | "carbs"
   | "fat"
 >;
-
-export type EstimationResult = {
-  generatedTitle: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  estimationConfidence: number;
-};
 
 export const createEstimationLog = (logData: EstimationInput): FoodLog => {
   return {
@@ -35,7 +27,7 @@ export const createEstimationLog = (logData: EstimationInput): FoodLog => {
 
 export const applyEstimationResults = (
   existingLog: FoodLog,
-  results: EstimationResult
+  results: FoodEstimateResponse
 ): FoodLog => {
   return {
     ...existingLog,
@@ -45,6 +37,7 @@ export const applyEstimationResults = (
     carbs: results.carbs,
     fat: results.fat,
     estimationConfidence: results.estimationConfidence,
+    foodComponents: results.foodComponents,
     isEstimating: false,
   };
 };

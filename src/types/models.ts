@@ -6,12 +6,18 @@ export type FoodLog = {
   description?: string;
   supabaseImagePath?: string;
   localImagePath?: string;
+  foodComponents: FoodComponent[];
   calories: number;
   protein: number;
   carbs: number;
   fat: number;
   estimationConfidence?: number;
   isEstimating?: boolean;
+};
+
+export type FoodComponent = {
+  name: string;
+  amount: string;
 };
 
 export type Favorite = {
@@ -23,6 +29,7 @@ export type Favorite = {
   protein: number;
   carbs: number;
   fat: number;
+  foodComponents: FoodComponent[];
 };
 
 export type DailyTargets = {

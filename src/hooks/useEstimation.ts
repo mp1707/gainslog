@@ -4,12 +4,13 @@ import {
   EstimationInput,
   createEstimationLog,
   applyEstimationResults,
-  EstimationResult,
 } from "@/utils/estimation";
 import { FoodLog } from "@/types/models";
 import {
-  estimateNutritionDescriptionBased,
+  estimateTextBased,
   estimateNutritionImageBased,
+  FoodEstimateResponse,
+  refineTextBased,
 } from "../lib";
 
 export const useEstimation = () => {
@@ -30,7 +31,7 @@ export const useEstimation = () => {
               description: logData.description || "",
             })
         : () =>
-            estimateNutritionDescriptionBased({
+            estimateTextBased({
               description: logData.description || "",
             });
 
@@ -49,6 +50,7 @@ export const useEstimation = () => {
           fat: completedLog.fat,
           localImagePath: logData.localImagePath,
           estimationConfidence: completedLog.estimationConfidence,
+          foodComponents: estimationResults.foodComponents,
           isEstimating: false,
         });
       } catch (error) {
@@ -59,37 +61,39 @@ export const useEstimation = () => {
   );
 
   const startReEstimation = useCallback(
-    async (logData: FoodLog, onComplete: (log: FoodLog) => void) => {
-      updateFoodLog(logData.id, { isEstimating: true });
-      let estimationResults: EstimationResult;
-      if (!logData.supabaseImagePath || logData.supabaseImagePath === "") {
-        estimationResults = await estimateNutritionDescriptionBased({
-          description: logData.description || "",
+    async (editedLog: FoodLog, onComplete: (log: FoodLog) => void) => {
+      updateFoodLog(editedLog.id, { isEstimating: true });
+      let estimationResults: FoodEstimateResponse;
+      if (!editedLog.supabaseImagePath || editedLog.supabaseImagePath === "") {
+        estimationResults = await refineTextBased({
+          description: editedLog.description || "",
+          foodComponents: editedLog.foodComponents || [],
         });
       } else {
         estimationResults = await estimateNutritionImageBased({
-          imagePath: logData.supabaseImagePath,
-          description: logData.description || "",
+          imagePath: editedLog.supabaseImagePath,
+          description: editedLog.description || "",
         });
       }
       const title =
-        logData.title !== undefined && logData.title !== ""
-          ? logData.title
+        editedLog.title !== undefined && editedLog.title !== ""
+          ? editedLog.title
           : estimationResults.generatedTitle;
       const completedLog: FoodLog = {
-        ...logData,
+        ...editedLog,
         title: title,
-        description: logData.description || "",
-        supabaseImagePath: logData.supabaseImagePath || "",
-        localImagePath: logData.localImagePath,
+        description: editedLog.description || "",
+        supabaseImagePath: editedLog.supabaseImagePath || "",
+        localImagePath: editedLog.localImagePath,
         calories: estimationResults.calories,
         protein: estimationResults.protein,
         carbs: estimationResults.carbs,
         fat: estimationResults.fat,
         estimationConfidence: estimationResults.estimationConfidence,
+        foodComponents: estimationResults.foodComponents,
         isEstimating: false,
       };
-      updateFoodLog(logData.id, completedLog);
+      updateFoodLog(editedLog.id, completedLog);
       onComplete(completedLog);
     },
     [addFoodLog, updateFoodLog, deleteFoodLog]

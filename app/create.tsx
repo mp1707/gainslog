@@ -4,7 +4,12 @@ import { useTheme } from "@/theme/ThemeProvider";
 import { Favorite } from "@/types/models";
 import { useRouter } from "expo-router";
 import { useCallback, useRef, useState, useEffect } from "react";
-import { StyleSheet, TextInput as RNTextInput, View, ActivityIndicator } from "react-native";
+import {
+  StyleSheet,
+  TextInput as RNTextInput,
+  View,
+  ActivityIndicator,
+} from "react-native";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { useTranscription } from "@/hooks/useTranscription";
 import { useEstimation } from "@/hooks/useEstimation";
@@ -66,7 +71,6 @@ export default function Create() {
           estimationConfidence: 0,
         });
       } catch (error) {
-        console.log("Error processing image:", error);
         showErrorToast("Error processing image", "Please try again.");
       } finally {
         setIsProcessingImage(false);
@@ -126,7 +130,9 @@ export default function Create() {
     return (
       <GradientWrapper style={styles.container}>
         <CreateHeader onCancel={handleCancel} />
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <View
+          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+        >
           <ActivityIndicator />
         </View>
       </GradientWrapper>
@@ -134,7 +140,8 @@ export default function Create() {
   }
 
   // This constant now safely depends on pendingLog
-  const canContinue = draft.description?.trim() !== "" || !!draft.localImagePath;
+  const canContinue =
+    draft.description?.trim() !== "" || !!draft.localImagePath;
 
   return (
     <GradientWrapper style={styles.container}>

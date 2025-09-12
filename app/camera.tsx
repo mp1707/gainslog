@@ -49,7 +49,6 @@ export default function Camera() {
           router.back();
         }
       } catch (error) {
-        console.log("Error processing image in camera:", error);
         showErrorToast("Error processing image", "Please try again.");
       }
     },
