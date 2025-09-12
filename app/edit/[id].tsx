@@ -258,7 +258,15 @@ export default function Edit() {
                 MACROS
               </AppText>
               <View style={styles.macroRow}>
-                <AppText>Calories</AppText>
+                <View style={styles.macroLabelContainer}>
+                  <View
+                    style={[
+                      styles.macroDot,
+                      { backgroundColor: colors.semantic.calories },
+                    ]}
+                  />
+                  <AppText>Calories</AppText>
+                </View>
                 <AppText color="secondary">
                   {editedLog.calories ?? 0} kcal
                 </AppText>
@@ -267,21 +275,45 @@ export default function Edit() {
                 style={[styles.divider, { backgroundColor: colors.border }]}
               />
               <View style={styles.macroRow}>
-                <AppText>Protein</AppText>
+                <View style={styles.macroLabelContainer}>
+                  <View
+                    style={[
+                      styles.macroDot,
+                      { backgroundColor: colors.semantic.protein },
+                    ]}
+                  />
+                  <AppText>Protein</AppText>
+                </View>
                 <AppText color="secondary">{editedLog.protein ?? 0} g</AppText>
               </View>
               <View
                 style={[styles.divider, { backgroundColor: colors.border }]}
               />
               <View style={styles.macroRow}>
-                <AppText>Carbs</AppText>
+                <View style={styles.macroLabelContainer}>
+                  <View
+                    style={[
+                      styles.macroDot,
+                      { backgroundColor: colors.semantic.carbs },
+                    ]}
+                  />
+                  <AppText>Carbs</AppText>
+                </View>
                 <AppText color="secondary">{editedLog.carbs ?? 0} g</AppText>
               </View>
               <View
                 style={[styles.divider, { backgroundColor: colors.border }]}
               />
               <View style={styles.macroRow}>
-                <AppText>Fat</AppText>
+                <View style={styles.macroLabelContainer}>
+                  <View
+                    style={[
+                      styles.macroDot,
+                      { backgroundColor: colors.semantic.fat },
+                    ]}
+                  />
+                  <AppText>Fat</AppText>
+                </View>
                 <AppText color="secondary">{editedLog.fat ?? 0} g</AppText>
               </View>
             </View>
@@ -595,6 +627,18 @@ const createStyles = (colors: Colors, theme: Theme) =>
       alignItems: "center",
       justifyContent: "space-between",
       paddingVertical: theme.spacing.sm,
+    },
+    macroLabelContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.xs,
+      flexShrink: 1,
+    },
+    macroDot: {
+      width: theme.spacing.sm,
+      height: theme.spacing.sm,
+      borderRadius: theme.spacing.xs,
+      marginRight: theme.spacing.xs,
     },
     divider: {
       height: 1,
