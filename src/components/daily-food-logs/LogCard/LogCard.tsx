@@ -150,24 +150,6 @@ const AnimatedLogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
               </Animated.View>
             )}
 
-            {/* Description Section */}
-            {false ? (
-              <View style={{ marginTop: 4 }}>
-                <SkeletonPill width="90%" height={18} />
-              </View>
-            ) : (
-              foodLog.description && (
-                <AppText
-                  role="Body"
-                  color="secondary"
-                  style={styles.description}
-                  numberOfLines={2}
-                >
-                  {foodLog.description}
-                </AppText>
-              )
-            )}
-
             {/* Confidence Badge Section */}
             {isLoading ? (
               <SkeletonPill width={80} height={28} />
@@ -292,17 +274,6 @@ const StaticLogCard: React.FC<LogCardProps> = ({ foodLog }) => {
             <AppText role="Headline" style={styles.title} numberOfLines={2}>
               {displayTitle}
             </AppText>
-
-            {foodLog.description ? (
-              <AppText
-                role="Body"
-                color="secondary"
-                style={styles.description}
-                numberOfLines={2}
-              >
-                {foodLog.description}
-              </AppText>
-            ) : null}
 
             <ConfidenceBadge
               estimationConfidence={estimationConfidence}

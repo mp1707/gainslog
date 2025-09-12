@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   TextInput as RNTextInput,
   Pressable,
+  ScrollView as RNScrollView,
 } from "react-native";
 import {
   X,
@@ -38,7 +39,7 @@ import Animated, {
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { BlurView } from "expo-blur";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useEstimation } from "@/hooks/useEstimation";
 import { Swipeable } from "react-native-gesture-handler";
 
@@ -53,6 +54,7 @@ export default function Edit() {
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme);
   const { startReEstimation } = useEstimation();
+  const scrollRef = useRef<RNScrollView | null>(null);
 
   // Local state to hold edits (do not mutate store until confirmed)
   const [editedLog, setEditedLog] = useState<FoodLog | undefined>(originalLog);
@@ -103,7 +105,7 @@ export default function Edit() {
 
   const handleDone = () => {
     if (id && editedLog) {
-      const newTitle = (editedLog.title ?? '').trim();
+      const newTitle = (editedLog.title ?? "").trim();
       // Persist title change to the original log in the store
       updateFoodLog(id, { title: newTitle });
     }
@@ -134,6 +136,12 @@ export default function Edit() {
   const componentsHaveChanged = useMemo(() => {
     const orig = originalLog?.foodComponents ?? [];
     const curr = editedLog?.foodComponents ?? [];
+
+    // Also consider description changes
+    if ((originalLog?.description ?? "") !== (editedLog?.description ?? "")) {
+      return true;
+    }
+
     if (orig.length !== curr.length) return true;
     for (let i = 0; i < orig.length; i++) {
       const o = orig[i];
@@ -142,7 +150,12 @@ export default function Edit() {
       if ((o?.amount ?? "") !== (c?.amount ?? "")) return true;
     }
     return false;
-  }, [originalLog?.foodComponents, editedLog?.foodComponents]);
+  }, [
+    originalLog?.foodComponents,
+    editedLog?.foodComponents,
+    originalLog?.description,
+    editedLog?.description,
+  ]);
 
   // Handlers for components editing
   const handleUpdateComponent = (index: number, updated: FoodComponent) => {
@@ -175,6 +188,8 @@ export default function Edit() {
 
   const handleReestimate = async () => {
     if (!editedLog) return;
+    // Scroll to top when re-estimating to show accuracy and updates
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
     setIsLoading(true);
     try {
       await startReEstimation(editedLog, (log) => {
@@ -201,6 +216,7 @@ export default function Edit() {
         />
       </View>
       <KeyboardAwareScrollView
+        ref={scrollRef as any}
         style={[styles.scrollView]}
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="handled"
@@ -316,6 +332,28 @@ export default function Edit() {
                 </View>
                 <AppText color="secondary">{editedLog.fat ?? 0} g</AppText>
               </View>
+            </View>
+
+            {/* Description input */}
+            <View style={styles.card}>
+              <AppText role="Caption" style={styles.sectionHeader}>
+                MEAL DESCRIPTION
+              </AppText>
+              <TextInput
+                placeholder="Description"
+                value={editedLog.description || ""}
+                multiline
+                onChangeText={(text) => {
+                  return setEditedLog((prev) => {
+                    if (!prev) return prev;
+                    const next = { ...prev, description: text };
+                    setIsDirty(true);
+                    return next;
+                  });
+                }}
+                fontSize="Body"
+                style={[styles.titleInputContainer, styles.titleInput]}
+              />
             </View>
 
             {/* Editable component list */}
@@ -546,7 +584,7 @@ export default function Edit() {
 const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     container: { flex: 1 },
-    scrollView: { flex: 1, paddingTop: theme.spacing.xxl + theme.spacing.md },
+    scrollView: { flex: 1, paddingTop: theme.spacing.xxl + theme.spacing.lg },
     closeButton: {
       position: "absolute",
       top: theme.spacing.md,
@@ -575,7 +613,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
     },
     contentContainer: {
       paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.md,
+      paddingBottom: theme.spacing.xxl * 2,
       gap: theme.spacing.lg,
     },
     sectionHeader: {
