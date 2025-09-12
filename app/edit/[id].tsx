@@ -7,6 +7,8 @@ import {
   View,
   ActivityIndicator,
   TouchableOpacity,
+  TextInput as RNTextInput,
+  Pressable,
 } from "react-native";
 import { X, Plus, Trash2, Sparkles, ChevronRight } from "lucide-react-native";
 import {
@@ -28,16 +30,19 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
+import { BlurView } from "expo-blur";
 import { useEffect, useMemo, useState } from "react";
 import { useEstimation } from "@/hooks/useEstimation";
 import { Swipeable } from "react-native-gesture-handler";
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const originalLog = useAppStore(makeSelectLogById(id));
   const router = useRouter();
 
-  const { colors, theme } = useTheme();
+  const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme);
   const { startReEstimation } = useEstimation();
 
@@ -46,16 +51,40 @@ export default function Edit() {
   const [isLoading, setIsLoading] = useState(false);
   const [isRefined, setIsRefined] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [addingNew, setAddingNew] = useState(false);
   const [tempName, setTempName] = useState("");
   const [tempAmount, setTempAmount] = useState("");
   // When adding a new ingredient, we auto-focus the Name field once
   const [focusNameOnAdd, setFocusNameOnAdd] = useState(false);
-  const isEditing = expandedIndex !== null;
+  // Local focus state for sticky editor inputs (for accent border)
+  const [nameFocused, setNameFocused] = useState(false);
+  const [amountFocused, setAmountFocused] = useState(false);
+  const isEditing = expandedIndex !== null || addingNew;
+  const [isDirty, setIsDirty] = useState(false);
+  const overlayOpacity = useSharedValue(0);
+  const dimAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: overlayOpacity.value,
+  }));
+
+  useEffect(() => {
+    if (isEditing) {
+      overlayOpacity.value = withTiming(1, {
+        duration: 180,
+        easing: Easing.out(Easing.ease),
+      });
+    } else {
+      overlayOpacity.value = 0;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing]);
 
   // Sync when originalLog loads or changes
   useEffect(() => {
-    setEditedLog(originalLog);
-  }, [originalLog]);
+    // Only sync from store when not locally editing/dirty
+    if (!editedLog || !isDirty) {
+      setEditedLog(originalLog);
+    }
+  }, [originalLog, isDirty]);
 
   // Confidence meter animation state
   const confidence = editedLog?.estimationConfidence ?? 0;
@@ -110,6 +139,7 @@ export default function Edit() {
       comps[index] = updated;
       return { ...prev, foodComponents: comps };
     });
+    setIsDirty(true);
   };
 
   const handleDeleteComponent = (index: number) => {
@@ -118,25 +148,16 @@ export default function Edit() {
       const comps = (prev.foodComponents || []).filter((_, i) => i !== index);
       return { ...prev, foodComponents: comps };
     });
+    setIsDirty(true);
   };
 
   const handleAddComponent = () => {
-    setEditedLog((prev) => {
-      if (!prev) return prev;
-      const newIndex = prev.foodComponents?.length ?? 0;
-      const newComp: FoodComponent = { name: "", amount: "" };
-
-      // Prepare inline editor state for the newly added item
-      setExpandedIndex(newIndex);
-      setTempName("");
-      setTempAmount("");
-      setFocusNameOnAdd(true);
-
-      return {
-        ...prev,
-        foodComponents: [...(prev.foodComponents || []), newComp],
-      };
-    });
+    // Do not insert an empty row. Open editor first and add on Save.
+    setAddingNew(true);
+    setExpandedIndex(null);
+    setTempName("");
+    setTempAmount("");
+    setFocusNameOnAdd(true);
   };
 
   const handleReestimate = async () => {
@@ -145,6 +166,7 @@ export default function Edit() {
     try {
       await startReEstimation(editedLog, (log) => {
         setEditedLog(log);
+        setIsDirty(false);
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setIsRefined(true);
@@ -205,13 +227,15 @@ export default function Edit() {
                 placeholder="Title"
                 value={editedLog.title || ""}
                 onChangeText={(text) =>
-                  setEditedLog((prev) =>
-                    prev ? { ...prev, title: text } : prev
-                  )
+                  setEditedLog((prev) => {
+                    if (!prev) return prev;
+                    const next = { ...prev, title: text };
+                    setIsDirty(true);
+                    return next;
+                  })
                 }
                 fontSize="Headline"
-                containerStyle={styles.titleInputContainer}
-                style={styles.titleInput}
+                style={[styles.titleInputContainer, styles.titleInput]}
               />
             </View>
 
@@ -259,7 +283,13 @@ export default function Edit() {
                   Icon={Sparkles}
                   variant="tertiary"
                   onPress={handleReestimate}
-                  disabled={isLoading || !editedLog || !componentsHaveChanged}
+                  disabled={
+                    isLoading ||
+                    originalLog?.isEstimating ||
+                    isEditing ||
+                    !editedLog ||
+                    !componentsHaveChanged
+                  }
                   accessibilityLabel="Re-estimate accuracy"
                 />
               </View>
@@ -291,6 +321,7 @@ export default function Edit() {
                         onPress={() => {
                           // Open sticky editor when tapping the row.
                           setExpandedIndex(index);
+                          setAddingNew(false);
                           setTempName(comp.name);
                           setTempAmount(comp.amount);
                           setFocusNameOnAdd(false);
@@ -311,6 +342,7 @@ export default function Edit() {
               <TouchableOpacity
                 onPress={handleAddComponent}
                 style={styles.addRow}
+                disabled={isLoading || originalLog?.isEstimating}
                 accessibilityLabel="Add Ingredient"
               >
                 <Plus size={18} color={colors.accent} />
@@ -323,38 +355,96 @@ export default function Edit() {
         )}
       </KeyboardAwareScrollView>
       {isEditing && (
-        <KeyboardStickyView offset={{ closed: -30, opened: 20 }}>
+        <AnimatedPressable
+          onPress={() => {
+            // Tap outside to dismiss the sticky editor
+            setExpandedIndex(null);
+            setAddingNew(false);
+            setFocusNameOnAdd(false);
+          }}
+          style={[styles.dimOverlay, dimAnimatedStyle]}
+          accessibilityLabel="Dismiss editor overlay"
+          accessibilityRole="button"
+        >
+          <BlurView
+            intensity={28}
+            tint={colorScheme === "dark" ? "dark" : "light"}
+            style={StyleSheet.absoluteFill}
+          />
+          <View style={styles.dimColor} />
+        </AnimatedPressable>
+      )}
+      {isEditing && (
+        <KeyboardStickyView offset={{ closed: -30, opened: 0 }}>
           <View style={styles.stickyContainer}>
             <View style={styles.stickyEditorPill}>
               <AppText role="Caption" style={styles.inlineLabel}>
                 Name
               </AppText>
-              <TextInput
-                placeholder="Name"
-                value={tempName}
-                onChangeText={setTempName}
-                containerStyle={styles.inlineInput}
-                style={{ color: colors.primaryText }}
-                autoFocus={focusNameOnAdd}
-              />
+              <View
+                style={[
+                  styles.focusWrapper,
+                  { borderColor: nameFocused ? colors.accent : "transparent" },
+                ]}
+              >
+                <RNTextInput
+                  placeholder="Name"
+                  value={tempName}
+                  onChangeText={setTempName}
+                  placeholderTextColor={colors.secondaryText}
+                  autoFocus={focusNameOnAdd}
+                  onFocus={() => setNameFocused(true)}
+                  onBlur={() => setNameFocused(false)}
+                  style={{
+                    minHeight: 44,
+                    padding: theme.spacing.md,
+                    color: colors.primaryText,
+                    backgroundColor: colors.primaryBackground,
+                    borderRadius: theme.components.cards.cornerRadius,
+                    fontFamily: theme.typography.Headline.fontFamily,
+                    fontSize: theme.typography.Headline.fontSize,
+                  }}
+                />
+              </View>
               <AppText role="Caption" style={styles.inlineLabel}>
                 Amount
               </AppText>
-              <TextInput
-                placeholder="Amount (e.g., 150 g)"
-                value={tempAmount}
-                onChangeText={setTempAmount}
-                containerStyle={styles.inlineInput}
-                style={{ color: colors.primaryText }}
-                autoFocus={!focusNameOnAdd}
-              />
+              <View
+                style={[
+                  styles.focusWrapper,
+                  {
+                    borderColor: amountFocused ? colors.accent : "transparent",
+                  },
+                ]}
+              >
+                <RNTextInput
+                  placeholder="Amount (e.g., 150 g)"
+                  value={tempAmount}
+                  onChangeText={setTempAmount}
+                  placeholderTextColor={colors.secondaryText}
+                  autoFocus={!focusNameOnAdd}
+                  onFocus={() => setAmountFocused(true)}
+                  onBlur={() => setAmountFocused(false)}
+                  style={{
+                    minHeight: 44,
+                    padding: theme.spacing.md,
+                    color: colors.primaryText,
+                    backgroundColor: colors.primaryBackground,
+                    borderRadius: theme.components.cards.cornerRadius,
+                    fontFamily: theme.typography.Headline.fontFamily,
+                    fontSize: theme.typography.Headline.fontSize,
+                  }}
+                />
+              </View>
               <View style={styles.inlineActions}>
                 <View style={{ flex: 1 }}>
                   <Button
                     variant="tertiary"
                     label="Cancel"
                     onPress={() => {
+                      // If we were adding a new ingredient, simply close without inserting
                       setExpandedIndex(null);
+                      setAddingNew(false);
                       setFocusNameOnAdd(false);
                     }}
                   />
@@ -368,13 +458,27 @@ export default function Edit() {
                       tempAmount.trim().length === 0
                     }
                     onPress={() => {
-                      if (expandedIndex !== null) {
-                        handleUpdateComponent(expandedIndex, {
-                          name: tempName.trim(),
-                          amount: tempAmount.trim(),
+                      const newComp = {
+                        name: tempName.trim(),
+                        amount: tempAmount.trim(),
+                      } as FoodComponent;
+                      if (addingNew) {
+                        setEditedLog((prev) => {
+                          if (!prev) return prev;
+                          return {
+                            ...prev,
+                            foodComponents: [
+                              ...(prev.foodComponents || []),
+                              newComp,
+                            ],
+                          };
                         });
+                        setIsDirty(true);
+                      } else if (expandedIndex !== null) {
+                        handleUpdateComponent(expandedIndex, newComp);
                       }
                       setExpandedIndex(null);
+                      setAddingNew(false);
                       setFocusNameOnAdd(false);
                     }}
                   />
@@ -510,6 +614,14 @@ const createStyles = (colors: Colors, theme: Theme) =>
       alignItems: "center",
       justifyContent: "center",
     },
+    dimOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0,0,0,0.4)",
+    },
     inlineEditor: {
       backgroundColor: colors.primaryBackground,
       borderRadius: theme.components.cards.cornerRadius,
@@ -529,5 +641,14 @@ const createStyles = (colors: Colors, theme: Theme) =>
       flexDirection: "row",
       gap: theme.spacing.sm,
       marginTop: theme.spacing.sm,
+    },
+    focusWrapper: {
+      borderWidth: 2,
+      borderRadius: theme.components.cards.cornerRadius,
+      backgroundColor: "transparent",
+      marginBottom: theme.spacing.sm,
+    },
+    dimColor: {
+      backgroundColor: "#000",
     },
   });
