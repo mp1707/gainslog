@@ -564,9 +564,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
   });
 
   return (
-    <Animated.View
-      layout={LinearTransition.springify().damping(18).stiffness(150).mass(1)}
-    >
+    <Animated.View>
       <Animated.View
         style={[
           {

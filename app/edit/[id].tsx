@@ -35,6 +35,7 @@ import { StickyEditor } from "@/components/refine-page/StickyEditor/StickyEditor
 import { FloatingAction } from "@/components/refine-page/FloatingAction/FloatingAction";
 import { DimOverlay } from "@/components/refine-page/DimOverlay/DimOverlay";
 import { DescriptionCard } from "@/components/refine-page/DescriptionCard/DescriptionCard";
+import { ImageDisplay } from "@/components/shared/ImageDisplay";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -246,6 +247,12 @@ export default function Edit() {
                   return next;
                 })
               }
+            />
+
+            {/* Image display (like on create) */}
+            <ImageDisplay
+              imageUrl={editedLog.localImagePath}
+              isUploading={false}
             />
 
             {/* Macros display */}

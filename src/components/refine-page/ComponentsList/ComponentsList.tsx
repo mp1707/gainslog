@@ -36,7 +36,6 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
       {components.map((comp, index) => (
         <Animated.View
           key={`${comp.name}-${index}`}
-          layout={LinearTransition.duration(220).easing(Easing.inOut(Easing.ease))}
           style={styles.overflowHidden}
         >
           <SwipeToFunctions
