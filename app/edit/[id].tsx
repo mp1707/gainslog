@@ -1,24 +1,13 @@
 import { useAppStore } from "@/store/useAppStore";
-import { Colors, Theme } from "@/theme/theme";
-import { useTheme } from "@/theme/ThemeProvider";
+import { Colors, Theme, useTheme } from "@/theme";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   StyleSheet,
   View,
   ActivityIndicator,
-  TouchableOpacity,
-  TextInput as RNTextInput,
-  Pressable,
   ScrollView as RNScrollView,
 } from "react-native";
-import {
-  X,
-  Plus,
-  Trash2,
-  Sparkles,
-  ChevronRight,
-  Check,
-} from "lucide-react-native";
+import { Check } from "lucide-react-native";
 import {
   KeyboardAwareScrollView,
   KeyboardStickyView,
@@ -26,26 +15,21 @@ import {
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { makeSelectLogById } from "@/store/selectors";
-import { AppText, Button } from "@/components";
-import { TextInput } from "@/components/shared/TextInput";
 import type { FoodLog, FoodComponent } from "@/types/models";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-  interpolateColor,
-  Layout,
-  Easing,
-} from "react-native-reanimated";
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { BlurView } from "expo-blur";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useEstimation } from "@/hooks/useEstimation";
 import { lockNav } from "@/utils/navigationLock";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { Swipeable } from "react-native-gesture-handler";
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+import { ConfidenceCard } from "@/components/refine-page/ConfidenceCard/ConfidenceCard";
+import { TitleCard } from "@/components/refine-page/TitleCard/TitleCard";
+import { MacrosCard } from "@/components/refine-page/MacrosCard/MacrosCard";
+import { ComponentsList } from "@/components/refine-page/ComponentsList/ComponentsList";
+import { StickyEditor } from "@/components/refine-page/StickyEditor/StickyEditor";
+import { FloatingAction } from "@/components/refine-page/FloatingAction/FloatingAction";
+import { DimOverlay } from "@/components/refine-page/DimOverlay/DimOverlay";
+import { DescriptionCard } from "@/components/refine-page/DescriptionCard/DescriptionCard";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -53,7 +37,7 @@ export default function Edit() {
   const updateFoodLog = useAppStore((s) => s.updateFoodLog);
   const router = useRouter();
 
-  const { colors, theme, colorScheme } = useTheme();
+  const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
   const { startReEstimation } = useEstimation();
   const scrollRef = useRef<RNScrollView | null>(null);
@@ -135,12 +119,7 @@ export default function Edit() {
     }
   }, [originalLog, isDirty]);
 
-  // Confidence meter animation state
-  const confidence = editedLog?.estimationConfidence ?? 0;
-  const confidenceWidth = useSharedValue(confidence);
-  useEffect(() => {
-    confidenceWidth.value = withTiming(confidence, { duration: 350 });
-  }, [confidence, confidenceWidth]);
+  // Confidence UI is handled inside ConfidenceCard component
 
   const handleDone = () => {
     if (id && editedLog) {
@@ -151,25 +130,7 @@ export default function Edit() {
     router.back();
   };
 
-  const getConfidenceLabel = (value: number) => {
-    if (value >= 90) return "High Accuracy";
-    if (value >= 50) return "Medium Accuracy";
-    if (value > 0) return "Low Accuracy";
-    return "Uncertain";
-  };
-
-  const confidenceBarStyle = useAnimatedStyle(() => {
-    const clamped = Math.max(0, Math.min(100, confidenceWidth.value));
-    const bg = interpolateColor(
-      clamped,
-      [0, 50, 90, 100],
-      [colors.error, colors.error, colors.warning, colors.success]
-    );
-    return {
-      width: `${clamped}%`,
-      backgroundColor: bg as string,
-    };
-  });
+  // Animated dimmer for editor overlay (defined above as dimAnimatedStyle)
 
   // Track if components have changed relative to original
   const componentsHaveChanged = useMemo(() => {
@@ -267,353 +228,115 @@ export default function Edit() {
           </View>
         ) : (
           <>
-            {/* Confidence Meter */}
-            <View style={styles.card}>
-              <View style={styles.confidenceHeader}>
-                <AppText role="Headline">Estimation Accuracy</AppText>
-                <AppText role="Subhead" color="secondary">
-                  {editedLog.estimationConfidence ?? 0}% •{" "}
-                  {getConfidenceLabel(editedLog.estimationConfidence ?? 0)}
-                </AppText>
-              </View>
-              <View
-                style={[
-                  styles.meterTrack,
-                  { backgroundColor: colors.disabledBackground },
-                ]}
-              >
-                <Animated.View style={[styles.meterFill, confidenceBarStyle]} />
-              </View>
-            </View>
+            <ConfidenceCard value={editedLog.estimationConfidence ?? 0} />
 
             {/* Title input */}
-            <View style={styles.card}>
-              <AppText role="Caption" style={styles.sectionHeader}>
-                MEAL TITLE
-              </AppText>
-              <TextInput
-                placeholder="Title"
-                value={editedLog.title || ""}
-                onChangeText={(text) => {
-                  return setEditedLog((prev) => {
-                    if (!prev) return prev;
-                    const next = { ...prev, title: text };
-                    setIsDirty(true);
-                    return next;
-                  });
-                }}
-                fontSize="Headline"
-                style={[styles.titleInputContainer, styles.titleInput]}
-              />
-            </View>
+            <TitleCard
+              value={editedLog.title || ""}
+              onChange={(text) =>
+                setEditedLog((prev) => {
+                  if (!prev) return prev;
+                  const next = { ...prev, title: text };
+                  setIsDirty(true);
+                  return next;
+                })
+              }
+            />
 
             {/* Macros display */}
-            <View style={styles.card}>
-              <AppText role="Caption" style={styles.sectionHeader}>
-                MACROS
-              </AppText>
-              <View style={styles.macroRow}>
-                <View style={styles.macroLabelContainer}>
-                  <View
-                    style={[
-                      styles.macroDot,
-                      { backgroundColor: colors.semantic.calories },
-                    ]}
-                  />
-                  <AppText>Calories</AppText>
-                </View>
-                <AppText color="secondary">
-                  {editedLog.calories ?? 0} kcal
-                </AppText>
-              </View>
-              <View
-                style={[styles.divider, { backgroundColor: colors.border }]}
-              />
-              <View style={styles.macroRow}>
-                <View style={styles.macroLabelContainer}>
-                  <View
-                    style={[
-                      styles.macroDot,
-                      { backgroundColor: colors.semantic.protein },
-                    ]}
-                  />
-                  <AppText>Protein</AppText>
-                </View>
-                <AppText color="secondary">{editedLog.protein ?? 0} g</AppText>
-              </View>
-              <View
-                style={[styles.divider, { backgroundColor: colors.border }]}
-              />
-              <View style={styles.macroRow}>
-                <View style={styles.macroLabelContainer}>
-                  <View
-                    style={[
-                      styles.macroDot,
-                      { backgroundColor: colors.semantic.carbs },
-                    ]}
-                  />
-                  <AppText>Carbs</AppText>
-                </View>
-                <AppText color="secondary">{editedLog.carbs ?? 0} g</AppText>
-              </View>
-              <View
-                style={[styles.divider, { backgroundColor: colors.border }]}
-              />
-              <View style={styles.macroRow}>
-                <View style={styles.macroLabelContainer}>
-                  <View
-                    style={[
-                      styles.macroDot,
-                      { backgroundColor: colors.semantic.fat },
-                    ]}
-                  />
-                  <AppText>Fat</AppText>
-                </View>
-                <AppText color="secondary">{editedLog.fat ?? 0} g</AppText>
-              </View>
-            </View>
+            <MacrosCard
+              calories={editedLog.calories}
+              protein={editedLog.protein}
+              carbs={editedLog.carbs}
+              fat={editedLog.fat}
+            />
 
             {/* Description input */}
-            <View style={styles.card}>
-              <AppText role="Caption" style={styles.sectionHeader}>
-                MEAL DESCRIPTION
-              </AppText>
-              <TextInput
-                placeholder="Description"
-                value={editedLog.description || ""}
-                multiline
-                onChangeText={(text) => {
-                  return setEditedLog((prev) => {
-                    if (!prev) return prev;
-                    const next = { ...prev, description: text };
-                    setIsDirty(true);
-                    return next;
-                  });
-                }}
-                fontSize="Body"
-                style={[styles.titleInputContainer, styles.titleInput]}
-              />
-            </View>
+            <DescriptionCard
+              value={editedLog.description || ""}
+              onChange={(text) =>
+                setEditedLog((prev) => {
+                  if (!prev) return prev;
+                  const next = { ...prev, description: text };
+                  setIsDirty(true);
+                  return next;
+                })
+              }
+            />
 
             {/* Editable component list */}
-            <View style={styles.card}>
-              <View style={styles.cardHeaderRow}>
-                <AppText role="Caption" style={styles.sectionHeader}>
-                  COMPONENTS
-                </AppText>
-              </View>
-              {(editedLog.foodComponents || []).map((comp, index) => {
-                return (
-                  <Animated.View
-                    key={`${comp.name}-${index}`}
-                    layout={Layout.duration(220).easing(
-                      Easing.inOut(Easing.ease)
-                    )}
-                    style={{ overflow: "hidden" }}
-                  >
-                    <Swipeable
-                      renderRightActions={() => (
-                        <TouchableOpacity
-                          onPress={() => handleDeleteComponent(index)}
-                          style={styles.deleteAction}
-                          accessibilityLabel="Delete ingredient"
-                        >
-                          <Trash2 size={18} color={colors.white} />
-                          <AppText role="Button" color="white">
-                            Delete
-                          </AppText>
-                        </TouchableOpacity>
-                      )}
-                    >
-                      <TouchableOpacity
-                        style={styles.componentRow}
-                        onPress={() => {
-                          // Open sticky editor when tapping the row.
-                          setExpandedIndex(index);
-                          setAddingNew(false);
-                          setTempName(comp.name);
-                          setTempAmount(comp.amount);
-                          setFocusNameOnAdd(false);
-                        }}
-                      >
-                        <AppText style={{ flex: 1 }}>{comp.name}</AppText>
-                        <AppText color="secondary" style={{ marginRight: 8 }}>
-                          {comp.amount}
-                        </AppText>
-                        <ChevronRight size={18} color={colors.secondaryText} />
-                      </TouchableOpacity>
-                    </Swipeable>
-
-                    {/* Inline editor removed; editing handled by sticky view */}
-                  </Animated.View>
-                );
-              })}
-              <TouchableOpacity
-                onPress={handleAddComponent}
-                style={styles.addRow}
-                disabled={isLoading || originalLog?.isEstimating}
-                accessibilityLabel="Add Ingredient"
-              >
-                <Plus size={18} color={colors.accent} />
-                <AppText style={{ marginLeft: 8 }} color="accent">
-                  Add Ingredient
-                </AppText>
-              </TouchableOpacity>
-            </View>
+            <ComponentsList
+              components={editedLog.foodComponents || []}
+              onPressItem={(index, comp) => {
+                setExpandedIndex(index);
+                setAddingNew(false);
+                setTempName(comp.name);
+                setTempAmount(comp.amount);
+                setFocusNameOnAdd(false);
+              }}
+              onDeleteItem={handleDeleteComponent}
+              onAddPress={handleAddComponent}
+              disabled={isLoading || originalLog?.isEstimating}
+            />
           </>
         )}
       </KeyboardAwareScrollView>
       {isEditing && (
-        <AnimatedPressable
+        <DimOverlay
           onPress={() => {
-            // Tap outside to dismiss the sticky editor
             setExpandedIndex(null);
             setAddingNew(false);
             setFocusNameOnAdd(false);
           }}
-          style={[styles.dimOverlay, dimAnimatedStyle]}
-          accessibilityLabel="Dismiss editor overlay"
-          accessibilityRole="button"
-        >
-          <BlurView
-            intensity={28}
-            tint={colorScheme === "dark" ? "dark" : "light"}
-            style={StyleSheet.absoluteFill}
-          />
-          <View style={styles.dimColor} />
-        </AnimatedPressable>
+          style={dimAnimatedStyle as any}
+        />
       )}
       {!isEditing && editedLog && (
-        <View style={styles.floatingActionContainer}>
-          <View style={styles.floatingAccessory}>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <Button
-                variant="primary"
-                label="Estimate again"
-                Icon={Sparkles}
-                onPress={handleReestimate}
-                disabled={
-                  isLoading ||
-                  originalLog?.isEstimating ||
-                  !componentsHaveChanged
-                }
-              />
-            </View>
-          </View>
-        </View>
+        <FloatingAction
+          onPress={handleReestimate}
+          disabled={isLoading || originalLog?.isEstimating || !componentsHaveChanged}
+        />
       )}
       {isEditing && (
         <KeyboardStickyView offset={{ closed: -30, opened: 0 }}>
-          <View style={styles.stickyContainer}>
-            <View style={styles.stickyEditorPill}>
-              <AppText role="Caption" style={styles.inlineLabel}>
-                Name
-              </AppText>
-              <View
-                style={[
-                  styles.focusWrapper,
-                  { borderColor: nameFocused ? colors.accent : "transparent" },
-                ]}
-              >
-                <RNTextInput
-                  placeholder="Name"
-                  value={tempName}
-                  onChangeText={setTempName}
-                  placeholderTextColor={colors.secondaryText}
-                  autoFocus={focusNameOnAdd}
-                  onFocus={() => setNameFocused(true)}
-                  onBlur={() => setNameFocused(false)}
-                  style={{
-                    minHeight: 44,
-                    padding: theme.spacing.md,
-                    color: colors.primaryText,
-                    backgroundColor: colors.primaryBackground,
-                    borderRadius: theme.components.cards.cornerRadius,
-                    fontFamily: theme.typography.Headline.fontFamily,
-                    fontSize: theme.typography.Headline.fontSize,
-                  }}
-                />
-              </View>
-              <AppText role="Caption" style={styles.inlineLabel}>
-                Amount
-              </AppText>
-              <View
-                style={[
-                  styles.focusWrapper,
-                  {
-                    borderColor: amountFocused ? colors.accent : "transparent",
-                  },
-                ]}
-              >
-                <RNTextInput
-                  placeholder="Amount (e.g., 150 g)"
-                  value={tempAmount}
-                  onChangeText={setTempAmount}
-                  placeholderTextColor={colors.secondaryText}
-                  autoFocus={!focusNameOnAdd}
-                  onFocus={() => setAmountFocused(true)}
-                  onBlur={() => setAmountFocused(false)}
-                  style={{
-                    minHeight: 44,
-                    padding: theme.spacing.md,
-                    color: colors.primaryText,
-                    backgroundColor: colors.primaryBackground,
-                    borderRadius: theme.components.cards.cornerRadius,
-                    fontFamily: theme.typography.Headline.fontFamily,
-                    fontSize: theme.typography.Headline.fontSize,
-                  }}
-                />
-              </View>
-              <View style={styles.inlineActions}>
-                <View style={{ flex: 1 }}>
-                  <Button
-                    variant="tertiary"
-                    label="Cancel"
-                    onPress={() => {
-                      // If we were adding a new ingredient, simply close without inserting
-                      setExpandedIndex(null);
-                      setAddingNew(false);
-                      setFocusNameOnAdd(false);
-                    }}
-                  />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Button
-                    variant="primary"
-                    label="Save"
-                    disabled={
-                      tempName.trim().length === 0 ||
-                      tempAmount.trim().length === 0
-                    }
-                    onPress={() => {
-                      const newComp = {
-                        name: tempName.trim(),
-                        amount: tempAmount.trim(),
-                      } as FoodComponent;
-                      if (addingNew) {
-                        setEditedLog((prev) => {
-                          if (!prev) return prev;
-                          return {
-                            ...prev,
-                            foodComponents: [
-                              ...(prev.foodComponents || []),
-                              newComp,
-                            ],
-                          };
-                        });
-                        setIsDirty(true);
-                      } else if (expandedIndex !== null) {
-                        handleUpdateComponent(expandedIndex, newComp);
-                      }
-                      setExpandedIndex(null);
-                      setAddingNew(false);
-                      setFocusNameOnAdd(false);
-                    }}
-                  />
-                </View>
-              </View>
-            </View>
-          </View>
+          <StickyEditor
+            tempName={tempName}
+            tempAmount={tempAmount}
+            setTempName={setTempName}
+            setTempAmount={setTempAmount}
+            focusNameOnAdd={focusNameOnAdd}
+            nameFocused={nameFocused}
+            amountFocused={amountFocused}
+            setNameFocused={setNameFocused}
+            setAmountFocused={setAmountFocused}
+            onCancel={() => {
+              setExpandedIndex(null);
+              setAddingNew(false);
+              setFocusNameOnAdd(false);
+            }}
+            onSave={() => {
+              const newComp = {
+                name: tempName.trim(),
+                amount: tempAmount.trim(),
+              } as FoodComponent;
+              if (addingNew) {
+                setEditedLog((prev) => {
+                  if (!prev) return prev;
+                  return {
+                    ...prev,
+                    foodComponents: [...(prev.foodComponents || []), newComp],
+                  };
+                });
+                setIsDirty(true);
+              } else if (expandedIndex !== null) {
+                handleUpdateComponent(expandedIndex, newComp);
+              }
+              setExpandedIndex(null);
+              setAddingNew(false);
+              setFocusNameOnAdd(false);
+            }}
+            saveDisabled={tempName.trim().length === 0 || tempAmount.trim().length === 0}
+          />
         </KeyboardStickyView>
       )}
     </GradientWrapper>
@@ -630,185 +353,15 @@ const createStyles = (colors: Colors, theme: Theme) =>
       right: theme.spacing.md,
       zIndex: 15,
     },
-    floatingActionContainer: {
-      position: "absolute",
-      left: "5%",
-      right: "5%",
-      bottom: theme.spacing.lg,
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 20,
-    },
-    floatingAccessory: {
-      marginHorizontal: theme.spacing.sm,
-      backgroundColor: colors.secondaryBackground,
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      gap: theme.spacing.sm,
-      borderRadius: 9999,
-      padding: theme.spacing.sm,
-      overflow: "hidden",
-    },
     contentContainer: {
       paddingHorizontal: theme.spacing.md,
       paddingBottom: theme.spacing.xxl * 2,
       gap: theme.spacing.lg,
-    },
-    sectionHeader: {
-      marginBottom: theme.spacing.sm,
-      letterSpacing: 0.5,
-      color: colors.secondaryText,
     },
     loadingContainer: {
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
       paddingVertical: theme.spacing.xl,
-    },
-    card: {
-      padding: theme.spacing.md,
-      borderRadius: theme.components.cards.cornerRadius,
-      backgroundColor: colors.secondaryBackground,
-    },
-    cardHeaderRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-    },
-    confidenceHeader: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: theme.spacing.sm,
-    },
-    meterTrack: {
-      width: "100%",
-      height: 12,
-      borderRadius: 6,
-      overflow: "hidden",
-    },
-    meterFill: {
-      height: "100%",
-      borderRadius: 6,
-    },
-    titleInputContainer: {
-      backgroundColor: colors.primaryBackground,
-      borderRadius: theme.components.cards.cornerRadius,
-    },
-    titleInput: {
-      minHeight: 44,
-    },
-    macroRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      paddingVertical: theme.spacing.sm,
-    },
-    macroLabelContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: theme.spacing.xs,
-      flexShrink: 1,
-    },
-    macroDot: {
-      width: theme.spacing.sm,
-      height: theme.spacing.sm,
-      borderRadius: theme.spacing.xs,
-      marginRight: theme.spacing.xs,
-    },
-    divider: {
-      height: 1,
-      marginHorizontal: -theme.spacing.md,
-    },
-    componentRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      paddingVertical: theme.spacing.md,
-      gap: theme.spacing.md,
-    },
-    deleteAction: {
-      backgroundColor: colors.error,
-      justifyContent: "center",
-      alignItems: "center",
-      paddingHorizontal: theme.spacing.lg,
-      marginVertical: theme.spacing.xs,
-      borderRadius: theme.components.cards.cornerRadius,
-      flexDirection: "row",
-      gap: theme.spacing.sm,
-    },
-    addRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      paddingVertical: theme.spacing.md,
-    },
-    stickyContainer: {
-      paddingHorizontal: theme.spacing.md,
-      paddingBottom: theme.spacing.lg,
-      paddingTop: theme.spacing.sm,
-      backgroundColor: "transparent",
-    },
-    stickyPill: {
-      marginHorizontal: theme.spacing.sm,
-      backgroundColor: colors.secondaryBackground,
-      flexDirection: "row",
-      alignItems: "center",
-      gap: theme.spacing.sm,
-      borderRadius: 9999,
-      padding: theme.spacing.sm,
-      overflow: "hidden",
-    },
-    stickyEditorPill: {
-      marginHorizontal: theme.spacing.sm,
-      backgroundColor: colors.secondaryBackground,
-      borderRadius: theme.components.cards.cornerRadius,
-      padding: theme.spacing.md,
-    },
-    spinnerOverlay: {
-      position: "absolute",
-      left: 0,
-      right: 0,
-      top: 0,
-      bottom: 0,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    dimOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(0,0,0,0.4)",
-    },
-    inlineEditor: {
-      backgroundColor: colors.primaryBackground,
-      borderRadius: theme.components.cards.cornerRadius,
-      padding: theme.spacing.md,
-      marginTop: theme.spacing.xs,
-    },
-    inlineLabel: {
-      marginBottom: theme.spacing.xs,
-      color: colors.secondaryText,
-    },
-    inlineInput: {
-      backgroundColor: colors.primaryBackground,
-      borderRadius: theme.components.cards.cornerRadius,
-      marginBottom: theme.spacing.sm,
-    },
-    inlineActions: {
-      flexDirection: "row",
-      gap: theme.spacing.sm,
-      marginTop: theme.spacing.sm,
-    },
-    focusWrapper: {
-      borderWidth: 2,
-      borderRadius: theme.components.cards.cornerRadius,
-      backgroundColor: "transparent",
-      marginBottom: theme.spacing.sm,
-    },
-    dimColor: {
-      backgroundColor: "#000",
     },
   });
