@@ -4,7 +4,7 @@ import type { Colors, Theme } from '@/theme';
 export const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     stickyContainer: {
-      paddingHorizontal: theme.spacing.md,
+      paddingHorizontal: theme.spacing.sm,
       paddingBottom: theme.spacing.lg,
       paddingTop: theme.spacing.sm,
       backgroundColor: 'transparent',

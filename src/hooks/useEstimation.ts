@@ -63,7 +63,7 @@ export const useEstimation = () => {
 
   const startReEstimation = useCallback(
     async (editedLog: FoodLog, onComplete: (log: FoodLog) => void) => {
-      updateFoodLog(editedLog.id, { isEstimating: true });
+      // Do NOT mutate the store here. Only compute refined values.
       let estimationResults: FoodEstimateResponse;
       if (!editedLog.supabaseImagePath || editedLog.supabaseImagePath === "") {
         estimationResults = await refineTextBased({
@@ -95,10 +95,9 @@ export const useEstimation = () => {
         foodComponents: estimationResults.foodComponents,
         isEstimating: false,
       };
-      updateFoodLog(editedLog.id, completedLog);
       onComplete(completedLog);
     },
-    [addFoodLog, updateFoodLog, deleteFoodLog]
+    []
   );
 
   return {

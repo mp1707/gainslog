@@ -36,6 +36,7 @@ import { FloatingAction } from "@/components/refine-page/FloatingAction/Floating
 import { DimOverlay } from "@/components/refine-page/DimOverlay/DimOverlay";
 import { DescriptionCard } from "@/components/refine-page/DescriptionCard/DescriptionCard";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
+import { AppText } from "@/components/index";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -65,6 +66,7 @@ export default function Edit() {
   const [amountFocused, setAmountFocused] = useState(false);
   const isEditing = expandedIndex !== null || addingNew;
   const [isDirty, setIsDirty] = useState(false);
+  const [hasReestimated, setHasReestimated] = useState(false);
   const overlayOpacity = useSharedValue(0);
   const dimAnimatedStyle = useAnimatedStyle(() => ({
     opacity: overlayOpacity.value,
@@ -130,9 +132,17 @@ export default function Edit() {
 
   const handleDone = () => {
     if (id && editedLog) {
-      const newTitle = (editedLog.title ?? "").trim();
-      // Persist title change to the original log in the store
-      updateFoodLog(id, { title: newTitle });
+      // Persist all updated values to the store
+      updateFoodLog(id, {
+        title: (editedLog.title ?? "").trim(),
+        description: editedLog.description || "",
+        calories: editedLog.calories,
+        protein: editedLog.protein,
+        carbs: editedLog.carbs,
+        fat: editedLog.fat,
+        estimationConfidence: editedLog.estimationConfidence,
+        foodComponents: editedLog.foodComponents || [],
+      });
     }
     router.back();
   };
@@ -202,15 +212,17 @@ export default function Edit() {
     try {
       await startReEstimation(editedLog, (log) => {
         setEditedLog(log);
-        setIsDirty(false);
       });
+      setIsDirty(true); // local changes pending save
+      setHasReestimated(true); // enable Done button
+
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setIsRefined(true);
       setRevealKey((k) => k + 1);
       // Reset refined flag after brief celebration window
       setTimeout(() => setIsRefined(false), 1200);
     } catch (e) {
-      // You may add error toast here if desired
+      // Optional: show error toast
     } finally {
       setIsLoading(false);
     }
@@ -219,10 +231,12 @@ export default function Edit() {
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.closeButton}>
+        <AppText role="Title2">Sharpen Estimation</AppText>
         <RoundButton
           Icon={Check}
           onPress={handleDone}
           variant={"primary"}
+          disabled={!hasReestimated}
           accessibilityLabel="Close"
         />
       </View>
@@ -245,6 +259,37 @@ export default function Edit() {
               reveal={isRefined}
             />
 
+            {/* Editable component list */}
+            <ComponentsList
+              components={editedLog.foodComponents || []}
+              onPressItem={(index, comp) => {
+                setExpandedIndex(index);
+                setAddingNew(false);
+                setTempName(comp.name);
+                setTempAmount(comp.amount);
+                setFocusNameOnAdd(false);
+              }}
+              onDeleteItem={handleDeleteComponent}
+              onAddPress={handleAddComponent}
+              disabled={isLoading || originalLog?.isEstimating}
+            />
+
+            {/* Macros display */}
+            <MacrosCard
+              calories={editedLog.calories}
+              protein={editedLog.protein}
+              carbs={editedLog.carbs}
+              fat={editedLog.fat}
+              processing={isLoading || !!originalLog?.isEstimating}
+              revealKey={revealKey}
+            />
+
+            {/* Image display (like on create) */}
+            <ImageDisplay
+              imageUrl={editedLog.localImagePath}
+              isUploading={false}
+            />
+
             {/* Title input */}
             <TitleCard
               value={editedLog.title || ""}
@@ -256,22 +301,6 @@ export default function Edit() {
                   return next;
                 })
               }
-            />
-
-            {/* Image display (like on create) */}
-            <ImageDisplay
-              imageUrl={editedLog.localImagePath}
-              isUploading={false}
-            />
-
-            {/* Macros display */}
-            <MacrosCard
-              calories={editedLog.calories}
-              protein={editedLog.protein}
-              carbs={editedLog.carbs}
-              fat={editedLog.fat}
-              processing={isLoading || !!originalLog?.isEstimating}
-              revealKey={revealKey}
             />
 
             {/* Description input */}
@@ -288,21 +317,6 @@ export default function Edit() {
                 }
               />
             )}
-
-            {/* Editable component list */}
-            <ComponentsList
-              components={editedLog.foodComponents || []}
-              onPressItem={(index, comp) => {
-                setExpandedIndex(index);
-                setAddingNew(false);
-                setTempName(comp.name);
-                setTempAmount(comp.amount);
-                setFocusNameOnAdd(false);
-              }}
-              onDeleteItem={handleDeleteComponent}
-              onAddPress={handleAddComponent}
-              disabled={isLoading || originalLog?.isEstimating}
-            />
           </>
         )}
       </KeyboardAwareScrollView>
@@ -377,12 +391,14 @@ export default function Edit() {
 const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     container: { flex: 1 },
-    scrollView: { flex: 1, paddingTop: theme.spacing.xxl + theme.spacing.lg },
+    scrollView: { flex: 1 },
     closeButton: {
-      position: "absolute",
-      top: theme.spacing.md,
-      right: theme.spacing.md,
-      zIndex: 15,
+      padding: theme.spacing.md,
+      paddingLeft: theme.spacing.lg,
+      gap: theme.spacing.md,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
     },
     contentContainer: {
       paddingHorizontal: theme.spacing.md,
