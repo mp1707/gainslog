@@ -50,8 +50,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 export const estimateTextBased = async (
   request: TextEstimateRequest
 ): Promise<FoodEstimateResponse> => {
-  console.log("text Estimation Request: ", request);
-
   const response = await fetch(`${supabaseUrl}/functions/v1/textEstimationV2`, {
     method: "POST",
     headers: {
@@ -74,7 +72,6 @@ export const estimateTextBased = async (
     console.error("AI estimation error:", data.error);
     throw new Error("AI_ESTIMATION_FAILED");
   }
-  console.log("text Estimation Response: ", data);
 
   return data as FoodEstimateResponse;
 };
@@ -82,8 +79,6 @@ export const estimateTextBased = async (
 export const refineTextBased = async (
   request: TextRefineRequest
 ): Promise<FoodEstimateResponse> => {
-  console.log("refine 🗡️ text Estimation Request: ", request);
-
   const response = await fetch(
     `${supabaseUrl}/functions/v1/refineTextEstimationV1`,
     {
@@ -109,8 +104,6 @@ export const refineTextBased = async (
     console.error("AI estimation error:", data.error);
     throw new Error("AI_ESTIMATION_FAILED");
   }
-
-  console.log("refine 🗡️ text Estimation Response: ", data);
 
   return data as FoodEstimateResponse;
 };

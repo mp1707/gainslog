@@ -46,7 +46,7 @@ export default function Edit() {
 
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
-  const { startReEstimation } = useEstimation();
+  const { runEstimation } = useEstimation();
   const scrollRef = useRef<RNScrollView | null>(null);
   const navigation = useNavigation();
 
@@ -210,7 +210,7 @@ export default function Edit() {
     setIsRefined(false);
     setIsLoading(true);
     try {
-      await startReEstimation(editedLog, (log) => {
+      await runEstimation(editedLog, (log) => {
         setEditedLog(log);
       });
       setIsDirty(true); // local changes pending save
