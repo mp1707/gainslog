@@ -22,7 +22,7 @@ const lightColors = {
   subtleBorder: "rgba(0, 0, 0, 0.08)",
 
   // Main Accent & System Colors
-  accent: "#2DCEC4", // A striking magenta for a bold accent
+  accent: "#2DCEC4",
   recording: "#FF3D00",
   error: "#FF3D00",
   warning: "#FFAB00",
@@ -30,10 +30,10 @@ const lightColors = {
 
   // Semantic Colors for Nutrition Data
   semantic: {
-    calories: "#2DCEC4", // A vibrant, clean teal
-    protein: "#4F86F7", // A rich, popping blue
-    carbs: "#FF6B6B", // A warm, energetic coral
-    fat: "#FFC107", // A bright, saturated amber
+    calories: "#2DCEC4",
+    protein: "#4F86F7",
+    carbs: "#FF6B6B",
+    fat: "#FFC107",
   },
 
   // Semi-transparent colors for badges/backgrounds
@@ -67,7 +67,7 @@ const lightColors = {
     iconColor: "#C2185B",
   },
 
-  // Confidence indicator colors
+  // Log Status & Confidence
   confidence: {
     high: {
       background: "rgba(16, 185, 129, 0.15)",
@@ -86,6 +86,26 @@ const lightColors = {
       text: "#8E8E93",
     },
   },
+  logStatus: {
+    // Stage 1: Neutral, subtle CTA. Uses secondary text color.
+    potential: {
+      background: "rgba(26, 26, 26, 0.1)", // disabledBackground
+      text: "#1A1A1A", // primaryText
+      iconColor: "#1A1A1A", // primaryText
+    },
+    // Stage 2: Confirmed state. Uses primary text for more visual weight.
+    confirmed: {
+      background: "rgba(26, 26, 26, 0.1)", // disabledBackground
+      text: "#1A1A1A", // primaryText
+      iconColor: "#1A1A1A", // primaryText
+    },
+    // Stage 3: Verified. The ONLY state that uses a vibrant color for celebration.
+    complete: {
+      background: "rgba(16, 185, 129, 0.15)",
+      text: "#10b981", // The universal "success" green
+      iconColor: "#10b981",
+    },
+  },
 } as const;
 
 const darkColors = {
@@ -100,12 +120,12 @@ const darkColors = {
   disabledBackground: "hsla(240, 24%, 96%, 0.15)",
   disabledText: "rgba(242, 242, 247, 0.4)",
 
-  // Subtle UI elements (for de-emphasized components)
+  // Subtle UI elements
   subtleBackground: "rgba(255, 255, 255, 0.05)",
   subtleBorder: "rgba(255, 255, 255, 0.12)",
 
   // Main Accent & System Colors
-  accent: "#44EBD4", // A brighter magenta for dark mode
+  accent: "#44EBD4",
   recording: "#FF665A",
   error: "#FF665A",
   warning: "#FFD54F",
@@ -150,7 +170,7 @@ const darkColors = {
     iconColor: "#F06292",
   },
 
-  // Confidence indicator colors
+  // Log Status & Confidence
   confidence: {
     high: {
       background: "rgba(77, 242, 222, 0.15)",
@@ -169,7 +189,29 @@ const darkColors = {
       text: "#8D8D93",
     },
   },
+  logStatus: {
+    // Stage 1: Neutral, subtle CTA.
+    potential: {
+      background: "hsla(240, 24%, 96%, 0.20)", // Slightly darker than disabled
+      text: "#F2F2F7", // primaryText
+      iconColor: "#F2F2F7", // primaryText
+    },
+    // Stage 2: Confirmed state. Stronger contrast with primary text.
+    confirmed: {
+      background: "hsla(240, 24%, 96%, 0.20)", // Slightly darker than disabled
+      text: "#F2F2F7", // primaryText
+      iconColor: "#F2F2F7", // primaryText
+    },
+    // Stage 3: Verified. The celebratory pop of color.
+    complete: {
+      background: "rgba(77, 242, 222, 0.15)",
+      text: "#4DF2DE", // The vibrant "success" green
+      iconColor: "#4DF2DE",
+    },
+  },
 } as const;
+
+// ... (The rest of your theme file remains unchanged)
 
 // Typography scale with Nunito font
 const typography = {

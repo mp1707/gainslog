@@ -16,6 +16,7 @@ import { getConfidenceLevel } from "@/utils/getConfidenceLevel";
 import { createStyles } from "./LogCard.styles";
 import { NutritionList } from "./NutritionList";
 import { createStyles as createNutritionStyles } from "./NutritionList/NutritionList.styles";
+import { LogStatusBadge } from "@/components/shared/LogStatusBadge/LogStatusBadge";
 
 interface LogCardProps {
   foodLog: FoodLog | Favorite;
@@ -275,7 +276,7 @@ const StaticLogCard: React.FC<LogCardProps> = ({ foodLog }) => {
               {displayTitle}
             </AppText>
 
-            <ConfidenceBadge
+            <LogStatusBadge
               estimationConfidence={estimationConfidence}
               style={styles.confidenceContainerSpacing}
             />
