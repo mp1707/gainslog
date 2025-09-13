@@ -16,7 +16,7 @@ import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { makeSelectLogById } from "@/store/selectors";
 import type { FoodLog, FoodComponent } from "@/types/models";
-import Animated, {
+import {
   Easing,
   useAnimatedStyle,
   useSharedValue,
@@ -228,10 +228,18 @@ export default function Edit() {
     }
   };
 
+  const confidence = editedLog?.estimationConfidence || 1;
+
+  const header =
+    confidence < 40
+      ? "Please add more info 🥹"
+      : confidence < 70
+      ? "Be a biiit more concise 🤏"
+      : "Great Foodlog 👌"; 
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.closeButton}>
-        <AppText role="Title2">Sharpen Estimation</AppText>
+        <AppText role="Title2">{header}</AppText>
         <RoundButton
           Icon={Check}
           onPress={handleDone}
