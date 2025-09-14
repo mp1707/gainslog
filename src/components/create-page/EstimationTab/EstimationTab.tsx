@@ -1,5 +1,5 @@
 import React from "react";
-import { View, TextInput as RNTextInput } from "react-native";
+import { View, TextInput as RNTextInput, Image } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useTheme } from "@/theme";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
@@ -35,7 +35,17 @@ export const EstimationTab: React.FC<EstimationTabProps> = ({
       bottomOffset={250}
     >
       <View style={styles.content}>
-        <ImageDisplay imageUrl={imageUrl} isUploading={isUploadingImage} />
+        {imageUrl ? (
+          <ImageDisplay imageUrl={imageUrl} isUploading={isUploadingImage} />
+        ) : (
+          <Image
+            source={require("@/assets/Loopy/LoopyDiligent.png")}
+            style={styles.image}
+            resizeMode="contain"
+            accessibilityLabel="Loopy is hungry and waiting for you to log your first meal"
+            accessibilityRole="image"
+          />
+        )}
         <TextInput
           ref={textInputRef}
           value={description || ""}
@@ -43,7 +53,7 @@ export const EstimationTab: React.FC<EstimationTabProps> = ({
           placeholder="e.g. 100g of chicken breast"
           multiline={true}
           inputAccessoryViewID={inputAccessoryViewID}
-          fontSize="Title2"
+          fontSize="Headline"
           style={styles.textInputContainer}
         />
       </View>

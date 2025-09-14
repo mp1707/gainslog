@@ -75,8 +75,8 @@ const createStyles = (colors: Colors, theme: Theme) => {
       marginBottom: theme.spacing.md,
     },
     image: {
-      width: 200,
-      height: 200,
+      width: 150,
+      height: 150,
     },
     motivationalText: {
       ...theme.typography.Headline,

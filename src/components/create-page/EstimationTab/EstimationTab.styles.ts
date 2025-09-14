@@ -19,14 +19,21 @@ export const createStyles = (
     },
     content: {
       flex: 1,
-      gap: hasImage ? theme.spacing.md : theme.spacing.xl,
+      gap: theme.spacing.md,
       marginHorizontal: theme.spacing.md,
       paddingTop: theme.spacing.md,
+      // alignItems: "center",
     },
     textInputContainer: {
-      minHeight: 150,
+      // minHeight: 150,
       backgroundColor: componentStyles.cards.backgroundColor,
       borderRadius: componentStyles.cards.cornerRadius,
+    },
+    image: {
+      alignSelf: "center",
+      width: 150,
+      height: 150,
+      margin: -10,
     },
   });
 };
