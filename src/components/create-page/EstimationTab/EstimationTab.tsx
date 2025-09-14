@@ -35,16 +35,8 @@ export const EstimationTab: React.FC<EstimationTabProps> = ({
       bottomOffset={250}
     >
       <View style={styles.content}>
-        {imageUrl ? (
+        {imageUrl && (
           <ImageDisplay imageUrl={imageUrl} isUploading={isUploadingImage} />
-        ) : (
-          <Image
-            source={require("@/assets/Loopy/LoopyDiligent.png")}
-            style={styles.image}
-            resizeMode="contain"
-            accessibilityLabel="Loopy is hungry and waiting for you to log your first meal"
-            accessibilityRole="image"
-          />
         )}
         <TextInput
           ref={textInputRef}
