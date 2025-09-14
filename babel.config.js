@@ -18,6 +18,7 @@ module.exports = function (api) {
             // legacy aliases removed
             "@/utils": "./src/utils",
 
+            "@/context": "./src/context",
             "@/providers": "./src/providers",
             "@/hooks": "./src/hooks",
 

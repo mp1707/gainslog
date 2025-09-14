@@ -28,6 +28,8 @@
       "@/store": ["src/store/index"],
       "@/utils/*": ["src/utils/*"],
       "@/utils": ["src/utils/index"],
+      "@/context/*": ["src/context/*"],
+      "@/context": ["src/context/index"],
       "@/providers/*": ["src/providers/*"],
       "@/providers": ["src/providers/index"],
       "@/hooks/*": ["src/hooks/*"],

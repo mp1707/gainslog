@@ -10,10 +10,12 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ThemedToastManager } from "@/components/shared/Toasts";
 import Purchases, { LOG_LEVEL } from "react-native-purchases";
 import * as SplashScreen from "expo-splash-screen";
+import { NavigationTransitionProvider, useNavigationTransition } from "@/context/NavigationTransitionContext";
 
 function ThemedStack() {
   const { colors, isThemeLoaded } = useTheme();
   const { fontsLoaded } = useFonts();
+  const { setTransitioning } = useNavigationTransition();
 
   useEffect(() => {
     if (fontsLoaded && isThemeLoaded) {
@@ -26,6 +28,10 @@ function ThemedStack() {
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: colors.primaryBackground },
+      }}
+      screenListeners={{
+        transitionStart: () => setTransitioning(true),
+        transitionEnd: () => setTransitioning(false),
       }}
     >
       <Stack.Screen
@@ -110,8 +116,10 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardProvider>
         <ThemeProvider>
-          <ThemedStack />
-          <ThemedToastManager />
+          <NavigationTransitionProvider>
+            <ThemedStack />
+            <ThemedToastManager />
+          </NavigationTransitionProvider>
         </ThemeProvider>
       </KeyboardProvider>
     </GestureHandlerRootView>

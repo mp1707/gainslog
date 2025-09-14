@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo } from "react";
+import React, { ReactNode, useMemo, useEffect, useRef } from "react";
 import { View, Alert, Dimensions, Pressable } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -15,6 +15,7 @@ import Animated, {
 } from "react-native-reanimated";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { theme } from "@/theme";
+import { useIsFocused } from "@react-navigation/native";
 
 interface SwipeToFunctionsProps {
   children: ReactNode;
@@ -41,6 +42,20 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
   confirmFavorite = false,
   onTap,
 }) => {
+  // Screen focus awareness to prevent tap-through when regaining focus
+  const isFocused = useIsFocused();
+  const focusAtTsRef = useRef<number>(0);
+  const focusAtMs = useSharedValue(0);
+  const tapStartMs = useSharedValue(0);
+  const TAP_AFTER_FOCUS_GRACE_MS = 600; // taps must start after this grace window
+
+  useEffect(() => {
+    if (isFocused) {
+      const now = Date.now();
+      focusAtTsRef.current = now;
+      focusAtMs.value = now;
+    }
+  }, [isFocused, focusAtMs]);
   const translateX = useSharedValue(0);
   const opacity = useSharedValue(1);
   const height = useSharedValue(1);
@@ -184,6 +199,8 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
           // Avoid triggering shrink during swipe; animate only on confirmed tap
           if (!isDeleting.value) {
             isPressing.value = true;
+            // Record tap start time for validation against focus moment
+            tapStartMs.value = Date.now();
           }
         })
         .onStart(() => {
@@ -391,7 +408,15 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
           const wasJustTapping =
             isPressing.value && gestureDirection.value === "unknown";
 
-          if (wasJustTapping && !isDeleting.value && onTap) {
+          const tapStartedAfterFocusGrace =
+            tapStartMs.value - focusAtMs.value >= TAP_AFTER_FOCUS_GRACE_MS;
+
+          if (
+            wasJustTapping &&
+            tapStartedAfterFocusGrace &&
+            !isDeleting.value &&
+            onTap
+          ) {
             // Confirmed tap: play quick press feedback then trigger tap
             isPressing.value = false;
             pressFlashOpacity.value = withTiming(0.08, {

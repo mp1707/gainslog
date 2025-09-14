@@ -25,8 +25,7 @@ import {
 import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useEstimation } from "@/hooks/useEstimation";
-import { lockNav } from "@/utils/navigationLock";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { ConfidenceCard } from "@/components/refine-page/ConfidenceCard/ConfidenceCard";
 import { TitleCard } from "@/components/refine-page/TitleCard/TitleCard";
 import { MacrosCard } from "@/components/refine-page/MacrosCard/MacrosCard";
@@ -85,40 +84,6 @@ export default function Edit() {
   }, [isEditing]);
 
   // Note: per-id modal, cleanup happens on unmount
-
-  // Also lock navigation when this modal unmounts (e.g., swipe-to-dismiss)
-  useEffect(() => {
-    return () => {
-      // Small lock to avoid immediately opening another modal during dismissal
-      lockNav(800);
-    };
-  }, []);
-
-  // Lock around gesture-driven dismiss transitions
-  useEffect(() => {
-    const subs: Array<() => void> = [];
-    // @ts-expect-error event names exist in React Navigation stack
-    const sub1 = navigation.addListener?.("gestureStart", () => {
-      lockNav(800);
-    });
-    // @ts-expect-error event payload includes closing flag
-    const sub2 = navigation.addListener?.("transitionStart", (e: any) => {
-      if (e?.data?.closing) lockNav(800);
-    });
-    if (typeof sub1 === "function") subs.push(sub1);
-    if (typeof sub2 === "function") subs.push(sub2);
-    return () => subs.forEach((off) => off());
-  }, [navigation]);
-
-  // On blur (when this modal loses focus), set a brief lock
-  useFocusEffect(
-    useMemo(
-      () => () => {
-        lockNav(800);
-      },
-      []
-    )
-  );
 
   // Sync when originalLog loads or changes
   useEffect(() => {

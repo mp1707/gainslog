@@ -1,5 +1,8 @@
 import { useRouter } from "expo-router";
 import { useRef, useState, useCallback, useEffect } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { InteractionManager } from "react-native";
+import { useNavigationTransition } from "@/context/NavigationTransitionContext";
 
 /**
  * Navigation guard hook to prevent multiple rapid navigation calls
@@ -10,6 +13,23 @@ export function useNavigationGuard() {
   const lockedRef = useRef(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastFocusAtRef = useRef<number>(Date.now());
+  const { isTransitioning } = useNavigationTransition();
+
+  // Track when the screen becomes focused to delay navigation slightly
+  useFocusEffect(
+    useCallback(() => {
+      lastFocusAtRef.current = Date.now();
+      return undefined;
+    }, [])
+  );
+
+  // When transitions finish, bump focus time reference
+  useEffect(() => {
+    if (!isTransitioning) {
+      lastFocusAtRef.current = Date.now();
+    }
+  }, [isTransitioning]);
 
   const unlockNavigation = useCallback(() => {
     if (timeoutRef.current) {
@@ -58,24 +78,50 @@ export function useNavigationGuard() {
     [unlockNavigation]
   );
 
+  const maybeSchedule = useCallback(
+    (navigationFn: () => void) => {
+      const minDelay = 300; // wait a beat after focus/transition
+
+      const waitAndNavigate = () => {
+        // If a transition is ongoing, keep deferring until it ends
+        if (isTransitioning) {
+          InteractionManager.runAfterInteractions(() => {
+            setTimeout(waitAndNavigate, 80);
+          });
+          return;
+        }
+
+        const elapsed = Date.now() - lastFocusAtRef.current;
+        const delay = elapsed < minDelay ? minDelay - elapsed + 50 : 0;
+
+        InteractionManager.runAfterInteractions(() => {
+          setTimeout(() => executeNavigation(navigationFn), delay);
+        });
+      };
+
+      waitAndNavigate();
+    },
+    [executeNavigation, isTransitioning]
+  );
+
   const safeNavigate = useCallback(
-    (route: string) => executeNavigation(() => router.navigate(route)),
-    [router, executeNavigation]
+    (route: string) => maybeSchedule(() => router.navigate(route)),
+    [router, maybeSchedule]
   );
 
   const safeReplace = useCallback(
-    (route: string) => executeNavigation(() => router.replace(route)),
-    [router, executeNavigation]
+    (route: string) => maybeSchedule(() => router.replace(route)),
+    [router, maybeSchedule]
   );
 
   const safePush = useCallback(
-    (route: string) => executeNavigation(() => router.push(route)),
-    [router, executeNavigation]
+    (route: string) => maybeSchedule(() => router.push(route)),
+    [router, maybeSchedule]
   );
 
   const safeDismissTo = useCallback(
-    (route: string) => executeNavigation(() => router.dismissTo(route)),
-    [router, executeNavigation]
+    (route: string) => maybeSchedule(() => router.dismissTo(route)),
+    [router, maybeSchedule]
   );
 
   // Cleanup timeout on unmount

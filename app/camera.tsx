@@ -45,9 +45,7 @@ export default function Camera() {
         });
 
         // Simply go back. The previous screen will react to the state change.
-        if (router.canGoBack()) {
-          router.back();
-        }
+        if (router.canGoBack()) router.back();
       } catch (error) {
         showErrorToast("Error processing image", "Please try again.");
       }
@@ -65,9 +63,7 @@ export default function Camera() {
 
   // ++ SIMPLIFY cancel to just go back
   const handleCancel = useCallback(() => {
-    if (router.canGoBack()) {
-      router.back();
-    }
+    if (router.canGoBack()) router.back();
   }, [router]);
 
   return (
