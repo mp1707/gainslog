@@ -21,6 +21,7 @@ import { showFavoriteAddedToast, showFavoriteRemovedToast } from "@/lib/toast";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { isNavLocked } from "@/utils/navigationLock";
 import { NutrientSummary } from "@/components/daily-food-logs/NutrientSummary/NutrientSummary";
+import { EmptyFoodLogsState } from "@/components/daily-food-logs/EmptyFoodLogsState";
 import { DateSlider } from "@/components/shared/DateSlider";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
@@ -130,14 +131,17 @@ export default function TodayTab() {
           },
         ]}
         ListHeaderComponent={
-          <View>
-            <NutrientSummary
-              percentages={dailyPercentages}
-              targets={state.dailyTargets || defaultTargets}
-              totals={dailyTotals}
-            />
-          </View>
+          todayFoodLogs.length > 0 ? (
+            <View>
+              <NutrientSummary
+                percentages={dailyPercentages}
+                targets={state.dailyTargets || defaultTargets}
+                totals={dailyTotals}
+              />
+            </View>
+          ) : null
         }
+        ListEmptyComponent={<EmptyFoodLogsState />}
         showsVerticalScrollIndicator={false}
         removeClippedSubviews
         initialNumToRender={6}
