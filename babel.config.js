@@ -25,6 +25,7 @@ module.exports = function (api) {
             "@/hooks-new": "./src/hooks-new",
 
             "@/theme": "./src/theme",
+            "@/assets": "./assets",
           },
         },
       ],
