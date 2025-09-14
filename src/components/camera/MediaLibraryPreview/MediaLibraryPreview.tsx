@@ -25,13 +25,44 @@ export const MediaLibraryPreview: React.FC<MediaLibraryPreviewProps> = ({
   const styles = createStyles(colors, theme);
 
   const [recentImages, setRecentImages] = React.useState<MediaLibrary.Asset[]>([]);
+  const [hasMediaPermission, setHasMediaPermission] = React.useState<boolean | null>(null);
 
   // Animation shared values
   const animationProgress = useSharedValue(0);
   const pressProgress = useSharedValue(0);
 
+  const ensureMediaPermission = useCallback(async () => {
+    try {
+      // Check existing permission first
+      const current = await MediaLibrary.getPermissionsAsync();
+      const granted =
+        current.granted || (current as any).accessPrivileges === "limited";
+
+      if (granted) {
+        setHasMediaPermission(true);
+        return true;
+      }
+
+      // Ask for permission if not granted
+      const requested = await MediaLibrary.requestPermissionsAsync();
+      const isGranted =
+        requested.granted || (requested as any).accessPrivileges === "limited";
+      setHasMediaPermission(isGranted);
+      return isGranted;
+    } catch (e) {
+      setHasMediaPermission(false);
+      return false;
+    }
+  }, []);
+
   const fetchRecentImages = useCallback(async () => {
     try {
+      const allowed = await ensureMediaPermission();
+      if (!allowed) {
+        // No permission — render placeholder and exit silently
+        setRecentImages([]);
+        return;
+      }
       const { assets } = await MediaLibrary.getAssetsAsync({
         first: 3,
         sortBy: ["creationTime"],
@@ -51,7 +82,7 @@ export const MediaLibraryPreview: React.FC<MediaLibraryPreviewProps> = ({
       // Gracefully handle permission or access errors
       setRecentImages([]);
     }
-  }, [animationProgress]);
+  }, [animationProgress, ensureMediaPermission]);
 
   const handlePressIn = useCallback(() => {
     // Subtle haptic feedback
