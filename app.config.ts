@@ -2,6 +2,11 @@ import { ExpoConfig, ConfigContext } from "expo/config";
 
 const IS_DEV = process.env.APP_VARIANT === "development";
 const IS_PREVIEW = process.env.APP_VARIANT === "preview";
+const SCHEME = IS_DEV
+  ? "macroloop-dev"
+  : IS_PREVIEW
+  ? "macroloop-preview"
+  : "macroloop";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -12,7 +17,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   icon: "./assets/ios-dark.png",
   userInterfaceStyle: "light",
   newArchEnabled: true,
-  scheme: "macroloop",
+  scheme: SCHEME,
   ios: {
     supportsTablet: true,
     infoPlist: {
@@ -54,6 +59,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: "./assets/favicon.png",
   },
   plugins: [
+    // Add Expo Dev Client to ensure URL schemes and local network permissions
+    // are injected into the native iOS project for development builds.
+    "expo-dev-client",
     [
       "expo-splash-screen",
       {
