@@ -12,6 +12,7 @@ import Animated, {
   useAnimatedStyle,
   withDelay,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { Favorite, FoodLog } from "@/types/models";
@@ -21,7 +22,7 @@ import { AppText } from "@/components";
 import { SkeletonPill, ConfidenceBadge } from "@/components/shared";
 import { ContextMenu, ContextMenuItem } from "@/components/shared/ContextMenu";
 import { useAppStore } from "@/store/useAppStore";
-import { isNavLocked } from "@/utils/navigationLock";
+import { isNavLocked, lockNav } from "@/utils/navigationLock";
 import { getConfidenceLevel } from "@/utils/getConfidenceLevel";
 import { createStyles } from "./LogCard.styles";
 import { NutritionList } from "./NutritionList";
@@ -51,6 +52,12 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
 }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+
+  // Press feedback scale for long-press/tap visual feedback
+  const pressScale = useSharedValue(1);
+  const pressScaleStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pressScale.value }],
+  }));
 
   // Track previous loading state to detect completion
   const previousLoadingRef = useRef(isLoading);
@@ -163,9 +170,16 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
     <Pressable
       style={styles.cardContainer}
       onLongPress={onLongPress}
+      onPressIn={() => {
+        pressScale.value = withTiming(0.97, { duration: 120 });
+      }}
+      onPressOut={() => {
+        pressScale.value = withTiming(1, { duration: 120 });
+      }}
       delayLongPress={500}
     >
-      <Card elevated={true} style={styles.card}>
+      <Animated.View style={pressScaleStyle}>
+        <Card elevated={true} style={styles.card}>
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
             {/* Title Section */}
@@ -205,7 +219,8 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
             />
           </View>
         </View>
-      </Card>
+        </Card>
+      </Animated.View>
 
       {/* Flash overlay for confidence feedback */}
       {estimationConfidence !== undefined && (
@@ -292,6 +307,12 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
+  // Press feedback scale for long-press/tap visual feedback
+  const pressScale = useSharedValue(1);
+  const pressScaleStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pressScale.value }],
+  }));
+
   const displayTitle = foodLog.title || "New Log";
   const estimationConfidence =
     "estimationConfidence" in foodLog
@@ -302,9 +323,16 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
     <Pressable
       style={styles.cardContainer}
       onLongPress={onLongPress}
+      onPressIn={() => {
+        pressScale.value = withTiming(0.97, { duration: 120 });
+      }}
+      onPressOut={() => {
+        pressScale.value = withTiming(1, { duration: 120 });
+      }}
       delayLongPress={500}
     >
-      <Card style={styles.card}>
+      <Animated.View style={pressScaleStyle}>
+        <Card style={styles.card}>
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
             <AppText role="Headline" style={styles.title} numberOfLines={2}>
@@ -328,7 +356,8 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
             />
           </View>
         </View>
-      </Card>
+        </Card>
+      </Animated.View>
     </Pressable>
   );
 };
@@ -423,6 +452,8 @@ const LogCardInner: React.FC<LogCardProps> = ({
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch {}
+    // Prevent a follow-up tap from firing when the long-press menu opens
+    lockNav(400);
     setMenuVisible(true);
   }, [menuVisible]);
 

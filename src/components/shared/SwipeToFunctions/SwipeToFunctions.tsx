@@ -14,7 +14,7 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { lockNav } from "@/utils/navigationLock";
+import { lockNav, isNavLocked } from "@/utils/navigationLock";
 import { theme } from "@/theme";
 import { useIsFocused } from "@react-navigation/native";
 
@@ -49,7 +49,9 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
   const focusAtMs = useSharedValue(0);
   const tapStartMs = useSharedValue(0);
   const TAP_AFTER_FOCUS_GRACE_MS = 600; // taps must start after this grace window
-  const TAP_MAX_PRESS_DURATION_MS = 420; // presses longer than this are not taps (reserve for long-press)
+  // Treat presses shorter than the long-press threshold as taps.
+  // LogCard uses delayLongPress ~500ms, so give a small buffer to avoid a dead zone.
+  const TAP_MAX_PRESS_DURATION_MS = 600; // anything <600ms counts as tap; >=600ms not a tap
 
   useEffect(() => {
     if (isFocused) {
@@ -81,12 +83,13 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
 
   // Helper functions for JS thread actions - defined early for worklet access
   const triggerTap = () => {
-    if (onTap) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      // Lock interactions briefly to prevent immediate long-press menu
-      lockNav(800);
-      onTap();
-    }
+    if (!onTap) return;
+    // Skip tap if navigation is currently locked (e.g., a long-press menu opened)
+    if (isNavLocked()) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Lock interactions briefly to prevent immediate long-press menu
+    lockNav(400);
+    onTap();
   };
 
   const executeDelete = () => {

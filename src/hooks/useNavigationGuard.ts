@@ -60,7 +60,7 @@ export function useNavigationGuard() {
       timeoutRef.current = setTimeout(() => {
         console.warn("[NavigationGuard] Timeout reached, unlocking");
         unlockNavigation();
-      }, 1000);
+      }, 400);
 
       try {
         navigationFn();
