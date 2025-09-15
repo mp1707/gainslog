@@ -26,8 +26,6 @@ import { DateSlider } from "@/components/shared/DateSlider";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
-import { RoundButton } from "@/components/shared/RoundButton";
-import { Plus } from "lucide-react-native";
 
 const HEADER_HEIGHT = 265;
 const DASHBOARD_OFFSET = HEADER_HEIGHT - 50;
@@ -179,14 +177,6 @@ export default function TodayTab() {
           </SafeAreaView>
         </BlurView>
       </MaskedView>
-      <View style={styles.buttonContainer}>
-        <RoundButton
-          Icon={Plus}
-          iconSize={36}
-          variant={"primary"}
-          onPress={() => safeNavigate("/create")}
-        />
-      </View>
     </View>
   );
 }
@@ -244,12 +234,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       fontWeight: "600",
       color: colors.secondaryText,
       textTransform: "uppercase", // The key change for the "eyebrow" style
-    },
-    buttonContainer: {
-      position: "absolute",
-      bottom: themeObj.spacing.lg,
-      right: themeObj.spacing.lg,
-      zIndex: 1000, // Ensure it appears above other content
     },
   });
 };

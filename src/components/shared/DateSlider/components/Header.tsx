@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { View } from "react-native";
-import { Settings } from "lucide-react-native";
+import { Plus, Settings } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { AppText } from "@/components";
 import { DatePicker } from "@/components/shared/DatePicker";
@@ -14,7 +14,7 @@ import { RoundButton } from "../../RoundButton";
 export const Header: React.FC = () => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
-  const { safePush } = useNavigationGuard();
+  const { safePush, safeNavigate } = useNavigationGuard();
   const { selectedDate } = useAppStore();
 
   const handleSettingsPress = () => {
@@ -35,7 +35,12 @@ export const Header: React.FC = () => {
             variant="tertiary"
             accessibilityLabel="Open settings"
           />
-          <DatePicker buttonVariant="tertiary"/>
+          <DatePicker buttonVariant="tertiary" />
+          <RoundButton
+            Icon={Plus}
+            variant={"primary"}
+            onPress={() => safeNavigate("/create")}
+          />
         </View>
       </View>
     </>
