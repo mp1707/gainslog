@@ -57,7 +57,7 @@ export default function Step2ActivityLevelScreen() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     setTimeout(() => {
-      safeNavigate("/settings/calorie-goals");
+      safeNavigate("/Goals/calorie-goals");
     }, 300);
   };
 

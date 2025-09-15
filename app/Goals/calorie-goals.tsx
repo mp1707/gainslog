@@ -81,7 +81,7 @@ export default function Step3GoalsScreen() {
         <Button
           variant="primary"
           label="Go Back"
-          onPress={() => safeReplace("/settings")}
+          onPress={() => safeReplace("/Goals")}
           disabled={false}
           style={styles.backButton}
         />

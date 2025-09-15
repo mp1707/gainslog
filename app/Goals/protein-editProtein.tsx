@@ -33,13 +33,13 @@ const EditProteinScreen = React.memo(function EditProteinScreen() {
   const handleEditCurrent = useCallback(async () => {
     setSelectedOption("edit");
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    safeReplace("/settings/protein-manualInput");
+    safeReplace("/Goals/protein-manualInput");
   }, [safeReplace]);
 
   const handleStartFresh = useCallback(async () => {
     setSelectedOption("fresh");
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    safeReplace("/settings/protein-weight");
+    safeReplace("/Goals/protein-weight");
   }, [safeReplace]);
 
   return (

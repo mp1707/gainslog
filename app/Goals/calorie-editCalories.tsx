@@ -34,13 +34,13 @@ const EditCaloriesScreen = React.memo(function EditCaloriesScreen() {
   const handleEditCurrent = useCallback(async () => {
     setSelectedOption("edit");
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    safeReplace("/settings/calorie-manualInput");
+    safeReplace("/Goals/calorie-manualInput");
   }, [safeReplace]);
 
   const handleStartFresh = useCallback(async () => {
     setSelectedOption("fresh");
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    safeReplace("/settings/calorie-sex");
+    safeReplace("/Goals/calorie-sex");
   }, [safeReplace]);
 
   return (

@@ -72,7 +72,7 @@ const EditFatScreen = React.memo(function EditFatScreen() {
   const handleEditCurrent = useCallback(async () => {
     setSelectedOption("edit");
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    safeReplace("/settings/fat-manualInput");
+    safeReplace("/Goals/fat-manualInput");
   }, [safeReplace]);
 
   return (

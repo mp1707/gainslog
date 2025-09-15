@@ -1,48 +1,33 @@
-import React, { useState, useRef } from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import React, { useState, useRef, useCallback } from "react";
+import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
-import { Colors, Theme, useTheme } from "@/theme";
-import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
-import { Card } from "@/components/Card";
 import { Button } from "@/components/index";
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { useRouter } from "expo-router";
+import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
-const inputAccessoryViewID = "age-input-accessory";
+const isValidHeight = (height: number | undefined) =>
+  height !== undefined && height >= 100 && height <= 250;
 
-const isValidAge = (age: number | undefined) =>
-  age !== undefined && age >= 15 && age <= 100;
-
-const AgeSelectionScreen = () => {
+const HeightSelectionScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { userSettings, setUserSettings } = useAppStore();
-  const { safeNavigate } = useNavigationGuard();
+  const { safeNavigate, isNavigating } = useNavigationGuard();
+  const [height, setHeight] = useState<number | undefined>(
+    userSettings?.height
+  );
+  const inputRef = useRef<TextInput>(null);
   const { back } = useRouter();
   const router = useRouter();
-  const [age, setAge] = useState<number | undefined>(userSettings?.age);
-  const inputRef = useRef<TextInput>(null);
 
   useDelayedAutofocus(inputRef);
-
-  const handleContinue = async () => {
-    if (!isValidAge(age)) return;
-    if (!age) return;
-    if (!userSettings) return;
-    setUserSettings({ ...userSettings, age: age });
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    safeNavigate("/settings/calorie-weight");
-  };
-
-  const handleAgeChange = (age: string) => {
-    const newAge = Number(age);
-    setAge(newAge);
-  };
 
   const handleCancel = () => {
     router.dismissTo("/");
@@ -52,32 +37,59 @@ const AgeSelectionScreen = () => {
     back();
   };
 
+  const handleHeightChange = (heightText: string) => {
+    const newHeight = Number(heightText);
+    setHeight(newHeight);
+  };
+
+  const handleContinue = async () => {
+    if (!userSettings) return;
+    if (!height) return;
+
+    if (!isValidHeight(height)) {
+      Alert.alert(
+        "Invalid Height",
+        "Please enter a height between 100 and 250 cm.",
+        [{ text: "OK" }]
+      );
+      return;
+    }
+
+    setUserSettings({ ...userSettings, height });
+
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    safeNavigate("/Goals/calorie-activitylevel");
+  };
+
   return (
     <GradientWrapper style={styles.container}>
       <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
-
+      
       <View style={styles.content}>
         <View style={styles.textSection}>
-          <Text style={styles.subtitle}>How old are you?</Text>
+          <Text style={styles.subtitle}>How tall are you?</Text>
           <Text style={styles.description}>
-            Your age helps us calculate your calorie needs.
+            Your height is used to calculate your daily calorie needs.
           </Text>
         </View>
 
         <View style={styles.inputSection}>
-          <TextInput
-            ref={inputRef}
-            value={age ? age.toString() : ""}
-            onChangeText={handleAgeChange}
-            placeholder="30"
-            keyboardType="numeric"
-            keyboardAppearance={colorScheme}
-            style={styles.ageInput}
-            accessibilityLabel="Age input"
-            inputAccessoryViewID={inputAccessoryViewID}
-            selectTextOnFocus
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              ref={inputRef}
+              value={height ? height.toString() : ""}
+              onChangeText={handleHeightChange}
+              placeholder="175"
+              keyboardType="numeric"
+              keyboardAppearance={colorScheme}
+              style={styles.heightInput}
+              accessibilityLabel="Height input"
+              selectTextOnFocus
+            />
+            <Text style={styles.unitText}>cm</Text>
+          </View>
         </View>
+
         <View style={styles.spacer} />
       </View>
 
@@ -90,7 +102,7 @@ const AgeSelectionScreen = () => {
               Icon={ChevronRight}
               iconPlacement="right"
               onPress={handleContinue}
-              disabled={!isValidAge(age)}
+              disabled={!isValidHeight(height) || isNavigating}
             />
           </View>
         </View>
@@ -99,17 +111,16 @@ const AgeSelectionScreen = () => {
   );
 };
 
-export default AgeSelectionScreen;
+export default HeightSelectionScreen;
 
-const createStyles = (colors: Colors, theme: Theme) => {
-  const { spacing, typography, components } = theme;
+const createStyles = (colors: any, themeObj: any) => {
+  const { spacing, typography, components } = themeObj;
   return StyleSheet.create({
-    container: {
-      flex: 1,
+    container: { 
+      flex: 1, 
       backgroundColor: colors.primaryBackground,
-      gap: theme.spacing.md,
+      gap: themeObj.spacing.md
     },
-    progressContainer: { padding: spacing.md },
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
@@ -129,38 +140,34 @@ const createStyles = (colors: Colors, theme: Theme) => {
       textAlign: "center",
     },
     inputSection: { alignItems: "center" },
-    ageInput: {
+    inputContainer: {
+      flexDirection: "row",
+      alignItems: "baseline",
+      justifyContent: "center",
+    },
+    unitText: {
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
+      color: colors.secondaryText,
+      marginLeft: spacing.sm,
+    },
+    spacer: { flex: 1 },
+    heightInput: {
       fontSize: 48,
       fontFamily: typography.Title1.fontFamily,
       color: colors.primaryText,
       textAlign: "center",
       minWidth: 100,
     },
-    spacer: { flex: 1 },
-    continueButton: {
-      backgroundColor: colors.accent,
-      borderRadius: components.buttons.cornerRadius,
-      paddingVertical: spacing.md,
-      flexDirection: "row",
-      justifyContent: "center",
-      marginHorizontal: spacing.pageMargins.horizontal,
-      marginBottom: spacing.lg,
-    },
-    continueButtonText: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      color: colors.black,
-      marginRight: spacing.sm,
-    },
     keyboardAccessory: {
-      marginHorizontal: theme.spacing.sm,
+      marginHorizontal: themeObj.spacing.sm,
       backgroundColor: colors.secondaryBackground,
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      gap: theme.spacing.sm,
+      gap: themeObj.spacing.sm,
       borderRadius: 9999,
-      padding: theme.spacing.sm,
+      padding: themeObj.spacing.sm,
       overflow: "hidden",
       zIndex: 99,
     },

@@ -122,7 +122,6 @@ const createStyles = (
   colorScheme: ColorScheme
 ) => {
   const { spacing, typography, getComponentStyles } = themeObj;
-  // The 'colors' object is already theme-aware, so we pass its scheme to getComponentStyles
   const componentStyles = getComponentStyles(colorScheme);
 
   return StyleSheet.create({
@@ -137,7 +136,7 @@ const createStyles = (
     },
     scrollContent: {
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingBottom: spacing.xxl, // Ensures space at the bottom for better scrolling
+      paddingBottom: spacing.xxl,
       gap: spacing.md,
     },
     textSection: {
@@ -191,7 +190,6 @@ const createStyles = (
       color: colors.secondaryText,
       lineHeight: typography.Caption.fontSize * 1.4,
     },
-    // Card Footer styling
     cardFooter: {
       borderTopWidth: 1,
       borderColor: colors.border,
@@ -205,3 +203,4 @@ const createStyles = (
     },
   });
 };
+

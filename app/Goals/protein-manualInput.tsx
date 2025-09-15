@@ -1,33 +1,31 @@
-import React, { useState, useEffect, useRef } from "react";
-import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
+import React, { useState, useRef, useCallback } from "react";
+import { View, Text, TextInput, StyleSheet } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
-
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
+import { calculateCarbsFromMacros } from "@/utils/nutritionCalculations";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Button } from "@/components/index";
 import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
-const isValidCalories = (calories: number | undefined) =>
-  calories !== undefined && calories >= 1000 && calories <= 7000;
-
-const ManualCalorieInputScreen = () => {
+const ManualProteinInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { dailyTargets, setDailyTargets } = useAppStore();
   const { safeDismissTo } = useNavigationGuard();
   const { back } = useRouter();
   const router = useRouter();
-
-  const [calories, setCalories] = useState<number | undefined>(
-    dailyTargets?.calories
+  const [protein, setProtein] = useState<number | undefined>(
+    dailyTargets?.protein || 0
   );
   const inputRef = useRef<TextInput>(null);
+
+  useDelayedAutofocus(inputRef);
 
   const handleCancel = () => {
     router.dismissTo("/");
@@ -37,60 +35,36 @@ const ManualCalorieInputScreen = () => {
     back();
   };
 
-  useEffect(() => {
-    if (dailyTargets?.calories && dailyTargets.calories > 0) {
-      setCalories(dailyTargets.calories);
-    }
-  }, [dailyTargets?.calories]);
-
-  useDelayedAutofocus(inputRef);
-
-  const handleCaloriesChange = (caloriesText: string) => {
-    if (caloriesText === "") {
-      setCalories(undefined);
-      return;
-    }
-
-    const newCalories = Number(caloriesText);
-
-    if (isNaN(newCalories)) {
-      setCalories(undefined);
-      return;
-    }
-
-    setCalories(newCalories);
+  const handleProteinChange = (proteinText: string) => {
+    const newProtein = proteinText === "" ? 0 : Number(proteinText);
+    setProtein(newProtein);
   };
 
   const handleSave = async () => {
     const newDailyTargets = {
-      calories,
-      protein: undefined,
-      carbs: undefined,
-      fat: undefined,
+      ...dailyTargets,
+      protein,
+      carbs: calculateCarbsFromMacros(
+        dailyTargets?.calories || 0,
+        protein || 0,
+        dailyTargets?.fat || 0
+      ),
     };
-    if (!isValidCalories(calories)) {
-      Alert.alert(
-        "Invalid Calorie Value",
-        "Please enter a calorie value between 1000 and 7000.",
-        [{ text: "OK" }]
-      );
-      return;
-    }
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setDailyTargets(newDailyTargets);
-    safeDismissTo("/settings");
+    safeDismissTo("/Goals");
   };
 
   return (
     <GradientWrapper style={styles.container}>
       <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
-
+      
       <View style={styles.content}>
         <View style={styles.textSection}>
-          <Text style={styles.subtitle}>Enter your daily calorie goal</Text>
+          <Text style={styles.subtitle}>Enter your daily protein goal</Text>
           <Text style={styles.description}>
-            Set your target calories per day. You can always adjust this later
-            in settings.
+            Set your target protein per day. You can always adjust this later in
+            settings.
           </Text>
         </View>
 
@@ -98,16 +72,16 @@ const ManualCalorieInputScreen = () => {
           <View style={styles.inputContainer}>
             <TextInput
               ref={inputRef}
-              value={calories ? calories.toString() : ""}
-              onChangeText={handleCaloriesChange}
-              placeholder="2000"
+              value={protein ? protein.toString() : ""}
+              onChangeText={handleProteinChange}
+              placeholder="100"
               keyboardType="number-pad"
               keyboardAppearance={colorScheme}
-              style={styles.caloriesInput}
-              accessibilityLabel="Calorie input"
+              style={styles.proteinInput}
+              accessibilityLabel="Protein input"
               selectTextOnFocus
             />
-            <Text style={styles.unitText}>calories</Text>
+            <Text style={styles.unitText}>grams</Text>
           </View>
           <Text style={styles.selectedText}>per day</Text>
         </View>
@@ -122,8 +96,9 @@ const ManualCalorieInputScreen = () => {
               variant="primary"
               label="Save Goal"
               Icon={ChevronRight}
+              iconPlacement="right"
               onPress={handleSave}
-              disabled={!isValidCalories(calories)}
+              disabled={!protein}
             />
           </View>
         </View>
@@ -132,22 +107,24 @@ const ManualCalorieInputScreen = () => {
   );
 };
 
-export default ManualCalorieInputScreen;
+export default ManualProteinInputScreen;
 
 const createStyles = (colors: any, themeObj: any) => {
   const { spacing, typography } = themeObj;
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.primaryBackground,
-      gap: themeObj.spacing.md,
+    container: { flex: 1, backgroundColor: colors.primaryBackground },
+    closeButton: {
+      position: "absolute",
+      top: spacing.lg,
+      right: spacing.md,
+      zIndex: 15,
     },
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
       gap: spacing.xxl,
     },
-    textSection: { gap: spacing.sm },
+    textSection: { paddingTop: spacing.xxl + spacing.md, gap: spacing.sm },
     subtitle: {
       fontSize: typography.Title2.fontSize,
       fontFamily: typography.Title2.fontFamily,
@@ -181,7 +158,7 @@ const createStyles = (colors: any, themeObj: any) => {
       marginTop: spacing.md,
     },
     spacer: { flex: 1 },
-    caloriesInput: {
+    proteinInput: {
       fontSize: 48,
       fontFamily: typography.Title1.fontFamily,
       color: colors.primaryText,

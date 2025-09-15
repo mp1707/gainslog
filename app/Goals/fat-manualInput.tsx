@@ -74,7 +74,7 @@ const ManualFatInputScreen = () => {
     setDailyTargets(newDailyTargets);
     if (!userSettings) return;
     setUserSettings({ ...userSettings, fatCalculationPercentage: fatPercent });
-    safeDismissTo("/settings");
+    safeDismissTo("/Goals");
   };
 
   return (

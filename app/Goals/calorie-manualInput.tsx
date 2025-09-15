@@ -1,7 +1,8 @@
-import React, { useState, useMemo, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
+
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
@@ -12,22 +13,21 @@ import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
-const isValidWeight = (weight: number | undefined) =>
-  weight !== undefined && weight >= 30 && weight <= 300;
+const isValidCalories = (calories: number | undefined) =>
+  calories !== undefined && calories >= 1000 && calories <= 7000;
 
-const ProteinWeightSelectionScreen = () => {
+const ManualCalorieInputScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const styles = createStyles(colors, themeObj);
-  const { userSettings, setUserSettings } = useAppStore();
-  const { safeNavigate, isNavigating } = useNavigationGuard();
+  const { dailyTargets, setDailyTargets } = useAppStore();
+  const { safeDismissTo } = useNavigationGuard();
   const { back } = useRouter();
   const router = useRouter();
-  const [weight, setWeight] = useState<number | undefined>(
-    userSettings?.weight
+
+  const [calories, setCalories] = useState<number | undefined>(
+    dailyTargets?.calories
   );
   const inputRef = useRef<TextInput>(null);
-
-  useDelayedAutofocus(inputRef);
 
   const handleCancel = () => {
     router.dismissTo("/");
@@ -37,39 +37,60 @@ const ProteinWeightSelectionScreen = () => {
     back();
   };
 
-  const handleWeightChange = (weightText: string) => {
-    const newWeight = Number(weightText);
-    setWeight(newWeight);
+  useEffect(() => {
+    if (dailyTargets?.calories && dailyTargets.calories > 0) {
+      setCalories(dailyTargets.calories);
+    }
+  }, [dailyTargets?.calories]);
+
+  useDelayedAutofocus(inputRef);
+
+  const handleCaloriesChange = (caloriesText: string) => {
+    if (caloriesText === "") {
+      setCalories(undefined);
+      return;
+    }
+
+    const newCalories = Number(caloriesText);
+
+    if (isNaN(newCalories)) {
+      setCalories(undefined);
+      return;
+    }
+
+    setCalories(newCalories);
   };
 
-  const handleContinue = async () => {
-    if (!userSettings) return;
-    if (!weight) return;
-
-    if (!isValidWeight(weight)) {
+  const handleSave = async () => {
+    const newDailyTargets = {
+      calories,
+      protein: undefined,
+      carbs: undefined,
+      fat: undefined,
+    };
+    if (!isValidCalories(calories)) {
       Alert.alert(
-        "Invalid Weight",
-        "Please enter a weight between 30 and 300 kg.",
+        "Invalid Calorie Value",
+        "Please enter a calorie value between 1000 and 7000.",
         [{ text: "OK" }]
       );
       return;
     }
-
-    setUserSettings({ ...userSettings, weight });
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    safeNavigate("/settings/protein-goals");
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setDailyTargets(newDailyTargets);
+    safeDismissTo("/Goals");
   };
 
   return (
     <GradientWrapper style={styles.container}>
       <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
-      
+
       <View style={styles.content}>
         <View style={styles.textSection}>
-          <Text style={styles.subtitle}>What's your weight?</Text>
+          <Text style={styles.subtitle}>Enter your daily calorie goal</Text>
           <Text style={styles.description}>
-            Your weight is needed to calculate personalized protein
-            recommendations.
+            Set your target calories per day. You can always adjust this later
+            in settings.
           </Text>
         </View>
 
@@ -77,16 +98,18 @@ const ProteinWeightSelectionScreen = () => {
           <View style={styles.inputContainer}>
             <TextInput
               ref={inputRef}
-              value={weight ? weight.toString() : ""}
-              onChangeText={handleWeightChange}
-              placeholder="70"
-              keyboardType="numeric"
+              value={calories ? calories.toString() : ""}
+              onChangeText={handleCaloriesChange}
+              placeholder="2000"
+              keyboardType="number-pad"
               keyboardAppearance={colorScheme}
-              style={styles.weightInput}
+              style={styles.caloriesInput}
+              accessibilityLabel="Calorie input"
               selectTextOnFocus
             />
-            <Text style={styles.unitText}>kg</Text>
+            <Text style={styles.unitText}>calories</Text>
           </View>
+          <Text style={styles.selectedText}>per day</Text>
         </View>
 
         <View style={styles.spacer} />
@@ -97,11 +120,10 @@ const ProteinWeightSelectionScreen = () => {
           <View style={{ flex: 1, minWidth: 0 }}>
             <Button
               variant="primary"
-              label="Continue"
+              label="Save Goal"
               Icon={ChevronRight}
-              iconPlacement="right"
-              onPress={handleContinue}
-              disabled={!isValidWeight(weight)}
+              onPress={handleSave}
+              disabled={!isValidCalories(calories)}
             />
           </View>
         </View>
@@ -110,20 +132,19 @@ const ProteinWeightSelectionScreen = () => {
   );
 };
 
-export default ProteinWeightSelectionScreen;
+export default ManualCalorieInputScreen;
 
 const createStyles = (colors: any, themeObj: any) => {
   const { spacing, typography } = themeObj;
   return StyleSheet.create({
-    container: { 
-      flex: 1, 
+    container: {
+      flex: 1,
       backgroundColor: colors.primaryBackground,
-      gap: themeObj.spacing.md
+      gap: themeObj.spacing.md,
     },
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
-      justifyContent: "flex-start",
       gap: spacing.xxl,
     },
     textSection: { gap: spacing.sm },
@@ -138,7 +159,6 @@ const createStyles = (colors: any, themeObj: any) => {
       fontFamily: typography.Body.fontFamily,
       color: colors.secondaryText,
       textAlign: "center",
-      lineHeight: 22,
     },
     inputSection: { alignItems: "center" },
     inputContainer: {
@@ -152,14 +172,21 @@ const createStyles = (colors: any, themeObj: any) => {
       color: colors.secondaryText,
       marginLeft: spacing.sm,
     },
-    spacer: { flex: 1, minHeight: 64 },
-    weightInput: {
+    selectedText: {
+      fontSize: typography.Headline.fontSize,
+      fontFamily: typography.Headline.fontFamily,
+      color: colors.primaryText,
+      textAlign: "center",
+      fontWeight: "600",
+      marginTop: spacing.md,
+    },
+    spacer: { flex: 1 },
+    caloriesInput: {
       fontSize: 48,
       fontFamily: typography.Title1.fontFamily,
       color: colors.primaryText,
       textAlign: "center",
       minWidth: 100,
-      backgroundColor: "transparent",
     },
     keyboardAccessory: {
       marginHorizontal: themeObj.spacing.sm,

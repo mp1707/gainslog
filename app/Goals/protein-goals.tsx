@@ -134,7 +134,7 @@ export default function ProteinGoalsScreen() {
     setSelectedMethodId(method);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setTimeout(() => {
-      safeDismissTo("/settings");
+      safeDismissTo("/Goals");
     }, 300);
   };
 

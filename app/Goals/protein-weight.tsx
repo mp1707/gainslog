@@ -1,14 +1,5 @@
-import React, { useState, useRef, useCallback } from "react";
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  TextInput,
-  Platform,
-  StyleSheet,
-  Alert,
-  InteractionManager,
-} from "react-native";
+import React, { useState, useMemo, useRef, useCallback } from "react";
+import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
@@ -21,22 +12,20 @@ import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
-const inputAccessoryViewID = "weight-input-accessory";
-
 const isValidWeight = (weight: number | undefined) =>
   weight !== undefined && weight >= 30 && weight <= 300;
 
-const WeightSelectionScreen = () => {
+const ProteinWeightSelectionScreen = () => {
   const { colors, theme: themeObj, colorScheme } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { userSettings, setUserSettings } = useAppStore();
-  const { safeNavigate } = useNavigationGuard();
+  const { safeNavigate, isNavigating } = useNavigationGuard();
+  const { back } = useRouter();
+  const router = useRouter();
   const [weight, setWeight] = useState<number | undefined>(
     userSettings?.weight
   );
   const inputRef = useRef<TextInput>(null);
-  const { back } = useRouter();
-  const router = useRouter();
 
   useDelayedAutofocus(inputRef);
 
@@ -68,7 +57,7 @@ const WeightSelectionScreen = () => {
 
     setUserSettings({ ...userSettings, weight });
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    safeNavigate("/settings/calorie-height");
+    safeNavigate("/Goals/protein-goals");
   };
 
   return (
@@ -77,9 +66,10 @@ const WeightSelectionScreen = () => {
       
       <View style={styles.content}>
         <View style={styles.textSection}>
-          <Text style={styles.subtitle}>What’s your weight?</Text>
+          <Text style={styles.subtitle}>What's your weight?</Text>
           <Text style={styles.description}>
-            Your weight is important for calculating your calorie needs.
+            Your weight is needed to calculate personalized protein
+            recommendations.
           </Text>
         </View>
 
@@ -93,7 +83,6 @@ const WeightSelectionScreen = () => {
               keyboardType="numeric"
               keyboardAppearance={colorScheme}
               style={styles.weightInput}
-              inputAccessoryViewID={inputAccessoryViewID}
               selectTextOnFocus
             />
             <Text style={styles.unitText}>kg</Text>
@@ -102,6 +91,7 @@ const WeightSelectionScreen = () => {
 
         <View style={styles.spacer} />
       </View>
+
       <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
         <View style={styles.keyboardAccessory}>
           <View style={{ flex: 1, minWidth: 0 }}>
@@ -120,10 +110,10 @@ const WeightSelectionScreen = () => {
   );
 };
 
-export default WeightSelectionScreen;
+export default ProteinWeightSelectionScreen;
 
 const createStyles = (colors: any, themeObj: any) => {
-  const { spacing, typography, components } = themeObj;
+  const { spacing, typography } = themeObj;
   return StyleSheet.create({
     container: { 
       flex: 1, 
@@ -163,25 +153,6 @@ const createStyles = (colors: any, themeObj: any) => {
       marginLeft: spacing.sm,
     },
     spacer: { flex: 1, minHeight: 64 },
-    continueButton: {
-      backgroundColor: colors.accent,
-      borderRadius: components.buttons.cornerRadius,
-      paddingVertical: spacing.md,
-      paddingHorizontal: spacing.lg,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      minHeight: 50,
-      marginHorizontal: spacing.pageMargins.horizontal,
-      marginBottom: spacing.lg,
-    },
-    continueButtonText: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      color: colors.black,
-      fontWeight: "600",
-      marginRight: spacing.sm,
-    },
     weightInput: {
       fontSize: 48,
       fontFamily: typography.Title1.fontFamily,
