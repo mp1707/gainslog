@@ -18,6 +18,8 @@ import { lockNav, isNavLocked } from "@/utils/navigationLock";
 import { theme } from "@/theme";
 import { useIsFocused } from "@react-navigation/native";
 
+const BORDER_RADIUS = 30;
+
 interface SwipeToFunctionsProps {
   children: ReactNode;
   onDelete?: () => void;
@@ -603,7 +605,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
       <Animated.View
         style={[
           {
-            borderRadius: 16,
+            borderRadius: BORDER_RADIUS,
           },
           containerStyle,
         ]}
@@ -617,8 +619,8 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
                   position: "absolute",
                   left: 0,
                   top: 0,
-                  borderTopLeftRadius: 16,
-                  borderBottomLeftRadius: 16,
+                  borderTopLeftRadius: BORDER_RADIUS,
+                  borderBottomLeftRadius: BORDER_RADIUS,
                   bottom: 0,
                   backgroundColor: colors.semantic.fat, // Using semantic FAT color
                   justifyContent: "center",
@@ -650,8 +652,8 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
                   position: "absolute",
                   right: 0,
                   top: 0,
-                  borderTopRightRadius: 16,
-                  borderBottomRightRadius: 16,
+                  borderTopRightRadius: BORDER_RADIUS,
+                  borderBottomRightRadius: BORDER_RADIUS,
                   bottom: 0,
                   backgroundColor: "#FF3B30", // iOS red
                   justifyContent: "center",
@@ -688,7 +690,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    borderRadius: 16,
+                    borderRadius: BORDER_RADIUS,
                   },
                   pressFlashAnimatedStyle,
                 ]}
