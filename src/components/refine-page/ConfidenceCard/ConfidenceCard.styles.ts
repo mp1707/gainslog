@@ -44,4 +44,10 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     shimmerGradient: {
       flex: 1,
     },
+    increaseOverlay: {
+      position: 'absolute',
+      top: 0,
+      bottom: 0,
+      borderRadius: 6,
+    },
   });

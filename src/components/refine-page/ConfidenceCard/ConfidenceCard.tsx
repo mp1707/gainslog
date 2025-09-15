@@ -9,6 +9,7 @@ import Animated, {
   withTiming,
   cancelAnimation,
   withSpring,
+  withDelay,
 } from "react-native-reanimated";
 import { AppText, Card } from "@/components";
 import { useTheme } from "@/theme";
@@ -45,34 +46,76 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
   const glowPulse = useSharedValue(0); // 0..1 for glow intensity
   const shimmerX = useSharedValue(-100);
   const didJustStopProcessing = useRef(false);
+  const prevValueRef = useRef(clampedInitial);
+  // Overlay for increase animation (behind main fill)
+  const overlayVisible = useSharedValue(0); // opacity 0..1
+  const overlayWidth = useSharedValue(clampedInitial); // 0..100
 
   useEffect(() => {
     const target = Math.max(0, Math.min(100, value || 0));
-    // Animate the fill width with a spring for a lively settle
-    confidenceWidth.value = withSpring(target, {
-      damping: 18,
-      stiffness: 160,
-      mass: 0.8,
-      overshootClamping: false,
-    });
-    // Color transitions:
-    // - While processing: snap color quickly to keep bar responsive
-    // - After processing finishes: animate smoothly to draw attention
+    const prev = Math.max(0, Math.min(100, prevValueRef.current));
+
     if (processing) {
+      // During processing, keep things responsive; hide overlay
+      overlayVisible.value = 0;
+      overlayWidth.value = target;
+      confidenceWidth.value = withTiming(target, {
+        duration: 250,
+        easing: Easing.out(Easing.quad),
+      });
       colorProgress.value = withTiming(target, {
         duration: 250,
         easing: Easing.out(Easing.quad),
       });
     } else {
-      // If we just stopped processing, give the color a longer, smooth glide
-      const duration = didJustStopProcessing.current ? 700 : 450;
-      colorProgress.value = withTiming(target, {
-        duration,
-        easing: Easing.out(Easing.cubic),
-      });
-      didJustStopProcessing.current = false;
+      if (target > prev) {
+        // Increase: show accent overlay for the delta first, then main bar follows
+        overlayWidth.value = prev;
+        overlayVisible.value = 1;
+
+        // Expand overlay quickly from prev -> target
+        overlayWidth.value = withTiming(target, {
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+        });
+
+        // Main bar follows with a slight delay for the "reverse hit" effect
+        confidenceWidth.value = withDelay(
+          320,
+          withSpring(target, {
+            damping: 18,
+            stiffness: 160,
+            mass: 0.8,
+            overshootClamping: false,
+          })
+        );
+
+        // Color also glides with a small delay
+        colorProgress.value = withDelay(280, withTiming(target, { duration: 550, easing: Easing.out(Easing.cubic) }));
+
+        // Fade the overlay after the base has caught up
+        overlayVisible.value = withDelay(720, withTiming(0, { duration: 250 }));
+      } else {
+        // Decrease or equal: default smooth settle, no overlay
+        overlayVisible.value = 0;
+        overlayWidth.value = target;
+        confidenceWidth.value = withSpring(target, {
+          damping: 18,
+          stiffness: 160,
+          mass: 0.8,
+          overshootClamping: false,
+        });
+        const duration = didJustStopProcessing.current ? 700 : 450;
+        colorProgress.value = withTiming(target, {
+          duration,
+          easing: Easing.out(Easing.cubic),
+        });
+        didJustStopProcessing.current = false;
+      }
     }
-  }, [value, processing, confidenceWidth, colorProgress]);
+
+    prevValueRef.current = target;
+  }, [value, processing, confidenceWidth, colorProgress, overlayVisible, overlayWidth]);
 
   // Start/stop shimmer during processing
   useEffect(() => {
@@ -164,6 +207,14 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
       : innerPulse.value * 0.25,
   }));
 
+  // Overlay for increases only – draws the new segment first
+  const increaseOverlayStyle = useAnimatedStyle(() => ({
+    left: 0,
+    width: `${Math.max(0, Math.min(100, overlayWidth.value))}%`,
+    opacity: overlayVisible.value,
+    backgroundColor: colors.accent,
+  }));
+
   return (
     <Card>
       <View style={styles.confidenceHeader}>
@@ -173,6 +224,11 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
         </AppText>
       </View>
       <View style={styles.meterTrack}>
+        {/* Accent overlay for increase animation (behind main fill) */}
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.increaseOverlay, increaseOverlayStyle]}
+        />
         <Animated.View style={[styles.meterFill, confidenceBarStyle]}>
           {/* Inner pulse overlay contained by the fill */}
           <Animated.View
