@@ -11,6 +11,7 @@ import Animated, {
   withSpring,
   withDelay,
 } from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
 import { AppText, Card } from "@/components";
 import { useTheme } from "@/theme";
 import { createStyles } from "./ConfidenceCard.styles";
@@ -45,6 +46,9 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
   const innerPulse = useSharedValue(0); // 0..1 opacity for inner pulse overlay (inside fill)
   const glowPulse = useSharedValue(0); // 0..1 for glow intensity
   const shimmerX = useSharedValue(-100);
+  const bigGlowX = useSharedValue(-200); // Big traveling glow effect
+  const bigGlowOpacity = useSharedValue(0); // Big glow visibility
+  const rushPulse = useSharedValue(0); // Final rush effect when loading completes
   const didJustStopProcessing = useRef(false);
   const prevValueRef = useRef(clampedInitial);
   // Overlay for increase animation (behind main fill)
@@ -91,7 +95,26 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
         );
 
         // Color also glides with a small delay
-        colorProgress.value = withDelay(280, withTiming(target, { duration: 550, easing: Easing.out(Easing.cubic) }));
+        colorProgress.value = withDelay(
+          280,
+          withTiming(target, {
+            duration: 550,
+            easing: Easing.out(Easing.cubic),
+          })
+        );
+
+        // Trigger rush pulse effect when loading stops and value increases
+        if (didJustStopProcessing.current) {
+          // Stronger haptic feedback for completion with improvement
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+          rushPulse.value = 0;
+          rushPulse.value = withTiming(1, {
+            duration: 350,
+            easing: Easing.out(Easing.cubic),
+          });
+          rushPulse.value = withDelay(380, withTiming(0, { duration: 250 }));
+        }
 
         // Fade the overlay after the base has caught up
         overlayVisible.value = withDelay(720, withTiming(0, { duration: 250 }));
@@ -105,6 +128,11 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
           mass: 0.8,
           overshootClamping: false,
         });
+        // Light haptic feedback for completion without increase
+        if (didJustStopProcessing.current) {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
+
         const duration = didJustStopProcessing.current ? 700 : 450;
         colorProgress.value = withTiming(target, {
           duration,
@@ -115,40 +143,72 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
     }
 
     prevValueRef.current = target;
-  }, [value, processing, confidenceWidth, colorProgress, overlayVisible, overlayWidth]);
+  }, [
+    value,
+    processing,
+    confidenceWidth,
+    colorProgress,
+    overlayVisible,
+    overlayWidth,
+    rushPulse,
+  ]);
 
-  // Start/stop shimmer during processing
+  // Start/stop shimmer and big glow during processing
   useEffect(() => {
     if (processing) {
-      // Shimmer runs across the fill; inner pulse and glow intensify
+      // Subtle haptic feedback when processing starts
+      Haptics.selectionAsync();
+
+      // Original shimmer runs across the fill
       shimmerX.value = withRepeat(
         withTiming(300, { duration: 1100, easing: Easing.linear }),
         -1,
         false
       );
+
+      // Big dramatic glow that sweeps left to right
+      bigGlowX.value = withRepeat(
+        withTiming(400, { duration: 1400, easing: Easing.inOut(Easing.quad) }),
+        -1,
+        false
+      );
+      bigGlowOpacity.value = withRepeat(
+        withTiming(1, { duration: 1400, easing: Easing.inOut(Easing.quad) }),
+        -1,
+        true
+      );
+
+      // Intensified pulse and glow
       innerPulse.value = withRepeat(
-        withTiming(1, { duration: 900, easing: Easing.inOut(Easing.quad) }),
+        withTiming(1, { duration: 700, easing: Easing.inOut(Easing.quad) }),
         -1,
         true
       );
       glowPulse.value = withRepeat(
-        withTiming(1, { duration: 1200, easing: Easing.inOut(Easing.quad) }),
+        withTiming(1, { duration: 900, easing: Easing.inOut(Easing.quad) }),
         -1,
         true
       );
     } else {
-      // Stop shimmer and ease out pulse/glow
+      // Stop all animations and ease out effects
       didJustStopProcessing.current = true;
       cancelAnimation(shimmerX);
+      cancelAnimation(bigGlowX);
+      cancelAnimation(bigGlowOpacity);
       shimmerX.value = -100;
+      bigGlowX.value = -200;
+      bigGlowOpacity.value = withTiming(0, { duration: 200 });
       innerPulse.value = withTiming(0, { duration: 250 });
       glowPulse.value = withTiming(0, { duration: 350 });
     }
-  }, [processing, shimmerX, innerPulse, glowPulse]);
+  }, [processing, shimmerX, innerPulse, glowPulse, bigGlowX, bigGlowOpacity]);
 
-  // Subtle bounce on reveal (after successful refine)
+  // Enhanced celebration on reveal (after successful refine)
   useEffect(() => {
     if (reveal) {
+      // Celebration haptic feedback
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
       // Brief width bounce via scaleY applied to fill
       innerPulse.value = 1;
       innerPulse.value = withTiming(0, {
@@ -161,8 +221,15 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
         duration: 600,
         easing: Easing.out(Easing.quad),
       });
+      // Add rush pulse for celebration effect
+      rushPulse.value = 0;
+      rushPulse.value = withTiming(1, {
+        duration: 400,
+        easing: Easing.out(Easing.cubic),
+      });
+      rushPulse.value = withDelay(450, withTiming(0, { duration: 350 }));
     }
-  }, [reveal, innerPulse, glowPulse]);
+  }, [reveal, innerPulse, glowPulse, rushPulse]);
 
   const confidenceBarStyle = useAnimatedStyle(() => {
     const clampedWidth = Math.max(0, Math.min(100, confidenceWidth.value));
@@ -173,15 +240,15 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
       [0, 50, 100],
       [colors.error, colors.warning, colors.success]
     );
-    // Slight height pulse contained within the fill
-    const scaleY = 1 + innerPulse.value * 0.18;
-    // Glow intensity follows glowPulse and processing state
+    // Enhanced height pulse contained within the fill
+    const scaleY = 1 + innerPulse.value * 0.3 + rushPulse.value * 0.15;
+    // Enhanced glow intensity follows glowPulse and processing state
     const glowStrength = processing
-      ? 0.7 + glowPulse.value * 0.5
-      : glowPulse.value * 0.25;
-    const shadowRadius = 6 + glowStrength * 16;
-    const shadowOpacity = 0.28 + glowStrength * 0.5;
-    const elevation = processing ? 10 : 0;
+      ? 1.2 + glowPulse.value * 1.5
+      : glowPulse.value * 0.25 + rushPulse.value * 1.8;
+    const shadowRadius = 8 + glowStrength * 24;
+    const shadowOpacity = 0.35 + glowStrength * 0.65;
+    const elevation = processing ? 15 : rushPulse.value * 12;
     return {
       width: `${clampedWidth}%`,
       backgroundColor: bg as string,
@@ -201,26 +268,46 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
     opacity: processing ? 0.85 : 0,
   }));
 
+  // Big dramatic glow effect
+  const bigGlowStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: bigGlowX.value }],
+    opacity: bigGlowOpacity.value * 0.9,
+  }));
+
+  // Rush pulse effect that travels left to right when loading finishes
+  const rushPulseStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: rushPulse.value * 400 - 200 }],
+    opacity: rushPulse.value * 0.8,
+  }));
+
   const innerPulseOverlayStyle = useAnimatedStyle(() => ({
     opacity: processing
-      ? 0.15 + innerPulse.value * 0.35
-      : innerPulse.value * 0.25,
+      ? 0.25 + innerPulse.value * 0.5
+      : innerPulse.value * 0.35 + rushPulse.value * 0.4,
   }));
 
   // Overlay for increases only – draws the new segment first
   const increaseOverlayStyle = useAnimatedStyle(() => ({
     left: 0,
     width: `${Math.max(0, Math.min(100, overlayWidth.value))}%`,
-    opacity: overlayVisible.value,
+    opacity: overlayVisible.value * (1 + rushPulse.value * 0.5),
     backgroundColor: colors.accent,
+    // Add subtle glow to the overlay during rush
+    shadowColor: colors.accent,
+    shadowOpacity: Platform.OS === "ios" ? rushPulse.value * 0.6 : 0,
+    shadowRadius: Platform.OS === "ios" ? rushPulse.value * 20 : 0,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: Platform.OS === "android" ? rushPulse.value * 8 : 0,
   }));
 
   return (
     <Card>
-      <View style={styles.confidenceHeader}>
-        <AppText role="Headline">Estimation Accuracy</AppText>
+      <View style={styles.batteryInfoLayout}>
+        <AppText role="Title2" style={styles.percentageText}>
+          {value ?? 0}%
+        </AppText>
         <AppText role="Subhead" color="secondary">
-          {value ?? 0}% • {getConfidenceLabel(value ?? 0)}
+          {getConfidenceLabel(value ?? 0)}
         </AppText>
       </View>
       <View style={styles.meterTrack}>
@@ -234,7 +321,50 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
           <Animated.View
             style={[styles.innerPulseOverlay, innerPulseOverlayStyle]}
           />
-          {/* Shimmer scan overlay while processing – now clipped inside the fill */}
+
+          {/* Big dramatic glow effect during processing */}
+          {processing && (
+            <Animated.View
+              pointerEvents="none"
+              style={[styles.bigGlowOverlay, bigGlowStyle]}
+            >
+              <LinearGradient
+                colors={[
+                  `${colors.white}00`,
+                  `${colors.white}20`,
+                  `${colors.white}90`,
+                  `${colors.white}20`,
+                  `${colors.white}00`,
+                ]}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={styles.bigGlowGradient}
+              />
+            </Animated.View>
+          )}
+
+          {/* Rush pulse effect when loading finishes */}
+          {!processing && (
+            <Animated.View
+              pointerEvents="none"
+              style={[styles.rushPulseOverlay, rushPulseStyle]}
+            >
+              <LinearGradient
+                colors={[
+                  `${colors.accent}00`,
+                  `${colors.accent}80`,
+                  `${colors.accent}FF`,
+                  `${colors.accent}80`,
+                  `${colors.accent}00`,
+                ]}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={styles.rushPulseGradient}
+              />
+            </Animated.View>
+          )}
+
+          {/* Original shimmer scan overlay while processing – now clipped inside the fill */}
           {processing && (
             <Animated.View
               pointerEvents="none"

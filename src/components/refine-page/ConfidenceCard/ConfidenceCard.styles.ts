@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
-import type { Colors, Theme } from '@/theme';
+import { StyleSheet } from "react-native";
+import type { Colors, Theme } from "@/theme";
 
 export const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
@@ -9,33 +9,47 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       backgroundColor: colors.secondaryBackground,
     },
     confidenceHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
       marginBottom: theme.spacing.sm,
     },
+    batteryInfoLayout: {
+      marginBottom: theme.spacing.xs,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-end",
+    },
+    percentageText: {
+      fontSize: 40,
+      fontWeight: "700" as const,
+      lineHeight: 52,
+      textAlign: "justify",
+      marginBottom: -4
+
+    },
     meterTrack: {
-      width: '100%',
+      width: "100%",
       height: 12,
       borderRadius: 6,
-      overflow: 'hidden',
+      // overflow: 'hidden',
       backgroundColor: colors.disabledBackground,
     },
     meterFill: {
-      height: '100%',
+      height: "100%",
       borderRadius: 6,
-      overflow: 'hidden', // ensure inner effects are clipped to fill
+      overflow: "hidden", // ensure inner effects are clipped to fill
     },
     innerPulseOverlay: {
-      position: 'absolute',
+      position: "absolute",
       left: 0,
       right: 0,
       top: 0,
       bottom: 0,
-      backgroundColor: 'rgba(255,255,255,0.25)',
+      backgroundColor: "rgba(255,255,255,0.25)",
     },
     shimmerOverlay: {
-      position: 'absolute',
+      position: "absolute",
       left: -100,
       top: 0,
       bottom: 0,
@@ -44,8 +58,28 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     shimmerGradient: {
       flex: 1,
     },
+    bigGlowOverlay: {
+      position: "absolute",
+      left: -200,
+      top: -4,
+      bottom: -4,
+      width: 300,
+    },
+    bigGlowGradient: {
+      flex: 1,
+    },
+    rushPulseOverlay: {
+      position: "absolute",
+      left: -200,
+      top: -6,
+      bottom: -6,
+      width: 400,
+    },
+    rushPulseGradient: {
+      flex: 1,
+    },
     increaseOverlay: {
-      position: 'absolute',
+      position: "absolute",
       top: 0,
       bottom: 0,
       borderRadius: 6,
