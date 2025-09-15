@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, memo, useState, useMemo } from "react";
-import { View, ViewStyle } from "react-native";
+import React, { useEffect, useRef, memo, useState, useMemo, useCallback } from "react";
+import { View, Pressable } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -12,6 +12,8 @@ import { useTheme } from "@/theme";
 import { Card } from "@/components/Card";
 import { AppText } from "@/components";
 import { SkeletonPill, ConfidenceBadge } from "@/components/shared";
+import { ContextMenu, ContextMenuItem } from "@/components/shared/ContextMenu";
+import { useAppStore } from "@/store/useAppStore";
 import { getConfidenceLevel } from "@/utils/getConfidenceLevel";
 import { createStyles } from "./LogCard.styles";
 import { NutritionList } from "./NutritionList";
@@ -21,10 +23,24 @@ import { LogStatusBadge } from "@/components/shared/LogStatusBadge/LogStatusBadg
 interface LogCardProps {
   foodLog: FoodLog | Favorite;
   isLoading?: boolean;
+  onLogAgain?: (log: FoodLog | Favorite) => void;
+  onSaveToFavorites?: (log: FoodLog | Favorite) => void;
+  onRemoveFromFavorites?: (log: FoodLog | Favorite) => void;
+  onEdit?: (log: FoodLog | Favorite) => void;
+  onDelete?: (log: FoodLog | Favorite) => void;
+  contextMenuPreset?: 'default' | 'favorites';
 }
 
 // Animated variant used only for freshly created entries that transition from loading
-const AnimatedLogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
+type WithLongPress = {
+  onLongPress?: () => void;
+};
+
+const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
+  foodLog,
+  isLoading,
+  onLongPress,
+}) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -136,7 +152,7 @@ const AnimatedLogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
   }));
 
   return (
-    <View style={styles.cardContainer}>
+    <Pressable style={styles.cardContainer} onLongPress={onLongPress} delayLongPress={300}>
       <Card elevated={true} style={styles.card}>
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
@@ -190,7 +206,7 @@ const AnimatedLogCard: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
           pointerEvents="none"
         />
       )}
-    </View>
+    </Pressable>
   );
 };
 
@@ -257,7 +273,7 @@ const StaticNutritionList: React.FC<StaticNutritionListProps> = memo(
 );
 
 // Ultra-light static variant for all non-loading cases
-const StaticLogCard: React.FC<LogCardProps> = ({ foodLog }) => {
+const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({ foodLog, onLongPress }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -268,7 +284,7 @@ const StaticLogCard: React.FC<LogCardProps> = ({ foodLog }) => {
       : undefined;
 
   return (
-    <View style={styles.cardContainer}>
+    <Pressable style={styles.cardContainer} onLongPress={onLongPress} delayLongPress={300}>
       <Card style={styles.card}>
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
@@ -294,12 +310,21 @@ const StaticLogCard: React.FC<LogCardProps> = ({ foodLog }) => {
           </View>
         </View>
       </Card>
-    </View>
+    </Pressable>
   );
 };
 
 // Wrapper: choose animated only when needed, otherwise render lightweight static card
-const LogCardInner: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
+const LogCardInner: React.FC<LogCardProps> = ({
+  foodLog,
+  isLoading,
+  onLogAgain,
+  onSaveToFavorites,
+  onRemoveFromFavorites,
+  onEdit,
+  onDelete,
+  contextMenuPreset = 'default',
+}) => {
   const hasEverBeenLoadingRef = useRef<boolean>(isLoading === true);
   const [useAnimatedVariant, setUseAnimatedVariant] = useState<boolean>(
     isLoading === true
@@ -321,22 +346,109 @@ const LogCardInner: React.FC<LogCardProps> = ({ foodLog, isLoading }) => {
     setUseAnimatedVariant(false);
   }, [isLoading]);
 
+  const [menuVisible, setMenuVisible] = useState(false);
+  const { favorites } = useAppStore();
+  const isFavorite = useMemo(
+    () => favorites.some((f) => f.id === (foodLog as any).id),
+    [favorites, foodLog]
+  );
+
+  const items: ContextMenuItem[] = useMemo(() => {
+    if (contextMenuPreset === 'favorites') {
+      const arr: ContextMenuItem[] = [];
+      arr.push({ label: 'Create Log', onPress: () => onLogAgain?.(foodLog) });
+      arr.push({
+        label: 'Remove from Favorites',
+        destructive: true,
+        onPress: () => onRemoveFromFavorites?.(foodLog),
+      });
+      return arr;
+    }
+
+    const arr: ContextMenuItem[] = [];
+    arr.push({ label: 'Log Again', onPress: () => onLogAgain?.(foodLog) });
+    if (onSaveToFavorites || onRemoveFromFavorites) {
+      arr.push({
+        label: isFavorite ? 'Remove from Favorites' : 'Save to Favorites',
+        onPress: () => (isFavorite
+          ? onRemoveFromFavorites?.(foodLog)
+          : onSaveToFavorites?.(foodLog)),
+      });
+    }
+    arr.push({ label: 'Edit', onPress: () => onEdit?.(foodLog) });
+    arr.push({
+      label: 'Delete',
+      destructive: true,
+      onPress: () => onDelete?.(foodLog),
+    });
+    return arr;
+  }, [contextMenuPreset, foodLog, onLogAgain, onSaveToFavorites, onRemoveFromFavorites, onEdit, onDelete, isFavorite]);
+
+  const handleLongPress = useCallback(async () => {
+    try {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } catch {}
+    setMenuVisible(true);
+  }, []);
+
   if (!isLoading && !hasEverBeenLoadingRef.current) {
-    return <StaticLogCard foodLog={foodLog} isLoading={false} />;
+    return (
+      <>
+        <StaticLogCard
+          foodLog={foodLog}
+          isLoading={false}
+          onLongPress={handleLongPress}
+        />
+        <ContextMenu
+          visible={menuVisible}
+          items={items}
+          onClose={() => setMenuVisible(false)}
+        />
+      </>
+    );
   }
 
   if (useAnimatedVariant) {
-    return <AnimatedLogCard foodLog={foodLog} isLoading={isLoading} />;
+    return (
+      <>
+        <AnimatedLogCard
+          foodLog={foodLog}
+          isLoading={isLoading}
+          onLongPress={handleLongPress}
+        />
+        <ContextMenu
+          visible={menuVisible}
+          items={items}
+          onClose={() => setMenuVisible(false)}
+        />
+      </>
+    );
   }
 
-  return <StaticLogCard foodLog={foodLog} isLoading={false} />;
+  return (
+    <>
+      <StaticLogCard
+        foodLog={foodLog}
+        isLoading={false}
+        onLongPress={handleLongPress}
+      />
+      <ContextMenu
+        visible={menuVisible}
+        items={items}
+        onClose={() => setMenuVisible(false)}
+      />
+    </>
+  );
 };
 
 // Memoize wrapper to avoid unnecessary re-renders when lists scroll
 export const LogCard = memo(LogCardInner, (prev, next) => {
-  // Re-render when loading state changes
   if (prev.isLoading !== next.isLoading) return false;
-  // Skip only when the exact same object reference is passed
-  // If the updated log is a new object (e.g., title changed), re-render
+  if (prev.onLogAgain !== next.onLogAgain) return false;
+  if (prev.onSaveToFavorites !== next.onSaveToFavorites) return false;
+  if (prev.onRemoveFromFavorites !== next.onRemoveFromFavorites) return false;
+  if (prev.onEdit !== next.onEdit) return false;
+  if (prev.onDelete !== next.onDelete) return false;
+  if (prev.contextMenuPreset !== next.contextMenuPreset) return false;
   return prev.foodLog === next.foodLog;
 });

@@ -25,6 +25,7 @@ import { showErrorToast } from "@/lib/toast";
 import { processImage } from "@/utils/processImage";
 import { useCreationStore } from "@/store/useCreationStore"; // keyed drafts store
 import { useDraft } from "@/hooks/useDraft";
+import { generateFoodLogId } from "@/utils/idGenerator";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -110,7 +111,7 @@ export default function Create() {
         createdAt: new Date().toISOString(),
         isEstimating: false,
         estimationConfidence: 100,
-        id: favorite.id,
+        id: generateFoodLogId(),
       });
       router.back();
     },

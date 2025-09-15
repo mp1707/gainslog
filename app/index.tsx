@@ -26,6 +26,7 @@ import { DateSlider } from "@/components/shared/DateSlider";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
+import { generateFoodLogId } from "@/utils/idGenerator";
 
 const HEADER_HEIGHT = 265;
 const DASHBOARD_OFFSET = HEADER_HEIGHT - 50;
@@ -40,7 +41,14 @@ export default function TodayTab() {
   const flatListRef = useRef<FlatList>(null);
   // Get the entire state for selectors and individual functions
   const state = useAppStore();
-  const { deleteFoodLog, addFavorite, deleteFavorite, favorites } = state;
+  const {
+    deleteFoodLog,
+    addFavorite,
+    deleteFavorite,
+    favorites,
+    addFoodLog,
+    selectedDate,
+  } = state;
   // Note: navigation lock is handled by the edit modal lifecycle
 
   const todayFoodLogs = useMemo(() => {
@@ -100,7 +108,50 @@ export default function TodayTab() {
           onFavorite={() => toggleFavorite(item)}
           onTap={() => handleNavigateToDetailPage(item)}
         >
-          <LogCard foodLog={item} isLoading={item.isEstimating} />
+          <LogCard
+            foodLog={item}
+            isLoading={item.isEstimating}
+            onLogAgain={(log) => {
+              const now = new Date().toISOString();
+              addFoodLog({
+                id: generateFoodLogId(),
+                logDate: selectedDate,
+                createdAt: now,
+                title: log.title,
+                description: log.description,
+                foodComponents: log.foodComponents,
+                calories: log.calories,
+                protein: log.protein,
+                carbs: log.carbs,
+                fat: log.fat,
+                estimationConfidence: 100,
+                isEstimating: false,
+              });
+            }}
+            onSaveToFavorites={(log) => {
+              const already = favorites.some((f) => f.id === log.id);
+              if (already) return; // guard against duplicates
+              addFavorite({
+                id: log.id,
+                title: log.title,
+                description: log.description,
+                calories: log.calories,
+                protein: log.protein,
+                carbs: log.carbs,
+                fat: log.fat,
+                foodComponents: log.foodComponents,
+              });
+              showFavoriteAddedToast("Added to favorites", log.title);
+            }}
+            onRemoveFromFavorites={(log) => {
+              const exists = favorites.some((f) => f.id === log.id);
+              if (!exists) return; // nothing to remove
+              deleteFavorite(log.id);
+              showFavoriteRemovedToast("Removed from favorites", log.title);
+            }}
+            onEdit={(log) => handleNavigateToDetailPage(log as FoodLog)}
+            onDelete={(log) => deleteFoodLog((log as FoodLog).id)}
+          />
         </SwipeToFunctions>
       </View>
     ),
@@ -109,6 +160,11 @@ export default function TodayTab() {
       toggleFavorite,
       handleNavigateToDetailPage,
       theme.spacing.md,
+      addFoodLog,
+      favorites,
+      addFavorite,
+      deleteFavorite,
+      selectedDate,
     ]
   );
 

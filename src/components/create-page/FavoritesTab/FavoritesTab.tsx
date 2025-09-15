@@ -49,7 +49,14 @@ export const FavoritesTab: React.FC<FavoritesTabProps> = ({
             onDelete={() => deleteFavorite(favorite.id)}
             onTap={() => onCreateFromFavorite(favorite)}
           >
-            <LogCard key={favorite.id} foodLog={favorite} />
+            <LogCard
+              key={favorite.id}
+              foodLog={favorite}
+              contextMenuPreset="favorites"
+              onLogAgain={() => onCreateFromFavorite(favorite)}
+              onRemoveFromFavorites={() => deleteFavorite(favorite.id)}
+              onDelete={() => deleteFavorite(favorite.id)}
+            />
           </SwipeToFunctions>
         ))}
       </ScrollView>
