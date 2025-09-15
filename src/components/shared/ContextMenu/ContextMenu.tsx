@@ -52,7 +52,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
         }
       );
     }
-  }, [visible, items, cancelText, onClose]);
+  }, [visible]);
 
   if (Platform.OS === "ios") {
     // iOS uses native ActionSheet; render nothing.

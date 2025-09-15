@@ -14,6 +14,7 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { lockNav } from "@/utils/navigationLock";
 import { theme } from "@/theme";
 import { useIsFocused } from "@react-navigation/native";
 
@@ -48,6 +49,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
   const focusAtMs = useSharedValue(0);
   const tapStartMs = useSharedValue(0);
   const TAP_AFTER_FOCUS_GRACE_MS = 600; // taps must start after this grace window
+  const TAP_MAX_PRESS_DURATION_MS = 420; // presses longer than this are not taps (reserve for long-press)
 
   useEffect(() => {
     if (isFocused) {
@@ -81,6 +83,8 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
   const triggerTap = () => {
     if (onTap) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      // Lock interactions briefly to prevent immediate long-press menu
+      lockNav(800);
       onTap();
     }
   };
@@ -411,9 +415,12 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
           const tapStartedAfterFocusGrace =
             tapStartMs.value - focusAtMs.value >= TAP_AFTER_FOCUS_GRACE_MS;
 
+          const pressDuration = Date.now() - tapStartMs.value;
+
           if (
             wasJustTapping &&
             tapStartedAfterFocusGrace &&
+            pressDuration < TAP_MAX_PRESS_DURATION_MS &&
             !isDeleting.value &&
             onTap
           ) {

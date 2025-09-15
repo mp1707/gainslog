@@ -19,7 +19,6 @@ import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
 import { FoodLog } from "@/types/models";
 import { showFavoriteAddedToast, showFavoriteRemovedToast } from "@/lib/toast";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { isNavLocked } from "@/utils/navigationLock";
 import { NutrientSummary } from "@/components/daily-food-logs/NutrientSummary/NutrientSummary";
 import { EmptyFoodLogsState } from "@/components/daily-food-logs/EmptyFoodLogsState";
 import { DateSlider } from "@/components/shared/DateSlider";
@@ -86,7 +85,6 @@ export default function TodayTab() {
   );
 
   const handleNavigateToDetailPage = (foodLog: FoodLog) => {
-    if (isNavLocked()) return;
     safeNavigate(`/edit/${foodLog.id}`);
   };
 

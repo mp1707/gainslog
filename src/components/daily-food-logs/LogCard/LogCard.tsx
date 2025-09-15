@@ -1,4 +1,11 @@
-import React, { useEffect, useRef, memo, useState, useMemo, useCallback } from "react";
+import React, {
+  useEffect,
+  useRef,
+  memo,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 import { View, Pressable } from "react-native";
 import Animated, {
   useSharedValue,
@@ -14,6 +21,7 @@ import { AppText } from "@/components";
 import { SkeletonPill, ConfidenceBadge } from "@/components/shared";
 import { ContextMenu, ContextMenuItem } from "@/components/shared/ContextMenu";
 import { useAppStore } from "@/store/useAppStore";
+import { isNavLocked } from "@/utils/navigationLock";
 import { getConfidenceLevel } from "@/utils/getConfidenceLevel";
 import { createStyles } from "./LogCard.styles";
 import { NutritionList } from "./NutritionList";
@@ -28,7 +36,7 @@ interface LogCardProps {
   onRemoveFromFavorites?: (log: FoodLog | Favorite) => void;
   onEdit?: (log: FoodLog | Favorite) => void;
   onDelete?: (log: FoodLog | Favorite) => void;
-  contextMenuPreset?: 'default' | 'favorites';
+  contextMenuPreset?: "default" | "favorites";
 }
 
 // Animated variant used only for freshly created entries that transition from loading
@@ -152,7 +160,11 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
   }));
 
   return (
-    <Pressable style={styles.cardContainer} onLongPress={onLongPress} delayLongPress={300}>
+    <Pressable
+      style={styles.cardContainer}
+      onLongPress={onLongPress}
+      delayLongPress={500}
+    >
       <Card elevated={true} style={styles.card}>
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
@@ -273,7 +285,10 @@ const StaticNutritionList: React.FC<StaticNutritionListProps> = memo(
 );
 
 // Ultra-light static variant for all non-loading cases
-const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({ foodLog, onLongPress }) => {
+const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
+  foodLog,
+  onLongPress,
+}) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -284,7 +299,11 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({ foodLog, onLong
       : undefined;
 
   return (
-    <Pressable style={styles.cardContainer} onLongPress={onLongPress} delayLongPress={300}>
+    <Pressable
+      style={styles.cardContainer}
+      onLongPress={onLongPress}
+      delayLongPress={500}
+    >
       <Card style={styles.card}>
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
@@ -323,7 +342,7 @@ const LogCardInner: React.FC<LogCardProps> = ({
   onRemoveFromFavorites,
   onEdit,
   onDelete,
-  contextMenuPreset = 'default',
+  contextMenuPreset = "default",
 }) => {
   const hasEverBeenLoadingRef = useRef<boolean>(isLoading === true);
   const [useAnimatedVariant, setUseAnimatedVariant] = useState<boolean>(
@@ -354,11 +373,11 @@ const LogCardInner: React.FC<LogCardProps> = ({
   );
 
   const items: ContextMenuItem[] = useMemo(() => {
-    if (contextMenuPreset === 'favorites') {
+    if (contextMenuPreset === "favorites") {
       const arr: ContextMenuItem[] = [];
-      arr.push({ label: 'Create Log', onPress: () => onLogAgain?.(foodLog) });
+      arr.push({ label: "Create Log", onPress: () => onLogAgain?.(foodLog) });
       arr.push({
-        label: 'Remove from Favorites',
+        label: "Remove from Favorites",
         destructive: true,
         onPress: () => onRemoveFromFavorites?.(foodLog),
       });
@@ -366,30 +385,46 @@ const LogCardInner: React.FC<LogCardProps> = ({
     }
 
     const arr: ContextMenuItem[] = [];
-    arr.push({ label: 'Log Again', onPress: () => onLogAgain?.(foodLog) });
+    arr.push({ label: "Log Again", onPress: () => onLogAgain?.(foodLog) });
     if (onSaveToFavorites || onRemoveFromFavorites) {
       arr.push({
-        label: isFavorite ? 'Remove from Favorites' : 'Save to Favorites',
-        onPress: () => (isFavorite
-          ? onRemoveFromFavorites?.(foodLog)
-          : onSaveToFavorites?.(foodLog)),
+        label: isFavorite ? "Remove from Favorites" : "Save to Favorites",
+        onPress: () =>
+          isFavorite
+            ? onRemoveFromFavorites?.(foodLog)
+            : onSaveToFavorites?.(foodLog),
       });
     }
-    arr.push({ label: 'Edit', onPress: () => onEdit?.(foodLog) });
+    arr.push({ label: "Edit", onPress: () => onEdit?.(foodLog) });
     arr.push({
-      label: 'Delete',
+      label: "Delete",
       destructive: true,
       onPress: () => onDelete?.(foodLog),
     });
     return arr;
-  }, [contextMenuPreset, foodLog, onLogAgain, onSaveToFavorites, onRemoveFromFavorites, onEdit, onDelete, isFavorite]);
+  }, [
+    contextMenuPreset,
+    foodLog,
+    onLogAgain,
+    onSaveToFavorites,
+    onRemoveFromFavorites,
+    onEdit,
+    onDelete,
+    isFavorite,
+  ]);
 
+  const lastOpenRef = useRef<number>(0);
   const handleLongPress = useCallback(async () => {
+    if (isNavLocked()) return; // prevent if a navigation/tap just triggered
+    if (menuVisible) return; // already open
+    const now = Date.now();
+    if (now - lastOpenRef.current < 600) return; // throttle multiple opens
+    lastOpenRef.current = now;
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch {}
     setMenuVisible(true);
-  }, []);
+  }, [menuVisible]);
 
   if (!isLoading && !hasEverBeenLoadingRef.current) {
     return (

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { useTheme } from "@/theme";
+import { lockNav } from "@/utils/navigationLock";
 import { useAppStore } from "@/store/useAppStore";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
 import { LogCard } from "@/components/daily-food-logs";
@@ -47,7 +48,10 @@ export const FavoritesTab: React.FC<FavoritesTabProps> = ({
           <SwipeToFunctions
             key={favorite.id}
             onDelete={() => deleteFavorite(favorite.id)}
-            onTap={() => onCreateFromFavorite(favorite)}
+            onTap={() => {
+              lockNav(800);
+              onCreateFromFavorite(favorite);
+            }}
           >
             <LogCard
               key={favorite.id}
