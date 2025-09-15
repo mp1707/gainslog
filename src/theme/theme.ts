@@ -269,7 +269,7 @@ const spacing = {
 // Component specifications
 const components = {
   cards: {
-    cornerRadius: 30,
+    cornerRadius: 26,
     lightMode: {
       backgroundColor: lightColors.secondaryBackground,
       shadowColor: "rgba(0, 0, 0, 0.05)",

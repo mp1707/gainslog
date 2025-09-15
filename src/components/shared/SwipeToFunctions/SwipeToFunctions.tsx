@@ -10,7 +10,6 @@ import Animated, {
   runOnJS,
   interpolate,
   Extrapolation,
-  LinearTransition,
   Easing,
 } from "react-native-reanimated";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -18,7 +17,7 @@ import { lockNav, isNavLocked } from "@/utils/navigationLock";
 import { theme } from "@/theme";
 import { useIsFocused } from "@react-navigation/native";
 
-const BORDER_RADIUS = 30;
+const BORDER_RADIUS = theme.components.cards.cornerRadius;
 
 interface SwipeToFunctionsProps {
   children: ReactNode;

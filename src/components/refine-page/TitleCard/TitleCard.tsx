@@ -1,6 +1,5 @@
 import React from "react";
-import { View } from "react-native";
-import { AppText } from "@/components";
+import { AppText, Card } from "@/components";
 import { TextInput } from "@/components/shared/TextInput";
 import { useTheme } from "@/theme";
 import { createStyles } from "./TitleCard.styles";
@@ -15,7 +14,7 @@ export const TitleCard: React.FC<TitleCardProps> = ({ value, onChange }) => {
   const styles = createStyles(colors, theme);
 
   return (
-    <View style={styles.card}>
+    <Card>
       <AppText role="Caption" style={styles.sectionHeader}>
         TITLE
       </AppText>
@@ -26,6 +25,6 @@ export const TitleCard: React.FC<TitleCardProps> = ({ value, onChange }) => {
         fontSize="Headline"
         style={[styles.titleInputContainer, styles.titleInput]}
       />
-    </View>
+    </Card>
   );
 };

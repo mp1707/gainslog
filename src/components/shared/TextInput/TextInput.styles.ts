@@ -1,7 +1,12 @@
 import { StyleSheet } from "react-native";
 import type { Colors, Theme } from "@/theme";
 
-export const createStyles = (colors: Colors, theme: Theme, isFocused: boolean, fontSize: string) =>
+export const createStyles = (
+  colors: Colors,
+  theme: Theme,
+  isFocused: boolean,
+  fontSize: string
+) =>
   StyleSheet.create({
     outerContainer: {
       backgroundColor: "transparent",
@@ -9,7 +14,7 @@ export const createStyles = (colors: Colors, theme: Theme, isFocused: boolean, f
     focusBorder: {
       borderWidth: 2,
       borderColor: isFocused ? colors.accent : "transparent",
-      borderRadius: 12,
+      borderRadius: theme.components.cards.cornerRadius,
       backgroundColor: "transparent",
     },
     textInput: {

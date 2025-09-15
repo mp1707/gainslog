@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
-import { StatusIcon } from "@/components/shared/StatusIcon";
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
@@ -28,7 +27,7 @@ export default function SettingsTab() {
   const { colors, theme: themeObj } = useTheme();
   const keyboardOffset = useKeyboardOffset(true);
   const { safeNavigate, isNavigating } = useNavigationGuard();
-  const { dailyTargets, clearAllLogs } = useAppStore();
+  const { clearAllLogs } = useAppStore();
   const { back } = useRouter();
 
   const styles = useMemo(
@@ -36,13 +35,7 @@ export default function SettingsTab() {
     [colors, themeObj, keyboardOffset]
   );
 
-  const isCaloriesSet = dailyTargets?.calories;
-  const isProteinSet = dailyTargets?.protein;
-  const isFatSet = dailyTargets?.fat;
-
-  const proteinEnabled = isCaloriesSet;
-  const fatEnabled = isProteinSet;
-  const carbsEnabled = isFatSet;
+  // Nutrition calculators moved under /Goals; provide a single entry link
 
   const handleClose = () => {
     back();
@@ -81,12 +74,7 @@ export default function SettingsTab() {
     );
   }
 
-  // Determine next step for guidance icon
-  const nextStep = !isCaloriesSet
-    ? "calories"
-    : !isProteinSet
-    ? "protein"
-    : null;
+  // No per-macro guidance here; entry point links to Goals flow
 
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
@@ -125,188 +113,27 @@ export default function SettingsTab() {
             <AppearanceCard />
           </SettingsSection>
           <SettingsSection
-            title="Nutrition Tracking"
-            subtitle="Set up your daily targets"
+            title="Nutrition Goals"
+            subtitle="Open the Goals flow to set daily targets"
           >
             <Card>
-              {/* Calories Setting Card */}
               <TouchableOpacity
                 style={styles.firstSettingsRow}
-                onPress={() =>
-                  isCaloriesSet
-                    ? safeNavigate("/Goals/calorie-editCalories")
-                    : safeNavigate("/Goals/calorie-sex")
-                }
+                onPress={() => safeNavigate("/Goals")}
                 disabled={isNavigating}
                 accessibilityRole="button"
-                accessibilityLabel="Calories setting"
-                accessibilityHint={
-                  isCaloriesSet
-                    ? "Configure your daily calorie target"
-                    : "Set your daily calorie target"
-                }
+                accessibilityLabel="Open goals"
+                accessibilityHint="Opens the goals calculator flow"
               >
                 <View style={styles.settingInfo}>
                   <AppText role="Headline" style={{ marginBottom: 4 }}>
-                    Calories
+                    Set Your Goals
                   </AppText>
                   <AppText role="Caption" color="secondary">
-                    {isCaloriesSet
-                      ? `Target: ${dailyTargets.calories} kcal`
-                      : "Set target"}
+                    Calories, protein, fat and carbs
                   </AppText>
                 </View>
                 <View style={styles.settingAccessory}>
-                  <StatusIcon
-                    type={isCaloriesSet ? "completed" : "next"}
-                    accessibilityLabel={
-                      isCaloriesSet
-                        ? "Calorie target completed"
-                        : "Next step: set calories"
-                    }
-                  />
-                  <ChevronRight
-                    size={16}
-                    color={colors.secondaryText}
-                    style={{ marginLeft: 8 }}
-                    strokeWidth={1.5}
-                  />
-                </View>
-              </TouchableOpacity>
-
-              {/* Protein Setting Card */}
-              <TouchableOpacity
-                style={[
-                  styles.settingsRow,
-                  styles.settingCardWithBorder,
-                  { opacity: proteinEnabled ? 1 : 0.5 },
-                ]}
-                onPress={() =>
-                  isProteinSet
-                    ? safeNavigate("/Goals/protein-editProtein")
-                    : safeNavigate("/Goals/protein-weight")
-                }
-                disabled={!proteinEnabled || isNavigating}
-                accessibilityRole="button"
-                accessibilityLabel="Protein setting"
-                accessibilityHint={
-                  proteinEnabled
-                    ? isProteinSet
-                      ? "Configure your daily protein target"
-                      : "Set your daily protein target"
-                    : "Set calories first to enable protein setting"
-                }
-              >
-                <View style={styles.settingInfo}>
-                  <AppText role="Headline" style={{ marginBottom: 4 }}>
-                    Protein
-                  </AppText>
-                  <AppText role="Caption" color="secondary">
-                    {proteinEnabled
-                      ? isProteinSet
-                        ? `Target: ${dailyTargets.protein} g`
-                        : "Set target"
-                      : "Set calories first"}
-                  </AppText>
-                </View>
-                <View style={styles.settingAccessory}>
-                  {isProteinSet ? (
-                    <StatusIcon
-                      type="completed"
-                      accessibilityLabel="Protein target completed"
-                    />
-                  ) : nextStep === "protein" ? (
-                    <StatusIcon
-                      type="next"
-                      accessibilityLabel="Next step: set protein"
-                    />
-                  ) : null}
-                  <ChevronRight
-                    size={16}
-                    color={colors.secondaryText}
-                    style={{ marginLeft: 8 }}
-                    strokeWidth={1.5}
-                  />
-                </View>
-              </TouchableOpacity>
-
-              {/* Fat Setting Card */}
-              <TouchableOpacity
-                style={[
-                  styles.settingsRow,
-                  styles.settingCardWithBorder,
-                  { opacity: fatEnabled ? 1 : 0.5 },
-                ]}
-                onPress={() => safeNavigate("/Goals/fat-editFat")}
-                disabled={!fatEnabled || isNavigating}
-                accessibilityRole="button"
-                accessibilityLabel="Fat setting"
-                accessibilityHint={
-                  fatEnabled
-                    ? "Configure your daily fat target"
-                    : "Set protein first to enable fat setting"
-                }
-              >
-                <View style={styles.settingInfo}>
-                  <AppText role="Headline" style={{ marginBottom: 4 }}>
-                    Fat
-                  </AppText>
-                  <AppText role="Caption" color="secondary">
-                    {fatEnabled
-                      ? `Target: ${dailyTargets.fat} g`
-                      : "Set protein first"}
-                  </AppText>
-                </View>
-                <View style={styles.settingAccessory}>
-                  {fatEnabled && (
-                    <StatusIcon
-                      type="completed"
-                      accessibilityLabel="Fat target ready"
-                    />
-                  )}
-                  <ChevronRight
-                    size={16}
-                    color={colors.secondaryText}
-                    style={{ marginLeft: 8 }}
-                    strokeWidth={1.5}
-                  />
-                </View>
-              </TouchableOpacity>
-
-              {/* Carbs Setting Card */}
-              <TouchableOpacity
-                style={[
-                  styles.lastSettingsRow,
-                  styles.settingCardWithBorder,
-                  { opacity: carbsEnabled ? 1 : 0.5 },
-                ]}
-                onPress={() => safeNavigate("/Goals/carbs")}
-                disabled={!carbsEnabled || isNavigating}
-                accessibilityRole="button"
-                accessibilityLabel="Carbs setting"
-                accessibilityHint={
-                  carbsEnabled
-                    ? "View your daily carb target"
-                    : "Set protein first to enable carb setting"
-                }
-              >
-                <View style={styles.settingInfo}>
-                  <AppText role="Headline" style={{ marginBottom: 4 }}>
-                    Carbs
-                  </AppText>
-                  <AppText role="Caption" color="secondary">
-                    {carbsEnabled
-                      ? `Target: ${dailyTargets.carbs} g`
-                      : "Set protein first"}
-                  </AppText>
-                </View>
-                <View style={styles.settingAccessory}>
-                  {carbsEnabled && (
-                    <StatusIcon
-                      type="completed"
-                      accessibilityLabel="Carb target ready"
-                    />
-                  )}
                   <ChevronRight
                     size={16}
                     color={colors.secondaryText}

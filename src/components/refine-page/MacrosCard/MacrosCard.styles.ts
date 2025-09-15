@@ -1,27 +1,22 @@
-import { StyleSheet } from 'react-native';
-import type { Colors, Theme } from '@/theme';
+import { StyleSheet } from "react-native";
+import type { Colors, Theme } from "@/theme";
 
 export const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
-    card: {
-      padding: theme.spacing.md,
-      borderRadius: theme.components.cards.cornerRadius,
-      backgroundColor: colors.secondaryBackground,
-    },
     sectionHeader: {
       marginBottom: theme.spacing.sm,
       letterSpacing: 0.5,
       color: colors.secondaryText,
     },
     macroRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
       paddingVertical: theme.spacing.sm,
     },
     macroLabelContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: theme.spacing.xs,
       flexShrink: 1,
     },
@@ -33,8 +28,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     },
     divider: {
       height: 1,
-      marginHorizontal: -theme.spacing.md,
+      marginHorizontal: -theme.spacing.lg,
       backgroundColor: colors.border,
     },
   });
-

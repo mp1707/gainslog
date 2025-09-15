@@ -4,7 +4,7 @@ import type { Colors, Theme } from '@/theme';
 export const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     card: {
-      padding: theme.spacing.md,
+      padding: theme.spacing.lg,
       borderRadius: theme.components.cards.cornerRadius,
       backgroundColor: colors.secondaryBackground,
     },

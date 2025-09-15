@@ -1,10 +1,19 @@
-import React, { useEffect, useRef } from 'react';
-import { Platform, View } from 'react-native';
-import Animated, { Easing, interpolateColor, useAnimatedStyle, useSharedValue, withRepeat, withTiming, cancelAnimation, withSpring } from 'react-native-reanimated';
-import { AppText } from '@/components';
-import { useTheme } from '@/theme';
-import { createStyles } from './ConfidenceCard.styles';
-import { LinearGradient } from 'expo-linear-gradient';
+import React, { useEffect, useRef } from "react";
+import { Platform, View } from "react-native";
+import Animated, {
+  Easing,
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+  cancelAnimation,
+  withSpring,
+} from "react-native-reanimated";
+import { AppText, Card } from "@/components";
+import { useTheme } from "@/theme";
+import { createStyles } from "./ConfidenceCard.styles";
+import { LinearGradient } from "expo-linear-gradient";
 
 interface ConfidenceCardProps {
   value: number; // 0-100
@@ -15,13 +24,17 @@ interface ConfidenceCardProps {
 }
 
 const getConfidenceLabel = (value: number) => {
-  if (value >= 90) return 'High Accuracy';
-  if (value >= 50) return 'Medium Accuracy';
-  if (value > 0) return 'Low Accuracy';
-  return 'Uncertain';
+  if (value >= 90) return "High Accuracy";
+  if (value >= 50) return "Medium Accuracy";
+  if (value > 0) return "Low Accuracy";
+  return "Uncertain";
 };
 
-export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({ value, processing = false, reveal = false }) => {
+export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
+  value,
+  processing = false,
+  reveal = false,
+}) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
 
@@ -46,11 +59,17 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({ value, processin
     // - While processing: snap color quickly to keep bar responsive
     // - After processing finishes: animate smoothly to draw attention
     if (processing) {
-      colorProgress.value = withTiming(target, { duration: 250, easing: Easing.out(Easing.quad) });
+      colorProgress.value = withTiming(target, {
+        duration: 250,
+        easing: Easing.out(Easing.quad),
+      });
     } else {
       // If we just stopped processing, give the color a longer, smooth glide
       const duration = didJustStopProcessing.current ? 700 : 450;
-      colorProgress.value = withTiming(target, { duration, easing: Easing.out(Easing.cubic) });
+      colorProgress.value = withTiming(target, {
+        duration,
+        easing: Easing.out(Easing.cubic),
+      });
       didJustStopProcessing.current = false;
     }
   }, [value, processing, confidenceWidth, colorProgress]);
@@ -59,9 +78,21 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({ value, processin
   useEffect(() => {
     if (processing) {
       // Shimmer runs across the fill; inner pulse and glow intensify
-      shimmerX.value = withRepeat(withTiming(300, { duration: 1100, easing: Easing.linear }), -1, false);
-      innerPulse.value = withRepeat(withTiming(1, { duration: 900, easing: Easing.inOut(Easing.quad) }), -1, true);
-      glowPulse.value = withRepeat(withTiming(1, { duration: 1200, easing: Easing.inOut(Easing.quad) }), -1, true);
+      shimmerX.value = withRepeat(
+        withTiming(300, { duration: 1100, easing: Easing.linear }),
+        -1,
+        false
+      );
+      innerPulse.value = withRepeat(
+        withTiming(1, { duration: 900, easing: Easing.inOut(Easing.quad) }),
+        -1,
+        true
+      );
+      glowPulse.value = withRepeat(
+        withTiming(1, { duration: 1200, easing: Easing.inOut(Easing.quad) }),
+        -1,
+        true
+      );
     } else {
       // Stop shimmer and ease out pulse/glow
       didJustStopProcessing.current = true;
@@ -77,10 +108,16 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({ value, processin
     if (reveal) {
       // Brief width bounce via scaleY applied to fill
       innerPulse.value = 1;
-      innerPulse.value = withTiming(0, { duration: 600, easing: Easing.out(Easing.quad) });
+      innerPulse.value = withTiming(0, {
+        duration: 600,
+        easing: Easing.out(Easing.quad),
+      });
       // Give glow a quick highlight
       glowPulse.value = 1;
-      glowPulse.value = withTiming(0, { duration: 600, easing: Easing.out(Easing.quad) });
+      glowPulse.value = withTiming(0, {
+        duration: 600,
+        easing: Easing.out(Easing.quad),
+      });
     }
   }, [reveal, innerPulse, glowPulse]);
 
@@ -96,7 +133,9 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({ value, processin
     // Slight height pulse contained within the fill
     const scaleY = 1 + innerPulse.value * 0.18;
     // Glow intensity follows glowPulse and processing state
-    const glowStrength = processing ? 0.7 + glowPulse.value * 0.5 : glowPulse.value * 0.25;
+    const glowStrength = processing
+      ? 0.7 + glowPulse.value * 0.5
+      : glowPulse.value * 0.25;
     const shadowRadius = 6 + glowStrength * 16;
     const shadowOpacity = 0.28 + glowStrength * 0.5;
     const elevation = processing ? 10 : 0;
@@ -106,10 +145,10 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({ value, processin
       transform: [{ scaleY }],
       // Glow/shadow to make the bar pop during loading
       shadowColor: bg as string,
-      shadowOpacity: Platform.OS === 'ios' ? shadowOpacity : 0,
-      shadowRadius: Platform.OS === 'ios' ? shadowRadius : 0,
+      shadowOpacity: Platform.OS === "ios" ? shadowOpacity : 0,
+      shadowRadius: Platform.OS === "ios" ? shadowRadius : 0,
       shadowOffset: { width: 0, height: 2 },
-      elevation: Platform.OS === 'android' ? elevation : 0,
+      elevation: Platform.OS === "android" ? elevation : 0,
     };
   });
 
@@ -120,11 +159,13 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({ value, processin
   }));
 
   const innerPulseOverlayStyle = useAnimatedStyle(() => ({
-    opacity: processing ? 0.15 + innerPulse.value * 0.35 : innerPulse.value * 0.25,
+    opacity: processing
+      ? 0.15 + innerPulse.value * 0.35
+      : innerPulse.value * 0.25,
   }));
 
   return (
-    <View style={styles.card}>
+    <Card>
       <View style={styles.confidenceHeader}>
         <AppText role="Headline">Estimation Accuracy</AppText>
         <AppText role="Subhead" color="secondary">
@@ -134,12 +175,21 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({ value, processin
       <View style={styles.meterTrack}>
         <Animated.View style={[styles.meterFill, confidenceBarStyle]}>
           {/* Inner pulse overlay contained by the fill */}
-          <Animated.View style={[styles.innerPulseOverlay, innerPulseOverlayStyle]} />
+          <Animated.View
+            style={[styles.innerPulseOverlay, innerPulseOverlayStyle]}
+          />
           {/* Shimmer scan overlay while processing – now clipped inside the fill */}
           {processing && (
-            <Animated.View pointerEvents="none" style={[styles.shimmerOverlay, shimmerStyle]}> 
+            <Animated.View
+              pointerEvents="none"
+              style={[styles.shimmerOverlay, shimmerStyle]}
+            >
               <LinearGradient
-                colors={[`${colors.white}00`, `${colors.white}66`, `${colors.white}00`]}
+                colors={[
+                  `${colors.white}00`,
+                  `${colors.white}66`,
+                  `${colors.white}00`,
+                ]}
                 start={{ x: 0, y: 0.5 }}
                 end={{ x: 1, y: 0.5 }}
                 style={styles.shimmerGradient}
@@ -148,6 +198,6 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({ value, processin
           )}
         </Animated.View>
       </View>
-    </View>
+    </Card>
   );
 };

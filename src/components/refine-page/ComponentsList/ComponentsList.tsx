@@ -2,7 +2,7 @@ import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import Animated, { Easing, LinearTransition } from 'react-native-reanimated';
 import { ChevronRight, Plus } from 'lucide-react-native';
-import { AppText } from '@/components';
+import { AppText, Card } from '@/components';
 import { useTheme } from '@/theme';
 import { createStyles } from './ComponentsList.styles';
 import type { FoodComponent } from '@/types/models';
@@ -27,7 +27,7 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
   const styles = createStyles(colors, theme);
 
   return (
-    <View style={styles.card}>
+    <Card>
       <View style={styles.cardHeaderRow}>
         <AppText role="Caption" style={styles.sectionHeader}>
           COMPONENTS
@@ -63,6 +63,6 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
           Add Ingredient
         </AppText>
       </TouchableOpacity>
-    </View>
+    </Card>
   );
 };

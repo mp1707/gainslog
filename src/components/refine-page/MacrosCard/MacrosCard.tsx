@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View } from 'react-native';
-import { AppText } from '@/components';
-import { useTheme } from '@/theme';
-import { createStyles } from './MacrosCard.styles';
-import { Text } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { View } from "react-native";
+import { AppText, Card } from "@/components";
+import { useTheme } from "@/theme";
+import { createStyles } from "./MacrosCard.styles";
+import { Text } from "react-native";
 
 interface MacrosCardProps {
   calories?: number | null;
@@ -53,7 +53,14 @@ const useNumberReveal = (initial: number) => {
   return { display, animateTo } as const;
 };
 
-export const MacrosCard: React.FC<MacrosCardProps> = ({ calories, protein, carbs, fat, processing = false, revealKey }) => {
+export const MacrosCard: React.FC<MacrosCardProps> = ({
+  calories,
+  protein,
+  carbs,
+  fat,
+  processing = false,
+  revealKey,
+}) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
 
@@ -74,49 +81,90 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({ calories, protein, carbs
   const animatedOpacity = useMemo(() => (processing ? 0.5 : 1), [processing]);
 
   return (
-    <View style={styles.card}>
+    <Card>
       <AppText role="Caption" style={styles.sectionHeader}>
         MACROS
       </AppText>
       <View style={styles.macroRow}>
         <View style={styles.macroLabelContainer}>
-          <View style={[styles.macroDot, { backgroundColor: colors.semantic.calories }]} />
+          <View
+            style={[
+              styles.macroDot,
+              { backgroundColor: colors.semantic.calories },
+            ]}
+          />
           <AppText>Calories</AppText>
         </View>
-        <Text style={{ ...theme.typography.Body, color: colors.secondaryText, opacity: animatedOpacity }}>
+        <Text
+          style={{
+            ...theme.typography.Body,
+            color: colors.secondaryText,
+            opacity: animatedOpacity,
+          }}
+        >
           {cals.display} kcal
         </Text>
       </View>
       <View style={styles.divider} />
       <View style={styles.macroRow}>
         <View style={styles.macroLabelContainer}>
-          <View style={[styles.macroDot, { backgroundColor: colors.semantic.protein }]} />
+          <View
+            style={[
+              styles.macroDot,
+              { backgroundColor: colors.semantic.protein },
+            ]}
+          />
           <AppText>Protein</AppText>
         </View>
-        <Text style={{ ...theme.typography.Body, color: colors.secondaryText, opacity: animatedOpacity }}>
+        <Text
+          style={{
+            ...theme.typography.Body,
+            color: colors.secondaryText,
+            opacity: animatedOpacity,
+          }}
+        >
           {prot.display} g
         </Text>
       </View>
       <View style={styles.divider} />
       <View style={styles.macroRow}>
         <View style={styles.macroLabelContainer}>
-          <View style={[styles.macroDot, { backgroundColor: colors.semantic.carbs }]} />
+          <View
+            style={[
+              styles.macroDot,
+              { backgroundColor: colors.semantic.carbs },
+            ]}
+          />
           <AppText>Carbs</AppText>
         </View>
-        <Text style={{ ...theme.typography.Body, color: colors.secondaryText, opacity: animatedOpacity }}>
+        <Text
+          style={{
+            ...theme.typography.Body,
+            color: colors.secondaryText,
+            opacity: animatedOpacity,
+          }}
+        >
           {crb.display} g
         </Text>
       </View>
       <View style={styles.divider} />
       <View style={styles.macroRow}>
         <View style={styles.macroLabelContainer}>
-          <View style={[styles.macroDot, { backgroundColor: colors.semantic.fat }]} />
+          <View
+            style={[styles.macroDot, { backgroundColor: colors.semantic.fat }]}
+          />
           <AppText>Fat</AppText>
         </View>
-        <Text style={{ ...theme.typography.Body, color: colors.secondaryText, opacity: animatedOpacity }}>
+        <Text
+          style={{
+            ...theme.typography.Body,
+            color: colors.secondaryText,
+            opacity: animatedOpacity,
+          }}
+        >
           {ft.display} g
         </Text>
       </View>
-    </View>
+    </Card>
   );
 };
