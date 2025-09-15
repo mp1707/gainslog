@@ -8,6 +8,11 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       borderRadius: theme.components.cards.cornerRadius,
       backgroundColor: colors.secondaryBackground,
     },
+    sectionHeader: {
+      marginBottom: theme.spacing.sm,
+      letterSpacing: 0.5,
+      color: colors.secondaryText,
+    },
     confidenceHeader: {
       flexDirection: "row",
       justifyContent: "space-between",
@@ -25,8 +30,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       fontWeight: "700" as const,
       lineHeight: 52,
       textAlign: "justify",
-      marginBottom: -4
-
+      marginBottom: -4,
     },
     meterTrack: {
       width: "100%",
