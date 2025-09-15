@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, TextInput as RNTextInput } from 'react-native';
-import { AppText, Button } from '@/components';
-import { useTheme } from '@/theme';
-import { createStyles } from './StickyEditor.styles';
+import React from "react";
+import { View, TextInput as RNTextInput } from "react-native";
+import { AppText, Button } from "@/components";
+import { useTheme } from "@/theme";
+import { createStyles } from "./StickyEditor.styles";
 
 interface StickyEditorProps {
   tempName: string;
@@ -33,7 +33,7 @@ export const StickyEditor: React.FC<StickyEditorProps> = ({
   onSave,
   saveDisabled,
 }) => {
-  const { colors, theme } = useTheme();
+  const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme);
 
   return (
@@ -42,13 +42,19 @@ export const StickyEditor: React.FC<StickyEditorProps> = ({
         <AppText role="Caption" style={styles.inlineLabel}>
           Name
         </AppText>
-        <View style={[styles.focusWrapper, { borderColor: nameFocused ? colors.accent : 'transparent' }]}>
+        <View
+          style={[
+            styles.focusWrapper,
+            { borderColor: nameFocused ? colors.accent : "transparent" },
+          ]}
+        >
           <RNTextInput
             placeholder="Name"
             value={tempName}
             onChangeText={setTempName}
             placeholderTextColor={colors.secondaryText}
             autoFocus={focusNameOnAdd}
+            keyboardAppearance={colorScheme}
             onFocus={() => setNameFocused(true)}
             onBlur={() => setNameFocused(false)}
             style={styles.input}
@@ -57,7 +63,12 @@ export const StickyEditor: React.FC<StickyEditorProps> = ({
         <AppText role="Caption" style={styles.inlineLabel}>
           Amount
         </AppText>
-        <View style={[styles.focusWrapper, { borderColor: amountFocused ? colors.accent : 'transparent' }]}>
+        <View
+          style={[
+            styles.focusWrapper,
+            { borderColor: amountFocused ? colors.accent : "transparent" },
+          ]}
+        >
           <RNTextInput
             placeholder="Amount (e.g., 150 g)"
             value={tempAmount}
@@ -74,11 +85,15 @@ export const StickyEditor: React.FC<StickyEditorProps> = ({
             <Button variant="tertiary" label="Cancel" onPress={onCancel} />
           </View>
           <View style={styles.flex1}>
-            <Button variant="primary" label="Save" disabled={saveDisabled} onPress={onSave} />
+            <Button
+              variant="primary"
+              label="Save"
+              disabled={saveDisabled}
+              onPress={onSave}
+            />
           </View>
         </View>
       </View>
     </View>
   );
 };
-

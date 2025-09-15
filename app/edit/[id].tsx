@@ -200,7 +200,7 @@ export default function Edit() {
       ? "Please add more info 🥹"
       : confidence < 70
       ? "Be a biiit more concise 🤏"
-      : "Great Foodlog 👌"; 
+      : "Great Foodlog 👌";
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.closeButton}>
@@ -376,7 +376,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
     contentContainer: {
       paddingHorizontal: theme.spacing.md,
       paddingBottom: theme.spacing.xxl * 2,
-      gap: theme.spacing.lg,
+      gap: theme.spacing.md,
     },
     loadingContainer: {
       flex: 1,

@@ -18,10 +18,14 @@ export const GradientWrapper: React.FC<GradientWrapperProps> = ({
   const { colors } = useTheme();
   const styles = createStyles(colors);
 
-  const gradientColors = customColors || [colors.secondaryBackground, colors.primaryBackground];
+  const gradientColors = customColors || [
+    colors.secondaryBackground,
+    colors.primaryBackground,
+  ];
 
   return (
     <LinearGradient
+      locations={[0, 0.15]}
       colors={gradientColors}
       style={[styles.container, style]}
     >

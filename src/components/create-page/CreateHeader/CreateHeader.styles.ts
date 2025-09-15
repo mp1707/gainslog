@@ -5,7 +5,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     container: {
       marginHorizontal: theme.spacing.md,
-      marginVertical: theme.spacing.md,
+      marginBottom: theme.spacing.md,
       gap: theme.spacing.md,
     },
     headerContainer: {

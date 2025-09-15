@@ -13,7 +13,7 @@ export const useStyles = () =>
     return StyleSheet.create({
       toggleContainer: {
         flexDirection: "row",
-        borderRadius: 12,
+        borderRadius: theme.components.cards.cornerRadius,
         overflow: "hidden",
         position: "relative",
         minHeight: scaledHeight,
@@ -28,7 +28,7 @@ export const useStyles = () =>
         left: containerPadding,
         height: sliderHeight,
         backgroundColor: colors.secondaryBackground,
-        borderRadius: 10,
+        borderRadius: theme.components.cards.cornerRadius,
         zIndex: 1,
         shadowColor: "rgba(0, 0, 0, 0.12)",
         shadowOffset: { width: 0, height: 1 },
