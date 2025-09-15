@@ -46,6 +46,17 @@ function ThemedStack() {
         }}
       />
       <Stack.Screen
+        name="Goals"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+          contentStyle: {
+            borderRadius: "10%",
+            overflow: "hidden",
+          },
+        }}
+      />
+      <Stack.Screen
         name="settings"
         options={{
           presentation: "modal",

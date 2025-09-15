@@ -4,6 +4,7 @@ import {
   View,
   FlatList,
   ListRenderItem,
+  TouchableOpacity,
 } from "react-native";
 import React, { useMemo, useCallback, useRef, useEffect } from "react";
 import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
@@ -183,15 +184,19 @@ export default function TodayTab() {
           },
         ]}
         ListHeaderComponent={
-          todayFoodLogs.length > 0 ? (
-            <View>
-              <NutrientSummary
-                percentages={dailyPercentages}
-                targets={state.dailyTargets || defaultTargets}
-                totals={dailyTotals}
-              />
-            </View>
-          ) : null
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Open goals"
+            accessibilityHint="Opens the goals settings"
+            activeOpacity={0.8}
+            onPress={() => safeNavigate("/Goals")}
+          >
+            <NutrientSummary
+              percentages={dailyPercentages}
+              targets={state.dailyTargets || defaultTargets}
+              totals={dailyTotals}
+            />
+          </TouchableOpacity>
         }
         ListEmptyComponent={<EmptyFoodLogsState />}
         showsVerticalScrollIndicator={false}
