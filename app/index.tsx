@@ -27,6 +27,7 @@ import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { generateFoodLogId } from "@/utils/idGenerator";
+import Animated, { LinearTransition } from "react-native-reanimated";
 
 const HEADER_HEIGHT = 265;
 const DASHBOARD_OFFSET = HEADER_HEIGHT - 50;
@@ -101,7 +102,10 @@ export default function TodayTab() {
 
   const renderItem: ListRenderItem<FoodLog> = useCallback(
     ({ item }) => (
-      <View style={{ paddingHorizontal: theme.spacing.md }}>
+      <Animated.View 
+        style={{ paddingHorizontal: theme.spacing.md }}
+        layout={LinearTransition}
+      >
         <SwipeToFunctions
           onDelete={() => deleteFoodLog(item.id)}
           onFavorite={() => toggleFavorite(item)}
@@ -152,7 +156,7 @@ export default function TodayTab() {
             onDelete={(log) => deleteFoodLog((log as FoodLog).id)}
           />
         </SwipeToFunctions>
-      </View>
+      </Animated.View>
     ),
     [
       deleteFoodLog,

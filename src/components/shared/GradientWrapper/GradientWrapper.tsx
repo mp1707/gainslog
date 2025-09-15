@@ -19,13 +19,13 @@ export const GradientWrapper: React.FC<GradientWrapperProps> = ({
   const styles = createStyles(colors);
 
   const gradientColors = customColors || [
-    colors.secondaryBackground,
-    colors.primaryBackground,
+    colors.gradientFromBackground,
+    colors.gradientToBackground,
   ];
 
   return (
     <LinearGradient
-      locations={[0, 0.15]}
+      locations={[0, 0.11]}
       colors={gradientColors}
       style={[styles.container, style]}
     >
