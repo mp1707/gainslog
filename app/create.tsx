@@ -15,7 +15,6 @@ import { useTranscription } from "@/hooks/useTranscription";
 import { useEstimation } from "@/hooks/useEstimation";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
-import { TranscriptionOverlay } from "@/components/shared/TranscriptionOverlay";
 import { CreateHeader } from "@/components/create-page/CreateHeader/CreateHeader";
 import { EstimationTab } from "@/components/create-page/EstimationTab/EstimationTab";
 import { FavoritesTab } from "@/components/create-page/FavoritesTab/FavoritesTab";
@@ -38,8 +37,14 @@ export default function Create() {
   const draft = useDraft(draftId);
   const { selectedDate, addFoodLog } = useAppStore();
   const { runEstimation } = useEstimation();
-  const { isRecording, liveTranscription, stopRecording, startRecording } =
-    useTranscription();
+  const {
+    isRecording,
+    liveTranscription,
+    volumeLevel,
+    stopRecording,
+    startRecording,
+  } = useTranscription();
+  const baseDescriptionRef = useRef<string | null>(null);
 
   const [estimationType, setEstimationType] = useState<
     "ai" | "favorites" | "manual"
@@ -80,18 +85,34 @@ export default function Create() {
     [draftId, updateDraft]
   );
 
-  const handleTranscriptionStop = useCallback(async () => {
-    if (!draft) return;
-    if (liveTranscription.trim()) {
-      updateDraft(draft.id, {
-        description:
-          draft.description !== ""
-            ? draft.description + " " + liveTranscription.trim()
-            : liveTranscription.trim(),
-      });
+  // Capture the base description when recording starts
+  useEffect(() => {
+    if (isRecording) {
+      baseDescriptionRef.current = draft?.description ?? "";
     }
+  }, [isRecording]);
+
+  // While recording, reflect interim transcription directly in the input
+  useEffect(() => {
+    if (!draft || !isRecording) return;
+    const base = (baseDescriptionRef.current || "").trim();
+    const interim = liveTranscription.trim();
+    const merged = [base, interim].filter(Boolean).join(" ");
+
+    if ((draft.description ?? "") !== merged) {
+      updateDraft(draft.id, { description: merged });
+    }
+  }, [
+    draft?.id,
+    draft?.description,
+    isRecording,
+    liveTranscription,
+    updateDraft,
+  ]);
+
+  const handleTranscriptionStop = useCallback(async () => {
     await stopRecording();
-  }, [liveTranscription, stopRecording, draft, updateDraft]);
+  }, [stopRecording]);
 
   const handleCancel = useCallback(() => {
     router.back();
@@ -177,6 +198,9 @@ export default function Create() {
             onImageSelected={handleNewImageSelected}
             textInputRef={textInputRef}
             onRecording={startRecording}
+            onStop={handleTranscriptionStop}
+            isRecording={isRecording}
+            volumeLevel={volumeLevel}
             onEstimate={handleEstimation}
             estimateLabel={"Estimate"}
             canContinue={canContinue}
@@ -184,10 +208,6 @@ export default function Create() {
           />
         </KeyboardStickyView>
       )}
-      <TranscriptionOverlay
-        visible={isRecording}
-        onStop={handleTranscriptionStop}
-      />
     </GradientWrapper>
   );
 }

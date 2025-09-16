@@ -14,10 +14,24 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       padding: theme.spacing.sm,
       overflow: "hidden",
       zIndex: 99,
+      position: "relative",
     },
     mediaActionContainer: {
       flexDirection: "row",
       gap: theme.spacing.sm,
       justifyContent: "flex-end",
+    },
+    waveformContainer: {
+      height: 32,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
+    },
+    waveformBar: {
+      width: 4,
+      borderRadius: 2,
+      marginHorizontal: 1.5,
+      backgroundColor: colors.secondaryText,
     },
   });

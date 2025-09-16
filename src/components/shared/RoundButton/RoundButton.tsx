@@ -10,7 +10,7 @@ import { LucideIcon } from "lucide-react-native";
 import { useTheme } from "@/theme";
 import { createStyles } from "./RoundButton.styles";
 
-export type RoundButtonVariant = "primary" | "secondary" | "tertiary";
+export type RoundButtonVariant = "primary" | "secondary" | "tertiary" | "red";
 
 export interface RoundButtonProps extends Omit<PressableProps, "children"> {
   Icon: LucideIcon;
@@ -55,6 +55,8 @@ export const RoundButton = React.memo<RoundButtonProps>(
           return colors.primaryText;
         case "tertiary":
           return colors.primaryText;
+        case "red":
+          return colors.white;
         default:
           return colors.primaryText;
       }
@@ -72,6 +74,8 @@ export const RoundButton = React.memo<RoundButtonProps>(
             return colors.secondaryBackground;
           case "tertiary":
             return colors.subtleBackground;
+          case "red":
+            return colors.recording;
           default:
             return colors.accent;
         }
