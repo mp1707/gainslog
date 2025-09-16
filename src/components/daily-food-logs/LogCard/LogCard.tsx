@@ -26,7 +26,6 @@ import { getConfidenceLevel } from "@/utils/getConfidenceLevel";
 import { createStyles } from "./LogCard.styles";
 import { NutritionList } from "./NutritionList";
 import { createStyles as createNutritionStyles } from "./NutritionList/NutritionList.styles";
-import { LogStatusBadge } from "@/components/shared/LogStatusBadge/LogStatusBadge";
 
 interface LogCardProps {
   foodLog: FoodLog | Favorite;
@@ -181,12 +180,13 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
             {isLoading ? (
               <SkeletonPill width={80} height={28} />
             ) : (
-              <Animated.View style={confidenceBadgeAnimatedStyle}>
-                <ConfidenceBadge
-                  estimationConfidence={estimationConfidence}
-                  style={styles.confidenceContainerSpacing}
-                />
-              </Animated.View>
+              estimationConfidence !== undefined && estimationConfidence < 70 && (
+                <Animated.View style={confidenceBadgeAnimatedStyle}>
+                  <ConfidenceBadge
+                    style={styles.confidenceContainerSpacing}
+                  />
+                </Animated.View>
+              )
             )}
           </View>
 
@@ -307,10 +307,11 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
               {displayTitle}
             </AppText>
 
-            <LogStatusBadge
-              estimationConfidence={estimationConfidence}
-              style={styles.confidenceContainerSpacing}
-            />
+            {estimationConfidence !== undefined && estimationConfidence < 70 && (
+              <ConfidenceBadge
+                style={styles.confidenceContainerSpacing}
+              />
+            )}
           </View>
 
           <View style={styles.rightSection}>

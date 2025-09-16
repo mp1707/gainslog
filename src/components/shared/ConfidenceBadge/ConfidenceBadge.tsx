@@ -1,68 +1,40 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { View, ViewStyle } from "react-native";
-import {
-  CheckCircle,
-  AlertTriangle,
-  AlertCircle,
-  HelpCircle,
-} from "lucide-react-native";
+import { Wand2 } from "lucide-react-native";
 import { AppText } from "@/components";
-import { getConfidenceLevel } from "@/utils/getConfidenceLevel";
+import { useTheme } from "@/theme";
 import { createStyles } from "./ConfidenceBadge.styles";
 
 interface ConfidenceBadgeProps {
-  estimationConfidence?: number;
   style?: ViewStyle;
 }
 
 export const ConfidenceBadge: React.FC<ConfidenceBadgeProps> = ({
-  estimationConfidence,
   style,
 }) => {
+  const { colors } = useTheme();
   const styles = createStyles();
 
-  // Get confidence info from our utility
-  const confidenceInfo = getConfidenceLevel(estimationConfidence);
-
-  // Icon mapping based on confidence level
-  const getIconAndLabel = (level: number) => {
-    switch (level) {
-      case 3: // high
-        return { Icon: CheckCircle, label: "High Accuracy" };
-      case 2: // medium
-        return { Icon: AlertTriangle, label: "Medium Accuracy" };
-      case 1: // low
-        return { Icon: AlertCircle, label: "Low Accuracy" };
-      default: // uncertain
-        return { Icon: HelpCircle, label: "Uncertain" };
-    }
-  };
-
-  const { Icon, label } = getIconAndLabel(confidenceInfo.confidenceLevel);
-
-  // Don't render if no confidence value
-  if (estimationConfidence === undefined) {
-    return null;
-  }
+  // Static "refine estimate" badge using potential status colors
+  const styleInfo = colors.logStatus.potential;
 
   return (
     <View style={[styles.container, style]}>
       <View
         style={[
           styles.badge,
-          { backgroundColor: confidenceInfo.color.background },
+          { backgroundColor: styleInfo.background },
         ]}
         accessibilityRole="text"
-        accessibilityLabel={`${label} estimation`}
+        accessibilityLabel="Refine estimate"
       >
-        <Icon
-          size={20}
-          color={confidenceInfo.color.text}
-          fill={confidenceInfo.color.background}
-          strokeWidth={2}
+        <Wand2
+          size={16}
+          color={styleInfo.iconColor}
+          strokeWidth={2.5}
         />
-        <AppText style={[styles.text, { color: confidenceInfo.color.text }]}>
-          {label}
+        <AppText style={[styles.text, { color: styleInfo.text }]}>
+          Refine Estimate
         </AppText>
       </View>
     </View>

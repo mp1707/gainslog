@@ -11,11 +11,13 @@ export const createStyles = () =>
       alignItems: "center",
       gap: theme.spacing.xs,
       paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.xs,
+      paddingVertical: 5, // Match LogStatusBadge padding
       borderRadius: theme.spacing.sm,
+      alignSelf: "flex-start",
     },
     text: {
-      fontSize: theme.typography.Caption.fontSize,
+      ...theme.typography.Caption,
       fontWeight: "600" as const,
+      lineHeight: 16, // Align text height with icon size for vertical centering
     },
   });

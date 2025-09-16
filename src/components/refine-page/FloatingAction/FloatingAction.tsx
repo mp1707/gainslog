@@ -15,7 +15,7 @@ interface FloatingActionProps {
 }
 
 export const FloatingAction: React.FC<FloatingActionProps> = ({
-  label = 'Estimate again',
+  label = 'Boost Confidence!',
   disabled,
   onPress,
   isProcessing = false,
