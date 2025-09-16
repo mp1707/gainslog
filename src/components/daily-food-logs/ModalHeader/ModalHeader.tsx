@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text } from "react-native";
+import React, { useCallback } from "react";
+import { View, Text, Keyboard } from "react-native";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { ChevronLeft, X } from "lucide-react-native";
 import { createStyles } from "./ModalHeader.styles";
@@ -17,10 +17,17 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({
   const { theme } = useTheme();
   const styles = createStyles(theme);
 
+  const onBackPress = useCallback(() => {
+    Keyboard.dismiss();
+    setTimeout(() => {
+      handleBack();
+    }, 120);
+  }, [handleBack]);
+
   return (
     <View style={styles.container}>
       <RoundButton
-        onPress={handleBack}
+        onPress={onBackPress}
         Icon={ChevronLeft}
         variant="tertiary"
         accessibilityLabel="Go back"
