@@ -22,7 +22,9 @@ export const CreateHeader: React.FC<CreateHeaderProps> = ({ onCancel }) => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <AppText role="Title2">{formattedDate}</AppText>
+        <AppText role="Title2" style={styles.title}>
+          {formattedDate}
+        </AppText>
         <View style={styles.headerActions}>
           <DatePicker buttonVariant="tertiary" />
           <RoundButton

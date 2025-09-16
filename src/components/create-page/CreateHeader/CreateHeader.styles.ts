@@ -14,9 +14,15 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       justifyContent: "space-between",
       paddingLeft: theme.spacing.sm,
     },
+    title: {
+      flex: 1,
+      flexShrink: 1,
+      paddingRight: theme.spacing.sm,
+    },
     headerActions: {
       flexDirection: "row",
       alignItems: "center",
+      flexShrink: 0,
       gap: theme.spacing.sm,
     },
   });
