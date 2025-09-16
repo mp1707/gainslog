@@ -12,7 +12,6 @@ import Animated, {
   useAnimatedStyle,
   withDelay,
   withSpring,
-  withTiming,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { Favorite, FoodLog } from "@/types/models";
@@ -53,11 +52,7 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  // Press feedback scale for long-press/tap visual feedback
-  const pressScale = useSharedValue(1);
-  const pressScaleStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: pressScale.value }],
-  }));
+  // Note: press scale is handled by SwipeToFunctions to avoid double-scaling
 
   // Track previous loading state to detect completion
   const previousLoadingRef = useRef(isLoading);
@@ -167,18 +162,7 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
   }));
 
   return (
-    <Pressable
-      style={styles.cardContainer}
-      onLongPress={onLongPress}
-      onPressIn={() => {
-        pressScale.value = withTiming(0.97, { duration: 120 });
-      }}
-      onPressOut={() => {
-        pressScale.value = withTiming(1, { duration: 120 });
-      }}
-      delayLongPress={500}
-    >
-      <Animated.View style={pressScaleStyle}>
+    <Pressable style={styles.cardContainer} onLongPress={onLongPress} delayLongPress={500}>
         <Card elevated={true} style={styles.card}>
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
@@ -220,7 +204,6 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
           </View>
         </View>
         </Card>
-      </Animated.View>
 
       {/* Flash overlay for confidence feedback */}
       {estimationConfidence !== undefined && (
@@ -307,11 +290,7 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  // Press feedback scale for long-press/tap visual feedback
-  const pressScale = useSharedValue(1);
-  const pressScaleStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: pressScale.value }],
-  }));
+  // Note: press scale is handled by SwipeToFunctions to avoid double-scaling
 
   const displayTitle = foodLog.title || "New Log";
   const estimationConfidence =
@@ -320,18 +299,7 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
       : undefined;
 
   return (
-    <Pressable
-      style={styles.cardContainer}
-      onLongPress={onLongPress}
-      onPressIn={() => {
-        pressScale.value = withTiming(0.97, { duration: 120 });
-      }}
-      onPressOut={() => {
-        pressScale.value = withTiming(1, { duration: 120 });
-      }}
-      delayLongPress={500}
-    >
-      <Animated.View style={pressScaleStyle}>
+    <Pressable style={styles.cardContainer} onLongPress={onLongPress} delayLongPress={500}>
         <Card style={styles.card}>
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
@@ -357,7 +325,6 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
           </View>
         </View>
         </Card>
-      </Animated.View>
     </Pressable>
   );
 };
