@@ -13,6 +13,7 @@ import { Header } from "./components/Header";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { createStyles } from "./DateSlider.styles";
+import { formatDateToLocalString, parseDateKey } from "@/utils/dateHelpers";
 
 const WEEKDAY_LETTERS = ["M", "T", "W", "T", "F", "S", "S"];
 const WEEKS_TO_LOAD_AT_ONCE = 5;
@@ -79,7 +80,8 @@ export const DateSlider = () => {
         const currentDate = new Date(weekStartDate);
         currentDate.setDate(weekStartDate.getDate() + i);
 
-        const dateString = currentDate.toISOString().split("T")[0];
+        // Use local-safe date key (YYYY-MM-DD)
+        const dateString = formatDateToLocalString(currentDate);
         const weekdayIndex = (currentDate.getDay() + 6) % 7;
 
         const dailyTotals = dailyTotalsByDate.get(dateString) || {
@@ -191,7 +193,9 @@ export const DateSlider = () => {
       // Selected date is outside current range - expand range to include it
       const today = new Date();
       const currentWeekMonday = getMondayOfWeek(today);
-      const selectedDateObj = new Date(selectedDate);
+      // Parse selectedDate (YYYY-MM-DD) as a local Date to avoid UTC shift
+      const { year, month, day } = parseDateKey(selectedDate);
+      const selectedDateObj = new Date(year, month - 1, day);
       const selectedWeekMonday = getMondayOfWeek(selectedDateObj);
       
       const weeksDifference = Math.floor(

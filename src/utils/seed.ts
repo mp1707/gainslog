@@ -2,6 +2,7 @@ import { FoodLog } from "../types/models";
 import { useAppStore } from "../store/useAppStore";
 import { generateFoodLogId } from "./idGenerator";
 import { testFoodLogs } from "./testData";
+import { formatDateToLocalString, parseDateKey } from "@/utils/dateHelpers";
 
 /**
  * Seeds the app with randomized test food logs for the last 120 days
@@ -16,7 +17,8 @@ export const seedFoodLogs = (): void => {
     const currentDate = new Date(today);
     currentDate.setDate(today.getDate() - dayOffset);
 
-    const logDate = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD format
+    // Use local-safe date key (YYYY-MM-DD)
+    const logDate = formatDateToLocalString(currentDate);
 
     // Get a random number betwen 4 and 15 logs per day
     const randomNumberOfLogs = Math.floor(Math.random() * 12) + 4;
@@ -33,7 +35,9 @@ export const seedFoodLogs = (): void => {
  */
 const getRandomFoodLogs = (count: number, logDate: string): FoodLog[] => {
   const logs: FoodLog[] = [];
-  const baseTime = new Date(logDate + "T00:00:00.000Z");
+  // Construct a local midnight base time for the given logDate
+  const { year, month, day } = parseDateKey(logDate);
+  const baseTime = new Date(year, month - 1, day, 0, 0, 0, 0);
 
   for (let i = 0; i < count; i++) {
     // Pick a random test food log
@@ -46,7 +50,7 @@ const getRandomFoodLogs = (count: number, logDate: string): FoodLog[] => {
     const randomSecond = Math.floor(Math.random() * 60);
 
     const createdAt = new Date(baseTime);
-    createdAt.setUTCHours(randomHour, randomMinute, randomSecond);
+    createdAt.setHours(randomHour, randomMinute, randomSecond, 0);
 
     const foodLog: FoodLog = {
       id: generateFoodLogId(),

@@ -3,6 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FoodLog, Favorite, DailyTargets, UserSettings } from "../types/models";
+import { getTodayKey } from "@/utils/dateHelpers";
 import * as FileSystem from "expo-file-system"; // --- 1. IMPORT EXPO-FILE-SYSTEM ---
 
 export type AppState = {
@@ -44,9 +45,9 @@ export const useAppStore = create<AppState>()(
       dailyTargets: undefined,
       userSettings: undefined,
 
-      // default to today's date & current month
-      selectedDate: new Date().toISOString().split("T")[0], // YYYY-MM-DD
-      selectedMonth: new Date().toISOString().slice(0, 7), // YYYY-MM
+      // default to today's date & current month (local timezone aware)
+      selectedDate: getTodayKey(), // YYYY-MM-DD (local)
+      selectedMonth: getTodayKey().slice(0, 7), // YYYY-MM (local)
 
       // Logs
       addFoodLog: (log) =>

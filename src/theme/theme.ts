@@ -10,7 +10,7 @@ const lightColors = {
   primaryBackground: "#F9F9F9",
   secondaryBackground: "#FFFFFF",
   gradientFromBackground: "#F9F9F9",
-  gradientToBackground: "##F9F9F9",
+  gradientToBackground: "#F9F9F9",
   primaryText: "#1A1A1A",
   secondaryText: "#8E8E93",
   border: "#EAEAEA",

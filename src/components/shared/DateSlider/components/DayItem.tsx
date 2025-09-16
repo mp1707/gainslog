@@ -3,6 +3,7 @@ import { View, Pressable, Text } from "react-native";
 
 import { ProgressRings } from "@/components/shared/ProgressRings";
 import { useTheme } from "@/theme";
+import { getTodayKey } from "@/utils/dateHelpers";
 
 export interface DayData {
   date: string; // YYYY-MM-DD
@@ -25,7 +26,7 @@ interface DayItemProps {
 export const DayItem: React.FC<DayItemProps> = React.memo(
   ({ item, isSelected, onPress, styles }) => {
     const { colors } = useTheme();
-    const today = new Date().toISOString().split("T")[0];
+    const today = getTodayKey();
     const isToday = item.date === today;
 
     return (
