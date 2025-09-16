@@ -9,33 +9,19 @@ interface ConfidenceBadgeProps {
   style?: ViewStyle;
 }
 
-export const ConfidenceBadge: React.FC<ConfidenceBadgeProps> = ({
-  style,
-}) => {
-  const { colors } = useTheme();
-  const styles = createStyles();
-
-  // Static "refine estimate" badge using potential status colors
-  const styleInfo = colors.logStatus.potential;
+export const ConfidenceBadge: React.FC<ConfidenceBadgeProps> = ({ style }) => {
+  const { colors, theme } = useTheme();
+  const styles = createStyles(colors, theme);
 
   return (
     <View style={[styles.container, style]}>
       <View
-        style={[
-          styles.badge,
-          { backgroundColor: styleInfo.background },
-        ]}
+        style={styles.badge}
         accessibilityRole="text"
         accessibilityLabel="Refine estimate"
       >
-        <Wand2
-          size={16}
-          color={styleInfo.iconColor}
-          strokeWidth={2.5}
-        />
-        <AppText style={[styles.text, { color: styleInfo.text }]}>
-          Refine Estimate
-        </AppText>
+        <Wand2 size={16} color={colors.accent} strokeWidth={2.5} />
+        <AppText style={styles.text}>Improve estimate!</AppText>
       </View>
     </View>
   );
