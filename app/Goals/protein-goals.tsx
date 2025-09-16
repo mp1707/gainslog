@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
-import { TrendingUp, Dumbbell, ShieldCheck, Trophy } from "lucide-react-native";
+import { TrendingUp, Dumbbell, ShieldCheck, Trophy, Heart, Activity } from "lucide-react-native";
 
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
@@ -32,6 +32,20 @@ const METHODS: Record<
     factor: number;
   }
 > = {
+  daily_maintenance: {
+    id: "daily_maintenance",
+    title: "0.8 g/kg - Daily Maintenance",
+    description:
+      "The official recommendation for general health and basic bodily functions. Perfect for a casual, healthy lifestyle.",
+    factor: 0.8,
+  },
+  active_lifestyle: {
+    id: "active_lifestyle",
+    title: "1.2 g/kg - Active Lifestyle",
+    description:
+      "Ideal for those who exercise regularly and want to support muscle maintenance and a healthy metabolism.",
+    factor: 1.2,
+  },
   optimal_growth: {
     id: "optimal_growth",
     title: "1.6 g/kg - Optimal Growth",
@@ -65,6 +79,10 @@ const METHODS: Record<
 // Icon mapping for protein calculation methods
 const getIconForMethod = (methodId: string) => {
   switch (methodId) {
+    case "daily_maintenance":
+      return Heart;
+    case "active_lifestyle":
+      return Activity;
     case "optimal_growth":
       return TrendingUp;
     case "dedicated_athlete":
@@ -100,6 +118,8 @@ export default function ProteinGoalsScreen() {
 
   const proteinGoals = useMemo(() => {
     return {
+      daily_maintenance: Math.round(weight * METHODS.daily_maintenance.factor),
+      active_lifestyle: Math.round(weight * METHODS.active_lifestyle.factor),
       optimal_growth: Math.round(weight * METHODS.optimal_growth.factor),
       dedicated_athlete: Math.round(weight * METHODS.dedicated_athlete.factor),
       anabolic_insurance: Math.round(

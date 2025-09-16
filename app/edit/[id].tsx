@@ -204,7 +204,6 @@ export default function Edit() {
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.closeButton}>
-        <AppText role="Title2">{header}</AppText>
         <RoundButton
           Icon={Check}
           onPress={handleDone}
@@ -220,6 +219,9 @@ export default function Edit() {
         keyboardShouldPersistTaps="handled"
         bottomOffset={200}
       >
+        <AppText role="Title2" style={styles.header}>
+          {header}
+        </AppText>
         {!editedLog ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator />
@@ -366,17 +368,19 @@ const createStyles = (colors: Colors, theme: Theme) =>
     container: { flex: 1 },
     scrollView: { flex: 1 },
     closeButton: {
-      padding: theme.spacing.md,
-      paddingLeft: theme.spacing.lg,
-      gap: theme.spacing.md,
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
+      position: "absolute",
+      top: theme.spacing.md,
+      right: theme.spacing.md,
+      zIndex: 15,
     },
     contentContainer: {
       paddingHorizontal: theme.spacing.md,
+      paddingTop: theme.spacing.xxl,
       paddingBottom: theme.spacing.xxl * 2,
       gap: theme.spacing.md,
+    },
+    header: {
+      paddingLeft: theme.spacing.sm,
     },
     loadingContainer: {
       flex: 1,

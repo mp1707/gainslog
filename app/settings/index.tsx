@@ -20,7 +20,6 @@ import { seedFoodLogs } from "@/utils/seed";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { X } from "lucide-react-native";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
-import { TestConfidenceCard } from "@/components/refine-page/ConfidenceCard/TestConfidenceCard";
 
 export default function SettingsTab() {
   const isLoadingTargets = false;
@@ -99,12 +98,6 @@ export default function SettingsTab() {
             subtitle="Get Pro and start your journey today!"
           >
             <Button label="Get MacroLoop Pro" variant="primary" />
-          </SettingsSection>
-          <SettingsSection
-            title="Confidence Card Test"
-            subtitle="Test the ConfidenceCard component with different values"
-          >
-            <TestConfidenceCard />
           </SettingsSection>
           <SettingsSection
             title="Appearance"
@@ -203,7 +196,7 @@ const createStyles = (
     },
     scrollContent: {
       paddingHorizontal: themeObj.spacing.pageMargins.horizontal,
-      paddingTop: spacing.xxl + spacing.md,
+      paddingTop: spacing.xxl,
       paddingBottom: bottomPadding || spacing.xl,
     },
     resetButtonContainer: {
