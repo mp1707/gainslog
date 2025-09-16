@@ -164,7 +164,8 @@ export const RoundButton = React.memo<RoundButtonProps>(
             <Icon
               size={adjustedIconSize}
               color={getIconColor()}
-              strokeWidth={1.5}
+              strokeWidth={variant === "primary" ? 2 : 1.5}
+              fill={variant === "red" ? "white" : "transparent"}
             />
           </Animated.View>
         )}
