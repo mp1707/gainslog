@@ -1,5 +1,12 @@
 import React, { useMemo, useEffect } from "react";
-import { Canvas, Circle, Path, Skia, Group } from "@shopify/react-native-skia";
+import {
+  Canvas,
+  Circle,
+  Path,
+  Skia,
+  Group,
+  LinearGradient as SkiaLinearGradient,
+} from "@shopify/react-native-skia";
 import Animated, {
   useSharedValue,
   withSpring,
@@ -22,6 +29,7 @@ interface ProgressRingsProps {
   strokeWidth?: number;
   spacing?: number;
   padding?: number;
+  overlays?: boolean;
 }
 
 const RING_CONFIG = [
@@ -37,6 +45,7 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
   strokeWidth = 16,
   spacing = 2,
   padding = 2,
+  overlays = false,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
@@ -130,6 +139,26 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
                 start={0}
                 end={animatedPathEnd[config.key]}
               />
+              {overlays && (
+                <>
+                  {/* Shadow overlay clipped to filled arc */}
+                  <Path
+                    path={ringPaths[index]}
+                    style="stroke"
+                    strokeWidth={strokeWidth}
+                    strokeCap="round"
+                    start={0}
+                    end={animatedPathEnd[config.key]}
+                    opacity={0.6}
+                  >
+                    <SkiaLinearGradient
+                      start={{ x: size, y: 0 }}
+                      end={{ x: 0, y: 0 }}
+                      colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.22)"]}
+                    />
+                  </Path>
+                </>
+              )}
             </React.Fragment>
           ))}
         </Group>

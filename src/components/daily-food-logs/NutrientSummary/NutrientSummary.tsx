@@ -147,12 +147,15 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
     <View style={styles.plateContainer}>
       <View style={styles.contentContainer}>
         <View style={styles.summaryContent}>
-          <ProgressRings
-            percentages={percentages}
-            size={containerSize}
-            strokeWidth={STROKE_WIDTH}
-            spacing={RING_SPACING}
-          />
+          <View style={styles.ringsContainer}>
+            <ProgressRings
+              percentages={percentages}
+              size={containerSize}
+              strokeWidth={STROKE_WIDTH}
+              spacing={RING_SPACING}
+              overlays
+            />
+          </View>
           <View style={styles.statsContainer}>
             {RING_CONFIG.map((config) => (
               <StatRow
@@ -197,7 +200,11 @@ const createStyles = (colors: Colors, theme: Theme) => {
       gap: theme.spacing.lg,
       marginTop: theme.spacing.md,
     },
-    ringsContainer: {},
+    ringsContainer: {
+      position: "relative",
+      width: 175,
+      height: 175,
+    },
     statsContainer: { flex: 1, gap: theme.spacing.sm },
     statRow: {
       flexDirection: "row",
