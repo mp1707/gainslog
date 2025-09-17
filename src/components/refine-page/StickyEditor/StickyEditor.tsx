@@ -105,7 +105,6 @@ export const StickyEditor: React.FC<StickyEditorProps> = ({
               <Picker
                 selectedValue={tempAmount}
                 onValueChange={(v) => setTempAmount(Number(v))}
-                itemStyle={styles.pickerItem as any}
               >
                 {amountOptions.map((n) => (
                   <Picker.Item key={n} label={String(n)} value={n} />
@@ -118,7 +117,6 @@ export const StickyEditor: React.FC<StickyEditorProps> = ({
                 onValueChange={(v) =>
                   setTempUnit(v as FoodComponent["unit"])
                 }
-                itemStyle={styles.pickerItem as any}
               >
                 {unitOptions.map((u) => (
                   <Picker.Item key={u} label={u} value={u} />

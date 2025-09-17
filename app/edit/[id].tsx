@@ -7,21 +7,12 @@ import {
   ActivityIndicator,
   ScrollView as RNScrollView,
 } from "react-native";
-import { Check } from "lucide-react-native";
-import {
-  KeyboardAwareScrollView,
-  KeyboardStickyView,
-} from "react-native-keyboard-controller";
+import { Check, X } from "lucide-react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { makeSelectLogById } from "@/store/selectors";
 import type { FoodLog, FoodComponent } from "@/types/models";
-import {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useEstimation } from "@/hooks/useEstimation";
@@ -30,12 +21,15 @@ import { ConfidenceCard } from "@/components/refine-page/ConfidenceCard/Confiden
 import { TitleCard } from "@/components/refine-page/TitleCard/TitleCard";
 import { MacrosCard } from "@/components/refine-page/MacrosCard/MacrosCard";
 import { ComponentsList } from "@/components/refine-page/ComponentsList/ComponentsList";
-import { StickyEditor } from "@/components/refine-page/StickyEditor/StickyEditor";
+import { ComponentEditorSheet } from "@/components/refine-page/ComponentEditorSheet/ComponentEditorSheet";
 import { FloatingAction } from "@/components/refine-page/FloatingAction/FloatingAction";
-import { DimOverlay } from "@/components/refine-page/DimOverlay/DimOverlay";
-import { DescriptionCard } from "@/components/refine-page/DescriptionCard/DescriptionCard";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { AppText } from "@/components/index";
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -58,9 +52,7 @@ export default function Edit() {
   const [addingNew, setAddingNew] = useState(false);
   const [tempName, setTempName] = useState("");
   const [tempAmount, setTempAmount] = useState<number>(0);
-  const [tempUnit, setTempUnit] = useState<
-    FoodComponent["unit"]
-  >("g");
+  const [tempUnit, setTempUnit] = useState<FoodComponent["unit"]>("g");
   // When adding a new ingredient, we auto-focus the Name field once
   const [focusNameOnAdd, setFocusNameOnAdd] = useState(false);
   // Local focus state for sticky editor inputs (for accent border)
@@ -68,22 +60,20 @@ export default function Edit() {
   const [amountFocused, setAmountFocused] = useState(false);
   const isEditing = expandedIndex !== null || addingNew;
   const [isDirty, setIsDirty] = useState(false);
+  // Snapshot of components at last successful estimation
+  const [lastEstimatedComponents, setLastEstimatedComponents] = useState<
+    FoodComponent[] | undefined
+  >();
   const [hasReestimated, setHasReestimated] = useState(false);
-  const overlayOpacity = useSharedValue(0);
-  const dimAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: overlayOpacity.value,
-  }));
-
+  const sheetRef = useRef<BottomSheet | null>(null);
+  const openGuardAtRef = useRef<number>(0);
   useEffect(() => {
     if (isEditing) {
-      overlayOpacity.value = withTiming(1, {
-        duration: 180,
-        easing: Easing.out(Easing.ease),
-      });
+      // Imperatively open without controlling the index prop
+      sheetRef.current?.expand?.();
     } else {
-      overlayOpacity.value = 0;
+      sheetRef.current?.close?.();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditing]);
 
   // Note: per-id modal, cleanup happens on unmount
@@ -103,7 +93,6 @@ export default function Edit() {
       // Persist all updated values to the store
       updateFoodLog(id, {
         title: (editedLog.title ?? "").trim(),
-        description: editedLog.description || "",
         calories: editedLog.calories,
         protein: editedLog.protein,
         carbs: editedLog.carbs,
@@ -117,19 +106,21 @@ export default function Edit() {
 
   // Animated dimmer for editor overlay (defined above as dimAnimatedStyle)
 
-  // Track if components have changed relative to original
-  const componentsHaveChanged = useMemo(() => {
-    const orig = originalLog?.foodComponents ?? [];
+  // Initialize baseline components once on first load to require a change before estimating
+  useEffect(() => {
+    if (editedLog && lastEstimatedComponents === undefined) {
+      setLastEstimatedComponents([...(editedLog.foodComponents || [])]);
+    }
+  }, [editedLog, lastEstimatedComponents]);
+
+  // Track if components have changed relative to last successful estimation
+  const componentsChangedSinceLastEstimate = useMemo(() => {
+    const baseline = lastEstimatedComponents ?? [];
     const curr = editedLog?.foodComponents ?? [];
 
-    // Also consider description changes
-    if ((originalLog?.description ?? "") !== (editedLog?.description ?? "")) {
-      return true;
-    }
-
-    if (orig.length !== curr.length) return true;
-    for (let i = 0; i < orig.length; i++) {
-      const o = orig[i];
+    if (baseline.length !== curr.length) return true;
+    for (let i = 0; i < baseline.length; i++) {
+      const o = baseline[i];
       const c = curr[i];
       if ((o?.name ?? "") !== (c?.name ?? "")) return true;
       if ((o?.amount ?? 0) !== (c?.amount ?? 0)) return true;
@@ -138,12 +129,7 @@ export default function Edit() {
         return true;
     }
     return false;
-  }, [
-    originalLog?.foodComponents,
-    editedLog?.foodComponents,
-    originalLog?.description,
-    editedLog?.description,
-  ]);
+  }, [lastEstimatedComponents, editedLog?.foodComponents]);
 
   // Handlers for components editing
   const handleUpdateComponent = (index: number, updated: FoodComponent) => {
@@ -165,14 +151,30 @@ export default function Edit() {
     setIsDirty(true);
   };
 
+  const handleMarkComponentOk = (index: number) => {
+    setEditedLog((prev) => {
+      if (!prev) return prev;
+      const comps = [...(prev.foodComponents || [])];
+      const existing = comps[index];
+      if (existing) {
+        comps[index] = { ...existing, needsRefinement: false };
+      }
+      return { ...prev, foodComponents: comps };
+    });
+    setIsDirty(true);
+  };
+
   const handleAddComponent = () => {
     // Do not insert an empty row. Open editor first and add on Save.
-    setAddingNew(true);
-    setExpandedIndex(null);
-    setTempName("");
-    setTempAmount(0);
-    setTempUnit("g");
-    setFocusNameOnAdd(true);
+    openGuardAtRef.current = Date.now();
+    setTimeout(() => {
+      setAddingNew(true);
+      setExpandedIndex(null);
+      setTempName("");
+      setTempAmount(0);
+      setTempUnit("g");
+      setFocusNameOnAdd(true);
+    }, 30);
   };
 
   const handleReestimate = async () => {
@@ -184,6 +186,8 @@ export default function Edit() {
     try {
       await runEditEstimation(editedLog, (log) => {
         setEditedLog(log);
+        // Baseline set to the components as of the successful estimation result
+        setLastEstimatedComponents([...(log.foodComponents || [])]);
       });
       setIsDirty(true); // local changes pending save
       setHasReestimated(true); // enable Done button
@@ -210,6 +214,14 @@ export default function Edit() {
       : "Great Foodlog 👌";
   return (
     <GradientWrapper style={styles.container}>
+      <View style={styles.closeButtonLeft}>
+        <RoundButton
+          Icon={X}
+          onPress={() => router.back()}
+          variant={"tertiary"}
+          accessibilityLabel="Close"
+        />
+      </View>
       <View style={styles.closeButton}>
         <RoundButton
           Icon={Check}
@@ -245,15 +257,19 @@ export default function Edit() {
             <ComponentsList
               components={editedLog.foodComponents || []}
               onPressItem={(index, comp) => {
-                setExpandedIndex(index);
-                setAddingNew(false);
-                setTempName(comp.name);
-                setTempAmount(comp.amount ?? 0);
-                setTempUnit(comp.unit ?? "g");
-                setFocusNameOnAdd(false);
+                openGuardAtRef.current = Date.now();
+                setTimeout(() => {
+                  setExpandedIndex(index);
+                  setAddingNew(false);
+                  setTempName(comp.name);
+                  setTempAmount(comp.amount ?? 0);
+                  setTempUnit(comp.unit ?? "g");
+                  setFocusNameOnAdd(false);
+                }, 30);
               }}
               onDeleteItem={handleDeleteComponent}
               onAddPress={handleAddComponent}
+              onMarkOk={handleMarkComponentOk}
               disabled={isLoading || originalLog?.isEstimating}
             />
 
@@ -285,92 +301,121 @@ export default function Edit() {
                 })
               }
             />
-
-            {/* Description input */}
-            {editedLog.description && (
-              <DescriptionCard
-                value={editedLog.description || ""}
-                onChange={(text) =>
-                  setEditedLog((prev) => {
-                    if (!prev) return prev;
-                    const next = { ...prev, description: text };
-                    setIsDirty(true);
-                    return next;
-                  })
-                }
-              />
-            )}
           </>
         )}
       </KeyboardAwareScrollView>
-      {isEditing && (
-        <DimOverlay
-          onPress={() => {
-            setExpandedIndex(null);
-            setAddingNew(false);
-            setFocusNameOnAdd(false);
-          }}
-          style={dimAnimatedStyle as any}
-        />
-      )}
+      {/* Bottom Sheet Editor replacing KeyboardStickyView */}
+      <BottomSheet
+        ref={sheetRef as any}
+        snapPoints={["70%"]}
+        enablePanDownToClose
+        keyboardBehavior="interactive"
+        keyboardBlurBehavior="restore"
+        backgroundStyle={{
+          backgroundColor: colors.secondaryBackground,
+          borderRadius: "10%",
+        }}
+        onClose={() => {
+          const sinceOpen = Date.now() - openGuardAtRef.current;
+          if (sinceOpen < 250) {
+            sheetRef.current?.expand?.();
+            return;
+          }
+          setExpandedIndex(null);
+          setAddingNew(false);
+          setFocusNameOnAdd(false);
+        }}
+        handleIndicatorStyle={{
+          backgroundColor: colors.secondaryText,
+          width: 40,
+          height: 4,
+          borderRadius: 2,
+        }}
+        backdropComponent={(props) => (
+          <BottomSheetBackdrop
+            {...props}
+            opacity={0.35}
+            appearsOnIndex={0}
+            disappearsOnIndex={-1}
+            // Avoid closing immediately from the same tap that opens the sheet
+            pressBehavior="none"
+          />
+        )}
+      >
+        {isEditing && (
+          <BottomSheetView style={{ flex: 1 }}>
+            <KeyboardAwareScrollView
+              keyboardShouldPersistTaps="handled"
+              bottomOffset={24}
+              contentContainerStyle={{
+                paddingHorizontal: theme.spacing.lg,
+                paddingTop: theme.spacing.lg,
+                paddingBottom: theme.spacing.xl,
+                gap: theme.spacing.md,
+              }}
+            >
+              <ComponentEditorSheet
+                tempName={tempName}
+                tempAmount={tempAmount}
+                tempUnit={tempUnit}
+                setTempName={setTempName}
+                setTempAmount={setTempAmount}
+                setTempUnit={setTempUnit}
+                focusNameOnAdd={focusNameOnAdd}
+                nameFocused={nameFocused}
+                amountFocused={amountFocused}
+                setNameFocused={setNameFocused}
+                setAmountFocused={setAmountFocused}
+                onCancel={() => {
+                  setExpandedIndex(null);
+                  setAddingNew(false);
+                  setFocusNameOnAdd(false);
+                }}
+                onSave={() => {
+                  const newComp: FoodComponent = {
+                    name: tempName.trim(),
+                    amount: Number(tempAmount) || 0,
+                    unit: tempUnit,
+                    needsRefinement: false,
+                  };
+                  if (addingNew) {
+                    setEditedLog((prev) => {
+                      if (!prev) return prev;
+                      return {
+                        ...prev,
+                        foodComponents: [
+                          ...(prev.foodComponents || []),
+                          newComp,
+                        ],
+                      };
+                    });
+                    setIsDirty(true);
+                  } else if (expandedIndex !== null) {
+                    handleUpdateComponent(expandedIndex, newComp);
+                  }
+                  setExpandedIndex(null);
+                  setAddingNew(false);
+                  setFocusNameOnAdd(false);
+                }}
+                saveDisabled={tempName.trim().length === 0 || tempAmount <= 0}
+              />
+            </KeyboardAwareScrollView>
+          </BottomSheetView>
+        )}
+      </BottomSheet>
       {!isEditing && editedLog && (
         <FloatingAction
           onPress={handleReestimate}
           disabled={
             isLoading ||
             originalLog?.isEstimating ||
-            !componentsHaveChanged ||
+            lastEstimatedComponents === undefined ||
+            !componentsChangedSinceLastEstimate ||
             (editedLog.foodComponents?.length || 0) === 0
           }
           isProcessing={isLoading || !!originalLog?.isEstimating}
           didSucceed={isRefined}
         />
-      )}
-      {isEditing && (
-        <KeyboardStickyView offset={{ closed: -30, opened: 0 }}>
-          <StickyEditor
-            tempName={tempName}
-            tempAmount={tempAmount}
-            tempUnit={tempUnit}
-            setTempName={setTempName}
-            setTempAmount={setTempAmount}
-            setTempUnit={setTempUnit}
-            focusNameOnAdd={focusNameOnAdd}
-            nameFocused={nameFocused}
-            amountFocused={amountFocused}
-            setNameFocused={setNameFocused}
-            setAmountFocused={setAmountFocused}
-            onCancel={() => {
-              setExpandedIndex(null);
-              setAddingNew(false);
-              setFocusNameOnAdd(false);
-            }}
-            onSave={() => {
-              const newComp: FoodComponent = {
-                name: tempName.trim(),
-                amount: Number(tempAmount) || 0,
-                unit: tempUnit,
-                needsRefinement: false,
-              };
-              if (addingNew) {
-                setEditedLog((prev) => {
-                  if (!prev) return prev;
-                  return {
-                    ...prev,
-                    foodComponents: [...(prev.foodComponents || []), newComp],
-                  };
-                });
-                setIsDirty(true);
-              } else if (expandedIndex !== null) {
-                handleUpdateComponent(expandedIndex, newComp);
-              }
-              setExpandedIndex(null);
-              setAddingNew(false);
-              setFocusNameOnAdd(false);
-            }}
-            saveDisabled={tempName.trim().length === 0 || tempAmount <= 0}
-          />
-        </KeyboardStickyView>
       )}
     </GradientWrapper>
   );
@@ -380,6 +425,12 @@ const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     container: { flex: 1 },
     scrollView: { flex: 1 },
+    closeButtonLeft: {
+      position: "absolute",
+      top: theme.spacing.md,
+      left: theme.spacing.md,
+      zIndex: 15,
+    },
     closeButton: {
       position: "absolute",
       top: theme.spacing.md,
@@ -388,7 +439,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
     },
     contentContainer: {
       paddingHorizontal: theme.spacing.md,
-      paddingTop: theme.spacing.xxl,
+      paddingTop: theme.spacing.xxl + theme.spacing.xl,
       paddingBottom: theme.spacing.xxl * 2,
       gap: theme.spacing.md,
     },

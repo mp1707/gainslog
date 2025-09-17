@@ -57,7 +57,6 @@ export const FavoritesTab: React.FC<FavoritesTabProps> = ({
               key={favorite.id}
               foodLog={favorite}
               contextMenuPreset="favorites"
-              onLogAgain={() => onCreateFromFavorite(favorite)}
               onRemoveFromFavorites={() => deleteFavorite(favorite.id)}
               onDelete={() => deleteFavorite(favorite.id)}
             />

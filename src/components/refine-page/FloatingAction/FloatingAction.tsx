@@ -15,7 +15,7 @@ interface FloatingActionProps {
 }
 
 export const FloatingAction: React.FC<FloatingActionProps> = ({
-  label = 'Boost Confidence!',
+  label = 'Recalculate Macros',
   disabled,
   onPress,
   isProcessing = false,

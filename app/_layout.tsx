@@ -10,7 +10,10 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ThemedToastManager } from "@/components/shared/Toasts";
 import Purchases, { LOG_LEVEL } from "react-native-purchases";
 import * as SplashScreen from "expo-splash-screen";
-import { NavigationTransitionProvider, useNavigationTransition } from "@/context/NavigationTransitionContext";
+import {
+  NavigationTransitionProvider,
+  useNavigationTransition,
+} from "@/context/NavigationTransitionContext";
 
 function ThemedStack() {
   const { colors, isThemeLoaded } = useTheme();

@@ -33,7 +33,18 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       backgroundColor: colors.warningBackground,
       borderLeftWidth: 3,
       borderLeftColor: colors.warning,
-      paddingLeft: theme.spacing.sm,
+      paddingLeft: theme.spacing.md,
+      paddingRight: theme.spacing.md,
+      borderRadius: Math.max(14, theme.components.cards.cornerRadius - 12),
+      marginVertical: theme.spacing.xs,
+    },
+    leftColumn: {
+      flex: 1,
+    },
+    rightColumn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: theme.spacing.sm,
     },
     deleteAction: {
       backgroundColor: colors.error,
@@ -58,5 +69,13 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     },
     amountText: {
       marginRight: 8,
+    },
+    helperText: {
+      marginTop: 2,
+      color: colors.warning,
+      opacity: 0.9,
+    },
+    okButton: {
+      marginHorizontal: 4,
     },
   });

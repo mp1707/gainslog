@@ -40,7 +40,6 @@ const makeCompletedFromRefinement = (
   carbs: results.carbs,
   fat: results.fat,
   estimationConfidence: 100,
-  foodComponents: results.foodComponents, // take needsRefinement from API
   isEstimating: false,
 });
 
@@ -71,7 +70,7 @@ export const useEstimation = () => {
           estimationResults
         );
         updateFoodLog(incompleteLog.id, completedLog);
-      } catch (error) { 
+      } catch (error) {
         deleteFoodLog(incompleteLog.id);
       }
     },
@@ -87,8 +86,17 @@ export const useEstimation = () => {
         return;
       }
       console.log("🛠️ Components refinement");
+
+      // Convert food components to string format: "Name Amount Unit, Name Amount Unit, ..."
+      const foodComponentsString = (editedLog.foodComponents || [])
+        .map(
+          (component) =>
+            `${component.name} ${component.amount} ${component.unit}`
+        )
+        .join(", ");
+
       const refined: RefinedFoodEstimateResponse = await refineEstimation({
-        foodComponents: editedLog.foodComponents || [],
+        foodComponents: foodComponentsString,
       });
       const completedLog = makeCompletedFromRefinement(editedLog, refined);
       onComplete(completedLog);

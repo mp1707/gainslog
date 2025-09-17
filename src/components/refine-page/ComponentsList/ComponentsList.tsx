@@ -1,12 +1,13 @@
 import React from "react";
 import { TouchableOpacity, View } from "react-native";
 import Animated, { Easing, LinearTransition } from "react-native-reanimated";
-import { ChevronRight, Plus } from "lucide-react-native";
+import { Plus } from "lucide-react-native";
 import { AppText, Card } from "@/components";
 import { useTheme } from "@/theme";
 import { createStyles } from "./ComponentsList.styles";
 import type { FoodComponent } from "@/types/models";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions/SwipeToFunctions";
+// Note: Removed per design update — no inline OK/check control
 
 interface ComponentsListProps {
   components: FoodComponent[];
@@ -14,6 +15,7 @@ interface ComponentsListProps {
   onDeleteItem: (index: number) => void;
   onAddPress: () => void;
   disabled?: boolean;
+  onMarkOk?: (index: number) => void;
 }
 
 export const ComponentsList: React.FC<ComponentsListProps> = ({
@@ -22,6 +24,7 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
   onDeleteItem,
   onAddPress,
   disabled,
+  onMarkOk,
 }) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
@@ -48,11 +51,19 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
                 comp.needsRefinement && styles.refineHighlight,
               ]}
             >
-              <AppText style={styles.componentName}>{comp.name}</AppText>
-              <AppText color="secondary" style={styles.amountText}>
-                {comp.amount} {comp.unit ?? ""}
-              </AppText>
-              <ChevronRight size={18} color={colors.secondaryText} />
+              <View style={styles.leftColumn}>
+                <AppText style={styles.componentName}>{comp.name}</AppText>
+                {comp.needsRefinement && (
+                  <AppText role="Caption" style={styles.helperText}>
+                    Review suggested amount.
+                  </AppText>
+                )}
+              </View>
+              <View style={styles.rightColumn}>
+                <AppText color="secondary" style={styles.amountText}>
+                  {comp.amount} {comp.unit ?? ""}
+                </AppText>
+              </View>
             </View>
           </SwipeToFunctions>
         </Animated.View>

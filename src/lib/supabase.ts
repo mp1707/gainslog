@@ -7,8 +7,8 @@ export interface TextEstimateRequest {
   description: string;
 }
 
-export interface refineRequest {
-  foodComponents: FoodComponent[];
+export interface RefineRequest {
+  foodComponents: string;
 }
 
 export interface ImageEstimateRequest {
@@ -38,7 +38,6 @@ export interface RefinedFoodEstimateResponse {
   protein: number;
   carbs: number;
   fat: number;
-  foodComponents: FoodComponent[];
 }
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
@@ -56,6 +55,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 export const estimateTextBased = async (
   request: TextEstimateRequest
 ): Promise<FoodEstimateResponse> => {
+  console.log("Text estimation request:", request);
+
   const response = await fetch(`${supabaseUrl}/functions/v1/textEstimationV3`, {
     method: "POST",
     headers: {
@@ -66,6 +67,8 @@ export const estimateTextBased = async (
     body: JSON.stringify(request),
   });
 
+  console.log("Text estimation response status:", response.status);
+
   if (!response.ok) {
     const errorText = await response.text();
     console.error("AI estimation HTTP error:", response.status, errorText);
@@ -73,6 +76,7 @@ export const estimateTextBased = async (
   }
 
   const data = await response.json();
+  console.log("Text estimation response data:", data);
 
   if (data.error) {
     console.error("AI estimation error:", data.error);
@@ -83,8 +87,10 @@ export const estimateTextBased = async (
 };
 
 export const refineEstimation = async (
-  request: refineRequest
+  request: RefineRequest
 ): Promise<RefinedFoodEstimateResponse> => {
+  console.log("Refine estimation request:", request);
+
   const response = await fetch(
     `${supabaseUrl}/functions/v1/refineTextEstimationV3`,
     {
@@ -98,6 +104,8 @@ export const refineEstimation = async (
     }
   );
 
+  console.log("Refine estimation response status:", response.status);
+
   if (!response.ok) {
     const errorText = await response.text();
     console.error("AI estimation HTTP error:", response.status, errorText);
@@ -105,6 +113,7 @@ export const refineEstimation = async (
   }
 
   const data = await response.json();
+  console.log("Refine estimation response data:", data);
 
   if (data.error) {
     console.error("AI estimation error:", data.error);
@@ -117,6 +126,8 @@ export const refineEstimation = async (
 export const estimateNutritionImageBased = async (
   request: ImageEstimateRequest
 ): Promise<FoodEstimateResponse> => {
+  console.log("Image estimation request:", request);
+
   const response = await fetch(
     `${supabaseUrl}/functions/v1/imageEstimationV3`,
     {
@@ -130,10 +141,11 @@ export const estimateNutritionImageBased = async (
     }
   );
 
-  console.log("request", request);
-  console.log("response", response);
+  console.log("Image estimation response status:", response.status);
 
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Image estimation HTTP error:", response.status, errorText);
     if (response.status === 429) {
       showErrorToast("Rate limit exceeded", "Please try again later.");
     }
@@ -141,6 +153,7 @@ export const estimateNutritionImageBased = async (
   }
 
   const data = await response.json();
+  console.log("Image estimation response data:", data);
 
   if (data.error) {
     console.error("Image-based estimation error:", data.error);
