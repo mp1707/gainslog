@@ -45,7 +45,7 @@ export default function Edit() {
 
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
-  const { runEstimation } = useEstimation();
+  const { runEditEstimation } = useEstimation();
   const scrollRef = useRef<RNScrollView | null>(null);
   const navigation = useNavigation();
 
@@ -57,7 +57,10 @@ export default function Edit() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [addingNew, setAddingNew] = useState(false);
   const [tempName, setTempName] = useState("");
-  const [tempAmount, setTempAmount] = useState("");
+  const [tempAmount, setTempAmount] = useState<number>(0);
+  const [tempUnit, setTempUnit] = useState<
+    FoodComponent["unit"]
+  >("g");
   // When adding a new ingredient, we auto-focus the Name field once
   const [focusNameOnAdd, setFocusNameOnAdd] = useState(false);
   // Local focus state for sticky editor inputs (for accent border)
@@ -129,7 +132,10 @@ export default function Edit() {
       const o = orig[i];
       const c = curr[i];
       if ((o?.name ?? "") !== (c?.name ?? "")) return true;
-      if ((o?.amount ?? "") !== (c?.amount ?? "")) return true;
+      if ((o?.amount ?? 0) !== (c?.amount ?? 0)) return true;
+      if ((o?.unit ?? "") !== (c?.unit ?? "")) return true;
+      if ((o?.needsRefinement ?? false) !== (c?.needsRefinement ?? false))
+        return true;
     }
     return false;
   }, [
@@ -164,7 +170,8 @@ export default function Edit() {
     setAddingNew(true);
     setExpandedIndex(null);
     setTempName("");
-    setTempAmount("");
+    setTempAmount(0);
+    setTempUnit("g");
     setFocusNameOnAdd(true);
   };
 
@@ -175,7 +182,7 @@ export default function Edit() {
     setIsRefined(false);
     setIsLoading(true);
     try {
-      await runEstimation(editedLog, (log) => {
+      await runEditEstimation(editedLog, (log) => {
         setEditedLog(log);
       });
       setIsDirty(true); // local changes pending save
@@ -241,7 +248,8 @@ export default function Edit() {
                 setExpandedIndex(index);
                 setAddingNew(false);
                 setTempName(comp.name);
-                setTempAmount(comp.amount);
+                setTempAmount(comp.amount ?? 0);
+                setTempUnit(comp.unit ?? "g");
                 setFocusNameOnAdd(false);
               }}
               onDeleteItem={handleDeleteComponent}
@@ -309,7 +317,10 @@ export default function Edit() {
         <FloatingAction
           onPress={handleReestimate}
           disabled={
-            isLoading || originalLog?.isEstimating || !componentsHaveChanged
+            isLoading ||
+            originalLog?.isEstimating ||
+            !componentsHaveChanged ||
+            (editedLog.foodComponents?.length || 0) === 0
           }
           isProcessing={isLoading || !!originalLog?.isEstimating}
           didSucceed={isRefined}
@@ -320,8 +331,10 @@ export default function Edit() {
           <StickyEditor
             tempName={tempName}
             tempAmount={tempAmount}
+            tempUnit={tempUnit}
             setTempName={setTempName}
             setTempAmount={setTempAmount}
+            setTempUnit={setTempUnit}
             focusNameOnAdd={focusNameOnAdd}
             nameFocused={nameFocused}
             amountFocused={amountFocused}
@@ -333,10 +346,12 @@ export default function Edit() {
               setFocusNameOnAdd(false);
             }}
             onSave={() => {
-              const newComp = {
+              const newComp: FoodComponent = {
                 name: tempName.trim(),
-                amount: tempAmount.trim(),
-              } as FoodComponent;
+                amount: Number(tempAmount) || 0,
+                unit: tempUnit,
+                needsRefinement: false,
+              };
               if (addingNew) {
                 setEditedLog((prev) => {
                   if (!prev) return prev;
@@ -353,9 +368,7 @@ export default function Edit() {
               setAddingNew(false);
               setFocusNameOnAdd(false);
             }}
-            saveDisabled={
-              tempName.trim().length === 0 || tempAmount.trim().length === 0
-            }
+            saveDisabled={tempName.trim().length === 0 || tempAmount <= 0}
           />
         </KeyboardStickyView>
       )}

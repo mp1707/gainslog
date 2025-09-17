@@ -34,6 +34,22 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       fontFamily: theme.typography.Headline.fontFamily,
       fontSize: theme.typography.Headline.fontSize,
     },
+    pickerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: theme.spacing.sm,
+      backgroundColor: colors.primaryBackground,
+      borderRadius: theme.components.cards.cornerRadius,
+    },
+    pickerWrapper: {
+      flex: 1,
+    },
+    pickerItem: {
+      color: colors.primaryText,
+      fontFamily: theme.typography.Headline.fontFamily,
+      fontSize: theme.typography.Headline.fontSize,
+    },
     inlineActions: {
       flexDirection: 'row',
       gap: theme.spacing.sm,
@@ -43,4 +59,3 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       flex: 1,
     },
   });
-

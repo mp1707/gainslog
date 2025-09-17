@@ -36,7 +36,7 @@ export default function Create() {
   const [draftId, setDraftId] = useState<string | null>(null);
   const draft = useDraft(draftId);
   const { selectedDate, addFoodLog } = useAppStore();
-  const { runEstimation } = useEstimation();
+  const { runCreateEstimation } = useEstimation();
   const {
     isRecording,
     liveTranscription,
@@ -120,9 +120,9 @@ export default function Create() {
 
   const handleEstimation = useCallback(() => {
     if (!draft) return;
-    runEstimation(draft);
+    runCreateEstimation(draft);
     router.back();
-  }, [draft, runEstimation, router]);
+  }, [draft, runCreateEstimation, router]);
 
   const handleCreateLogFromFavorite = useCallback(
     (favorite: Favorite) => {

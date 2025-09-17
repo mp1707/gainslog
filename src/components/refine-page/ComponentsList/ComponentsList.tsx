@@ -1,12 +1,12 @@
-import React from 'react';
-import { TouchableOpacity, View } from 'react-native';
-import Animated, { Easing, LinearTransition } from 'react-native-reanimated';
-import { ChevronRight, Plus } from 'lucide-react-native';
-import { AppText, Card } from '@/components';
-import { useTheme } from '@/theme';
-import { createStyles } from './ComponentsList.styles';
-import type { FoodComponent } from '@/types/models';
-import { SwipeToFunctions } from '@/components/shared/SwipeToFunctions/SwipeToFunctions';
+import React from "react";
+import { TouchableOpacity, View } from "react-native";
+import Animated, { Easing, LinearTransition } from "react-native-reanimated";
+import { ChevronRight, Plus } from "lucide-react-native";
+import { AppText, Card } from "@/components";
+import { useTheme } from "@/theme";
+import { createStyles } from "./ComponentsList.styles";
+import type { FoodComponent } from "@/types/models";
+import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions/SwipeToFunctions";
 
 interface ComponentsListProps {
   components: FoodComponent[];
@@ -42,10 +42,15 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
             onDelete={() => onDeleteItem(index)}
             onTap={() => onPressItem(index, comp)}
           >
-            <View style={styles.componentRow}>
+            <View
+              style={[
+                styles.componentRow,
+                comp.needsRefinement && styles.refineHighlight,
+              ]}
+            >
               <AppText style={styles.componentName}>{comp.name}</AppText>
               <AppText color="secondary" style={styles.amountText}>
-                {comp.amount}
+                {comp.amount} {comp.unit ?? ""}
               </AppText>
               <ChevronRight size={18} color={colors.secondaryText} />
             </View>

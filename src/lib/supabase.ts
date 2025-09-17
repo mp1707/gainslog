@@ -7,8 +7,7 @@ export interface TextEstimateRequest {
   description: string;
 }
 
-export interface TextRefineRequest {
-  description: string;
+export interface refineRequest {
   foodComponents: FoodComponent[];
 }
 
@@ -34,6 +33,13 @@ export interface FoodEstimateResponse {
   fat: number;
   foodComponents: FoodComponent[];
 }
+export interface RefinedFoodEstimateResponse {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  foodComponents: FoodComponent[];
+}
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -50,7 +56,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 export const estimateTextBased = async (
   request: TextEstimateRequest
 ): Promise<FoodEstimateResponse> => {
-  const response = await fetch(`${supabaseUrl}/functions/v1/textEstimationV2`, {
+  const response = await fetch(`${supabaseUrl}/functions/v1/textEstimationV3`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -76,11 +82,11 @@ export const estimateTextBased = async (
   return data as FoodEstimateResponse;
 };
 
-export const refineTextBased = async (
-  request: TextRefineRequest
-): Promise<FoodEstimateResponse> => {
+export const refineEstimation = async (
+  request: refineRequest
+): Promise<RefinedFoodEstimateResponse> => {
   const response = await fetch(
-    `${supabaseUrl}/functions/v1/refineTextEstimationV1`,
+    `${supabaseUrl}/functions/v1/refineTextEstimationV3`,
     {
       method: "POST",
       headers: {
@@ -105,14 +111,14 @@ export const refineTextBased = async (
     throw new Error("AI_ESTIMATION_FAILED");
   }
 
-  return data as FoodEstimateResponse;
+  return data as RefinedFoodEstimateResponse;
 };
 
 export const estimateNutritionImageBased = async (
   request: ImageEstimateRequest
 ): Promise<FoodEstimateResponse> => {
   const response = await fetch(
-    `${supabaseUrl}/functions/v1/imageEstimationV2`,
+    `${supabaseUrl}/functions/v1/imageEstimationV3`,
     {
       method: "POST",
       headers: {
@@ -124,38 +130,8 @@ export const estimateNutritionImageBased = async (
     }
   );
 
-  if (!response.ok) {
-    if (response.status === 429) {
-      showErrorToast("Rate limit exceeded", "Please try again later.");
-    }
-    throw new Error("AI_ESTIMATION_FAILED");
-  }
-
-  const data = await response.json();
-
-  if (data.error) {
-    console.error("Image-based estimation error:", data.error);
-    throw new Error("AI_ESTIMATION_FAILED");
-  }
-
-  return data as FoodEstimateResponse;
-};
-
-export const refineImageBased = async (
-  request: ImageRefineRequest
-): Promise<FoodEstimateResponse> => {
-  const response = await fetch(
-    `${supabaseUrl}/functions/v1/refineImageEstimationV1`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${supabaseAnonKey}`,
-        apikey: supabaseAnonKey,
-      },
-      body: JSON.stringify(request),
-    }
-  );
+  console.log("request", request);
+  console.log("response", response);
 
   if (!response.ok) {
     if (response.status === 429) {

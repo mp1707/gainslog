@@ -16,8 +16,20 @@ export type FoodLog = {
 };
 
 export type FoodComponent = {
+  amount: number;
   name: string;
-  amount: string;
+  needsRefinement: boolean;
+  unit:
+    | "g"
+    | "oz"
+    | "ml"
+    | "fl oz"
+    | "cup"
+    | "tbsp"
+    | "tsp"
+    | "scoop"
+    | "piece"
+    | "serving";
 };
 
 export type Favorite = {

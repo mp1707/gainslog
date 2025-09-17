@@ -1,5 +1,4 @@
 import { FoodLog } from "@/types/models";
-import { generateFoodLogId } from "./idGenerator";
 import { FoodEstimateResponse } from "../lib";
 
 export type EstimationInput = Omit<

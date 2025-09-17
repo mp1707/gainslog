@@ -29,6 +29,12 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       backgroundColor: colors.secondaryBackground,
       gap: theme.spacing.md,
     },
+    refineHighlight: {
+      backgroundColor: colors.warningBackground,
+      borderLeftWidth: 3,
+      borderLeftColor: colors.warning,
+      paddingLeft: theme.spacing.sm,
+    },
     deleteAction: {
       backgroundColor: colors.error,
       justifyContent: 'center',
@@ -54,4 +60,3 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       marginRight: 8,
     },
   });
-

@@ -1,14 +1,20 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { View, TextInput as RNTextInput } from "react-native";
 import { AppText, Button } from "@/components";
 import { useTheme } from "@/theme";
 import { createStyles } from "./StickyEditor.styles";
+import { Picker } from "@react-native-picker/picker";
+import type { FoodComponent } from "@/types/models";
 
 interface StickyEditorProps {
   tempName: string;
-  tempAmount: string;
+  tempAmount: number;
+  tempUnit: FoodComponent["unit"];
   setTempName: (v: string) => void;
-  setTempAmount: (v: string) => void;
+  setTempAmount: React.Dispatch<React.SetStateAction<number>>;
+  setTempUnit: React.Dispatch<
+    React.SetStateAction<FoodComponent["unit"]>
+  >;
   focusNameOnAdd: boolean;
   nameFocused: boolean;
   amountFocused: boolean;
@@ -22,8 +28,10 @@ interface StickyEditorProps {
 export const StickyEditor: React.FC<StickyEditorProps> = ({
   tempName,
   tempAmount,
+  tempUnit,
   setTempName,
   setTempAmount,
+  setTempUnit,
   focusNameOnAdd,
   nameFocused,
   amountFocused,
@@ -35,6 +43,29 @@ export const StickyEditor: React.FC<StickyEditorProps> = ({
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme);
+
+  const unitOptions = useMemo<FoodComponent["unit"][]>(
+    () => [
+      "g",
+      "oz",
+      "ml",
+      "fl oz",
+      "cup",
+      "tbsp",
+      "tsp",
+      "scoop",
+      "piece",
+      "serving",
+    ],
+    []
+  );
+
+  const amountOptions = useMemo(() => {
+    // 0..1000 incremental options
+    const arr: number[] = [];
+    for (let i = 0; i <= 1000; i++) arr.push(i);
+    return arr;
+  }, []);
 
   return (
     <View style={styles.stickyContainer}>
@@ -61,7 +92,7 @@ export const StickyEditor: React.FC<StickyEditorProps> = ({
           />
         </View>
         <AppText role="Caption" style={styles.inlineLabel}>
-          Amount
+          Amount & Unit
         </AppText>
         <View
           style={[
@@ -69,16 +100,32 @@ export const StickyEditor: React.FC<StickyEditorProps> = ({
             { borderColor: amountFocused ? colors.accent : "transparent" },
           ]}
         >
-          <RNTextInput
-            placeholder="Amount (e.g., 150 g)"
-            value={tempAmount}
-            onChangeText={setTempAmount}
-            placeholderTextColor={colors.secondaryText}
-            autoFocus={!focusNameOnAdd}
-            onFocus={() => setAmountFocused(true)}
-            onBlur={() => setAmountFocused(false)}
-            style={styles.input}
-          />
+          <View style={styles.pickerRow}>
+            <View style={styles.pickerWrapper}>
+              <Picker
+                selectedValue={tempAmount}
+                onValueChange={(v) => setTempAmount(Number(v))}
+                itemStyle={styles.pickerItem as any}
+              >
+                {amountOptions.map((n) => (
+                  <Picker.Item key={n} label={String(n)} value={n} />
+                ))}
+              </Picker>
+            </View>
+            <View style={styles.pickerWrapper}>
+              <Picker
+                selectedValue={tempUnit}
+                onValueChange={(v) =>
+                  setTempUnit(v as FoodComponent["unit"])
+                }
+                itemStyle={styles.pickerItem as any}
+              >
+                {unitOptions.map((u) => (
+                  <Picker.Item key={u} label={u} value={u} />
+                ))}
+              </Picker>
+            </View>
+          </View>
         </View>
         <View style={styles.inlineActions}>
           <View style={styles.flex1}>
