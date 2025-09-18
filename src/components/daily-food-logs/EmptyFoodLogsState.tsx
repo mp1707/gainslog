@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { View, Image, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useTheme } from "@/theme/ThemeProvider";
 import { AppText } from "@/components";
 import type { Colors, Theme } from "@/theme";
@@ -11,15 +11,7 @@ export const EmptyFoodLogsState: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        <Image
-          source={require("../../../assets/Loopy/LoopyHungry.png")}
-          style={styles.image}
-          resizeMode="contain"
-          accessibilityLabel="Loopy is hungry and waiting for you to log your first meal"
-          accessibilityRole="image"
-        />
-
-        <AppText style={styles.motivationalText}>Let's log some food!</AppText>
+        <AppText style={styles.motivationalText}>Let's log some food :)</AppText>
       </View>
     </View>
   );
