@@ -206,12 +206,6 @@ export default function Edit() {
 
   const confidence = editedLog?.estimationConfidence || 1;
 
-  const header =
-    confidence < 40
-      ? "Please add more info 🥹"
-      : confidence < 70
-      ? "Be a biiit more concise 🤏"
-      : "Great Foodlog 👌";
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.closeButtonLeft}>
@@ -239,7 +233,7 @@ export default function Edit() {
         bottomOffset={200}
       >
         <AppText role="Title2" style={styles.header}>
-          {header}
+          {editedLog?.title}
         </AppText>
         {!editedLog ? (
           <View style={styles.loadingContainer}>
@@ -288,19 +282,6 @@ export default function Edit() {
             <ImageDisplay
               imageUrl={editedLog.localImagePath}
               isUploading={false}
-            />
-
-            {/* Title input */}
-            <TitleCard
-              value={editedLog.title || ""}
-              onChange={(text) =>
-                setEditedLog((prev) => {
-                  if (!prev) return prev;
-                  const next = { ...prev, title: text };
-                  setIsDirty(true);
-                  return next;
-                })
-              }
             />
           </>
         )}
