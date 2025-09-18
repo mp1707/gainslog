@@ -1,9 +1,22 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { View } from "react-native";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  LayoutChangeEvent,
+  Text,
+  TextStyle,
+  View,
+} from "react-native";
+import Animated, {
+  Easing as ReanimatedEasing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from "react-native-reanimated";
 import { AppText, Card } from "@/components";
 import { useTheme } from "@/theme";
+import type { Colors, Theme } from "@/theme";
 import { createStyles } from "./MacrosCard.styles";
-import { Text } from "react-native";
+import { MacroLineLoader } from "./MacroLineLoader";
 
 interface MacrosCardProps {
   calories?: number | null;
@@ -53,6 +66,164 @@ const useNumberReveal = (initial: number) => {
   return { display, animateTo } as const;
 };
 
+interface MacroRowProps {
+  item: {
+    key: string;
+    label: string;
+    color: string;
+    value: string;
+  };
+  index: number;
+  processing: boolean;
+  styles: ReturnType<typeof createStyles>;
+  valueTextStyle: TextStyle;
+  colors: Colors;
+  theme: Theme;
+}
+
+const MacroRow = ({
+  item,
+  index,
+  processing,
+  styles,
+  valueTextStyle,
+  colors,
+  theme,
+}: MacroRowProps) => {
+  const [rowWidth, setRowWidth] = useState(0);
+  const [rowHeight, setRowHeight] = useState(theme.spacing.lg + theme.spacing.xs);
+
+  const rowWidthValue = useSharedValue(0);
+  const slideDistance = useSharedValue(theme.spacing.xl);
+  const transition = useSharedValue(processing ? 1 : 0);
+  const loaderOpacity = useSharedValue(processing ? 1 : 0);
+  const valueOpacity = useSharedValue(processing ? 0 : 1);
+
+  const handleRowLayout = useCallback(
+    (event: LayoutChangeEvent) => {
+      const { width, height } = event.nativeEvent.layout;
+      if (width !== rowWidth) {
+        setRowWidth(width);
+      }
+      const nextHeight = Math.max(height, theme.spacing.lg + theme.spacing.xs);
+      if (nextHeight !== rowHeight) {
+        setRowHeight(nextHeight);
+      }
+      rowWidthValue.value = width;
+      slideDistance.value = Math.max(theme.spacing.xl, width * 0.18);
+    },
+    [rowHeight, rowWidth, rowWidthValue, slideDistance, theme.spacing.lg, theme.spacing.xl, theme.spacing.xs],
+  );
+
+  useEffect(() => {
+    if (processing) {
+      valueOpacity.value = withTiming(0, {
+        duration: 120,
+        easing: ReanimatedEasing.out(ReanimatedEasing.cubic),
+      });
+      loaderOpacity.value = withTiming(1, {
+        duration: 200,
+        easing: ReanimatedEasing.out(ReanimatedEasing.cubic),
+      });
+      transition.value = withTiming(1, {
+        duration: 320,
+        easing: ReanimatedEasing.inOut(ReanimatedEasing.cubic),
+      });
+    } else {
+      transition.value = withTiming(0, {
+        duration: 420,
+        easing: ReanimatedEasing.out(ReanimatedEasing.cubic),
+      });
+      loaderOpacity.value = withDelay(
+        260,
+        withTiming(0, {
+          duration: 140,
+          easing: ReanimatedEasing.out(ReanimatedEasing.cubic),
+        }),
+      );
+      valueOpacity.value = withDelay(
+        260,
+        withTiming(1, {
+          duration: 280,
+          easing: ReanimatedEasing.out(ReanimatedEasing.cubic),
+        }),
+      );
+    }
+  }, [loaderOpacity, processing, transition, valueOpacity]);
+
+  const loaderHeight = Math.max(rowHeight, theme.spacing.lg + theme.spacing.xs);
+
+  const loaderAnimatedStyle = useAnimatedStyle(() => {
+    const calculatedWidth = Math.max(rowWidthValue.value * transition.value, 0);
+    return {
+      opacity: loaderOpacity.value,
+      width: calculatedWidth,
+    };
+  });
+
+  const labelAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: 1 - transition.value,
+    transform: [
+      {
+        translateX: transition.value * slideDistance.value,
+      },
+    ],
+  }));
+
+  const valueAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: valueOpacity.value,
+    transform: [
+      {
+        translateX: transition.value * slideDistance.value * 0.35,
+      },
+    ],
+  }));
+
+  return (
+    <View style={styles.macroRow} onLayout={handleRowLayout}>
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.macroLoaderLayer, loaderAnimatedStyle]}
+      >
+        {rowWidth > 0 ? (
+          <MacroLineLoader
+            width={rowWidth}
+            height={loaderHeight}
+            color={item.color}
+            index={index}
+          />
+        ) : (
+          <View style={styles.macroLoaderPlaceholder} />
+        )}
+      </Animated.View>
+      <Animated.View
+        style={[
+          styles.macroLabelContainer,
+          labelAnimatedStyle,
+          {
+            backgroundColor: colors.secondaryBackground,
+            paddingHorizontal: theme.spacing.xs,
+            borderRadius: theme.spacing.sm,
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.macroDot,
+            { backgroundColor: item.color },
+          ]}
+        />
+        <AppText>{item.label}</AppText>
+      </Animated.View>
+      <Animated.View style={[styles.macroValueContainer, valueAnimatedStyle]}>
+        <Text style={valueTextStyle} numberOfLines={1}>
+          {item.value}
+        </Text>
+      </Animated.View>
+    </View>
+  );
+};
+
 export const MacrosCard: React.FC<MacrosCardProps> = ({
   calories,
   protein,
@@ -78,93 +249,70 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [revealKey]);
 
-  const animatedOpacity = useMemo(() => (processing ? 0.5 : 1), [processing]);
+  const valueTextStyle: TextStyle = {
+    ...theme.typography.Body,
+    color: colors.secondaryText,
+    textAlign: "right",
+  };
+
+  const macroItems = useMemo(
+    () => [
+      {
+        key: "calories",
+        label: "Calories",
+        color: colors.semantic.calories,
+        value: `${cals.display} kcal`,
+      },
+      {
+        key: "protein",
+        label: "Protein",
+        color: colors.semantic.protein,
+        value: `${prot.display} g`,
+      },
+      {
+        key: "carbs",
+        label: "Carbs",
+        color: colors.semantic.carbs,
+        value: `${crb.display} g`,
+      },
+      {
+        key: "fat",
+        label: "Fat",
+        color: colors.semantic.fat,
+        value: `${ft.display} g`,
+      },
+    ],
+    [
+      cals.display,
+      prot.display,
+      crb.display,
+      ft.display,
+      colors.semantic.calories,
+      colors.semantic.protein,
+      colors.semantic.carbs,
+      colors.semantic.fat,
+    ],
+  );
 
   return (
     <Card>
       <AppText role="Caption" style={styles.sectionHeader}>
         MACROS
       </AppText>
-      <View style={styles.macroRow}>
-        <View style={styles.macroLabelContainer}>
-          <View
-            style={[
-              styles.macroDot,
-              { backgroundColor: colors.semantic.calories },
-            ]}
+      {macroItems.map((item, index) => (
+        <React.Fragment key={item.key}>
+          <MacroRow
+            item={item}
+            index={index}
+            processing={processing}
+            styles={styles}
+            valueTextStyle={valueTextStyle}
+            colors={colors}
+            theme={theme}
           />
-          <AppText>Calories</AppText>
-        </View>
-        <Text
-          style={{
-            ...theme.typography.Body,
-            color: colors.secondaryText,
-            opacity: animatedOpacity,
-          }}
-        >
-          {cals.display} kcal
-        </Text>
-      </View>
-      <View style={styles.divider} />
-      <View style={styles.macroRow}>
-        <View style={styles.macroLabelContainer}>
-          <View
-            style={[
-              styles.macroDot,
-              { backgroundColor: colors.semantic.protein },
-            ]}
-          />
-          <AppText>Protein</AppText>
-        </View>
-        <Text
-          style={{
-            ...theme.typography.Body,
-            color: colors.secondaryText,
-            opacity: animatedOpacity,
-          }}
-        >
-          {prot.display} g
-        </Text>
-      </View>
-      <View style={styles.divider} />
-      <View style={styles.macroRow}>
-        <View style={styles.macroLabelContainer}>
-          <View
-            style={[
-              styles.macroDot,
-              { backgroundColor: colors.semantic.carbs },
-            ]}
-          />
-          <AppText>Carbs</AppText>
-        </View>
-        <Text
-          style={{
-            ...theme.typography.Body,
-            color: colors.secondaryText,
-            opacity: animatedOpacity,
-          }}
-        >
-          {crb.display} g
-        </Text>
-      </View>
-      <View style={styles.divider} />
-      <View style={styles.macroRow}>
-        <View style={styles.macroLabelContainer}>
-          <View
-            style={[styles.macroDot, { backgroundColor: colors.semantic.fat }]}
-          />
-          <AppText>Fat</AppText>
-        </View>
-        <Text
-          style={{
-            ...theme.typography.Body,
-            color: colors.secondaryText,
-            opacity: animatedOpacity,
-          }}
-        >
-          {ft.display} g
-        </Text>
-      </View>
+          {index < macroItems.length - 1 && <View style={styles.divider} />}
+        </React.Fragment>
+      ))}
     </Card>
   );
 };

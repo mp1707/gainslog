@@ -274,7 +274,7 @@ export default function Edit() {
               protein={editedLog.protein}
               carbs={editedLog.carbs}
               fat={editedLog.fat}
-              processing={isLoading || !!originalLog?.isEstimating}
+            processing={isLoading || !!originalLog?.isEstimating}
               revealKey={revealKey}
             />
 
