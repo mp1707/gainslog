@@ -16,6 +16,8 @@ import { AppText, Card } from "@/components";
 import { useTheme } from "@/theme";
 import { createStyles } from "./ConfidenceCard.styles";
 import { LinearGradient } from "expo-linear-gradient";
+import { hasAmbiguousUnit } from "@/utils";
+import type { FoodComponent } from "@/types/models";
 
 interface ConfidenceCardProps {
   value: number; // 0-100
@@ -23,19 +25,16 @@ interface ConfidenceCardProps {
   processing?: boolean;
   // When true, apply a subtle bounce/pulse on settle
   reveal?: boolean;
+  // Food components to check for ambiguous units
+  foodComponents?: FoodComponent[];
 }
 
-const getConfidenceLabel = (value: number) => {
-  if (value >= 90) return "High Accuracy";
-  if (value >= 50) return "Medium Accuracy";
-  if (value > 0) return "Low Accuracy";
-  return "Uncertain";
-};
 
 export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
   value,
   processing = false,
   reveal = false,
+  foodComponents = [],
 }) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
@@ -365,9 +364,11 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
         <AppText role="Title2" style={styles.percentageText}>
           {value ?? 0}%
         </AppText>
-        <AppText role="Subhead" color="secondary">
-          {getConfidenceLabel(value ?? 0)}
-        </AppText>
+        {hasAmbiguousUnit(foodComponents) && (
+          <AppText role="Caption" style={styles.warningMessage}>
+            Better accuracy with precise units like g, ml, or cups.
+          </AppText>
+        )}
       </View>
       <View style={styles.meterTrack}>
         {/* Accent overlay for increase animation (behind main fill) */}

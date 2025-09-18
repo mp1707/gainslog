@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { useAppStore } from "@/store/useAppStore";
 import { EstimationInput, createEstimationLog } from "@/utils/estimation";
+import { hasAmbiguousUnit } from "@/utils";
 import type { FoodLog } from "@/types/models";
 import {
   estimateNutritionImageBased,
@@ -24,7 +25,9 @@ const makeCompletedFromInitial = (
   protein: results.protein,
   carbs: results.carbs,
   fat: results.fat,
-  estimationConfidence: results.estimationConfidence,
+  estimationConfidence: hasAmbiguousUnit(results.foodComponents) 
+    ? Math.min(results.estimationConfidence, 75)
+    : results.estimationConfidence,
   foodComponents: results.foodComponents,
   isEstimating: false,
 });
@@ -39,7 +42,7 @@ const makeCompletedFromRefinement = (
   protein: results.protein,
   carbs: results.carbs,
   fat: results.fat,
-  estimationConfidence: 100,
+  estimationConfidence: hasAmbiguousUnit(base.foodComponents) ? 75 : 100,
   isEstimating: false,
 });
 
@@ -106,3 +109,5 @@ export const useEstimation = () => {
 
   return { runCreateEstimation, runEditEstimation };
 };
+
+

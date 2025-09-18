@@ -40,8 +40,6 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     pickerArea: {
       flexDirection: "row",
       justifyContent: "space-between",
-      gap: theme.spacing.md,
-      height: 180,
       // Use transparent to let native iOS picker chrome show naturally
       backgroundColor: colors.primaryBackground,
       borderRadius: theme.components.cards.cornerRadius,

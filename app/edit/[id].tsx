@@ -227,7 +227,7 @@ export default function Edit() {
           Icon={Check}
           onPress={handleDone}
           variant={"primary"}
-          disabled={!hasReestimated}
+          disabled={!hasReestimated && !isDirty}
           accessibilityLabel="Close"
         />
       </View>
@@ -251,6 +251,7 @@ export default function Edit() {
               value={editedLog.estimationConfidence ?? 0}
               processing={isLoading || !!originalLog?.isEstimating}
               reveal={isRefined}
+              foodComponents={editedLog.foodComponents || []}
             />
 
             {/* Editable component list */}
