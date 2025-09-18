@@ -10,6 +10,10 @@ export const createStyles = (colors: Colors) =>
     nutritionRow: {
       flexDirection: "row",
       alignItems: "center",
+      justifyContent: "flex-start",
+      position: "relative",
+      overflow: "hidden",
+      minHeight: theme.spacing.lg + theme.spacing.xs,
     },
     nutritionDot: {
       width: theme.spacing.sm,
@@ -17,9 +21,25 @@ export const createStyles = (colors: Colors) =>
       borderRadius: theme.spacing.xs,
       marginRight: theme.spacing.sm,
     },
-    nutritionValueContainer: {
-      alignItems: "flex-end",
-      marginRight: theme.spacing.xs,
+    nutritionContent: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    nutritionLoaderLayer: {
+      position: "absolute",
+      left: 0,
+      top: 0,
+      bottom: 0,
+      justifyContent: "center",
+      overflow: "hidden",
+      alignItems: "flex-start",
+    },
+    nutritionLoaderPlaceholder: {
+      width: "100%",
+      height: theme.spacing.md,
+      borderRadius: theme.spacing.md,
+      backgroundColor: colors.subtleBackground,
+      opacity: 0.7,
     },
     nutritionText: {
       fontSize: theme.typography.Subhead.fontSize,

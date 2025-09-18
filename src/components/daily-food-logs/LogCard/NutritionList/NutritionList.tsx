@@ -1,16 +1,17 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import type { LayoutChangeEvent } from "react-native";
 import { View } from "react-native";
 import Animated, {
-  useSharedValue,
+  Easing as ReanimatedEasing,
   useAnimatedStyle,
-  withRepeat,
-  withTiming,
+  useSharedValue,
   withDelay,
-  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import { AppText } from "@/components";
-import { SkeletonPill } from "@/components/shared/SkeletonPill";
+import { MacroLineLoader } from "@/components/refine-page/MacrosCard/MacroLineLoader";
 import { useTheme } from "@/theme";
+import type { Theme } from "@/theme";
 import { createStyles } from "./NutritionList.styles";
 
 interface NutritionData {
@@ -26,50 +27,113 @@ interface NutritionListProps {
   wasLoading?: boolean;
 }
 
-// Component for individual nutrition row with staggered fade animation
-const AnimatedNutritionValue: React.FC<{
+interface NutritionItemConfig {
+  key: string;
   value: number;
   label: string;
+  color: string;
+}
+
+interface AnimatedNutritionRowProps {
+  item: NutritionItemConfig;
+  index: number;
   isLoading: boolean;
   wasLoading: boolean;
-  delay: number;
-  textStyle: any;
-  large?: boolean;
-}> = ({ value, label, isLoading, wasLoading, delay, textStyle, large }) => {
-  const skeletonOpacity = useSharedValue(isLoading ? 1 : 0);
-  const valueOpacity = useSharedValue(isLoading ? 0 : wasLoading ? 0 : 1);
+  styles: ReturnType<typeof createStyles>;
+  theme: Theme;
+}
+
+const AnimatedNutritionRow: React.FC<AnimatedNutritionRowProps> = ({
+  item,
+  index,
+  isLoading,
+  wasLoading,
+  styles,
+  theme,
+}) => {
+  const [rowWidth, setRowWidth] = useState(0);
+  const [rowHeight, setRowHeight] = useState(theme.spacing.lg + theme.spacing.xs);
+
+  const rowWidthValue = useSharedValue(0);
+  const revealProgress = useSharedValue(isLoading ? 1 : 0);
+
+  const handleLayout = useCallback(
+    (event: LayoutChangeEvent) => {
+      const { width, height } = event.nativeEvent.layout;
+      if (width !== rowWidth) {
+        setRowWidth(width);
+      }
+      const nextHeight = Math.max(height, theme.spacing.lg + theme.spacing.xs);
+      if (nextHeight !== rowHeight) {
+        setRowHeight(nextHeight);
+      }
+      rowWidthValue.value = width;
+    },
+    [rowHeight, rowWidth, rowWidthValue, theme.spacing.lg, theme.spacing.xs],
+  );
 
   useEffect(() => {
     if (isLoading) {
-      // Show skeleton, hide value
-      skeletonOpacity.value = withTiming(1, { duration: 200 });
-      valueOpacity.value = withTiming(0, { duration: 200 });
-    } else if (wasLoading) {
-      // Only animate when transitioning from loading to loaded state
-      skeletonOpacity.value = withDelay(delay, withTiming(0, { duration: 300 }));
-      valueOpacity.value = withDelay(delay + 150, withTiming(1, { duration: 400 }));
-    } else {
-      // Show content immediately without animation if not coming from loading state
-      skeletonOpacity.value = 0;
-      valueOpacity.value = 1;
+      revealProgress.value = 1;
+      return;
     }
-  }, [isLoading, wasLoading, delay]);
 
-  const skeletonAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: skeletonOpacity.value,
+    if (wasLoading) {
+      revealProgress.value = withDelay(
+        index * 70,
+        withTiming(0, {
+          duration: 420,
+          easing: ReanimatedEasing.inOut(ReanimatedEasing.cubic),
+        }),
+      );
+      return;
+    }
+
+    revealProgress.value = 0;
+  }, [index, isLoading, revealProgress, wasLoading]);
+
+  const loaderHeight = Math.max(rowHeight, theme.spacing.lg + theme.spacing.xs);
+
+  const loaderAnimatedStyle = useAnimatedStyle(() => ({
+    width: Math.max(rowWidthValue.value * revealProgress.value, 0),
   }));
 
-  const valueAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: valueOpacity.value,
+  const contentAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateX: revealProgress.value * rowWidthValue.value,
+      },
+    ],
   }));
 
   return (
-    <View style={{ position: 'relative' }}>
-      <Animated.View style={[{ position: 'absolute' }, skeletonAnimatedStyle]}>
-        <SkeletonPill width={large ? 60 : 50} height={16} />
+    <View style={styles.nutritionRow} onLayout={handleLayout}>
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.nutritionLoaderLayer, loaderAnimatedStyle]}
+      >
+        {rowWidth > 0 ? (
+          <MacroLineLoader
+            width={rowWidth}
+            height={loaderHeight}
+            color={item.color}
+            index={index}
+          />
+        ) : (
+          <View style={styles.nutritionLoaderPlaceholder} />
+        )}
       </Animated.View>
-      <Animated.View style={valueAnimatedStyle}>
-        <AppText style={textStyle}>{Math.round(value)} {label}</AppText>
+
+      <Animated.View style={[styles.nutritionContent, contentAnimatedStyle]}>
+        <View
+          style={[
+            styles.nutritionDot,
+            { backgroundColor: item.color },
+          ]}
+        />
+        <AppText style={styles.nutritionText}>
+          {Math.round(item.value)} {item.label}
+        </AppText>
       </Animated.View>
     </View>
   );
@@ -80,103 +144,63 @@ export const NutritionList: React.FC<NutritionListProps> = ({
   isLoading = false,
   wasLoading = false,
 }) => {
-  const { colors } = useTheme();
-  const styles = createStyles(colors);
+  const { colors, theme } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
-  // Animation values for dots scaling during loading
-  const dotScales = [
-    useSharedValue(1),
-    useSharedValue(1),
-    useSharedValue(1),
-    useSharedValue(1),
-  ];
+  const { calories, protein, carbs, fat } = nutrition;
 
-
-
-  const nutritionItems = [
-    {
-      key: "calories",
-      value: Math.round(nutrition.calories),
-      label: "kcal",
-      color: colors.semantic.calories,
-      delay: 450, // Staggered reveal timing
-    },
-    {
-      key: "protein",
-      value: Math.round(nutrition.protein),
-      label: "g Protein",
-      color: colors.semantic.protein,
-      delay: 550,
-    },
-    {
-      key: "carbs",
-      value: Math.round(nutrition.carbs),
-      label: "g Carbs",
-      color: colors.semantic.carbs,
-      delay: 650,
-    },
-    {
-      key: "fat",
-      value: Math.round(nutrition.fat),
-      label: "g Fat",
-      color: colors.semantic.fat,
-      delay: 750,
-    },
-  ];
-
-  useEffect(() => {
-    if (isLoading) {
-      // Start dot scaling animations with staggered timing
-      dotScales.forEach((scale, index) => {
-        scale.value = withDelay(
-          index * 100,
-          withRepeat(withTiming(1.4, { duration: 600 }), -1, true)
-        );
-      });
-    } else if (wasLoading) {
-      // Only animate dots when transitioning from loading to loaded state
-      dotScales.forEach((scale) => {
-        scale.value = withSpring(1, { stiffness: 400, damping: 30 });
-      });
-    } else {
-      // Set dots to normal state without animation if not coming from loading
-      dotScales.forEach((scale) => {
-        scale.value = 1;
-      });
-    }
-  }, [isLoading, wasLoading]);
+  const nutritionItems: NutritionItemConfig[] = useMemo(
+    () => [
+      {
+        key: "calories",
+        value: calories,
+        label: "kcal",
+        color: colors.semantic.calories,
+      },
+      {
+        key: "protein",
+        value: protein,
+        label: "g Protein",
+        color: colors.semantic.protein,
+      },
+      {
+        key: "carbs",
+        value: carbs,
+        label: "g Carbs",
+        color: colors.semantic.carbs,
+      },
+      {
+        key: "fat",
+        value: fat,
+        label: "g Fat",
+        color: colors.semantic.fat,
+      },
+    ],
+    [
+      calories,
+      protein,
+      carbs,
+      fat,
+      colors.semantic.calories,
+      colors.semantic.protein,
+      colors.semantic.carbs,
+      colors.semantic.fat,
+    ],
+  );
 
   return (
     <View style={styles.nutritionList}>
-      {nutritionItems.map((item, index) => {
-        const dotAnimatedStyle = useAnimatedStyle(() => ({
-          transform: [{ scale: dotScales[index].value }],
-        }));
-
-        return (
-          <View
-            key={item.key}
-            style={styles.nutritionRow}
-          >
-            <Animated.View
-              style={[
-                styles.nutritionDot,
-                { backgroundColor: item.color },
-                dotAnimatedStyle,
-              ]}
-            />
-            <AnimatedNutritionValue
-              value={item.value}
-              label={item.label}
-              isLoading={isLoading}
-              wasLoading={wasLoading}
-              delay={item.delay}
-              textStyle={styles.nutritionText}
-              large={item.key === "calories"}
-            />
-          </View>
-        );
-      })}
+      {nutritionItems.map((item, index) => (
+        <AnimatedNutritionRow
+          key={item.key}
+          item={item}
+          index={index}
+          isLoading={!!isLoading}
+          wasLoading={!!wasLoading}
+          styles={styles}
+          theme={theme}
+        />
+      ))}
     </View>
   );
 };

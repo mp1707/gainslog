@@ -27,7 +27,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       gap: theme.spacing.sm,
     },
     percentageText: {
-      width: "45%",
+      width: "38%",
       fontSize: 40,
       fontWeight: "700" as const,
       lineHeight: 52,
@@ -35,7 +35,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       marginBottom: -4,
     },
     warningMessage: {
-      width: "45%",
+      width: "58%",
       color: colors.secondaryText,
       lineHeight: 16,
       fontSize: 12,
