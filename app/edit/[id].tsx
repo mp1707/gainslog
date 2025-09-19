@@ -6,6 +6,7 @@ import {
   View,
   ActivityIndicator,
   ScrollView as RNScrollView,
+  Pressable,
 } from "react-native";
 import { Check, X } from "lucide-react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
@@ -30,6 +31,7 @@ import BottomSheet, {
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { LinearGradient } from "expo-linear-gradient";
+import { TextInput } from "@/components/shared/TextInput";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -65,6 +67,9 @@ export default function Edit() {
     FoodComponent[] | undefined
   >();
   const [hasReestimated, setHasReestimated] = useState(false);
+  // Title editing state
+  const [isTitleEditing, setIsTitleEditing] = useState(false);
+  const [tempTitle, setTempTitle] = useState(editedLog?.title || "");
   const sheetRef = useRef<BottomSheet | null>(null);
   const openGuardAtRef = useRef<number>(0);
   useEffect(() => {
@@ -86,13 +91,23 @@ export default function Edit() {
     }
   }, [originalLog, isDirty]);
 
+  // Sync tempTitle with editedLog title
+  useEffect(() => {
+    if (editedLog && !isTitleEditing) {
+      setTempTitle(editedLog.title || "");
+    }
+  }, [editedLog?.title, isTitleEditing]);
+
+  // Check if title has changed
+  const titleChanged = tempTitle.trim() !== (originalLog?.title || "").trim();
+
   // Confidence UI is handled inside ConfidenceCard component
 
   const handleDone = () => {
     if (id && editedLog) {
       // Persist all updated values to the store
       updateFoodLog(id, {
-        title: (editedLog.title ?? "").trim(),
+        title: tempTitle.trim(),
         calories: editedLog.calories,
         protein: editedLog.protein,
         carbs: editedLog.carbs,
@@ -204,7 +219,18 @@ export default function Edit() {
     }
   };
 
-  const confidence = editedLog?.estimationConfidence || 1;
+  // Title editing handlers
+  const handleTitlePress = () => {
+    setIsTitleEditing(true);
+  };
+
+  const handleTitleBlur = () => {
+    setIsTitleEditing(false);
+    if (editedLog) {
+      setEditedLog({ ...editedLog, title: tempTitle.trim() });
+      setIsDirty(true);
+    }
+  };
 
   return (
     <GradientWrapper style={styles.container}>
@@ -221,7 +247,7 @@ export default function Edit() {
           Icon={Check}
           onPress={handleDone}
           variant={"primary"}
-          disabled={!hasReestimated && !isDirty}
+          disabled={!hasReestimated && !isDirty && !titleChanged}
           accessibilityLabel="Close"
         />
       </View>
@@ -232,9 +258,24 @@ export default function Edit() {
         keyboardShouldPersistTaps="handled"
         bottomOffset={200}
       >
-        <AppText role="Title2" style={styles.header}>
-          {editedLog?.title}
-        </AppText>
+        {isTitleEditing ? (
+          <TextInput
+            value={tempTitle}
+            onChangeText={setTempTitle}
+            onBlur={handleTitleBlur}
+            autoFocus={true}
+            // blurOnSubmit={true}
+            style={[styles.header, styles.titleInput]}
+            placeholder="Enter title..."
+            placeholderTextColor={colors.secondaryText}
+          />
+        ) : (
+          <Pressable onPress={handleTitlePress}>
+            <AppText role="Title2" style={styles.header}>
+              {tempTitle || "Tap to add title"}
+            </AppText>
+          </Pressable>
+        )}
         {!editedLog ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator />
@@ -274,7 +315,7 @@ export default function Edit() {
               protein={editedLog.protein}
               carbs={editedLog.carbs}
               fat={editedLog.fat}
-            processing={isLoading || !!originalLog?.isEstimating}
+              processing={isLoading || !!originalLog?.isEstimating}
               revealKey={revealKey}
             />
 
@@ -427,6 +468,12 @@ const createStyles = (colors: Colors, theme: Theme) =>
     },
     header: {
       paddingLeft: theme.spacing.sm,
+    },
+    titleInput: {
+      color: colors.primaryText,
+      fontSize: theme.typography.Title2.fontSize,
+      fontWeight: "600",
+
     },
     loadingContainer: {
       flex: 1,
