@@ -10,7 +10,7 @@ const SCHEME = IS_DEV
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: IS_DEV ? "Macro Loop D" : IS_PREVIEW ? "Macro Loop P" : "Macro Loop",
+  name: IS_DEV ? "MacroLoop D" : IS_PREVIEW ? "MacroLoop P" : "MacroLoop",
   slug: "gainslog",
   version: "1.0.0",
   orientation: "portrait",
