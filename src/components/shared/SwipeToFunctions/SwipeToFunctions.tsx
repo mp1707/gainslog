@@ -34,7 +34,8 @@ const ACTION_COMPLETE_THRESHOLD = SCREEN_WIDTH * 0.7; // 70% of screen width
 const ACTION_BUTTON_WIDTH = 90;
 
 // Threshold for determining if gesture is horizontal vs vertical
-const DIRECTION_THRESHOLD = 50; // Increased to be more selective
+const DIRECTION_THRESHOLD = 35; // Higher threshold to avoid accidental horizontal captures
+const VERTICAL_SCROLL_THRESHOLD = 16; // Release press feedback quickly on vertical intent
 
 export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
   children,
@@ -198,8 +199,19 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
 
   // Enhanced pan gesture that handles both press animations and swipe actions
   const enhancedGesture = useMemo(
-    () =>
-      Gesture.Pan()
+    () => {
+      const releasePressFeedback = () => {
+        'worklet';
+        if (!isPressing.value) return;
+        isPressing.value = false;
+        scale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+        pressFlashOpacity.value = withTiming(0, {
+          duration: 200,
+          easing: Easing.out(Easing.quad),
+        });
+      };
+
+      return Gesture.Pan()
         .activeOffsetX([-10, 10]) // Only become active for horizontal movement
         .failOffsetY([-30, 30]) // Fail if vertical movement is too large
         .onBegin(() => {
@@ -233,29 +245,18 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
             const absX = Math.abs(translationX);
             const absY = Math.abs(translationY);
 
-            // Only determine direction after significant movement
-            if (absX > DIRECTION_THRESHOLD || absY > DIRECTION_THRESHOLD) {
-              // Require much more pronounced horizontal movement to capture the gesture
-              if (absX > absY * 2.5 && absX > DIRECTION_THRESHOLD) {
-                // Much more strict horizontal requirement
-                gestureDirection.value = "horizontal";
-                runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
-                // Cancel press animation when starting to swipe
-                if (isPressing.value) {
-                  isPressing.value = false;
-                  scale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
-                  pressFlashOpacity.value = withTiming(0, { duration: 200, easing: Easing.out(Easing.quad) });
-                }
-              } else {
-                // Any other movement pattern should be treated as vertical/other
-                gestureDirection.value = "vertical";
-                // Cancel press animation for vertical scrolling
-                if (isPressing.value) {
-                  isPressing.value = false;
-                  scale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
-                  pressFlashOpacity.value = withTiming(0, { duration: 200, easing: Easing.out(Easing.quad) });
-                }
-              }
+            // Detect vertical intent quickly to avoid lingering press feedback while scrolling
+            if (absY > VERTICAL_SCROLL_THRESHOLD && absY > absX) {
+              gestureDirection.value = "vertical";
+              releasePressFeedback();
+              return;
+            }
+
+            // Only determine horizontal direction after significant movement
+            if (absX > DIRECTION_THRESHOLD && absX > absY * 2.5) {
+              gestureDirection.value = "horizontal";
+              runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
+              releasePressFeedback();
             }
           }
 
@@ -431,11 +432,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
             });
           } else {
             // Not a tap: ensure any pending press visuals are cleared
-            if (isPressing.value) {
-              isPressing.value = false;
-              scale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
-              pressFlashOpacity.value = withTiming(0, { duration: 200, easing: Easing.out(Easing.quad) });
-            }
+            releasePressFeedback();
           }
         })
         .onFinalize(() => {
@@ -458,17 +455,15 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
           }
 
           // Reset press state if still active
-          if (isPressing.value) {
-            isPressing.value = false;
-            scale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
-            pressFlashOpacity.value = withTiming(0, {
-              duration: 300,
-              easing: Easing.out(Easing.quad),
-            });
-          }
+          releasePressFeedback();
 
           gestureDirection.value = "unknown";
-        }),
+        })
+        .onTouchesCancelled(() => {
+          releasePressFeedback();
+          gestureDirection.value = "unknown";
+        });
+    },
     [onDelete, onFavorite, onTap]
   );
 

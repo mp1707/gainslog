@@ -54,7 +54,6 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     },
     divider: {
       height: 1,
-      marginHorizontal: -theme.spacing.lg,
       backgroundColor: colors.border,
     },
   });
