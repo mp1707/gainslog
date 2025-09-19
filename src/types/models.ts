@@ -51,6 +51,14 @@ export type DailyTargets = {
   fat?: number; // g
 };
 
+export type ProteinGoalType =
+  | "daily_maintenance"
+  | "active_lifestyle"
+  | "optimal_growth"
+  | "dedicated_athlete"
+  | "anabolic_insurance"
+  | "max_preservation";
+
 export type UserSettings = {
   sex: "male" | "female";
   age: number;
@@ -58,10 +66,6 @@ export type UserSettings = {
   height: number; // cm
   activityLevel: "sedentary" | "light" | "moderate" | "active" | "veryactive";
   calorieGoalType?: "lose" | "maintain" | "gain";
-  proteinGoalType?:
-    | "optimal_growth"
-    | "dedicated_athlete"
-    | "anabolic_insurance"
-    | "max_preservation"; // g per kg BW
-  fatCalculationPercentage: number; // % of total calories
+  proteinGoalType?: ProteinGoalType;
+  fatCalculationPercentage: number;
 };

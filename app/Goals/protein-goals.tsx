@@ -8,13 +8,20 @@ import {
 } from "react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
-import { TrendingUp, Dumbbell, ShieldCheck, Trophy, Heart, Activity } from "lucide-react-native";
+import {
+  TrendingUp,
+  Dumbbell,
+  ShieldCheck,
+  Trophy,
+  Heart,
+  Activity,
+} from "lucide-react-native";
 
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { StyleSheet } from "react-native";
-import { UserSettings } from "@/types/models";
+import { ProteinGoalType, UserSettings } from "@/types/models";
 import {
   calculateCarbsFromMacros,
   calculateFatGramsFromPercentage,
@@ -24,9 +31,9 @@ import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 const METHODS: Record<
-  NonNullable<UserSettings["proteinGoalType"]>,
+  ProteinGoalType,
   {
-    id: NonNullable<UserSettings["proteinGoalType"]>;
+    id: ProteinGoalType;
     title: string;
     description: string;
     factor: number;

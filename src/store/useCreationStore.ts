@@ -29,6 +29,7 @@ export const useCreationStore = create<CreationState>((set, get) => ({
       localImagePath: "",
       logDate: selectedDate,
       createdAt: new Date().toISOString(),
+      foodComponents: [],
       calories: 0,
       protein: 0,
       carbs: 0,

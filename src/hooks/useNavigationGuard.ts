@@ -15,6 +15,11 @@ export function useNavigationGuard() {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastFocusAtRef = useRef<number>(Date.now());
   const { isTransitioning } = useNavigationTransition();
+  const isTransitioningRef = useRef(isTransitioning);
+
+  useEffect(() => {
+    isTransitioningRef.current = isTransitioning;
+  }, [isTransitioning]);
 
   // Track when the screen becomes focused to delay navigation slightly
   useFocusEffect(
@@ -81,12 +86,17 @@ export function useNavigationGuard() {
   const maybeSchedule = useCallback(
     (navigationFn: () => void) => {
       const minDelay = 300; // wait a beat after focus/transition
+      const MAX_WAIT = 1200; // ms; prevent guarding forever
+      const CHECK_INTERVAL = 80;
+      const startTs = Date.now();
 
       const waitAndNavigate = () => {
-        // If a transition is ongoing, keep deferring until it ends
-        if (isTransitioning) {
+        const stillTransitioning = isTransitioningRef.current;
+        const exceededWait = Date.now() - startTs > MAX_WAIT;
+
+        if (stillTransitioning && !exceededWait) {
           InteractionManager.runAfterInteractions(() => {
-            setTimeout(waitAndNavigate, 80);
+            setTimeout(waitAndNavigate, CHECK_INTERVAL);
           });
           return;
         }
@@ -101,7 +111,7 @@ export function useNavigationGuard() {
 
       waitAndNavigate();
     },
-    [executeNavigation, isTransitioning]
+    [executeNavigation]
   );
 
   const safeNavigate = useCallback(

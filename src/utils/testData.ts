@@ -3,20 +3,13 @@ import { FoodLog } from "../types/models";
 export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   // Breakfast items
   {
-    title: "Scrambled Eggs with Toast",
-    description:
-      "Two eggs scrambled with butter, served with whole wheat toast",
-    supabaseImagePath: "https://picsum.photos/400/300?random=1",
-    calories: 320,
-    protein: 18,
-    carbs: 24,
-    fat: 16,
-    estimationConfidence: 0.9,
-    isEstimating: false,
-  },
-  {
     title: "Greek Yogurt with Berries",
     description: "Plain Greek yogurt topped with mixed berries and honey",
+    foodComponents: [
+      { amount: 200, name: "Greek yogurt", needsRefinement: false, unit: "g" },
+      { amount: 80, name: "Mixed berries", needsRefinement: false, unit: "g" },
+      { amount: 1, name: "Honey", needsRefinement: false, unit: "tbsp" }
+    ],
     calories: 180,
     protein: 15,
     carbs: 22,
@@ -25,19 +18,13 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Oatmeal with Banana",
-    description: "Steel-cut oats with sliced banana and cinnamon",
-    supabaseImagePath: "https://picsum.photos/400/300?random=2",
-    calories: 250,
-    protein: 8,
-    carbs: 45,
-    fat: 6,
-    estimationConfidence: 0.8,
-    isEstimating: false,
-  },
-  {
     title: "Avocado Toast",
     description: "Whole grain bread with mashed avocado and sea salt",
+    foodComponents: [
+      { amount: 2, name: "Whole grain bread", needsRefinement: false, unit: "piece" },
+      { amount: 100, name: "Avocado", needsRefinement: false, unit: "g" },
+      { amount: 1, name: "Sea salt", needsRefinement: false, unit: "tsp" }
+    ],
     calories: 280,
     protein: 6,
     carbs: 28,
@@ -45,34 +32,18 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     estimationConfidence: 0.9,
     isEstimating: false,
   },
-  {
-    title: "Protein Smoothie",
-    description: "Whey protein, banana, spinach, and almond milk",
-    supabaseImagePath: "https://picsum.photos/400/300?random=3",
-    calories: 220,
-    protein: 25,
-    carbs: 18,
-    fat: 8,
-    estimationConfidence: 0.95,
-    isEstimating: false,
-  },
 
   // Lunch items
   {
-    title: "Grilled Chicken Salad",
-    description:
-      "Mixed greens with grilled chicken breast, cherry tomatoes, and vinaigrette",
-    supabaseImagePath: "https://picsum.photos/400/300?random=4",
-    calories: 380,
-    protein: 35,
-    carbs: 12,
-    fat: 22,
-    estimationConfidence: 0.85,
-    isEstimating: false,
-  },
-  {
     title: "Turkey Sandwich",
     description: "Sliced turkey breast on whole wheat with lettuce and tomato",
+    foodComponents: [
+      { amount: 2, name: "Whole wheat bread", needsRefinement: false, unit: "piece" },
+      { amount: 120, name: "Turkey breast", needsRefinement: false, unit: "g" },
+      { amount: 50, name: "Lettuce", needsRefinement: false, unit: "g" },
+      { amount: 80, name: "Tomato", needsRefinement: false, unit: "g" },
+      { amount: 1, name: "Mayonnaise", needsRefinement: false, unit: "tbsp" }
+    ],
     calories: 420,
     protein: 28,
     carbs: 45,
@@ -81,19 +52,14 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Quinoa Bowl",
-    description: "Quinoa with roasted vegetables and tahini dressing",
-    supabaseImagePath: "https://picsum.photos/400/300?random=5",
-    calories: 450,
-    protein: 16,
-    carbs: 65,
-    fat: 18,
-    estimationConfidence: 0.75,
-    isEstimating: false,
-  },
-  {
     title: "Tuna Wrap",
     description: "Tuna salad with mixed vegetables in a whole wheat tortilla",
+    foodComponents: [
+      { amount: 1, name: "Whole wheat tortilla", needsRefinement: false, unit: "piece" },
+      { amount: 100, name: "Tuna", needsRefinement: false, unit: "g" },
+      { amount: 60, name: "Mixed vegetables", needsRefinement: false, unit: "g" },
+      { amount: 1, name: "Mayonnaise", needsRefinement: false, unit: "tbsp" }
+    ],
     calories: 380,
     protein: 24,
     carbs: 32,
@@ -101,33 +67,17 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     estimationConfidence: 0.8,
     isEstimating: false,
   },
-  {
-    title: "Vegetarian Pasta",
-    description: "Whole wheat pasta with marinara sauce and vegetables",
-    supabaseImagePath: "https://picsum.photos/400/300?random=6",
-    calories: 520,
-    protein: 18,
-    carbs: 78,
-    fat: 16,
-    estimationConfidence: 0.7,
-    isEstimating: false,
-  },
 
   // Dinner items
   {
-    title: "Grilled Salmon with Rice",
-    description: "Atlantic salmon fillet with brown rice and steamed broccoli",
-    supabaseImagePath: "https://picsum.photos/400/300?random=7",
-    calories: 580,
-    protein: 42,
-    carbs: 45,
-    fat: 24,
-    estimationConfidence: 0.9,
-    isEstimating: false,
-  },
-  {
     title: "Beef Stir Fry",
     description: "Lean beef strips with mixed vegetables and brown rice",
+    foodComponents: [
+      { amount: 150, name: "Lean beef", needsRefinement: false, unit: "g" },
+      { amount: 200, name: "Mixed vegetables", needsRefinement: false, unit: "g" },
+      { amount: 150, name: "Brown rice", needsRefinement: false, unit: "g" },
+      { amount: 1, name: "Cooking oil", needsRefinement: false, unit: "tbsp" }
+    ],
     calories: 480,
     protein: 32,
     carbs: 38,
@@ -136,20 +86,14 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Chicken Breast with Sweet Potato",
-    description:
-      "Baked chicken breast with roasted sweet potato and green beans",
-    supabaseImagePath: "https://picsum.photos/400/300?random=8",
-    calories: 520,
-    protein: 45,
-    carbs: 42,
-    fat: 16,
-    estimationConfidence: 0.85,
-    isEstimating: false,
-  },
-  {
     title: "Vegetarian Curry",
     description: "Chickpea and vegetable curry with basmati rice",
+    foodComponents: [
+      { amount: 200, name: "Chickpeas", needsRefinement: false, unit: "g" },
+      { amount: 150, name: "Mixed vegetables", needsRefinement: false, unit: "g" },
+      { amount: 150, name: "Basmati rice", needsRefinement: false, unit: "g" },
+      { amount: 100, name: "Coconut milk", needsRefinement: false, unit: "ml" }
+    ],
     calories: 450,
     protein: 16,
     carbs: 68,
@@ -157,34 +101,16 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     estimationConfidence: 0.7,
     isEstimating: false,
   },
-  {
-    title: "Pork Tenderloin with Quinoa",
-    description:
-      "Lean pork tenderloin with quinoa pilaf and roasted vegetables",
-    supabaseImagePath: "https://picsum.photos/400/300?random=9",
-    calories: 560,
-    protein: 38,
-    carbs: 48,
-    fat: 22,
-    estimationConfidence: 0.8,
-    isEstimating: false,
-  },
 
   // Snacks
   {
-    title: "Apple with Almond Butter",
-    description: "Medium apple sliced with 2 tbsp natural almond butter",
-    supabaseImagePath: "https://picsum.photos/400/300?random=10",
-    calories: 280,
-    protein: 8,
-    carbs: 28,
-    fat: 16,
-    estimationConfidence: 0.9,
-    isEstimating: false,
-  },
-  {
     title: "Trail Mix",
     description: "Mixed nuts, dried fruit, and dark chocolate chips",
+    foodComponents: [
+      { amount: 30, name: "Mixed nuts", needsRefinement: false, unit: "g" },
+      { amount: 20, name: "Dried fruit", needsRefinement: false, unit: "g" },
+      { amount: 10, name: "Dark chocolate chips", needsRefinement: false, unit: "g" }
+    ],
     calories: 220,
     protein: 6,
     carbs: 18,
@@ -193,19 +119,12 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Protein Bar",
-    description: "Chocolate chip protein bar",
-    supabaseImagePath: "https://picsum.photos/400/300?random=11",
-    calories: 190,
-    protein: 20,
-    carbs: 16,
-    fat: 6,
-    estimationConfidence: 0.95,
-    isEstimating: false,
-  },
-  {
     title: "Cottage Cheese with Fruit",
     description: "Low-fat cottage cheese with fresh peach slices",
+    foodComponents: [
+      { amount: 200, name: "Low-fat cottage cheese", needsRefinement: false, unit: "g" },
+      { amount: 150, name: "Fresh peach", needsRefinement: false, unit: "g" }
+    ],
     calories: 160,
     protein: 14,
     carbs: 18,
@@ -213,33 +132,16 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     estimationConfidence: 0.85,
     isEstimating: false,
   },
-  {
-    title: "Hummus with Vegetables",
-    description: "Classic hummus with carrot sticks and bell pepper slices",
-    supabaseImagePath: "https://picsum.photos/400/300?random=12",
-    calories: 140,
-    protein: 6,
-    carbs: 16,
-    fat: 8,
-    estimationConfidence: 0.8,
-    isEstimating: false,
-  },
 
   // Additional variety
   {
-    title: "Sushi Roll",
-    description: "Salmon avocado roll with brown rice",
-    supabaseImagePath: "https://picsum.photos/400/300?random=13",
-    calories: 320,
-    protein: 18,
-    carbs: 42,
-    fat: 8,
-    estimationConfidence: 0.75,
-    isEstimating: false,
-  },
-  {
     title: "Pizza Slice",
     description: "Thin crust margherita pizza slice",
+    foodComponents: [
+      { amount: 1, name: "Pizza slice", needsRefinement: false, unit: "piece" },
+      { amount: 30, name: "Mozzarella cheese", needsRefinement: false, unit: "g" },
+      { amount: 50, name: "Tomato sauce", needsRefinement: false, unit: "g" }
+    ],
     calories: 290,
     protein: 12,
     carbs: 35,
@@ -248,19 +150,14 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Burrito Bowl",
-    description: "Chicken, brown rice, black beans, and vegetables",
-    supabaseImagePath: "https://picsum.photos/400/300?random=14",
-    calories: 540,
-    protein: 32,
-    carbs: 58,
-    fat: 18,
-    estimationConfidence: 0.75,
-    isEstimating: false,
-  },
-  {
     title: "Fish Tacos",
     description: "Grilled white fish with cabbage slaw in corn tortillas",
+    foodComponents: [
+      { amount: 2, name: "Corn tortillas", needsRefinement: false, unit: "piece" },
+      { amount: 120, name: "White fish", needsRefinement: false, unit: "g" },
+      { amount: 80, name: "Cabbage slaw", needsRefinement: false, unit: "g" },
+      { amount: 2, name: "Lime juice", needsRefinement: false, unit: "tbsp" }
+    ],
     calories: 380,
     protein: 26,
     carbs: 38,
@@ -269,19 +166,13 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Smoothie Bowl",
-    description: "Acai smoothie bowl with granola, banana, and berries",
-    supabaseImagePath: "https://picsum.photos/400/300?random=15",
-    calories: 350,
-    protein: 12,
-    carbs: 55,
-    fat: 12,
-    estimationConfidence: 0.75,
-    isEstimating: false,
-  },
-  {
     title: "Grilled Cheese Sandwich",
     description: "Classic grilled cheese on sourdough bread",
+    foodComponents: [
+      { amount: 2, name: "Sourdough bread", needsRefinement: false, unit: "piece" },
+      { amount: 80, name: "Cheddar cheese", needsRefinement: false, unit: "g" },
+      { amount: 1, name: "Butter", needsRefinement: false, unit: "tbsp" }
+    ],
     calories: 410,
     protein: 16,
     carbs: 32,
@@ -290,19 +181,14 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Protein Pancakes",
-    description: "Whole wheat pancakes with protein powder and maple syrup",
-    supabaseImagePath: "https://picsum.photos/400/300?random=16",
-    calories: 380,
-    protein: 28,
-    carbs: 45,
-    fat: 8,
-    estimationConfidence: 0.8,
-    isEstimating: false,
-  },
-  {
     title: "Meatball Sub",
     description: "Turkey meatballs in marinara sauce on whole grain roll",
+    foodComponents: [
+      { amount: 1, name: "Whole grain roll", needsRefinement: false, unit: "piece" },
+      { amount: 150, name: "Turkey meatballs", needsRefinement: false, unit: "g" },
+      { amount: 80, name: "Marinara sauce", needsRefinement: false, unit: "g" },
+      { amount: 30, name: "Mozzarella cheese", needsRefinement: false, unit: "g" }
+    ],
     calories: 520,
     protein: 28,
     carbs: 48,
@@ -311,19 +197,14 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Caesar Salad",
-    description: "Romaine lettuce with grilled chicken, parmesan, and dressing",
-    supabaseImagePath: "https://picsum.photos/400/300?random=17",
-    calories: 420,
-    protein: 32,
-    carbs: 12,
-    fat: 28,
-    estimationConfidence: 0.8,
-    isEstimating: false,
-  },
-  {
     title: "Overnight Oats",
     description: "Oats soaked in almond milk with chia seeds and berries",
+    foodComponents: [
+      { amount: 50, name: "Rolled oats", needsRefinement: false, unit: "g" },
+      { amount: 200, name: "Almond milk", needsRefinement: false, unit: "ml" },
+      { amount: 1, name: "Chia seeds", needsRefinement: false, unit: "tbsp" },
+      { amount: 80, name: "Mixed berries", needsRefinement: false, unit: "g" }
+    ],
     calories: 280,
     protein: 10,
     carbs: 42,
@@ -332,19 +213,15 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Energy Balls",
-    description: "Date and nut energy balls with coconut",
-    supabaseImagePath: "https://picsum.photos/400/300?random=18",
-    calories: 180,
-    protein: 6,
-    carbs: 18,
-    fat: 10,
-    estimationConfidence: 0.85,
-    isEstimating: false,
-  },
-  {
     title: "Beef Tacos",
     description: "Ground beef tacos with lettuce, tomato, and cheese",
+    foodComponents: [
+      { amount: 3, name: "Corn tortillas", needsRefinement: false, unit: "piece" },
+      { amount: 120, name: "Ground beef", needsRefinement: false, unit: "g" },
+      { amount: 50, name: "Lettuce", needsRefinement: false, unit: "g" },
+      { amount: 60, name: "Tomato", needsRefinement: false, unit: "g" },
+      { amount: 40, name: "Cheddar cheese", needsRefinement: false, unit: "g" }
+    ],
     calories: 450,
     protein: 24,
     carbs: 32,
@@ -353,19 +230,12 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Chicken Noodle Soup",
-    description: "Homemade chicken soup with vegetables and egg noodles",
-    supabaseImagePath: "https://picsum.photos/400/300?random=19",
-    calories: 220,
-    protein: 16,
-    carbs: 24,
-    fat: 6,
-    estimationConfidence: 0.75,
-    isEstimating: false,
-  },
-  {
     title: "Banana Bread",
     description: "Homemade banana bread slice",
+    foodComponents: [
+      { amount: 1, name: "Banana bread slice", needsRefinement: false, unit: "piece" },
+      { amount: 80, name: "Banana", needsRefinement: false, unit: "g" }
+    ],
     calories: 240,
     protein: 4,
     carbs: 42,
@@ -374,19 +244,13 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Greek Pita Wrap",
-    description: "Grilled chicken with tzatziki, vegetables in pita bread",
-    supabaseImagePath: "https://picsum.photos/400/300?random=20",
-    calories: 390,
-    protein: 28,
-    carbs: 35,
-    fat: 16,
-    estimationConfidence: 0.75,
-    isEstimating: false,
-  },
-  {
     title: "Chocolate Protein Shake",
     description: "Chocolate whey protein with banana and milk",
+    foodComponents: [
+      { amount: 1, name: "Chocolate protein powder", needsRefinement: false, unit: "scoop" },
+      { amount: 200, name: "Milk", needsRefinement: false, unit: "ml" },
+      { amount: 1, name: "Banana", needsRefinement: false, unit: "piece" }
+    ],
     calories: 280,
     protein: 30,
     carbs: 24,
@@ -395,19 +259,14 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Stuffed Bell Peppers",
-    description: "Bell peppers stuffed with ground turkey and rice",
-    supabaseImagePath: "https://picsum.photos/400/300?random=21",
-    calories: 320,
-    protein: 22,
-    carbs: 28,
-    fat: 14,
-    estimationConfidence: 0.8,
-    isEstimating: false,
-  },
-  {
     title: "Chia Pudding",
     description: "Chia seeds soaked in coconut milk with vanilla and berries",
+    foodComponents: [
+      { amount: 3, name: "Chia seeds", needsRefinement: false, unit: "tbsp" },
+      { amount: 200, name: "Coconut milk", needsRefinement: false, unit: "ml" },
+      { amount: 80, name: "Mixed berries", needsRefinement: false, unit: "g" },
+      { amount: 1, name: "Vanilla extract", needsRefinement: false, unit: "tsp" }
+    ],
     calories: 220,
     protein: 8,
     carbs: 18,
@@ -416,19 +275,14 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Grilled Portobello Burger",
-    description: "Grilled portobello mushroom burger with whole wheat bun",
-    supabaseImagePath: "https://picsum.photos/400/300?random=22",
-    calories: 280,
-    protein: 12,
-    carbs: 42,
-    fat: 8,
-    estimationConfidence: 0.75,
-    isEstimating: false,
-  },
-  {
     title: "Shrimp Scampi",
     description: "Sautéed shrimp in garlic butter over whole wheat pasta",
+    foodComponents: [
+      { amount: 150, name: "Shrimp", needsRefinement: false, unit: "g" },
+      { amount: 100, name: "Whole wheat pasta", needsRefinement: false, unit: "g" },
+      { amount: 2, name: "Garlic", needsRefinement: false, unit: "tbsp" },
+      { amount: 1, name: "Butter", needsRefinement: false, unit: "tbsp" }
+    ],
     calories: 480,
     protein: 28,
     carbs: 48,
@@ -437,19 +291,13 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Kale Chips",
-    description: "Baked kale chips with sea salt",
-    supabaseImagePath: "https://picsum.photos/400/300?random=23",
-    calories: 60,
-    protein: 4,
-    carbs: 8,
-    fat: 2,
-    estimationConfidence: 0.9,
-    isEstimating: false,
-  },
-  {
     title: "Coconut Rice Bowl",
     description: "Coconut rice with grilled vegetables and tofu",
+    foodComponents: [
+      { amount: 150, name: "Coconut rice", needsRefinement: false, unit: "g" },
+      { amount: 120, name: "Grilled vegetables", needsRefinement: false, unit: "g" },
+      { amount: 100, name: "Tofu", needsRefinement: false, unit: "g" }
+    ],
     calories: 420,
     protein: 14,
     carbs: 58,
@@ -458,40 +306,14 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Turkey Meatloaf",
-    description: "Lean ground turkey meatloaf with mashed cauliflower",
-    supabaseImagePath: "https://picsum.photos/400/300?random=24",
-    calories: 350,
-    protein: 28,
-    carbs: 18,
-    fat: 18,
-    estimationConfidence: 0.8,
-    isEstimating: false,
-  },
-  {
-    title: "Acai Bowl",
-    description: "Frozen acai with granola, coconut, and fresh fruit",
-    calories: 380,
-    protein: 8,
-    carbs: 68,
-    fat: 12,
-    estimationConfidence: 0.75,
-    isEstimating: false,
-  },
-  {
-    title: "Lentil Soup",
-    description: "Red lentil soup with vegetables and herbs",
-    supabaseImagePath: "https://picsum.photos/400/300?random=25",
-    calories: 240,
-    protein: 16,
-    carbs: 36,
-    fat: 4,
-    estimationConfidence: 0.8,
-    isEstimating: false,
-  },
-  {
     title: "Breakfast Burrito",
     description: "Scrambled eggs, black beans, cheese in whole wheat tortilla",
+    foodComponents: [
+      { amount: 1, name: "Whole wheat tortilla", needsRefinement: false, unit: "piece" },
+      { amount: 2, name: "Eggs", needsRefinement: false, unit: "piece" },
+      { amount: 80, name: "Black beans", needsRefinement: false, unit: "g" },
+      { amount: 40, name: "Cheese", needsRefinement: false, unit: "g" }
+    ],
     calories: 480,
     protein: 22,
     carbs: 42,
@@ -500,19 +322,13 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Caprese Salad",
-    description: "Fresh mozzarella, tomatoes, and basil with balsamic",
-    supabaseImagePath: "https://picsum.photos/400/300?random=26",
-    calories: 280,
-    protein: 18,
-    carbs: 12,
-    fat: 20,
-    estimationConfidence: 0.85,
-    isEstimating: false,
-  },
-  {
     title: "Peanut Butter Toast",
     description: "Whole grain toast with natural peanut butter and banana",
+    foodComponents: [
+      { amount: 2, name: "Whole grain bread", needsRefinement: false, unit: "piece" },
+      { amount: 2, name: "Peanut butter", needsRefinement: false, unit: "tbsp" },
+      { amount: 1, name: "Banana", needsRefinement: false, unit: "piece" }
+    ],
     calories: 320,
     protein: 12,
     carbs: 32,
@@ -521,19 +337,14 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Veggie Burger",
-    description: "Black bean veggie burger with sweet potato fries",
-    supabaseImagePath: "https://picsum.photos/400/300?random=27",
-    calories: 420,
-    protein: 16,
-    carbs: 58,
-    fat: 14,
-    estimationConfidence: 0.75,
-    isEstimating: false,
-  },
-  {
     title: "Fruit Salad",
     description: "Mixed seasonal fruit salad",
+    foodComponents: [
+      { amount: 100, name: "Apple", needsRefinement: false, unit: "g" },
+      { amount: 100, name: "Orange", needsRefinement: false, unit: "g" },
+      { amount: 80, name: "Berries", needsRefinement: false, unit: "g" },
+      { amount: 70, name: "Grapes", needsRefinement: false, unit: "g" }
+    ],
     calories: 120,
     protein: 2,
     carbs: 30,
