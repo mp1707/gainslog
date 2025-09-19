@@ -13,7 +13,7 @@ export const createStyles = (colors: Colors) =>
       justifyContent: "flex-start",
       position: "relative",
       overflow: "hidden",
-      minHeight: theme.spacing.lg + theme.spacing.xs,
+      minHeight: theme.spacing.lg,
     },
     nutritionDot: {
       width: theme.spacing.sm,

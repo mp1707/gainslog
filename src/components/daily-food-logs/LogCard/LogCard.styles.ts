@@ -28,8 +28,10 @@ export const createStyles = (colors: Colors) =>
       alignItems: "flex-start",
       minWidth: "35%",
     },
-    confidenceContainerSpacing: {
-      marginTop: theme.spacing.sm,
+    confidenceInfo: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.xs,
     },
     title: {},
     description: {

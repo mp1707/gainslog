@@ -14,11 +14,11 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { Favorite, FoodLog } from "@/types/models";
+import { Favorite, FoodComponent, FoodLog } from "@/types/models";
 import { useTheme } from "@/theme";
 import { Card } from "@/components/Card";
 import { AppText } from "@/components";
-import { SkeletonPill, ConfidenceBadge } from "@/components/shared";
+import { SkeletonPill } from "@/components/shared";
 import { ContextMenu, ContextMenuItem } from "@/components/shared/ContextMenu";
 import { useAppStore } from "@/store/useAppStore";
 import { isNavLocked, lockNav } from "@/utils/navigationLock";
@@ -26,6 +26,9 @@ import { getConfidenceLevel } from "@/utils/getConfidenceLevel";
 import { createStyles } from "./LogCard.styles";
 import { NutritionList } from "./NutritionList";
 import { createStyles as createNutritionStyles } from "./NutritionList/NutritionList.styles";
+import { hasAmbiguousUnit as hasAmbiguousUnitCheck } from "@/utils/hasAmbiguousUnit";
+import { Sparkles } from "lucide-react-native";
+import { needsRefinement as needsRefinementCheck } from "@/utils/needsRefinement";
 
 interface LogCardProps {
   foodLog: FoodLog | Favorite;
@@ -160,9 +163,15 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
     opacity: confidenceBadgeOpacity.value,
   }));
 
+  const refinementInfo = getRefinementInfo(foodLog.foodComponents);
+
   return (
-    <Pressable style={styles.cardContainer} onLongPress={onLongPress} delayLongPress={500}>
-        <Card elevated={true} style={styles.card}>
+    <Pressable
+      style={styles.cardContainer}
+      onLongPress={onLongPress}
+      delayLongPress={500}
+    >
+      <Card elevated={true} style={styles.card}>
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
             {/* Title Section */}
@@ -180,11 +189,20 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
             {isLoading ? (
               <SkeletonPill width={80} height={28} />
             ) : (
-              estimationConfidence !== undefined && estimationConfidence < 70 && (
+              refinementInfo && (
                 <Animated.View style={confidenceBadgeAnimatedStyle}>
-                  <ConfidenceBadge
-                    style={styles.confidenceContainerSpacing}
-                  />
+                  <View
+                    style={styles.confidenceInfo}
+                    accessibilityRole="text"
+                    accessibilityLabel="Refine estimate"
+                  >
+                    <Sparkles
+                      size={16}
+                      color={colors.disabledText}
+                      strokeWidth={2}
+                    />
+                    <AppText role="Caption">{refinementInfo}</AppText>
+                  </View>
                 </Animated.View>
               )
             )}
@@ -203,7 +221,7 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
             />
           </View>
         </View>
-        </Card>
+      </Card>
 
       {/* Flash overlay for confidence feedback */}
       {estimationConfidence !== undefined && (
@@ -293,24 +311,35 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
   // Note: press scale is handled by SwipeToFunctions to avoid double-scaling
 
   const displayTitle = foodLog.title || "New Log";
-  const estimationConfidence =
-    "estimationConfidence" in foodLog
-      ? foodLog.estimationConfidence
-      : undefined;
+
+  const refinementInfo = getRefinementInfo(foodLog.foodComponents);
 
   return (
-    <Pressable style={styles.cardContainer} onLongPress={onLongPress} delayLongPress={500}>
-        <Card style={styles.card}>
+    <Pressable
+      style={styles.cardContainer}
+      onLongPress={onLongPress}
+      delayLongPress={500}
+    >
+      <Card style={styles.card}>
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
             <AppText role="Headline" style={styles.title} numberOfLines={2}>
               {displayTitle}
             </AppText>
 
-            {estimationConfidence !== undefined && estimationConfidence < 70 && (
-              <ConfidenceBadge
-                style={styles.confidenceContainerSpacing}
-              />
+            {refinementInfo && (
+              <View
+                style={styles.confidenceInfo}
+                accessibilityRole="text"
+                accessibilityLabel="Refine estimate"
+              >
+                <Sparkles
+                  size={16}
+                  color={colors.disabledText}
+                  strokeWidth={2}
+                />
+                <AppText role="Caption">{refinementInfo}</AppText>
+              </View>
             )}
           </View>
 
@@ -325,7 +354,7 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
             />
           </View>
         </View>
-        </Card>
+      </Card>
     </Pressable>
   );
 };
@@ -486,3 +515,17 @@ export const LogCard = memo(LogCardInner, (prev, next) => {
   if (prev.contextMenuPreset !== next.contextMenuPreset) return false;
   return prev.foodLog === next.foodLog;
 });
+
+const getRefinementInfo = (foodComponents: FoodComponent[]) => {
+  const needsRefinement =
+    foodComponents && needsRefinementCheck(foodComponents);
+
+  if (!needsRefinement) return undefined;
+
+  const hasAmbiguousUnit =
+    foodComponents && hasAmbiguousUnitCheck(foodComponents);
+
+  if (hasAmbiguousUnit) return "Use precise units";
+
+  return "Confirm amounts";
+};
