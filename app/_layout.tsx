@@ -46,6 +46,8 @@ function ThemedStack() {
             borderRadius: "10%",
             overflow: "hidden",
           },
+          // fixes gesture conflict in modals that leads to crashes
+          gestureEnabled: false,
         }}
       />
       <Stack.Screen
@@ -57,6 +59,8 @@ function ThemedStack() {
             borderRadius: "10%",
             overflow: "hidden",
           },
+          // fixes gesture conflict in modals that leads to crashes
+          gestureEnabled: false,
         }}
       />
       <Stack.Screen
@@ -79,6 +83,8 @@ function ThemedStack() {
             borderRadius: "10%",
             overflow: "hidden",
           },
+          // fixes gesture conflict in modals that leads to crashes
+          gestureEnabled: false,
         }}
       />
       <Stack.Screen
@@ -90,6 +96,8 @@ function ThemedStack() {
             borderRadius: "10%",
             overflow: "hidden",
           },
+          // fixes gesture conflict in modals that leads to crashes
+          gestureEnabled: false,
         }}
       />
       <Stack.Screen
@@ -101,6 +109,8 @@ function ThemedStack() {
             borderRadius: "10%",
             overflow: "hidden",
           },
+          // fixes gesture conflict in modals that leads to crashes
+          gestureEnabled: false,
         }}
       />
     </Stack>
