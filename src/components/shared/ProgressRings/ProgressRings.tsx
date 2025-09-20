@@ -449,8 +449,12 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
     carbs: colors.semantic.carbs,
     fat: colors.semantic.fat,
   } satisfies Record<NutrientKey, string>;
-
-  const trackColor = colors.disabledBackground;
+  const ringTracks = {
+    calories: colors.semanticSurfaces.calories,
+    protein: colors.semanticSurfaces.protein,
+    carbs: colors.semanticSurfaces.carbs,
+    fat: colors.semanticSurfaces.fat,
+  } satisfies Record<NutrientKey, string>;
   const shadowColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.32)";
 
   return (
@@ -476,9 +480,9 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
               radius={radii[index] ?? outerRadius}
               strokeWidth={strokeWidth}
               center={center}
-              trackColor={trackColor}
+              trackColor={ringTracks[config.key]}
               baseColor={ringColors[config.key]}
-              trackOpacity={isDark ? 0.35 : 0.22}
+              trackOpacity={1}
               shadowColor={shadowColor}
             />
           ))}
@@ -531,8 +535,12 @@ export const ProgressRingsStatic: React.FC<ProgressRingsStaticProps> = ({
     carbs: colors.semantic.carbs,
     fat: colors.semantic.fat,
   } satisfies Record<NutrientKey, string>;
-
-  const trackColor = colors.disabledBackground;
+  const ringTracks = {
+    calories: colors.semanticSurfaces.calories,
+    protein: colors.semanticSurfaces.protein,
+    carbs: colors.semanticSurfaces.carbs,
+    fat: colors.semanticSurfaces.fat,
+  } satisfies Record<NutrientKey, string>;
   const shadowColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.32)";
 
   return (
@@ -553,9 +561,9 @@ export const ProgressRingsStatic: React.FC<ProgressRingsStaticProps> = ({
               radius={radii[index] ?? outerRadius}
               strokeWidth={strokeWidth}
               center={center}
-              trackColor={trackColor}
+              trackColor={ringTracks[config.key]}
               baseColor={ringColors[config.key]}
-              trackOpacity={isDark ? 0.35 : 0.22}
+              trackOpacity={1}
               shadowColor={shadowColor}
             />
           ))}

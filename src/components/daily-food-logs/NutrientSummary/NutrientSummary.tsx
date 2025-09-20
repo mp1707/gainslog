@@ -59,12 +59,14 @@ const getIcon = (label: string, color: string) => {
 };
 const StatRow = ({
   color,
+  backgroundColor,
   label,
   current,
   total,
   unit,
 }: {
   color: string;
+  backgroundColor: string;
   label: string;
   current: number;
   total: number;
@@ -75,7 +77,7 @@ const StatRow = ({
   return (
     <View style={styles.statRow}>
       <View
-        style={[styles.statIconBackground, { backgroundColor: color + "20" }]}
+        style={[styles.statIconBackground, { backgroundColor }]}
       >
         {getIcon(label, color)}
       </View>
@@ -112,6 +114,12 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
     carbs: colors.semantic.carbs,
     fat: colors.semantic.fat,
   };
+  const ringBackgrounds = {
+    calories: colors.semanticSurfaces.calories,
+    protein: colors.semanticSurfaces.protein,
+    carbs: colors.semanticSurfaces.carbs,
+    fat: colors.semanticSurfaces.fat,
+  };
 
   // --- RENDER ---
   return (
@@ -131,6 +139,7 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
               <StatRow
                 key={config.key}
                 color={ringColors[config.colorKey]}
+                backgroundColor={ringBackgrounds[config.colorKey]}
                 label={config.label}
                 current={totals[config.key] || 0}
                 total={targets[config.key] || 0}
