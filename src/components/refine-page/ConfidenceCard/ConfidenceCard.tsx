@@ -110,7 +110,6 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
   const previousInfoRef = useRef<string | undefined>(infoSubText);
 
   const headline = HEADLINE_COPY[sanitizedLevel];
-  // const displayTitle = isLoading ? headline.loadingTitle : headline.title;
   const displayTitle = headline.title;
 
   const clearScheduledHaptics = useCallback(() => {
