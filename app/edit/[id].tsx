@@ -32,6 +32,18 @@ import BottomSheet, {
 } from "@gorhom/bottom-sheet";
 import { LinearGradient } from "expo-linear-gradient";
 import { TextInput } from "@/components/shared/TextInput";
+import { getRefinementInfoDetailed } from "@/utils/getRefinementInfo";
+
+const deriveConfidenceLevel = (confidence?: number): 0 | 1 | 2 | 3 => {
+  if (!confidence) return 0;
+
+  const normalized = Math.min(100, Math.max(0, Math.floor(confidence)));
+
+  if (normalized >= 76) return 3;
+  if (normalized >= 50) return 2;
+  if (normalized >= 30) return 1;
+  return 0;
+};
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -146,6 +158,17 @@ export default function Edit() {
     return false;
   }, [lastEstimatedComponents, editedLog?.foodComponents]);
 
+  const estimationConfidence = editedLog?.estimationConfidence ?? 0;
+  const confidenceLevel = useMemo(
+    () => deriveConfidenceLevel(estimationConfidence),
+    [estimationConfidence]
+  );
+  const confidenceInfoSubText = useMemo(
+    () => getRefinementInfoDetailed(editedLog?.foodComponents ?? []),
+    [editedLog?.foodComponents]
+  );
+  const isConfidenceLoading = isLoading || !!originalLog?.isEstimating;
+
   // Handlers for components editing
   const handleUpdateComponent = (index: number, updated: FoodComponent) => {
     setEditedLog((prev) => {
@@ -194,8 +217,8 @@ export default function Edit() {
 
   const handleReestimate = async () => {
     if (!editedLog) return;
-    // Scroll to top when re-estimating to show accuracy and updates
-    scrollRef.current?.scrollTo({ y: 0, animated: true });
+    // Scroll to bottom when re-estimating to show macros section
+    scrollRef.current?.scrollToEnd({ animated: true });
     setIsRefined(false);
     setIsLoading(true);
     try {
@@ -282,13 +305,6 @@ export default function Edit() {
           </View>
         ) : (
           <>
-            <ConfidenceCard
-              value={editedLog.estimationConfidence ?? 0}
-              processing={isLoading || !!originalLog?.isEstimating}
-              reveal={isRefined}
-              foodComponents={editedLog.foodComponents || []}
-            />
-
             {/* Editable component list */}
             <ComponentsList
               components={editedLog.foodComponents || []}
@@ -308,14 +324,18 @@ export default function Edit() {
               onMarkOk={handleMarkComponentOk}
               disabled={isLoading || originalLog?.isEstimating}
             />
-
+            <ConfidenceCard
+              confidenceLevel={confidenceLevel}
+              infoSubText={confidenceInfoSubText}
+              isLoading={isConfidenceLoading}
+            />
             {/* Macros display */}
             <MacrosCard
               calories={editedLog.calories}
               protein={editedLog.protein}
               carbs={editedLog.carbs}
               fat={editedLog.fat}
-              processing={isLoading || !!originalLog?.isEstimating}
+              processing={isConfidenceLoading}
               revealKey={revealKey}
             />
 
@@ -473,7 +493,6 @@ const createStyles = (colors: Colors, theme: Theme) =>
       color: colors.primaryText,
       fontSize: theme.typography.Title2.fontSize,
       fontWeight: "600",
-
     },
     loadingContainer: {
       flex: 1,

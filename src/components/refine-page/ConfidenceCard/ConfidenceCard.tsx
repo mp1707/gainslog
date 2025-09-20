@@ -1,449 +1,504 @@
-import React, { useEffect, useRef } from "react";
-import { Platform, View } from "react-native";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import { LayoutChangeEvent, Platform, View } from "react-native";
 import Animated, {
   Easing,
-  interpolate,
-  interpolateColor,
+  cancelAnimation,
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
   withRepeat,
   withTiming,
-  cancelAnimation,
-  withDelay,
 } from "react-native-reanimated";
+import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
-import { AppText, Card } from "@/components";
+import { Check, Sparkles } from "lucide-react-native";
+
+import { Card, AppText } from "@/components";
 import { useTheme } from "@/theme";
 import { createStyles } from "./ConfidenceCard.styles";
-import { LinearGradient } from "expo-linear-gradient";
-import { hasAmbiguousUnit } from "@/utils";
-import type { FoodComponent } from "@/types/models";
 
-interface ConfidenceCardProps {
-  value: number; // 0-100
-  // When true, show shimmering scan to indicate processing
-  processing?: boolean;
-  // When true, apply a subtle bounce/pulse on settle
-  reveal?: boolean;
-  // Food components to check for ambiguous units
-  foodComponents?: FoodComponent[];
-}
+const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
+type ConfidenceLevel = 0 | 1 | 2 | 3;
+
+type ConfidenceCardProps = {
+  confidenceLevel: ConfidenceLevel;
+  infoSubText?: string;
+  isLoading?: boolean;
+};
+
+type TimeoutHandle = ReturnType<typeof setTimeout>;
+
+const clampConfidenceLevel = (value: number): ConfidenceLevel => {
+  if (value <= 0) return 0;
+  if (value >= 3) return 3;
+  return value as ConfidenceLevel;
+};
+
+const HEADLINE_COPY: Record<
+  ConfidenceLevel,
+  { title: string; loadingTitle: string; highlight?: boolean }
+> = {
+  0: {
+    title: "Estimation Pending",
+    loadingTitle: "Calibrating confidence",
+  },
+  1: {
+    title: "Broad Estimation",
+    loadingTitle: "Tightening estimation",
+  },
+  2: {
+    title: "Good Estimation",
+    loadingTitle: "Refining details",
+  },
+  3: {
+    title: "Detailed Estimation",
+    loadingTitle: "Locking precision",
+    highlight: true,
+  },
+};
 
 export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
-  value,
-  processing = false,
-  reveal = false,
-  foodComponents = [],
+  confidenceLevel,
+  infoSubText,
+  isLoading = false,
 }) => {
+  const sanitizedLevel = clampConfidenceLevel(confidenceLevel);
+
   const { colors, theme } = useTheme();
-  const styles = createStyles(colors, theme);
+  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
-  // Motion design constants to maintain coherent timing/curves across effects
-  const MOTION = {
-    // Primary ease for position/width changes (native-like decel)
-    easeOut: Easing.bezier(0.18, 0.9, 0.2, 1),
-    // Emphasized ease for highlights/pulses
-    emphasized: Easing.bezier(0.2, 0.8, 0.2, 1),
-    // Subtle ease for fades
-    fade: Easing.out(Easing.quad),
-  } as const;
+  const barOne = useSharedValue(sanitizedLevel > 0 ? 1 : 0);
+  const barTwo = useSharedValue(sanitizedLevel > 1 ? 1 : 0);
+  const barThree = useSharedValue(sanitizedLevel > 2 ? 1 : 0);
 
-  const clampedInitial = Math.max(0, Math.min(100, value || 0));
-  const confidenceWidth = useSharedValue(clampedInitial);
-  const colorProgress = useSharedValue(clampedInitial);
-  const innerPulse = useSharedValue(0); // 0..1 strength for inner pulse overlay (inside fill)
-  const glowPulse = useSharedValue(0); // 0..1 for glow intensity
-  // Single loop clock to synchronize processing effects for smoother, lighter animation
-  const loopT = useSharedValue(0); // 0..1 repeating
-  const shimmerX = useSharedValue(-100);
-  const bigGlowX = useSharedValue(-200); // Big traveling glow effect
-  const bigGlowOpacity = useSharedValue(0); // Big glow visibility
-  const rushPulse = useSharedValue(0); // Final rush effect when loading completes
-  const didJustStopProcessing = useRef(false);
-  const prevValueRef = useRef(clampedInitial);
-  // Overlay for increase animation (behind main fill)
-  const overlayVisible = useSharedValue(0); // opacity 0..1
-  const overlayWidth = useSharedValue(clampedInitial); // 0..100
+  const snapshotOne = useSharedValue(0);
+  const snapshotTwo = useSharedValue(0);
+  const snapshotThree = useSharedValue(0);
+  const animatedSnapshotOne = useSharedValue(0);
+  const animatedSnapshotTwo = useSharedValue(0);
+  const animatedSnapshotThree = useSharedValue(0);
 
-  useEffect(() => {
-    const target = Math.max(0, Math.min(100, value || 0));
-    const prev = Math.max(0, Math.min(100, prevValueRef.current));
-    const delta = Math.abs(target - prev);
+  const bars = useMemo(
+    () => [barOne, barTwo, barThree] as const,
+    [barOne, barTwo, barThree]
+  );
+  const barSnapshots = useMemo(
+    () => [snapshotOne, snapshotTwo, snapshotThree] as const,
+    [snapshotOne, snapshotTwo, snapshotThree]
+  );
+  const barAnimatedSnapshots = useMemo(
+    () =>
+      [
+        animatedSnapshotOne,
+        animatedSnapshotTwo,
+        animatedSnapshotThree,
+      ] as const,
+    [animatedSnapshotOne, animatedSnapshotTwo, animatedSnapshotThree]
+  );
 
-    if (processing) {
-      // During processing, keep things responsive; hide overlay
-      overlayVisible.value = 0;
-      overlayWidth.value = target;
-      confidenceWidth.value = withTiming(target, {
-        duration: 240,
-        easing: MOTION.easeOut,
-      });
-      colorProgress.value = withTiming(target, {
-        duration: 260,
-        easing: MOTION.easeOut,
-      });
-    } else {
-      // Ignore micro-changes to avoid visual noise
-      if (delta < 2) {
-        overlayVisible.value = 0;
-        overlayWidth.value = target;
-        confidenceWidth.value = withTiming(target, {
-          duration: 220,
-          easing: MOTION.easeOut,
-        });
-        colorProgress.value = withTiming(target, {
-          duration: 320,
-          easing: MOTION.easeOut,
-        });
-        didJustStopProcessing.current = false;
-      } else if (target > prev) {
-        // Increase: show accent overlay for the delta first, then main bar follows
-        overlayWidth.value = prev;
-        overlayVisible.value = 1;
+  const barWidth = useSharedValue(0);
+  const isLoadingShared = useSharedValue(isLoading ? 1 : 0);
+  const loadingLoop = useSharedValue(0);
+  const loadingPulse = useSharedValue(0);
+  const infoOpacity = useSharedValue(isLoading ? 0.35 : 1);
 
-        // Expand overlay quickly from prev -> target
-        overlayWidth.value = withTiming(target, {
-          duration: 240,
-          easing: MOTION.emphasized,
-        });
+  const previousLevelRef = useRef<ConfidenceLevel>(sanitizedLevel);
+  const previousLoadingRef = useRef<boolean>(!!isLoading);
+  const hasInitializedRef = useRef(false);
+  const scheduledHapticsRef = useRef<TimeoutHandle[]>([]);
+  const previousInfoRef = useRef<string | undefined>(infoSubText);
 
-        // Main bar follows with a slight delay for the "reverse hit" effect
-        confidenceWidth.value = withDelay(
-          300,
-          withTiming(target, {
-            duration: 600,
-            easing: MOTION.easeOut,
-          })
-        );
+  const headline = HEADLINE_COPY[sanitizedLevel];
+  const displayTitle = isLoading ? headline.loadingTitle : headline.title;
 
-        // Color also glides with a small delay
-        colorProgress.value = withDelay(
-          260,
-          withTiming(target, {
-            duration: 640,
-            easing: MOTION.easeOut,
-          })
-        );
+  const clearScheduledHaptics = useCallback(() => {
+    scheduledHapticsRef.current.forEach(clearTimeout);
+    scheduledHapticsRef.current = [];
+  }, []);
 
-        // Trigger rush pulse effect when loading stops and value increases
-        if (didJustStopProcessing.current) {
-          // Stronger haptic feedback for completion with improvement
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  const scheduleHaptic = useCallback((delay: number) => {
+    const timeout = setTimeout(() => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(
+        () => undefined
+      );
+    }, delay);
+    scheduledHapticsRef.current.push(timeout);
+  }, []);
 
-          rushPulse.value = 0;
-          rushPulse.value = withTiming(1, {
-            duration: 320,
-            easing: MOTION.emphasized,
-          });
-          rushPulse.value = withDelay(
-            340,
-            withTiming(0, { duration: 420, easing: MOTION.fade })
+  const animateToLevel = useCallback(
+    (from: ConfidenceLevel, to: ConfidenceLevel, fromLoading: boolean) => {
+      clearScheduledHaptics();
+
+      const baseDelay = fromLoading ? 120 : 80;
+      const duration = fromLoading ? 520 : 420;
+      const stepGap = fromLoading ? duration : Math.max(240, duration - 120);
+
+      bars.forEach((progress, index) => {
+        cancelAnimation(progress);
+        const shouldFill = index < to;
+        const wasFilled = index < from;
+        const delay = baseDelay + index * stepGap;
+        const snapshot = barSnapshots[index];
+        const animatedSnapshot = barAnimatedSnapshots[index];
+
+        if (shouldFill) {
+          if (!wasFilled && fromLoading) {
+            const snapshotValue = snapshot.value;
+            const current = progress.value;
+            progress.value = Math.max(current, snapshotValue * 0.92);
+          }
+          progress.value = withDelay(
+            delay,
+            withTiming(1, {
+              duration,
+              easing: Easing.out(Easing.cubic),
+            })
+          );
+          animatedSnapshot.value = withDelay(
+            Math.max(0, delay - 40),
+            withTiming(0, {
+              duration: Math.max(200, duration * 0.5),
+              easing: Easing.out(Easing.cubic),
+            })
+          );
+        } else {
+          if (fromLoading) {
+            const snapshotValue = snapshot.value;
+            const current = progress.value;
+            progress.value = Math.max(current, snapshotValue * 0.6);
+          }
+          const releaseDelay = baseDelay + index * 120;
+          progress.value = withDelay(
+            releaseDelay,
+            withTiming(0, {
+              duration: 360,
+              easing: Easing.out(Easing.cubic),
+            })
           );
         }
+      });
 
-        // Fade the overlay after the base has caught up
-        overlayVisible.value = withDelay(
-          820,
-          withTiming(0, { duration: 240, easing: MOTION.fade })
-        );
-      } else {
-        // Decrease or equal: default smooth settle, no overlay
-        overlayVisible.value = 0;
-        overlayWidth.value = target;
-        confidenceWidth.value = withTiming(target, {
-          duration: 420,
-          easing: MOTION.easeOut,
-        });
-        // Light haptic feedback for completion without increase
-        if (didJustStopProcessing.current) {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      if (to > from) {
+        for (let levelIndex = from; levelIndex < to; levelIndex += 1) {
+          const levelOffset = levelIndex - from;
+          const delay = baseDelay + levelOffset * stepGap + duration * 0.85;
+          scheduleHaptic(delay);
         }
-
-        const duration = didJustStopProcessing.current ? 600 : 420;
-        colorProgress.value = withTiming(target, {
-          duration,
-          easing: MOTION.easeOut,
-        });
-        didJustStopProcessing.current = false;
       }
-    }
+    },
+    [bars, barSnapshots, clearScheduledHaptics, scheduleHaptic]
+  );
 
-    prevValueRef.current = target;
-  }, [
-    value,
-    processing,
-    confidenceWidth,
-    colorProgress,
-    overlayVisible,
-    overlayWidth,
-    rushPulse,
-  ]);
+  const onTrackLayout = useCallback(
+    (event: LayoutChangeEvent) => {
+      const width = event.nativeEvent.layout.width;
+      if (width > 0) {
+        barWidth.value = width;
+      }
+    },
+    [barWidth]
+  );
 
-  // Start/stop shimmer and big glow during processing
   useEffect(() => {
-    if (processing) {
-      // Subtle haptic feedback when processing starts
-      Haptics.selectionAsync();
+    if (!hasInitializedRef.current && !isLoading) {
+      bars.forEach((progress, index) => {
+        progress.value = index < sanitizedLevel ? 1 : 0;
+      });
+      previousLevelRef.current = sanitizedLevel;
+      hasInitializedRef.current = true;
+    }
+  }, [bars, sanitizedLevel, isLoading]);
 
-      // One synchronized loop drives shimmer, big glow, and pulses
-      loopT.value = 0;
-      loopT.value = withRepeat(
-        withTiming(1, { duration: 1800, easing: Easing.linear }),
+  useEffect(() => {
+    barAnimatedSnapshots.forEach((animatedSnapshot, index) => {
+      const shouldAnimate = isLoading && index === sanitizedLevel;
+      animatedSnapshot.value = withTiming(shouldAnimate ? 1 : 0, {
+        duration: shouldAnimate ? 200 : 280,
+        easing: Easing.out(Easing.cubic),
+      });
+    });
+  }, [barAnimatedSnapshots, isLoading, sanitizedLevel]);
+
+  useEffect(() => {
+    isLoadingShared.value = withTiming(isLoading ? 1 : 0, {
+      duration: isLoading ? 180 : 260,
+      easing: Easing.out(Easing.quad),
+    });
+
+    if (isLoading) {
+      clearScheduledHaptics();
+      loadingLoop.value = 0;
+      loadingPulse.value = 0;
+      loadingLoop.value = withRepeat(
+        withTiming(1, { duration: 1600, easing: Easing.linear }),
         -1,
-        true
+        false
       );
-
-      // Derive individual effects from loopT for subtle, cohesive motion
-      // Shimmer marches steadily L->R; Big glow eases in/out more slowly
-      shimmerX.value = -100; // initial off-screen
-      bigGlowX.value = -200;
-      bigGlowOpacity.value = 0;
-
-      // Pulses keyed to loopT for a soft breathing feel
-      innerPulse.value = withRepeat(
-        withTiming(1, { duration: 900, easing: MOTION.emphasized }),
-        -1,
-        true
-      );
-      glowPulse.value = withRepeat(
-        withTiming(1, { duration: 1200, easing: MOTION.emphasized }),
+      loadingPulse.value = withRepeat(
+        withTiming(1, { duration: 1100, easing: Easing.inOut(Easing.ease) }),
         -1,
         true
       );
     } else {
-      // Stop all animations and ease out effects
-      didJustStopProcessing.current = true;
-      cancelAnimation(loopT);
-      cancelAnimation(shimmerX);
-      cancelAnimation(bigGlowX);
-      cancelAnimation(bigGlowOpacity);
-      shimmerX.value = -100;
-      bigGlowX.value = -200;
-      bigGlowOpacity.value = withTiming(0, {
-        duration: 180,
-        easing: MOTION.fade,
+      cancelAnimation(loadingLoop);
+      cancelAnimation(loadingPulse);
+      loadingLoop.value = 0;
+      loadingPulse.value = withTiming(0, {
+        duration: 260,
+        easing: Easing.out(Easing.quad),
       });
-      innerPulse.value = withTiming(0, { duration: 220, easing: MOTION.fade });
-      glowPulse.value = withTiming(0, { duration: 300, easing: MOTION.fade });
     }
-    // Cleanup on unmount to avoid stray loops
-    return () => {
-      cancelAnimation(loopT);
-      cancelAnimation(shimmerX);
-      cancelAnimation(bigGlowX);
-      cancelAnimation(bigGlowOpacity);
-      cancelAnimation(innerPulse);
-      cancelAnimation(glowPulse);
-    };
   }, [
-    processing,
-    shimmerX,
-    innerPulse,
-    glowPulse,
-    bigGlowX,
-    bigGlowOpacity,
-    loopT,
+    isLoading,
+    isLoadingShared,
+    loadingLoop,
+    loadingPulse,
+    clearScheduledHaptics,
   ]);
 
-  // Enhanced celebration on reveal (after successful refine)
   useEffect(() => {
-    if (reveal) {
-      // Celebration haptic feedback
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    const targetLevel = sanitizedLevel;
+    const previousLevel = previousLevelRef.current;
+    const wasLoading = previousLoadingRef.current;
 
-      // Brief width bounce via scaleY applied to fill
-      innerPulse.value = 1;
-      innerPulse.value = withTiming(0, {
-        duration: 520,
-        easing: MOTION.fade,
-      });
-      // Give glow a quick highlight
-      glowPulse.value = 1;
-      glowPulse.value = withTiming(0, {
-        duration: 520,
-        easing: MOTION.fade,
-      });
-      // Add rush pulse for celebration effect
-      rushPulse.value = 0;
-      rushPulse.value = withTiming(1, {
-        duration: 360,
-        easing: MOTION.emphasized,
-      });
-      rushPulse.value = withDelay(
-        360,
-        withTiming(0, { duration: 420, easing: MOTION.fade })
+    if (!isLoading && (wasLoading || targetLevel !== previousLevel)) {
+      animateToLevel(previousLevel, targetLevel, wasLoading);
+      previousLevelRef.current = targetLevel;
+    }
+
+    previousLoadingRef.current = isLoading;
+  }, [animateToLevel, sanitizedLevel, isLoading]);
+
+  useEffect(() => {
+    infoOpacity.value = withTiming(isLoading ? 0.4 : 1, {
+      duration: isLoading ? 180 : 300,
+      easing: Easing.out(Easing.cubic),
+    });
+  }, [isLoading, infoOpacity]);
+
+  useEffect(() => {
+    if (infoSubText !== previousInfoRef.current && !isLoading && infoSubText) {
+      infoOpacity.value = 0;
+      infoOpacity.value = withDelay(
+        80,
+        withTiming(1, {
+          duration: 320,
+          easing: Easing.out(Easing.cubic),
+        })
       );
     }
-  }, [reveal, innerPulse, glowPulse, rushPulse]);
+    previousInfoRef.current = infoSubText;
+  }, [infoSubText, isLoading, infoOpacity]);
 
-  const confidenceBarStyle = useAnimatedStyle(() => {
-    const clampedWidth = Math.max(0, Math.min(100, confidenceWidth.value));
-    const clampedColor = Math.max(0, Math.min(100, colorProgress.value));
-    // Smooth red -> yellow -> green across 0..100
-    const bg = interpolateColor(
-      clampedColor,
-      [0, 50, 100],
-      [colors.error, colors.warning, colors.success]
-    );
-    // Enhanced height pulse contained within the fill
-    const scaleY = 1 + innerPulse.value * 0.12 + rushPulse.value * 0.08; // subtle, refined
-    // Subtler glow intensity follows glowPulse and processing state
-    const glowStrength = processing
-      ? 0.4 + glowPulse.value * 0.6
-      : glowPulse.value * 0.15 + rushPulse.value * 0.6;
-    const shadowRadius = 4 + glowStrength * 10;
-    const shadowOpacity = 0.15 + glowStrength * 0.25;
-    const elevation = processing ? 6 : rushPulse.value * 6;
-    return {
-      width: `${clampedWidth}%`,
-      backgroundColor: bg as string,
-      transform: [{ scaleY }],
-      // Glow/shadow to make the bar pop during loading
-      shadowColor: bg as string,
-      shadowOpacity: Platform.OS === "ios" ? shadowOpacity : 0,
-      shadowRadius: Platform.OS === "ios" ? shadowRadius : 0,
-      shadowOffset: { width: 0, height: 2 },
-      elevation: Platform.OS === "android" ? elevation : 0,
-    };
-  });
+  useEffect(
+    () => () => {
+      clearScheduledHaptics();
+      cancelAnimation(loadingLoop);
+      cancelAnimation(loadingPulse);
+      bars.forEach((progress) => {
+        cancelAnimation(progress);
+      });
+    },
+    [clearScheduledHaptics, loadingLoop, loadingPulse, bars]
+  );
 
-  // Shimmer scan now runs INSIDE the filled bar to emphasize progress
-  const shimmerStyle = useAnimatedStyle(() => {
-    // Map loop to shimmer travel. Keep steady, subtle shine
-    const x = interpolate(loopT.value, [0, 1], [-100, 300]);
-    return {
-      transform: [{ translateX: processing ? x : shimmerX.value }],
-      opacity: processing ? 0.6 : 0,
-    };
-  });
+  const barAnimatedStyles = bars.map((progress, index) =>
+    useAnimatedStyle(() => {
+      const measuredWidth = barWidth.value || 0;
+      const isLoadingValue = isLoadingShared.value;
+      const progressValue = Math.min(Math.max(progress.value, 0), 1);
+      const isNextAnimated = sanitizedLevel === index;
+      const willRemainFilled = sanitizedLevel > index;
 
-  // Big dramatic glow effect
-  const bigGlowStyle = useAnimatedStyle(() => {
-    // Slow sweep, very soft and occasional feeling via loopT shaping
-    const x = interpolate(loopT.value, [0, 1], [-200, 400]);
-    const o = interpolate(loopT.value, [0, 0.5, 1], [0, 0.25, 0]);
-    return {
-      transform: [{ translateX: processing ? x : bigGlowX.value }],
-      opacity: o,
-    };
-  });
+      const wave = Math.sin((loadingLoop.value + index * 0.35) * Math.PI * 2);
+      const snapshot = barSnapshots[index];
+      const shouldBlendLoading =
+        isNextAnimated &&
+        isLoadingValue > 0.001 &&
+        (isLoading || willRemainFilled);
+      const loadingRatio = shouldBlendLoading
+        ? 0.18 + 0.18 * ((wave + 1) / 2)
+        : snapshot.value;
+      if (shouldBlendLoading) {
+        snapshot.value = loadingRatio;
+      }
 
-  // Rush pulse effect that travels left to right when loading finishes
-  const rushPulseStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: rushPulse.value * 400 - 200 }],
-    opacity: rushPulse.value * 0.5,
-  }));
+      const animatedSnapshot = barAnimatedSnapshots[index];
+      const snapshotBlend = Math.max(0, Math.min(1, animatedSnapshot.value));
+      const blendedLoadingRatio = loadingRatio * snapshotBlend;
 
-  const innerPulseOverlayStyle = useAnimatedStyle(() => ({
-    opacity: processing
-      ? 0.18 + innerPulse.value * 0.28
-      : innerPulse.value * 0.25 + rushPulse.value * 0.3,
-  }));
+      const filledWidth = measuredWidth * progressValue;
+      let width = filledWidth;
+      if (shouldBlendLoading) {
+        const loadingWidth = measuredWidth * blendedLoadingRatio;
+        width = filledWidth + (loadingWidth - filledWidth) * isLoadingValue;
+      }
 
-  // Overlay for increases only – draws the new segment first
-  const increaseOverlayStyle = useAnimatedStyle(() => ({
-    left: 0,
-    width: `${Math.max(0, Math.min(100, overlayWidth.value))}%`,
-    opacity: overlayVisible.value * (0.85 + rushPulse.value * 0.35),
-    backgroundColor: colors.accent,
-    // Add subtle glow to the overlay during rush
-    shadowColor: colors.accent,
-    shadowOpacity: Platform.OS === "ios" ? rushPulse.value * 0.3 : 0,
-    shadowRadius: Platform.OS === "ios" ? rushPulse.value * 12 : 0,
-    shadowOffset: { width: 0, height: 0 },
-    elevation: Platform.OS === "android" ? rushPulse.value * 4 : 0,
+      const loadingScale = 1 + 0.12 * ((wave + 1) / 2);
+      const restingScale = 1 + 0.05 * progressValue;
+      let scaleY = restingScale;
+      if (shouldBlendLoading) {
+        const blendedLoadingScale = 1 + (loadingScale - 1) * snapshotBlend;
+        scaleY =
+          restingScale + (blendedLoadingScale - restingScale) * isLoadingValue;
+      }
+
+      const loadingOpacity = 0.75 + 0.2 * ((wave + 1) / 2);
+      const restingOpacity = 0.88 + 0.12 * progressValue;
+      let opacity = restingOpacity;
+      if (shouldBlendLoading) {
+        const blendedLoadingOpacity =
+          0.5 + (loadingOpacity - 0.5) * snapshotBlend;
+        opacity =
+          restingOpacity +
+          (blendedLoadingOpacity - restingOpacity) * isLoadingValue;
+      }
+
+      const loadingGlow = 0.4 + 0.4 * ((loadingPulse.value + wave + 1) / 3);
+      const restingGlow = 0.2 + 0.35 * progressValue;
+      let glow = restingGlow;
+      if (shouldBlendLoading) {
+        const blendedLoadingGlow = loadingGlow * snapshotBlend;
+        glow =
+          restingGlow + (blendedLoadingGlow - restingGlow) * isLoadingValue;
+      }
+
+      return {
+        width,
+        opacity,
+        transform: [{ scaleY }],
+        shadowColor: colors.accent,
+        shadowOpacity: Platform.OS === "ios" ? glow : 0,
+        shadowRadius: Platform.OS === "ios" ? 6 + glow * 8 : 0,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: Platform.OS === "android" ? glow * 8 : 0,
+      };
+    })
+  );
+
+  const barGlowStyles = bars.map((progress, index) =>
+    useAnimatedStyle(() => {
+      const progressValue = Math.min(Math.max(progress.value, 0), 1);
+      const isLoadingValue = isLoadingShared.value;
+      const wave = Math.sin((loadingLoop.value + index * 0.35) * Math.PI * 2);
+      const isNextAnimated = sanitizedLevel === index;
+      const willRemainFilled = sanitizedLevel > index;
+
+      const shouldBlendLoading =
+        isNextAnimated &&
+        isLoadingValue > 0.001 &&
+        (isLoading || willRemainFilled);
+
+      const animatedSnapshot = barAnimatedSnapshots[index];
+      const snapshotBlend = Math.max(0, Math.min(1, animatedSnapshot.value));
+
+      const loadingGlowOpacity = shouldBlendLoading
+        ? 0.25 + 0.35 * ((loadingPulse.value + 1 + wave) / 3)
+        : 0;
+      const restingGlowOpacity = 0.1 + 0.25 * progressValue;
+      const blendedLoadingGlowOpacity = loadingGlowOpacity * snapshotBlend;
+      let opacity = restingGlowOpacity;
+      if (shouldBlendLoading) {
+        opacity =
+          restingGlowOpacity +
+          (blendedLoadingGlowOpacity - restingGlowOpacity) * isLoadingValue;
+      }
+
+      return { opacity };
+    })
+  );
+
+  const barShimmerStyles = bars.map((_, index) =>
+    useAnimatedStyle(() => {
+      const measuredWidth = barWidth.value || 0;
+      const isTarget = sanitizedLevel === index;
+      if (!isTarget) {
+        return { opacity: 0 };
+      }
+
+      const travel = measuredWidth * 1.8;
+      const translateX = loadingLoop.value * travel - travel * 0.4;
+
+      return {
+        opacity: isLoadingShared.value * 0.45,
+        transform: [{ translateX }],
+        width: measuredWidth * 1.2,
+      };
+    })
+  );
+
+  const infoAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: infoOpacity.value,
+    transform: [{ translateY: (1 - infoOpacity.value) * 6 }],
   }));
 
   return (
-    <Card>
-      <AppText role="Caption" style={styles.sectionHeader}>
+    <Card style={styles.card}>
+      <AppText role="Caption" style={styles.sectionLabel}>
         ESTIMATION CONFIDENCE
       </AppText>
-      <View style={styles.batteryInfoLayout}>
-        <AppText role="Title2" style={styles.percentageText}>
-          {value ?? 0}%
+      <View style={styles.titleRow}>
+        <AppText
+          role="Headline"
+          style={[
+            styles.titleText,
+            headline.highlight && !isLoading ? { color: colors.accent } : null,
+          ]}
+        >
+          {displayTitle}
         </AppText>
-        {hasAmbiguousUnit(foodComponents) && (
-          <AppText role="Caption" style={styles.warningMessage}>
-            Better accuracy with precise units like g, ml, or cups.
-          </AppText>
-        )}
       </View>
-      <View style={styles.meterTrack}>
-        {/* Accent overlay for increase animation (behind main fill) */}
-        <Animated.View
-          pointerEvents="none"
-          style={[styles.increaseOverlay, increaseOverlayStyle]}
-        />
-        <Animated.View style={[styles.meterFill, confidenceBarStyle]}>
-          {/* Inner pulse overlay contained by the fill */}
-          <Animated.View
-            style={[styles.innerPulseOverlay, innerPulseOverlayStyle]}
-          />
-
-          {/* Big dramatic glow effect during processing */}
-          {processing && (
-            <Animated.View
-              pointerEvents="none"
-              style={[styles.bigGlowOverlay, bigGlowStyle]}
+      <View style={styles.barsRow}>
+        <View style={styles.barsContainer}>
+          {bars.map((progress, index) => (
+            <View
+              key={`bar-${index}`}
+              style={[
+                styles.barTrack,
+                index !== bars.length - 1 ? styles.barTrackSpacing : null,
+              ]}
+              onLayout={index === 0 ? onTrackLayout : undefined}
             >
-              <LinearGradient
-                colors={[
-                  `${colors.white}00`,
-                  `${colors.white}12`,
-                  `${colors.white}66`,
-                  `${colors.white}12`,
-                  `${colors.white}00`,
-                ]}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
-                style={styles.bigGlowGradient}
+              <Animated.View
+                pointerEvents="none"
+                style={[styles.barGlow, barGlowStyles[index]]}
               />
-            </Animated.View>
-          )}
-
-          {/* Rush pulse effect when loading finishes */}
-          {!processing && (
-            <Animated.View
-              pointerEvents="none"
-              style={[styles.rushPulseOverlay, rushPulseStyle]}
-            >
-              <LinearGradient
-                colors={[
-                  `${colors.accent}00`,
-                  `${colors.accent}40`,
-                  `${colors.accent}C0`,
-                  `${colors.accent}40`,
-                  `${colors.accent}00`,
-                ]}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
-                style={styles.rushPulseGradient}
+              <Animated.View
+                pointerEvents="none"
+                style={[styles.barFill, barAnimatedStyles[index]]}
               />
-            </Animated.View>
-          )}
-
-          {/* Original shimmer scan overlay while processing – now clipped inside the fill */}
-          {processing && (
-            <Animated.View
-              pointerEvents="none"
-              style={[styles.shimmerOverlay, shimmerStyle]}
-            >
-              <LinearGradient
-                colors={[
-                  `${colors.white}00`,
-                  `${colors.white}66`,
-                  `${colors.white}00`,
-                ]}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
-                style={styles.shimmerGradient}
-              />
-            </Animated.View>
-          )}
+              {isLoading ? (
+                <AnimatedLinearGradient
+                  pointerEvents="none"
+                  colors={[
+                    `${colors.white}00`,
+                    `${colors.accent}33`,
+                    `${colors.white}00`,
+                  ]}
+                  start={{ x: 0, y: 0.5 }}
+                  end={{ x: 1, y: 0.5 }}
+                  style={[styles.barShimmer, barShimmerStyles[index]]}
+                />
+              ) : null}
+            </View>
+          ))}
+        </View>
+      </View>
+      {infoSubText ? (
+        <Animated.View style={[styles.infoContainer, infoAnimatedStyle]}>
+          <View style={styles.infoPill}>
+            <Sparkles
+              size={14}
+              color={colors.secondaryText}
+              style={styles.infoIconSpacing}
+            />
+            <AppText role="Caption" style={styles.infoText}>
+              {infoSubText}
+            </AppText>
+          </View>
         </Animated.View>
-      </View>
+      ) : null}
     </Card>
   );
 };

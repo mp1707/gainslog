@@ -1,100 +1,95 @@
 import { StyleSheet } from "react-native";
+
 import type { Colors, Theme } from "@/theme";
 
 export const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     card: {
-      padding: theme.spacing.md,
+      paddingTop: theme.spacing.xl,
+      paddingBottom: theme.spacing.lg,
+      paddingHorizontal: theme.spacing.lg,
       borderRadius: theme.components.cards.cornerRadius,
       backgroundColor: colors.secondaryBackground,
     },
-    sectionHeader: {
-      marginBottom: theme.spacing.sm,
-      letterSpacing: 0.5,
+    sectionLabel: {
       color: colors.secondaryText,
+      letterSpacing: 0.6,
+      marginBottom: theme.spacing.md,
     },
-    confidenceHeader: {
+    titleRow: {
       flexDirection: "row",
-      justifyContent: "space-between",
       alignItems: "center",
+      justifyContent: "space-between",
+      marginTop: theme.spacing.xs,
       marginBottom: theme.spacing.sm,
     },
-    batteryInfoLayout: {
-      marginBottom: theme.spacing.xs,
+    titleText: {
+      color: colors.primaryText,
+      flexShrink: 1,
+    },
+    barsRow: {
       flexDirection: "row",
+      alignItems: "center",
       justifyContent: "space-between",
-      alignItems: "flex-end",
-      gap: theme.spacing.sm,
+      marginTop: theme.spacing.sm,
+      marginBottom: theme.spacing.sm,
     },
-    percentageText: {
-      width: "38%",
-      fontSize: 40,
-      fontWeight: "700" as const,
-      lineHeight: 52,
-      textAlign: "justify",
-      marginBottom: -4,
-    },
-    warningMessage: {
-      width: "58%",
-      color: colors.secondaryText,
-      lineHeight: 16,
-      fontSize: 12,
-      textAlign: "right",
-      alignSelf: "flex-end",
-    },
-    meterTrack: {
-      width: "100%",
-      height: 12,
-      borderRadius: 6,
-      backgroundColor: colors.disabledBackground,
-    },
-    meterFill: {
-      height: "100%",
-      borderRadius: 6,
-      overflow: "hidden", // ensure inner effects are clipped to fill
-    },
-    innerPulseOverlay: {
-      position: "absolute",
-      left: 0,
-      right: 0,
-      top: 0,
-      bottom: 0,
-      backgroundColor: "rgba(255,255,255,0.25)",
-    },
-    shimmerOverlay: {
-      position: "absolute",
-      left: -100,
-      top: 0,
-      bottom: 0,
-      width: 200,
-    },
-    shimmerGradient: {
+    barsContainer: {
       flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      position: "relative",
+      overflow: "hidden",
     },
-    bigGlowOverlay: {
-      position: "absolute",
-      left: -200,
-      top: -4,
-      bottom: -4,
-      width: 300,
-    },
-    bigGlowGradient: {
+    barTrack: {
       flex: 1,
+      height: 14,
+      borderRadius: 999,
+      backgroundColor: colors.subtleBackground,
+      overflow: "hidden",
+      position: "relative",
     },
-    rushPulseOverlay: {
+    barTrackSpacing: {
+      marginRight: theme.spacing.sm,
+    },
+    barGlow: {
       position: "absolute",
-      left: -200,
+      left: -6,
+      right: -6,
       top: -6,
       bottom: -6,
-      width: 400,
+      borderRadius: 999,
+      backgroundColor: colors.accent,
+      opacity: 0,
     },
-    rushPulseGradient: {
-      flex: 1,
-    },
-    increaseOverlay: {
+    barFill: {
       position: "absolute",
+      left: 0,
       top: 0,
       bottom: 0,
-      borderRadius: 6,
+      borderRadius: 999,
+      backgroundColor: colors.accent,
+      opacity: 0,
+    },
+    barShimmer: {
+      position: "absolute",
+      top: -10,
+      bottom: -10,
+      left: -20,
+    },
+    infoContainer: {
+      marginTop: theme.spacing.sm,
+    },
+    infoPill: {
+      alignSelf: "flex-start",
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    infoIconSpacing: {
+      marginRight: theme.spacing.xs,
+    },
+    infoText: {
+      color: colors.secondaryText,
+      flexShrink: 1,
     },
   });

@@ -3,12 +3,12 @@ import { FoodLog } from "../types/models";
 export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
   // Breakfast items
   {
-    title: "Greek Yogurt with Berries",
+    title: "🍓 Greek Yogurt",
     description: "Plain Greek yogurt topped with mixed berries and honey",
     foodComponents: [
       { amount: 200, name: "Greek yogurt", needsRefinement: false, unit: "g" },
-      { amount: 80, name: "Mixed berries", needsRefinement: false, unit: "g" },
-      { amount: 1, name: "Honey", needsRefinement: false, unit: "tbsp" }
+      { amount: 80, name: "Mixed berries", needsRefinement: true, unit: "g" },
+      { amount: 1, name: "Honey", needsRefinement: true, unit: "tbsp" }
     ],
     calories: 180,
     protein: 15,
@@ -18,12 +18,12 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Avocado Toast",
+    title: "🥑 Avocado Toast",
     description: "Whole grain bread with mashed avocado and sea salt",
     foodComponents: [
       { amount: 2, name: "Whole grain bread", needsRefinement: false, unit: "piece" },
       { amount: 100, name: "Avocado", needsRefinement: false, unit: "g" },
-      { amount: 1, name: "Sea salt", needsRefinement: false, unit: "tsp" }
+      { amount: 1, name: "Sea salt", needsRefinement: true, unit: "tsp" }
     ],
     calories: 280,
     protein: 6,
@@ -35,14 +35,14 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
 
   // Lunch items
   {
-    title: "Turkey Sandwich",
+    title: "🥪 Turkey Sandwich",
     description: "Sliced turkey breast on whole wheat with lettuce and tomato",
     foodComponents: [
       { amount: 2, name: "Whole wheat bread", needsRefinement: false, unit: "piece" },
       { amount: 120, name: "Turkey breast", needsRefinement: false, unit: "g" },
       { amount: 50, name: "Lettuce", needsRefinement: false, unit: "g" },
       { amount: 80, name: "Tomato", needsRefinement: false, unit: "g" },
-      { amount: 1, name: "Mayonnaise", needsRefinement: false, unit: "tbsp" }
+      { amount: 1, name: "Mayonnaise", needsRefinement: true, unit: "tbsp" }
     ],
     calories: 420,
     protein: 28,
@@ -52,13 +52,13 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Tuna Wrap",
+    title: "🌯 Tuna Wrap",
     description: "Tuna salad with mixed vegetables in a whole wheat tortilla",
     foodComponents: [
       { amount: 1, name: "Whole wheat tortilla", needsRefinement: false, unit: "piece" },
       { amount: 100, name: "Tuna", needsRefinement: false, unit: "g" },
-      { amount: 60, name: "Mixed vegetables", needsRefinement: false, unit: "g" },
-      { amount: 1, name: "Mayonnaise", needsRefinement: false, unit: "tbsp" }
+      { amount: 60, name: "Mixed vegetables", needsRefinement: true, unit: "g" },
+      { amount: 1, name: "Mayonnaise", needsRefinement: true, unit: "tbsp" }
     ],
     calories: 380,
     protein: 24,
@@ -70,13 +70,13 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
 
   // Dinner items
   {
-    title: "Beef Stir Fry",
+    title: "🥩 Beef Stir Fry",
     description: "Lean beef strips with mixed vegetables and brown rice",
     foodComponents: [
       { amount: 150, name: "Lean beef", needsRefinement: false, unit: "g" },
-      { amount: 200, name: "Mixed vegetables", needsRefinement: false, unit: "g" },
+      { amount: 200, name: "Mixed vegetables", needsRefinement: true, unit: "g" },
       { amount: 150, name: "Brown rice", needsRefinement: false, unit: "g" },
-      { amount: 1, name: "Cooking oil", needsRefinement: false, unit: "tbsp" }
+      { amount: 1, name: "Cooking oil", needsRefinement: true, unit: "tbsp" }
     ],
     calories: 480,
     protein: 32,
@@ -86,11 +86,11 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Vegetarian Curry",
+    title: "🍛 Vegetarian Curry",
     description: "Chickpea and vegetable curry with basmati rice",
     foodComponents: [
       { amount: 200, name: "Chickpeas", needsRefinement: false, unit: "g" },
-      { amount: 150, name: "Mixed vegetables", needsRefinement: false, unit: "g" },
+      { amount: 150, name: "Mixed vegetables", needsRefinement: true, unit: "g" },
       { amount: 150, name: "Basmati rice", needsRefinement: false, unit: "g" },
       { amount: 100, name: "Coconut milk", needsRefinement: false, unit: "ml" }
     ],
@@ -104,11 +104,11 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
 
   // Snacks
   {
-    title: "Trail Mix",
+    title: "🥜 Trail Mix",
     description: "Mixed nuts, dried fruit, and dark chocolate chips",
     foodComponents: [
-      { amount: 30, name: "Mixed nuts", needsRefinement: false, unit: "g" },
-      { amount: 20, name: "Dried fruit", needsRefinement: false, unit: "g" },
+      { amount: 30, name: "Mixed nuts", needsRefinement: true, unit: "g" },
+      { amount: 20, name: "Dried fruit", needsRefinement: true, unit: "g" },
       { amount: 10, name: "Dark chocolate chips", needsRefinement: false, unit: "g" }
     ],
     calories: 220,
@@ -119,7 +119,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Cottage Cheese with Fruit",
+    title: "🧀 Cottage Cheese",
     description: "Low-fat cottage cheese with fresh peach slices",
     foodComponents: [
       { amount: 200, name: "Low-fat cottage cheese", needsRefinement: false, unit: "g" },
@@ -135,12 +135,12 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
 
   // Additional variety
   {
-    title: "Pizza Slice",
+    title: "🍕 Pizza Slice",
     description: "Thin crust margherita pizza slice",
     foodComponents: [
       { amount: 1, name: "Pizza slice", needsRefinement: false, unit: "piece" },
       { amount: 30, name: "Mozzarella cheese", needsRefinement: false, unit: "g" },
-      { amount: 50, name: "Tomato sauce", needsRefinement: false, unit: "g" }
+      { amount: 50, name: "Tomato sauce", needsRefinement: true, unit: "g" }
     ],
     calories: 290,
     protein: 12,
@@ -150,12 +150,12 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Fish Tacos",
+    title: "🌮 Fish Tacos",
     description: "Grilled white fish with cabbage slaw in corn tortillas",
     foodComponents: [
       { amount: 2, name: "Corn tortillas", needsRefinement: false, unit: "piece" },
       { amount: 120, name: "White fish", needsRefinement: false, unit: "g" },
-      { amount: 80, name: "Cabbage slaw", needsRefinement: false, unit: "g" },
+      { amount: 80, name: "Cabbage slaw", needsRefinement: true, unit: "g" },
       { amount: 2, name: "Lime juice", needsRefinement: false, unit: "tbsp" }
     ],
     calories: 380,
@@ -166,7 +166,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Grilled Cheese Sandwich",
+    title: "🧀 Grilled Cheese",
     description: "Classic grilled cheese on sourdough bread",
     foodComponents: [
       { amount: 2, name: "Sourdough bread", needsRefinement: false, unit: "piece" },
@@ -181,12 +181,12 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Meatball Sub",
+    title: "🥙 Meatball Sub",
     description: "Turkey meatballs in marinara sauce on whole grain roll",
     foodComponents: [
       { amount: 1, name: "Whole grain roll", needsRefinement: false, unit: "piece" },
       { amount: 150, name: "Turkey meatballs", needsRefinement: false, unit: "g" },
-      { amount: 80, name: "Marinara sauce", needsRefinement: false, unit: "g" },
+      { amount: 80, name: "Marinara sauce", needsRefinement: true, unit: "g" },
       { amount: 30, name: "Mozzarella cheese", needsRefinement: false, unit: "g" }
     ],
     calories: 520,
@@ -197,13 +197,13 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Overnight Oats",
+    title: "🥣 Overnight Oats",
     description: "Oats soaked in almond milk with chia seeds and berries",
     foodComponents: [
       { amount: 50, name: "Rolled oats", needsRefinement: false, unit: "g" },
       { amount: 200, name: "Almond milk", needsRefinement: false, unit: "ml" },
       { amount: 1, name: "Chia seeds", needsRefinement: false, unit: "tbsp" },
-      { amount: 80, name: "Mixed berries", needsRefinement: false, unit: "g" }
+      { amount: 80, name: "Mixed berries", needsRefinement: true, unit: "g" }
     ],
     calories: 280,
     protein: 10,
@@ -213,7 +213,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Beef Tacos",
+    title: "🌮 Beef Tacos",
     description: "Ground beef tacos with lettuce, tomato, and cheese",
     foodComponents: [
       { amount: 3, name: "Corn tortillas", needsRefinement: false, unit: "piece" },
@@ -230,7 +230,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Banana Bread",
+    title: "🍌 Banana Bread",
     description: "Homemade banana bread slice",
     foodComponents: [
       { amount: 1, name: "Banana bread slice", needsRefinement: false, unit: "piece" },
@@ -244,7 +244,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Chocolate Protein Shake",
+    title: "🥤 Protein Shake",
     description: "Chocolate whey protein with banana and milk",
     foodComponents: [
       { amount: 1, name: "Chocolate protein powder", needsRefinement: false, unit: "scoop" },
@@ -259,13 +259,13 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Chia Pudding",
+    title: "🍮 Chia Pudding",
     description: "Chia seeds soaked in coconut milk with vanilla and berries",
     foodComponents: [
       { amount: 3, name: "Chia seeds", needsRefinement: false, unit: "tbsp" },
       { amount: 200, name: "Coconut milk", needsRefinement: false, unit: "ml" },
-      { amount: 80, name: "Mixed berries", needsRefinement: false, unit: "g" },
-      { amount: 1, name: "Vanilla extract", needsRefinement: false, unit: "tsp" }
+      { amount: 80, name: "Mixed berries", needsRefinement: true, unit: "g" },
+      { amount: 1, name: "Vanilla extract", needsRefinement: true, unit: "tsp" }
     ],
     calories: 220,
     protein: 8,
@@ -275,13 +275,13 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Shrimp Scampi",
+    title: "🍤 Shrimp Scampi",
     description: "Sautéed shrimp in garlic butter over whole wheat pasta",
     foodComponents: [
       { amount: 150, name: "Shrimp", needsRefinement: false, unit: "g" },
       { amount: 100, name: "Whole wheat pasta", needsRefinement: false, unit: "g" },
-      { amount: 2, name: "Garlic", needsRefinement: false, unit: "tbsp" },
-      { amount: 1, name: "Butter", needsRefinement: false, unit: "tbsp" }
+      { amount: 2, name: "Garlic", needsRefinement: true, unit: "tbsp" },
+      { amount: 1, name: "Butter", needsRefinement: true, unit: "tbsp" }
     ],
     calories: 480,
     protein: 28,
@@ -291,11 +291,11 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Coconut Rice Bowl",
+    title: "🥥 Rice Bowl",
     description: "Coconut rice with grilled vegetables and tofu",
     foodComponents: [
       { amount: 150, name: "Coconut rice", needsRefinement: false, unit: "g" },
-      { amount: 120, name: "Grilled vegetables", needsRefinement: false, unit: "g" },
+      { amount: 120, name: "Grilled vegetables", needsRefinement: true, unit: "g" },
       { amount: 100, name: "Tofu", needsRefinement: false, unit: "g" }
     ],
     calories: 420,
@@ -306,7 +306,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Breakfast Burrito",
+    title: "🌯 Breakfast Burrito",
     description: "Scrambled eggs, black beans, cheese in whole wheat tortilla",
     foodComponents: [
       { amount: 1, name: "Whole wheat tortilla", needsRefinement: false, unit: "piece" },
@@ -322,7 +322,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Peanut Butter Toast",
+    title: "🥜 PB Toast",
     description: "Whole grain toast with natural peanut butter and banana",
     foodComponents: [
       { amount: 2, name: "Whole grain bread", needsRefinement: false, unit: "piece" },
@@ -337,7 +337,7 @@ export const testFoodLogs: Omit<FoodLog, "id" | "logDate" | "createdAt">[] = [
     isEstimating: false,
   },
   {
-    title: "Fruit Salad",
+    title: "🍓 Fruit Salad",
     description: "Mixed seasonal fruit salad",
     foodComponents: [
       { amount: 100, name: "Apple", needsRefinement: false, unit: "g" },
