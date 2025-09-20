@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Pressable, Text } from "react-native";
 
-import { ProgressRings } from "@/components/shared/ProgressRings";
+import { ProgressRingsStatic } from "@/components/shared/ProgressRings";
 import { useTheme } from "@/theme";
 import { getTodayKey } from "@/utils/dateHelpers";
 
@@ -56,7 +56,7 @@ export const DayItem: React.FC<DayItemProps> = React.memo(
           </Text>
         </View>
         <View style={styles.progressContainer}>
-          <ProgressRings
+          <ProgressRingsStatic
             percentages={item.percentages}
             size={45}
             strokeWidth={4}

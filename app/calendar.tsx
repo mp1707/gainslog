@@ -121,10 +121,6 @@ export default function Calendar() {
   // Render month item for FlatList
   const renderMonthItem = useCallback(
     ({ item }: { item: MonthData }) => {
-      // Only show full progress rings for the currently active/visible month
-      const isActiveMonth =
-        item.year === activeMonth.year && item.month === activeMonth.month;
-
       return (
         <CalendarGrid
           year={item.year}
@@ -133,7 +129,6 @@ export default function Calendar() {
           getDailyPercentages={getDailyPercentages}
           onDateSelect={handleDateSelect}
           width={screenWidth}
-          useSimplifiedRings={!isActiveMonth}
         />
       );
     },

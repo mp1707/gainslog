@@ -3,7 +3,7 @@ import { View, StyleSheet, Platform, UIManager } from "react-native";
 import { Colors, Theme, useTheme } from "@/theme";
 import { AppText } from "@/components";
 import { Droplet, Flame, BicepsFlexed, Wheat } from "lucide-react-native";
-import { ProgressRingsApple } from "@/components/shared/ProgressRings";
+import { ProgressRings } from "@/components/shared/ProgressRings";
 
 if (
   Platform.OS === "android" &&
@@ -105,7 +105,7 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
-  const containerSize = 175;
+  const containerSize = 180;
   const ringColors = {
     calories: colors.semantic.calories,
     protein: colors.semantic.protein,
@@ -119,7 +119,7 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
       <View style={styles.contentContainer}>
         <View style={styles.summaryContent}>
           <View style={styles.ringsContainer}>
-            <ProgressRingsApple
+            <ProgressRings
               percentages={percentages}
               size={containerSize}
               strokeWidth={STROKE_WIDTH}

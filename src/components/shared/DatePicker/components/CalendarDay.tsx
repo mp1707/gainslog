@@ -1,8 +1,7 @@
 import React, { useMemo } from "react";
 import { View, TouchableOpacity } from "react-native";
 import { AppText } from "@/components";
-import { ProgressRings } from "@/components/shared/ProgressRings";
-import { SimpleProgressIndicator } from "@/components/shared/ProgressRings/SimpleProgressIndicator";
+import { ProgressRingsStatic } from "@/components/shared/ProgressRings";
 import { useTheme } from "@/theme";
 import { createStyles } from "./CalendarDay.styles";
 import { isToday } from "@/utils/dateHelpers";
@@ -31,11 +30,10 @@ const CalendarDayComponent: React.FC<CalendarDayProps> = ({
   isFuture,
   percentages,
   onPress,
-  useSimplifiedRings = false,
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
-  
+
   const handlePress = () => {
     if (isCurrentMonth && !isFuture) {
       onPress(dateKey);
@@ -45,9 +43,9 @@ const CalendarDayComponent: React.FC<CalendarDayProps> = ({
   // Optimize all styling and state calculations in one useMemo
   const { containerStyle, textStyle } = useMemo(() => {
     const todayCheck = isToday(dateKey);
-    
+
     let containerStyles, textStyles;
-    
+
     if (!isCurrentMonth || isFuture) {
       containerStyles = [styles.container, styles.containerDisabled];
       textStyles = [styles.dayText, styles.dayTextDisabled];
@@ -61,7 +59,7 @@ const CalendarDayComponent: React.FC<CalendarDayProps> = ({
       containerStyles = styles.container;
       textStyles = styles.dayText;
     }
-    
+
     return {
       containerStyle: containerStyles,
       textStyle: textStyles,
@@ -76,20 +74,13 @@ const CalendarDayComponent: React.FC<CalendarDayProps> = ({
       activeOpacity={0.7}
     >
       <View style={styles.ringsContainer}>
-        {useSimplifiedRings ? (
-          <SimpleProgressIndicator
-            percentages={percentages}
-            size={36}
-          />
-        ) : (
-          <ProgressRings
-            percentages={percentages}
-            size={36}
-            strokeWidth={3}
-            spacing={1}
-            padding={1}
-          />
-        )}
+        <ProgressRingsStatic
+          percentages={percentages}
+          size={36}
+          strokeWidth={3}
+          spacing={1}
+          padding={1}
+        />
       </View>
       <AppText role="Caption" style={textStyle}>
         {day}
@@ -99,20 +90,23 @@ const CalendarDayComponent: React.FC<CalendarDayProps> = ({
 };
 
 // Memoized component for optimal performance
-export const CalendarDay = React.memo(CalendarDayComponent, (prevProps, nextProps) => {
-  // Only re-render if props actually change
-  return (
-    prevProps.dateKey === nextProps.dateKey &&
-    prevProps.day === nextProps.day &&
-    prevProps.isCurrentMonth === nextProps.isCurrentMonth &&
-    prevProps.isSelected === nextProps.isSelected &&
-    prevProps.isFuture === nextProps.isFuture &&
-    prevProps.useSimplifiedRings === nextProps.useSimplifiedRings &&
-    prevProps.onPress === nextProps.onPress &&
-    // Deep comparison for percentages object
-    prevProps.percentages.calories === nextProps.percentages.calories &&
-    prevProps.percentages.protein === nextProps.percentages.protein &&
-    prevProps.percentages.carbs === nextProps.percentages.carbs &&
-    prevProps.percentages.fat === nextProps.percentages.fat
-  );
-});
+export const CalendarDay = React.memo(
+  CalendarDayComponent,
+  (prevProps, nextProps) => {
+    // Only re-render if props actually change
+    return (
+      prevProps.dateKey === nextProps.dateKey &&
+      prevProps.day === nextProps.day &&
+      prevProps.isCurrentMonth === nextProps.isCurrentMonth &&
+      prevProps.isSelected === nextProps.isSelected &&
+      prevProps.isFuture === nextProps.isFuture &&
+      prevProps.useSimplifiedRings === nextProps.useSimplifiedRings &&
+      prevProps.onPress === nextProps.onPress &&
+      // Deep comparison for percentages object
+      prevProps.percentages.calories === nextProps.percentages.calories &&
+      prevProps.percentages.protein === nextProps.percentages.protein &&
+      prevProps.percentages.carbs === nextProps.percentages.carbs &&
+      prevProps.percentages.fat === nextProps.percentages.fat
+    );
+  }
+);

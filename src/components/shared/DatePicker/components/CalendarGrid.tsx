@@ -4,7 +4,7 @@ import { AppText } from "@/components";
 import { useTheme } from "@/theme";
 import { createStyles } from "./CalendarGrid.styles";
 import { CalendarDay } from "./CalendarDay";
-import { 
+import {
   getDaysInMonth,
   formatDateKey,
   isFutureDate,
@@ -27,8 +27,18 @@ interface CalendarGridProps {
 
 const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 const CalendarGridComponent: React.FC<CalendarGridProps> = ({
@@ -38,7 +48,6 @@ const CalendarGridComponent: React.FC<CalendarGridProps> = ({
   getDailyPercentages,
   onDateSelect,
   width,
-  useSimplifiedRings = false,
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
@@ -48,7 +57,7 @@ const CalendarGridComponent: React.FC<CalendarGridProps> = ({
     const daysInMonth = getDaysInMonth(year, month);
     const firstDayOfMonth = new Date(year, month - 1, 1).getDay(); // 0 = Sunday
     const daysInPrevMonth = getDaysInMonth(year, month === 1 ? 12 : month - 1);
-    
+
     const days: Array<{
       day: number;
       dateKey: string;
@@ -63,7 +72,7 @@ const CalendarGridComponent: React.FC<CalendarGridProps> = ({
       const prevMonth = month === 1 ? 12 : month - 1;
       const prevYear = month === 1 ? year - 1 : year;
       const dateKey = formatDateKey(prevYear, prevMonth, day);
-      
+
       days.push({
         day,
         dateKey,
@@ -91,7 +100,7 @@ const CalendarGridComponent: React.FC<CalendarGridProps> = ({
     for (let i = 0; i < remainingCells; i++) {
       days.push({
         day: 0, // Use 0 to indicate empty cell
-        dateKey: '',
+        dateKey: "",
         isCurrentMonth: false,
         isSelected: false,
         isFuture: false,
@@ -141,7 +150,7 @@ const CalendarGridComponent: React.FC<CalendarGridProps> = ({
               if (dayData.day === 0) {
                 return <View key={`empty-${index}`} style={{ flex: 1 }} />;
               }
-              
+
               return (
                 <CalendarDay
                   key={dayData.dateKey}
@@ -152,7 +161,6 @@ const CalendarGridComponent: React.FC<CalendarGridProps> = ({
                   isFuture={dayData.isFuture}
                   percentages={getDailyPercentages(dayData.dateKey)}
                   onPress={onDateSelect}
-                  useSimplifiedRings={useSimplifiedRings}
                 />
               );
             })}
@@ -164,15 +172,18 @@ const CalendarGridComponent: React.FC<CalendarGridProps> = ({
 };
 
 // Memoized component with custom comparison for optimal performance
-export const CalendarGrid = React.memo(CalendarGridComponent, (prevProps, nextProps) => {
-  // Only re-render if essential props change
-  return (
-    prevProps.year === nextProps.year &&
-    prevProps.month === nextProps.month &&
-    prevProps.selectedDate === nextProps.selectedDate &&
-    prevProps.width === nextProps.width &&
-    prevProps.getDailyPercentages === nextProps.getDailyPercentages &&
-    prevProps.onDateSelect === nextProps.onDateSelect &&
-    prevProps.useSimplifiedRings === nextProps.useSimplifiedRings
-  );
-});
+export const CalendarGrid = React.memo(
+  CalendarGridComponent,
+  (prevProps, nextProps) => {
+    // Only re-render if essential props change
+    return (
+      prevProps.year === nextProps.year &&
+      prevProps.month === nextProps.month &&
+      prevProps.selectedDate === nextProps.selectedDate &&
+      prevProps.width === nextProps.width &&
+      prevProps.getDailyPercentages === nextProps.getDailyPercentages &&
+      prevProps.onDateSelect === nextProps.onDateSelect &&
+      prevProps.useSimplifiedRings === nextProps.useSimplifiedRings
+    );
+  }
+);
