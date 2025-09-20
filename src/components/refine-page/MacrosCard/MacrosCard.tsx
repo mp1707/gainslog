@@ -153,6 +153,27 @@ const MacroRow = ({
 
   const loaderHeight = Math.max(rowHeight, theme.spacing.lg + theme.spacing.xs);
 
+  const loaderConfig = useMemo(() => {
+    if (rowWidth <= 0) {
+      return {
+        density: 1,
+        detail: 1.15,
+        amplitude: 1,
+      };
+    }
+
+    const normalizedWidth = Math.max(0, rowWidth - theme.spacing.xl * 4);
+    const density = Math.min(2.6, 1 + normalizedWidth / 260);
+    const detail = Math.min(3.2, Math.max(1.1, density * 1.18));
+    const amplitude = Math.min(1.45, 1 + (density - 1) * 0.38);
+
+    return {
+      density,
+      detail,
+      amplitude,
+    };
+  }, [rowWidth, theme.spacing.xl]);
+
   const loaderAnimatedStyle = useAnimatedStyle(() => {
     const calculatedWidth = Math.max(rowWidthValue.value * transition.value, 0);
     return {
@@ -191,6 +212,9 @@ const MacroRow = ({
             height={loaderHeight}
             color={item.color}
             index={index}
+            squiggleDensity={loaderConfig.density}
+            detailDensity={loaderConfig.detail}
+            amplitudeScale={loaderConfig.amplitude}
           />
         ) : (
           <View style={styles.macroLoaderPlaceholder} />

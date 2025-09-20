@@ -14,6 +14,9 @@ interface MacroLineLoaderProps {
   index: number;
   width: number;
   height: number;
+  squiggleDensity?: number;
+  detailDensity?: number;
+  amplitudeScale?: number;
 }
 
 const MacroLineLoaderComponent = ({
@@ -21,16 +24,28 @@ const MacroLineLoaderComponent = ({
   index,
   width,
   height,
+  squiggleDensity = 1,
+  detailDensity,
+  amplitudeScale = 1,
 }: MacroLineLoaderProps) => {
   const progress = useSharedValue(0);
   const sway = useSharedValue(0);
 
   const widthValue = useSharedValue(width);
   const heightValue = useSharedValue(height);
+  const densityValue = useSharedValue(Math.max(0.35, squiggleDensity));
+  const detailDensityValue = useSharedValue(
+    detailDensity !== undefined
+      ? Math.max(0.35, detailDensity)
+      : Math.max(0.5, squiggleDensity * 1.2),
+  );
+  const amplitudeValue = useSharedValue(Math.max(0.35, amplitudeScale));
 
   useEffect(() => {
-    const duration = 2600 + index * 320;
-    const swayDuration = 1900 + index * 180;
+    const densityFactor = Math.max(0.35, squiggleDensity);
+    const speedMultiplier = Math.sqrt(densityFactor);
+    const duration = (2600 + index * 320) / speedMultiplier;
+    const swayDuration = (1900 + index * 180) / Math.max(0.6, speedMultiplier * 0.88);
 
     progress.value = withRepeat(
       withTiming(Math.PI * 2, {
@@ -53,17 +68,35 @@ const MacroLineLoaderComponent = ({
       cancelAnimation(progress);
       cancelAnimation(sway);
     };
-  }, [index, progress, sway]);
+  }, [index, progress, squiggleDensity, sway]);
 
   useEffect(() => {
     widthValue.value = width;
     heightValue.value = height;
   }, [width, height, widthValue, heightValue]);
 
+  useEffect(() => {
+    densityValue.value = Math.max(0.35, squiggleDensity);
+  }, [densityValue, squiggleDensity]);
+
+  useEffect(() => {
+    detailDensityValue.value =
+      detailDensity !== undefined
+        ? Math.max(0.35, detailDensity)
+        : Math.max(0.5, squiggleDensity * 1.2);
+  }, [detailDensity, detailDensityValue, squiggleDensity]);
+
+  useEffect(() => {
+    amplitudeValue.value = Math.max(0.35, amplitudeScale);
+  }, [amplitudeScale, amplitudeValue]);
+
   const path = useDerivedValue<SkPath>(() => {
     'worklet';
     const canvasWidth = widthValue.value;
     const canvasHeight = heightValue.value;
+    const densityFactor = densityValue.value;
+    const detailFactor = detailDensityValue.value;
+    const amplitudeFactor = amplitudeValue.value;
     const pathInstance = Skia.Path.Make();
 
     if (canvasWidth <= 0 || canvasHeight <= 0) {
@@ -74,12 +107,16 @@ const MacroLineLoaderComponent = ({
     const horizontalInset = Math.min(canvasWidth / 6, strokeWidth);
     const usableWidth = Math.max(0, canvasWidth - horizontalInset * 2);
     const baseY = canvasHeight / 2;
-    const segments = Math.max(24, Math.round(Math.max(usableWidth, 1) / 8));
+    const segments = Math.max(
+      24,
+      Math.round(Math.max(usableWidth, 1) / Math.max(2, 8 / Math.max(0.4, densityFactor))),
+    );
     const baseAmplitude = canvasHeight * 0.28;
+    const dynamicAmplitude = baseAmplitude * amplitudeFactor;
     const swayPhase = sway.value * Math.PI * 2;
     const basePhase = progress.value;
-    const mainFrequency = 6.4 + index * 0.75;
-    const detailFrequency = 10.6 + index * 1.35;
+    const mainFrequency = (6.4 + index * 0.75) * Math.max(0.5, densityFactor);
+    const detailFrequency = (10.6 + index * 1.35) * Math.max(0.5, detailFactor);
     const primaryOffset = index * 0.48;
 
     pathInstance.moveTo(horizontalInset, baseY);
@@ -95,11 +132,11 @@ const MacroLineLoaderComponent = ({
       );
 
       const amplitudeVariation =
-        baseAmplitude * (0.75 + 0.35 * Math.sin(swayPhase + index));
+        dynamicAmplitude * (0.75 + 0.35 * Math.sin(swayPhase + index));
       const y =
         baseY +
         envelope * amplitudeVariation * 0.65 * mainWave +
-        envelope * baseAmplitude * 0.35 * detailWave;
+        envelope * dynamicAmplitude * 0.35 * detailWave;
 
       const verticalInset = strokeWidth * 0.8;
       const clampedY = Math.min(
