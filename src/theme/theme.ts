@@ -61,7 +61,7 @@ const lightColors = {
   // State background colors
   errorBackground: "rgba(255, 61, 0, 0.1)",
   warningBackground: "rgba(255, 171, 0, 0.1)",
-  successBackground: "rgba(0, 191, 165, 0.1)",
+  successBackground: "rgba(0, 191, 165, 0.05)",
 
   // Icon badge colors
   iconBadge: {
@@ -166,7 +166,7 @@ const darkColors = {
   // State background colors
   errorBackground: "rgba(255, 102, 90, 0.15)",
   warningBackground: "rgba(255, 213, 79, 0.15)",
-  successBackground: "rgba(77, 242, 222, 0.15)",
+  successBackground: "rgba(77, 242, 222, 0.05)",
 
   // Icon badge colors
   iconBadge: {

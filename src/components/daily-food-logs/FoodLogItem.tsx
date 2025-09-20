@@ -1,5 +1,6 @@
 import React from "react";
 import Animated, { LinearTransition } from "react-native-reanimated";
+import { Star } from "lucide-react-native";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions";
 import { LogCard } from "@/components/daily-food-logs/LogCard";
 import { FoodLog, Favorite } from "@/types/models";
@@ -33,7 +34,8 @@ export const FoodLogItem: React.FC<FoodLogItemProps> = ({
     >
       <SwipeToFunctions
         onDelete={() => onDelete(item)}
-        onFavorite={() => onToggleFavorite(item)}
+        onLeftFunction={() => onToggleFavorite(item)}
+        leftIcon={<Star size={24} color="white" />}
         onTap={() => onEdit(item)}
       >
         <LogCard

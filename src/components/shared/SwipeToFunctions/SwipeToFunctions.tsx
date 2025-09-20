@@ -16,16 +16,16 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { lockNav, isNavLocked } from "@/utils/navigationLock";
 import { theme } from "@/theme";
 import { useIsFocused } from "@react-navigation/native";
-
-const BORDER_RADIUS = theme.components.cards.cornerRadius;
-
 interface SwipeToFunctionsProps {
   children: ReactNode;
   onDelete?: () => void;
   confirmDelete?: boolean;
-  onFavorite?: () => void;
-  confirmFavorite?: boolean;
+  onLeftFunction?: () => void;
+  confirmLeftFunction?: boolean;
+  leftIcon?: ReactNode;
+  leftBackgroundColor?: string;
   onTap?: () => void; // Navigation handler for tap gestures
+  borderRadius?: number;
 }
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -41,9 +41,12 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
   children,
   onDelete,
   confirmDelete = true,
-  onFavorite,
-  confirmFavorite = false,
+  onLeftFunction,
+  confirmLeftFunction = false,
+  leftIcon = <FontAwesome name="star" size={24} color="white" />,
+  leftBackgroundColor,
   onTap,
+  borderRadius = theme.components.cards.cornerRadius,
 }) => {
   // Screen focus awareness to prevent tap-through when regaining focus
   const isFocused = useIsFocused();
@@ -71,8 +74,8 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
   >("unknown");
 
   // Persistent swipe state tracking
-  const isLeftSwiped = useSharedValue(false); // Track left swipe state (delete)
-  const isRightSwiped = useSharedValue(false); // Track right swipe state (favorite)
+  const isLeftSwiped = useSharedValue(false); // Track left swipe state (leftFunction)
+  const isRightSwiped = useSharedValue(false); // Track right swipe state (delete)
 
   // Press animation shared values
   const scale = useSharedValue(1);
@@ -122,15 +125,15 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
     );
   };
 
-  const executeFavorite = () => {
-    if (!onFavorite) return;
+  const executeLeftFunction = () => {
+    if (!onLeftFunction) return;
 
-    // Reset swipe state when executing favorite
+    // Reset swipe state when executing left function
     isLeftSwiped.value = false;
     isRightSwiped.value = false;
 
-    // Execute favorite action and animate back to center
-    runOnJS(onFavorite)();
+    // Execute left function action and animate back to center
+    runOnJS(onLeftFunction)();
     translateX.value = withSpring(0, {
       damping: 20,
       stiffness: 300,
@@ -170,302 +173,294 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
     }
   };
 
-  const handleFavorite = () => {
-    if (confirmFavorite) {
-      Alert.alert("Add to Favorites", "Add this food log to your favorites?", [
+  const handleLeftFunction = () => {
+    if (confirmLeftFunction) {
+      Alert.alert("Confirm Action", "Are you sure you want to perform this action?", [
         {
           text: "Cancel",
           style: "cancel",
           onPress: () => {
             // Reset position and swipe state
-            isRightSwiped.value = false;
+            isLeftSwiped.value = false;
             translateX.value = withSpring(0);
           },
         },
         {
-          text: "Add to Favorites",
+          text: "Confirm",
           onPress: () => {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            executeFavorite();
+            executeLeftFunction();
           },
         },
       ]);
     } else {
-      // Direct favorite without confirmation
+      // Direct action without confirmation
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      executeFavorite();
+      executeLeftFunction();
     }
   };
 
   // Enhanced pan gesture that handles both press animations and swipe actions
-  const enhancedGesture = useMemo(
-    () => {
-      const releasePressFeedback = () => {
-        'worklet';
-        if (!isPressing.value) return;
-        isPressing.value = false;
-        scale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
-        pressFlashOpacity.value = withTiming(0, {
-          duration: 200,
-          easing: Easing.out(Easing.quad),
-        });
-      };
+  const enhancedGesture = useMemo(() => {
+    const releasePressFeedback = () => {
+      "worklet";
+      if (!isPressing.value) return;
+      isPressing.value = false;
+      scale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+      pressFlashOpacity.value = withTiming(0, {
+        duration: 200,
+        easing: Easing.out(Easing.quad),
+      });
+    };
 
-      return Gesture.Pan()
-        .activeOffsetX([-10, 10]) // Only become active for horizontal movement
-        .failOffsetY([-30, 30]) // Fail if vertical movement is too large
-        .onBegin(() => {
-          // Begin press feedback immediately; cancel if gesture changes direction
-          if (!isDeleting.value) {
-            isPressing.value = true;
-            tapStartMs.value = Date.now();
-            // Subtle scale and dim
-            scale.value = withTiming(0.97, {
-              duration: 120,
-              easing: Easing.out(Easing.quad),
-            });
-            pressFlashOpacity.value = withTiming(0.08, {
-              duration: 100,
-              easing: Easing.out(Easing.quad),
-            });
-          }
-        })
-        .onStart(() => {
-          gestureDirection.value = "unknown";
-          // Don't reset translateX if we're in a persistent swipe state
-        })
-        .onUpdate((event) => {
-          // Don't allow gestures during delete animation
-          if (isDeleting.value) return;
+    return Gesture.Pan()
+      .activeOffsetX([-10, 10]) // Only become active for horizontal movement
+      .failOffsetY([-30, 30]) // Fail if vertical movement is too large
+      .onBegin(() => {
+        // Begin press feedback immediately; cancel if gesture changes direction
+        if (!isDeleting.value) {
+          isPressing.value = true;
+          tapStartMs.value = Date.now();
+          // Subtle scale and dim
+          scale.value = withTiming(0.97, {
+            duration: 120,
+            easing: Easing.out(Easing.quad),
+          });
+          pressFlashOpacity.value = withTiming(0.08, {
+            duration: 100,
+            easing: Easing.out(Easing.quad),
+          });
+        }
+      })
+      .onStart(() => {
+        gestureDirection.value = "unknown";
+        // Don't reset translateX if we're in a persistent swipe state
+      })
+      .onUpdate((event) => {
+        // Don't allow gestures during delete animation
+        if (isDeleting.value) return;
 
-          const { translationX, translationY } = event;
+        const { translationX, translationY } = event;
 
-          // Determine gesture direction on first significant movement
-          if (gestureDirection.value === "unknown") {
-            const absX = Math.abs(translationX);
-            const absY = Math.abs(translationY);
+        // Determine gesture direction on first significant movement
+        if (gestureDirection.value === "unknown") {
+          const absX = Math.abs(translationX);
+          const absY = Math.abs(translationY);
 
-            // Detect vertical intent quickly to avoid lingering press feedback while scrolling
-            if (absY > VERTICAL_SCROLL_THRESHOLD && absY > absX) {
-              gestureDirection.value = "vertical";
-              releasePressFeedback();
-              return;
-            }
-
-            // Only determine horizontal direction after significant movement
-            if (absX > DIRECTION_THRESHOLD && absX > absY * 2.5) {
-              gestureDirection.value = "horizontal";
-              runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
-              releasePressFeedback();
-            }
+          // Detect vertical intent quickly to avoid lingering press feedback while scrolling
+          if (absY > VERTICAL_SCROLL_THRESHOLD && absY > absX) {
+            gestureDirection.value = "vertical";
+            releasePressFeedback();
+            return;
           }
 
-          // Only handle horizontal swipes for actions
-          if (gestureDirection.value === "horizontal") {
-            // Allow swiping in both directions based on available actions
-            if (translationX < 0 && onDelete) {
-              // Swiping left for delete
-              translateX.value = translationX;
-
-              // Check if we should dismiss right swipe state when swiping left
-              if (isRightSwiped.value && translationX < -10) {
-                isRightSwiped.value = false;
-              }
-            } else if (translationX > 0 && onFavorite) {
-              // Swiping right for favorite
-              translateX.value = translationX;
-
-              // Check if we should dismiss left swipe state when swiping right
-              if (isLeftSwiped.value && translationX > 10) {
-                isLeftSwiped.value = false;
-              }
-            } else if (isLeftSwiped.value || isRightSwiped.value) {
-              // Handle swipe back to center when in persistent swipe state
-              if (
-                isLeftSwiped.value &&
-                translationX > -ACTION_BUTTON_WIDTH / 2
-              ) {
-                // Swiping back from left swipe position
-                translateX.value = translationX;
-              } else if (
-                isRightSwiped.value &&
-                translationX < ACTION_BUTTON_WIDTH / 2
-              ) {
-                // Swiping back from right swipe position
-                translateX.value = translationX;
-              }
-            }
-          }
-        })
-        .onEnd((event) => {
-          // Don't process gestures during delete animation
-          if (isDeleting.value) return;
-
-          const { translationX, velocityX } = event;
-
-          // Only process swipe actions for horizontal gestures
-          if (gestureDirection.value === "horizontal") {
-            if (translationX < 0 && onDelete) {
-              // Left swipe - Delete action
-              if (
-                translationX < -ACTION_COMPLETE_THRESHOLD ||
-                (translationX < -ACTION_THRESHOLD && velocityX < -500)
-              ) {
-                runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Heavy);
-                runOnJS(executeDelete)();
-              } else if (translationX < -ACTION_THRESHOLD) {
-                // Show delete button and set persistent state
-                if (!isLeftSwiped.value) {
-                  runOnJS(Haptics.impactAsync)(
-                    Haptics.ImpactFeedbackStyle.Medium
-                  );
-                  isLeftSwiped.value = true;
-                }
-                translateX.value = withSpring(-ACTION_BUTTON_WIDTH);
-              } else if (
-                isLeftSwiped.value &&
-                translationX > -ACTION_BUTTON_WIDTH / 2
-              ) {
-                // Dismiss left swipe state when swiping back to center
-                isLeftSwiped.value = false;
-                translateX.value = withSpring(0);
-              } else if (!isLeftSwiped.value) {
-                // Snap back to original position if not in persistent state
-                translateX.value = withSpring(0);
-              } else {
-                // Stay in swiped position
-                translateX.value = withSpring(-ACTION_BUTTON_WIDTH);
-              }
-            } else if (translationX > 0 && onFavorite) {
-              // Right swipe - Favorite action
-              if (
-                translationX > ACTION_COMPLETE_THRESHOLD ||
-                (translationX > ACTION_THRESHOLD && velocityX > 500)
-              ) {
-                runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Heavy);
-                runOnJS(executeFavorite)();
-              } else if (translationX > ACTION_THRESHOLD) {
-                // Show favorite button and set persistent state
-                if (!isRightSwiped.value) {
-                  runOnJS(Haptics.impactAsync)(
-                    Haptics.ImpactFeedbackStyle.Medium
-                  );
-                  isRightSwiped.value = true;
-                }
-                translateX.value = withSpring(ACTION_BUTTON_WIDTH);
-              } else if (
-                isRightSwiped.value &&
-                translationX < ACTION_BUTTON_WIDTH / 2
-              ) {
-                // Dismiss right swipe state when swiping back to center
-                isRightSwiped.value = false;
-                translateX.value = withSpring(0);
-              } else if (!isRightSwiped.value) {
-                // Snap back to original position if not in persistent state
-                translateX.value = withSpring(0);
-              } else {
-                // Stay in swiped position
-                translateX.value = withSpring(ACTION_BUTTON_WIDTH);
-              }
-            } else if (isLeftSwiped.value || isRightSwiped.value) {
-              // Handle swipe back to center from persistent state
-              if (
-                isLeftSwiped.value &&
-                translationX > -ACTION_BUTTON_WIDTH / 2
-              ) {
-                isLeftSwiped.value = false;
-                translateX.value = withSpring(0);
-              } else if (
-                isRightSwiped.value &&
-                translationX < ACTION_BUTTON_WIDTH / 2
-              ) {
-                isRightSwiped.value = false;
-                translateX.value = withSpring(0);
-              } else {
-                // Stay in current swiped position
-                translateX.value = withSpring(
-                  isLeftSwiped.value
-                    ? -ACTION_BUTTON_WIDTH
-                    : ACTION_BUTTON_WIDTH
-                );
-              }
-            } else {
-              // Snap back to original position
-              translateX.value = withSpring(0);
-            }
-          } else {
-            // For non-horizontal gestures, maintain current position if in persistent state
-            if (isLeftSwiped.value) {
-              translateX.value = withSpring(-ACTION_BUTTON_WIDTH);
-            } else if (isRightSwiped.value) {
-              translateX.value = withSpring(ACTION_BUTTON_WIDTH);
-            } else {
-              translateX.value = withSpring(0);
-            }
-          }
-
-          // Reset direction for next gesture
-          gestureDirection.value = "unknown";
-        })
-        .onTouchesUp(() => {
-          // Handle press release animation and tap detection
-          const wasJustTapping =
-            isPressing.value && gestureDirection.value === "unknown";
-
-          const tapStartedAfterFocusGrace =
-            tapStartMs.value - focusAtMs.value >= TAP_AFTER_FOCUS_GRACE_MS;
-
-          const pressDuration = Date.now() - tapStartMs.value;
-
-          if (
-            wasJustTapping &&
-            tapStartedAfterFocusGrace &&
-            pressDuration < TAP_MAX_PRESS_DURATION_MS &&
-            !isDeleting.value &&
-            onTap
-          ) {
-            // Confirmed tap: return to normal state and trigger tap
-            isPressing.value = false;
-            scale.value = withTiming(1.0, { duration: 120, easing: Easing.out(Easing.quad) }, () => {
-              pressFlashOpacity.value = withTiming(0, { duration: 150, easing: Easing.out(Easing.quad) });
-              runOnJS(triggerTap)();
-            });
-          } else {
-            // Not a tap: ensure any pending press visuals are cleared
+          // Only determine horizontal direction after significant movement
+          if (absX > DIRECTION_THRESHOLD && absX > absY * 2.5) {
+            gestureDirection.value = "horizontal";
+            runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
             releasePressFeedback();
           }
-        })
-        .onFinalize(() => {
-          // Only reset position if not deleting and not in persistent swipe state
-          if (
-            !isDeleting.value &&
-            !isLeftSwiped.value &&
-            !isRightSwiped.value
-          ) {
-            translateX.value = withSpring(0);
-          } else if (!isDeleting.value) {
-            // Maintain swiped position if in persistent state
-            translateX.value = withSpring(
-              isLeftSwiped.value
-                ? -ACTION_BUTTON_WIDTH
-                : isRightSwiped.value
-                ? ACTION_BUTTON_WIDTH
-                : 0
-            );
+        }
+
+        // Only handle horizontal swipes for actions
+        if (gestureDirection.value === "horizontal") {
+          // Allow swiping in both directions based on available actions
+          if (translationX > 0 && onLeftFunction) {
+            // Swiping right for left function
+            translateX.value = translationX;
+
+            // Check if we should dismiss right swipe state when swiping right
+            if (isRightSwiped.value && translationX > 10) {
+              isRightSwiped.value = false;
+            }
+          } else if (translationX < 0 && onDelete) {
+            // Swiping left for delete
+            translateX.value = translationX;
+
+            // Check if we should dismiss left swipe state when swiping left
+            if (isLeftSwiped.value && translationX < -10) {
+              isLeftSwiped.value = false;
+            }
+          } else if (isLeftSwiped.value || isRightSwiped.value) {
+            // Handle swipe back to center when in persistent swipe state
+            if (isLeftSwiped.value && translationX < ACTION_BUTTON_WIDTH / 2) {
+              // Swiping back from left swipe position
+              translateX.value = translationX;
+            } else if (
+              isRightSwiped.value &&
+              translationX > -ACTION_BUTTON_WIDTH / 2
+            ) {
+              // Swiping back from right swipe position
+              translateX.value = translationX;
+            }
           }
+        }
+      })
+      .onEnd((event) => {
+        // Don't process gestures during delete animation
+        if (isDeleting.value) return;
 
-          // Reset press state if still active
-          releasePressFeedback();
+        const { translationX, velocityX } = event;
 
-          gestureDirection.value = "unknown";
-        })
-        .onTouchesCancelled(() => {
+        // Only process swipe actions for horizontal gestures
+        if (gestureDirection.value === "horizontal") {
+          if (translationX > 0 && onLeftFunction) {
+            // Right swipe - Left function action
+            if (
+              translationX > ACTION_COMPLETE_THRESHOLD ||
+              (translationX > ACTION_THRESHOLD && velocityX > 500)
+            ) {
+              runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Heavy);
+              runOnJS(executeLeftFunction)();
+            } else if (translationX > ACTION_THRESHOLD) {
+              // Show left function button and set persistent state
+              if (!isLeftSwiped.value) {
+                runOnJS(Haptics.impactAsync)(
+                  Haptics.ImpactFeedbackStyle.Medium
+                );
+                isLeftSwiped.value = true;
+              }
+              translateX.value = withSpring(ACTION_BUTTON_WIDTH);
+            } else if (
+              isLeftSwiped.value &&
+              translationX < ACTION_BUTTON_WIDTH / 2
+            ) {
+              // Dismiss left swipe state when swiping back to center
+              isLeftSwiped.value = false;
+              translateX.value = withSpring(0);
+            } else if (!isLeftSwiped.value) {
+              // Snap back to original position if not in persistent state
+              translateX.value = withSpring(0);
+            } else {
+              // Stay in swiped position
+              translateX.value = withSpring(ACTION_BUTTON_WIDTH);
+            }
+          } else if (translationX < 0 && onDelete) {
+            // Left swipe - Delete action
+            if (
+              translationX < -ACTION_COMPLETE_THRESHOLD ||
+              (translationX < -ACTION_THRESHOLD && velocityX < -500)
+            ) {
+              runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Heavy);
+              runOnJS(executeDelete)();
+            } else if (translationX < -ACTION_THRESHOLD) {
+              // Show delete button and set persistent state
+              if (!isRightSwiped.value) {
+                runOnJS(Haptics.impactAsync)(
+                  Haptics.ImpactFeedbackStyle.Medium
+                );
+                isRightSwiped.value = true;
+              }
+              translateX.value = withSpring(-ACTION_BUTTON_WIDTH);
+            } else if (
+              isRightSwiped.value &&
+              translationX > -ACTION_BUTTON_WIDTH / 2
+            ) {
+              // Dismiss right swipe state when swiping back to center
+              isRightSwiped.value = false;
+              translateX.value = withSpring(0);
+            } else if (!isRightSwiped.value) {
+              // Snap back to original position if not in persistent state
+              translateX.value = withSpring(0);
+            } else {
+              // Stay in swiped position
+              translateX.value = withSpring(-ACTION_BUTTON_WIDTH);
+            }
+          } else if (isLeftSwiped.value || isRightSwiped.value) {
+            // Handle swipe back to center from persistent state
+            if (isLeftSwiped.value && translationX < ACTION_BUTTON_WIDTH / 2) {
+              isLeftSwiped.value = false;
+              translateX.value = withSpring(0);
+            } else if (
+              isRightSwiped.value &&
+              translationX > -ACTION_BUTTON_WIDTH / 2
+            ) {
+              isRightSwiped.value = false;
+              translateX.value = withSpring(0);
+            } else {
+              // Stay in current swiped position
+              translateX.value = withSpring(
+                isLeftSwiped.value ? ACTION_BUTTON_WIDTH : -ACTION_BUTTON_WIDTH
+              );
+            }
+          } else {
+            // Snap back to original position
+            translateX.value = withSpring(0);
+          }
+        } else {
+          // For non-horizontal gestures, maintain current position if in persistent state
+          if (isLeftSwiped.value) {
+            translateX.value = withSpring(ACTION_BUTTON_WIDTH);
+          } else if (isRightSwiped.value) {
+            translateX.value = withSpring(-ACTION_BUTTON_WIDTH);
+          } else {
+            translateX.value = withSpring(0);
+          }
+        }
+
+        // Reset direction for next gesture
+        gestureDirection.value = "unknown";
+      })
+      .onTouchesUp(() => {
+        // Handle press release animation and tap detection
+        const wasJustTapping =
+          isPressing.value && gestureDirection.value === "unknown";
+
+        const tapStartedAfterFocusGrace =
+          tapStartMs.value - focusAtMs.value >= TAP_AFTER_FOCUS_GRACE_MS;
+
+        const pressDuration = Date.now() - tapStartMs.value;
+
+        if (
+          wasJustTapping &&
+          tapStartedAfterFocusGrace &&
+          pressDuration < TAP_MAX_PRESS_DURATION_MS &&
+          !isDeleting.value &&
+          onTap
+        ) {
+          // Confirmed tap: return to normal state and trigger tap
+          isPressing.value = false;
+          scale.value = withTiming(
+            1.0,
+            { duration: 120, easing: Easing.out(Easing.quad) },
+            () => {
+              pressFlashOpacity.value = withTiming(0, {
+                duration: 150,
+                easing: Easing.out(Easing.quad),
+              });
+              runOnJS(triggerTap)();
+            }
+          );
+        } else {
+          // Not a tap: ensure any pending press visuals are cleared
           releasePressFeedback();
-          gestureDirection.value = "unknown";
-        });
-    },
-    [onDelete, onFavorite, onTap]
-  );
+        }
+      })
+      .onFinalize(() => {
+        // Only reset position if not deleting and not in persistent swipe state
+        if (!isDeleting.value && !isLeftSwiped.value && !isRightSwiped.value) {
+          translateX.value = withSpring(0);
+        } else if (!isDeleting.value) {
+          // Maintain swiped position if in persistent state
+          translateX.value = withSpring(
+            isLeftSwiped.value
+              ? ACTION_BUTTON_WIDTH
+              : isRightSwiped.value
+              ? -ACTION_BUTTON_WIDTH
+              : 0
+          );
+        }
+
+        // Reset press state if still active
+        releasePressFeedback();
+
+        gestureDirection.value = "unknown";
+      })
+      .onTouchesCancelled(() => {
+        releasePressFeedback();
+        gestureDirection.value = "unknown";
+      });
+  }, [onDelete, onLeftFunction, onTap]);
 
   const containerStyle = useAnimatedStyle(() => {
     return {
@@ -515,9 +510,9 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
     };
   });
 
-  const favoriteButtonContainerStyle = useAnimatedStyle(() => {
-    // Hide favorite button if no favorite action or during delete animation
-    if (!onFavorite || isDeleting.value) {
+  const leftFunctionButtonContainerStyle = useAnimatedStyle(() => {
+    // Hide left function button if no left function action or during delete animation
+    if (!onLeftFunction || isDeleting.value) {
       return {
         opacity: 0,
         width: 0,
@@ -555,7 +550,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
     };
   });
 
-  const favoriteButtonStyle = useAnimatedStyle(() => {
+  const leftFunctionButtonStyle = useAnimatedStyle(() => {
     const scale = interpolate(
       Math.max(translateX.value, 0),
       [0, ACTION_THRESHOLD, ACTION_COMPLETE_THRESHOLD],
@@ -573,40 +568,33 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
       <Animated.View
         style={[
           {
-            borderRadius: BORDER_RADIUS,
+            borderRadius,
           },
           containerStyle,
         ]}
       >
         <View style={{ position: "relative" }}>
-          {/* Favorite Button Background */}
-          {onFavorite && (
+          {/* Left Function Button Background */}
+          {onLeftFunction && (
             <Animated.View
               style={[
                 {
                   position: "absolute",
                   left: 0,
                   top: 0,
-                  borderTopLeftRadius: BORDER_RADIUS,
-                  borderBottomLeftRadius: BORDER_RADIUS,
+                  borderTopLeftRadius: borderRadius,
+                  borderBottomLeftRadius: borderRadius,
                   bottom: 0,
-                  backgroundColor: colors.semantic.fat, // Using semantic FAT color
+                  backgroundColor: leftBackgroundColor || colors.semantic.fat, // Using semantic FAT color
                   justifyContent: "center",
                   alignItems: "center",
                 },
-                favoriteButtonContainerStyle,
+                leftFunctionButtonContainerStyle,
               ]}
             >
-              <Pressable onPress={handleFavorite} style={{ padding: 5 }}>
-                <Animated.View style={favoriteButtonStyle}>
-                  <FontAwesome
-                    name="star"
-                    size={24}
-                    color="white"
-                    accessibilityLabel="Add to Favorites"
-                    accessibilityHint="Adds this item to favorites"
-                    accessible
-                  />
+              <Pressable onPress={handleLeftFunction} style={{ padding: 5 }}>
+                <Animated.View style={leftFunctionButtonStyle}>
+                  {leftIcon}
                 </Animated.View>
               </Pressable>
             </Animated.View>
@@ -620,8 +608,8 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
                   position: "absolute",
                   right: 0,
                   top: 0,
-                  borderTopRightRadius: BORDER_RADIUS,
-                  borderBottomRightRadius: BORDER_RADIUS,
+                  borderTopRightRadius: borderRadius,
+                  borderBottomRightRadius: borderRadius,
                   bottom: 0,
                   backgroundColor: "#FF3B30", // iOS red
                   justifyContent: "center",
@@ -630,7 +618,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
                 deleteButtonContainerStyle,
               ]}
             >
-              <Pressable onPress={() => executeDelete()} style={{ padding: 5 }}>
+              <Pressable onPress={handleDelete} style={{ padding: 5 }}>
                 <Animated.View style={deleteButtonStyle}>
                   <FontAwesome
                     name="trash"
@@ -658,7 +646,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    borderRadius: BORDER_RADIUS,
+                    borderRadius,
                   },
                   pressFlashAnimatedStyle,
                 ]}
