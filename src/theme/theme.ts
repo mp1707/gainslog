@@ -6,106 +6,81 @@ const SPACING_UNIT = 8;
 
 // Color palettes
 const lightColors = {
-  // Core UI Colors
-  primaryBackground: "#F9F9F9",
+  // Core UI
+  primaryBackground: "#F6F8FA", // soft neutral (cooler than #F9F9F9)
   secondaryBackground: "#FFFFFF",
-  gradientFromBackground: "#F9F9F9",
-  gradientToBackground: "#F9F9F9",
-  primaryText: "#1A1A1A",
-  secondaryText: "#8E8E93",
-  border: "#EAEAEA",
+  gradientFromBackground: "#FFFFFF",
+  gradientToBackground: "#F3F7F6", // whisper of teal to echo brand
+  primaryText: "#121417", // inkier, better contrast
+  secondaryText: "#6B7280", // slate-500; readable on white
+  border: "#E6EBF0", // cool subtle divider
   white: "#FFFFFF",
   black: "#000000",
-  disabledBackground: "rgba(26, 26, 26, 0.1)",
-  disabledText: "rgba(26, 26, 26, 0.4)",
+  disabledBackground: "rgba(18, 20, 23, 0.06)",
+  disabledText: "rgba(18, 20, 23, 0.35)",
 
-  // Subtle UI elements (for de-emphasized components)
+  // Subtle UI
   subtleBackground: "rgba(0, 0, 0, 0.03)",
-  subtleBorder: "rgba(0, 0, 0, 0.08)",
+  subtleBorder: "rgba(18, 20, 23, 0.06)",
 
-  // Main Accent & System Colors
-  accent: "#2DCEC4",
-  recording: "#FF3D00",
-  error: "#FF3D00",
-  warning: "#FFAB00",
-  success: "#00BFA5",
+  // Accent & system
+  accent: "#1EC8B6",   
+  recording: "#FF4E3A",
+  error: "#FF4E3A",
+  warning: "#FFB020",
+  success: "#10B981",
 
-  // Semantic Colors for Nutrition Data
+  // Semantic macro colors (slightly deeper for contrast)
   semantic: {
-    calories: "#2DCEC4",
-    protein: "#4F86F7",
-    carbs: "#FF6B6B",
-    fat: "#FFC107",
+    calories: "#44EBD4",
+    protein: "#5E87FF", // a hair deeper than #6A9BFF
+    carbs: "#FF6D6D",
+    fat: "#FFC233", // warmer than #FFC107 for legibility
   },
 
-  // Semi-transparent colors for badges/backgrounds
+  // Tinted badge backgrounds (≈16% opacity)
   semanticBadges: {
-    calories: {
-      background: "rgba(45, 206, 196, 0.15)",
-      text: "#2DCEC4",
-    },
-    protein: {
-      background: "rgba(79, 134, 247, 0.15)",
-      text: "#4F86F7",
-    },
-    carbs: {
-      background: "rgba(255, 107, 107, 0.15)",
-      text: "#FF6B6B",
-    },
-    fat: {
-      background: "rgba(255, 193, 7, 0.15)",
-      text: "#FFC107",
-    },
+    calories: { background: "rgba(68, 235, 212, 0.16)", text: "#1CAFA0" },
+    protein: { background: "rgba(94, 135, 255, 0.16)", text: "#3E69FF" },
+    carbs: { background: "rgba(255, 109, 109, 0.16)", text: "#E55B5B" },
+    fat: { background: "rgba(255, 194, 51, 0.16)", text: "#E0A900" },
   },
 
-  // State background colors
-  errorBackground: "rgba(255, 61, 0, 0.1)",
-  warningBackground: "rgba(255, 171, 0, 0.1)",
-  successBackground: "rgba(0, 191, 165, 0.05)",
+  // State backgrounds
+  errorBackground: "rgba(255, 78, 58, 0.10)",
+  warningBackground: "rgba(255, 176, 32, 0.10)",
+  successBackground: "rgba(16, 185, 129, 0.06)",
 
-  // Icon badge colors
+  // Icon badge
   iconBadge: {
-    background: "rgba(194, 24, 91, 0.15)",
+    background: "rgba(240, 98, 146, 0.16)",
     iconColor: "#C2185B",
   },
 
-  // Log Status & Confidence
+  // Confidence chips
   confidence: {
-    high: {
-      background: "rgba(16, 185, 129, 0.15)",
-      text: "#10b981",
-    },
-    medium: {
-      background: "rgba(245, 158, 11, 0.15)",
-      text: "#f59e0b",
-    },
-    low: {
-      background: "rgba(239, 68, 68, 0.15)",
-      text: "#ef4444",
-    },
-    uncertain: {
-      background: "rgba(26, 26, 26, 0.1)",
-      text: "#8E8E93",
-    },
+    high: { background: "rgba(16, 185, 129, 0.14)", text: "#0FA47A" },
+    medium: { background: "rgba(255, 176, 32, 0.14)", text: "#C98A00" },
+    low: { background: "rgba(255, 78, 58, 0.14)", text: "#D34431" },
+    uncertain: { background: "rgba(18, 20, 23, 0.06)", text: "#6B7280" },
   },
+
+  // Log status
   logStatus: {
-    // Stage 1: Neutral, subtle CTA. Uses secondary text color.
     potential: {
-      background: "rgba(26, 26, 26, 0.1)", // disabledBackground
-      text: "#1A1A1A", // primaryText
-      iconColor: "#1A1A1A", // primaryText
+      background: "rgba(18, 20, 23, 0.06)",
+      text: "#121417",
+      iconColor: "#121417",
     },
-    // Stage 2: Confirmed state. Uses primary text for more visual weight.
     confirmed: {
-      background: "rgba(26, 26, 26, 0.1)", // disabledBackground
-      text: "#1A1A1A", // primaryText
-      iconColor: "#1A1A1A", // primaryText
+      background: "rgba(18, 20, 23, 0.06)",
+      text: "#121417",
+      iconColor: "#121417",
     },
-    // Stage 3: Verified. The ONLY state that uses a vibrant color for celebration.
     complete: {
-      background: "rgba(16, 185, 129, 0.15)",
-      text: "#10b981", // The universal "success" green
-      iconColor: "#10b981",
+      background: "rgba(16, 185, 129, 0.14)",
+      text: "#0FA47A",
+      iconColor: "#0FA47A",
     },
   },
 } as const;
@@ -276,11 +251,12 @@ const components = {
     cornerRadius: 26,
     lightMode: {
       backgroundColor: lightColors.secondaryBackground,
-      shadowColor: "rgba(0, 0, 0, 0.05)",
-      shadowOffset: { width: 0, height: 4 },
+      // iOS-friendly soft shadow
+      shadowColor: "rgba(10, 20, 30, 0.10)", // cool shadow, not grey
+      shadowOffset: { width: 0, height: 12 },
       shadowOpacity: 1,
-      shadowRadius: 12,
-      elevation: 4,
+      shadowRadius: 24,
+      elevation: 6,
     },
     darkMode: {
       backgroundColor: darkColors.secondaryBackground,

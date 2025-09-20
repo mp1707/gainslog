@@ -17,8 +17,7 @@ export const useStyles = () =>
         overflow: "hidden",
         position: "relative",
         minHeight: scaledHeight,
-        backgroundColor:
-          colors.primaryText === "#1A1A1A" ? "#F2F2F7" : "#2C2C2E",
+        backgroundColor: colors.secondaryBackground,
         padding: containerPadding,
       },
 

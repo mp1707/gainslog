@@ -27,8 +27,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       style={{
         width: "100%",
         position: "relative",
-        backgroundColor:
-          colors.primaryText === "#1A1A1A" ? "#F2F2F7" : "#2C2C2E",
+        backgroundColor: colors.secondaryBackground,
         borderRadius: theme.components.cards.cornerRadius,
         borderWidth: 2,
         borderColor: isFocused ? colors.accent : "transparent",
