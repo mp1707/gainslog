@@ -1,10 +1,9 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo } from "react";
 import { View, StyleSheet, Platform, UIManager } from "react-native";
-import { useSharedValue, withSpring, withDelay } from "react-native-reanimated";
 import { Colors, Theme, useTheme } from "@/theme";
 import { AppText } from "@/components";
 import { Droplet, Flame, BicepsFlexed, Wheat } from "lucide-react-native";
-import { ProgressRings } from "@/components/shared/ProgressRings";
+import { ProgressRingsApple } from "@/components/shared/ProgressRings";
 
 if (
   Platform.OS === "android" &&
@@ -107,34 +106,6 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
   const containerSize = 175;
-  const progress = useSharedValue({
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
-  });
-
-  useEffect(() => {
-    const safePercentages = {
-      calories: percentages.calories || 0,
-      protein: percentages.protein || 0,
-      carbs: percentages.carbs || 0,
-      fat: percentages.fat || 0,
-    };
-    const targetValues = {
-      calories: Math.min(1, Math.max(0, safePercentages.calories / 100)),
-      protein: Math.min(1, Math.max(0, safePercentages.protein / 100)),
-      carbs: Math.min(1, Math.max(0, safePercentages.carbs / 100)),
-      fat: Math.min(1, Math.max(0, safePercentages.fat / 100)),
-    };
-    progress.value = {
-      calories: withDelay(0, withSpring(targetValues.calories)),
-      protein: withDelay(100, withSpring(targetValues.protein)),
-      carbs: withDelay(200, withSpring(targetValues.carbs)),
-      fat: withDelay(300, withSpring(targetValues.fat)),
-    };
-  }, [percentages, progress]);
-
   const ringColors = {
     calories: colors.semantic.calories,
     protein: colors.semantic.protein,
@@ -148,12 +119,11 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
       <View style={styles.contentContainer}>
         <View style={styles.summaryContent}>
           <View style={styles.ringsContainer}>
-            <ProgressRings
+            <ProgressRingsApple
               percentages={percentages}
               size={containerSize}
               strokeWidth={STROKE_WIDTH}
               spacing={RING_SPACING}
-              overlays
             />
           </View>
           <View style={styles.statsContainer}>
