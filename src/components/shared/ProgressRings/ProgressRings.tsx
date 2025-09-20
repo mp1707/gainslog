@@ -99,12 +99,21 @@ const interpolateColor = (from: string, to: string, t: number) => {
   );
 };
 
-const deriveStops = (baseColor: string, sweep: number): GradientStop[] => {
+const deriveStops = (
+  baseColor: string,
+  sweep: number,
+  effectIntensity: number
+): GradientStop[] => {
   const normalized = clamp01(sweep);
-  const startShade = adjustColor(baseColor, -0.35);
+  const intensity = clamp01(effectIntensity);
+
+  const darkBase = adjustColor(baseColor, -0.35);
+  const lightBase = adjustColor(baseColor, 0.12);
+
   const midShade = baseColor;
-  const warmShade = adjustColor(baseColor, 0.12);
-  const highlightShade = baseColor;
+  const startShade = interpolateColor(midShade, darkBase, intensity);
+  const warmShade = interpolateColor(midShade, lightBase, intensity);
+  const highlightShade = midShade;
   const tailShade = startShade;
 
   const highlightEnd = Math.max(normalized, 0);
@@ -180,7 +189,8 @@ const calculateRingState = (
   const shadowX = endX + Math.cos(tangentAngle) * offsetDistance;
   const shadowY = endY + Math.sin(tangentAngle) * offsetDistance;
   const opacity = ratio > 0.002 ? 1 : 0;
-  const stops = deriveStops(baseColor, sweepValue);
+  const effectIntensity = clamp01((sweepValue - 0.1) / 0.3);
+  const stops = deriveStops(baseColor, sweepValue, effectIntensity);
   const color = colorAtOffset(sweepValue, stops);
 
   return {
@@ -190,7 +200,7 @@ const calculateRingState = (
     endY,
     shadowX,
     shadowY,
-    opacity,
+    opacity: ratio > 0.002 ? effectIntensity : 0,
     color,
     stops,
   };
