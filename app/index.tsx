@@ -28,7 +28,7 @@ import {
 } from "@/utils/foodLogHandlers";
 
 const HEADER_HEIGHT = 265;
-const DASHBOARD_OFFSET = HEADER_HEIGHT - 50;
+const DASHBOARD_OFFSET = HEADER_HEIGHT - 40;
 
 export default function TodayTab() {
   const { safeNavigate } = useNavigationGuard();

@@ -22,11 +22,16 @@ export const createStyles = (colors: Colors) =>
       flexDirection: "column",
       justifyContent: "space-between",
       maxWidth: "70%",
+      gap: theme.spacing.sm,
     },
     rightSection: {
       justifyContent: "center",
       alignItems: "flex-start",
       minWidth: "35%",
+    },
+    foodComponentList: {
+      flexDirection: "column",
+      flex: 1,
     },
     confidenceInfo: {
       flexDirection: "row",

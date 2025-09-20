@@ -14,7 +14,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { Favorite, FoodComponent, FoodLog } from "@/types/models";
+import { Favorite, FoodLog } from "@/types/models";
 import { useTheme } from "@/theme";
 import { Card } from "@/components/Card";
 import { AppText } from "@/components";
@@ -26,9 +26,10 @@ import { getConfidenceLevel } from "@/utils/getConfidenceLevel";
 import { createStyles } from "./LogCard.styles";
 import { NutritionList } from "./NutritionList";
 import { createStyles as createNutritionStyles } from "./NutritionList/NutritionList.styles";
-import { hasAmbiguousUnit as hasAmbiguousUnitCheck } from "@/utils/hasAmbiguousUnit";
-import { Sparkles } from "lucide-react-native";
-import { needsRefinement as needsRefinementCheck } from "@/utils/needsRefinement";
+import { getRefinementInfo } from "@/utils/getRefinementInfo";
+import { FoodComponentList } from "./FoodComponentList";
+import { RefinementInfo } from "./RefinementInfo";
+import { LogCardTitle } from "./LogCardTitle";
 
 interface LogCardProps {
   foodLog: FoodLog | Favorite;
@@ -61,7 +62,6 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
 
   // Animation values for staggered reveal
   const titleOpacity = useSharedValue(isLoading ? 0 : 1);
-  const descriptionOpacity = useSharedValue(isLoading ? 0 : 1);
   const nutritionOpacity = useSharedValue(isLoading ? 0 : 1);
   const confidenceBadgeOpacity = useSharedValue(isLoading ? 0 : 1);
 
@@ -92,22 +92,18 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
         0,
         withSpring(1, { stiffness: 400, damping: 30 })
       );
-      descriptionOpacity.value = withDelay(
+      nutritionOpacity.value = withDelay(
         150,
         withSpring(1, { stiffness: 400, damping: 30 })
       );
-      nutritionOpacity.value = withDelay(
-        300,
-        withSpring(1, { stiffness: 400, damping: 30 })
-      );
       confidenceBadgeOpacity.value = withDelay(
-        450,
+        300,
         withSpring(1, { stiffness: 400, damping: 30 })
       );
       // Flash animation for confidence feedback - starts after content loads
       if (estimationConfidence !== undefined) {
         flashOpacity.value = withDelay(
-          450,
+          300,
           withSpring(0.6, { stiffness: 400, damping: 30 }, (finished) => {
             if (finished) {
               flashOpacity.value = withDelay(
@@ -121,14 +117,12 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
     } else if (!isLoading && !wasLoading) {
       // If card renders without loading, show content immediately without animation
       titleOpacity.value = 1;
-      descriptionOpacity.value = 1;
       nutritionOpacity.value = 1;
       confidenceBadgeOpacity.value = 1;
       flashOpacity.value = 0;
     } else if (isLoading) {
       // Hide content during loading
       titleOpacity.value = 0;
-      descriptionOpacity.value = 0;
       nutritionOpacity.value = 0;
       flashOpacity.value = 0;
       confidenceBadgeOpacity.value = 0;
@@ -147,14 +141,6 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
     ],
   }));
 
-  const descriptionAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: descriptionOpacity.value,
-    transform: [
-      {
-        scale: 0.95 + descriptionOpacity.value * 0.05,
-      },
-    ],
-  }));
 
   const flashAnimatedStyle = useAnimatedStyle(() => ({
     opacity: flashOpacity.value,
@@ -164,6 +150,8 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
   }));
 
   const refinementInfo = getRefinementInfo(foodLog.foodComponents);
+
+  console.log(foodLog.foodComponents);
 
   return (
     <Pressable
@@ -175,35 +163,30 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
             {/* Title Section */}
-            {isLoading ? (
-              <SkeletonPill width="80%" height={22} />
-            ) : (
-              <Animated.View style={titleAnimatedStyle}>
-                <AppText role="Headline" style={styles.title} numberOfLines={2}>
-                  {displayTitle}
-                </AppText>
-              </Animated.View>
-            )}
+            <LogCardTitle
+              title={displayTitle}
+              isLoading={isLoading}
+              animated={true}
+              animatedStyle={titleAnimatedStyle}
+              style={styles.title}
+            />
+            <FoodComponentList
+              foodComponents={foodLog.foodComponents}
+              maxItems={2}
+              style={styles.foodComponentList}
+            />
 
             {/* Confidence Badge Section */}
             {isLoading ? (
               <SkeletonPill width={80} height={28} />
             ) : (
               refinementInfo && (
-                <Animated.View style={confidenceBadgeAnimatedStyle}>
-                  <View
-                    style={styles.confidenceInfo}
-                    accessibilityRole="text"
-                    accessibilityLabel="Refine estimate"
-                  >
-                    <Sparkles
-                      size={16}
-                      color={colors.disabledText}
-                      strokeWidth={2}
-                    />
-                    <AppText role="Caption">{refinementInfo}</AppText>
-                  </View>
-                </Animated.View>
+                <RefinementInfo
+                  refinementText={refinementInfo}
+                  animated={true}
+                  animatedStyle={confidenceBadgeAnimatedStyle}
+                  style={styles.confidenceInfo}
+                />
               )
             )}
           </View>
@@ -323,23 +306,20 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
       <Card style={styles.card}>
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
-            <AppText role="Headline" style={styles.title} numberOfLines={2}>
-              {displayTitle}
-            </AppText>
-
+            <LogCardTitle
+              title={displayTitle}
+              style={styles.title}
+            />
+            <FoodComponentList
+              foodComponents={foodLog.foodComponents}
+              maxItems={3}
+              style={styles.foodComponentList}
+            />
             {refinementInfo && (
-              <View
+              <RefinementInfo
+                refinementText={refinementInfo}
                 style={styles.confidenceInfo}
-                accessibilityRole="text"
-                accessibilityLabel="Refine estimate"
-              >
-                <Sparkles
-                  size={16}
-                  color={colors.disabledText}
-                  strokeWidth={2}
-                />
-                <AppText role="Caption">{refinementInfo}</AppText>
-              </View>
+              />
             )}
           </View>
 
@@ -516,16 +496,3 @@ export const LogCard = memo(LogCardInner, (prev, next) => {
   return prev.foodLog === next.foodLog;
 });
 
-const getRefinementInfo = (foodComponents: FoodComponent[]) => {
-  const needsRefinement =
-    foodComponents && needsRefinementCheck(foodComponents);
-
-  if (!needsRefinement) return undefined;
-
-  const hasAmbiguousUnit =
-    foodComponents && hasAmbiguousUnitCheck(foodComponents);
-
-  if (hasAmbiguousUnit) return "Use precise units";
-
-  return "Confirm amounts";
-};
