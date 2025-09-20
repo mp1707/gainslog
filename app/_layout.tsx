@@ -72,6 +72,7 @@ function ThemedStack() {
             borderRadius: "10%",
             overflow: "hidden",
           },
+          gestureEnabled: false,
         }}
       />
       <Stack.Screen
