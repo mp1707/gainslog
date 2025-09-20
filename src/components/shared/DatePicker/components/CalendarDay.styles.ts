@@ -27,6 +27,22 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       alignItems: "center",
       justifyContent: "center",
     },
+    simplifiedRingWrapper: {
+      marginBottom: theme.spacing.xs / 2,
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: colors.secondaryBackground,
+      borderWidth: 2,
+      borderColor: colors.subtleBorder,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    simplifiedRingInner: {
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+    },
     dayText: {
       color: colors.primaryText,
       fontSize: 10,
@@ -45,3 +61,4 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       fontWeight: "700",
     },
   });
+

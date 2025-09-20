@@ -30,6 +30,7 @@ const CalendarDayComponent: React.FC<CalendarDayProps> = ({
   isFuture,
   percentages,
   onPress,
+  useSimplifiedRings,
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
@@ -66,6 +67,59 @@ const CalendarDayComponent: React.FC<CalendarDayProps> = ({
     };
   }, [styles, isCurrentMonth, isSelected, isFuture, dateKey]);
 
+  const simplifiedInnerScale = useMemo(() => {
+    if (!useSimplifiedRings) {
+      return 1;
+    }
+
+    const calorieRatio = Math.max(0, Math.min(1, (percentages.calories ?? 0) / 120));
+    const averageRatio =
+      (Math.max(0, percentages.calories ?? 0) +
+        Math.max(0, percentages.protein ?? 0) +
+        Math.max(0, percentages.carbs ?? 0) +
+        Math.max(0, percentages.fat ?? 0)) /
+      400;
+
+    const base = Math.max(calorieRatio, averageRatio);
+    return 0.45 + 0.55 * Math.max(0, Math.min(1, base));
+  }, [percentages, useSimplifiedRings]);
+
+  const simplifiedInnerStyle = useMemo(() => {
+    if (!useSimplifiedRings) {
+      return undefined;
+    }
+
+    const isTargetMet =
+      (percentages.calories ?? 0) >= 95 && (percentages.calories ?? 0) <= 120;
+
+    return [
+      styles.simplifiedRingInner,
+      {
+        backgroundColor: isTargetMet
+          ? colors.semantic.calories
+          : colors.accent,
+        opacity: (percentages.calories ?? 0) > 0 ? 0.85 : 0.2,
+        transform: [{ scale: simplifiedInnerScale }],
+      },
+    ];
+  }, [colors.accent, colors.semantic.calories, percentages, simplifiedInnerScale, styles.simplifiedRingInner, useSimplifiedRings]);
+
+  const progressContent = useSimplifiedRings ? (
+    <View style={styles.simplifiedRingWrapper}>
+      <View style={simplifiedInnerStyle} />
+    </View>
+  ) : (
+    <View style={styles.ringsContainer}>
+      <ProgressRingsStatic
+        percentages={percentages}
+        size={36}
+        strokeWidth={3}
+        spacing={1}
+        padding={1}
+      />
+    </View>
+  );
+
   return (
     <TouchableOpacity
       style={containerStyle}
@@ -73,15 +127,7 @@ const CalendarDayComponent: React.FC<CalendarDayProps> = ({
       disabled={!isCurrentMonth || isFuture}
       activeOpacity={0.7}
     >
-      <View style={styles.ringsContainer}>
-        <ProgressRingsStatic
-          percentages={percentages}
-          size={36}
-          strokeWidth={3}
-          spacing={1}
-          padding={1}
-        />
-      </View>
+      {progressContent}
       <AppText role="Caption" style={textStyle}>
         {day}
       </AppText>

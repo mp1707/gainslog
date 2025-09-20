@@ -48,6 +48,7 @@ const CalendarGridComponent: React.FC<CalendarGridProps> = ({
   getDailyPercentages,
   onDateSelect,
   width,
+  useSimplifiedRings = false,
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
@@ -161,6 +162,7 @@ const CalendarGridComponent: React.FC<CalendarGridProps> = ({
                   isFuture={dayData.isFuture}
                   percentages={getDailyPercentages(dayData.dateKey)}
                   onPress={onDateSelect}
+                  useSimplifiedRings={useSimplifiedRings}
                 />
               );
             })}

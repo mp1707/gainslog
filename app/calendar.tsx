@@ -1,5 +1,5 @@
-import React, { useMemo, useCallback, useState, useRef } from "react";
-import { View, FlatList, Dimensions, StyleSheet } from "react-native";
+import React, { useMemo, useCallback, useState, useRef, useEffect } from "react";
+import { View, FlatList, Dimensions, StyleSheet, ViewToken } from "react-native";
 import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Colors, Theme, useTheme } from "@/theme";
@@ -21,6 +21,13 @@ interface MonthData {
 
 const { width: screenWidth } = Dimensions.get("window");
 
+const HYDRATION_DELAY_MS = 40;
+
+const getMonthKeyFromDateKey = (dateKey: string) => {
+  const [year, month] = dateKey.split("-");
+  return `${year}-${parseInt(month, 10)}`;
+};
+
 export default function Calendar() {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
@@ -35,6 +42,7 @@ export default function Calendar() {
   );
   const selectedYear = selectedDateObj.getFullYear();
   const selectedMonth = selectedDateObj.getMonth() + 1;
+  const selectedMonthKey = useMemo(() => getMonthKeyFromDateKey(selectedDate), [selectedDate]);
 
   // Get actual current date for month generation
   const actualCurrentDate = useMemo(() => new Date(), []);
@@ -61,6 +69,14 @@ export default function Calendar() {
     return months;
   }, [currentYear, currentMonth]);
 
+  const monthsIndexMap = useMemo(() => {
+    const map = new Map<string, number>();
+    monthsData.forEach((month, index) => {
+      map.set(month.key, index);
+    });
+    return map;
+  }, [monthsData]);
+
   // Find initial scroll index (scroll to selected date's month)
   const initialScrollIndex = useMemo(() => {
     return monthsData.findIndex(
@@ -68,14 +84,81 @@ export default function Calendar() {
     );
   }, [monthsData, selectedYear, selectedMonth]);
 
-  // Track the currently visible/active month for progress ring rendering
-  const [activeMonth, setActiveMonth] = useState<{
-    year: number;
-    month: number;
-  }>({
-    year: selectedYear,
-    month: selectedMonth,
+  const safeInitialScrollIndex =
+    initialScrollIndex >= 0 ? initialScrollIndex : 0;
+
+  const initialMonthKey = useMemo(() => {
+    return monthsData[safeInitialScrollIndex]?.key ?? monthsData[0]?.key ?? null;
+  }, [monthsData, safeInitialScrollIndex]);
+
+  const [hydratedMonths, setHydratedMonths] = useState<Set<string>>(() => {
+    const initialSet = new Set<string>();
+    if (initialMonthKey) {
+      initialSet.add(initialMonthKey);
+    }
+    return initialSet;
   });
+
+  const hydratedMonthsRef = useRef(hydratedMonths);
+  const hydrationTimeoutsRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  useEffect(() => {
+    hydratedMonthsRef.current = hydratedMonths;
+  }, [hydratedMonths]);
+
+  const scheduleHydration = useCallback((keys: Array<string | null | undefined>) => {
+    keys.forEach((candidate) => {
+      if (!candidate) {
+        return;
+      }
+
+      if (
+        hydratedMonthsRef.current.has(candidate) ||
+        hydrationTimeoutsRef.current[candidate]
+      ) {
+        return;
+      }
+
+      hydrationTimeoutsRef.current[candidate] = setTimeout(() => {
+        setHydratedMonths((prev) => {
+          if (prev.has(candidate)) {
+            return prev;
+          }
+          const next = new Set(prev);
+          next.add(candidate);
+          return next;
+        });
+        delete hydrationTimeoutsRef.current[candidate];
+      }, HYDRATION_DELAY_MS);
+    });
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      Object.values(hydrationTimeoutsRef.current).forEach((timeoutId) => {
+        clearTimeout(timeoutId);
+      });
+      hydrationTimeoutsRef.current = {};
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!initialMonthKey) {
+      return;
+    }
+    if (!hydratedMonthsRef.current.has(initialMonthKey)) {
+      setHydratedMonths((prev) => {
+        if (prev.has(initialMonthKey)) {
+          return prev;
+        }
+        const next = new Set(prev);
+        next.add(initialMonthKey);
+        return next;
+      });
+    }
+
+    scheduleHydration([initialMonthKey]);
+  }, [initialMonthKey, scheduleHydration]);
 
   // Generate relevant month keys for optimized nutrition data calculation
   const relevantMonths = useMemo(() => {
@@ -89,30 +172,74 @@ export default function Calendar() {
     relevantMonths
   );
 
-  // Event handlers
-  const handleCancel = useCallback(() => {
-    router.back();
+  const closeCalendar = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/");
+    }
   }, [router]);
+
+  const handleCancel = useCallback(() => {
+    closeCalendar();
+  }, [closeCalendar]);
 
   const handleDateSelect = useCallback(
     (dateKey: string) => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       setSelectedDate(dateKey);
-      router.back();
+      closeCalendar();
     },
-    [setSelectedDate, router]
+    [setSelectedDate, closeCalendar]
   );
 
-  // Handle viewable items change to track active month
-  const onViewableItemsChanged = useCallback(({ viewableItems }: any) => {
-    if (viewableItems.length > 0) {
-      const visibleItem = viewableItems[0].item as MonthData;
-      setActiveMonth({
-        year: visibleItem.year,
-        month: visibleItem.month,
-      });
+  useEffect(() => {
+    if (!selectedMonthKey || !monthsIndexMap.has(selectedMonthKey)) {
+      return;
     }
-  }, []);
+    scheduleHydration([selectedMonthKey]);
+  }, [selectedMonthKey, monthsIndexMap, scheduleHydration]);
+
+  const onViewableItemsChanged = useCallback(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      if (!viewableItems || viewableItems.length === 0) {
+        return;
+      }
+
+      const expandedKeys = new Set<string>();
+
+      viewableItems.forEach((viewToken) => {
+        const item = viewToken.item as MonthData | null;
+        const monthKey = item?.key
+          ? item.key
+          : typeof viewToken.key === "string"
+            ? viewToken.key
+            : null;
+
+        if (!monthKey) {
+          return;
+        }
+
+        expandedKeys.add(monthKey);
+
+        const monthIndex = monthsIndexMap.get(monthKey);
+        if (monthIndex === undefined) {
+          return;
+        }
+
+        if (monthIndex > 0) {
+          expandedKeys.add(monthsData[monthIndex - 1].key);
+        }
+
+        if (monthIndex < monthsData.length - 1) {
+          expandedKeys.add(monthsData[monthIndex + 1].key);
+        }
+      });
+
+      scheduleHydration(Array.from(expandedKeys));
+    },
+    [monthsData, monthsIndexMap, scheduleHydration]
+  );
 
   const viewabilityConfig = useRef({
     itemVisiblePercentThreshold: 50,
@@ -121,6 +248,8 @@ export default function Calendar() {
   // Render month item for FlatList
   const renderMonthItem = useCallback(
     ({ item }: { item: MonthData }) => {
+      const isHydrated = hydratedMonths.has(item.key);
+
       return (
         <CalendarGrid
           year={item.year}
@@ -129,10 +258,16 @@ export default function Calendar() {
           getDailyPercentages={getDailyPercentages}
           onDateSelect={handleDateSelect}
           width={screenWidth}
+          useSimplifiedRings={!isHydrated}
         />
       );
     },
-    [selectedDate, getDailyPercentages, handleDateSelect, activeMonth]
+    [
+      selectedDate,
+      getDailyPercentages,
+      handleDateSelect,
+      hydratedMonths,
+    ]
   );
 
   return (
@@ -153,9 +288,10 @@ export default function Calendar() {
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
-          initialScrollIndex={initialScrollIndex}
+          initialScrollIndex={safeInitialScrollIndex}
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig.current}
+          extraData={hydratedMonths}
           getItemLayout={(_, index) => ({
             length: screenWidth,
             offset: screenWidth * index,
