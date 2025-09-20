@@ -16,9 +16,6 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       letterSpacing: 0.5,
       color: colors.secondaryText,
     },
-    overflowHidden: {
-      overflow: "hidden",
-    },
     componentRow: {
       flexDirection: "row",
       alignItems: "center",

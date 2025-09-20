@@ -1,5 +1,5 @@
 import React, { ReactNode, useMemo, useEffect, useRef } from "react";
-import { View, Alert, Dimensions, Pressable } from "react-native";
+import { Alert, Dimensions, Pressable } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -471,7 +471,13 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateX: translateX.value }, { scale: scale.value }],
+      transform: [{ translateX: translateX.value }],
+    };
+  });
+
+  const pressScaleStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
     };
   });
 
@@ -492,15 +498,26 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
     // Only show for negative translation (left swipe)
     const translationValue = Math.min(translateX.value, 0);
 
+    // Only show when actively swiping left
+    if (translationValue >= 0) {
+      return {
+        opacity: 0,
+        width: 0,
+      };
+    }
+
+    const absTranslation = Math.abs(translationValue);
+
+    // Fast fade-in: almost immediately visible when swiping starts
     const buttonOpacity = interpolate(
-      Math.abs(translationValue),
-      [0, ACTION_THRESHOLD / 3, ACTION_THRESHOLD / 2],
-      [0, 0.8, 1],
+      absTranslation,
+      [0, 5, 10],
+      [0, 0.9, 1],
       Extrapolation.CLAMP
     );
 
     const width = Math.max(
-      Math.abs(translationValue * 1.1),
+      absTranslation * 1.1,
       ACTION_BUTTON_WIDTH + 20
     );
 
@@ -522,10 +539,19 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
     // Only show for positive translation (right swipe)
     const translationValue = Math.max(translateX.value, 0);
 
+    // Only show when actively swiping right
+    if (translationValue <= 0) {
+      return {
+        opacity: 0,
+        width: 0,
+      };
+    }
+
+    // Fast fade-in: almost immediately visible when swiping starts
     const buttonOpacity = interpolate(
       translationValue,
-      [0, ACTION_THRESHOLD / 3, ACTION_THRESHOLD / 2],
-      [0, 0.8, 1],
+      [0, 5, 10],
+      [0, 0.9, 1],
       Extrapolation.CLAMP
     );
 
@@ -573,7 +599,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
           containerStyle,
         ]}
       >
-        <View style={{ position: "relative" }}>
+        <Animated.View style={[{ position: "relative" }, pressScaleStyle]}>
           {/* Left Function Button Background */}
           {onLeftFunction && (
             <Animated.View
@@ -654,7 +680,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
               />
             </Animated.View>
           </GestureDetector>
-        </View>
+        </Animated.View>
       </Animated.View>
     </Animated.View>
   );

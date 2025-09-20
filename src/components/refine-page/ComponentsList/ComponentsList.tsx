@@ -37,10 +37,7 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
         </AppText>
       </View>
       {components.map((comp, index) => (
-        <Animated.View
-          key={`${comp.name}-${index}`}
-          style={styles.overflowHidden}
-        >
+        <Animated.View key={`${comp.name}-${index}`}>
           <SwipeToFunctions
             onDelete={() => onDeleteItem(index)}
             onTap={() => onPressItem(index, comp)}
