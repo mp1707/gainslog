@@ -27,5 +27,10 @@ export const getRefinementInfoDetailed = (
   if (hasAmbiguousUnit)
     return "Use precise units to increase estimation accuracy";
 
-  return "Confirm amounts to increase estimation accuracy";
+  const needsRefinement =
+    foodComponents && needsRefinementCheck(foodComponents);
+
+  if (needsRefinement) return "Confirm amounts to increase estimation accuracy";
+
+  return undefined;
 };

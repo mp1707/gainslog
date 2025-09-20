@@ -163,10 +163,10 @@ export default function Edit() {
     () => deriveConfidenceLevel(estimationConfidence),
     [estimationConfidence]
   );
-  const confidenceInfoSubText = useMemo(
-    () => getRefinementInfoDetailed(editedLog?.foodComponents ?? []),
-    [editedLog?.foodComponents]
-  );
+  const confidenceInfoSubText =
+    editedLog?.foodComponents &&
+    getRefinementInfoDetailed(editedLog.foodComponents);
+
   const isConfidenceLoading = isLoading || !!originalLog?.isEstimating;
 
   // Handlers for components editing
