@@ -494,7 +494,7 @@ const layout = {
   // Content offset calculation (header height minus overlap for glass effect)
   calculateContentOffset: (headerHeight: number): number => {
     // Subtract 24px (2×8pt) to create proper glass effect overlay
-    return headerHeight - 24;
+    return headerHeight - 16;
   },
 
   // 8pt grid validation helper
