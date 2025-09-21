@@ -5,20 +5,18 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
   Alert,
+  StyleSheet,
 } from "react-native";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { StyleSheet } from "react-native";
 import { Card, AppText, Button } from "src/components";
-import { ChevronRight } from "lucide-react-native";
+import { ChevronRight, X } from "lucide-react-native";
 import { AppearanceCard } from "@/components/settings/AppearanceCard";
-import { SettingsSection } from "@/components/settings/SettingsSection";
 import { useRouter } from "expo-router";
 import { seedFoodLogs } from "@/utils/seed";
 import { RoundButton } from "@/components/shared/RoundButton";
-import { X } from "lucide-react-native";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 export default function SettingsTab() {
@@ -93,25 +91,55 @@ export default function SettingsTab() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <SettingsSection
-            title="Pro"
-            subtitle="Get Pro and start your journey today!"
-          >
+          <View style={styles.header}>
+            <AppText role="Title1" style={styles.headerTitle}>
+              Settings
+            </AppText>
+            {/* <AppText role="Body" color="secondary">
+              Tailor MacroLoop to match your workflow.
+            </AppText> */}
+          </View>
+
+          <Card style={styles.proCard}>
+            <AppText role="Caption" color="accent" style={styles.proBadge}>
+              MacroLoop Pro
+            </AppText>
+            <AppText role="Headline" style={styles.cardTitle}>
+              Unlock richer insights
+            </AppText>
+            <AppText
+              role="Body"
+              color="secondary"
+              style={styles.cardDescription}
+            >
+              Detailed nutrient guidance, unlimited logs, and priority updates
+              for your routine.
+            </AppText>
             <Button label="Get MacroLoop Pro" variant="primary" />
-          </SettingsSection>
-          <SettingsSection
-            title="Appearance"
-            subtitle="Customize the visual appearance of your app"
-          >
+          </Card>
+
+          <View style={styles.section}>
+            <AppText
+              role="Caption"
+              color="secondary"
+              style={styles.sectionLabel}
+            >
+              Personalization
+            </AppText>
             <AppearanceCard />
-          </SettingsSection>
-          <SettingsSection
-            title="Nutrition Goals"
-            subtitle="Open the Goals flow to set daily targets"
-          >
+          </View>
+
+          <View style={styles.section}>
+            <AppText
+              role="Caption"
+              color="secondary"
+              style={styles.sectionLabel}
+            >
+              Goals
+            </AppText>
             <Card>
               <TouchableOpacity
-                style={styles.firstSettingsRow}
+                style={styles.settingRow}
                 onPress={() => safeNavigate("/Goals")}
                 disabled={isNavigating}
                 accessibilityRole="button"
@@ -119,47 +147,55 @@ export default function SettingsTab() {
                 accessibilityHint="Opens the goals calculator flow"
               >
                 <View style={styles.settingInfo}>
-                  <AppText role="Headline" style={{ marginBottom: 4 }}>
-                    Set Your Goals
+                  <AppText role="Headline" style={styles.settingTitle}>
+                    Nutrition targets
                   </AppText>
-                  <AppText role="Caption" color="secondary">
-                    Calories, protein, fat and carbs
+                  <AppText role="Body" color="secondary">
+                    Adjust your daily calorie and macro goals.
                   </AppText>
                 </View>
-                <View style={styles.settingAccessory}>
-                  <ChevronRight
-                    size={16}
-                    color={colors.secondaryText}
-                    style={{ marginLeft: 8 }}
-                    strokeWidth={1.5}
-                  />
-                </View>
+                <ChevronRight
+                  size={18}
+                  color={colors.secondaryText}
+                  strokeWidth={1.5}
+                />
               </TouchableOpacity>
             </Card>
-          </SettingsSection>
-          <SettingsSection
-            title="Development Tools"
-            subtitle="Tools for testing and development"
-          >
+          </View>
+
+          <View style={styles.section}>
+            <AppText
+              role="Caption"
+              color="secondary"
+              style={styles.sectionLabel}
+            >
+              Developer
+            </AppText>
             <Card>
-              <View style={styles.seedButtonContainer}>
+              <View style={styles.cardHeader}>
+                <AppText role="Headline" style={styles.settingTitle}>
+                  Developer toolkit
+                </AppText>
+                <AppText role="Body" color="secondary">
+                  Quick utilities for testing flows during development.
+                </AppText>
+              </View>
+              <View style={styles.buttonStack}>
                 <Button
-                  label="Seed Test Data"
+                  label="Seed sample logs"
                   variant="secondary"
                   onPress={handleSeedData}
-                  style={styles.seedButton}
+                  style={styles.fullWidthButton}
                 />
-              </View>
-              <View style={styles.seedButtonContainer}>
                 <Button
-                  label="Clear All Food Logs"
-                  variant="secondary"
+                  label="Clear all food logs"
+                  variant="tertiary"
                   onPress={handleClearAllLogs}
-                  style={styles.seedButton}
+                  style={[styles.fullWidthButton, styles.buttonSpacing]}
                 />
               </View>
             </Card>
-          </SettingsSection>
+          </View>
         </ScrollView>
       </GradientWrapper>
     </KeyboardAvoidingView>
@@ -199,61 +235,56 @@ const createStyles = (
       paddingTop: spacing.xxl,
       paddingBottom: bottomPadding || spacing.xl,
     },
-    resetButtonContainer: {
-      marginTop: spacing.lg,
+    header: {
+      marginBottom: spacing.xl,
+    },
+    headerTitle: {
+      marginBottom: spacing.xs,
+    },
+    section: {
+      marginBottom: spacing.xl,
+    },
+    sectionLabel: {
+      marginBottom: spacing.sm,
+      letterSpacing: 0.6,
+      textTransform: "uppercase",
+    },
+    proCard: {
+      marginBottom: spacing.xl,
+    },
+    proBadge: {
+      marginBottom: spacing.xs,
+    },
+    cardTitle: {
+      marginBottom: spacing.xs,
+    },
+    cardDescription: {
+      marginBottom: spacing.lg,
+    },
+    settingRow: {
+      flexDirection: "row",
       alignItems: "center",
-    },
-    resetButton: {
-      minWidth: 200,
-    },
-    seedButtonContainer: {
+      justifyContent: "space-between",
       paddingVertical: spacing.md,
-      alignItems: "center",
-    },
-    seedButton: {
-      minWidth: 200,
-    },
-    settingCard: {
-      // paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.md,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      backgroundColor: "transparent",
-    },
-    firstSettingsRow: {
-      paddingBottom: spacing.md,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      backgroundColor: "transparent",
-    },
-    settingsRow: {
-      paddingVertical: spacing.md,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      backgroundColor: "transparent",
-    },
-    lastSettingsRow: {
-      paddingTop: spacing.md,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      backgroundColor: "transparent",
-    },
-
-    settingCardWithBorder: {
-      borderTopWidth: 1,
-      borderTopColor: colors.border,
     },
     settingInfo: {
       flex: 1,
       marginRight: spacing.lg,
     },
-    settingAccessory: {
-      flexDirection: "row",
-      alignItems: "center",
+    settingTitle: {
+      marginBottom: spacing.xs,
+    },
+    cardHeader: {
+      marginBottom: spacing.lg,
+    },
+    buttonStack: {
+      marginTop: spacing.md,
+    },
+    fullWidthButton: {
+      width: "100%",
+    },
+    buttonSpacing: {
+      marginTop: spacing.sm,
     },
   });
 };
