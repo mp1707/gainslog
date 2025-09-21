@@ -22,7 +22,6 @@ import { SkeletonPill } from "@/components/shared";
 import { ContextMenu, ContextMenuItem } from "@/components/shared/ContextMenu";
 import { useAppStore } from "@/store/useAppStore";
 import { isNavLocked, lockNav } from "@/utils/navigationLock";
-import { getConfidenceLevel } from "@/utils/getConfidenceLevel";
 import { createStyles } from "./LogCard.styles";
 import { NutritionList } from "./NutritionList";
 import { createStyles as createNutritionStyles } from "./NutritionList/NutritionList.styles";
@@ -65,17 +64,11 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
   const nutritionOpacity = useSharedValue(isLoading ? 0 : 1);
   const confidenceBadgeOpacity = useSharedValue(isLoading ? 0 : 1);
 
-  // Flash animation for confidence feedback
-  const flashOpacity = useSharedValue(0);
-
   const displayTitle = foodLog.title || "New Log";
   const estimationConfidence =
     "estimationConfidence" in foodLog
       ? foodLog.estimationConfidence
       : undefined;
-
-  // Get confidence info for flash overlay color
-  const confidenceInfo = getConfidenceLevel(estimationConfidence);
 
   useEffect(() => {
     const wasLoading = previousLoadingRef.current;
@@ -100,31 +93,15 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
         300,
         withSpring(1, { stiffness: 400, damping: 30 })
       );
-      // Flash animation for confidence feedback - starts after content loads
-      if (estimationConfidence !== undefined) {
-        flashOpacity.value = withDelay(
-          300,
-          withSpring(0.6, { stiffness: 400, damping: 30 }, (finished) => {
-            if (finished) {
-              flashOpacity.value = withDelay(
-                300,
-                withSpring(0, { stiffness: 400, damping: 30 })
-              );
-            }
-          })
-        );
-      }
     } else if (!isLoading && !wasLoading) {
       // If card renders without loading, show content immediately without animation
       titleOpacity.value = 1;
       nutritionOpacity.value = 1;
       confidenceBadgeOpacity.value = 1;
-      flashOpacity.value = 0;
     } else if (isLoading) {
       // Hide content during loading
       titleOpacity.value = 0;
       nutritionOpacity.value = 0;
-      flashOpacity.value = 0;
       confidenceBadgeOpacity.value = 0;
     }
 
@@ -142,9 +119,6 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
   }));
 
 
-  const flashAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: flashOpacity.value,
-  }));
   const confidenceBadgeAnimatedStyle = useAnimatedStyle(() => ({
     opacity: confidenceBadgeOpacity.value,
   }));
@@ -205,18 +179,6 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
           </View>
         </View>
       </Card>
-
-      {/* Flash overlay for confidence feedback */}
-      {estimationConfidence !== undefined && (
-        <Animated.View
-          style={[
-            styles.flashOverlay,
-            { backgroundColor: confidenceInfo.color.background },
-            flashAnimatedStyle,
-          ]}
-          pointerEvents="none"
-        />
-      )}
     </Pressable>
   );
 };
