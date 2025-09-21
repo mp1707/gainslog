@@ -25,7 +25,7 @@ export const RoundButton = React.memo<RoundButtonProps>(
   ({
     Icon,
     variant,
-    iconSize = 22,
+    iconSize = 20,
     disabled = false,
     onPress,
     onPressIn,
@@ -39,9 +39,9 @@ export const RoundButton = React.memo<RoundButtonProps>(
     const scale = useSharedValue(1);
     const fontScale = PixelRatio.getFontScale();
 
-    // Dynamic sizing based on icon size and font scaling
     const adjustedIconSize = iconSize * fontScale;
-    const padding = Math.max(12 * fontScale, 12);
+    const basePadding = theme.spacing.sm + theme.spacing.xs;
+    const padding = Math.max(basePadding * fontScale, basePadding);
     const containerSize = adjustedIconSize + padding * 2;
 
     // Get icon color based on variant

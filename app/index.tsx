@@ -4,6 +4,7 @@ import {
   View,
 } from "react-native";
 import React, { useMemo } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
 import { useAppStore } from "@/store/useAppStore";
 import {
@@ -27,14 +28,25 @@ import {
   createToggleFavoriteHandler,
 } from "@/utils/foodLogHandlers";
 
-const HEADER_HEIGHT = 265;
-const DASHBOARD_OFFSET = HEADER_HEIGHT - 40;
-
 export default function TodayTab() {
   const { safeNavigate } = useNavigationGuard();
   const { dynamicBottomPadding } = useTabBarSpacing();
-  const { colors, colorScheme } = useTheme();
-  const styles = useMemo(() => createStyles(colors), [colors]);
+  const { colors, colorScheme, theme } = useTheme();
+  const insets = useSafeAreaInsets();
+
+  // Dynamic header height calculation using 8pt grid system
+  const headerHeight = useMemo(() =>
+    theme.layout.calculateHeaderHeight(insets.top),
+    [theme.layout, insets.top]
+  );
+
+  // Content offset calculation for glass effect positioning
+  const contentOffset = useMemo(() =>
+    theme.layout.calculateContentOffset(headerHeight),
+    [theme.layout, headerHeight]
+  );
+
+  const styles = useMemo(() => createStyles(colors, headerHeight), [colors, headerHeight]);
   const transparentBackground = colors.primaryBackground + "00";
 
   // Get the entire state for selectors and individual functions
@@ -103,7 +115,7 @@ export default function TodayTab() {
         dailyTargets={state.dailyTargets}
         dailyTotals={dailyTotals}
         dynamicBottomPadding={dynamicBottomPadding}
-        headerOffset={DASHBOARD_OFFSET}
+        headerOffset={contentOffset}
         onGoalsPress={handleGoalsPress}
         onDelete={handleDelete}
         onToggleFavorite={handleToggleFavorite}
@@ -115,11 +127,11 @@ export default function TodayTab() {
       <LinearGradient
         colors={[colors.primaryBackground, transparentBackground]}
         locations={[0.65, 1]}
-        style={styles.gradientOverlay}
+        style={[styles.gradientOverlay, { height: headerHeight }]}
         pointerEvents="none"
       />
       <MaskedView
-        style={styles.headerWrapper}
+        style={[styles.headerWrapper, { height: headerHeight }]}
         maskElement={
           <LinearGradient
             colors={[
@@ -149,7 +161,7 @@ export default function TodayTab() {
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
 
-const createStyles = (colors: Colors) => {
+const createStyles = (colors: Colors, headerHeight: number) => {
   return StyleSheet.create({
     container: {
       flex: 1,
@@ -160,7 +172,7 @@ const createStyles = (colors: Colors) => {
       top: 0,
       left: 0,
       right: 0,
-      height: HEADER_HEIGHT,
+      // Height is set dynamically via headerHeight prop
       zIndex: 12,
     },
     gradientOverlay: {
@@ -168,7 +180,7 @@ const createStyles = (colors: Colors) => {
       top: 0,
       left: 0,
       right: 0,
-      height: HEADER_HEIGHT,
+      // Height is set dynamically via headerHeight prop
       opacity: 0.6,
       zIndex: 11,
     },

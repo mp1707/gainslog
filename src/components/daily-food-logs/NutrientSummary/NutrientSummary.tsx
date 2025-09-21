@@ -107,7 +107,7 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
-  const containerSize = 180;
+  const containerSize = 176; // 22×8pt - strict 8pt grid compliance
   const ringColors = {
     calories: colors.semantic.calories,
     protein: colors.semantic.protein,
@@ -181,8 +181,8 @@ const createStyles = (colors: Colors, theme: Theme) => {
     },
     ringsContainer: {
       position: "relative",
-      width: 175,
-      height: 175,
+      width: 176, // 22×8pt - strict 8pt grid compliance
+      height: 176, // 22×8pt - strict 8pt grid compliance
     },
     statsContainer: { flex: 1, gap: theme.spacing.sm },
     statRow: {
@@ -195,7 +195,7 @@ const createStyles = (colors: Colors, theme: Theme) => {
     statLabel: {
       ...theme.typography.Body,
       color: colors.secondaryText,
-      marginBottom: 2,
+      marginBottom: theme.spacing.xs, // 4px - smallest 8pt grid spacing
     },
     statValues: { flexDirection: "row", alignItems: "baseline" },
     statCurrentValue: {

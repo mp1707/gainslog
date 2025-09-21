@@ -251,7 +251,7 @@ const typography = {
 const spacing = {
   unit: SPACING_UNIT,
   pageMargins: {
-    horizontal: 20,
+    horizontal: 24, // 3×8pt - strict 8pt grid compliance
   },
   xs: SPACING_UNIT * 0.5, // 4
   sm: SPACING_UNIT, // 8
@@ -470,6 +470,44 @@ const animations = {
   },
 } as const;
 
+// Layout system for 8pt grid compliance
+const layout = {
+  // Header component dimensions (all in 8pt multiples)
+  header: {
+    titleHeight: 32, // 4×8pt - Title2 line height + padding
+    buttonHeight: 48, // 6×8pt - RoundButton size with proper padding
+    padding: 16, // 2×8pt - Standard padding
+    dateSliderHeight: 96, // 12×8pt - DateSlider container height
+    spacing: 16, // 2×8pt - Space between header elements
+  },
+
+  // Calculate dynamic header height that aligns to 8pt grid
+  calculateHeaderHeight: (safeAreaTop: number = 0): number => {
+    const { header } = layout;
+    const contentHeight = header.titleHeight + header.dateSliderHeight + header.padding * 2 + header.spacing;
+    const totalHeight = safeAreaTop + contentHeight;
+
+    // Round up to nearest 8pt to maintain grid alignment
+    return Math.ceil(totalHeight / SPACING_UNIT) * SPACING_UNIT;
+  },
+
+  // Content offset calculation (header height minus overlap for glass effect)
+  calculateContentOffset: (headerHeight: number): number => {
+    // Subtract 24px (2×8pt) to create proper glass effect overlay
+    return headerHeight - 24;
+  },
+
+  // 8pt grid validation helper
+  validateSpacing: (value: number): boolean => {
+    return value % SPACING_UNIT === 0;
+  },
+
+  // Round value to nearest 8pt multiple
+  roundToGrid: (value: number): number => {
+    return Math.round(value / SPACING_UNIT) * SPACING_UNIT;
+  },
+} as const;
+
 // Helper function to get current color scheme
 const getColorScheme = () => {
   return Appearance.getColorScheme() || "light";
@@ -519,6 +557,7 @@ export const theme = {
   },
   typography,
   spacing,
+  layout,
   components,
   animations,
   // Helper functions
@@ -531,3 +570,4 @@ export type ColorScheme = "light" | "dark";
 export type Colors = typeof lightColors | typeof darkColors;
 export type Typography = typeof typography;
 export type Spacing = typeof spacing;
+export type Layout = typeof layout;

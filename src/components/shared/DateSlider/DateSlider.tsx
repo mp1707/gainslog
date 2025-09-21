@@ -20,7 +20,7 @@ const WEEKS_TO_LOAD_AT_ONCE = 5;
 
 // Calculate dynamic item width to fit exactly 7 days on screen
 const SCREEN_WIDTH = Dimensions.get("window").width;
-const HORIZONTAL_PADDING = 20;
+const HORIZONTAL_PADDING = 24; // 3×8pt - strict 8pt grid compliance
 const ITEM_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING) / 7;
 
 export const DateSlider = () => {
