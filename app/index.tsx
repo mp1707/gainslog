@@ -173,7 +173,7 @@ const createStyles = (colors: Colors, headerHeight: number) => {
       left: 0,
       right: 0,
       // Height is set dynamically via headerHeight prop
-      zIndex: 12,
+      zIndex: 2,
     },
     gradientOverlay: {
       position: "absolute",
@@ -182,7 +182,7 @@ const createStyles = (colors: Colors, headerHeight: number) => {
       right: 0,
       // Height is set dynamically via headerHeight prop
       opacity: 0.6,
-      zIndex: 11,
+      zIndex: 1,
     },
     blurContainer: {
       flex: 1,

@@ -1,50 +1,57 @@
-import { Toast } from "toastify-react-native";
+// Compatibility layer for legacy toast API using new HUD system
+import { useHudStore } from "@/store/useHudStore";
 
 /**
- * Shows an error toast message using custom themed component
+ * Shows an error HUD message
  */
 export const showErrorToast = (message: string, subtitle?: string) => {
-  Toast.show({
+  // For errors, put the main message in subtitle and use "Error" as title
+  const errorSubtitle = subtitle
+    ? `${message}. ${subtitle}`
+    : `${message}. Please try again.`;
+
+  useHudStore.getState().show({
     type: "error",
-    text1: message,
-    text2: subtitle,
-    position: "top",
+    title: "Error",
+    subtitle: errorSubtitle,
   });
 };
 
 /**
- * Shows a warning toast message for invalid images
+ * Shows a warning HUD message for invalid images
  */
 export const showInvalidImageToast = () => {
-  showErrorToast("Invalid Image", "Please try again with a different photo.");
-};
-
-/**
- * Shows a favorite added toast using custom themed component
- */
-export const showFavoriteAddedToast = (
-  message: string = "Favorite added",
-  meal: string
-) => {
-  Toast.show({
-    type: "favoriteAdded" as any,
-    text1: message,
-    text2: meal,
-    position: "top",
+  useHudStore.getState().show({
+    type: "error",
+    title: "Error",
+    subtitle: "Invalid image. Please try again with a different photo.",
   });
 };
 
 /**
- * Shows a favorite removed toast using custom themed component
+ * Shows a favorite added HUD using new system
  */
-export const showFavoriteRemovedToast = (
-  message: string = "Favorite removed",
+export const showFavoriteAddedToast = (
+  _message: string = "Added to favorites",
   meal: string
 ) => {
-  Toast.show({
-    type: "favoriteRemoved" as any,
-    text1: message,
-    text2: meal,
-    position: "top",
+  useHudStore.getState().show({
+    type: "success",
+    title: "Favorited",
+    subtitle: meal,
+  });
+};
+
+/**
+ * Shows a favorite removed HUD using new system
+ */
+export const showFavoriteRemovedToast = (
+  _message: string = "Removed from favorites",
+  meal: string
+) => {
+  useHudStore.getState().show({
+    type: "info",
+    title: "Removed",
+    subtitle: meal,
   });
 };

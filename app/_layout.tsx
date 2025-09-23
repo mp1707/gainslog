@@ -7,7 +7,7 @@ import { theme } from "../src/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { ThemedToastManager } from "@/components/shared/Toasts";
+import { HudNotification } from "@/components/shared/HudNotification";
 import Purchases, { LOG_LEVEL } from "react-native-purchases";
 import * as SplashScreen from "expo-splash-screen";
 import {
@@ -143,8 +143,8 @@ export default function RootLayout() {
         <ThemeProvider>
           <NavigationTransitionProvider>
             <ThemedStack />
-            <ThemedToastManager />
           </NavigationTransitionProvider>
+          <HudNotification />
         </ThemeProvider>
       </KeyboardProvider>
     </GestureHandlerRootView>

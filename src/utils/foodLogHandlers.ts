@@ -1,6 +1,6 @@
 import { FoodLog, Favorite, FoodComponent } from "@/types/models";
 import { generateFoodLogId } from "@/utils/idGenerator";
-import { showFavoriteAddedToast, showFavoriteRemovedToast } from "@/lib/toast";
+import { useHudStore } from "@/store/useHudStore";
 
 export const createLogAgainHandler = (
   addFoodLog: (log: FoodLog) => void,
@@ -39,7 +39,7 @@ export const createSaveToFavoritesHandler = (
   return (log: FoodLog | Favorite) => {
     const already = favorites.some((f) => f.id === log.id);
     if (already) return; // guard against duplicates
-    
+
     // Set needsRefinement = false for all food components since user is satisfied with current values
     const updatedFoodComponents: FoodComponent[] = log.foodComponents.map(component => ({
       ...component,
@@ -56,7 +56,13 @@ export const createSaveToFavoritesHandler = (
       fat: log.fat,
       foodComponents: updatedFoodComponents,
     });
-    showFavoriteAddedToast("Added to favorites", log.title);
+
+    // Use HUD instead of toast
+    useHudStore.getState().show({
+      type: "success",
+      title: "Favorited",
+      subtitle: log.title
+    });
   };
 };
 
@@ -68,7 +74,13 @@ export const createRemoveFromFavoritesHandler = (
     const exists = favorites.some((f) => f.id === log.id);
     if (!exists) return; // nothing to remove
     deleteFavorite(log.id);
-    showFavoriteRemovedToast("Removed from favorites", log.title);
+
+    // Use HUD instead of toast
+    useHudStore.getState().show({
+      type: "info",
+      title: "Removed",
+      subtitle: log.title
+    });
   };
 };
 
@@ -95,10 +107,16 @@ export const createToggleFavoriteHandler = (
 ) => {
   return (foodLog: FoodLog) => {
     const isFavorite = favorites.some((favorite) => favorite.id === foodLog.id);
-    
+
     if (isFavorite) {
       deleteFavorite(foodLog.id);
-      showFavoriteRemovedToast("Removed from favorites", foodLog.title);
+
+      // Use HUD instead of toast
+      useHudStore.getState().show({
+        type: "info",
+        title: "Removed",
+        subtitle: foodLog.title
+      });
     } else {
       // Set needsRefinement = false for all food components since user is satisfied with current values
       const updatedFoodComponents: FoodComponent[] = foodLog.foodComponents.map(component => ({
@@ -106,11 +124,17 @@ export const createToggleFavoriteHandler = (
         needsRefinement: false
       }));
 
-      addFavorite({ 
-        ...foodLog, 
-        foodComponents: updatedFoodComponents 
+      addFavorite({
+        ...foodLog,
+        foodComponents: updatedFoodComponents
       });
-      showFavoriteAddedToast("Added to favorites", foodLog.title);
+
+      // Use HUD instead of toast
+      useHudStore.getState().show({
+        type: "success",
+        title: "Favorited",
+        subtitle: foodLog.title
+      });
     }
   };
 };
