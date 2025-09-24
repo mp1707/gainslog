@@ -3,10 +3,11 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
 import { useAppStore } from "@/store/useAppStore";
+import { useOnboardingStore } from "@/store/useOnboardingStore";
 import {
   selectLogsForDate,
   selectDailyTotals,
@@ -107,6 +108,16 @@ export default function TodayTab() {
     safeNavigate("/Goals");
   };
 
+  // Get skip state
+  const userSkippedOnboarding = useOnboardingStore((state) => state.userSkippedOnboarding);
+
+  // Auto-navigate to onboarding if no daily targets are set and not skipped
+  useEffect(() => {
+    if (!state.dailyTargets && !userSkippedOnboarding) {
+      safeNavigate("/onboarding/age");
+    }
+  }, [state.dailyTargets, userSkippedOnboarding, safeNavigate]);
+
   return (
     <View style={styles.container}>
       <FoodLogsList
@@ -159,9 +170,8 @@ export default function TodayTab() {
 }
 
 type Colors = ReturnType<typeof useTheme>["colors"];
-type Theme = ReturnType<typeof useTheme>["theme"];
 
-const createStyles = (colors: Colors, headerHeight: number) => {
+const createStyles = (colors: Colors, _headerHeight: number) => {
   return StyleSheet.create({
     container: {
       flex: 1,
