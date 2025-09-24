@@ -24,7 +24,7 @@ export default function SettingsTab() {
   const { colors, theme: themeObj } = useTheme();
   const keyboardOffset = useKeyboardOffset(true);
   const { safeNavigate, isNavigating } = useNavigationGuard();
-  const { clearAllLogs } = useAppStore();
+  const { clearAllLogs, clearNutritionGoals } = useAppStore();
   const { back } = useRouter();
 
   const styles = useMemo(
@@ -55,6 +55,25 @@ export default function SettingsTab() {
           text: "Delete All",
           style: "destructive",
           onPress: () => clearAllLogs(),
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const handleClearNutritionGoals = () => {
+    Alert.alert(
+      "Clear Nutrition Goals",
+      "Are you sure you want to clear all nutrition goals (calories, protein, carbs, fat)? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Clear Goals",
+          style: "destructive",
+          onPress: () => clearNutritionGoals(),
         },
       ],
       { cancelable: true }
@@ -191,6 +210,12 @@ export default function SettingsTab() {
                   label="Clear all food logs"
                   variant="tertiary"
                   onPress={handleClearAllLogs}
+                  style={[styles.fullWidthButton, styles.buttonSpacing]}
+                />
+                <Button
+                  label="Clear nutrition goals"
+                  variant="tertiary"
+                  onPress={handleClearNutritionGoals}
                   style={[styles.fullWidthButton, styles.buttonSpacing]}
                 />
               </View>

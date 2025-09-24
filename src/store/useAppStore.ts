@@ -30,6 +30,7 @@ export type AppState = {
 
   // Settings
   setDailyTargets: (targets: DailyTargets) => void;
+  clearNutritionGoals: () => void;
   setUserSettings: (settings: UserSettings) => void;
 
   // UI
@@ -136,6 +137,11 @@ export const useAppStore = create<AppState>()(
       setDailyTargets: (targets) =>
         set((state) => {
           state.dailyTargets = targets;
+        }),
+
+      clearNutritionGoals: () =>
+        set((state) => {
+          state.dailyTargets = undefined;
         }),
 
       setUserSettings: (settings) =>
