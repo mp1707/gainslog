@@ -12,9 +12,7 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { useAppStore } from "@/store/useAppStore";
 import { Button } from "@/components/index";
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
-import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import {
   ChevronRightIcon,
@@ -26,7 +24,6 @@ import {
 import Slider from "@react-native-community/slider";
 import {
   calculateFatGramsFromPercentage,
-  calculateCarbsFromMacros,
 } from "@/utils/nutritionCalculations";
 import { DailyTargets } from "@/types/models";
 
@@ -34,16 +31,9 @@ const SummaryScreen = () => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { safeReplace } = useNavigationGuard();
-  const { back } = useRouter();
-  const router = useRouter();
 
   // Onboarding store state
   const {
-    age,
-    sex,
-    height,
-    weight,
-    activityLevel,
     calorieGoal,
     proteinGoal,
     fatPercentage,
@@ -143,13 +133,6 @@ const SummaryScreen = () => {
     validateInputs(manualCalories || 0, manualProtein || 0, fat);
   };
 
-  const handleCancel = () => {
-    router.dismissTo("/");
-  };
-
-  const handleBack = () => {
-    back();
-  };
 
   const handleFatTap = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

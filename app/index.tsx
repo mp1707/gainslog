@@ -3,11 +3,10 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
 import { useAppStore } from "@/store/useAppStore";
-import { useOnboardingStore } from "@/store/useOnboardingStore";
 import {
   selectLogsForDate,
   selectDailyTotals,
@@ -105,18 +104,8 @@ export default function TodayTab() {
   );
 
   const handleGoalsPress = () => {
-    safeNavigate("/Goals");
+    safeNavigate("/onboarding");
   };
-
-  // Get skip state
-  const userSkippedOnboarding = useOnboardingStore((state) => state.userSkippedOnboarding);
-
-  // Auto-navigate to onboarding if no daily targets are set and not skipped
-  useEffect(() => {
-    if (!state.dailyTargets && !userSkippedOnboarding) {
-      safeNavigate("/onboarding/age");
-    }
-  }, [state.dailyTargets, userSkippedOnboarding, safeNavigate]);
 
   return (
     <View style={styles.container}>

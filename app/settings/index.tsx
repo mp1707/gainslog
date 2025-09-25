@@ -159,11 +159,11 @@ export default function SettingsTab() {
             <Card>
               <TouchableOpacity
                 style={styles.settingRow}
-                onPress={() => safeNavigate("/Goals")}
+                onPress={() => safeNavigate("/onboarding")}
                 disabled={isNavigating}
                 accessibilityRole="button"
-                accessibilityLabel="Open goals"
-                accessibilityHint="Opens the goals calculator flow"
+                accessibilityLabel="Set nutrition goals"
+                accessibilityHint="Opens the onboarding flow to set your nutrition goals"
               >
                 <View style={styles.settingInfo}>
                   <AppText role="Headline" style={styles.settingTitle}>

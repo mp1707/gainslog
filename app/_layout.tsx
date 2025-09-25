@@ -5,7 +5,6 @@ import { useFonts } from "../src/hooks/useFonts";
 import { View, Text, ActivityIndicator, Platform } from "react-native";
 import { theme } from "../src/theme";
 import { useAppStore } from "@/store/useAppStore";
-import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { HudNotification } from "@/components/shared/HudNotification";
@@ -21,7 +20,6 @@ function ThemedStack() {
   const { fontsLoaded } = useFonts();
   const { setTransitioning } = useNavigationTransition();
   const dailyTargets = useAppStore((state) => state.dailyTargets);
-  const userSkippedOnboarding = useOnboardingStore((state) => state.userSkippedOnboarding);
 
   useEffect(() => {
     if (fontsLoaded && isThemeLoaded) {
@@ -117,7 +115,7 @@ function ThemedStack() {
           gestureEnabled: false,
         }}
       />
-      {!dailyTargets && !userSkippedOnboarding && (
+      {!dailyTargets && (
         <Stack.Screen
           name="onboarding"
           options={{

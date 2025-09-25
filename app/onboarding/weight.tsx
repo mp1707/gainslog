@@ -1,24 +1,19 @@
 import React, { useState, useMemo } from "react";
-import { View, Text, StyleSheet, Alert } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { Button } from "@/components/index";
-import { useRouter } from "expo-router";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { Picker } from "@react-native-picker/picker";
-
-const isValidWeight = (weight: number | undefined) =>
-  weight !== undefined && weight >= 30 && weight <= 300;
 
 const WeightSelectionScreen = () => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { weight: storedWeight, setWeight: setStoredWeight } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
-  const router = useRouter();
   const [selectedWeight, setSelectedWeight] = useState<number>(storedWeight || 70);
 
   // Create weight options array

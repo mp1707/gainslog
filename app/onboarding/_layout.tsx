@@ -2,98 +2,79 @@ import { Stack } from "expo-router";
 import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
-import { TouchableOpacity, Text } from "react-native";
+import { View } from "react-native";
+import { ChevronLeft, X } from "lucide-react-native";
+import { RoundButton } from "@/components/shared/RoundButton";
+import { useRouter } from "expo-router";
 import React from "react";
 
 export default function OnboardingLayout() {
   const { colors, theme } = useTheme();
   const { safeReplace } = useNavigationGuard();
   const { setUserSkippedOnboarding } = useOnboardingStore();
+  const router = useRouter();
 
   const handleSkip = () => {
     setUserSkippedOnboarding(true);
     safeReplace("/");
   };
 
-  const SkipButton = () => (
-    <TouchableOpacity onPress={handleSkip} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-      <Text
-        style={{
-          color: colors.secondaryText,
-          fontSize: theme.typography.Body.fontSize,
-          fontFamily: theme.typography.Body.fontFamily,
-        }}
-      >
-        Skip
-      </Text>
-    </TouchableOpacity>
+  const handleBack = () => {
+    router.back();
+  };
+
+  const FloatingNavigation = () => (
+    <>
+      <View style={{
+        position: "absolute",
+        top: theme.spacing.md,
+        left: theme.spacing.md,
+        zIndex: 10,
+      }}>
+        <RoundButton
+          onPress={handleBack}
+          Icon={ChevronLeft}
+          variant="tertiary"
+          accessibilityLabel="Go back"
+          accessibilityHint="Navigate to previous step"
+        />
+      </View>
+      <View style={{
+        position: "absolute",
+        top: theme.spacing.md,
+        right: theme.spacing.md,
+        zIndex: 10,
+      }}>
+        <RoundButton
+          onPress={handleSkip}
+          Icon={X}
+          variant="tertiary"
+          accessibilityLabel="Skip onboarding"
+          accessibilityHint="Skip the onboarding process"
+        />
+      </View>
+    </>
   );
 
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: colors.primaryBackground,
-        },
-        headerTintColor: colors.primaryText,
-        headerTitleStyle: {
-          color: colors.primaryText,
-        },
-        headerShadowVisible: false,
-        animation: "slide_from_right",
-        headerShown: true,
-        headerTitle: "",
-        headerRight: () => <SkipButton />,
-      }}
-    >
-      <Stack.Screen
-        name="age"
-        options={{
-          title: "Age",
+    <View style={{ flex: 1 }}>
+      <FloatingNavigation />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: "slide_from_right",
+          contentStyle: { backgroundColor: colors.primaryBackground },
         }}
-      />
-      <Stack.Screen
-        name="sex"
-        options={{
-          title: "Sex",
-        }}
-      />
-      <Stack.Screen
-        name="height"
-        options={{
-          title: "Height",
-        }}
-      />
-      <Stack.Screen
-        name="weight"
-        options={{
-          title: "Weight",
-        }}
-      />
-      <Stack.Screen
-        name="activity-level"
-        options={{
-          title: "Activity Level",
-        }}
-      />
-      <Stack.Screen
-        name="calorie-goal"
-        options={{
-          title: "Calorie Goal",
-        }}
-      />
-      <Stack.Screen
-        name="protein-goal"
-        options={{
-          title: "Protein Goal",
-        }}
-      />
-      <Stack.Screen
-        name="summary"
-        options={{
-          title: "Summary",
-        }}
-      />
-    </Stack>
+      >
+        <Stack.Screen name="age" />
+        <Stack.Screen name="sex" />
+        <Stack.Screen name="height" />
+        <Stack.Screen name="weight" />
+        <Stack.Screen name="activity-level" />
+        <Stack.Screen name="calorie-goal" />
+        <Stack.Screen name="protein-goal" />
+        <Stack.Screen name="summary" />
+      </Stack>
+    </View>
   );
 }

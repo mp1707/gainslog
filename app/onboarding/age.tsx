@@ -6,19 +6,14 @@ import { Colors, Theme, useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { Button } from "@/components/index";
-import { useRouter } from "expo-router";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { Picker } from "@react-native-picker/picker";
-
-const isValidAge = (age: number | undefined) =>
-  age !== undefined && age >= 15 && age <= 100;
 
 const AgeSelectionScreen = () => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { age, setAge } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
-  const router = useRouter();
   const [selectedAge, setSelectedAge] = useState<number>(age || 30);
 
   // Create age options array

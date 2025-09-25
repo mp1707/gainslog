@@ -1,9 +1,10 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet, Platform, UIManager } from "react-native";
 import { Colors, Theme, useTheme } from "@/theme";
-import { AppText } from "@/components";
+import { AppText, Button } from "@/components";
 import { Droplet, Flame, BicepsFlexed, Wheat } from "lucide-react-native";
 import { ProgressRings } from "@/components/shared/ProgressRings";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
 if (
   Platform.OS === "android" &&
@@ -23,13 +24,6 @@ interface NutrientSummaryProps {
   percentages: NutrientValues;
   targets: NutrientValues;
   totals: NutrientValues;
-}
-
-interface NutrientValues {
-  calories?: number;
-  protein?: number;
-  carbs?: number;
-  fat?: number;
 }
 const RING_CONFIG = [
   { key: "calories", colorKey: "calories" as const, label: "Calories" },
@@ -76,9 +70,7 @@ const StatRow = ({
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   return (
     <View style={styles.statRow}>
-      <View
-        style={[styles.statIconBackground, { backgroundColor }]}
-      >
+      <View style={[styles.statIconBackground, { backgroundColor }]}>
         {getIcon(label, color)}
       </View>
       <View style={styles.statTextContainer}>
@@ -98,6 +90,29 @@ const StatRow = ({
   );
 };
 
+// --- CTA COMPONENT FOR EMPTY STATE ---
+const SetGoalsCTA = () => {
+  const { colors, theme } = useTheme();
+  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const { safeNavigate } = useNavigationGuard();
+  const handleCTAPress = () => {
+    safeNavigate("/onboarding");
+  };
+  return (
+    <View style={styles.ctaContainer}>
+      <AppText style={styles.ctaTitle}>
+        Set your goals to start tracking
+      </AppText>
+      <Button
+        variant="primary"
+        label="Start 🚀"
+        onPress={handleCTAPress}
+        style={styles.ctaButton}
+      />
+    </View>
+  );
+};
+
 // --- MAIN HEADER COMPONENT ---
 export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
   percentages,
@@ -106,6 +121,16 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+
+  // Detect if no goals are set (all targets are zero)
+  const hasNoGoals = useMemo(() => {
+    return (
+      (targets.calories || 0) === 0 &&
+      (targets.protein || 0) === 0 &&
+      (targets.carbs || 0) === 0 &&
+      (targets.fat || 0) === 0
+    );
+  }, [targets]);
 
   const containerSize = 176; // 22×8pt - strict 8pt grid compliance
   const ringColors = {
@@ -125,29 +150,33 @@ export const NutrientSummary: React.FC<NutrientSummaryProps> = ({
   return (
     <View style={styles.plateContainer}>
       <View style={styles.contentContainer}>
-        <View style={styles.summaryContent}>
-          <View style={styles.ringsContainer}>
-            <ProgressRings
-              percentages={percentages}
-              size={containerSize}
-              strokeWidth={STROKE_WIDTH}
-              spacing={RING_SPACING}
-            />
-          </View>
-          <View style={styles.statsContainer}>
-            {RING_CONFIG.map((config) => (
-              <StatRow
-                key={config.key}
-                color={ringColors[config.colorKey]}
-                backgroundColor={ringBackgrounds[config.colorKey]}
-                label={config.label}
-                current={totals[config.key] || 0}
-                total={targets[config.key] || 0}
-                unit={config.key === "calories" ? "kcal" : "g"}
+        {hasNoGoals ? (
+          <SetGoalsCTA />
+        ) : (
+          <View style={styles.summaryContent}>
+            <View style={styles.ringsContainer}>
+              <ProgressRings
+                percentages={percentages}
+                size={containerSize}
+                strokeWidth={STROKE_WIDTH}
+                spacing={RING_SPACING}
               />
-            ))}
+            </View>
+            <View style={styles.statsContainer}>
+              {RING_CONFIG.map((config) => (
+                <StatRow
+                  key={config.key}
+                  color={ringColors[config.colorKey]}
+                  backgroundColor={ringBackgrounds[config.colorKey]}
+                  label={config.label}
+                  current={totals[config.key] || 0}
+                  total={targets[config.key] || 0}
+                  unit={config.key === "calories" ? "kcal" : "g"}
+                />
+              ))}
+            </View>
           </View>
-        </View>
+        )}
       </View>
     </View>
   );
@@ -206,6 +235,25 @@ const createStyles = (colors: Colors, theme: Theme) => {
     statTotalValue: {
       ...theme.typography.Caption,
       color: colors.secondaryText,
+    },
+    // CTA styles
+    ctaContainer: {
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.xl,
+      gap: theme.spacing.md,
+      minHeight: 176, // Same as ringsContainer for consistent layout
+    },
+    ctaTitle: {
+      ...theme.typography.Headline,
+      color: colors.primaryText,
+      textAlign: "center",
+      fontWeight: "600",
+    },
+    ctaButton: {
+      marginTop: theme.spacing.md,
+      minWidth: 180,
     },
   });
 };
