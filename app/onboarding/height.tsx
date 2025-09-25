@@ -1,12 +1,11 @@
 import React, { useState, useMemo } from "react";
 import { View, StyleSheet } from "react-native";
-import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { Button } from "@/components/index";
-import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { OnboardingScreen } from "./_components/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
 import { Picker } from "@react-native-picker/picker";
 
@@ -40,51 +39,45 @@ const HeightSelectionScreen = () => {
   };
 
   return (
-    <GradientWrapper style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.textSection}>
-          <AppText role="Title2">How tall are you?</AppText>
-          <AppText role="Body" color="secondary">
-            Your height is used to calculate your daily calorie needs.
+    <OnboardingScreen
+      actionButton={
+        <Button
+          variant="primary"
+          label="Continue"
+          onPress={handleContinue}
+        />
+      }
+    >
+      <View style={styles.textSection}>
+        <AppText role="Title2">And your height?</AppText>
+        <AppText role="Body" color="secondary" style={{ textAlign: "center" }}>
+          For an accurate TDEE calculation.
+        </AppText>
+      </View>
+
+      <View style={styles.pickerSection}>
+        <View style={styles.pickerArea}>
+          <View style={styles.pickerCol}>
+            <Picker
+              selectedValue={selectedHeight}
+              onValueChange={(value) => handleHeightChange(Number(value))}
+              itemStyle={{ color: colors.primaryText }}
+            >
+              {heightOptions.map((height) => (
+                <Picker.Item
+                  key={height}
+                  label={height.toString()}
+                  value={height}
+                />
+              ))}
+            </Picker>
+          </View>
+          <AppText role="Headline" style={styles.unitText}>
+            cm
           </AppText>
         </View>
-
-        <View style={styles.pickerSection}>
-          <View style={styles.pickerArea}>
-            <View style={styles.pickerCol}>
-              <Picker
-                selectedValue={selectedHeight}
-                onValueChange={(value) => handleHeightChange(Number(value))}
-                itemStyle={{ color: colors.primaryText }}
-              >
-                {heightOptions.map((height) => (
-                  <Picker.Item
-                    key={height}
-                    label={height.toString()}
-                    value={height}
-                  />
-                ))}
-              </Picker>
-            </View>
-            <AppText role="Headline" style={styles.unitText}>
-              cm
-            </AppText>
-          </View>
-        </View>
-
-        <View style={styles.spacer} />
-
-        <View style={styles.buttonSection}>
-          <Button
-            variant="primary"
-            label="Continue"
-            Icon={ChevronRight}
-            iconPlacement="right"
-            onPress={handleContinue}
-          />
-        </View>
       </View>
-    </GradientWrapper>
+    </OnboardingScreen>
   );
 };
 
@@ -93,19 +86,10 @@ export default HeightSelectionScreen;
 const createStyles = (colors: any, themeObj: any) => {
   const { spacing } = themeObj;
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.primaryBackground,
-    },
-    content: {
-      flex: 1,
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.xxl + spacing.xl,
-      gap: spacing.xl,
-    },
     textSection: {
       gap: spacing.sm,
       alignItems: "center",
+      marginBottom: spacing.xl,
     },
     pickerSection: {
       alignItems: "center",
@@ -126,12 +110,6 @@ const createStyles = (colors: any, themeObj: any) => {
     },
     unitText: {
       paddingRight: spacing.md,
-    },
-    spacer: {
-      flex: 1,
-    },
-    buttonSection: {
-      paddingBottom: spacing.xl,
     },
   });
 };

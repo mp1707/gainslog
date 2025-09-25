@@ -9,11 +9,11 @@ import { StyleSheet } from "react-native";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { useRouter } from "expo-router";
-import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { OnboardingScreen } from "./_components/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
 
 const SexSelectionScreen = React.memo(function SexSelectionScreen() {
-  const { colors, theme: themeObj } = useTheme();
+  const { theme: themeObj } = useTheme();
   const { sex, setSex } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
   const { back, dismissTo } = useRouter();
@@ -22,8 +22,8 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
   );
 
   const styles = useMemo(
-    () => createStyles(colors, themeObj),
-    [colors, themeObj]
+    () => createStyles(themeObj),
+    [themeObj]
   );
 
   const handleSexSelect = useCallback(
@@ -46,123 +46,60 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
   };
 
   return (
-    <GradientWrapper style={styles.container}>
-      {/* Content */}
-      <View style={styles.content}>
-        <View style={styles.textSection}>
-          <AppText role="Title2">What is your biological sex?</AppText>
-          <AppText
-            role="Body"
-            color="secondary"
-            style={{ textAlign: "center" }}
-          >
-            This helps us calculate your daily calorie needs more accurately.
-          </AppText>
-        </View>
-
-        <View style={styles.selectionSection}>
-          <View style={styles.optionsContainer}>
-            <SelectionCard
-              title="Male"
-              description="Biological male"
-              icon={User}
-              iconColor="#4A90E2"
-              isSelected={selectedSex === "male"}
-              onSelect={() => handleSexSelect("male")}
-              accessibilityLabel="Select male as biological sex"
-              accessibilityHint="This will help calculate your calorie needs and advance to the next step"
-            />
-
-            <SelectionCard
-              title="Female"
-              description="Biological female"
-              icon={User}
-              iconColor="#E24A90"
-              isSelected={selectedSex === "female"}
-              onSelect={() => handleSexSelect("female")}
-              accessibilityLabel="Select female as biological sex"
-              accessibilityHint="This will help calculate your calorie needs and advance to the next step"
-            />
-          </View>
-        </View>
-
-        {/* Spacer to push content up and provide consistent spacing */}
-        <View style={styles.spacer} />
+    <OnboardingScreen>
+      <View style={styles.textSection}>
+        <AppText role="Title2">Biological Sex</AppText>
+        <AppText
+          role="Body"
+          color="secondary"
+          style={{ textAlign: "center" }}
+        >
+          To refine your metabolic calculation.
+        </AppText>
       </View>
-    </GradientWrapper>
+
+      <View style={styles.selectionSection}>
+        <SelectionCard
+          title="Male"
+          description=""
+          icon={User}
+          iconColor="#4A90E2"
+          isSelected={selectedSex === "male"}
+          onSelect={() => handleSexSelect("male")}
+          accessibilityLabel="Select male as biological sex"
+          accessibilityHint="This will help calculate your calorie needs and advance to the next step"
+        />
+
+        <SelectionCard
+          title="Female"
+          description=""
+          icon={User}
+          iconColor="#E24A90"
+          isSelected={selectedSex === "female"}
+          onSelect={() => handleSexSelect("female")}
+          accessibilityLabel="Select female as biological sex"
+          accessibilityHint="This will help calculate your calorie needs and advance to the next step"
+        />
+      </View>
+    </OnboardingScreen>
   );
 });
 
 export default SexSelectionScreen;
 
-type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
 
-const createStyles = (colors: Colors, theme: Theme) => {
-  const { spacing, typography } = theme;
+const createStyles = (theme: Theme) => {
+  const { spacing } = theme;
 
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.primaryBackground,
-      gap: theme.spacing.md,
-    },
-    centered: {
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    loadingText: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-    },
-    content: {
-      flex: 1,
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.xxl + spacing.xl,
-      justifyContent: "flex-start",
-      alignItems: "stretch",
-      gap: spacing.xxl,
-    },
     textSection: {
       gap: spacing.sm,
       alignItems: "center",
+      marginBottom: spacing.xl,
     },
     selectionSection: {
-      alignItems: "stretch",
-    },
-    optionsContainer: {
       gap: spacing.md,
-      marginBottom: spacing.xl,
-    },
-    separator: {
-      height: 1,
-      backgroundColor: colors.border,
-      marginHorizontal: spacing.xl,
-      marginBottom: spacing.xl,
-    },
-    manualInputButton: {
-      paddingVertical: spacing.md,
-      paddingHorizontal: spacing.lg,
-      borderRadius: theme.components.buttons.cornerRadius,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.secondaryBackground,
-      alignItems: "center",
-      marginHorizontal: spacing.lg,
-    },
-    manualInputText: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-      fontWeight: "500",
-    },
-    spacer: {
-      flex: 1,
-      minHeight: spacing.xxl * 2, // Ensure minimum spacing
-    },
-    progressContainer: {
-      padding: theme.spacing.md,
     },
   });
 };

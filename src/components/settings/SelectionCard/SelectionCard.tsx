@@ -105,7 +105,9 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
               <Text style={[styles.title, isSelected && styles.selectedTitle]}>
                 {title}
               </Text>
-              <Text style={styles.description}>{description}</Text>
+              {description && (
+                <Text style={styles.description}>{description}</Text>
+              )}
             </View>
           </View>
 

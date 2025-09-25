@@ -1,12 +1,11 @@
 import React, { useState, useMemo } from "react";
 import { View, StyleSheet } from "react-native";
-import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { Colors, Theme, useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { Button } from "@/components/index";
-import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { OnboardingScreen } from "./_components/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
 import { Picker } from "@react-native-picker/picker";
 
@@ -37,47 +36,41 @@ const AgeSelectionScreen = () => {
   };
 
   return (
-    <GradientWrapper style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.textSection}>
-          <AppText role="Title2">How old are you?</AppText>
-          <AppText role="Body" color="secondary">
-            Your age helps us calculate your calorie needs.
+    <OnboardingScreen
+      actionButton={
+        <Button
+          variant="primary"
+          label="Continue"
+          onPress={handleContinue}
+        />
+      }
+    >
+      <View style={styles.textSection}>
+        <AppText role="Title2">What's your age?</AppText>
+        <AppText role="Body" color="secondary" style={{ textAlign: "center" }}>
+          To establish your metabolic baseline.
+        </AppText>
+      </View>
+
+      <View style={styles.pickerSection}>
+        <View style={styles.pickerArea}>
+          <View style={styles.pickerCol}>
+            <Picker
+              selectedValue={selectedAge}
+              onValueChange={(value) => handleAgeChange(Number(value))}
+              itemStyle={{ color: colors.primaryText }}
+            >
+              {ageOptions.map((age) => (
+                <Picker.Item key={age} label={age.toString()} value={age} />
+              ))}
+            </Picker>
+          </View>
+          <AppText role="Headline" style={styles.unitText}>
+            years
           </AppText>
         </View>
-
-        <View style={styles.pickerSection}>
-          <View style={styles.pickerArea}>
-            <View style={styles.pickerCol}>
-              <Picker
-                selectedValue={selectedAge}
-                onValueChange={(value) => handleAgeChange(Number(value))}
-                itemStyle={{ color: colors.primaryText }}
-              >
-                {ageOptions.map((age) => (
-                  <Picker.Item key={age} label={age.toString()} value={age} />
-                ))}
-              </Picker>
-            </View>
-            <AppText role="Headline" style={styles.unitText}>
-              years
-            </AppText>
-          </View>
-        </View>
-
-        <View style={styles.spacer} />
-
-        <View style={styles.buttonSection}>
-          <Button
-            variant="primary"
-            label="Continue"
-            Icon={ChevronRight}
-            iconPlacement="right"
-            onPress={handleContinue}
-          />
-        </View>
       </View>
-    </GradientWrapper>
+    </OnboardingScreen>
   );
 };
 
@@ -86,20 +79,10 @@ export default AgeSelectionScreen;
 const createStyles = (colors: Colors, theme: Theme) => {
   const { spacing } = theme;
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.primaryBackground,
-    },
-    content: {
-      flex: 1,
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.xxl + spacing.xl,
-
-      gap: spacing.xl,
-    },
     textSection: {
       gap: spacing.sm,
       alignItems: "center",
+      marginBottom: spacing.xl,
     },
     pickerSection: {
       alignItems: "center",
@@ -120,12 +103,6 @@ const createStyles = (colors: Colors, theme: Theme) => {
     },
     unitText: {
       paddingRight: spacing.md,
-    },
-    spacer: {
-      flex: 1,
-    },
-    buttonSection: {
-      paddingBottom: spacing.xl,
     },
   });
 };

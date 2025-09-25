@@ -12,7 +12,7 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { useAppStore } from "@/store/useAppStore";
 import { Button } from "@/components/index";
-import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { OnboardingScreen } from "./_components/OnboardingScreen";
 import * as Haptics from "expo-haptics";
 import {
   ChevronRightIcon,
@@ -231,13 +231,23 @@ const SummaryScreen = () => {
   ];
 
   return (
-    <GradientWrapper style={styles.container}>
+    <OnboardingScreen
+      actionButton={
+        <Button
+          variant="primary"
+          label="Confirm & Start Tracking"
+          onPress={handleConfirmAndStartTracking}
+          disabled={!calorieGoal || !proteinGoal}
+        />
+      }
+    >
       {/* Title */}
       <View style={styles.titleSection}>
         <AppText role="Title2">Your Daily Blueprint</AppText>
+        <AppText role="Body" color="secondary" style={{ textAlign: "center" }}>
+          Here are your starting targets. You can adjust these anytime.
+        </AppText>
       </View>
-
-      <View style={styles.content}>
         {/* Targets List */}
         <View style={styles.targetsSection}>
           {targetRows.map((target) => {
@@ -353,33 +363,21 @@ const SummaryScreen = () => {
 
         {/* Manual Override Toggle */}
         <View style={styles.toggleSection}>
-          <TouchableOpacity onPress={handleToggleManualMode} style={styles.toggleButton}>
-            <AppText role="Body" style={{ color: colors.primaryBackground, fontWeight: "600" }}>
-              {isManualMode ? "Use Calculator" : "Manual Override"}
-            </AppText>
-          </TouchableOpacity>
+          <Button
+            variant="tertiary"
+            label={isManualMode ? "Use Calculator" : "Customize"}
+            onPress={handleToggleManualMode}
+          />
         </View>
 
         {/* Informational Footer */}
         <View style={styles.infoSection}>
           <AppText role="Caption" color="secondary" style={{ textAlign: "center", lineHeight: 18 }}>
-            <AppText role="Caption" style={{ fontWeight: "600", color: colors.primaryText }}>Tip:</AppText> Your fat target is set to a balanced {fatPercentage}%. Tap to adjust. Carbohydrates are automatically calculated from your remaining calories.
+            Tip: Fat is defaulted to 30% and can be adjusted. Carbs are calculated from the remainder.
           </AppText>
         </View>
 
-        <View style={styles.spacer} />
-
-        {/* Confirm Button */}
-        <View style={styles.buttonSection}>
-          <Button
-            variant="primary"
-            label="Confirm & Start Tracking"
-            onPress={handleConfirmAndStartTracking}
-            disabled={!calorieGoal || !proteinGoal}
-          />
-        </View>
-      </View>
-    </GradientWrapper>
+    </OnboardingScreen>
   );
 };
 
@@ -392,23 +390,13 @@ const createStyles = (colors: Colors, theme: Theme) => {
   const { spacing } = theme;
 
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.primaryBackground,
-    },
     titleSection: {
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingBottom: spacing.md,
       alignItems:"center",
-      paddingTop: spacing.xxl + spacing.xl,
-    },
-    content: {
-      flex: 1,
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      gap: spacing.xl,
+      marginBottom: spacing.xl,
     },
     targetsSection: {
       gap: spacing.sm,
+      marginBottom: spacing.xl,
     },
     targetRowContainer: {
       overflow: "hidden",
@@ -469,12 +457,7 @@ const createStyles = (colors: Colors, theme: Theme) => {
     },
     infoSection: {
       paddingHorizontal: spacing.sm,
-    },
-    spacer: {
-      flex: 1,
-    },
-    buttonSection: {
-      paddingBottom: spacing.lg,
+      marginBottom: spacing.xl,
     },
     targetRowError: {
       borderColor: colors.error,
@@ -496,12 +479,7 @@ const createStyles = (colors: Colors, theme: Theme) => {
     },
     toggleSection: {
       alignItems: "center",
-    },
-    toggleButton: {
-      paddingVertical: spacing.sm,
-      paddingHorizontal: spacing.md,
-      backgroundColor: colors.accent,
-      borderRadius: 8,
+      marginBottom: spacing.xl,
     },
     errorContainer: {
       paddingHorizontal: spacing.md,

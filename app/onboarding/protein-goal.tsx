@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { View, ScrollView, KeyboardAvoidingView, Alert } from "react-native";
+import { View } from "react-native";
 import { AppText } from "@/components/shared/AppText";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
@@ -23,7 +23,7 @@ import {
 } from "@/utils/nutritionCalculations";
 import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
-import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { OnboardingScreen } from "./_components/OnboardingScreen";
 
 const METHODS: Record<
   ProteinGoalType,
@@ -153,30 +153,22 @@ export default function ProteinGoalsScreen() {
   const methods = Object.values(METHODS);
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <GradientWrapper style={styles.container}>
-        {/* Content */}
-        <ScrollView
-          style={styles.content}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+    <OnboardingScreen>
+      <View style={styles.textSection}>
+        <AppText role="Title2">Set Your Protein Target</AppText>
+        <AppText
+          role="Body"
+          color="secondary"
+          style={{ textAlign: "center" }}
         >
-          <View style={styles.textSection}>
-            <AppText role="Title2">Choose your protein goal</AppText>
-            <AppText
-              role="Body"
-              color="secondary"
-              style={{ textAlign: "center" }}
-            >
-              Select the option that best matches your training and goals.
-            </AppText>
-            <AppText role="Body" color="secondary">
-              Based on your weight of {weight}kg
-            </AppText>
-          </View>
+          Choose a target based on your training intensity.
+        </AppText>
+        <AppText role="Body" color="secondary" style={{ textAlign: "center" }}>
+          Based on your weight of {weight}kg
+        </AppText>
+      </View>
 
-          <View style={styles.methodsSection}>
+      <View style={styles.methodsSection}>
             {methods.map((method) => {
               const proteinGoal =
                 proteinGoals[method.id as keyof typeof proteinGoals];
@@ -201,18 +193,16 @@ export default function ProteinGoalsScreen() {
                 />
               );
             })}
-          </View>
+      </View>
 
-          {/* Footer Note */}
-          <View style={styles.footer}>
-            <AppText role="Caption" color="secondary">
-              These recommendations are general guidelines. Consult with a
-              nutritionist or healthcare provider for personalized advice.
-            </AppText>
-          </View>
-        </ScrollView>
-      </GradientWrapper>
-    </KeyboardAvoidingView>
+      {/* Footer Note */}
+      <View style={styles.footer}>
+        <AppText role="Caption" color="secondary" style={{ textAlign: "center" }}>
+          These recommendations are general guidelines. Consult with a
+          nutritionist or healthcare provider for personalized advice.
+        </AppText>
+      </View>
+    </OnboardingScreen>
   );
 }
 
@@ -223,29 +213,10 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
   const { spacing } = themeObj;
 
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.primaryBackground,
-      gap: themeObj.spacing.md,
-    },
-    centered: {
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    backButton: {
-      minWidth: 120,
-    },
-    content: {
-      flex: 1,
-      paddingTop: spacing.xxl + spacing.xl,
-    },
-    scrollContent: {
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingBottom: 100,
-    },
     textSection: {
       marginBottom: spacing.xl,
       alignItems: "center",
+      gap: spacing.sm,
     },
     methodsSection: {
       marginBottom: spacing.lg,

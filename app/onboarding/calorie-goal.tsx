@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { View, ScrollView, KeyboardAvoidingView } from "react-native";
+import { View } from "react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
 import { TrendingDown, Equal, TrendingUp } from "lucide-react-native";
@@ -10,9 +10,7 @@ import type { UserSettings } from "@/types/models";
 import { StyleSheet } from "react-native";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
-import { useRouter } from "expo-router";
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
-import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { OnboardingScreen } from "./_components/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
 
 export default function Step3GoalsScreen() {
@@ -21,19 +19,9 @@ export default function Step3GoalsScreen() {
   const { age, sex, weight, height, activityLevel, setCalorieGoal } =
     useOnboardingStore();
   const { safePush } = useNavigationGuard();
-  const { back, dismissAll } = useRouter();
-  const router = useRouter();
   const [selectedGoal, setSelectedGoal] = useState<
     UserSettings["calorieGoalType"] | undefined
   >();
-
-  const handleCancel = () => {
-    router.dismissTo("/");
-  };
-
-  const handleBack = () => {
-    back();
-  };
 
   // Calculate calorie goals based on onboarding data
   const calorieGoals =
@@ -66,42 +54,37 @@ export default function Step3GoalsScreen() {
 
   if (!calorieGoals) {
     return (
-      <GradientWrapper style={styles.container}>
-        <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
-        <AppText role="Body" color="secondary">
-          Missing calculation data. Please start over.
-        </AppText>
-        <Button
-          variant="primary"
-          label="Go Back"
-          onPress={() => safePush("/onboarding/protein-goal")}
-          disabled={false}
-          style={styles.backButton}
-        />
-      </GradientWrapper>
+      <OnboardingScreen
+        actionButton={
+          <Button
+            variant="primary"
+            label="Go Back"
+            onPress={() => safePush("/onboarding/protein-goal")}
+            disabled={false}
+          />
+        }
+      >
+        <View style={{ alignItems: "center", gap: 16 }}>
+          <AppText role="Body" color="secondary">
+            Missing calculation data. Please start over.
+          </AppText>
+        </View>
+      </OnboardingScreen>
     );
   }
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <GradientWrapper style={styles.container}>
-        {/* Content */}
-        <ScrollView
-          style={styles.content}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.textSection}>
-            <AppText role="Title2">Choose your calorie goal</AppText>
-            <AppText role="Body" color="secondary">
-              Select the goal that best matches what you want to achieve.
-            </AppText>
-          </View>
+    <OnboardingScreen>
+      <View style={styles.textSection}>
+        <AppText role="Title2">What's the objective?</AppText>
+        <AppText role="Body" color="secondary" style={{ textAlign: "center" }}>
+          Based on your data, here are three starting points.
+        </AppText>
+      </View>
 
-          <View style={styles.goalsSection}>
+      <View style={styles.goalsSection}>
             <SelectionCard
-              title="Lose Weight"
+              title="Cut"
               description="Create a calorie deficit to lose weight gradually"
               icon={TrendingDown}
               iconColor={colors.error}
@@ -117,7 +100,7 @@ export default function Step3GoalsScreen() {
             />
 
             <SelectionCard
-              title="Maintain Weight"
+              title="Maintain"
               description="Eat at maintenance calories to stay at current weight"
               icon={Equal}
               iconColor={colors.success}
@@ -133,7 +116,7 @@ export default function Step3GoalsScreen() {
             />
 
             <SelectionCard
-              title="Gain Weight"
+              title="Bulk"
               description="Create a calorie surplus to gain weight gradually"
               icon={TrendingUp}
               iconColor={colors.semantic.protein}
@@ -147,19 +130,17 @@ export default function Step3GoalsScreen() {
               accessibilityLabel="Gain Weight goal"
               accessibilityHint={`Set ${calorieGoals.gain} calories as your daily goal to create a calorie surplus to gain weight gradually`}
             />
-          </View>
+      </View>
 
-          {/* Footer Note */}
-          <View style={styles.footer}>
-            <AppText role="Caption" color="secondary">
-              These recommendations are general guidelines based on the
-              Mifflin-St Jeor equation. Consult with a nutritionist or
-              healthcare provider for personalized advice.
-            </AppText>
-          </View>
-        </ScrollView>
-      </GradientWrapper>
-    </KeyboardAvoidingView>
+      {/* Footer Note */}
+      <View style={styles.footer}>
+        <AppText role="Caption" color="secondary" style={{ textAlign: "center" }}>
+          These recommendations are general guidelines based on the
+          Mifflin-St Jeor equation. Consult with a nutritionist or
+          healthcare provider for personalized advice.
+        </AppText>
+      </View>
+    </OnboardingScreen>
   );
 }
 
@@ -170,37 +151,19 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
   const { spacing } = themeObj;
 
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.primaryBackground,
-      gap: themeObj.spacing.md,
-    },
-    backButton: {
-      minWidth: 120,
-    },
-    content: {
-      flex: 1,
-      paddingTop: spacing.xxl + spacing.xl,
-    },
-    scrollContent: {
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingBottom: 100,
-    },
     textSection: {
+      alignItems: "center",
       marginBottom: spacing.xl,
     },
     goalsSection: {
-      marginBottom: spacing.lg,
       gap: spacing.md,
+      marginBottom: spacing.lg,
     },
     footer: {
       marginTop: spacing.xl,
       paddingTop: spacing.lg,
       borderTopWidth: 1,
       borderTopColor: colors.border,
-    },
-    progressContainer: {
-      padding: themeObj.spacing.md,
     },
   });
 };

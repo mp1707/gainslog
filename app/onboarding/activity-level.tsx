@@ -1,11 +1,5 @@
 import React, { useMemo, useState } from "react";
-import {
-  View,
-  ScrollView,
-  KeyboardAvoidingView,
-  TouchableOpacity,
-} from "react-native";
-import { useRouter } from "expo-router";
+import { View } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Home, User, Bike, Flame, Zap } from "lucide-react-native";
 
@@ -16,28 +10,17 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { ACTIVITY_LEVELS } from "@/components/settings/calculationMethods";
 import { StyleSheet } from "react-native";
 import { UserSettings } from "@/types/models";
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
-import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { OnboardingScreen } from "./_components/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
 
 export default function Step2ActivityLevelScreen() {
   const { colors, theme: themeObj } = useTheme();
-  const styles = createStyles(colors, themeObj);
-  const { activityLevel, setActivityLevel } = useOnboardingStore();
+  const styles = createStyles(themeObj);
+  const { setActivityLevel } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
-  const { back } = useRouter();
-  const router = useRouter();
   const [selectedActivity, setSelectedActivity] = useState<
     UserSettings["activityLevel"] | undefined
   >();
-
-  const handleCancel = () => {
-    router.dismissTo("/");
-  };
-
-  const handleBack = () => {
-    back();
-  };
 
   const handleActivityLevelSelect = async (
     level: UserSettings["activityLevel"]
@@ -55,94 +38,68 @@ export default function Step2ActivityLevelScreen() {
   const activityLevels = Object.values(ACTIVITY_LEVELS);
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-      <GradientWrapper style={styles.container}>
-        {/* Content */}
-        <ScrollView
-          style={styles.content}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+    <OnboardingScreen>
+      <View style={styles.textSection}>
+        <AppText role="Title2">How active are you?</AppText>
+        <AppText
+          role="Body"
+          color="secondary"
+          style={{ textAlign: "center" }}
         >
-          <View style={styles.textSection}>
-            <AppText role="Title2">Choose your activity level</AppText>
-            <AppText
-              role="Body"
-              color="secondary"
-              style={{ textAlign: "center" }}
-            >
-              Select the option that best matches your lifestyle and exercise
-              routine.
-            </AppText>
-          </View>
+          Select your baseline. This is used to calibrate your TDEE.
+        </AppText>
+      </View>
 
-          <View style={styles.methodsSection}>
-            {activityLevels.map((activityLevel) => {
-              // Map activity level to appropriate icon
-              const getIcon = (id: string) => {
-                switch (id) {
-                  case "sedentary":
-                    return Home;
-                  case "light":
-                    return User;
-                  case "moderate":
-                    return Bike;
-                  case "active":
-                    return Flame;
-                  case "veryactive":
-                    return Zap;
-                  default:
-                    return User;
-                }
-              };
+      <View style={styles.methodsSection}>
+        {activityLevels.map((activityLevel) => {
+          // Map activity level to appropriate icon
+          const getIcon = (id: string) => {
+            switch (id) {
+              case "sedentary":
+                return Home;
+              case "light":
+                return User;
+              case "moderate":
+                return Bike;
+              case "active":
+                return Flame;
+              case "veryactive":
+                return Zap;
+              default:
+                return User;
+            }
+          };
 
-              return (
-                <SelectionCard
-                  key={activityLevel.id}
-                  title={activityLevel.title}
-                  description={activityLevel.description}
-                  icon={getIcon(activityLevel.id)}
-                  iconColor={colors.secondaryText}
-                  isSelected={selectedActivity === activityLevel.id}
-                  onSelect={() => handleActivityLevelSelect(activityLevel.id)}
-                  accessibilityLabel={`${activityLevel.title} activity level`}
-                  accessibilityHint={`Calculate calories for ${activityLevel.description.toLowerCase()}`}
-                />
-              );
-            })}
-          </View>
-        </ScrollView>
-      </GradientWrapper>
-    </KeyboardAvoidingView>
+          return (
+            <SelectionCard
+              key={activityLevel.id}
+              title={activityLevel.title}
+              description={activityLevel.description}
+              icon={getIcon(activityLevel.id)}
+              iconColor={colors.secondaryText}
+              isSelected={selectedActivity === activityLevel.id}
+              onSelect={() => handleActivityLevelSelect(activityLevel.id)}
+              accessibilityLabel={`${activityLevel.title} activity level`}
+              accessibilityHint={`Calculate calories for ${activityLevel.description.toLowerCase()}`}
+            />
+          );
+        })}
+      </View>
+    </OnboardingScreen>
   );
 }
 
-type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
 
-const createStyles = (colors: Colors, themeObj: Theme) => {
+const createStyles = (themeObj: Theme) => {
   const { spacing } = themeObj;
 
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.primaryBackground,
-      gap: themeObj.spacing.md,
-    },
-    content: {
-      flex: 1,
-      paddingTop: spacing.xxl + spacing.xl,
-    },
-    scrollContent: {
-      paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingBottom: 100,
-    },
     textSection: {
-      marginBottom: spacing.xl,
       alignItems: "center",
+      marginBottom: spacing.xl,
     },
     methodsSection: {
-      marginBottom: spacing.lg,
       gap: spacing.md,
     },
   });
