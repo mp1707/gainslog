@@ -1,25 +1,25 @@
 import React, { useMemo, useCallback, useState } from "react";
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import { User } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
-import { UserSettings } from "@/types/models";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { useRouter } from "expo-router";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { AppText } from "@/components/shared/AppText";
 
 const SexSelectionScreen = React.memo(function SexSelectionScreen() {
   const { colors, theme: themeObj } = useTheme();
   const { sex, setSex } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
   const { back, dismissTo } = useRouter();
-  const [selectedSex, setSelectedSex] = useState<
-    "male" | "female" | undefined
-  >(sex);
+  const [selectedSex, setSelectedSex] = useState<"male" | "female" | undefined>(
+    sex
+  );
 
   const styles = useMemo(
     () => createStyles(colors, themeObj),
@@ -47,14 +47,17 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
 
   return (
     <GradientWrapper style={styles.container}>
-      <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
       {/* Content */}
       <View style={styles.content}>
         <View style={styles.textSection}>
-          <Text style={styles.subtitle}>What is your biological sex?</Text>
-          <Text style={styles.description}>
+          <AppText role="Title2">What is your biological sex?</AppText>
+          <AppText
+            role="Body"
+            color="secondary"
+            style={{ textAlign: "center" }}
+          >
             This helps us calculate your daily calorie needs more accurately.
-          </Text>
+          </AppText>
         </View>
 
         <View style={styles.selectionSection}>
@@ -116,25 +119,14 @@ const createStyles = (colors: Colors, theme: Theme) => {
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
+      paddingTop: spacing.xxl + spacing.xl,
       justifyContent: "flex-start",
       alignItems: "stretch",
       gap: spacing.xxl,
     },
     textSection: {
       gap: spacing.sm,
-    },
-    subtitle: {
-      fontSize: typography.Title2.fontSize,
-      fontFamily: typography.Title2.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
-    },
-    description: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-      textAlign: "center",
-      lineHeight: 22,
+      alignItems: "center",
     },
     selectionSection: {
       alignItems: "stretch",

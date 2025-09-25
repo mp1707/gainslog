@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { View, ScrollView, KeyboardAvoidingView, Text } from "react-native";
+import { View, ScrollView, KeyboardAvoidingView } from "react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
 import { TrendingDown, Equal, TrendingUp } from "lucide-react-native";
@@ -13,11 +13,13 @@ import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { AppText } from "@/components/shared/AppText";
 
 export default function Step3GoalsScreen() {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
-  const { age, sex, weight, height, activityLevel, setCalorieGoal } = useOnboardingStore();
+  const { age, sex, weight, height, activityLevel, setCalorieGoal } =
+    useOnboardingStore();
   const { safePush } = useNavigationGuard();
   const { back, dismissAll } = useRouter();
   const router = useRouter();
@@ -34,19 +36,20 @@ export default function Step3GoalsScreen() {
   };
 
   // Calculate calorie goals based on onboarding data
-  const calorieGoals = !age || !sex || !weight || !height || !activityLevel
-    ? undefined
-    : calculateCalorieGoals(
-        {
-          sex,
-          age,
-          weight,
-          height,
-          activityLevel,
-          calorieGoalType: "maintain",
-        },
-        activityLevel as any
-      );
+  const calorieGoals =
+    !age || !sex || !weight || !height || !activityLevel
+      ? undefined
+      : calculateCalorieGoals(
+          {
+            sex,
+            age,
+            weight,
+            height,
+            activityLevel,
+            calorieGoalType: "maintain",
+          },
+          activityLevel as any
+        );
 
   const handleGoalSelect = async (
     goalType: UserSettings["calorieGoalType"]
@@ -65,9 +68,9 @@ export default function Step3GoalsScreen() {
     return (
       <GradientWrapper style={styles.container}>
         <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
-        <Text style={styles.errorText}>
+        <AppText role="Body" color="secondary">
           Missing calculation data. Please start over.
-        </Text>
+        </AppText>
         <Button
           variant="primary"
           label="Go Back"
@@ -82,8 +85,6 @@ export default function Step3GoalsScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <GradientWrapper style={styles.container}>
-        <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
-
         {/* Content */}
         <ScrollView
           style={styles.content}
@@ -92,10 +93,10 @@ export default function Step3GoalsScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.textSection}>
-            <Text style={styles.subtitle}>Choose your calorie goal</Text>
-            <Text style={styles.description}>
+            <AppText role="Title2">Choose your calorie goal</AppText>
+            <AppText role="Body" color="secondary">
               Select the goal that best matches what you want to achieve.
-            </Text>
+            </AppText>
           </View>
 
           <View style={styles.goalsSection}>
@@ -150,11 +151,11 @@ export default function Step3GoalsScreen() {
 
           {/* Footer Note */}
           <View style={styles.footer}>
-            <Text style={styles.footerNote}>
+            <AppText role="Caption" color="secondary">
               These recommendations are general guidelines based on the
               Mifflin-St Jeor equation. Consult with a nutritionist or
               healthcare provider for personalized advice.
-            </Text>
+            </AppText>
           </View>
         </ScrollView>
       </GradientWrapper>
@@ -166,7 +167,7 @@ type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
 
 const createStyles = (colors: Colors, themeObj: Theme) => {
-  const { spacing, typography } = themeObj;
+  const { spacing } = themeObj;
 
   return StyleSheet.create({
     container: {
@@ -174,18 +175,12 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       backgroundColor: colors.primaryBackground,
       gap: themeObj.spacing.md,
     },
-    errorText: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.error,
-      textAlign: "center",
-      marginBottom: spacing.lg,
-    },
     backButton: {
       minWidth: 120,
     },
     content: {
       flex: 1,
+      paddingTop: spacing.xxl + spacing.xl,
     },
     scrollContent: {
       paddingHorizontal: spacing.pageMargins.horizontal,
@@ -193,20 +188,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     textSection: {
       marginBottom: spacing.xl,
-    },
-    subtitle: {
-      fontSize: typography.Title2.fontSize,
-      fontFamily: typography.Title2.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
-      marginBottom: spacing.md,
-    },
-    description: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-      textAlign: "center",
-      lineHeight: 22,
     },
     goalsSection: {
       marginBottom: spacing.lg,
@@ -217,13 +198,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       paddingTop: spacing.lg,
       borderTopWidth: 1,
       borderTopColor: colors.border,
-    },
-    footerNote: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
-      color: colors.secondaryText,
-      textAlign: "center",
-      lineHeight: 18,
     },
     progressContainer: {
       padding: themeObj.spacing.md,

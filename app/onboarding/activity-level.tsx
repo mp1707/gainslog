@@ -4,17 +4,10 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   TouchableOpacity,
-  Text,
 } from "react-native";
 import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
-import {
-  Home,
-  User,
-  Bike,
-  Flame,
-  Zap,
-} from "lucide-react-native";
+import { Home, User, Bike, Flame, Zap } from "lucide-react-native";
 
 import { useTheme } from "@/theme";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
@@ -25,6 +18,7 @@ import { StyleSheet } from "react-native";
 import { UserSettings } from "@/types/models";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { AppText } from "@/components/shared/AppText";
 
 export default function Step2ActivityLevelScreen() {
   const { colors, theme: themeObj } = useTheme();
@@ -33,7 +27,9 @@ export default function Step2ActivityLevelScreen() {
   const { safePush } = useNavigationGuard();
   const { back } = useRouter();
   const router = useRouter();
-  const [selectedActivity, setSelectedActivity] = useState<UserSettings["activityLevel"] | undefined>();
+  const [selectedActivity, setSelectedActivity] = useState<
+    UserSettings["activityLevel"] | undefined
+  >();
 
   const handleCancel = () => {
     router.dismissTo("/");
@@ -56,14 +52,11 @@ export default function Step2ActivityLevelScreen() {
     }, 300);
   };
 
-
   const activityLevels = Object.values(ACTIVITY_LEVELS);
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <GradientWrapper style={styles.container}>
-        <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
-        
         {/* Content */}
         <ScrollView
           style={styles.content}
@@ -72,11 +65,15 @@ export default function Step2ActivityLevelScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.textSection}>
-            <Text style={styles.subtitle}>Choose your activity level</Text>
-            <Text style={styles.description}>
+            <AppText role="Title2">Choose your activity level</AppText>
+            <AppText
+              role="Body"
+              color="secondary"
+              style={{ textAlign: "center" }}
+            >
               Select the option that best matches your lifestyle and exercise
               routine.
-            </Text>
+            </AppText>
           </View>
 
           <View style={styles.methodsSection}>
@@ -124,7 +121,7 @@ type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
 
 const createStyles = (colors: Colors, themeObj: Theme) => {
-  const { spacing, typography } = themeObj;
+  const { spacing } = themeObj;
 
   return StyleSheet.create({
     container: {
@@ -134,6 +131,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     content: {
       flex: 1,
+      paddingTop: spacing.xxl + spacing.xl,
     },
     scrollContent: {
       paddingHorizontal: spacing.pageMargins.horizontal,
@@ -141,20 +139,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     textSection: {
       marginBottom: spacing.xl,
-    },
-    subtitle: {
-      fontSize: typography.Title2.fontSize,
-      fontFamily: typography.Title2.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
-      marginBottom: spacing.md,
-    },
-    description: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-      textAlign: "center",
-      lineHeight: 22,
+      alignItems: "center",
     },
     methodsSection: {
       marginBottom: spacing.lg,

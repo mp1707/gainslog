@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { Colors, Theme, useTheme } from "@/theme";
@@ -7,6 +7,7 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { Button } from "@/components/index";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { AppText } from "@/components/shared/AppText";
 import { Picker } from "@react-native-picker/picker";
 
 const AgeSelectionScreen = () => {
@@ -39,10 +40,10 @@ const AgeSelectionScreen = () => {
     <GradientWrapper style={styles.container}>
       <View style={styles.content}>
         <View style={styles.textSection}>
-          <Text style={styles.subtitle}>How old are you?</Text>
-          <Text style={styles.description}>
+          <AppText role="Title2">How old are you?</AppText>
+          <AppText role="Body" color="secondary">
             Your age helps us calculate your calorie needs.
-          </Text>
+          </AppText>
         </View>
 
         <View style={styles.pickerSection}>
@@ -54,10 +55,13 @@ const AgeSelectionScreen = () => {
                 itemStyle={{ color: colors.primaryText }}
               >
                 {ageOptions.map((age) => (
-                  <Picker.Item key={age} label={`${age} years`} value={age} />
+                  <Picker.Item key={age} label={age.toString()} value={age} />
                 ))}
               </Picker>
             </View>
+            <AppText role="Headline" style={styles.unitText}>
+              years
+            </AppText>
           </View>
         </View>
 
@@ -80,7 +84,7 @@ const AgeSelectionScreen = () => {
 export default AgeSelectionScreen;
 
 const createStyles = (colors: Colors, theme: Theme) => {
-  const { spacing, typography } = theme;
+  const { spacing } = theme;
   return StyleSheet.create({
     container: {
       flex: 1,
@@ -89,24 +93,13 @@ const createStyles = (colors: Colors, theme: Theme) => {
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.xl,
+      paddingTop: spacing.xxl + spacing.xl,
+
       gap: spacing.xl,
     },
     textSection: {
       gap: spacing.sm,
       alignItems: "center",
-    },
-    subtitle: {
-      fontSize: typography.Title2.fontSize,
-      fontFamily: typography.Title2.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
-    },
-    description: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-      textAlign: "center",
     },
     pickerSection: {
       alignItems: "center",
@@ -114,6 +107,7 @@ const createStyles = (colors: Colors, theme: Theme) => {
     pickerArea: {
       flexDirection: "row",
       justifyContent: "space-between",
+      alignItems: "center",
       backgroundColor: colors.primaryBackground,
       borderRadius: theme.components.cards.cornerRadius,
       minWidth: 200,
@@ -124,8 +118,11 @@ const createStyles = (colors: Colors, theme: Theme) => {
       overflow: "hidden",
       backgroundColor: "transparent",
     },
+    unitText: {
+      paddingRight: spacing.md,
+    },
     spacer: {
-      flex: 1
+      flex: 1,
     },
     buttonSection: {
       paddingBottom: spacing.xl,

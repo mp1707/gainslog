@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   Animated,
   TextInput,
 } from "react-native";
+import { AppText } from "@/components/shared/AppText";
 import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
@@ -234,7 +234,7 @@ const SummaryScreen = () => {
     <GradientWrapper style={styles.container}>
       {/* Title */}
       <View style={styles.titleSection}>
-        <Text style={styles.title}>Your Daily Blueprint</Text>
+        <AppText role="Title2">Your Daily Blueprint</AppText>
       </View>
 
       <View style={styles.content}>
@@ -264,7 +264,7 @@ const SummaryScreen = () => {
                         color={target.color}
                         strokeWidth={2}
                       />
-                      <Text style={styles.targetLabel}>{target.label}</Text>
+                      <AppText role="Body">{target.label}</AppText>
                     </View>
 
                     <View style={styles.targetRight}>
@@ -281,17 +281,17 @@ const SummaryScreen = () => {
                             placeholder="0"
                             placeholderTextColor={colors.secondaryText}
                           />
-                          <Text style={styles.inputUnit}>{target.unit}</Text>
+                          <AppText role="Body" color="secondary">{target.unit}</AppText>
                         </View>
                       ) : (
                         <View style={styles.targetValueContainer}>
-                          <Text style={styles.targetValue}>
+                          <AppText role="Headline">
                             {target.value} {target.unit}
-                          </Text>
+                          </AppText>
                           {target.percentage && (
-                            <Text style={styles.targetPercentage}>
+                            <AppText role="Caption" color="secondary">
                               ({target.percentage})
-                            </Text>
+                            </AppText>
                           )}
                         </View>
                       )}
@@ -312,7 +312,7 @@ const SummaryScreen = () => {
                 {/* Error Message */}
                 {hasError && (
                   <View style={styles.errorContainer}>
-                    <Text style={styles.errorText}>{target.error}</Text>
+                    <AppText role="Caption" style={{ color: colors.error }}>{target.error}</AppText>
                   </View>
                 )}
 
@@ -326,11 +326,11 @@ const SummaryScreen = () => {
                   >
                     <View style={styles.sliderContent}>
                       <View style={styles.sliderLabels}>
-                        <Text style={styles.sliderLabelText}>20%</Text>
-                        <Text style={styles.sliderValueText}>
+                        <AppText role="Caption" color="secondary">20%</AppText>
+                        <AppText role="Body">
                           {fatPercentage}% of calories
-                        </Text>
-                        <Text style={styles.sliderLabelText}>45%</Text>
+                        </AppText>
+                        <AppText role="Caption" color="secondary">45%</AppText>
                       </View>
                       <Slider
                         style={styles.slider}
@@ -354,17 +354,17 @@ const SummaryScreen = () => {
         {/* Manual Override Toggle */}
         <View style={styles.toggleSection}>
           <TouchableOpacity onPress={handleToggleManualMode} style={styles.toggleButton}>
-            <Text style={styles.toggleText}>
+            <AppText role="Body" style={{ color: colors.primaryBackground, fontWeight: "600" }}>
               {isManualMode ? "Use Calculator" : "Manual Override"}
-            </Text>
+            </AppText>
           </TouchableOpacity>
         </View>
 
         {/* Informational Footer */}
         <View style={styles.infoSection}>
-          <Text style={styles.infoText}>
-            <Text style={styles.infoLabel}>Tip:</Text> Your fat target is set to a balanced {fatPercentage}%. Tap to adjust. Carbohydrates are automatically calculated from your remaining calories.
-          </Text>
+          <AppText role="Caption" color="secondary" style={{ textAlign: "center", lineHeight: 18 }}>
+            <AppText role="Caption" style={{ fontWeight: "600", color: colors.primaryText }}>Tip:</AppText> Your fat target is set to a balanced {fatPercentage}%. Tap to adjust. Carbohydrates are automatically calculated from your remaining calories.
+          </AppText>
         </View>
 
         <View style={styles.spacer} />
@@ -389,7 +389,7 @@ type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
 
 const createStyles = (colors: Colors, theme: Theme) => {
-  const { spacing, typography } = theme;
+  const { spacing } = theme;
 
   return StyleSheet.create({
     container: {
@@ -399,12 +399,8 @@ const createStyles = (colors: Colors, theme: Theme) => {
     titleSection: {
       paddingHorizontal: spacing.pageMargins.horizontal,
       paddingBottom: spacing.md,
-    },
-    title: {
-      fontSize: typography.Title2.fontSize,
-      fontFamily: typography.Title2.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
+      alignItems:"center",
+      paddingTop: spacing.xxl + spacing.xl,
     },
     content: {
       flex: 1,
@@ -438,11 +434,6 @@ const createStyles = (colors: Colors, theme: Theme) => {
       alignItems: "center",
       gap: spacing.md,
     },
-    targetLabel: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.primaryText,
-    },
     targetRight: {
       flexDirection: "row",
       alignItems: "center",
@@ -450,16 +441,6 @@ const createStyles = (colors: Colors, theme: Theme) => {
     },
     targetValueContainer: {
       alignItems: "flex-end",
-    },
-    targetValue: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      color: colors.primaryText,
-    },
-    targetPercentage: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
-      color: colors.secondaryText,
     },
     chevron: {
       transform: [{ rotate: "0deg" }],
@@ -483,33 +464,11 @@ const createStyles = (colors: Colors, theme: Theme) => {
       alignItems: "center",
       marginBottom: spacing.sm,
     },
-    sliderLabelText: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
-      color: colors.secondaryText,
-    },
-    sliderValueText: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.primaryText,
-      fontWeight: "600",
-    },
     slider: {
       height: 30,
     },
     infoSection: {
       paddingHorizontal: spacing.sm,
-    },
-    infoText: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
-      color: colors.secondaryText,
-      lineHeight: typography.Caption.fontSize * 1.4,
-      textAlign: "center",
-    },
-    infoLabel: {
-      fontWeight: "600",
-      color: colors.primaryText,
     },
     spacer: {
       flex: 1,
@@ -527,20 +486,13 @@ const createStyles = (colors: Colors, theme: Theme) => {
       gap: spacing.xs,
     },
     targetInput: {
-      fontSize: typography.Headline.fontSize,
-      fontFamily: typography.Headline.fontFamily,
-      color: colors.primaryText,
       minWidth: 60,
       textAlign: "right",
       backgroundColor: "transparent",
+      color: colors.primaryText,
     },
     targetInputError: {
       color: colors.error,
-    },
-    inputUnit: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
     },
     toggleSection: {
       alignItems: "center",
@@ -551,20 +503,9 @@ const createStyles = (colors: Colors, theme: Theme) => {
       backgroundColor: colors.accent,
       borderRadius: 8,
     },
-    toggleText: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.primaryBackground,
-      fontWeight: "600",
-    },
     errorContainer: {
       paddingHorizontal: spacing.md,
       paddingTop: spacing.xs,
-    },
-    errorText: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
-      color: colors.error,
     },
   });
 };

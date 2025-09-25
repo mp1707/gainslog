@@ -1,11 +1,6 @@
 import React, { useMemo } from "react";
-import {
-  View,
-  ScrollView,
-  KeyboardAvoidingView,
-  Text,
-  Alert,
-} from "react-native";
+import { View, ScrollView, KeyboardAvoidingView, Alert } from "react-native";
+import { AppText } from "@/components/shared/AppText";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
 import {
@@ -124,14 +119,22 @@ export default function ProteinGoalsScreen() {
 
   const proteinGoals = useMemo(() => {
     return {
-      daily_maintenance: Math.round(currentWeight * METHODS.daily_maintenance.factor),
-      active_lifestyle: Math.round(currentWeight * METHODS.active_lifestyle.factor),
+      daily_maintenance: Math.round(
+        currentWeight * METHODS.daily_maintenance.factor
+      ),
+      active_lifestyle: Math.round(
+        currentWeight * METHODS.active_lifestyle.factor
+      ),
       optimal_growth: Math.round(currentWeight * METHODS.optimal_growth.factor),
-      dedicated_athlete: Math.round(currentWeight * METHODS.dedicated_athlete.factor),
+      dedicated_athlete: Math.round(
+        currentWeight * METHODS.dedicated_athlete.factor
+      ),
       anabolic_insurance: Math.round(
         currentWeight * METHODS.anabolic_insurance.factor
       ),
-      max_preservation: Math.round(currentWeight * METHODS.max_preservation.factor),
+      max_preservation: Math.round(
+        currentWeight * METHODS.max_preservation.factor
+      ),
     };
   }, [currentWeight]);
 
@@ -152,8 +155,6 @@ export default function ProteinGoalsScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <GradientWrapper style={styles.container}>
-        <ModalHeader handleBack={handleBack} handleCancel={handleCancel} />
-
         {/* Content */}
         <ScrollView
           style={styles.content}
@@ -162,13 +163,17 @@ export default function ProteinGoalsScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.textSection}>
-            <Text style={styles.subtitle}>Choose your protein goal</Text>
-            <Text style={styles.description}>
+            <AppText role="Title2">Choose your protein goal</AppText>
+            <AppText
+              role="Body"
+              color="secondary"
+              style={{ textAlign: "center" }}
+            >
               Select the option that best matches your training and goals.
-            </Text>
-            <Text style={styles.weightInfo}>
+            </AppText>
+            <AppText role="Body" color="secondary">
               Based on your weight of {weight}kg
-            </Text>
+            </AppText>
           </View>
 
           <View style={styles.methodsSection}>
@@ -200,10 +205,10 @@ export default function ProteinGoalsScreen() {
 
           {/* Footer Note */}
           <View style={styles.footer}>
-            <Text style={styles.footerNote}>
+            <AppText role="Caption" color="secondary">
               These recommendations are general guidelines. Consult with a
               nutritionist or healthcare provider for personalized advice.
-            </Text>
+            </AppText>
           </View>
         </ScrollView>
       </GradientWrapper>
@@ -215,7 +220,7 @@ type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
 
 const createStyles = (colors: Colors, themeObj: Theme) => {
-  const { spacing, typography } = themeObj;
+  const { spacing } = themeObj;
 
   return StyleSheet.create({
     container: {
@@ -227,18 +232,12 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       justifyContent: "center",
       alignItems: "center",
     },
-    errorText: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.error,
-      textAlign: "center",
-      marginBottom: spacing.lg,
-    },
     backButton: {
       minWidth: 120,
     },
     content: {
       flex: 1,
+      paddingTop: spacing.xxl + spacing.xl,
     },
     scrollContent: {
       paddingHorizontal: spacing.pageMargins.horizontal,
@@ -246,28 +245,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     textSection: {
       marginBottom: spacing.xl,
-    },
-    subtitle: {
-      fontSize: typography.Title2.fontSize,
-      fontFamily: typography.Title2.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
-      marginBottom: spacing.md,
-    },
-    description: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-      textAlign: "center",
-      lineHeight: 22,
-      marginBottom: spacing.sm,
-    },
-    weightInfo: {
-      fontSize: typography.Subhead.fontSize,
-      fontFamily: typography.Subhead.fontFamily,
-      color: colors.accent,
-      textAlign: "center",
-      fontWeight: "600",
+      alignItems: "center",
     },
     methodsSection: {
       marginBottom: spacing.lg,
@@ -278,13 +256,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       paddingTop: spacing.lg,
       borderTopWidth: 1,
       borderTopColor: colors.border,
-    },
-    footerNote: {
-      fontSize: typography.Caption.fontSize,
-      fontFamily: typography.Caption.fontFamily,
-      color: colors.secondaryText,
-      textAlign: "center",
-      lineHeight: 18,
     },
   });
 };

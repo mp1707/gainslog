@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
@@ -7,14 +7,18 @@ import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { Button } from "@/components/index";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { AppText } from "@/components/shared/AppText";
 import { Picker } from "@react-native-picker/picker";
 
 const WeightSelectionScreen = () => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
-  const { weight: storedWeight, setWeight: setStoredWeight } = useOnboardingStore();
+  const { weight: storedWeight, setWeight: setStoredWeight } =
+    useOnboardingStore();
   const { safePush } = useNavigationGuard();
-  const [selectedWeight, setSelectedWeight] = useState<number>(storedWeight || 70);
+  const [selectedWeight, setSelectedWeight] = useState<number>(
+    storedWeight || 70
+  );
 
   // Create weight options array
   const weightOptions = useMemo(() => {
@@ -39,10 +43,14 @@ const WeightSelectionScreen = () => {
     <GradientWrapper style={styles.container}>
       <View style={styles.content}>
         <View style={styles.textSection}>
-          <Text style={styles.subtitle}>What's your weight?</Text>
-          <Text style={styles.description}>
+          <AppText role="Title2">What's your weight?</AppText>
+          <AppText
+            role="Body"
+            color="secondary"
+            style={{ textAlign: "center" }}
+          >
             Your weight is important for calculating your calorie needs.
-          </Text>
+          </AppText>
         </View>
 
         <View style={styles.pickerSection}>
@@ -54,10 +62,17 @@ const WeightSelectionScreen = () => {
                 itemStyle={{ color: colors.primaryText }}
               >
                 {weightOptions.map((weight) => (
-                  <Picker.Item key={weight} label={`${weight} kg`} value={weight} />
+                  <Picker.Item
+                    key={weight}
+                    label={weight.toString()}
+                    value={weight}
+                  />
                 ))}
               </Picker>
             </View>
+            <AppText role="Headline" style={styles.unitText}>
+              kg
+            </AppText>
           </View>
         </View>
 
@@ -80,7 +95,7 @@ const WeightSelectionScreen = () => {
 export default WeightSelectionScreen;
 
 const createStyles = (colors: any, themeObj: any) => {
-  const { spacing, typography } = themeObj;
+  const { spacing } = themeObj;
   return StyleSheet.create({
     container: {
       flex: 1,
@@ -89,24 +104,12 @@ const createStyles = (colors: any, themeObj: any) => {
     content: {
       flex: 1,
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingTop: spacing.xl,
+      paddingTop: spacing.xxl + spacing.xl,
       gap: spacing.xl,
     },
     textSection: {
       gap: spacing.sm,
       alignItems: "center",
-    },
-    subtitle: {
-      fontSize: typography.Title2.fontSize,
-      fontFamily: typography.Title2.fontFamily,
-      color: colors.primaryText,
-      textAlign: "center",
-    },
-    description: {
-      fontSize: typography.Body.fontSize,
-      fontFamily: typography.Body.fontFamily,
-      color: colors.secondaryText,
-      textAlign: "center",
     },
     pickerSection: {
       alignItems: "center",
@@ -114,6 +117,7 @@ const createStyles = (colors: any, themeObj: any) => {
     pickerArea: {
       flexDirection: "row",
       justifyContent: "space-between",
+      alignItems: "center",
       backgroundColor: colors.primaryBackground,
       borderRadius: themeObj.components.cards.cornerRadius,
       minWidth: 200,
@@ -124,8 +128,11 @@ const createStyles = (colors: any, themeObj: any) => {
       overflow: "hidden",
       backgroundColor: "transparent",
     },
+    unitText: {
+      paddingRight: spacing.md,
+    },
     spacer: {
-      flex: 1
+      flex: 1,
     },
     buttonSection: {
       paddingBottom: spacing.xl,
