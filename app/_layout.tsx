@@ -2,13 +2,10 @@ import { Stack } from "expo-router";
 import { ThemeProvider, useTheme } from "@/theme";
 import React, { useEffect } from "react";
 import { useFonts } from "../src/hooks/useFonts";
-import { View, Text, ActivityIndicator, Platform } from "react-native";
-import { theme } from "../src/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { HudNotification } from "@/components/shared/HudNotification";
-import Purchases, { LOG_LEVEL } from "react-native-purchases";
 import * as SplashScreen from "expo-splash-screen";
 import {
   NavigationTransitionProvider,
@@ -19,7 +16,6 @@ function ThemedStack() {
   const { colors, isThemeLoaded } = useTheme();
   const { fontsLoaded } = useFonts();
   const { setTransitioning } = useNavigationTransition();
-  const dailyTargets = useAppStore((state) => state.dailyTargets);
 
   useEffect(() => {
     if (fontsLoaded && isThemeLoaded) {
@@ -115,20 +111,18 @@ function ThemedStack() {
           gestureEnabled: false,
         }}
       />
-      {!dailyTargets && (
-        <Stack.Screen
-          name="onboarding"
-          options={{
-            presentation: "modal",
-            headerShown: false,
-            contentStyle: {
-              borderRadius: "10%",
-              overflow: "hidden",
-            },
-            gestureEnabled: false,
-          }}
-        />
-      )}
+      <Stack.Screen
+        name="onboarding"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+          contentStyle: {
+            borderRadius: "10%",
+            overflow: "hidden",
+          },
+          gestureEnabled: false,
+        }}
+      />
     </Stack>
   );
 }
