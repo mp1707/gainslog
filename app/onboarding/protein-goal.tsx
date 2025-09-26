@@ -156,14 +156,10 @@ export default function ProteinGoalsScreen() {
     <OnboardingScreen>
       <View style={styles.textSection}>
         <AppText role="Title2">Set Your Protein Target</AppText>
-        <AppText
-          role="Body"
-          color="secondary"
-          style={{ textAlign: "center" }}
-        >
+        <AppText role="Body" color="secondary" style={styles.secondaryText}>
           Choose a target based on your training intensity.
         </AppText>
-        <AppText role="Body" color="secondary" style={{ textAlign: "center" }}>
+        <AppText role="Body" color="secondary" style={styles.secondaryText}>
           Based on your weight of {weight}kg
         </AppText>
       </View>
@@ -197,7 +193,7 @@ export default function ProteinGoalsScreen() {
 
       {/* Footer Note */}
       <View style={styles.footer}>
-        <AppText role="Caption" color="secondary" style={{ textAlign: "center" }}>
+        <AppText role="Caption" color="secondary" style={styles.secondaryText}>
           These recommendations are general guidelines. Consult with a
           nutritionist or healthcare provider for personalized advice.
         </AppText>
@@ -217,6 +213,11 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       marginBottom: spacing.xl,
       alignItems: "center",
       gap: spacing.sm,
+    },
+    secondaryText: {
+      textAlign: "center",
+      maxWidth: "75%",
+      alignSelf: "center",
     },
     methodsSection: {
       marginBottom: spacing.lg,

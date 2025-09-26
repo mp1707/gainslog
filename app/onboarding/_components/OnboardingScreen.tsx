@@ -30,9 +30,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
         </ScrollView>
 
         {actionButton && (
-          <View style={styles.actionButtonContainer}>
-            {actionButton}
-          </View>
+          <View style={styles.actionButtonContainer}>{actionButton}</View>
         )}
       </View>
     </GradientWrapper>
@@ -49,6 +47,7 @@ const createStyles = (colors: Colors, theme: Theme, bottomInset: number) => {
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
+      paddingTop: spacing.md,
     },
     content: {
       flex: 1,
@@ -58,13 +57,13 @@ const createStyles = (colors: Colors, theme: Theme, bottomInset: number) => {
     },
     scrollContent: {
       flexGrow: 1,
-      justifyContent: 'center',
+      justifyContent: "center",
       paddingHorizontal: spacing.pageMargins.horizontal,
       paddingVertical: spacing.xl,
-      minHeight: '100%',
+      minHeight: "100%",
     },
     actionButtonContainer: {
-      position: 'absolute',
+      position: "absolute",
       bottom: Math.max(bottomInset, spacing.lg),
       left: spacing.pageMargins.horizontal,
       right: spacing.pageMargins.horizontal,

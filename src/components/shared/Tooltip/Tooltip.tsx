@@ -21,8 +21,6 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
-import MaskedView from "@react-native-masked-view/masked-view";
-import { Canvas, Path, Skia } from "@shopify/react-native-skia";
 import { AppText } from "@/components/shared/AppText";
 
 interface TooltipProps {
@@ -38,8 +36,7 @@ interface TriggerFrame {
 }
 
 const SCREEN_MARGIN = 12;
-const CARET_HEIGHT = 8;
-const CARET_WIDTH = 16;
+const TOOLTIP_SPACING = 8;
 const CORNER_RADIUS = 14;
 const PADDING_HORIZONTAL = 16;
 const PADDING_VERTICAL = 12;
@@ -48,7 +45,6 @@ const SPRING_CONFIG = {
   mass: 0.45,
   stiffness: 190,
 };
-const CARET_GAP = 4;
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
@@ -114,11 +110,9 @@ export const Tooltip: React.FC<TooltipProps> = ({ text, children }) => {
     }
 
     if (isVisible) {
-      // Spring in with a slight scale-up to mimic iOS popovers.
       scale.value = withSpring(1, SPRING_CONFIG);
       opacity.value = withTiming(1, { duration: 160, easing: Easing.out(Easing.ease) });
     } else {
-      // Fade and scale down before unmounting.
       scale.value = withTiming(0.95, { duration: 120, easing: Easing.in(Easing.ease) });
       opacity.value = withTiming(0, { duration: 120, easing: Easing.in(Easing.ease) });
     }
@@ -140,127 +134,47 @@ export const Tooltip: React.FC<TooltipProps> = ({ text, children }) => {
     }
 
     const maxWidth = windowWidth - SCREEN_MARGIN * 2;
-    const bodyWidth = Math.min(contentSize.width, maxWidth);
-    const bodyHeight = contentSize.height;
-
-    const totalHeight = bodyHeight + CARET_HEIGHT;
+    const width = Math.min(contentSize.width, maxWidth);
+    const height = contentSize.height;
 
     const triggerCenterX = triggerFrame.x + triggerFrame.width / 2;
+    const triggerTop = triggerFrame.y;
+    const triggerBottom = triggerFrame.y + triggerFrame.height;
 
-    // Decide whether to show above or below the trigger based on available space.
-    const anchorY = triggerFrame.y + triggerFrame.height / 2;
+    const spaceAbove = triggerTop - SCREEN_MARGIN;
+    const spaceBelow = windowHeight - triggerBottom - SCREEN_MARGIN;
 
-    const spaceAbove = anchorY - SCREEN_MARGIN;
-    const spaceBelow = windowHeight - anchorY - SCREEN_MARGIN;
-    const shouldDisplayAbove = spaceBelow < totalHeight && spaceAbove > spaceBelow;
+    const shouldDisplayAbove = spaceBelow < height + TOOLTIP_SPACING && spaceAbove > spaceBelow;
 
     let top: number;
-    let caretDirection: "up" | "down";
     if (shouldDisplayAbove) {
-      caretDirection = "down";
-      const caretTipTargetY = anchorY - CARET_GAP;
-      top = Math.max(SCREEN_MARGIN, caretTipTargetY - totalHeight);
+      top = Math.max(SCREEN_MARGIN, triggerTop - height - TOOLTIP_SPACING);
     } else {
-      caretDirection = "up";
-      const caretTipTargetY = anchorY + CARET_GAP;
       top = Math.min(
-        windowHeight - totalHeight - SCREEN_MARGIN,
-        caretTipTargetY - CARET_HEIGHT
+        windowHeight - height - SCREEN_MARGIN,
+        triggerBottom + TOOLTIP_SPACING
       );
     }
 
-    let left = triggerCenterX - bodyWidth / 2;
-    left = clamp(left, SCREEN_MARGIN, windowWidth - bodyWidth - SCREEN_MARGIN);
-
-    const caretOffsetRaw = triggerCenterX - left;
-    const caretOffset = clamp(
-      caretOffsetRaw,
-      CORNER_RADIUS + CARET_WIDTH / 2,
-      bodyWidth - CORNER_RADIUS - CARET_WIDTH / 2
-    );
+    let left = triggerCenterX - width / 2;
+    left = clamp(left, SCREEN_MARGIN, windowWidth - width - SCREEN_MARGIN);
 
     return {
       top,
       left,
-      width: bodyWidth,
-      bodyHeight,
-      totalHeight,
-      caretOffset,
-      caretDirection,
+      width,
     };
   }, [contentSize, triggerFrame, windowHeight, windowWidth]);
-
-  const tooltipPath = useMemo(() => {
-    if (!tooltipGeometry) {
-      return null;
-    }
-
-    const {
-      width,
-      bodyHeight,
-      caretOffset,
-      caretDirection,
-    } = tooltipGeometry;
-
-    const path = Skia.Path.Make();
-
-    if (caretDirection === "down") {
-      // Tooltip renders above the trigger, so caret points downward from the bottom edge.
-      path.moveTo(CORNER_RADIUS, 0);
-      path.lineTo(width - CORNER_RADIUS, 0);
-      path.quadTo(width, 0, width, CORNER_RADIUS);
-      path.lineTo(width, bodyHeight - CORNER_RADIUS);
-      path.quadTo(width, bodyHeight, width - CORNER_RADIUS, bodyHeight);
-      path.lineTo(caretOffset + CARET_WIDTH / 2, bodyHeight);
-      path.lineTo(caretOffset, bodyHeight + CARET_HEIGHT);
-      path.lineTo(caretOffset - CARET_WIDTH / 2, bodyHeight);
-      path.lineTo(CORNER_RADIUS, bodyHeight);
-      path.quadTo(0, bodyHeight, 0, bodyHeight - CORNER_RADIUS);
-      path.lineTo(0, CORNER_RADIUS);
-      path.quadTo(0, 0, CORNER_RADIUS, 0);
-    } else {
-      // Tooltip renders below the trigger, so caret sits on the top edge pointing upward.
-      const bodyTop = CARET_HEIGHT;
-      const bodyBottom = CARET_HEIGHT + bodyHeight;
-
-      path.moveTo(CORNER_RADIUS, bodyTop);
-      path.lineTo(caretOffset - CARET_WIDTH / 2, bodyTop);
-      path.lineTo(caretOffset, 0);
-      path.lineTo(caretOffset + CARET_WIDTH / 2, bodyTop);
-      path.lineTo(width - CORNER_RADIUS, bodyTop);
-      path.quadTo(width, bodyTop, width, bodyTop + CORNER_RADIUS);
-      path.lineTo(width, bodyBottom - CORNER_RADIUS);
-      path.quadTo(width, bodyBottom, width - CORNER_RADIUS, bodyBottom);
-      path.lineTo(CORNER_RADIUS, bodyBottom);
-      path.quadTo(0, bodyBottom, 0, bodyBottom - CORNER_RADIUS);
-      path.lineTo(0, bodyTop + CORNER_RADIUS);
-      path.quadTo(0, bodyTop, CORNER_RADIUS, bodyTop);
-    }
-
-    path.close();
-    return path;
-  }, [tooltipGeometry]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
     transform: [{ scale: scale.value }],
   }));
 
-  const contentPositionStyle = useMemo(() => {
-    if (!tooltipGeometry) {
-      return null;
-    }
-
-    return tooltipGeometry.caretDirection === "up"
-      ? {
-          top: CARET_HEIGHT,
-          bottom: 0,
-        }
-      : {
-          top: 0,
-          bottom: CARET_HEIGHT,
-        };
-  }, [tooltipGeometry]);
+  const contentStyle = useMemo(
+    () => [styles.content, { maxWidth: windowWidth - SCREEN_MARGIN * 2 }],
+    [windowWidth]
+  );
 
   return (
     <View ref={triggerRef} collapsable={false}>
@@ -282,7 +196,7 @@ export const Tooltip: React.FC<TooltipProps> = ({ text, children }) => {
             onPress={closeTooltip}
           />
 
-          {tooltipGeometry && tooltipPath ? (
+          {tooltipGeometry ? (
             <Animated.View
               pointerEvents="box-none"
               style={[
@@ -291,42 +205,12 @@ export const Tooltip: React.FC<TooltipProps> = ({ text, children }) => {
                 animatedStyle,
               ]}
             >
-              <View
-                style={{
-                  width: tooltipGeometry.width,
-                  height: tooltipGeometry.totalHeight,
-                }}
-              >
-                <MaskedView
-                  style={StyleSheet.absoluteFill}
-                  maskElement={
-                    <Canvas
-                      style={{
-                        width: tooltipGeometry.width,
-                        height: tooltipGeometry.totalHeight,
-                      }}
-                    >
-                      <Path path={tooltipPath} color="white" />
-                    </Canvas>
-                  }
-                >
-                  {/* BlurView lends the frosted glass effect expected from native popovers. */}
-                  <BlurView tint="dark" intensity={50} style={StyleSheet.absoluteFill} />
-                  <View
-                    style={[
-                      StyleSheet.absoluteFill,
-                      { backgroundColor: "rgba(15, 15, 15, 0.6)" },
-                    ]}
-                  />
-                </MaskedView>
-
+              <View style={styles.background}>
+                <BlurView tint="dark" intensity={50} style={StyleSheet.absoluteFill} />
+                <View style={[StyleSheet.absoluteFill, styles.backdrop]} />
                 <View
                   onLayout={handleContentLayout}
-                  style={[
-                    styles.content,
-                    { maxWidth: windowWidth - SCREEN_MARGIN * 2 },
-                    contentPositionStyle ?? undefined,
-                  ]}
+                  style={contentStyle}
                 >
                   <AppText role="Subhead" color="white" style={styles.text}>
                     {text}
@@ -335,15 +219,8 @@ export const Tooltip: React.FC<TooltipProps> = ({ text, children }) => {
               </View>
             </Animated.View>
           ) : (
-            // Render once off-screen so we can measure the content size before positioning.
             <View style={styles.measureContainer} pointerEvents="none">
-              <View
-                onLayout={handleContentLayout}
-                style={[
-                  styles.content,
-                  { maxWidth: windowWidth - SCREEN_MARGIN * 2 },
-                ]}
-              >
+              <View onLayout={handleContentLayout} style={contentStyle}>
                 <AppText role="Subhead" color="white" style={styles.text}>
                   {text}
                 </AppText>
@@ -366,8 +243,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 12 },
     elevation: 8,
   },
+  background: {
+    borderRadius: CORNER_RADIUS,
+    overflow: "hidden",
+  },
+  backdrop: {
+    backgroundColor: "rgba(15, 15, 15, 0.6)",
+  },
   content: {
-    position: "absolute",
     paddingHorizontal: PADDING_HORIZONTAL,
     paddingVertical: PADDING_VERTICAL,
     justifyContent: "center",

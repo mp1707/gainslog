@@ -244,7 +244,7 @@ const SummaryScreen = () => {
       {/* Title */}
       <View style={styles.titleSection}>
         <AppText role="Title2">Your Daily Blueprint</AppText>
-        <AppText role="Body" color="secondary" style={{ textAlign: "center" }}>
+        <AppText role="Body" color="secondary" style={styles.secondaryText}>
           Here are your starting targets. You can adjust these anytime.
         </AppText>
       </View>
@@ -372,7 +372,11 @@ const SummaryScreen = () => {
 
         {/* Informational Footer */}
         <View style={styles.infoSection}>
-          <AppText role="Caption" color="secondary" style={{ textAlign: "center", lineHeight: 18 }}>
+          <AppText
+            role="Caption"
+            color="secondary"
+            style={[styles.secondaryText, { lineHeight: 18 }]}
+          >
             Tip: Fat is defaulted to 30% and can be adjusted. Carbs are calculated from the remainder.
           </AppText>
         </View>
@@ -391,8 +395,14 @@ const createStyles = (colors: Colors, theme: Theme) => {
 
   return StyleSheet.create({
     titleSection: {
-      alignItems:"center",
+      alignItems: "center",
       marginBottom: spacing.xl,
+      gap: spacing.xs,
+    },
+    secondaryText: {
+      textAlign: "center",
+      maxWidth: "75%",
+      alignSelf: "center",
     },
     targetsSection: {
       gap: spacing.sm,

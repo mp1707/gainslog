@@ -65,7 +65,7 @@ export default function Step3GoalsScreen() {
         }
       >
         <View style={{ alignItems: "center", gap: 16 }}>
-          <AppText role="Body" color="secondary">
+          <AppText role="Body" color="secondary" style={styles.secondaryText}>
             Missing calculation data. Please start over.
           </AppText>
         </View>
@@ -77,7 +77,7 @@ export default function Step3GoalsScreen() {
     <OnboardingScreen>
       <View style={styles.textSection}>
         <AppText role="Title2">What's the objective?</AppText>
-        <AppText role="Body" color="secondary" style={{ textAlign: "center" }}>
+        <AppText role="Body" color="secondary" style={styles.secondaryText}>
           Based on your data, here are three starting points.
         </AppText>
       </View>
@@ -134,7 +134,7 @@ export default function Step3GoalsScreen() {
 
       {/* Footer Note */}
       <View style={styles.footer}>
-        <AppText role="Caption" color="secondary" style={{ textAlign: "center" }}>
+        <AppText role="Caption" color="secondary" style={styles.secondaryText}>
           These recommendations are general guidelines based on the
           Mifflin-St Jeor equation. Consult with a nutritionist or
           healthcare provider for personalized advice.
@@ -154,6 +154,11 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     textSection: {
       alignItems: "center",
       marginBottom: spacing.xl,
+    },
+    secondaryText: {
+      textAlign: "center",
+      maxWidth: "75%",
+      alignSelf: "center",
     },
     goalsSection: {
       gap: spacing.md,

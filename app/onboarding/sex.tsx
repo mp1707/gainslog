@@ -49,11 +49,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
     <OnboardingScreen>
       <View style={styles.textSection}>
         <AppText role="Title2">Biological Sex</AppText>
-        <AppText
-          role="Body"
-          color="secondary"
-          style={{ textAlign: "center" }}
-        >
+        <AppText role="Body" color="secondary" style={styles.secondaryText}>
           To refine your metabolic calculation.
         </AppText>
       </View>
@@ -97,6 +93,11 @@ const createStyles = (theme: Theme) => {
       gap: spacing.sm,
       alignItems: "center",
       marginBottom: spacing.xl,
+    },
+    secondaryText: {
+      textAlign: "center",
+      maxWidth: "75%",
+      alignSelf: "center",
     },
     selectionSection: {
       gap: spacing.md,

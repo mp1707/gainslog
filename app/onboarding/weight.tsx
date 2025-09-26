@@ -50,11 +50,7 @@ const WeightSelectionScreen = () => {
     >
       <View style={styles.textSection}>
         <AppText role="Title2">What's your current weight?</AppText>
-        <AppText
-          role="Body"
-          color="secondary"
-          style={{ textAlign: "center" }}
-        >
+        <AppText role="Body" color="secondary" style={styles.secondaryText}>
           This sets the starting point for your goals.
         </AppText>
       </View>
@@ -94,6 +90,11 @@ const createStyles = (colors: any, themeObj: any) => {
       gap: spacing.sm,
       alignItems: "center",
       marginBottom: spacing.xl,
+    },
+    secondaryText: {
+      textAlign: "center",
+      maxWidth: "75%",
+      alignSelf: "center",
     },
     pickerSection: {
       alignItems: "center",

@@ -126,12 +126,12 @@ const createStyles = (colors: any, themeObj: any) => {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
+      alignSelf: "center",
       gap: spacing.xs,
-      flexWrap: "wrap",
+      maxWidth: "75%",
     },
     infoText: {
       textAlign: "center",
-      flexShrink: 1,
     },
   });
 };
