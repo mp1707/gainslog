@@ -17,12 +17,6 @@ export type OnboardingState = {
   // Skip functionality
   userSkippedOnboarding: boolean;
 
-  // Manual override functionality
-  isManualMode: boolean;
-  manualCalories?: number;
-  manualProtein?: number;
-  manualFat?: number;
-
   // Actions
   setAge: (age: number) => void;
   setSex: (sex: "male" | "female") => void;
@@ -33,10 +27,6 @@ export type OnboardingState = {
   setProteinGoal: (goal: number) => void;
   setFatPercentage: (percentage: number) => void;
   setUserSkippedOnboarding: (skipped: boolean) => void;
-  setIsManualMode: (isManual: boolean) => void;
-  setManualCalories: (calories: number) => void;
-  setManualProtein: (protein: number) => void;
-  setManualFat: (fat: number) => void;
   reset: () => void;
 };
 
@@ -54,12 +44,6 @@ export const useOnboardingStore = create<OnboardingState>()(
 
     // Skip functionality
     userSkippedOnboarding: false,
-
-    // Manual override functionality
-    isManualMode: false,
-    manualCalories: undefined,
-    manualProtein: undefined,
-    manualFat: undefined,
 
     // Actions
     setAge: (age) =>
@@ -107,26 +91,6 @@ export const useOnboardingStore = create<OnboardingState>()(
         state.userSkippedOnboarding = skipped;
       }),
 
-    setIsManualMode: (isManual) =>
-      set((state) => {
-        state.isManualMode = isManual;
-      }),
-
-    setManualCalories: (calories) =>
-      set((state) => {
-        state.manualCalories = calories;
-      }),
-
-    setManualProtein: (protein) =>
-      set((state) => {
-        state.manualProtein = protein;
-      }),
-
-    setManualFat: (fat) =>
-      set((state) => {
-        state.manualFat = fat;
-      }),
-
     reset: () =>
       set((state) => {
         state.age = undefined;
@@ -138,10 +102,6 @@ export const useOnboardingStore = create<OnboardingState>()(
         state.proteinGoal = undefined;
         state.fatPercentage = 30;
         state.userSkippedOnboarding = false;
-        state.isManualMode = false;
-        state.manualCalories = undefined;
-        state.manualProtein = undefined;
-        state.manualFat = undefined;
       }),
   }))
 );

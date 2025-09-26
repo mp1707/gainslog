@@ -1,4 +1,10 @@
-import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
+import React, {
+  useState,
+  useMemo,
+  useRef,
+  useEffect,
+  useCallback,
+} from "react";
 import {
   View,
   StyleSheet,
@@ -41,15 +47,9 @@ const SummaryScreen = () => {
     calorieGoal,
     proteinGoal,
     fatPercentage,
+    setCalorieGoal,
+    setProteinGoal,
     setFatPercentage,
-    isManualMode,
-    manualCalories,
-    manualProtein,
-    manualFat,
-    setIsManualMode,
-    setManualCalories,
-    setManualProtein,
-    setManualFat,
     reset,
   } = useOnboardingStore();
 
@@ -80,11 +80,12 @@ const SummaryScreen = () => {
   const fatInputRef = useRef<RNTextInput | null>(null);
 
   // Get stored values based on mode
-  const baseCalories = isManualMode ? (manualCalories || 0) : (calorieGoal || 0);
-  const baseProtein = isManualMode ? (manualProtein || 0) : (proteinGoal || 0);
-  const baseFat = isManualMode
-    ? (manualFat || 0)
-    : (calorieGoal ? calculateFatGramsFromPercentage(calorieGoal, fatPercentage || 30) : 0);
+  const effectiveFatPercentage = fatPercentage ?? 30;
+  const baseCalories = calorieGoal || 0;
+  const baseProtein = proteinGoal || 0;
+  const baseFat = calorieGoal
+    ? calculateFatGramsFromPercentage(calorieGoal, effectiveFatPercentage)
+    : 0;
 
   const baseValues = useMemo(
     () => ({
@@ -104,8 +105,11 @@ const SummaryScreen = () => {
   }, [baseValues, isEditing]);
 
   // Calculate carbs using the currently displayed values
-  const { calories: displayCalories, protein: displayProtein, fat: displayFat } =
-    isEditing ? draftValues : baseValues;
+  const {
+    calories: displayCalories,
+    protein: displayProtein,
+    fat: displayFat,
+  } = isEditing ? draftValues : baseValues;
 
   const currentCarbs = useMemo(() => {
     const proteinCals = displayProtein * 4;
@@ -144,13 +148,6 @@ const SummaryScreen = () => {
     []
   );
 
-  const handleUseCalculator = () => {
-    setIsManualMode(false);
-    setIsEditing(false);
-    setIsFatExpanded(false);
-    animatedHeight.setValue(0);
-  };
-
   const handleStartEditing = () => {
     setDraftValues(baseValues);
     setValidationErrors({ calories: "", protein: "", fat: "" });
@@ -171,7 +168,10 @@ const SummaryScreen = () => {
   };
 
   const focusField = (field: EditableField) => {
-    const inputMap: Record<EditableField, React.RefObject<RNTextInput | null>> = {
+    const inputMap: Record<
+      EditableField,
+      React.RefObject<RNTextInput | null>
+    > = {
       calories: caloriesInputRef,
       protein: proteinInputRef,
       fat: fatInputRef,
@@ -205,10 +205,21 @@ const SummaryScreen = () => {
       return;
     }
 
-    setManualCalories(draftValues.calories);
-    setManualProtein(draftValues.protein);
-    setManualFat(draftValues.fat);
-    setIsManualMode(true);
+    const newCalorieGoal = draftValues.calories;
+    const newProteinGoal = draftValues.protein;
+    const newFatGoal = draftValues.fat;
+    const fatPercentageFromGrams =
+      newCalorieGoal > 0 ? (newFatGoal * 9 * 100) / newCalorieGoal : undefined;
+    const hasValidFatPercentage =
+      typeof fatPercentageFromGrams === "number" &&
+      Number.isFinite(fatPercentageFromGrams);
+    const newFatPercentage = hasValidFatPercentage
+      ? Math.max(0, Math.min(100, Math.round(fatPercentageFromGrams)))
+      : effectiveFatPercentage;
+
+    setCalorieGoal(newCalorieGoal);
+    setProteinGoal(newProteinGoal);
+    setFatPercentage(newFatPercentage);
     setIsEditing(false);
   };
 
@@ -236,15 +247,6 @@ const SummaryScreen = () => {
     if (currentCalories <= 0 || currentProtein <= 0) {
       console.error("Missing required data for daily targets");
       return;
-    }
-
-    // In manual mode, perform final validation
-    if (isManualMode) {
-      const { isValid } = validateInputs(currentCalories, currentProtein, currentFat);
-      if (!isValid) {
-        console.error("Invalid manual inputs");
-        return;
-      }
     }
 
     // Create the daily targets object
@@ -301,7 +303,9 @@ const SummaryScreen = () => {
       label: "Fat",
       value: displayFat,
       unit: "g",
-      percentage: !isManualMode && !isEditing ? `${fatPercentage}% of calories` : undefined,
+      percentage: !isEditing
+        ? `${effectiveFatPercentage}% of calories`
+        : undefined,
       editable: true,
       error: validationErrors.fat,
       inputRef: fatInputRef,
@@ -325,24 +329,25 @@ const SummaryScreen = () => {
           {!isEditing && (
             <View style={styles.secondaryActions}>
               <Pressable onPress={handleStartEditing}>
-                <AppText role="Button" color="accent" style={styles.centeredText}>
+                <AppText
+                  role="Button"
+                  color="accent"
+                  style={styles.centeredText}
+                >
                   Adjust Targets
                 </AppText>
               </Pressable>
-              {isManualMode && (
-                <Pressable onPress={handleUseCalculator}>
-                  <AppText role="Caption" color="secondary" style={styles.centeredText}>
-                    Use Calculator
-                  </AppText>
-                </Pressable>
-              )}
             </View>
           )}
           <Button
             variant="primary"
             label={isEditing ? "Save Changes" : "Confirm & Start Tracking"}
-            onPress={isEditing ? handleSaveChanges : handleConfirmAndStartTracking}
-            disabled={!isEditing && (currentCalories <= 0 || currentProtein <= 0)}
+            onPress={
+              isEditing ? handleSaveChanges : handleConfirmAndStartTracking
+            }
+            disabled={
+              !isEditing && (currentCalories <= 0 || currentProtein <= 0)
+            }
           />
         </View>
       }
@@ -354,159 +359,176 @@ const SummaryScreen = () => {
           Here are your starting targets. You can adjust these anytime.
         </AppText>
       </View>
-        {/* Targets List */}
-        <View style={styles.targetsSection}>
-          {targetRows.map((target) => {
-            const IconComponent = target.icon;
-            const isFatRow = target.key === "fat";
-            const hasError = Boolean(target.error);
-            const showFatSlider = isFatRow && !isManualMode && !isEditing;
-            const isEditableField = target.editable && target.key !== "carbs";
-            const editableKey = isEditableField ? (target.key as EditableField) : null;
-            const isActiveField = editableKey ? activeField === editableKey : false;
-            const cardStyleOverride = StyleSheet.flatten([
-              styles.cardOverrides,
-              isFatRow && isFatExpanded && showFatSlider ? styles.targetRowExpanded : undefined,
-              hasError ? styles.targetRowError : undefined,
-            ]) as ViewStyle;
+      {/* Targets List */}
+      <View style={styles.targetsSection}>
+        {targetRows.map((target) => {
+          const IconComponent = target.icon;
+          const isFatRow = target.key === "fat";
+          const hasError = Boolean(target.error);
+          const showFatSlider = isFatRow && !isEditing;
+          const isEditableField = target.editable && target.key !== "carbs";
+          const editableKey = isEditableField
+            ? (target.key as EditableField)
+            : null;
+          const isActiveField = editableKey
+            ? activeField === editableKey
+            : false;
+          const cardStyleOverride = StyleSheet.flatten([
+            styles.cardOverrides,
+            isFatRow && isFatExpanded && showFatSlider
+              ? styles.targetRowExpanded
+              : undefined,
+            hasError ? styles.targetRowError : undefined,
+          ]) as ViewStyle;
 
-            return (
-              <View key={target.key} style={styles.targetRowContainer}>
-                <Pressable onPress={showFatSlider ? handleFatTap : undefined} disabled={!showFatSlider}>
-                  <Card
-                    elevated
-                    padding={themeObj.spacing.md}
-                    style={cardStyleOverride}
-                  >
-                    <View style={styles.targetRowContent}>
-                      <View style={styles.targetLeft}>
-                        <View
-                          style={[
-                            styles.targetIconBackground,
-                            { backgroundColor: target.backgroundColor },
-                          ]}
-                        >
-                          <IconComponent
-                            size={20}
-                            color={target.color}
-                            fill={target.color}
-                            strokeWidth={0}
+          return (
+            <View key={target.key} style={styles.targetRowContainer}>
+              <Pressable
+                onPress={showFatSlider ? handleFatTap : undefined}
+                disabled={!showFatSlider}
+              >
+                <Card
+                  // elevated
+                  padding={themeObj.spacing.md}
+                  // style={cardStyleOverride}
+                >
+                  <View style={styles.targetRowContent}>
+                    <View style={styles.targetLeft}>
+                      <View
+                        style={[
+                          styles.targetIconBackground,
+                          { backgroundColor: target.backgroundColor },
+                        ]}
+                      >
+                        <IconComponent
+                          size={20}
+                          color={target.color}
+                          fill={target.color}
+                          strokeWidth={0}
+                        />
+                      </View>
+                      <AppText role="Body">{target.label}</AppText>
+                    </View>
+
+                    <View style={styles.targetRight}>
+                      {isEditableField && isActiveField && editableKey ? (
+                        <View style={styles.inputContainer}>
+                          <TextInput
+                            ref={target.inputRef}
+                            keyboardType="numeric"
+                            returnKeyType="done"
+                            value={target.value?.toString() || ""}
+                            onChangeText={(text) =>
+                              handleDraftValueChange(editableKey, text)
+                            }
+                            fontSize="Headline"
+                            containerStyle={styles.inlineInputContainer}
+                            style={styles.inlineInput}
                           />
+                          <AppText role="Body" color="secondary">
+                            {target.unit}
+                          </AppText>
                         </View>
-                        <AppText role="Body">{target.label}</AppText>
-                      </View>
-
-                      <View style={styles.targetRight}>
-                        {isEditableField && isActiveField && editableKey ? (
-                          <View style={styles.inputContainer}>
-                            <TextInput
-                              ref={target.inputRef}
-                              keyboardType="numeric"
-                              returnKeyType="done"
-                              value={target.value?.toString() || ""}
-                              onChangeText={(text) => handleDraftValueChange(editableKey, text)}
-                              fontSize="Headline"
-                              containerStyle={styles.inlineInputContainer}
-                              style={styles.inlineInput}
-                            />
-                            <AppText role="Body" color="secondary">
-                              {target.unit}
+                      ) : (
+                        <View style={styles.targetValueContainer}>
+                          <AppText role="Headline">
+                            {target.value} {target.unit}
+                          </AppText>
+                          {target.percentage && (
+                            <AppText role="Caption" color="secondary">
+                              ({target.percentage})
                             </AppText>
-                          </View>
-                        ) : (
-                          <View style={styles.targetValueContainer}>
-                            <AppText role="Headline">
-                              {target.value} {target.unit}
-                            </AppText>
-                            {target.percentage && (
-                              <AppText role="Caption" color="secondary">
-                                ({target.percentage})
-                              </AppText>
-                            )}
-                          </View>
-                        )}
+                          )}
+                        </View>
+                      )}
 
-                        {showFatSlider && (
-                          <ChevronRightIcon
-                            size={20}
-                            color={colors.secondaryText}
-                            style={[
-                              styles.chevron,
-                              isFatExpanded ? styles.chevronRotated : undefined,
-                            ]}
-                          />
-                        )}
+                      {showFatSlider && (
+                        <ChevronRightIcon
+                          size={20}
+                          color={colors.secondaryText}
+                          style={[
+                            styles.chevron,
+                            isFatExpanded ? styles.chevronRotated : undefined,
+                          ]}
+                        />
+                      )}
 
-                        {isEditableField && editableKey && isEditing && (
-                          <RoundButton
-                            Icon={Pencil}
-                            variant="tertiary"
-                            iconSize={16}
-                            iconStrokeWidth={1.5}
-                            iconColor={colors.accent}
-                            backgroundColor={colors.semanticSurfaces.calories}
-                            onPress={() => handleFieldPress(editableKey)}
-                            accessibilityLabel={`Edit ${target.label}`}
-                            style={styles.editButton}
-                            hitSlop={themeObj.spacing.xs}
-                          />
-                        )}
-                      </View>
+                      {isEditableField && editableKey && isEditing && (
+                        <RoundButton
+                          Icon={Pencil}
+                          variant="tertiary"
+                          iconSize={16}
+                          iconStrokeWidth={1.5}
+                          iconColor={colors.accent}
+                          backgroundColor={colors.semanticSurfaces.calories}
+                          onPress={() => handleFieldPress(editableKey)}
+                          accessibilityLabel={`Edit ${target.label}`}
+                          style={styles.editButton}
+                          hitSlop={themeObj.spacing.xs}
+                        />
+                      )}
                     </View>
-                  </Card>
-                </Pressable>
-
-                {hasError && (
-                  <View style={styles.errorContainer}>
-                    <AppText role="Caption" style={{ color: colors.error }}>
-                      {target.error}
-                    </AppText>
                   </View>
-                )}
+                </Card>
+              </Pressable>
 
-                {isFatRow && showFatSlider && (
-                  <Animated.View style={[styles.sliderContainer, { height: animatedHeight }]}>
-                    <View style={styles.sliderContent}>
-                      <View style={styles.sliderLabels}>
-                        <AppText role="Caption" color="secondary">
-                          20%
-                        </AppText>
-                        <AppText role="Body">{fatPercentage}% of calories</AppText>
-                        <AppText role="Caption" color="secondary">
-                          45%
-                        </AppText>
-                      </View>
-                      <Slider
-                        style={styles.slider}
-                        minimumValue={20}
-                        maximumValue={45}
-                        value={fatPercentage || 30}
-                        onValueChange={handleFatSliderChange}
-                        minimumTrackTintColor={colors.semantic.fat}
-                        maximumTrackTintColor={colors.secondaryBackground}
-                        thumbTintColor={colors.semantic.fat}
-                        step={1}
-                      />
+              {hasError && (
+                <View style={styles.errorContainer}>
+                  <AppText role="Caption" style={{ color: colors.error }}>
+                    {target.error}
+                  </AppText>
+                </View>
+              )}
+
+              {isFatRow && showFatSlider && (
+                <Animated.View
+                  style={[styles.sliderContainer, { height: animatedHeight }]}
+                >
+                  <View style={styles.sliderContent}>
+                    <View style={styles.sliderLabels}>
+                      <AppText role="Caption" color="secondary">
+                        20%
+                      </AppText>
+                      <AppText role="Body">
+                        {effectiveFatPercentage}% of calories
+                      </AppText>
+                      <AppText role="Caption" color="secondary">
+                        45%
+                      </AppText>
                     </View>
-                  </Animated.View>
-                )}
-              </View>
-            );
-          })}
-        </View>
+                    <Slider
+                      style={styles.slider}
+                      minimumValue={20}
+                      maximumValue={45}
+                      value={effectiveFatPercentage}
+                      onValueChange={handleFatSliderChange}
+                      minimumTrackTintColor={colors.semantic.fat}
+                      maximumTrackTintColor={colors.secondaryBackground}
+                      thumbTintColor={colors.semantic.fat}
+                      step={1}
+                    />
+                  </View>
+                </Animated.View>
+              )}
+            </View>
+          );
+        })}
+      </View>
 
-        {/* Informational Footer */}
-        <View style={styles.infoSection}>
-          <AppText
-            role="Caption"
-            color="secondary"
-            style={[styles.secondaryText, { lineHeight: 18, textAlign: 'center' }]}
-          >
-            Tip: Fat is defaulted to 30% and can be adjusted. Carbs are calculated from the remainder.
-          </AppText>
-        </View>
-
-
+      {/* Informational Footer */}
+      <View style={styles.infoSection}>
+        <AppText
+          role="Caption"
+          color="secondary"
+          style={[
+            styles.secondaryText,
+            { lineHeight: 18, textAlign: "center" },
+          ]}
+        >
+          Tip: Fat is defaulted to 30% and can be adjusted. Carbs are calculated
+          from the remainder.
+        </AppText>
+      </View>
     </OnboardingScreen>
   );
 };
