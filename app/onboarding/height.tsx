@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import * as Haptics from "expo-haptics";
+import { Info } from "lucide-react-native";
 import { useTheme } from "@/theme";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
@@ -8,6 +9,7 @@ import { Button } from "@/components/index";
 import { OnboardingScreen } from "./_components/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
 import { Picker } from "@react-native-picker/picker";
+import { Tooltip } from "@/components/shared/Tooltip";
 
 const HeightSelectionScreen = () => {
   const { colors, theme: themeObj } = useTheme();
@@ -50,9 +52,18 @@ const HeightSelectionScreen = () => {
     >
       <View style={styles.textSection}>
         <AppText role="Title2">And your height?</AppText>
-        <AppText role="Body" color="secondary" style={{ textAlign: "center" }}>
-          For an accurate TDEE calculation.
-        </AppText>
+        <View style={styles.infoRow}>
+          <AppText
+            role="Body"
+            color="secondary"
+            style={styles.infoText}
+          >
+            For an accurate TDEE calculation.
+          </AppText>
+          <Tooltip text="TDEE stands for Total Daily Energy Expenditure—the estimated calories you burn each day based on your stats and activity level.">
+            <Info size={18} color={colors.secondaryText} />
+          </Tooltip>
+        </View>
       </View>
 
       <View style={styles.pickerSection}>
@@ -110,6 +121,17 @@ const createStyles = (colors: any, themeObj: any) => {
     },
     unitText: {
       paddingRight: spacing.md,
+    },
+    infoRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: spacing.xs,
+      flexWrap: "wrap",
+    },
+    infoText: {
+      textAlign: "center",
+      flexShrink: 1,
     },
   });
 };
