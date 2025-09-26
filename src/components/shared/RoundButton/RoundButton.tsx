@@ -17,6 +17,9 @@ export interface RoundButtonProps extends Omit<PressableProps, "children"> {
   variant: RoundButtonVariant;
   iconSize?: number;
   disabled?: boolean;
+  iconColor?: string;
+  backgroundColor?: string;
+  iconStrokeWidth?: number;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -31,6 +34,9 @@ export const RoundButton = React.memo<RoundButtonProps>(
     onPressIn,
     onPressOut,
     style,
+    iconColor,
+    backgroundColor,
+    iconStrokeWidth,
     ...pressableProps
   }) => {
     const { colors, colorScheme, theme } = useTheme();
@@ -46,6 +52,7 @@ export const RoundButton = React.memo<RoundButtonProps>(
 
     // Get icon color based on variant
     const getIconColor = () => {
+      if (iconColor) return iconColor;
       if (disabled) return colors.disabledText;
 
       switch (variant) {
@@ -65,6 +72,7 @@ export const RoundButton = React.memo<RoundButtonProps>(
     // Get background color with press state
     const getBackgroundColor = (pressed: boolean) => {
       if (disabled) return colors.disabledBackground;
+      if (backgroundColor) return backgroundColor;
 
       const baseColor = (() => {
         switch (variant) {
@@ -164,7 +172,7 @@ export const RoundButton = React.memo<RoundButtonProps>(
             <Icon
               size={adjustedIconSize}
               color={getIconColor()}
-              strokeWidth={variant === "primary" ? 2 : 1.5}
+              strokeWidth={iconStrokeWidth ?? (variant === "primary" ? 2 : 1.5)}
               fill={variant === "red" ? "white" : "transparent"}
             />
           </Animated.View>

@@ -1,8 +1,9 @@
 import React from "react";
-import { View, ScrollView, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/theme";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 interface OnboardingScreenProps {
   children: React.ReactNode;
@@ -20,14 +21,14 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.content}>
-        <ScrollView
+        <KeyboardAwareScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
           {children}
-        </ScrollView>
+        </KeyboardAwareScrollView>
 
         {actionButton && (
           <View style={styles.actionButtonContainer}>{actionButton}</View>
