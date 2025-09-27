@@ -8,7 +8,6 @@ import React, {
 import {
   View,
   StyleSheet,
-  Animated,
   Pressable,
   TextInput as RNTextInput,
   ViewStyle,
@@ -23,14 +22,12 @@ import { RoundButton } from "@/components/shared/RoundButton";
 import { OnboardingScreen } from "./_components/OnboardingScreen";
 import * as Haptics from "expo-haptics";
 import {
-  ChevronRightIcon,
   Flame,
   BicepsFlexed,
   Wheat,
   Droplet,
   Pencil,
 } from "lucide-react-native";
-import Slider from "@react-native-community/slider";
 import { TextInput } from "@/components/shared/TextInput/TextInput";
 import { calculateFatGramsFromPercentage } from "@/utils/nutritionCalculations";
 import { DailyTargets } from "@/types/models";
@@ -56,9 +53,6 @@ const SummaryScreen = () => {
   // Main app store
   const { setDailyTargets } = useAppStore();
 
-  // Local state for fat editing (only in calculator mode)
-  const [isFatExpanded, setIsFatExpanded] = useState(false);
-  const [animatedHeight] = useState(new Animated.Value(0));
 
   // Validation errors for manual mode
   const [validationErrors, setValidationErrors] = useState({
@@ -152,8 +146,6 @@ const SummaryScreen = () => {
     setDraftValues(baseValues);
     setValidationErrors({ calories: "", protein: "", fat: "" });
     setActiveField(null);
-    setIsFatExpanded(false);
-    animatedHeight.setValue(0);
     setIsEditing(true);
   };
 
@@ -227,20 +219,6 @@ const SummaryScreen = () => {
   const currentProtein = baseValues.protein;
   const currentFat = baseValues.fat;
 
-  const handleFatTap = async () => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setIsFatExpanded(!isFatExpanded);
-
-    Animated.timing(animatedHeight, {
-      toValue: isFatExpanded ? 0 : 80,
-      duration: 250,
-      useNativeDriver: false,
-    }).start();
-  };
-
-  const handleFatSliderChange = (value: number) => {
-    setFatPercentage(Math.round(value));
-  };
 
   const handleConfirmAndStartTracking = async () => {
     // Validate we have all required data
@@ -303,12 +281,8 @@ const SummaryScreen = () => {
       label: "Fat",
       value: displayFat,
       unit: "g",
-      percentage: !isEditing
-        ? `${effectiveFatPercentage}% of calories`
-        : undefined,
-      editable: true,
-      error: validationErrors.fat,
-      inputRef: fatInputRef,
+      percentage: `${effectiveFatPercentage}% of calories`,
+      editable: false,
     },
     {
       key: "carbs",
@@ -363,9 +337,7 @@ const SummaryScreen = () => {
       <View style={styles.targetsSection}>
         {targetRows.map((target) => {
           const IconComponent = target.icon;
-          const isFatRow = target.key === "fat";
           const hasError = Boolean(target.error);
-          const showFatSlider = isFatRow && !isEditing;
           const isEditableField = target.editable && target.key !== "carbs";
           const editableKey = isEditableField
             ? (target.key as EditableField)
@@ -375,19 +347,12 @@ const SummaryScreen = () => {
             : false;
           const cardStyleOverride = StyleSheet.flatten([
             styles.cardOverrides,
-            isFatRow && isFatExpanded && showFatSlider
-              ? styles.targetRowExpanded
-              : undefined,
             hasError ? styles.targetRowError : undefined,
           ]) as ViewStyle;
 
           return (
             <View key={target.key}>
-              <Pressable
-                onPress={showFatSlider ? handleFatTap : undefined}
-                disabled={!showFatSlider}
-              >
-                <Card padding={themeObj.spacing.md} style={cardStyleOverride}>
+              <Card padding={themeObj.spacing.md} style={cardStyleOverride}>
                   <View style={styles.targetRowContent}>
                     <View style={styles.targetLeft}>
                       <View
@@ -438,17 +403,6 @@ const SummaryScreen = () => {
                         </View>
                       )}
 
-                      {showFatSlider && (
-                        <ChevronRightIcon
-                          size={20}
-                          color={colors.secondaryText}
-                          style={[
-                            styles.chevron,
-                            isFatExpanded ? styles.chevronRotated : undefined,
-                          ]}
-                        />
-                      )}
-
                       {isEditableField && editableKey && isEditing && (
                         <RoundButton
                           Icon={Pencil}
@@ -466,7 +420,6 @@ const SummaryScreen = () => {
                     </View>
                   </View>
                 </Card>
-              </Pressable>
 
               {hasError && (
                 <View style={styles.errorContainer}>
@@ -474,37 +427,6 @@ const SummaryScreen = () => {
                     {target.error}
                   </AppText>
                 </View>
-              )}
-
-              {isFatRow && showFatSlider && (
-                <Animated.View
-                  style={[styles.sliderContainer, { height: animatedHeight }]}
-                >
-                  <View style={styles.sliderContent}>
-                    <View style={styles.sliderLabels}>
-                      <AppText role="Caption" color="secondary">
-                        20%
-                      </AppText>
-                      <AppText role="Body">
-                        {effectiveFatPercentage}% of calories
-                      </AppText>
-                      <AppText role="Caption" color="secondary">
-                        45%
-                      </AppText>
-                    </View>
-                    <Slider
-                      style={styles.slider}
-                      minimumValue={20}
-                      maximumValue={45}
-                      value={effectiveFatPercentage}
-                      onValueChange={handleFatSliderChange}
-                      minimumTrackTintColor={colors.semantic.fat}
-                      maximumTrackTintColor={colors.secondaryBackground}
-                      thumbTintColor={colors.semantic.fat}
-                      step={1}
-                    />
-                  </View>
-                </Animated.View>
               )}
             </View>
           );
@@ -552,15 +474,8 @@ const createStyles = (colors: Colors, theme: Theme) => {
       gap: spacing.sm,
       marginBottom: spacing.xl,
     },
-    targetRowContainer: {
-      // overflow: "hidden",
-    },
     cardOverrides: {
       minHeight: 60,
-    },
-    targetRowExpanded: {
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius: 0,
     },
     targetRowContent: {
       flexDirection: "row",
@@ -581,31 +496,6 @@ const createStyles = (colors: Colors, theme: Theme) => {
     targetValueContainer: {
       alignItems: "flex-end",
       minWidth: 88,
-    },
-    chevron: {
-      transform: [{ rotate: "0deg" }],
-    },
-    chevronRotated: {
-      transform: [{ rotate: "90deg" }],
-    },
-    sliderContainer: {
-      backgroundColor: colors.secondaryBackground,
-      borderBottomLeftRadius: 12,
-      borderBottomRightRadius: 12,
-      overflow: "hidden",
-    },
-    sliderContent: {
-      padding: spacing.md,
-      paddingTop: 0,
-    },
-    sliderLabels: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: spacing.sm,
-    },
-    slider: {
-      height: 30,
     },
     infoSection: {
       paddingHorizontal: spacing.sm,
