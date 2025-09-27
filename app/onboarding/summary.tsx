@@ -1,16 +1,8 @@
-import React, {
-  useState,
-  useMemo,
-  useRef,
-  useEffect,
-  useCallback,
-} from "react";
+import React, { useMemo } from "react";
 import {
   View,
   StyleSheet,
   Pressable,
-  TextInput as RNTextInput,
-  ViewStyle,
 } from "react-native";
 import { AppText } from "@/components/shared/AppText";
 import { useTheme } from "@/theme";
@@ -18,7 +10,6 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { useAppStore } from "@/store/useAppStore";
 import { Button, Card } from "@/components/index";
-import { RoundButton } from "@/components/shared/RoundButton";
 import { OnboardingScreen } from "./_components/OnboardingScreen";
 import * as Haptics from "expo-haptics";
 import {
@@ -26,13 +17,10 @@ import {
   BicepsFlexed,
   Wheat,
   Droplet,
-  Pencil,
 } from "lucide-react-native";
-import { TextInput } from "@/components/shared/TextInput/TextInput";
 import { calculateFatGramsFromPercentage } from "@/utils/nutritionCalculations";
 import { DailyTargets } from "@/types/models";
 
-type EditableField = "calories" | "protein" | "fat";
 
 const SummaryScreen = () => {
   const { colors, theme: themeObj } = useTheme();
@@ -54,24 +42,6 @@ const SummaryScreen = () => {
   const { setDailyTargets } = useAppStore();
 
 
-  // Validation errors for manual mode
-  const [validationErrors, setValidationErrors] = useState({
-    calories: "",
-    protein: "",
-    fat: "",
-  });
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [activeField, setActiveField] = useState<EditableField | null>(null);
-  const [draftValues, setDraftValues] = useState({
-    calories: 0,
-    protein: 0,
-    fat: 0,
-  });
-
-  const caloriesInputRef = useRef<RNTextInput | null>(null);
-  const proteinInputRef = useRef<RNTextInput | null>(null);
-  const fatInputRef = useRef<RNTextInput | null>(null);
 
   // Get stored values based on mode
   const effectiveFatPercentage = fatPercentage ?? 30;
@@ -81,29 +51,10 @@ const SummaryScreen = () => {
     ? calculateFatGramsFromPercentage(calorieGoal, effectiveFatPercentage)
     : 0;
 
-  const baseValues = useMemo(
-    () => ({
-      calories: baseCalories,
-      protein: baseProtein,
-      fat: baseFat,
-    }),
-    [baseCalories, baseProtein, baseFat]
-  );
-
-  useEffect(() => {
-    if (!isEditing) {
-      setDraftValues(baseValues);
-      setValidationErrors({ calories: "", protein: "", fat: "" });
-      setActiveField(null);
-    }
-  }, [baseValues, isEditing]);
-
-  // Calculate carbs using the currently displayed values
-  const {
-    calories: displayCalories,
-    protein: displayProtein,
-    fat: displayFat,
-  } = isEditing ? draftValues : baseValues;
+  // Calculate carbs using the base values
+  const displayCalories = baseCalories;
+  const displayProtein = baseProtein;
+  const displayFat = baseFat;
 
   const currentCarbs = useMemo(() => {
     const proteinCals = displayProtein * 4;
@@ -112,112 +63,9 @@ const SummaryScreen = () => {
     return Math.round(remainingCals / 4);
   }, [displayCalories, displayProtein, displayFat]);
 
-  // Real-time validation function
-  const validateInputs = useCallback(
-    (calories: number, protein: number, fat: number) => {
-      const errors = {
-        calories: "",
-        protein: "",
-        fat: "",
-      };
-
-      // Protein validation: (protein * 4) <= total_calories
-      const proteinCalories = protein * 4;
-      if (proteinCalories > calories) {
-        errors.protein = "Protein calories exceed total calories";
-      }
-
-      // Fat validation: (fat * 9) <= (total_calories - (protein * 4))
-      const fatCalories = fat * 9;
-      const availableCaloriesForFat = calories - proteinCalories;
-      if (fatCalories > availableCaloriesForFat) {
-        errors.fat = "Carbs cannot be negative.";
-      }
-
-      const isValid = !errors.calories && !errors.protein && !errors.fat;
-      setValidationErrors(errors);
-
-      return { isValid, errors };
-    },
-    []
-  );
-
-  const handleStartEditing = () => {
-    setDraftValues(baseValues);
-    setValidationErrors({ calories: "", protein: "", fat: "" });
-    setActiveField(null);
-    setIsEditing(true);
-  };
-
-  const handleDraftValueChange = (field: EditableField, value: string) => {
-    const numeric = Number(value) || 0;
-
-    setDraftValues((prev) => {
-      const updated = { ...prev, [field]: numeric } as typeof prev;
-      validateInputs(updated.calories, updated.protein, updated.fat);
-      return updated;
-    });
-  };
-
-  const focusField = (field: EditableField) => {
-    const inputMap: Record<
-      EditableField,
-      React.RefObject<RNTextInput | null>
-    > = {
-      calories: caloriesInputRef,
-      protein: proteinInputRef,
-      fat: fatInputRef,
-    };
-
-    requestAnimationFrame(() => {
-      inputMap[field].current?.focus();
-    });
-  };
-
-  const handleFieldPress = (field: EditableField) => {
-    setActiveField(field);
-    focusField(field);
-  };
-
-  const handleSaveChanges = () => {
-    const { isValid, errors } = validateInputs(
-      draftValues.calories,
-      draftValues.protein,
-      draftValues.fat
-    );
-
-    if (!isValid) {
-      const errorField = (Object.keys(errors) as EditableField[]).find(
-        (key) => errors[key]
-      );
-      if (errorField) {
-        setActiveField(errorField);
-        focusField(errorField);
-      }
-      return;
-    }
-
-    const newCalorieGoal = draftValues.calories;
-    const newProteinGoal = draftValues.protein;
-    const newFatGoal = draftValues.fat;
-    const fatPercentageFromGrams =
-      newCalorieGoal > 0 ? (newFatGoal * 9 * 100) / newCalorieGoal : undefined;
-    const hasValidFatPercentage =
-      typeof fatPercentageFromGrams === "number" &&
-      Number.isFinite(fatPercentageFromGrams);
-    const newFatPercentage = hasValidFatPercentage
-      ? Math.max(0, Math.min(100, Math.round(fatPercentageFromGrams)))
-      : effectiveFatPercentage;
-
-    setCalorieGoal(newCalorieGoal);
-    setProteinGoal(newProteinGoal);
-    setFatPercentage(newFatPercentage);
-    setIsEditing(false);
-  };
-
-  const currentCalories = baseValues.calories;
-  const currentProtein = baseValues.protein;
-  const currentFat = baseValues.fat;
+  const currentCalories = baseCalories;
+  const currentProtein = baseProtein;
+  const currentFat = baseFat;
 
 
   const handleConfirmAndStartTracking = async () => {
@@ -257,9 +105,6 @@ const SummaryScreen = () => {
       label: "Calories",
       value: displayCalories,
       unit: "kcal",
-      editable: true,
-      error: validationErrors.calories,
-      inputRef: caloriesInputRef,
     },
     {
       key: "protein" as const,
@@ -269,9 +114,6 @@ const SummaryScreen = () => {
       label: "Protein",
       value: displayProtein,
       unit: "g",
-      editable: true,
-      error: validationErrors.protein,
-      inputRef: proteinInputRef,
     },
     {
       key: "fat" as const,
@@ -282,7 +124,6 @@ const SummaryScreen = () => {
       value: displayFat,
       unit: "g",
       percentage: `${effectiveFatPercentage}% of calories`,
-      editable: false,
     },
     {
       key: "carbs",
@@ -292,7 +133,6 @@ const SummaryScreen = () => {
       label: "Carbs",
       value: currentCarbs,
       unit: "g",
-      editable: false,
     },
   ];
 
@@ -300,28 +140,22 @@ const SummaryScreen = () => {
     <OnboardingScreen
       actionButton={
         <View style={styles.actionButtonsContainer}>
-          {!isEditing && (
-            <View style={styles.secondaryActions}>
-              <Pressable onPress={handleStartEditing}>
-                <AppText
-                  role="Button"
-                  color="accent"
-                  style={styles.centeredText}
-                >
-                  Adjust Targets
-                </AppText>
-              </Pressable>
-            </View>
-          )}
+          <View style={styles.secondaryActions}>
+            <Pressable>
+              <AppText
+                role="Button"
+                color="accent"
+                style={styles.centeredText}
+              >
+                Adjust Targets
+              </AppText>
+            </Pressable>
+          </View>
           <Button
             variant="primary"
-            label={isEditing ? "Save Changes" : "Confirm & Start Tracking"}
-            onPress={
-              isEditing ? handleSaveChanges : handleConfirmAndStartTracking
-            }
-            disabled={
-              !isEditing && (currentCalories <= 0 || currentProtein <= 0)
-            }
+            label="Confirm & Start Tracking"
+            onPress={handleConfirmAndStartTracking}
+            disabled={currentCalories <= 0 || currentProtein <= 0}
           />
         </View>
       }
@@ -337,97 +171,42 @@ const SummaryScreen = () => {
       <View style={styles.targetsSection}>
         {targetRows.map((target) => {
           const IconComponent = target.icon;
-          const hasError = Boolean(target.error);
-          const isEditableField = target.editable && target.key !== "carbs";
-          const editableKey = isEditableField
-            ? (target.key as EditableField)
-            : null;
-          const isActiveField = editableKey
-            ? activeField === editableKey
-            : false;
-          const cardStyleOverride = StyleSheet.flatten([
-            styles.cardOverrides,
-            hasError ? styles.targetRowError : undefined,
-          ]) as ViewStyle;
 
           return (
             <View key={target.key}>
-              <Card padding={themeObj.spacing.md} style={cardStyleOverride}>
-                  <View style={styles.targetRowContent}>
-                    <View style={styles.targetLeft}>
-                      <View
-                        style={[
-                          styles.targetIconBackground,
-                          { backgroundColor: target.backgroundColor },
-                        ]}
-                      >
-                        <IconComponent
-                          size={20}
-                          color={target.color}
-                          fill={target.color}
-                          strokeWidth={0}
-                        />
-                      </View>
-                      <AppText role="Body">{target.label}</AppText>
+              <Card padding={themeObj.spacing.md} style={styles.cardOverrides}>
+                <View style={styles.targetRowContent}>
+                  <View style={styles.targetLeft}>
+                    <View
+                      style={[
+                        styles.targetIconBackground,
+                        { backgroundColor: target.backgroundColor },
+                      ]}
+                    >
+                      <IconComponent
+                        size={20}
+                        color={target.color}
+                        fill={target.color}
+                        strokeWidth={0}
+                      />
                     </View>
+                    <AppText role="Body">{target.label}</AppText>
+                  </View>
 
-                    <View style={styles.targetRight}>
-                      {isEditableField && isActiveField && editableKey ? (
-                        <View style={styles.inputContainer}>
-                          <TextInput
-                            ref={target.inputRef}
-                            keyboardType="numeric"
-                            returnKeyType="done"
-                            value={target.value?.toString() || ""}
-                            onChangeText={(text) =>
-                              handleDraftValueChange(editableKey, text)
-                            }
-                            fontSize="Headline"
-                            containerStyle={styles.inlineInputContainer}
-                            style={styles.inlineInput}
-                          />
-                          <AppText role="Body" color="secondary">
-                            {target.unit}
-                          </AppText>
-                        </View>
-                      ) : (
-                        <View style={styles.targetValueContainer}>
-                          <AppText role="Headline">
-                            {target.value} {target.unit}
-                          </AppText>
-                          {target.percentage && (
-                            <AppText role="Caption" color="secondary">
-                              ({target.percentage})
-                            </AppText>
-                          )}
-                        </View>
-                      )}
-
-                      {isEditableField && editableKey && isEditing && (
-                        <RoundButton
-                          Icon={Pencil}
-                          variant="tertiary"
-                          iconSize={16}
-                          iconStrokeWidth={1.5}
-                          iconColor={colors.accent}
-                          backgroundColor={colors.semanticSurfaces.calories}
-                          onPress={() => handleFieldPress(editableKey)}
-                          accessibilityLabel={`Edit ${target.label}`}
-                          style={styles.editButton}
-                          hitSlop={themeObj.spacing.xs}
-                        />
+                  <View style={styles.targetRight}>
+                    <View style={styles.targetValueContainer}>
+                      <AppText role="Headline">
+                        {target.value} {target.unit}
+                      </AppText>
+                      {target.percentage && (
+                        <AppText role="Caption" color="secondary">
+                          ({target.percentage})
+                        </AppText>
                       )}
                     </View>
                   </View>
-                </Card>
-
-              {hasError && (
-                <View style={styles.errorContainer}>
-                  <AppText role="Caption" style={{ color: colors.error }}>
-                    {target.error}
-                  </AppText>
                 </View>
-              )}
+              </Card>
             </View>
           );
         })}
@@ -501,24 +280,6 @@ const createStyles = (colors: Colors, theme: Theme) => {
       paddingHorizontal: spacing.sm,
       marginBottom: spacing.xl,
     },
-    targetRowError: {
-      borderColor: colors.error,
-      borderWidth: 1,
-    },
-    inputContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: spacing.xs,
-    },
-    inlineInputContainer: {
-      width: 112,
-      alignSelf: "flex-end",
-    },
-    inlineInput: {
-      textAlign: "right",
-      paddingVertical: spacing.xs,
-      paddingHorizontal: spacing.sm,
-    },
     actionButtonsContainer: {
       gap: spacing.md,
       alignItems: "stretch",
@@ -530,16 +291,9 @@ const createStyles = (colors: Colors, theme: Theme) => {
     centeredText: {
       textAlign: "center",
     },
-    errorContainer: {
-      paddingHorizontal: spacing.md,
-      paddingTop: spacing.xs,
-    },
     targetIconBackground: {
       borderRadius: 100,
       padding: spacing.sm,
-    },
-    editButton: {
-      marginLeft: spacing.sm,
     },
   });
 };
