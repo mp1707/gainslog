@@ -382,16 +382,12 @@ const SummaryScreen = () => {
           ]) as ViewStyle;
 
           return (
-            <View key={target.key} style={styles.targetRowContainer}>
+            <View key={target.key}>
               <Pressable
                 onPress={showFatSlider ? handleFatTap : undefined}
                 disabled={!showFatSlider}
               >
-                <Card
-                  // elevated
-                  padding={themeObj.spacing.md}
-                  // style={cardStyleOverride}
-                >
+                <Card padding={themeObj.spacing.md} style={cardStyleOverride}>
                   <View style={styles.targetRowContent}>
                     <View style={styles.targetLeft}>
                       <View
@@ -557,7 +553,7 @@ const createStyles = (colors: Colors, theme: Theme) => {
       marginBottom: spacing.xl,
     },
     targetRowContainer: {
-      overflow: "hidden",
+      // overflow: "hidden",
     },
     cardOverrides: {
       minHeight: 60,
