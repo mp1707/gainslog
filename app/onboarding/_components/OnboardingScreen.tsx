@@ -1,6 +1,5 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/theme";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
@@ -15,8 +14,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
   actionButton,
 }) => {
   const { colors, theme } = useTheme();
-  const insets = useSafeAreaInsets();
-  const styles = createStyles(colors, theme, insets.bottom);
+  const styles = createStyles(colors, theme);
 
   return (
     <GradientWrapper style={styles.container}>
@@ -41,7 +39,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
 
-const createStyles = (colors: Colors, theme: Theme, bottomInset: number) => {
+const createStyles = (colors: Colors, theme: Theme) => {
   const { spacing } = theme;
 
   return StyleSheet.create({
@@ -61,11 +59,10 @@ const createStyles = (colors: Colors, theme: Theme, bottomInset: number) => {
       justifyContent: "center",
       paddingHorizontal: spacing.pageMargins.horizontal,
       paddingVertical: spacing.xl,
-      minHeight: "100%",
     },
     actionButtonContainer: {
       position: "absolute",
-      bottom: Math.max(bottomInset, spacing.lg),
+      bottom: spacing.lg,
       left: spacing.pageMargins.horizontal,
       right: spacing.pageMargins.horizontal,
     },
