@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -26,6 +26,7 @@ const SummaryScreen = () => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { safeReplace } = useNavigationGuard();
+  const [isConfirming, setIsConfirming] = useState(false);
 
   // Onboarding store state
   const {
@@ -52,9 +53,10 @@ const SummaryScreen = () => {
     : 0;
 
   // Calculate carbs using the base values
-  const displayCalories = baseCalories;
-  const displayProtein = baseProtein;
-  const displayFat = baseFat;
+  // When confirming, keep displaying the original values to prevent visual artifacts
+  const displayCalories = isConfirming ? baseCalories : (calorieGoal || 0);
+  const displayProtein = isConfirming ? baseProtein : (proteinGoal || 0);
+  const displayFat = isConfirming ? baseFat : (calorieGoal ? calculateFatGramsFromPercentage(calorieGoal, effectiveFatPercentage) : 0);
 
   const currentCarbs = useMemo(() => {
     const proteinCals = displayProtein * 4;
@@ -74,6 +76,9 @@ const SummaryScreen = () => {
       console.error("Missing required data for daily targets");
       return;
     }
+
+    // Set confirming state to prevent visual artifacts
+    setIsConfirming(true);
 
     // Create the daily targets object
     const newTargets: DailyTargets = {
@@ -153,9 +158,9 @@ const SummaryScreen = () => {
           </View>
           <Button
             variant="primary"
-            label="Confirm & Start Tracking"
+            label={isConfirming ? "Starting..." : "Confirm & Start Tracking"}
             onPress={handleConfirmAndStartTracking}
-            disabled={currentCalories <= 0 || currentProtein <= 0}
+            disabled={currentCalories <= 0 || currentProtein <= 0 || isConfirming}
           />
         </View>
       }
