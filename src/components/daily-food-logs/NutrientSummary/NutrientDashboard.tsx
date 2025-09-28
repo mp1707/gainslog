@@ -134,7 +134,7 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                 detailUnit={config.unit}
                 showDetail={isDetail}
                 animationDelay={index * 120}
-                strokeWidth={20}
+                strokeWidth={24}
               />
             </Pressable>
           );

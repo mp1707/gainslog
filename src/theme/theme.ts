@@ -40,10 +40,10 @@ const lightColors = {
 
   // Subtle tints for semantic surfaces
   semanticSurfaces: {
-    calories: "rgba(68, 235, 212, 0.12)",
-    protein: "rgba(94, 135, 255, 0.12)",
-    carbs: "rgba(255, 109, 109, 0.12)",
-    fat: "rgba(255, 194, 51, 0.12)",
+    calories: "#E9FDFA",
+    protein: "#ECF1FF",
+    carbs: "#FFEDED",
+    fat: "#FFF8E7",
   },
 
   // Tinted badge backgrounds (≈16% opacity)
@@ -128,10 +128,10 @@ const darkColors = {
 
   // Subtle tints for semantic surfaces
   semanticSurfaces: {
-    calories: "rgba(68, 235, 212, 0.24)",
-    protein: "rgba(106, 155, 255, 0.24)",
-    carbs: "rgba(255, 138, 138, 0.24)",
-    fat: "rgba(255, 215, 64, 0.24)",
+    calories: "#103833",
+    protein: "#19253D",
+    carbs: "#3D2121",
+    fat: "#3D340F",
   },
 
   // Semi-transparent colors for badges/backgrounds

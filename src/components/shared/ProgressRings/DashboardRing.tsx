@@ -24,6 +24,7 @@ import Animated from "react-native-reanimated";
 
 import { AppText } from "@/components";
 import { Colors, Theme, useTheme } from "@/theme";
+import { Flame } from "lucide-react-native";
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 const TWO_PI = Math.PI * 2;
@@ -374,6 +375,11 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   const ratio = Math.max(0, (percentage ?? 0) / 100);
   const detailProgress = useSharedValue(showDetail ? 1 : 0);
 
+  // Animated values for tip icon position
+  const tipX = useSharedValue(0);
+  const tipY = useSharedValue(0);
+  const tipOpacity = useSharedValue(0);
+
   useEffect(() => {
     progress.value = withDelay(
       animationDelay,
@@ -399,6 +405,34 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
     trackColor ?? adjustColor(color, isDark ? -0.55 : -0.4);
   const shadowColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.32)";
 
+  // Calculate tip position with rotation transforms
+  useAnimatedReaction(
+    () => progress.value,
+    (currentProgress) => {
+      const progressRatio = Math.max(currentProgress, 0);
+      const capped = Math.min(progressRatio, 1);
+      const sweepValue = progressRatio >= 1 ? 0.995 : capped;
+
+      // Calculate angle (same as in calculateRingState)
+      const angle = sweepValue * TWO_PI;
+      const rotation = Math.max(progressRatio - 1, 0) * TWO_PI;
+
+      // Apply the same transforms as the Skia Group
+      // Base rotation: -Math.PI / 2 (ring starts at top)
+      // Plus internal rotation from the ring animation
+      const finalAngle = angle - Math.PI / 2 + rotation;
+
+      // Calculate final screen position
+      const finalX = center + radius * Math.cos(finalAngle);
+      const finalY = center + radius * Math.sin(finalAngle);
+
+      tipX.value = finalX;
+      tipY.value = finalY;
+      tipOpacity.value = progressRatio > 0.002 ? 1 : 0;
+    },
+    [center, radius]
+  );
+
   const styles = useMemo(
     () => createStyles(size, theme, colors),
     [colors, size, theme]
@@ -409,6 +443,13 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   }));
   const detailAnimatedStyle = useAnimatedStyle(() => ({
     opacity: detailProgress.value,
+  }));
+
+  const tipIconStyle = useAnimatedStyle(() => ({
+    position: "absolute",
+    left: tipX.value - strokeWidth / 2,
+    top: tipY.value - strokeWidth / 2,
+    opacity: tipOpacity.value,
   }));
 
   return (
@@ -437,6 +478,21 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
             />
           </Group>
         </Canvas>
+        <Animated.View style={tipIconStyle} pointerEvents="none">
+          <View
+            style={{
+              width: strokeWidth - 4,
+              height: strokeWidth - 4,
+              borderRadius: (strokeWidth - 4) / 2,
+              backgroundColor: resolvedTrackColor,
+              justifyContent: 'center',
+              alignItems: 'center',
+              margin: 2
+            }}
+          >
+            <Flame size={strokeWidth * 0.5} color={color} fill={color} />
+          </View>
+        </Animated.View>
         <View style={styles.valueContainer} pointerEvents="none">
           <Animated.View style={[styles.textLayer, primaryAnimatedStyle]}>
             {label ? (
