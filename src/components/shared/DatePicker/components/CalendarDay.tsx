@@ -113,9 +113,10 @@ const CalendarDayComponent: React.FC<CalendarDayProps> = ({
       <ProgressRingsStatic
         percentages={percentages}
         size={36}
-        strokeWidth={3}
+        strokeWidth={5}
         spacing={1}
         padding={1}
+        nutrientKeys={["calories", "protein"]}
       />
     </View>
   );

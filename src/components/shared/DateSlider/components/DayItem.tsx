@@ -59,9 +59,10 @@ export const DayItem: React.FC<DayItemProps> = React.memo(
           <ProgressRingsStatic
             percentages={item.percentages}
             size={45}
-            strokeWidth={4}
+            strokeWidth={6}
             spacing={1}
             padding={1}
+            nutrientKeys={["calories", "protein"]}
           />
         </View>
       </Pressable>

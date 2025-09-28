@@ -33,11 +33,12 @@ interface ProgressRingsProps {
   strokeWidth?: number;
   spacing?: number;
   padding?: number;
+  nutrientKeys?: NutrientKey[];
 }
 
 type NutrientKey = keyof NutrientValues;
 
-const RING_CONFIG: ReadonlyArray<{
+const ALL_RING_CONFIG: ReadonlyArray<{
   key: NutrientKey;
   colorKey: NutrientKey;
   label: string;
@@ -47,6 +48,17 @@ const RING_CONFIG: ReadonlyArray<{
   { key: "carbs", colorKey: "carbs", label: "Carbs" },
   { key: "fat", colorKey: "fat", label: "Fat" },
 ] as const;
+
+const DEFAULT_KEYS = ALL_RING_CONFIG.map((config) => config.key);
+
+const resolveRingConfigs = (nutrientKeys?: NutrientKey[]) => {
+  const requestedKeys =
+    nutrientKeys && nutrientKeys.length > 0 ? nutrientKeys : DEFAULT_KEYS;
+  const uniqueKeys = Array.from(new Set(requestedKeys));
+  return uniqueKeys
+    .map((key) => ALL_RING_CONFIG.find((config) => config.key === key))
+    .filter((config): config is (typeof ALL_RING_CONFIG)[number] => Boolean(config));
+};
 
 type GradientStop = { position: number; color: string };
 
@@ -384,6 +396,7 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
   strokeWidth = 16,
   spacing = 8,
   padding = 8,
+  nutrientKeys,
 }) => {
   const { colors, colorScheme } = useTheme();
   const isDark = colorScheme === "dark";
@@ -403,8 +416,13 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
     [caloriesProgress, proteinProgress, carbsProgress, fatProgress]
   );
 
+  const ringConfigs = useMemo(
+    () => resolveRingConfigs(nutrientKeys),
+    [nutrientKeys]
+  );
+
   useEffect(() => {
-    RING_CONFIG.forEach((config, index) => {
+    ringConfigs.forEach((config, index) => {
       const raw = percentages[config.key] ?? 0;
       const normalized = Math.max(0, raw / 100);
       const delay = index * 120;
@@ -417,16 +435,16 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
         })
       );
     });
-  }, [percentages, progressValues]);
+  }, [percentages, progressValues, ringConfigs]);
 
   const normalizedValues = useMemo(
     () =>
-      RING_CONFIG.reduce((acc, config) => {
+      ringConfigs.reduce((acc, config) => {
         const raw = percentages[config.key] ?? 0;
         acc[config.key] = Math.max(0, raw / 100);
         return acc;
       }, {} as Record<NutrientKey, number>),
-    [percentages]
+    [percentages, ringConfigs]
   );
 
   const center = size / 2;
@@ -434,14 +452,14 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
   const radii = useMemo(() => {
     const values: number[] = [];
     let current = outerRadius;
-    for (let index = 0; index < RING_CONFIG.length; index += 1) {
+    for (let index = 0; index < ringConfigs.length; index += 1) {
       values.push(current);
-      if (index < RING_CONFIG.length - 1) {
+      if (index < ringConfigs.length - 1) {
         current -= strokeWidth + spacing;
       }
     }
     return values;
-  }, [outerRadius, spacing, strokeWidth]);
+  }, [outerRadius, spacing, strokeWidth, ringConfigs]);
 
   const ringColors = {
     calories: colors.semantic.calories,
@@ -471,7 +489,7 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
           origin={vec(center, center)}
           transform={[{ rotate: -Math.PI / 2 }]}
         >
-          {RING_CONFIG.map((config, index) => (
+          {ringConfigs.map((config, index) => (
             <RingLayer
               key={config.key}
               animated
@@ -492,7 +510,7 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
   );
 };
 
-type ProgressRingsStaticProps = Omit<ProgressRingsProps, "animated">;
+type ProgressRingsStaticProps = ProgressRingsProps;
 
 export const ProgressRingsStatic: React.FC<ProgressRingsStaticProps> = ({
   percentages,
@@ -500,6 +518,7 @@ export const ProgressRingsStatic: React.FC<ProgressRingsStaticProps> = ({
   strokeWidth = 16,
   spacing = 8,
   padding = 8,
+  nutrientKeys,
 }) => {
   const { colors, colorScheme } = useTheme();
   const isDark = colorScheme === "dark";
@@ -507,26 +526,31 @@ export const ProgressRingsStatic: React.FC<ProgressRingsStaticProps> = ({
   const center = size / 2;
   const outerRadius = center - strokeWidth / 2 - padding;
 
+  const ringConfigs = useMemo(
+    () => resolveRingConfigs(nutrientKeys),
+    [nutrientKeys]
+  );
+
   const radii = useMemo(() => {
     const values: number[] = [];
     let current = outerRadius;
-    for (let index = 0; index < RING_CONFIG.length; index += 1) {
+    for (let index = 0; index < ringConfigs.length; index += 1) {
       values.push(current);
-      if (index < RING_CONFIG.length - 1) {
+      if (index < ringConfigs.length - 1) {
         current -= strokeWidth + spacing;
       }
     }
     return values;
-  }, [outerRadius, spacing, strokeWidth]);
+  }, [outerRadius, spacing, strokeWidth, ringConfigs]);
 
   const normalizedValues = useMemo(
     () =>
-      RING_CONFIG.reduce((acc, config) => {
+      ringConfigs.reduce((acc, config) => {
         const raw = percentages[config.key] ?? 0;
         acc[config.key] = Math.max(0, raw / 100);
         return acc;
       }, {} as Record<NutrientKey, number>),
-    [percentages]
+    [percentages, ringConfigs]
   );
 
   const ringColors = {
@@ -554,13 +578,13 @@ export const ProgressRingsStatic: React.FC<ProgressRingsStaticProps> = ({
     >
       <Canvas style={{ width: size, height: size }}>
         <Group origin={vec(center, center)} transform={[{ rotate: -Math.PI / 2 }]}> 
-          {RING_CONFIG.map((config, index) => (
-            <StaticRingLayer
-              key={config.key}
-              value={normalizedValues[config.key]}
-              radius={radii[index] ?? outerRadius}
-              strokeWidth={strokeWidth}
-              center={center}
+        {ringConfigs.map((config, index) => (
+          <StaticRingLayer
+            key={config.key}
+            value={normalizedValues[config.key]}
+            radius={radii[index] ?? outerRadius}
+            strokeWidth={strokeWidth}
+            center={center}
               trackColor={ringTracks[config.key]}
               baseColor={ringColors[config.key]}
               trackOpacity={1}

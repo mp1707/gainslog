@@ -123,7 +123,8 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                   </View>
                   <View style={styles.statTextContainer}>
                     <AppText style={styles.statLabel}>
-                      {config.label} ({config.unit})
+                      {config.label}
+                      {config.key !== "calories" ? ` (${config.unit})` : ""}
                     </AppText>
                     <View style={styles.statValues}>
                       <AppText style={styles.statCurrentValue}>
@@ -155,9 +156,8 @@ const createStyles = (colors: Colors, theme: Theme) =>
     },
     ringsRow: {
       flexDirection: "row",
-      justifyContent: "space-between",
+      justifyContent: "space-around",
       alignItems: "center",
-      gap: theme.spacing.xl,
     },
     statsContainer: {
       gap: theme.spacing.md,
