@@ -351,6 +351,7 @@ interface DashboardRingProps {
   showDetail?: boolean;
   animationDelay?: number;
   testID?: string;
+  Icon?: React.ComponentType<{ size: number; color: string; fill: string }>;
 }
 
 export const DashboardRing: React.FC<DashboardRingProps> = ({
@@ -368,6 +369,7 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   showDetail = false,
   animationDelay = 0,
   testID,
+  Icon = Flame,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const isDark = colorScheme === "dark";
@@ -399,7 +401,7 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
 
   const center = size / 2;
   const gapSize = 4;
-  const radius = center - strokeWidth / 2 - theme.spacing.xs - gapSize;
+  const radius = center - strokeWidth / 2 - gapSize;
   const innerCircleRadius = radius - strokeWidth / 2 - gapSize;
   const resolvedTrackColor =
     trackColor ?? adjustColor(color, isDark ? -0.55 : -0.4);
@@ -485,12 +487,12 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
               height: strokeWidth - 4,
               borderRadius: (strokeWidth - 4) / 2,
               backgroundColor: resolvedTrackColor,
-              justifyContent: 'center',
-              alignItems: 'center',
-              margin: 2
+              justifyContent: "center",
+              alignItems: "center",
+              margin: 2,
             }}
           >
-            <Flame size={strokeWidth * 0.5} color={color} fill={color} />
+            <Icon size={strokeWidth * 0.5} color={color} fill={color} />
           </View>
         </Animated.View>
         <View style={styles.valueContainer} pointerEvents="none">

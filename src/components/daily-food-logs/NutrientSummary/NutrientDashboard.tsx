@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { View, StyleSheet, Pressable } from "react-native";
 import { Droplet, Flame, BicepsFlexed, Wheat } from "lucide-react-native";
 
@@ -31,8 +37,8 @@ const STAT_CONFIG = [
 const STAT_ROWS = [[STAT_CONFIG[2], STAT_CONFIG[3]]] as const;
 
 const RING_CONFIG = [
-  { key: "calories", label: "Calories", unit: "kcal" },
-  { key: "protein", label: "Protein", unit: "g" },
+  { key: "calories", label: "Calories", unit: "kcal", icon: Flame },
+  { key: "protein", label: "Protein", unit: "g", icon: BicepsFlexed },
 ] as const;
 
 const formatDifference = (current: number, target: number) => {
@@ -83,7 +89,8 @@ const useNumberReveal = (initial: number) => {
 
           // Spring-like easing that mimics the ring animation
           // Combines exponential decay with damping for gradual deceleration
-          const springEased = 1 - Math.exp(-3.5 * t) * Math.cos(2.5 * t) * (1 - t * 0.8);
+          const springEased =
+            1 - Math.exp(-3.5 * t) * Math.cos(2.5 * t) * (1 - t * 0.8);
           const finalEased = Math.min(1, Math.max(0, springEased));
 
           const val = Math.round(from + (target - from) * finalEased);
@@ -175,12 +182,7 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     animatedProteinTotal.animateTo(totals.protein || 0);
     animatedCaloriesTarget.animateTo(targets.calories || 0);
     animatedProteinTarget.animateTo(targets.protein || 0);
-  }, [
-    totals.calories,
-    totals.protein,
-    targets.calories,
-    targets.protein,
-  ]);
+  }, [totals.calories, totals.protein, targets.calories, targets.protein]);
 
   const handleToggleRing = useCallback((key: "calories" | "protein") => {
     setRingDetailState((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -201,19 +203,23 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
           const isDetail = ringDetailState[ringKey];
 
           // Use animated values for display
-          const animatedTotal = config.key === 'calories'
-            ? animatedCaloriesTotal.display
-            : animatedProteinTotal.display;
-          const animatedTarget = config.key === 'calories'
-            ? animatedCaloriesTarget.display
-            : animatedProteinTarget.display;
+          const animatedTotal =
+            config.key === "calories"
+              ? animatedCaloriesTotal.display
+              : animatedProteinTotal.display;
+          const animatedTarget =
+            config.key === "calories"
+              ? animatedCaloriesTarget.display
+              : animatedProteinTarget.display;
 
-          const deltaValue = config.key === 'protein'
-            ? `${formatDifference(animatedTotal, animatedTarget)}g`
-            : formatDifference(animatedTotal, animatedTarget);
-          const detailValue = config.key === 'protein'
-            ? `${animatedTotal}g / ${animatedTarget}g`
-            : `${animatedTotal} / ${animatedTarget}`;
+          const deltaValue =
+            config.key === "protein"
+              ? `${formatDifference(animatedTotal, animatedTarget)}g`
+              : formatDifference(animatedTotal, animatedTarget);
+          const detailValue =
+            config.key === "protein"
+              ? `${animatedTotal}g / ${animatedTarget}g`
+              : `${animatedTotal} / ${animatedTarget}`;
           return (
             <Pressable
               key={config.key}
@@ -235,7 +241,8 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                 detailUnit={config.unit}
                 showDetail={isDetail}
                 animationDelay={index * 400}
-                strokeWidth={24}
+                strokeWidth={26}
+                Icon={config.icon}
               />
             </Pressable>
           );
@@ -273,7 +280,8 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                       </AppText>
                       {config.key !== "carbs" ? (
                         <AppText style={styles.statTotalValue}>
-                          {" "}/ {Math.round(target)}
+                          {" "}
+                          / {Math.round(target)}
                         </AppText>
                       ) : null}
                     </View>
