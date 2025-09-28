@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, StyleSheet, Pressable } from "react-native";
 import { Droplet, Flame, BicepsFlexed, Wheat } from "lucide-react-native";
 
@@ -41,6 +41,79 @@ const formatDifference = (current: number, target: number) => {
   return `${diff}`;
 };
 
+// Utility to run a quick slot-machine then count-up animation via state
+const useNumberReveal = (initial: number) => {
+  const prevRef = useRef(initial);
+  const [display, setDisplay] = useState(initial);
+  const flickerRef = useRef<NodeJS.Timeout | null>(null);
+  const animationRef = useRef<number | null>(null);
+
+  const animateTo = useCallback((target: number) => {
+    const startPrev = prevRef.current;
+    prevRef.current = target;
+
+    // Clear any existing animations
+    if (flickerRef.current) {
+      clearInterval(flickerRef.current);
+      flickerRef.current = null;
+    }
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+
+    // Phase 1: slot-machine (random flicker ~250ms)
+    const flickerDuration = 250;
+    const flickerStep = 35;
+    let elapsed = 0;
+    flickerRef.current = setInterval(() => {
+      elapsed += flickerStep;
+      setDisplay(Math.max(0, Math.round(target * Math.random())));
+      if (elapsed >= flickerDuration) {
+        if (flickerRef.current) {
+          clearInterval(flickerRef.current);
+          flickerRef.current = null;
+        }
+        // Phase 2: count-up/down to target (~1200ms) with spring-like easing
+        const total = 1200;
+        const start = Date.now();
+        const from = isNaN(startPrev) ? 0 : startPrev;
+        const tick = () => {
+          const t = Math.min(1, (Date.now() - start) / total);
+
+          // Spring-like easing that mimics the ring animation
+          // Combines exponential decay with damping for gradual deceleration
+          const springEased = 1 - Math.exp(-3.5 * t) * Math.cos(2.5 * t) * (1 - t * 0.8);
+          const finalEased = Math.min(1, Math.max(0, springEased));
+
+          const val = Math.round(from + (target - from) * finalEased);
+          setDisplay(val);
+          if (t < 1) {
+            animationRef.current = requestAnimationFrame(tick);
+          } else {
+            animationRef.current = null;
+          }
+        };
+        animationRef.current = requestAnimationFrame(tick);
+      }
+    }, flickerStep);
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (flickerRef.current) {
+        clearInterval(flickerRef.current);
+      }
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, []);
+
+  return { display, animateTo } as const;
+};
+
 export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   percentages,
   targets,
@@ -54,6 +127,12 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     calories: false,
     protein: false,
   });
+
+  // Animated values for count-up effect
+  const animatedCaloriesTotal = useNumberReveal(totals.calories || 0);
+  const animatedProteinTotal = useNumberReveal(totals.protein || 0);
+  const animatedCaloriesTarget = useNumberReveal(targets.calories || 0);
+  const animatedProteinTarget = useNumberReveal(targets.protein || 0);
 
   const hasNoGoals = useMemo(() => {
     return (
@@ -90,6 +169,19 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     targets.protein,
   ]);
 
+  // Trigger count-up animations when values change
+  useEffect(() => {
+    animatedCaloriesTotal.animateTo(totals.calories || 0);
+    animatedProteinTotal.animateTo(totals.protein || 0);
+    animatedCaloriesTarget.animateTo(targets.calories || 0);
+    animatedProteinTarget.animateTo(targets.protein || 0);
+  }, [
+    totals.calories,
+    totals.protein,
+    targets.calories,
+    targets.protein,
+  ]);
+
   const handleToggleRing = useCallback((key: "calories" | "protein") => {
     setRingDetailState((prev) => ({ ...prev, [key]: !prev[key] }));
   }, []);
@@ -107,12 +199,21 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
           const percentage = percentages[config.key] || 0;
           const ringKey = config.key;
           const isDetail = ringDetailState[ringKey];
+
+          // Use animated values for display
+          const animatedTotal = config.key === 'calories'
+            ? animatedCaloriesTotal.display
+            : animatedProteinTotal.display;
+          const animatedTarget = config.key === 'calories'
+            ? animatedCaloriesTarget.display
+            : animatedProteinTarget.display;
+
           const deltaValue = config.key === 'protein'
-            ? `${formatDifference(total, target)}g`
-            : formatDifference(total, target);
+            ? `${formatDifference(animatedTotal, animatedTarget)}g`
+            : formatDifference(animatedTotal, animatedTarget);
           const detailValue = config.key === 'protein'
-            ? `${Math.round(total)}g / ${Math.round(target)}g`
-            : `${Math.round(total)} / ${Math.round(target)}`;
+            ? `${animatedTotal}g / ${animatedTarget}g`
+            : `${animatedTotal} / ${animatedTarget}`;
           return (
             <Pressable
               key={config.key}
@@ -133,7 +234,7 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                 detailValue={detailValue}
                 detailUnit={config.unit}
                 showDetail={isDetail}
-                animationDelay={index * 120}
+                animationDelay={index * 400}
                 strokeWidth={24}
               />
             </Pressable>

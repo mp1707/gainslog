@@ -384,9 +384,9 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
     progress.value = withDelay(
       animationDelay,
       withSpring(ratio, {
-        mass: 0.6,
-        damping: 15,
-        stiffness: 120,
+        mass: 1.2,
+        damping: 25,
+        stiffness: 80,
       })
     );
   }, [animationDelay, ratio, progress]);
