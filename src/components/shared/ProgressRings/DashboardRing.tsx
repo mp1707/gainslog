@@ -341,6 +341,7 @@ interface DashboardRingProps {
   strokeWidth?: number;
   color: string;
   trackColor?: string;
+  label?: string;
   displayValue: string | number;
   displayUnit?: string;
   detailValue?: string | number;
@@ -356,10 +357,11 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   strokeWidth = 16,
   color,
   trackColor,
+  label,
   displayValue,
-  displayUnit,
+  displayUnit: _displayUnit,
   detailValue,
-  detailUnit,
+  detailUnit: _detailUnit,
   showDetail = false,
   animationDelay = 0,
   testID,
@@ -427,20 +429,17 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
         </Canvas>
         <View style={styles.valueContainer} pointerEvents="none">
           <Animated.View style={[styles.textLayer, primaryAnimatedStyle]}>
-            <AppText role="Headline">{`${displayValue}`}</AppText>
-            {displayUnit ? (
-              <AppText style={styles.unitText}>{displayUnit}</AppText>
-            ) : null}
+            {label ? <AppText style={styles.labelText}>{label}</AppText> : null}
+            <AppText
+              role="Title2"
+              style={[styles.lineHeightFix, styles.value]}
+            >{`${displayValue}`}</AppText>
           </Animated.View>
           <Animated.View style={[styles.textLayer, detailAnimatedStyle]}>
-            <AppText role="Body">{`${
+            {label ? <AppText style={styles.labelText}>{label}</AppText> : null}
+            <AppText role="Body" style={styles.lineHeightFix}>{`${
               detailValue ?? displayValue
             } `}</AppText>
-            {detailUnit ?? displayUnit ? (
-              <AppText style={styles.unitText}>
-                {detailUnit ?? displayUnit}
-              </AppText>
-            ) : null}
           </Animated.View>
         </View>
       </View>
@@ -465,6 +464,7 @@ const createStyles = (size: number, theme: Theme, colors: Colors) =>
       position: "absolute",
       alignItems: "center",
       justifyContent: "center",
+      marginTop: -theme.spacing.sm
     },
     textLayer: {
       position: "absolute",
@@ -472,14 +472,14 @@ const createStyles = (size: number, theme: Theme, colors: Colors) =>
       justifyContent: "center",
       gap: theme.spacing.xs,
     },
-    valueText: {
-      ...theme.typography.Title2,
-      fontWeight: "600",
-      color: colors.primaryText,
+    lineHeightFix: {
+      lineHeight: 32,
     },
-    unitText: {
+    value: {
+      marginLeft: -theme.spacing.sm,
+    },
+    labelText: {
       ...theme.typography.Caption,
       color: colors.secondaryText,
-      marginTop: theme.spacing.xs,
     },
   });

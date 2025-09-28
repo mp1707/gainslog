@@ -32,7 +32,7 @@ const STAT_ROWS = [[STAT_CONFIG[2], STAT_CONFIG[3]]] as const;
 
 const RING_CONFIG = [
   { key: "calories", label: "Calories", unit: "kcal" },
-  { key: "protein", label: "Protein", unit: "gram" },
+  { key: "protein", label: "Protein (g)", unit: "gram" },
 ] as const;
 
 const formatDifference = (current: number, target: number) => {
@@ -122,6 +122,7 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                 percentage={percentage}
                 color={semanticColors[config.key]}
                 trackColor={surfaceColors[config.key]}
+                label={config.label}
                 displayValue={deltaValue}
                 displayUnit={config.unit}
                 detailValue={detailValue}
