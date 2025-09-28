@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useMemo, useCallback } from "react";
 import { FlatList, ListRenderItem, TouchableOpacity } from "react-native";
 import { FoodLog, Favorite } from "@/types/models";
 import { FoodLogItem } from "./FoodLogItem";
-import { NutrientSummary } from "./NutrientSummary/NutrientSummary";
+import { NutrientDashboard } from "./NutrientSummary/NutrientDashboard";
 import { EmptyFoodLogsState } from "./EmptyFoodLogsState";
 import { useTheme } from "@/theme/ThemeProvider";
 
@@ -87,7 +87,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
         activeOpacity={0.8}
         onPress={onGoalsPress}
       >
-        <NutrientSummary
+        <NutrientDashboard
           percentages={dailyPercentages}
           targets={dailyTargets || defaultTargets}
           totals={dailyTotals}

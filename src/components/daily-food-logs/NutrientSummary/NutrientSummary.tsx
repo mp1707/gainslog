@@ -1,10 +1,10 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet, Platform, UIManager } from "react-native";
 import { Colors, Theme, useTheme } from "@/theme";
-import { AppText, Button } from "@/components";
+import { AppText } from "@/components";
 import { Droplet, Flame, BicepsFlexed, Wheat } from "lucide-react-native";
 import { ProgressRings } from "@/components/shared/ProgressRings";
-import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { SetGoalsCTA } from "./SetGoalsCTA";
 
 if (
   Platform.OS === "android" &&
@@ -86,29 +86,6 @@ const StatRow = ({
           </AppText>
         </View>
       </View>
-    </View>
-  );
-};
-
-// --- CTA COMPONENT FOR EMPTY STATE ---
-const SetGoalsCTA = () => {
-  const { colors, theme } = useTheme();
-  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
-  const { safeNavigate } = useNavigationGuard();
-  const handleCTAPress = () => {
-    safeNavigate("/onboarding");
-  };
-  return (
-    <View style={styles.ctaContainer}>
-      <AppText style={styles.ctaTitle}>
-        Set your goals to start tracking
-      </AppText>
-      <Button
-        variant="primary"
-        label="Start 🚀"
-        onPress={handleCTAPress}
-        style={styles.ctaButton}
-      />
     </View>
   );
 };
@@ -235,25 +212,6 @@ const createStyles = (colors: Colors, theme: Theme) => {
     statTotalValue: {
       ...theme.typography.Caption,
       color: colors.secondaryText,
-    },
-    // CTA styles
-    ctaContainer: {
-      alignItems: "center",
-      justifyContent: "center",
-      paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.xl,
-      gap: theme.spacing.md,
-      minHeight: 176, // Same as ringsContainer for consistent layout
-    },
-    ctaTitle: {
-      ...theme.typography.Headline,
-      color: colors.primaryText,
-      textAlign: "center",
-      fontWeight: "600",
-    },
-    ctaButton: {
-      marginTop: theme.spacing.md,
-      minWidth: 180,
     },
   });
 };
