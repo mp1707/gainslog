@@ -341,6 +341,7 @@ interface DashboardRingProps {
   strokeWidth?: number;
   color: string;
   trackColor?: string;
+  textColor?: string;
   label?: string;
   displayValue: string | number;
   displayUnit?: string;
@@ -357,6 +358,7 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   strokeWidth = 16,
   color,
   trackColor,
+  textColor,
   label,
   displayValue,
   displayUnit: _displayUnit,
@@ -390,7 +392,9 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   }, [detailProgress, showDetail]);
 
   const center = size / 2;
-  const radius = center - strokeWidth / 2 - theme.spacing.xs;
+  const gapSize = 4;
+  const radius = center - strokeWidth / 2 - theme.spacing.xs - gapSize;
+  const innerCircleRadius = radius - strokeWidth / 2 - gapSize;
   const resolvedTrackColor =
     trackColor ?? adjustColor(color, isDark ? -0.55 : -0.4);
   const shadowColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.32)";
@@ -411,6 +415,12 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
     <View style={styles.wrapper} testID={testID}>
       <View style={styles.canvasContainer}>
         <Canvas style={{ width: size, height: size }}>
+          <Circle
+            cx={center}
+            cy={center}
+            r={innerCircleRadius}
+            color={resolvedTrackColor}
+          />
           <Group
             origin={vec(center, center)}
             transform={[{ rotate: -Math.PI / 2 }]}
@@ -429,17 +439,34 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
         </Canvas>
         <View style={styles.valueContainer} pointerEvents="none">
           <Animated.View style={[styles.textLayer, primaryAnimatedStyle]}>
-            {label ? <AppText style={styles.labelText}>{label}</AppText> : null}
+            {label ? (
+              <AppText
+                style={[styles.labelText, textColor && { color: textColor }]}
+              >
+                {label}
+              </AppText>
+            ) : null}
             <AppText
               role="Title2"
-              style={[styles.lineHeightFix, styles.value]}
+              style={[
+                styles.lineHeightFix,
+                label === "Calories" && styles.value,
+                textColor && { color: textColor },
+              ]}
             >{`${displayValue}`}</AppText>
           </Animated.View>
           <Animated.View style={[styles.textLayer, detailAnimatedStyle]}>
-            {label ? <AppText style={styles.labelText}>{label}</AppText> : null}
-            <AppText role="Body" style={styles.lineHeightFix}>{`${
-              detailValue ?? displayValue
-            } `}</AppText>
+            {label ? (
+              <AppText
+                style={[styles.labelText, textColor && { color: textColor }]}
+              >
+                {label}
+              </AppText>
+            ) : null}
+            <AppText
+              role="Body"
+              style={[styles.lineHeightFix, textColor && { color: textColor }]}
+            >{`${detailValue ?? displayValue} `}</AppText>
           </Animated.View>
         </View>
       </View>
@@ -464,7 +491,7 @@ const createStyles = (size: number, theme: Theme, colors: Colors) =>
       position: "absolute",
       alignItems: "center",
       justifyContent: "center",
-      marginTop: -theme.spacing.sm
+      marginTop: -theme.spacing.md,
     },
     textLayer: {
       position: "absolute",
@@ -481,5 +508,6 @@ const createStyles = (size: number, theme: Theme, colors: Colors) =>
     labelText: {
       ...theme.typography.Caption,
       color: colors.secondaryText,
+      marginBottom: -theme.spacing.xs,
     },
   });

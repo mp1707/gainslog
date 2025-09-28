@@ -32,7 +32,7 @@ const STAT_ROWS = [[STAT_CONFIG[2], STAT_CONFIG[3]]] as const;
 
 const RING_CONFIG = [
   { key: "calories", label: "Calories", unit: "kcal" },
-  { key: "protein", label: "Protein (g)", unit: "gram" },
+  { key: "protein", label: "Protein", unit: "g" },
 ] as const;
 
 const formatDifference = (current: number, target: number) => {
@@ -107,8 +107,12 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
           const percentage = percentages[config.key] || 0;
           const ringKey = config.key;
           const isDetail = ringDetailState[ringKey];
-          const deltaValue = formatDifference(total, target);
-          const detailValue = `${Math.round(total)} / ${Math.round(target)}`;
+          const deltaValue = config.key === 'protein'
+            ? `${formatDifference(total, target)}g`
+            : formatDifference(total, target);
+          const detailValue = config.key === 'protein'
+            ? `${Math.round(total)}g / ${Math.round(target)}g`
+            : `${Math.round(total)} / ${Math.round(target)}`;
           return (
             <Pressable
               key={config.key}
@@ -122,6 +126,7 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                 percentage={percentage}
                 color={semanticColors[config.key]}
                 trackColor={surfaceColors[config.key]}
+                textColor={semanticColors[config.key]}
                 label={config.label}
                 displayValue={deltaValue}
                 displayUnit={config.unit}
