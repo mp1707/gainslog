@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useMemo, useCallback } from "react";
-import { FlatList, ListRenderItem, TouchableOpacity } from "react-native";
+import { FlatList, ListRenderItem } from "react-native";
 import { FoodLog, Favorite } from "@/types/models";
 import { FoodLogItem } from "./FoodLogItem";
 import { NutrientDashboard } from "./NutrientSummary/NutrientDashboard";
@@ -13,7 +13,6 @@ interface FoodLogsListProps {
   dailyTotals: any;
   dynamicBottomPadding: number;
   headerOffset: number;
-  onGoalsPress: () => void;
   onDelete: (log: FoodLog | Favorite) => void;
   onToggleFavorite: (log: FoodLog) => void;
   onEdit: (log: FoodLog | Favorite) => void;
@@ -29,7 +28,6 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
   dailyTotals,
   dynamicBottomPadding,
   headerOffset,
-  onGoalsPress,
   onDelete,
   onToggleFavorite,
   onEdit,
@@ -80,21 +78,13 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
 
   const ListHeaderComponent = useMemo(
     () => (
-      <TouchableOpacity
-        accessibilityRole="button"
-        accessibilityLabel="Open goals"
-        accessibilityHint="Opens the goals settings"
-        activeOpacity={0.8}
-        onPress={onGoalsPress}
-      >
-        <NutrientDashboard
-          percentages={dailyPercentages}
-          targets={dailyTargets || defaultTargets}
-          totals={dailyTotals}
-        />
-      </TouchableOpacity>
+      <NutrientDashboard
+        percentages={dailyPercentages}
+        targets={dailyTargets || defaultTargets}
+        totals={dailyTotals}
+      />
     ),
-    [dailyPercentages, dailyTargets, dailyTotals, onGoalsPress, defaultTargets]
+    [dailyPercentages, dailyTargets, dailyTotals, defaultTargets]
   );
 
   const contentContainerStyle = useMemo(

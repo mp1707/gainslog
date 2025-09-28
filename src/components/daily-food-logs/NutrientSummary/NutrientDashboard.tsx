@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { View, StyleSheet } from "react-native";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { View, StyleSheet, Pressable } from "react-native";
 import { Droplet, Flame, BicepsFlexed, Wheat } from "lucide-react-native";
 
 import { AppText } from "@/components";
@@ -28,10 +28,7 @@ const STAT_CONFIG = [
   { key: "carbs", label: "Carbs", unit: "g", Icon: Wheat },
 ] as const;
 
-const STAT_ROWS = [
-  [STAT_CONFIG[0], STAT_CONFIG[1]],
-  [STAT_CONFIG[2], STAT_CONFIG[3]],
-] as const;
+const STAT_ROWS = [[STAT_CONFIG[2], STAT_CONFIG[3]]] as const;
 
 const RING_CONFIG = [
   { key: "calories", label: "Calories", unit: "kcal" },
@@ -51,6 +48,12 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const [ringDetailState, setRingDetailState] = useState<
+    Record<"calories" | "protein", boolean>
+  >({
+    calories: false,
+    protein: false,
+  });
 
   const hasNoGoals = useMemo(() => {
     return (
@@ -60,10 +63,6 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
       (targets.fat || 0) === 0
     );
   }, [targets]);
-
-  if (hasNoGoals) {
-    return <SetGoalsCTA />;
-  }
 
   const semanticColors = {
     calories: colors.semantic.calories,
@@ -78,6 +77,27 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     fat: colors.semanticSurfaces.fat,
   } as const;
 
+  useEffect(() => {
+    if (hasNoGoals) {
+      return;
+    }
+    setRingDetailState({ calories: false, protein: false });
+  }, [
+    hasNoGoals,
+    totals.calories,
+    totals.protein,
+    targets.calories,
+    targets.protein,
+  ]);
+
+  const handleToggleRing = useCallback((key: "calories" | "protein") => {
+    setRingDetailState((prev) => ({ ...prev, [key]: !prev[key] }));
+  }, []);
+
+  if (hasNoGoals) {
+    return <SetGoalsCTA />;
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.ringsRow}>
@@ -85,17 +105,32 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
           const total = totals[config.key] || 0;
           const target = targets[config.key] || 0;
           const percentage = percentages[config.key] || 0;
+          const ringKey = config.key;
+          const isDetail = ringDetailState[ringKey];
+          const deltaValue = formatDifference(total, target);
+          const detailValue = `${Math.round(total)} / ${Math.round(target)}`;
           return (
-            <DashboardRing
+            <Pressable
               key={config.key}
-              percentage={percentage}
-              color={semanticColors[config.key]}
-              trackColor={surfaceColors[config.key]}
-              displayValue={formatDifference(total, target)}
-              displayUnit={config.unit}
-              animationDelay={index * 120}
-              strokeWidth={22}
-            />
+              onPress={() => handleToggleRing(ringKey)}
+              accessibilityRole="button"
+              accessibilityLabel={`${config.label} summary`}
+              accessibilityHint="Toggle between delta and totals"
+              style={styles.ringPressable}
+            >
+              <DashboardRing
+                percentage={percentage}
+                color={semanticColors[config.key]}
+                trackColor={surfaceColors[config.key]}
+                displayValue={deltaValue}
+                displayUnit={config.unit}
+                detailValue={detailValue}
+                detailUnit={config.unit}
+                showDetail={isDetail}
+                animationDelay={index * 120}
+                strokeWidth={20}
+              />
+            </Pressable>
           );
         })}
       </View>
@@ -123,8 +158,7 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                   </View>
                   <View style={styles.statTextContainer}>
                     <AppText style={styles.statLabel}>
-                      {config.label}
-                      {config.key !== "calories" ? ` (${config.unit})` : ""}
+                      {`${config.label} (${config.unit})`}
                     </AppText>
                     <View style={styles.statValues}>
                       <AppText style={styles.statCurrentValue}>
@@ -156,7 +190,12 @@ const createStyles = (colors: Colors, theme: Theme) =>
     },
     ringsRow: {
       flexDirection: "row",
-      justifyContent: "space-around",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: theme.spacing.lg,
+    },
+    ringPressable: {
+      flex: 1,
       alignItems: "center",
     },
     statsContainer: {

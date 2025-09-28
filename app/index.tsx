@@ -103,10 +103,6 @@ export default function TodayTab() {
     [addFavorite, deleteFavorite, favorites]
   );
 
-  const handleGoalsPress = () => {
-    safeNavigate("/onboarding");
-  };
-
   return (
     <View style={styles.container}>
       <FoodLogsList
@@ -116,7 +112,6 @@ export default function TodayTab() {
         dailyTotals={dailyTotals}
         dynamicBottomPadding={dynamicBottomPadding}
         headerOffset={contentOffset}
-        onGoalsPress={handleGoalsPress}
         onDelete={handleDelete}
         onToggleFavorite={handleToggleFavorite}
         onEdit={handleEdit}

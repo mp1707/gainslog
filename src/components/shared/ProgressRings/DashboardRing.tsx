@@ -14,10 +14,13 @@ import {
   SharedValue,
   runOnJS,
   useAnimatedReaction,
+  useAnimatedStyle,
   useSharedValue,
   withDelay,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
+import Animated from "react-native-reanimated";
 
 import { AppText } from "@/components";
 import { Colors, Theme, useTheme } from "@/theme";
@@ -91,8 +94,14 @@ const deriveStops = (
   const tailShade = startShade;
 
   const highlightEnd = Math.max(normalized, 0);
-  const highlightStart = Math.max(Math.min(highlightEnd - 0.12, highlightEnd), 0);
-  const warmPoint = Math.max(Math.min(highlightStart * 0.65, highlightStart), 0);
+  const highlightStart = Math.max(
+    Math.min(highlightEnd - 0.12, highlightEnd),
+    0
+  );
+  const warmPoint = Math.max(
+    Math.min(highlightStart * 0.65, highlightStart),
+    0
+  );
   const finalPoint =
     normalized >= 0.999 ? 0.999 : Math.min(normalized + 0.015, 0.999);
 
@@ -205,7 +214,9 @@ interface AnimatedRingLayerProps extends BaseRingLayerProps {
   progress: SharedValue<number>;
 }
 
-const RingVisual: React.FC<BaseRingLayerProps & { state: RingAnimationState }> = ({
+const RingVisual: React.FC<
+  BaseRingLayerProps & { state: RingAnimationState }
+> = ({
   state,
   radius,
   strokeWidth,
@@ -240,7 +251,7 @@ const RingVisual: React.FC<BaseRingLayerProps & { state: RingAnimationState }> =
         color={trackColor}
         opacity={trackOpacity}
       />
-      <Group origin={centerVector} transform={[{ rotate: state.rotation }]}> 
+      <Group origin={centerVector} transform={[{ rotate: state.rotation }]}>
         <Circle
           cx={state.shadowX}
           cy={state.shadowY}
@@ -301,7 +312,12 @@ const AnimatedRingLayer: React.FC<AnimatedRingLayerProps> = ({
       );
       setState((prev) => (ringStatesEqual(prev, nextState) ? prev : nextState));
     },
-    [baseProps.center, baseProps.radius, baseProps.strokeWidth, baseProps.baseColor]
+    [
+      baseProps.center,
+      baseProps.radius,
+      baseProps.strokeWidth,
+      baseProps.baseColor,
+    ]
   );
 
   useEffect(() => {
@@ -327,6 +343,9 @@ interface DashboardRingProps {
   trackColor?: string;
   displayValue: string | number;
   displayUnit?: string;
+  detailValue?: string | number;
+  detailUnit?: string;
+  showDetail?: boolean;
   animationDelay?: number;
   testID?: string;
 }
@@ -339,6 +358,9 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   trackColor,
   displayValue,
   displayUnit,
+  detailValue,
+  detailUnit,
+  showDetail = false,
   animationDelay = 0,
   testID,
 }) => {
@@ -346,6 +368,7 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   const isDark = colorScheme === "dark";
   const progress = useSharedValue(0);
   const ratio = Math.max(0, (percentage ?? 0) / 100);
+  const detailProgress = useSharedValue(showDetail ? 1 : 0);
 
   useEffect(() => {
     progress.value = withDelay(
@@ -358,9 +381,16 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
     );
   }, [animationDelay, ratio, progress]);
 
+  useEffect(() => {
+    detailProgress.value = withTiming(showDetail ? 1 : 0, {
+      duration: 180,
+    });
+  }, [detailProgress, showDetail]);
+
   const center = size / 2;
   const radius = center - strokeWidth / 2 - theme.spacing.xs;
-  const resolvedTrackColor = trackColor ?? adjustColor(color, isDark ? -0.55 : -0.4);
+  const resolvedTrackColor =
+    trackColor ?? adjustColor(color, isDark ? -0.55 : -0.4);
   const shadowColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.32)";
 
   const styles = useMemo(
@@ -368,11 +398,21 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
     [colors, size, theme]
   );
 
+  const primaryAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: 1 - detailProgress.value,
+  }));
+  const detailAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: detailProgress.value,
+  }));
+
   return (
     <View style={styles.wrapper} testID={testID}>
       <View style={styles.canvasContainer}>
         <Canvas style={{ width: size, height: size }}>
-          <Group origin={vec(center, center)} transform={[{ rotate: -Math.PI / 2 }]}> 
+          <Group
+            origin={vec(center, center)}
+            transform={[{ rotate: -Math.PI / 2 }]}
+          >
             <AnimatedRingLayer
               progress={progress}
               radius={radius}
@@ -386,10 +426,22 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
           </Group>
         </Canvas>
         <View style={styles.valueContainer} pointerEvents="none">
-          <AppText style={styles.valueText}>{`${displayValue}`}</AppText>
-          {displayUnit ? (
-            <AppText style={styles.unitText}>{displayUnit}</AppText>
-          ) : null}
+          <Animated.View style={[styles.textLayer, primaryAnimatedStyle]}>
+            <AppText role="Headline">{`${displayValue}`}</AppText>
+            {displayUnit ? (
+              <AppText style={styles.unitText}>{displayUnit}</AppText>
+            ) : null}
+          </Animated.View>
+          <Animated.View style={[styles.textLayer, detailAnimatedStyle]}>
+            <AppText role="Body">{`${
+              detailValue ?? displayValue
+            } `}</AppText>
+            {detailUnit ?? displayUnit ? (
+              <AppText style={styles.unitText}>
+                {detailUnit ?? displayUnit}
+              </AppText>
+            ) : null}
+          </Animated.View>
         </View>
       </View>
     </View>
@@ -413,6 +465,12 @@ const createStyles = (size: number, theme: Theme, colors: Colors) =>
       position: "absolute",
       alignItems: "center",
       justifyContent: "center",
+    },
+    textLayer: {
+      position: "absolute",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: theme.spacing.xs,
     },
     valueText: {
       ...theme.typography.Title2,
