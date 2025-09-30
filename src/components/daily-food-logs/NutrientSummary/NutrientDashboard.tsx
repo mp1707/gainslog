@@ -13,6 +13,7 @@ import {
   Zap,
   ChevronDown,
   ChevronsDown,
+  CircleCheckBig,
 } from "lucide-react-native";
 
 import { AppText } from "@/components";
@@ -36,8 +37,18 @@ interface NutrientDashboardProps {
 }
 
 const SECONDARY_STATS = [
-  { key: "fat", label: "Fat (g) - Baseline for health", Icon: Droplet, hasTarget: true },
-  { key: "carbs", label: "Carbs (g) - No target just fuel", Icon: Zap, hasTarget: false },
+  {
+    key: "fat",
+    label: "Fat (g) - Baseline for health",
+    Icon: Droplet,
+    hasTarget: true,
+  },
+  {
+    key: "carbs",
+    label: "Carbs (g) - No target just fuel",
+    Icon: Zap,
+    hasTarget: false,
+  },
 ] as const;
 
 const RING_CONFIG = [
@@ -55,6 +66,13 @@ const RING_CONFIG = [
   },
 ] as const;
 
+// Snappier spring config for icon check animations
+const ICON_SPRING_CONFIG = {
+  mass: 0.8,
+  damping: 15,
+  stiffness: 400,
+} as const;
+
 export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   percentages,
   targets,
@@ -62,6 +80,10 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
+
+  // Animated scales for icon transitions
+  const proteinIconScale = useSharedValue(1);
+  const fatIconScale = useSharedValue(1);
 
   // Animated values for delta amounts (remaining or over)
   const caloriesDelta = (targets.calories || 0) - (totals.calories || 0);
@@ -154,6 +176,32 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     carbsProgress,
   ]);
 
+  // Trigger icon scale animations when reaching 100%
+  useEffect(() => {
+    const proteinPercentage = percentages.protein || 0;
+
+    if (proteinPercentage >= 100) {
+      proteinIconScale.value = 0.5;
+      proteinIconScale.value = withSpring(1, ICON_SPRING_CONFIG);
+    } else {
+      proteinIconScale.value = 1;
+    }
+  }, [percentages.protein, proteinIconScale]);
+
+  useEffect(() => {
+    const fatTarget = targets.fat || 0;
+    const fatCurrent = totals.fat || 0;
+    const fatPercentage =
+      fatTarget > 0 ? (fatCurrent / fatTarget) * 100 : 0;
+
+    if (fatPercentage >= 100) {
+      fatIconScale.value = 0.5;
+      fatIconScale.value = withSpring(1, ICON_SPRING_CONFIG);
+    } else {
+      fatIconScale.value = 1;
+    }
+  }, [totals.fat, targets.fat, fatIconScale]);
+
   if (hasNoGoals) {
     return <SetGoalsCTA />;
   }
@@ -176,7 +224,13 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
               : animatedProteinDelta.display;
           const label = isOver ? "over" : "remaining";
           const ChevronIcon = percentage >= 100 ? ChevronsDown : ChevronDown;
-          const LabelIcon = config.Icon;
+          const isComplete = percentage >= 100 && config.key === "protein";
+          const LabelIcon = isComplete ? CircleCheckBig : config.Icon;
+
+          // Animated style for icon scale (only for protein)
+          const iconAnimatedStyle = useAnimatedStyle(() => ({
+            transform: [{ scale: isComplete ? proteinIconScale.value : 1 }],
+          }));
 
           return (
             <View key={config.key} style={styles.ringContainer}>
@@ -197,12 +251,18 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
               />
               <View style={styles.ringLabelContainer}>
                 <View style={styles.ringLabelHeader}>
-                  <LabelIcon
-                    size={20}
-                    color={semanticColors[config.key]}
-                    fill={semanticColors[config.key]}
-                    strokeWidth={0}
-                  />
+                  <Animated.View style={iconAnimatedStyle}>
+                    <LabelIcon
+                      size={20}
+                      color={semanticColors[config.key]}
+                      fill={
+                        isComplete
+                          ? surfaceColors[config.key]
+                          : semanticColors[config.key]
+                      }
+                      strokeWidth={isComplete ? 2 : 0}
+                    />
+                  </Animated.View>
                   <AppText role="Caption" color="secondary">
                     {config.label}
                   </AppText>
@@ -241,15 +301,32 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
             backgroundColor: semanticColors[config.key],
           }));
 
+          // Calculate percentage for secondary stats
+          const actualCurrent =
+            config.key === "fat" ? totals.fat || 0 : totals.carbs || 0;
+          const actualTarget =
+            config.key === "fat" ? targets.fat || 0 : targets.carbs || 0;
+          const statPercentage =
+            actualTarget > 0 ? (actualCurrent / actualTarget) * 100 : 0;
+          const isStatComplete = statPercentage >= 100 && config.key === "fat";
+          const StatIcon = isStatComplete ? CircleCheckBig : Icon;
+
+          // Animated style for secondary stat icon scale (only for fat)
+          const statIconAnimatedStyle = useAnimatedStyle(() => ({
+            transform: [{ scale: isStatComplete ? fatIconScale.value : 1 }],
+          }));
+
           return (
             <View key={config.key} style={styles.statItemWrapper}>
               <View style={styles.statRow}>
-                <Icon
-                  size={20}
-                  color={iconColor}
-                  fill={iconColor}
-                  strokeWidth={0}
-                />
+                <Animated.View style={statIconAnimatedStyle}>
+                  <StatIcon
+                    size={20}
+                    color={iconColor}
+                    fill={isStatComplete ? surfaceColors[config.key] : iconColor}
+                    strokeWidth={isStatComplete ? 2 : 0}
+                  />
+                </Animated.View>
                 <View style={styles.statContent}>
                   <View style={styles.statHeader}>
                     <AppText role="Caption" color="secondary">
