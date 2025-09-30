@@ -134,15 +134,17 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   }, [caloriesDelta, proteinDelta]);
 
   // Trigger count-up animations when secondary stats totals change
+  // Staggered to match progress bar animations (800ms delay for fat)
   useEffect(() => {
-    animatedFatTotal.animateTo(Math.round(totals.fat || 0));
+    animatedFatTotal.animateTo(Math.round(totals.fat || 0), 800);
     animatedCarbsTotal.animateTo(Math.round(totals.carbs || 0));
   }, [totals.fat, totals.carbs]);
 
   // Trigger count-up animations when ring label totals change
+  // Staggered to match ring animations (0ms for calories, 400ms for protein)
   useEffect(() => {
-    animatedCaloriesTotal.animateTo(Math.round(totals.calories || 0));
-    animatedProteinTotal.animateTo(Math.round(totals.protein || 0));
+    animatedCaloriesTotal.animateTo(Math.round(totals.calories || 0), 0);
+    animatedProteinTotal.animateTo(Math.round(totals.protein || 0), 400);
   }, [totals.calories, totals.protein]);
 
   // Trigger progress bar animations with spring matching rings

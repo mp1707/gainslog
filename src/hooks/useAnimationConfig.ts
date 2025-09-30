@@ -32,7 +32,7 @@ export const useNumberReveal = (initial: number) => {
   const flickerRef = useRef<NodeJS.Timeout | null>(null);
   const animationRef = useRef<number | null>(null);
 
-  const animateTo = useCallback((target: number) => {
+  const animateTo = useCallback((target: number, delay: number = 0) => {
     const startPrev = prevRef.current;
     prevRef.current = target;
 
@@ -51,7 +51,11 @@ export const useNumberReveal = (initial: number) => {
 
     // Skip animation entirely for very small changes (≤2 units)
     if (difference <= 2) {
-      setDisplay(target);
+      if (delay > 0) {
+        setTimeout(() => setDisplay(target), delay);
+      } else {
+        setDisplay(target);
+      }
       return;
     }
 
@@ -78,35 +82,43 @@ export const useNumberReveal = (initial: number) => {
       animationRef.current = requestAnimationFrame(tick);
     };
 
-    if (shouldFlicker) {
-      // Phase 1: Gentler slot-machine effect (120ms with constrained randomness)
-      const flickerDuration = 120;
-      const flickerStep = 60;
-      let elapsed = 0;
+    const startAnimation = () => {
+      if (shouldFlicker) {
+        // Phase 1: Gentler slot-machine effect (120ms with constrained randomness)
+        const flickerDuration = 120;
+        const flickerStep = 60;
+        let elapsed = 0;
 
-      const min = Math.min(from, target);
-      const max = Math.max(from, target);
-      const range = max - min;
+        const min = Math.min(from, target);
+        const max = Math.max(from, target);
+        const range = max - min;
 
-      flickerRef.current = setInterval(() => {
-        elapsed += flickerStep;
+        flickerRef.current = setInterval(() => {
+          elapsed += flickerStep;
 
-        // Constrained randomness - flicker within 40% of the actual range
-        const jitter = Math.random() * range * 0.4;
-        const flickerValue = Math.max(0, Math.round(min + jitter));
-        setDisplay(flickerValue);
+          // Constrained randomness - flicker within 40% of the actual range
+          const jitter = Math.random() * range * 0.4;
+          const flickerValue = Math.max(0, Math.round(min + jitter));
+          setDisplay(flickerValue);
 
-        if (elapsed >= flickerDuration) {
-          if (flickerRef.current) {
-            clearInterval(flickerRef.current);
-            flickerRef.current = null;
+          if (elapsed >= flickerDuration) {
+            if (flickerRef.current) {
+              clearInterval(flickerRef.current);
+              flickerRef.current = null;
+            }
+            startCountAnimation();
           }
-          startCountAnimation();
-        }
-      }, flickerStep);
+        }, flickerStep);
+      } else {
+        // Skip flicker for smaller changes, go straight to smooth count
+        startCountAnimation();
+      }
+    };
+
+    if (delay > 0) {
+      setTimeout(startAnimation, delay);
     } else {
-      // Skip flicker for smaller changes, go straight to smooth count
-      startCountAnimation();
+      startAnimation();
     }
   }, []);
 
