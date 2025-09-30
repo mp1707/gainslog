@@ -361,12 +361,12 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   color,
   trackColor,
   textColor,
-  label,
+  label: _label,
   displayValue,
   displayUnit: _displayUnit,
   detailValue,
   detailUnit: _detailUnit,
-  showDetail = false,
+  showDetail: _showDetail = false,
   animationDelay = 0,
   testID,
   Icon = Flame,
@@ -375,12 +375,12 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   const isDark = colorScheme === "dark";
   const progress = useSharedValue(0);
   const ratio = Math.max(0, (percentage ?? 0) / 100);
-  const detailProgress = useSharedValue(showDetail ? 1 : 0);
 
-  // Animated values for tip icon position
+  // Animated values for tip icon position and rotation
   const tipX = useSharedValue(0);
   const tipY = useSharedValue(0);
   const tipOpacity = useSharedValue(0);
+  const tipRotation = useSharedValue(0);
 
   useEffect(() => {
     progress.value = withDelay(
@@ -393,16 +393,9 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
     );
   }, [animationDelay, ratio, progress]);
 
-  useEffect(() => {
-    detailProgress.value = withTiming(showDetail ? 1 : 0, {
-      duration: 180,
-    });
-  }, [detailProgress, showDetail]);
-
   const center = size / 2;
   const gapSize = 4;
   const radius = center - strokeWidth / 2 - gapSize;
-  const innerCircleRadius = radius - strokeWidth / 2 - gapSize;
   const resolvedTrackColor =
     trackColor ?? adjustColor(color, isDark ? -0.55 : -0.4);
   const shadowColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.32)";
@@ -431,39 +424,26 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
       tipX.value = finalX;
       tipY.value = finalY;
       tipOpacity.value = progressRatio > 0.002 ? 1 : 0;
+      tipRotation.value = finalAngle;
     },
     [center, radius]
   );
 
-  const styles = useMemo(
-    () => createStyles(size, theme, colors),
-    [colors, size, theme]
-  );
+  const styles = useMemo(() => createStyles(size, theme), [size, theme]);
 
-  const primaryAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: 1 - detailProgress.value,
-  }));
-  const detailAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: detailProgress.value,
-  }));
-
+  const iconSize = strokeWidth * 0.75;
   const tipIconStyle = useAnimatedStyle(() => ({
     position: "absolute",
-    left: tipX.value - strokeWidth / 2,
-    top: tipY.value - strokeWidth / 2,
+    left: tipX.value - iconSize / 2,
+    top: tipY.value - iconSize / 2,
     opacity: tipOpacity.value,
+    transform: [{ rotate: `${tipRotation.value}rad` }],
   }));
 
   return (
     <View style={styles.wrapper} testID={testID}>
       <View style={styles.canvasContainer}>
         <Canvas style={{ width: size, height: size }}>
-          <Circle
-            cx={center}
-            cy={center}
-            r={innerCircleRadius}
-            color={resolvedTrackColor}
-          />
           <Group
             origin={vec(center, center)}
             transform={[{ rotate: -Math.PI / 2 }]}
@@ -481,58 +461,35 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
           </Group>
         </Canvas>
         <Animated.View style={tipIconStyle} pointerEvents="none">
-          <View
-            style={{
-              width: strokeWidth - 4,
-              height: strokeWidth - 4,
-              borderRadius: (strokeWidth - 4) / 2,
-              backgroundColor: resolvedTrackColor,
-              justifyContent: "center",
-              alignItems: "center",
-              margin: 2,
-            }}
-          >
-            <Icon size={strokeWidth * 0.5} color={color} fill={color} />
-          </View>
+          <Icon
+            size={iconSize}
+            color={resolvedTrackColor}
+            fill={"transparent"}
+            strokeWidth={2.5}
+          />
         </Animated.View>
         <View style={styles.valueContainer} pointerEvents="none">
-          <Animated.View style={[styles.textLayer, primaryAnimatedStyle]}>
-            {label ? (
-              <AppText
-                style={[styles.labelText, textColor && { color: textColor }]}
-              >
-                {label}
-              </AppText>
-            ) : null}
+          <View style={styles.textLayer}>
             <AppText
-              role="Title2"
-              style={[
-                styles.lineHeightFix,
-                label === "Calories" && styles.value,
-                textColor && { color: textColor },
-              ]}
+              role="Title1"
+              style={textColor && { color: textColor }}
             >{`${displayValue}`}</AppText>
-          </Animated.View>
-          <Animated.View style={[styles.textLayer, detailAnimatedStyle]}>
-            {label ? (
+            {detailValue ? (
               <AppText
-                style={[styles.labelText, textColor && { color: textColor }]}
+                role="Caption"
+                style={[styles.remaining, { color: textColor }]}
               >
-                {label}
+                {detailValue}
               </AppText>
             ) : null}
-            <AppText
-              role="Body"
-              style={[styles.lineHeightFix, textColor && { color: textColor }]}
-            >{`${detailValue ?? displayValue} `}</AppText>
-          </Animated.View>
+          </View>
         </View>
       </View>
     </View>
   );
 };
 
-const createStyles = (size: number, theme: Theme, colors: Colors) =>
+const createStyles = (size: number, theme: Theme) =>
   StyleSheet.create({
     wrapper: {
       alignItems: "center",
@@ -549,23 +506,12 @@ const createStyles = (size: number, theme: Theme, colors: Colors) =>
       position: "absolute",
       alignItems: "center",
       justifyContent: "center",
-      marginTop: -theme.spacing.md,
+    },
+    remaining: {
+      marginTop: -theme.spacing.xs,
     },
     textLayer: {
-      position: "absolute",
       alignItems: "center",
       justifyContent: "center",
-      gap: theme.spacing.xs,
-    },
-    lineHeightFix: {
-      lineHeight: 32,
-    },
-    value: {
-      marginLeft: -theme.spacing.sm,
-    },
-    labelText: {
-      ...theme.typography.Caption,
-      color: colors.secondaryText,
-      marginBottom: -theme.spacing.xs,
     },
   });

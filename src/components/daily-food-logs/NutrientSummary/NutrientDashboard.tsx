@@ -5,8 +5,15 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { View, StyleSheet, Pressable } from "react-native";
-import { Droplet, Flame, BicepsFlexed, Wheat } from "lucide-react-native";
+import { View, StyleSheet } from "react-native";
+import {
+  Droplet,
+  Flame,
+  BicepsFlexed,
+  Wheat,
+  ChevronDown,
+  ChevronsDown,
+} from "lucide-react-native";
 
 import { AppText } from "@/components";
 import { DashboardRing } from "@/components/shared/ProgressRings";
@@ -34,18 +41,15 @@ const STAT_CONFIG = [
   { key: "carbs", label: "Carbs", unit: "g", Icon: Wheat },
 ] as const;
 
-const STAT_ROWS = [[STAT_CONFIG[2], STAT_CONFIG[3]]] as const;
-
-const RING_CONFIG = [
-  { key: "calories", label: "Calories", unit: "kcal", icon: Flame },
-  { key: "protein", label: "Protein", unit: "g", icon: BicepsFlexed },
+const STAT_ROWS = [
+  [STAT_CONFIG[0], STAT_CONFIG[1]], // Calories, Protein
+  [STAT_CONFIG[2], STAT_CONFIG[3]], // Fat, Carbs
 ] as const;
 
-const formatDifference = (current: number, target: number) => {
-  const diff = Math.round(current - target);
-  if (diff > 0) return `+${diff}`;
-  return `${diff}`;
-};
+const RING_CONFIG = [
+  { key: "calories", label: "Calories", unit: "kcal" },
+  { key: "protein", label: "Protein", unit: "g" },
+] as const;
 
 // Utility to run a quick slot-machine then count-up animation via state
 const useNumberReveal = (initial: number) => {
@@ -128,18 +132,12 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
-  const [ringDetailState, setRingDetailState] = useState<
-    Record<"calories" | "protein", boolean>
-  >({
-    calories: false,
-    protein: false,
-  });
 
-  // Animated values for count-up effect
-  const animatedCaloriesTotal = useNumberReveal(totals.calories || 0);
-  const animatedProteinTotal = useNumberReveal(totals.protein || 0);
-  const animatedCaloriesTarget = useNumberReveal(targets.calories || 0);
-  const animatedProteinTarget = useNumberReveal(targets.protein || 0);
+  // Animated values for delta amounts (remaining or over)
+  const caloriesDelta = (targets.calories || 0) - (totals.calories || 0);
+  const proteinDelta = (targets.protein || 0) - (totals.protein || 0);
+  const animatedCaloriesDelta = useNumberReveal(Math.abs(caloriesDelta));
+  const animatedProteinDelta = useNumberReveal(Math.abs(proteinDelta));
 
   const hasNoGoals = useMemo(() => {
     return (
@@ -163,30 +161,11 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     fat: colors.semanticSurfaces.fat,
   } as const;
 
+  // Trigger count-up animations when delta values change
   useEffect(() => {
-    if (hasNoGoals) {
-      return;
-    }
-    setRingDetailState({ calories: false, protein: false });
-  }, [
-    hasNoGoals,
-    totals.calories,
-    totals.protein,
-    targets.calories,
-    targets.protein,
-  ]);
-
-  // Trigger count-up animations when values change
-  useEffect(() => {
-    animatedCaloriesTotal.animateTo(totals.calories || 0);
-    animatedProteinTotal.animateTo(totals.protein || 0);
-    animatedCaloriesTarget.animateTo(targets.calories || 0);
-    animatedProteinTarget.animateTo(targets.protein || 0);
-  }, [totals.calories, totals.protein, targets.calories, targets.protein]);
-
-  const handleToggleRing = useCallback((key: "calories" | "protein") => {
-    setRingDetailState((prev) => ({ ...prev, [key]: !prev[key] }));
-  }, []);
+    animatedCaloriesDelta.animateTo(Math.abs(caloriesDelta));
+    animatedProteinDelta.animateTo(Math.abs(proteinDelta));
+  }, [caloriesDelta, proteinDelta]);
 
   if (hasNoGoals) {
     return <SetGoalsCTA />;
@@ -196,55 +175,35 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     <View style={styles.container}>
       <View style={styles.ringsRow}>
         {RING_CONFIG.map((config, index) => {
+          const percentage = percentages[config.key] || 0;
           const total = totals[config.key] || 0;
           const target = targets[config.key] || 0;
-          const percentage = percentages[config.key] || 0;
-          const ringKey = config.key;
-          const isDetail = ringDetailState[ringKey];
-
-          // Use animated values for display
-          const animatedTotal =
-            config.key === "calories"
-              ? animatedCaloriesTotal.display
-              : animatedProteinTotal.display;
-          const animatedTarget =
-            config.key === "calories"
-              ? animatedCaloriesTarget.display
-              : animatedProteinTarget.display;
-
+          const isOver = total >= target;
           const deltaValue =
-            config.key === "protein"
-              ? `${formatDifference(animatedTotal, animatedTarget)}g`
-              : formatDifference(animatedTotal, animatedTarget);
-          const detailValue =
-            config.key === "protein"
-              ? `${animatedTotal}g / ${animatedTarget}g`
-              : `${animatedTotal} / ${animatedTarget}`;
+            config.key === "calories"
+              ? animatedCaloriesDelta.display
+              : animatedProteinDelta.display;
+          const label = isOver ? "over" : "remaining";
+          const Icon = percentage >= 100 ? ChevronsDown : ChevronDown;
+
           return (
-            <Pressable
-              key={config.key}
-              onPress={() => handleToggleRing(ringKey)}
-              accessibilityRole="button"
-              accessibilityLabel={`${config.label} summary`}
-              accessibilityHint="Toggle between delta and totals"
-              style={styles.ringPressable}
-            >
+            <View key={config.key} style={styles.ringContainer}>
               <DashboardRing
                 percentage={percentage}
                 color={semanticColors[config.key]}
                 trackColor={surfaceColors[config.key]}
-                textColor={semanticColors[config.key]}
+                textColor={colors.primaryText}
                 label={config.label}
-                displayValue={deltaValue}
-                displayUnit={config.unit}
-                detailValue={detailValue}
-                detailUnit={config.unit}
-                showDetail={isDetail}
+                displayValue={deltaValue.toString()}
+                displayUnit=""
+                detailValue={label}
+                detailUnit=""
+                showDetail={false}
                 animationDelay={index * 400}
                 strokeWidth={26}
-                Icon={config.icon}
+                Icon={Icon}
               />
-            </Pressable>
+            </View>
           );
         })}
       </View>
@@ -253,10 +212,10 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
           <View key={`row-${rowIndex}`} style={styles.statsRow}>
             {row.map((config) => {
               const Icon = config.Icon;
-              const current = totals[config.key] || 0;
-              const target = targets[config.key] || 0;
+              const current = Math.round(totals[config.key] || 0);
+              const target = Math.round(targets[config.key] || 0);
               return (
-                <View key={config.key} style={styles.statCard}>
+                <View key={config.key} style={styles.statItem}>
                   <View
                     style={[
                       styles.statIconBackground,
@@ -272,18 +231,14 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                   </View>
                   <View style={styles.statTextContainer}>
                     <AppText style={styles.statLabel}>
-                      {`${config.label} (${config.unit})`}
+                      {config.label} ({config.unit})
                     </AppText>
-                    <View style={styles.statValues}>
-                      <AppText style={styles.statCurrentValue}>
-                        {Math.round(current)}
+                    <View style={styles.statValuesRow}>
+                      <AppText style={styles.statCurrentValue}>{current}</AppText>
+                      <AppText style={styles.statTargetValue}>
+                        {" "}
+                        / {target}
                       </AppText>
-                      {config.key !== "carbs" ? (
-                        <AppText style={styles.statTotalValue}>
-                          {" "}
-                          / {Math.round(target)}
-                        </AppText>
-                      ) : null}
                     </View>
                   </View>
                 </View>
@@ -309,26 +264,23 @@ const createStyles = (colors: Colors, theme: Theme) =>
       alignItems: "center",
       gap: theme.spacing.lg,
     },
-    ringPressable: {
+    ringContainer: {
       flex: 1,
       alignItems: "center",
     },
     statsContainer: {
-      gap: theme.spacing.md,
+      gap: theme.spacing.lg,
+      marginBottom: theme.spacing.md,
     },
     statsRow: {
       flexDirection: "row",
-      gap: theme.spacing.md,
+      gap: theme.spacing.xl,
     },
-    statCard: {
+    statItem: {
       flex: 1,
       flexDirection: "row",
       alignItems: "center",
-      gap: theme.spacing.md,
-      borderRadius: theme.components.cards.cornerRadius,
-      backgroundColor: colors.secondaryBackground,
-      paddingVertical: theme.spacing.md,
-      paddingHorizontal: theme.spacing.md,
+      gap: theme.spacing.sm,
     },
     statIconBackground: {
       width: 36,
@@ -339,13 +291,13 @@ const createStyles = (colors: Colors, theme: Theme) =>
     },
     statTextContainer: {
       flex: 1,
-      gap: theme.spacing.xs,
+      gap: 2,
     },
     statLabel: {
-      ...theme.typography.Subhead,
+      ...theme.typography.Caption,
       color: colors.secondaryText,
     },
-    statValues: {
+    statValuesRow: {
       flexDirection: "row",
       alignItems: "baseline",
     },
@@ -354,7 +306,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
       fontWeight: "600",
       color: colors.primaryText,
     },
-    statTotalValue: {
+    statTargetValue: {
       ...theme.typography.Caption,
       color: colors.secondaryText,
     },
