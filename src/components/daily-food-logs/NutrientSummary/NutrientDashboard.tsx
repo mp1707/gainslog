@@ -10,7 +10,7 @@ import {
   Droplet,
   Flame,
   BicepsFlexed,
-  Wheat,
+  Zap,
   ChevronDown,
   ChevronsDown,
 } from "lucide-react-native";
@@ -36,13 +36,23 @@ interface NutrientDashboardProps {
 }
 
 const SECONDARY_STATS = [
-  { key: "fat", label: "Fat", unit: "g", Icon: Droplet, hasTarget: true },
-  { key: "carbs", label: "Carbs", unit: "g", Icon: Wheat, hasTarget: false },
+  { key: "fat", label: "Fat (g) - Baseline for health", Icon: Droplet, hasTarget: true },
+  { key: "carbs", label: "Carbs (g) - No target just fuel", Icon: Zap, hasTarget: false },
 ] as const;
 
 const RING_CONFIG = [
-  { key: "calories", label: "Calories", unit: "kcal", Icon: Flame },
-  { key: "protein", label: "Protein", unit: "g", Icon: BicepsFlexed },
+  {
+    key: "calories",
+    label: "Calories (kcal)",
+    Icon: Flame,
+    hasTarget: true,
+  },
+  {
+    key: "protein",
+    label: "Protein (g)",
+    Icon: BicepsFlexed,
+    hasTarget: true,
+  },
 ] as const;
 
 export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
@@ -64,7 +74,9 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   const animatedCarbsTotal = useNumberReveal(Math.round(totals.carbs || 0));
 
   // Animated values for ring label totals
-  const animatedCaloriesTotal = useNumberReveal(Math.round(totals.calories || 0));
+  const animatedCaloriesTotal = useNumberReveal(
+    Math.round(totals.calories || 0)
+  );
   const animatedProteinTotal = useNumberReveal(Math.round(totals.protein || 0));
 
   // Animated progress bars for secondary stats
@@ -115,11 +127,13 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   useEffect(() => {
     const fatTarget = targets.fat || 0;
     const fatCurrent = totals.fat || 0;
-    const fatPercentage = fatTarget > 0 ? Math.min((fatCurrent / fatTarget) * 100, 100) : 0;
+    const fatPercentage =
+      fatTarget > 0 ? Math.min((fatCurrent / fatTarget) * 100, 100) : 0;
 
     const carbsTarget = targets.carbs || 0;
     const carbsCurrent = totals.carbs || 0;
-    const carbsPercentage = carbsTarget > 0 ? Math.min((carbsCurrent / carbsTarget) * 100, 100) : 0;
+    const carbsPercentage =
+      carbsTarget > 0 ? Math.min((carbsCurrent / carbsTarget) * 100, 100) : 0;
 
     // Animate with same spring config and delay as rings
     fatProgress.value = withDelay(
@@ -131,7 +145,14 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
       800, // Same delay as fat (or stagger if desired)
       withSpring(carbsPercentage, SPRING_CONFIG)
     );
-  }, [totals.fat, totals.carbs, targets.fat, targets.carbs, fatProgress, carbsProgress]);
+  }, [
+    totals.fat,
+    totals.carbs,
+    targets.fat,
+    targets.carbs,
+    fatProgress,
+    carbsProgress,
+  ]);
 
   if (hasNoGoals) {
     return <SetGoalsCTA />;
@@ -183,7 +204,7 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                     strokeWidth={0}
                   />
                   <AppText role="Caption" color="secondary">
-                    {config.label} ({config.unit})
+                    {config.label}
                   </AppText>
                 </View>
                 <View style={styles.ringLabelProgress}>
@@ -211,7 +232,8 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
               : animatedCarbsTotal.display;
           const target = Math.round(targets[config.key] || 0);
           const iconColor = semanticColors[config.key];
-          const progressValue = config.key === "fat" ? fatProgress : carbsProgress;
+          const progressValue =
+            config.key === "fat" ? fatProgress : carbsProgress;
 
           // Animated style for progress bar fill
           const progressStyle = useAnimatedStyle(() => ({
@@ -232,7 +254,6 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                   <View style={styles.statHeader}>
                     <AppText role="Caption" color="secondary">
                       {config.label}
-                      {!config.hasTarget && " (tracking)"}
                     </AppText>
                     <View style={styles.statValue}>
                       {config.hasTarget ? (
@@ -246,17 +267,11 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                           <AppText role="Caption" color="secondary">
                             {target}
                           </AppText>
-                          <AppText role="Caption" color="secondary">
-                            {` ${config.unit}`}
-                          </AppText>
                         </>
                       ) : (
                         <>
                           <AppText role="Body" color="secondary">
                             {current}
-                          </AppText>
-                          <AppText role="Caption" color="secondary">
-                            {` ${config.unit}`}
                           </AppText>
                         </>
                       )}
@@ -270,7 +285,9 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                           { backgroundColor: surfaceColors[config.key] },
                         ]}
                       >
-                        <Animated.View style={[styles.progressFill, progressStyle]} />
+                        <Animated.View
+                          style={[styles.progressFill, progressStyle]}
+                        />
                       </View>
                     </View>
                   )}
