@@ -10,7 +10,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     },
     sectionHeader: {
       marginBottom: theme.spacing.sm,
-      letterSpacing: 0.5,
+      letterSpacing: 0.6,
       color: colors.secondaryText,
     },
     titleInputContainer: {

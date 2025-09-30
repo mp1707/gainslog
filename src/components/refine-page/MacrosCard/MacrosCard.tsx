@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   LayoutChangeEvent,
-  Text,
-  TextStyle,
   View,
 } from "react-native";
 import Animated, {
@@ -76,7 +74,6 @@ interface MacroRowProps {
   index: number;
   processing: boolean;
   styles: ReturnType<typeof createStyles>;
-  valueTextStyle: TextStyle;
   colors: Colors;
   theme: Theme;
 }
@@ -86,7 +83,6 @@ const MacroRow = ({
   index,
   processing,
   styles,
-  valueTextStyle,
   colors,
   theme,
 }: MacroRowProps) => {
@@ -240,9 +236,9 @@ const MacroRow = ({
         <AppText>{item.label}</AppText>
       </Animated.View>
       <Animated.View style={[styles.macroValueContainer, valueAnimatedStyle]}>
-        <Text style={valueTextStyle} numberOfLines={1}>
+        <AppText role="Body" color="secondary" numberOfLines={1}>
           {item.value}
-        </Text>
+        </AppText>
       </Animated.View>
     </View>
   );
@@ -272,12 +268,6 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
     ft.animateTo(fat ?? 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [revealKey]);
-
-  const valueTextStyle: TextStyle = {
-    ...theme.typography.Body,
-    color: colors.secondaryText,
-    textAlign: "right",
-  };
 
   const macroItems = useMemo(
     () => [
@@ -330,7 +320,6 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
             index={index}
             processing={processing}
             styles={styles}
-            valueTextStyle={valueTextStyle}
             colors={colors}
             theme={theme}
           />

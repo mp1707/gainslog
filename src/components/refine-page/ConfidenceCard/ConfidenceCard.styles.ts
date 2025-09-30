@@ -43,7 +43,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     },
     barTrack: {
       flex: 1,
-      height: 14,
+      height: 6,
       borderRadius: 999,
       backgroundColor: colors.subtleBackground,
       overflow: "hidden",

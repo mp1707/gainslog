@@ -13,7 +13,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     },
     sectionHeader: {
       marginBottom: theme.spacing.sm,
-      letterSpacing: 0.5,
+      letterSpacing: 0.6,
       color: colors.secondaryText,
     },
     componentRow: {
@@ -59,20 +59,20 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       paddingVertical: theme.spacing.md,
     },
     addLabel: {
-      marginLeft: 8,
+      marginLeft: theme.spacing.sm,
     },
     componentName: {
       flex: 1,
     },
     amountText: {
-      marginRight: 8,
+      marginRight: theme.spacing.sm,
     },
     helperText: {
-      marginTop: 2,
+      marginTop: theme.spacing.xs / 2,
       color: colors.accent,
       opacity: 0.9,
     },
     okButton: {
-      marginHorizontal: 4,
+      marginHorizontal: theme.spacing.xs / 2,
     },
   });
