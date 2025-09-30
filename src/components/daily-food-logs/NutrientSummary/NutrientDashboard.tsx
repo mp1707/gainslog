@@ -1,11 +1,11 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useMemo } from "react";
 import { View, StyleSheet } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withDelay,
+  withSpring,
+} from "react-native-reanimated";
 import {
   Droplet,
   Flame,
@@ -17,7 +17,8 @@ import {
 
 import { AppText } from "@/components";
 import { DashboardRing } from "@/components/shared/ProgressRings";
-import { Colors, Theme, useTheme } from "@/theme";
+import { Theme, useTheme } from "@/theme";
+import { useNumberReveal, SPRING_CONFIG } from "@/hooks/useAnimationConfig";
 
 import { SetGoalsCTA } from "./SetGoalsCTA";
 
@@ -34,96 +35,15 @@ interface NutrientDashboardProps {
   totals: NutrientValues;
 }
 
-const STAT_CONFIG = [
-  { key: "calories", label: "Calories", unit: "kcal", Icon: Flame },
-  { key: "protein", label: "Protein", unit: "g", Icon: BicepsFlexed },
-  { key: "fat", label: "Fat", unit: "g", Icon: Droplet },
-  { key: "carbs", label: "Carbs", unit: "g", Icon: Wheat },
-] as const;
-
-const STAT_ROWS = [
-  [STAT_CONFIG[0], STAT_CONFIG[1]], // Calories, Protein
-  [STAT_CONFIG[2], STAT_CONFIG[3]], // Fat, Carbs
+const SECONDARY_STATS = [
+  { key: "fat", label: "Fat", unit: "g", Icon: Droplet, hasTarget: true },
+  { key: "carbs", label: "Carbs", unit: "g", Icon: Wheat, hasTarget: false },
 ] as const;
 
 const RING_CONFIG = [
-  { key: "calories", label: "Calories", unit: "kcal" },
-  { key: "protein", label: "Protein", unit: "g" },
+  { key: "calories", label: "Calories", unit: "kcal", Icon: Flame },
+  { key: "protein", label: "Protein", unit: "g", Icon: BicepsFlexed },
 ] as const;
-
-// Utility to run a quick slot-machine then count-up animation via state
-const useNumberReveal = (initial: number) => {
-  const prevRef = useRef(initial);
-  const [display, setDisplay] = useState(initial);
-  const flickerRef = useRef<NodeJS.Timeout | null>(null);
-  const animationRef = useRef<number | null>(null);
-
-  const animateTo = useCallback((target: number) => {
-    const startPrev = prevRef.current;
-    prevRef.current = target;
-
-    // Clear any existing animations
-    if (flickerRef.current) {
-      clearInterval(flickerRef.current);
-      flickerRef.current = null;
-    }
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
-    }
-
-    // Phase 1: slot-machine (random flicker ~250ms)
-    const flickerDuration = 250;
-    const flickerStep = 35;
-    let elapsed = 0;
-    flickerRef.current = setInterval(() => {
-      elapsed += flickerStep;
-      setDisplay(Math.max(0, Math.round(target * Math.random())));
-      if (elapsed >= flickerDuration) {
-        if (flickerRef.current) {
-          clearInterval(flickerRef.current);
-          flickerRef.current = null;
-        }
-        // Phase 2: count-up/down to target (~1200ms) with spring-like easing
-        const total = 1200;
-        const start = Date.now();
-        const from = isNaN(startPrev) ? 0 : startPrev;
-        const tick = () => {
-          const t = Math.min(1, (Date.now() - start) / total);
-
-          // Spring-like easing that mimics the ring animation
-          // Combines exponential decay with damping for gradual deceleration
-          const springEased =
-            1 - Math.exp(-3.5 * t) * Math.cos(2.5 * t) * (1 - t * 0.8);
-          const finalEased = Math.min(1, Math.max(0, springEased));
-
-          const val = Math.round(from + (target - from) * finalEased);
-          setDisplay(val);
-          if (t < 1) {
-            animationRef.current = requestAnimationFrame(tick);
-          } else {
-            animationRef.current = null;
-          }
-        };
-        animationRef.current = requestAnimationFrame(tick);
-      }
-    }, flickerStep);
-  }, []);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (flickerRef.current) {
-        clearInterval(flickerRef.current);
-      }
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, []);
-
-  return { display, animateTo } as const;
-};
 
 export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   percentages,
@@ -131,13 +51,25 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   totals,
 }) => {
   const { colors, theme } = useTheme();
-  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   // Animated values for delta amounts (remaining or over)
   const caloriesDelta = (targets.calories || 0) - (totals.calories || 0);
   const proteinDelta = (targets.protein || 0) - (totals.protein || 0);
   const animatedCaloriesDelta = useNumberReveal(Math.abs(caloriesDelta));
   const animatedProteinDelta = useNumberReveal(Math.abs(proteinDelta));
+
+  // Animated values for secondary stats totals
+  const animatedFatTotal = useNumberReveal(Math.round(totals.fat || 0));
+  const animatedCarbsTotal = useNumberReveal(Math.round(totals.carbs || 0));
+
+  // Animated values for ring label totals
+  const animatedCaloriesTotal = useNumberReveal(Math.round(totals.calories || 0));
+  const animatedProteinTotal = useNumberReveal(Math.round(totals.protein || 0));
+
+  // Animated progress bars for secondary stats
+  const fatProgress = useSharedValue(0);
+  const carbsProgress = useSharedValue(0);
 
   const hasNoGoals = useMemo(() => {
     return (
@@ -167,6 +99,40 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     animatedProteinDelta.animateTo(Math.abs(proteinDelta));
   }, [caloriesDelta, proteinDelta]);
 
+  // Trigger count-up animations when secondary stats totals change
+  useEffect(() => {
+    animatedFatTotal.animateTo(Math.round(totals.fat || 0));
+    animatedCarbsTotal.animateTo(Math.round(totals.carbs || 0));
+  }, [totals.fat, totals.carbs]);
+
+  // Trigger count-up animations when ring label totals change
+  useEffect(() => {
+    animatedCaloriesTotal.animateTo(Math.round(totals.calories || 0));
+    animatedProteinTotal.animateTo(Math.round(totals.protein || 0));
+  }, [totals.calories, totals.protein]);
+
+  // Trigger progress bar animations with spring matching rings
+  useEffect(() => {
+    const fatTarget = targets.fat || 0;
+    const fatCurrent = totals.fat || 0;
+    const fatPercentage = fatTarget > 0 ? Math.min((fatCurrent / fatTarget) * 100, 100) : 0;
+
+    const carbsTarget = targets.carbs || 0;
+    const carbsCurrent = totals.carbs || 0;
+    const carbsPercentage = carbsTarget > 0 ? Math.min((carbsCurrent / carbsTarget) * 100, 100) : 0;
+
+    // Animate with same spring config and delay as rings
+    fatProgress.value = withDelay(
+      800, // After the two rings (400 * 2)
+      withSpring(fatPercentage, SPRING_CONFIG)
+    );
+
+    carbsProgress.value = withDelay(
+      800, // Same delay as fat (or stagger if desired)
+      withSpring(carbsPercentage, SPRING_CONFIG)
+    );
+  }, [totals.fat, totals.carbs, targets.fat, targets.carbs, fatProgress, carbsProgress]);
+
   if (hasNoGoals) {
     return <SetGoalsCTA />;
   }
@@ -176,15 +142,20 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
       <View style={styles.ringsRow}>
         {RING_CONFIG.map((config, index) => {
           const percentage = percentages[config.key] || 0;
-          const total = totals[config.key] || 0;
-          const target = targets[config.key] || 0;
-          const isOver = total >= target;
+          const total =
+            config.key === "calories"
+              ? animatedCaloriesTotal.display
+              : animatedProteinTotal.display;
+          const target = Math.round(targets[config.key] || 0);
+          const actualTotal = Math.round(totals[config.key] || 0);
+          const isOver = actualTotal >= target;
           const deltaValue =
             config.key === "calories"
               ? animatedCaloriesDelta.display
               : animatedProteinDelta.display;
           const label = isOver ? "over" : "remaining";
-          const Icon = percentage >= 100 ? ChevronsDown : ChevronDown;
+          const ChevronIcon = percentage >= 100 ? ChevronsDown : ChevronDown;
+          const LabelIcon = config.Icon;
 
           return (
             <View key={config.key} style={styles.ringContainer}>
@@ -200,58 +171,120 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                 detailUnit=""
                 showDetail={false}
                 animationDelay={index * 400}
-                strokeWidth={26}
-                Icon={Icon}
+                strokeWidth={20}
+                Icon={ChevronIcon}
               />
+              <View style={styles.ringLabelContainer}>
+                <View style={styles.ringLabelHeader}>
+                  <LabelIcon
+                    size={20}
+                    color={semanticColors[config.key]}
+                    fill={semanticColors[config.key]}
+                    strokeWidth={0}
+                  />
+                  <AppText role="Caption" color="secondary">
+                    {config.label} ({config.unit})
+                  </AppText>
+                </View>
+                <View style={styles.ringLabelProgress}>
+                  <AppText role="Body" color="primary">
+                    {total}
+                  </AppText>
+                  <AppText role="Caption" color="secondary">
+                    {" / "}
+                  </AppText>
+                  <AppText role="Caption" color="secondary">
+                    {target}
+                  </AppText>
+                </View>
+              </View>
             </View>
           );
         })}
       </View>
       <View style={styles.statsContainer}>
-        {STAT_ROWS.map((row, rowIndex) => (
-          <View key={`row-${rowIndex}`} style={styles.statsRow}>
-            {row.map((config) => {
-              const Icon = config.Icon;
-              const current = Math.round(totals[config.key] || 0);
-              const target = Math.round(targets[config.key] || 0);
-              return (
-                <View key={config.key} style={styles.statItem}>
-                  <View
-                    style={[
-                      styles.statIconBackground,
-                      { backgroundColor: surfaceColors[config.key] },
-                    ]}
-                  >
-                    <Icon
-                      size={20}
-                      color={semanticColors[config.key]}
-                      fill={semanticColors[config.key]}
-                      strokeWidth={0}
-                    />
-                  </View>
-                  <View style={styles.statTextContainer}>
-                    <AppText style={styles.statLabel}>
-                      {config.label} ({config.unit})
+        {SECONDARY_STATS.map((config) => {
+          const Icon = config.Icon;
+          const current =
+            config.key === "fat"
+              ? animatedFatTotal.display
+              : animatedCarbsTotal.display;
+          const target = Math.round(targets[config.key] || 0);
+          const iconColor = semanticColors[config.key];
+          const progressValue = config.key === "fat" ? fatProgress : carbsProgress;
+
+          // Animated style for progress bar fill
+          const progressStyle = useAnimatedStyle(() => ({
+            width: `${progressValue.value}%`,
+            backgroundColor: semanticColors[config.key],
+          }));
+
+          return (
+            <View key={config.key} style={styles.statItemWrapper}>
+              <View style={styles.statRow}>
+                <Icon
+                  size={20}
+                  color={iconColor}
+                  fill={iconColor}
+                  strokeWidth={0}
+                />
+                <View style={styles.statContent}>
+                  <View style={styles.statHeader}>
+                    <AppText role="Caption" color="secondary">
+                      {config.label}
+                      {!config.hasTarget && " (tracking)"}
                     </AppText>
-                    <View style={styles.statValuesRow}>
-                      <AppText style={styles.statCurrentValue}>{current}</AppText>
-                      <AppText style={styles.statTargetValue}>
-                        {" "}
-                        / {target}
-                      </AppText>
+                    <View style={styles.statValue}>
+                      {config.hasTarget ? (
+                        <>
+                          <AppText role="Body" color="primary">
+                            {current}
+                          </AppText>
+                          <AppText role="Caption" color="secondary">
+                            {" / "}
+                          </AppText>
+                          <AppText role="Caption" color="secondary">
+                            {target}
+                          </AppText>
+                          <AppText role="Caption" color="secondary">
+                            {` ${config.unit}`}
+                          </AppText>
+                        </>
+                      ) : (
+                        <>
+                          <AppText role="Body" color="secondary">
+                            {current}
+                          </AppText>
+                          <AppText role="Caption" color="secondary">
+                            {` ${config.unit}`}
+                          </AppText>
+                        </>
+                      )}
                     </View>
                   </View>
+                  {config.hasTarget && target > 0 && (
+                    <View style={styles.progressBarContainer}>
+                      <View
+                        style={[
+                          styles.progressBar,
+                          { backgroundColor: surfaceColors[config.key] },
+                        ]}
+                      >
+                        <Animated.View style={[styles.progressFill, progressStyle]} />
+                      </View>
+                    </View>
+                  )}
                 </View>
-              );
-            })}
-          </View>
-        ))}
+              </View>
+            </View>
+          );
+        })}
       </View>
     </View>
   );
 };
 
-const createStyles = (colors: Colors, theme: Theme) =>
+const createStyles = (theme: Theme) =>
   StyleSheet.create({
     container: {
       paddingHorizontal: theme.spacing.md,
@@ -268,46 +301,56 @@ const createStyles = (colors: Colors, theme: Theme) =>
       flex: 1,
       alignItems: "center",
     },
-    statsContainer: {
-      gap: theme.spacing.lg,
-      marginBottom: theme.spacing.md,
+    ringLabelContainer: {
+      alignItems: "center",
+      gap: theme.spacing.xs / 2,
+      marginTop: theme.spacing.sm,
     },
-    statsRow: {
-      flexDirection: "row",
-      gap: theme.spacing.xl,
-    },
-    statItem: {
-      flex: 1,
+    ringLabelHeader: {
       flexDirection: "row",
       alignItems: "center",
+      gap: theme.spacing.xs,
+    },
+    ringLabelProgress: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    statsContainer: {
+      gap: theme.spacing.md,
+      marginBottom: theme.spacing.md,
+      paddingHorizontal: theme.spacing.md,
+    },
+    statItemWrapper: {
+      paddingVertical: theme.spacing.xs,
+    },
+    statRow: {
+      flexDirection: "row",
+      alignItems: "flex-start",
       gap: theme.spacing.sm,
     },
-    statIconBackground: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    statTextContainer: {
+    statContent: {
       flex: 1,
-      gap: 2,
+      gap: theme.spacing.xs,
     },
-    statLabel: {
-      ...theme.typography.Caption,
-      color: colors.secondaryText,
-    },
-    statValuesRow: {
+    statHeader: {
       flexDirection: "row",
-      alignItems: "baseline",
+      justifyContent: "space-between",
+      alignItems: "center",
     },
-    statCurrentValue: {
-      ...theme.typography.Body,
-      fontWeight: "600",
-      color: colors.primaryText,
+    statValue: {
+      flexDirection: "row",
+      alignItems: "center",
     },
-    statTargetValue: {
-      ...theme.typography.Caption,
-      color: colors.secondaryText,
+    progressBarContainer: {
+      width: "100%",
+    },
+    progressBar: {
+      height: 6,
+      borderRadius: 3,
+      overflow: "hidden",
+    },
+    progressFill: {
+      height: "100%",
+      borderRadius: 3,
     },
   });
