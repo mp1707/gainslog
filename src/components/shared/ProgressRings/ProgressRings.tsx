@@ -57,7 +57,9 @@ const resolveRingConfigs = (nutrientKeys?: NutrientKey[]) => {
   const uniqueKeys = Array.from(new Set(requestedKeys));
   return uniqueKeys
     .map((key) => ALL_RING_CONFIG.find((config) => config.key === key))
-    .filter((config): config is (typeof ALL_RING_CONFIG)[number] => Boolean(config));
+    .filter((config): config is (typeof ALL_RING_CONFIG)[number] =>
+      Boolean(config)
+    );
 };
 
 type GradientStop = { position: number; color: string };
@@ -129,8 +131,14 @@ const deriveStops = (
   const tailShade = startShade;
 
   const highlightEnd = Math.max(normalized, 0);
-  const highlightStart = Math.max(Math.min(highlightEnd - 0.12, highlightEnd), 0);
-  const warmPoint = Math.max(Math.min(highlightStart * 0.65, highlightStart), 0);
+  const highlightStart = Math.max(
+    Math.min(highlightEnd - 0.12, highlightEnd),
+    0
+  );
+  const warmPoint = Math.max(
+    Math.min(highlightStart * 0.65, highlightStart),
+    0
+  );
   const finalPoint =
     normalized >= 0.999 ? 0.999 : Math.min(normalized + 0.015, 0.999);
 
@@ -253,7 +261,9 @@ interface RingLayerProps extends BaseRingLayerProps {
   value: number;
 }
 
-const RingVisual: React.FC<BaseRingLayerProps & { state: RingAnimationState }> = ({
+const RingVisual: React.FC<
+  BaseRingLayerProps & { state: RingAnimationState }
+> = ({
   state,
   radius,
   strokeWidth,
@@ -288,7 +298,7 @@ const RingVisual: React.FC<BaseRingLayerProps & { state: RingAnimationState }> =
         color={trackColor}
         opacity={trackOpacity}
       />
-      <Group origin={centerVector} transform={[{ rotate: state.rotation }]}> 
+      <Group origin={centerVector} transform={[{ rotate: state.rotation }]}>
         <Circle
           cx={state.shadowX}
           cy={state.shadowY}
@@ -349,7 +359,12 @@ const AnimatedRingLayer: React.FC<AnimatedRingLayerProps> = ({
       );
       setState((prev) => (ringStatesEqual(prev, nextState) ? prev : nextState));
     },
-    [baseProps.center, baseProps.radius, baseProps.strokeWidth, baseProps.baseColor]
+    [
+      baseProps.center,
+      baseProps.radius,
+      baseProps.strokeWidth,
+      baseProps.baseColor,
+    ]
   );
 
   useEffect(() => {
@@ -367,7 +382,10 @@ const AnimatedRingLayer: React.FC<AnimatedRingLayerProps> = ({
   return <RingVisual state={state} {...baseProps} />;
 };
 
-const StaticRingLayer: React.FC<StaticRingLayerProps> = ({ value, ...baseProps }) => {
+const StaticRingLayer: React.FC<StaticRingLayerProps> = ({
+  value,
+  ...baseProps
+}) => {
   const state = useMemo(
     () =>
       calculateRingState(
@@ -377,13 +395,24 @@ const StaticRingLayer: React.FC<StaticRingLayerProps> = ({ value, ...baseProps }
         baseProps.strokeWidth,
         baseProps.baseColor
       ),
-    [value, baseProps.center, baseProps.radius, baseProps.strokeWidth, baseProps.baseColor]
+    [
+      value,
+      baseProps.center,
+      baseProps.radius,
+      baseProps.strokeWidth,
+      baseProps.baseColor,
+    ]
   );
 
   return <RingVisual state={state} {...baseProps} />;
 };
 
-const RingLayer: React.FC<RingLayerProps> = ({ animated, progress, value, ...baseProps }) => {
+const RingLayer: React.FC<RingLayerProps> = ({
+  animated,
+  progress,
+  value,
+  ...baseProps
+}) => {
   if (!animated) {
     return <StaticRingLayer value={value} {...baseProps} />;
   }
@@ -475,6 +504,10 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
   } satisfies Record<NutrientKey, string>;
   const shadowColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.32)";
 
+  // Calculate fat indicator circle radius (innermost position with consistent spacing)
+  const dotRadius = strokeWidth * 1.2;
+  const showFatIndicator = (percentages.fat ?? 0) >= 100;
+
   return (
     <View
       style={{
@@ -504,6 +537,25 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
               shadowColor={shadowColor}
             />
           ))}
+          {showFatIndicator && (
+            <>
+              <Circle
+                cx={center}
+                cy={center}
+                r={dotRadius * 1.5}
+                color={shadowColor}
+                opacity={0.6}
+              >
+                <BlurMask blur={strokeWidth * 0.8} style="normal" />
+              </Circle>
+              <Circle
+                cx={center}
+                cy={center}
+                r={dotRadius}
+                color={ringColors.fat}
+              />
+            </>
+          )}
         </Group>
       </Canvas>
     </View>
@@ -567,6 +619,10 @@ export const ProgressRingsStatic: React.FC<ProgressRingsStaticProps> = ({
   } satisfies Record<NutrientKey, string>;
   const shadowColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.32)";
 
+  // Calculate fat indicator circle radius (innermost position with consistent spacing)
+  const dotRadius = strokeWidth / 2;
+  const showFatIndicator = (percentages.fat ?? 0) >= 100;
+
   return (
     <View
       style={{
@@ -577,20 +633,42 @@ export const ProgressRingsStatic: React.FC<ProgressRingsStaticProps> = ({
       }}
     >
       <Canvas style={{ width: size, height: size }}>
-        <Group origin={vec(center, center)} transform={[{ rotate: -Math.PI / 2 }]}> 
-        {ringConfigs.map((config, index) => (
-          <StaticRingLayer
-            key={config.key}
-            value={normalizedValues[config.key]}
-            radius={radii[index] ?? outerRadius}
-            strokeWidth={strokeWidth}
-            center={center}
+        <Group
+          origin={vec(center, center)}
+          transform={[{ rotate: -Math.PI / 2 }]}
+        >
+          {ringConfigs.map((config, index) => (
+            <StaticRingLayer
+              key={config.key}
+              value={normalizedValues[config.key]}
+              radius={radii[index] ?? outerRadius}
+              strokeWidth={strokeWidth}
+              center={center}
               trackColor={ringTracks[config.key]}
               baseColor={ringColors[config.key]}
               trackOpacity={1}
               shadowColor={shadowColor}
             />
           ))}
+          {showFatIndicator && (
+            <>
+              <Circle
+                cx={center}
+                cy={center}
+                r={dotRadius * 1.5}
+                color={shadowColor}
+                opacity={0.6}
+              >
+                <BlurMask blur={strokeWidth * 0.8} style="normal" />
+              </Circle>
+              <Circle
+                cx={center}
+                cy={center}
+                r={dotRadius}
+                color={ringColors.fat}
+              />
+            </>
+          )}
         </Group>
       </Canvas>
     </View>
