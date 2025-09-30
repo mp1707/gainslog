@@ -16,7 +16,6 @@ interface CalendarDayProps {
     calories?: number;
     protein?: number;
     carbs?: number;
-    fat?: number;
   };
   onPress: (dateKey: string) => void;
   useSimplifiedRings?: boolean;
@@ -76,9 +75,8 @@ const CalendarDayComponent: React.FC<CalendarDayProps> = ({
     const averageRatio =
       (Math.max(0, percentages.calories ?? 0) +
         Math.max(0, percentages.protein ?? 0) +
-        Math.max(0, percentages.carbs ?? 0) +
-        Math.max(0, percentages.fat ?? 0)) /
-      400;
+        Math.max(0, percentages.carbs ?? 0)) /
+      300;
 
     const base = Math.max(calorieRatio, averageRatio);
     return 0.45 + 0.55 * Math.max(0, Math.min(1, base));
@@ -152,8 +150,7 @@ export const CalendarDay = React.memo(
       // Deep comparison for percentages object
       prevProps.percentages.calories === nextProps.percentages.calories &&
       prevProps.percentages.protein === nextProps.percentages.protein &&
-      prevProps.percentages.carbs === nextProps.percentages.carbs &&
-      prevProps.percentages.fat === nextProps.percentages.fat
+      prevProps.percentages.carbs === nextProps.percentages.carbs
     );
   }
 );

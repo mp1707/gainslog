@@ -41,19 +41,17 @@ export const DateSlider = () => {
   const dailyTotalsByDate = useMemo(() => {
     const totals = new Map<
       string,
-      { calories: number; protein: number; carbs: number; fat: number }
+      { calories: number; protein: number; carbs: number }
     >();
     foodLogs.forEach((log) => {
       const currentTotals = totals.get(log.logDate) || {
         calories: 0,
         protein: 0,
         carbs: 0,
-        fat: 0,
       };
       currentTotals.calories += log.calories;
       currentTotals.protein += log.protein;
       currentTotals.carbs += log.carbs;
-      currentTotals.fat += log.fat;
       totals.set(log.logDate, currentTotals);
     });
     return totals;
@@ -88,7 +86,6 @@ export const DateSlider = () => {
           calories: 0,
           protein: 0,
           carbs: 0,
-          fat: 0,
         };
 
         const percentages = {
@@ -100,9 +97,6 @@ export const DateSlider = () => {
             : 0,
           carbs: dailyTargets?.carbs
             ? (dailyTotals.carbs / dailyTargets.carbs) * 100
-            : 0,
-          fat: dailyTargets?.fat
-            ? (dailyTotals.fat / dailyTargets.fat) * 100
             : 0,
         };
 

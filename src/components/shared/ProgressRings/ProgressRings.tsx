@@ -504,10 +504,6 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
   } satisfies Record<NutrientKey, string>;
   const shadowColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.32)";
 
-  // Calculate fat indicator circle radius (innermost position with consistent spacing)
-  const dotRadius = strokeWidth * 1.2;
-  const showFatIndicator = (percentages.fat ?? 0) >= 100;
-
   return (
     <View
       style={{
@@ -537,25 +533,6 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
               shadowColor={shadowColor}
             />
           ))}
-          {showFatIndicator && (
-            <>
-              <Circle
-                cx={center}
-                cy={center}
-                r={dotRadius * 1.5}
-                color={shadowColor}
-                opacity={0.6}
-              >
-                <BlurMask blur={strokeWidth * 0.8} style="normal" />
-              </Circle>
-              <Circle
-                cx={center}
-                cy={center}
-                r={dotRadius}
-                color={ringColors.fat}
-              />
-            </>
-          )}
         </Group>
       </Canvas>
     </View>
@@ -619,10 +596,6 @@ export const ProgressRingsStatic: React.FC<ProgressRingsStaticProps> = ({
   } satisfies Record<NutrientKey, string>;
   const shadowColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.32)";
 
-  // Calculate fat indicator circle radius (innermost position with consistent spacing)
-  const dotRadius = strokeWidth / 2;
-  const showFatIndicator = (percentages.fat ?? 0) >= 100;
-
   return (
     <View
       style={{
@@ -650,25 +623,6 @@ export const ProgressRingsStatic: React.FC<ProgressRingsStaticProps> = ({
               shadowColor={shadowColor}
             />
           ))}
-          {showFatIndicator && (
-            <>
-              <Circle
-                cx={center}
-                cy={center}
-                r={dotRadius * 1.5}
-                color={shadowColor}
-                opacity={0.6}
-              >
-                <BlurMask blur={strokeWidth * 0.8} style="normal" />
-              </Circle>
-              <Circle
-                cx={center}
-                cy={center}
-                r={dotRadius}
-                color={ringColors.fat}
-              />
-            </>
-          )}
         </Group>
       </Canvas>
     </View>

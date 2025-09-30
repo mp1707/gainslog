@@ -18,7 +18,6 @@ interface CalendarGridProps {
     calories?: number;
     protein?: number;
     carbs?: number;
-    fat?: number;
   };
   onDateSelect: (dateKey: string) => void;
   width: number;

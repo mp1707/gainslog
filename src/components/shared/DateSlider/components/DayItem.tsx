@@ -12,7 +12,6 @@ export interface DayData {
     calories: number;
     protein: number;
     carbs: number;
-    fat: number;
   };
 }
 
