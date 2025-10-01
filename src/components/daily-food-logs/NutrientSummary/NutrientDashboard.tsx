@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Pressable } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withDelay,
   withSpring,
+  withTiming,
+  Easing,
 } from "react-native-reanimated";
 import {
   Droplet,
@@ -15,6 +17,8 @@ import {
   ChevronsDown,
   CircleCheckBig,
 } from "lucide-react-native";
+import * as Haptics from "expo-haptics";
+import { useRouter } from "expo-router";
 
 import { AppText } from "@/components";
 import { DashboardRing } from "@/components/shared/ProgressRings";
@@ -39,13 +43,13 @@ interface NutrientDashboardProps {
 const SECONDARY_STATS = [
   {
     key: "fat",
-    label: "Fat (g) - Baseline for health",
+    label: "Fat (g)",
     Icon: Droplet,
     hasTarget: true,
   },
   {
     key: "carbs",
-    label: "Carbs (g) - No target just fuel",
+    label: "Carbs (g)",
     Icon: Zap,
     hasTarget: false,
   },
@@ -80,10 +84,19 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const router = useRouter();
 
   // Animated scales for icon transitions
   const proteinIconScale = useSharedValue(1);
   const fatIconScale = useSharedValue(1);
+
+  // Animated scales for press feedback on rings
+  const caloriesRingScale = useSharedValue(1);
+  const proteinRingScale = useSharedValue(1);
+
+  // Animated scales for press feedback on stats
+  const fatStatScale = useSharedValue(1);
+  const carbsStatScale = useSharedValue(1);
 
   // Animated values for delta amounts (remaining or over)
   const caloriesDelta = (targets.calories || 0) - (totals.calories || 0);
@@ -204,6 +217,75 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     }
   }, [totals.fat, targets.fat, fatIconScale]);
 
+  // Handler for opening explainer pages
+  const handleOpenModal = (nutrient: "calories" | "protein" | "fat" | "carbs") => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push(`/explainer-${nutrient}` as any);
+  };
+
+  // Press handlers for rings
+  const handleCaloriesRingPressIn = () => {
+    caloriesRingScale.value = withTiming(0.97, {
+      duration: 150,
+      easing: Easing.out(Easing.quad),
+    });
+  };
+
+  const handleCaloriesRingPressOut = () => {
+    caloriesRingScale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+  };
+
+  const handleProteinRingPressIn = () => {
+    proteinRingScale.value = withTiming(0.97, {
+      duration: 150,
+      easing: Easing.out(Easing.quad),
+    });
+  };
+
+  const handleProteinRingPressOut = () => {
+    proteinRingScale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+  };
+
+  // Press handlers for stats
+  const handleFatStatPressIn = () => {
+    fatStatScale.value = withTiming(0.97, {
+      duration: 150,
+      easing: Easing.out(Easing.quad),
+    });
+  };
+
+  const handleFatStatPressOut = () => {
+    fatStatScale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+  };
+
+  const handleCarbsStatPressIn = () => {
+    carbsStatScale.value = withTiming(0.97, {
+      duration: 150,
+      easing: Easing.out(Easing.quad),
+    });
+  };
+
+  const handleCarbsStatPressOut = () => {
+    carbsStatScale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+  };
+
+  // Animated styles for press feedback
+  const caloriesRingAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: caloriesRingScale.value }],
+  }));
+
+  const proteinRingAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: proteinRingScale.value }],
+  }));
+
+  const fatStatAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: fatStatScale.value }],
+  }));
+
+  const carbsStatAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: carbsStatScale.value }],
+  }));
+
   if (hasNoGoals) {
     return <SetGoalsCTA />;
   }
@@ -234,54 +316,77 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
             transform: [{ scale: isComplete ? proteinIconScale.value : 1 }],
           }));
 
+          const ringAnimatedStyle =
+            config.key === "calories"
+              ? caloriesRingAnimatedStyle
+              : proteinRingAnimatedStyle;
+
+          const handlePressIn =
+            config.key === "calories"
+              ? handleCaloriesRingPressIn
+              : handleProteinRingPressIn;
+
+          const handlePressOut =
+            config.key === "calories"
+              ? handleCaloriesRingPressOut
+              : handleProteinRingPressOut;
+
           return (
-            <View key={config.key} style={styles.ringContainer}>
-              <DashboardRing
-                percentage={percentage}
-                color={semanticColors[config.key]}
-                trackColor={surfaceColors[config.key]}
-                textColor={colors.primaryText}
-                label={config.label}
-                displayValue={deltaValue.toString()}
-                displayUnit=""
-                detailValue={label}
-                detailUnit=""
-                showDetail={false}
-                animationDelay={index * 400}
-                strokeWidth={20}
-                Icon={ChevronIcon}
-              />
-              <View style={styles.ringLabelContainer}>
-                <View style={styles.ringLabelHeader}>
-                  <Animated.View style={iconAnimatedStyle}>
-                    <LabelIcon
-                      size={20}
-                      color={semanticColors[config.key]}
-                      fill={
-                        isComplete
-                          ? surfaceColors[config.key]
-                          : semanticColors[config.key]
-                      }
-                      strokeWidth={isComplete ? 2 : 0}
-                    />
-                  </Animated.View>
-                  <AppText role="Caption" color="secondary">
-                    {config.label}
-                  </AppText>
+            <Pressable
+              key={config.key}
+              onPress={() => handleOpenModal(config.key as "calories" | "protein")}
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
+              style={styles.ringContainer}
+            >
+              <Animated.View style={ringAnimatedStyle}>
+                <DashboardRing
+                  percentage={percentage}
+                  color={semanticColors[config.key]}
+                  trackColor={surfaceColors[config.key]}
+                  textColor={colors.primaryText}
+                  label={config.label}
+                  displayValue={deltaValue.toString()}
+                  displayUnit=""
+                  detailValue={label}
+                  detailUnit=""
+                  showDetail={false}
+                  animationDelay={index * 400}
+                  strokeWidth={20}
+                  Icon={ChevronIcon}
+                />
+                <View style={styles.ringLabelContainer}>
+                  <View style={styles.ringLabelHeader}>
+                    <Animated.View style={iconAnimatedStyle}>
+                      <LabelIcon
+                        size={20}
+                        color={semanticColors[config.key]}
+                        fill={
+                          isComplete
+                            ? surfaceColors[config.key]
+                            : semanticColors[config.key]
+                        }
+                        strokeWidth={isComplete ? 2 : 0}
+                      />
+                    </Animated.View>
+                    <AppText role="Caption" color="secondary">
+                      {config.label}
+                    </AppText>
+                  </View>
+                  <View style={styles.ringLabelProgress}>
+                    <AppText role="Body" color="primary">
+                      {total}
+                    </AppText>
+                    <AppText role="Caption" color="secondary">
+                      {" / "}
+                    </AppText>
+                    <AppText role="Caption" color="secondary">
+                      {target}
+                    </AppText>
+                  </View>
                 </View>
-                <View style={styles.ringLabelProgress}>
-                  <AppText role="Body" color="primary">
-                    {total}
-                  </AppText>
-                  <AppText role="Caption" color="secondary">
-                    {" / "}
-                  </AppText>
-                  <AppText role="Caption" color="secondary">
-                    {target}
-                  </AppText>
-                </View>
-              </View>
-            </View>
+              </Animated.View>
+            </Pressable>
           );
         })}
       </View>
@@ -318,9 +423,24 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
             transform: [{ scale: isStatComplete ? fatIconScale.value : 1 }],
           }));
 
+          const statAnimatedStyle =
+            config.key === "fat" ? fatStatAnimatedStyle : carbsStatAnimatedStyle;
+
+          const handleStatPressIn =
+            config.key === "fat" ? handleFatStatPressIn : handleCarbsStatPressIn;
+
+          const handleStatPressOut =
+            config.key === "fat" ? handleFatStatPressOut : handleCarbsStatPressOut;
+
           return (
-            <View key={config.key} style={styles.statItemWrapper}>
-              <View style={styles.statRow}>
+            <Pressable
+              key={config.key}
+              onPress={() => handleOpenModal(config.key as "fat" | "carbs")}
+              onPressIn={handleStatPressIn}
+              onPressOut={handleStatPressOut}
+              style={styles.statItemWrapper}
+            >
+              <Animated.View style={[styles.statRow, statAnimatedStyle]}>
                 <Animated.View style={statIconAnimatedStyle}>
                   <StatIcon
                     size={20}
@@ -371,8 +491,8 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                     </View>
                   )}
                 </View>
-              </View>
-            </View>
+              </Animated.View>
+            </Pressable>
           );
         })}
       </View>

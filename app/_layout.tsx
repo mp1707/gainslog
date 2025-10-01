@@ -123,6 +123,54 @@ function ThemedStack() {
           gestureEnabled: false,
         }}
       />
+      <Stack.Screen
+        name="explainer-calories"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+          contentStyle: {
+            borderRadius: "10%",
+            overflow: "hidden",
+          },
+          gestureEnabled: false,
+        }}
+      />
+      <Stack.Screen
+        name="explainer-protein"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+          contentStyle: {
+            borderRadius: "10%",
+            overflow: "hidden",
+          },
+          gestureEnabled: false,
+        }}
+      />
+      <Stack.Screen
+        name="explainer-fat"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+          contentStyle: {
+            borderRadius: "10%",
+            overflow: "hidden",
+          },
+          gestureEnabled: false,
+        }}
+      />
+      <Stack.Screen
+        name="explainer-carbs"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+          contentStyle: {
+            borderRadius: "10%",
+            overflow: "hidden",
+          },
+          gestureEnabled: false,
+        }}
+      />
     </Stack>
   );
 }
