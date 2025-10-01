@@ -60,7 +60,10 @@ export default function ExplainerFat() {
               Why We Show It This Way
             </AppText>
             <AppText role="Body" color="secondary" style={styles.heroText}>
-              The progress bar tracks your fat intake up to the 20% minimum threshold. This is more of a baseline check rather than a strict target—once you hit 20%, you're in a healthy range. You'll see a success indicator when you reach 100% of this baseline.
+              The progress bar tracks your fat intake up to the 20% minimum threshold. This is more of a baseline check rather than a strict target—once you hit 20%, you're in a healthy range.
+            </AppText>
+            <AppText role="Body" color="secondary" style={[styles.heroText, styles.heroIconExplanation]}>
+              At 100%, the <Droplet size={16} color={semanticColor} fill={semanticColor} strokeWidth={0} style={styles.inlineIcon} /> icon becomes a <CircleCheckBig size={16} color={semanticColor} fill={colors.semanticSurfaces.fat} strokeWidth={2} style={styles.inlineIcon} /> checkmark.
             </AppText>
           </View>
         </View>
@@ -102,29 +105,6 @@ export default function ExplainerFat() {
           <AppText role="Body" color="secondary" style={styles.sectionContent}>
             After hitting your protein and calorie targets, you can adjust your fat intake anywhere in the 20-40% range based on what feels best for your body and training.
           </AppText>
-        </View>
-
-        <View style={styles.section}>
-          <AppText
-            role="Headline"
-            color="primary"
-            style={[styles.sectionHeading, { color: semanticColor }]}
-          >
-            The Success Checkmark
-          </AppText>
-          <View style={styles.iconExplanation}>
-            <AppText role="Body" color="secondary" style={styles.sectionContent}>
-              Once you hit the 20% baseline (100% of the bar), you'll see a{" "}
-            </AppText>
-            <CircleCheckBig size={18} color={semanticColor} fill={colors.semanticSurfaces.fat} strokeWidth={2} />
-            <AppText role="Body" color="secondary" style={styles.sectionContent}>
-              {" "}checkmark replacing the{" "}
-            </AppText>
-            <Droplet size={18} color={semanticColor} fill={semanticColor} strokeWidth={0} />
-            <AppText role="Body" color="secondary" style={styles.sectionContent}>
-              {" "}icon, confirming you've met your essential fat intake.
-            </AppText>
-          </View>
         </View>
 
         <View style={styles.footer}>
@@ -183,6 +163,12 @@ const createStyles = (theme: Theme) =>
     },
     heroText: {
       lineHeight: 22,
+    },
+    heroIconExplanation: {
+      marginTop: theme.spacing.sm,
+    },
+    inlineIcon: {
+      marginBottom: -2,
     },
     section: {
       marginBottom: theme.spacing.lg,

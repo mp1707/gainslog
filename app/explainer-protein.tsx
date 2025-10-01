@@ -62,6 +62,9 @@ export default function ExplainerProtein() {
             <AppText role="Body" color="secondary" style={styles.heroText}>
               The ring shows your daily progress toward your protein goal. When you reach 100%, you'll see a success indicator—this is a primary metric that drives your results.
             </AppText>
+            <AppText role="Body" color="secondary" style={[styles.heroText, styles.heroIconExplanation]}>
+              When you hit 100%, the <BicepsFlexed size={16} color={semanticColor} fill={semanticColor} strokeWidth={0} style={styles.inlineIcon} /> icon becomes a <CircleCheckBig size={16} color={semanticColor} fill={colors.semanticSurfaces.protein} strokeWidth={2} style={styles.inlineIcon} /> checkmark.
+            </AppText>
           </View>
         </View>
 
@@ -105,29 +108,6 @@ export default function ExplainerProtein() {
             • 2.2 g/kg: Anabolic insurance for dedicated athletes{"\n"}
             • 3.0 g/kg: Maximum preservation during significant deficits
           </AppText>
-        </View>
-
-        <View style={styles.section}>
-          <AppText
-            role="Headline"
-            color="primary"
-            style={[styles.sectionHeading, { color: semanticColor }]}
-          >
-            The Success Checkmark
-          </AppText>
-          <View style={styles.iconExplanation}>
-            <AppText role="Body" color="secondary" style={styles.sectionContent}>
-              When you hit 100% of your protein goal, the{" "}
-            </AppText>
-            <BicepsFlexed size={18} color={semanticColor} fill={semanticColor} strokeWidth={0} />
-            <AppText role="Body" color="secondary" style={styles.sectionContent}>
-              {" "}icon is replaced with a success{" "}
-            </AppText>
-            <CircleCheckBig size={18} color={semanticColor} fill={colors.semanticSurfaces.protein} strokeWidth={2} />
-            <AppText role="Body" color="secondary" style={styles.sectionContent}>
-              {" "}checkmark to celebrate hitting this critical target.
-            </AppText>
-          </View>
         </View>
 
         <View style={styles.footer}>
@@ -186,6 +166,12 @@ const createStyles = (theme: Theme) =>
     },
     heroText: {
       lineHeight: 22,
+    },
+    heroIconExplanation: {
+      marginTop: theme.spacing.sm,
+    },
+    inlineIcon: {
+      marginBottom: -2,
     },
     section: {
       marginBottom: theme.spacing.lg,
