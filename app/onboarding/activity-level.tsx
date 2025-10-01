@@ -31,9 +31,7 @@ export default function Step2ActivityLevelScreen() {
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-    setTimeout(() => {
-      safePush("/onboarding/calorie-goal");
-    }, 300);
+    safePush("/onboarding/calorie-goal");
   };
 
   const activityLevels = Object.values(ACTIVITY_LEVELS);

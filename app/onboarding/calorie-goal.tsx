@@ -47,9 +47,7 @@ export default function Step3GoalsScreen() {
     setSelectedGoal(goalType);
     setCalorieGoal(calorieGoals[goalType]);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setTimeout(() => {
-      safePush("/onboarding/protein-goal");
-    }, 300);
+    safePush("/onboarding/protein-goal");
   };
 
   if (!calorieGoals) {

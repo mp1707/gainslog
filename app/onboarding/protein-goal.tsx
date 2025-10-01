@@ -145,9 +145,7 @@ export default function ProteinGoalsScreen() {
     const proteinValue = proteinGoals[method as keyof typeof proteinGoals];
     setProteinGoal(proteinValue);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setTimeout(() => {
-      safePush("/onboarding/summary");
-    }, 300);
+    safePush("/onboarding/summary");
   };
 
   const methods = Object.values(METHODS);
