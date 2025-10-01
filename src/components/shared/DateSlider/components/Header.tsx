@@ -1,9 +1,9 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useRef } from "react";
 import { View } from "react-native";
-import { Plus, Settings } from "lucide-react-native";
+import { Plus, MoreHorizontal } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { AppText } from "@/components";
-import { DatePicker } from "@/components/shared/DatePicker";
+import { MenuPopover } from "@/components/shared/MenuPopover";
 import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useAppStore } from "@/store/useAppStore";
@@ -16,10 +16,20 @@ export const Header: React.FC = () => {
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const { safePush, safeNavigate } = useNavigationGuard();
   const { selectedDate } = useAppStore();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const menuButtonRef = useRef<View>(null);
+
+  const handleMenuPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setIsModalVisible(true);
+  };
 
   const handleSettingsPress = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     safePush("/settings");
+  };
+
+  const handleCalendarPress = () => {
+    safePush("/calendar");
   };
 
   return (
@@ -29,20 +39,29 @@ export const Header: React.FC = () => {
           {formatDate(selectedDate)}
         </AppText>
         <View style={styles.headerButtonContainer}>
-          <RoundButton
-            onPress={handleSettingsPress}
-            Icon={Settings}
-            variant="tertiary"
-            accessibilityLabel="Open settings"
-          />
-          <DatePicker buttonVariant="tertiary" />
+          <View ref={menuButtonRef} collapsable={false}>
+            <RoundButton
+              onPress={handleMenuPress}
+              Icon={MoreHorizontal}
+              variant="tertiary"
+              accessibilityLabel="Open menu"
+            />
+          </View>
           <RoundButton
             Icon={Plus}
-            variant={"primary"}
+            variant="primary"
             onPress={() => safeNavigate("/create")}
+            accessibilityLabel="Create new entry"
           />
         </View>
       </View>
+      <MenuPopover
+        visible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+        onSettingsPress={handleSettingsPress}
+        onCalendarPress={handleCalendarPress}
+        triggerRef={menuButtonRef}
+      />
     </>
   );
 };
