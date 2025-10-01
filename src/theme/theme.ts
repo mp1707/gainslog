@@ -40,10 +40,10 @@ const lightColors = {
 
   // Subtle tints for semantic surfaces
   semanticSurfaces: {
-    calories: "#E9FDFA",
-    protein: "#ECF1FF",
-    carbs: "#FFEDED",
-    fat: "#FFF8E7",
+    calories: "#C5F5EE",
+    protein: "#D6E4FF",
+    carbs: "#FFD6D6",
+    fat: "#FFE8C2",
   },
 
   // Tinted badge backgrounds (≈16% opacity)
