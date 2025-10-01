@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { X, Flame } from "lucide-react-native";
 
@@ -43,6 +44,8 @@ export default function ExplainerCalories() {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        bounces={false}
+        overScrollMode="never"
       >
         <View style={styles.iconContainer}>
           <Flame size={64} color={semanticColor} fill={semanticColor} strokeWidth={1.5} />

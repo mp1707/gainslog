@@ -5,9 +5,9 @@ import {
   StyleSheet,
   View,
   ActivityIndicator,
-  ScrollView as RNScrollView,
   Pressable,
 } from "react-native";
+import { ScrollView as RNScrollView } from "react-native-gesture-handler";
 import { Check, X } from "lucide-react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
@@ -283,6 +283,8 @@ export default function Edit() {
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="handled"
         bottomOffset={200}
+        bounces={false}
+        overScrollMode="never"
       >
         {isTitleEditing ? (
           <TextInput
@@ -393,6 +395,8 @@ export default function Edit() {
             <KeyboardAwareScrollView
               keyboardShouldPersistTaps="handled"
               bottomOffset={24}
+              bounces={false}
+              overScrollMode="never"
               contentContainerStyle={{
                 paddingHorizontal: theme.spacing.lg,
                 paddingTop: theme.spacing.lg,

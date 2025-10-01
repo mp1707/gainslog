@@ -1,5 +1,6 @@
 import React, { useMemo, useCallback, useState, useRef, useEffect } from "react";
-import { View, FlatList, Dimensions, StyleSheet, ViewToken } from "react-native";
+import { View, Dimensions, StyleSheet, ViewToken } from "react-native";
+import { FlatList } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Colors, Theme, useTheme } from "@/theme";
@@ -292,6 +293,8 @@ export default function Calendar() {
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig.current}
           extraData={hydratedMonths}
+          bounces={false}
+          overScrollMode="never"
           getItemLayout={(_, index) => ({
             length: screenWidth,
             offset: screenWidth * index,

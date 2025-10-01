@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { X, Droplet } from "lucide-react-native";
 
@@ -44,6 +45,8 @@ export default function ExplainerFat() {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        bounces={false}
+        overScrollMode="never"
       >
         <View style={styles.iconContainer}>
           <Droplet

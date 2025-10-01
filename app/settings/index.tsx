@@ -1,12 +1,12 @@
 import React, { useMemo } from "react";
 import {
   View,
-  ScrollView,
   KeyboardAvoidingView,
   TouchableOpacity,
   Alert,
   StyleSheet,
 } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset";
@@ -109,6 +109,8 @@ export default function SettingsTab() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          bounces={false}
+          overScrollMode="never"
         >
           <View style={styles.header}>
             <AppText role="Title1" style={styles.headerTitle}>
