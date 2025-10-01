@@ -29,6 +29,7 @@ import { AppText } from "@/components/index";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
+  BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
 import { LinearGradient } from "expo-linear-gradient";
 import { TextInput } from "@/components/shared/TextInput";
@@ -285,6 +286,7 @@ export default function Edit() {
         bottomOffset={200}
         bounces={false}
         overScrollMode="never"
+        scrollEnabled={!isEditing}
       >
         {isTitleEditing ? (
           <TextInput
@@ -392,11 +394,9 @@ export default function Edit() {
       >
         {isEditing && (
           <BottomSheetView style={{ flex: 1 }}>
-            <KeyboardAwareScrollView
+            <BottomSheetScrollView
               keyboardShouldPersistTaps="handled"
-              bottomOffset={24}
               bounces={false}
-              overScrollMode="never"
               contentContainerStyle={{
                 paddingHorizontal: theme.spacing.lg,
                 paddingTop: theme.spacing.lg,
@@ -449,7 +449,7 @@ export default function Edit() {
                 }}
                 saveDisabled={tempName.trim().length === 0 || tempAmount <= 0}
               />
-            </KeyboardAwareScrollView>
+            </BottomSheetScrollView>
           </BottomSheetView>
         )}
       </BottomSheet>
