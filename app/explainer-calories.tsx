@@ -7,6 +7,7 @@ import { AppText } from "@/components/shared/AppText";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { Theme, useTheme } from "@/theme";
+import { CaloriesRingDisplay } from "@/components/daily-food-logs/NutrientSummary/NutrientStatDisplay";
 
 export default function ExplainerCalories() {
   const { colors, theme } = useTheme();
@@ -44,6 +45,24 @@ export default function ExplainerCalories() {
         <AppText role="Title1" style={styles.title}>
           Calories: Your Energy Budget
         </AppText>
+
+        <View style={[styles.heroSection, { backgroundColor: colors.secondaryBackground }]}>
+          <View style={styles.heroRingContainer}>
+            <CaloriesRingDisplay total={1850} target={2200} percentage={84} />
+          </View>
+          <View style={styles.heroTextContainer}>
+            <AppText
+              role="Headline"
+              color="primary"
+              style={[styles.heroHeading, { color: semanticColor }]}
+            >
+              Why We Show It This Way
+            </AppText>
+            <AppText role="Body" color="secondary" style={styles.heroText}>
+              The ring displays your remaining or exceeded calories for the day. This helps you stay on track and make informed decisions about your meals throughout the day.
+            </AppText>
+          </View>
+        </View>
 
         <View style={styles.section}>
           <AppText
@@ -86,19 +105,6 @@ export default function ExplainerCalories() {
           </AppText>
         </View>
 
-        <View style={styles.section}>
-          <AppText
-            role="Headline"
-            color="primary"
-            style={[styles.sectionHeading, { color: semanticColor }]}
-          >
-            Why We Show It This Way
-          </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            The ring displays your remaining or exceeded calories for the day. This helps you stay on track and make informed decisions about your meals throughout the day.
-          </AppText>
-        </View>
-
         <View style={styles.footer}>
           <AppText role="Caption" color="secondary" style={styles.footerText}>
             These recommendations are general guidelines. Consult with a
@@ -136,7 +142,25 @@ const createStyles = (theme: Theme) =>
     },
     title: {
       textAlign: "center",
+      marginBottom: theme.spacing.lg,
+    },
+    heroSection: {
       marginBottom: theme.spacing.xl,
+      borderRadius: theme.components.cards.cornerRadius,
+      padding: theme.spacing.lg,
+      alignItems: "center",
+    },
+    heroRingContainer: {
+      marginBottom: theme.spacing.md,
+    },
+    heroTextContainer: {
+      width: "100%",
+    },
+    heroHeading: {
+      marginBottom: theme.spacing.sm,
+    },
+    heroText: {
+      lineHeight: 22,
     },
     section: {
       marginBottom: theme.spacing.lg,

@@ -7,6 +7,8 @@ import { AppText } from "@/components/shared/AppText";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { Theme, useTheme } from "@/theme";
+import { FatProgressDisplay } from "@/components/daily-food-logs/NutrientSummary/NutrientStatDisplay";
+import { CircleCheckBig } from "lucide-react-native";
 
 export default function ExplainerFat() {
   const { colors, theme } = useTheme();
@@ -45,6 +47,24 @@ export default function ExplainerFat() {
           Fat: Essential Baseline
         </AppText>
 
+        <View style={[styles.heroSection, { backgroundColor: colors.secondaryBackground }]}>
+          <View style={styles.heroBarContainer}>
+            <FatProgressDisplay total={52} target={60} percentage={87} />
+          </View>
+          <View style={styles.heroTextContainer}>
+            <AppText
+              role="Headline"
+              color="primary"
+              style={[styles.heroHeading, { color: semanticColor }]}
+            >
+              Why We Show It This Way
+            </AppText>
+            <AppText role="Body" color="secondary" style={styles.heroText}>
+              The progress bar tracks your fat intake up to the 20% minimum threshold. This is more of a baseline check rather than a strict target—once you hit 20%, you're in a healthy range. You'll see a success indicator when you reach 100% of this baseline.
+            </AppText>
+          </View>
+        </View>
+
         <View style={styles.section}>
           <AppText
             role="Headline"
@@ -77,10 +97,10 @@ export default function ExplainerFat() {
             color="primary"
             style={[styles.sectionHeading, { color: semanticColor }]}
           >
-            Why We Show It This Way
+            Flexibility Within Range
           </AppText>
           <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            The progress bar tracks your fat intake up to the 20% minimum threshold. This is more of a baseline check rather than a strict target—once you hit 20%, you're in a healthy range. You'll see a success indicator when you reach 100% of this baseline.
+            After hitting your protein and calorie targets, you can adjust your fat intake anywhere in the 20-40% range based on what feels best for your body and training.
           </AppText>
         </View>
 
@@ -90,11 +110,21 @@ export default function ExplainerFat() {
             color="primary"
             style={[styles.sectionHeading, { color: semanticColor }]}
           >
-            Flexibility Within Range
+            The Success Checkmark
           </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            After hitting your protein and calorie targets, you can adjust your fat intake anywhere in the 20-40% range based on what feels best for your body and training.
-          </AppText>
+          <View style={styles.iconExplanation}>
+            <AppText role="Body" color="secondary" style={styles.sectionContent}>
+              Once you hit the 20% baseline (100% of the bar), you'll see a{" "}
+            </AppText>
+            <CircleCheckBig size={18} color={semanticColor} fill={colors.semanticSurfaces.fat} strokeWidth={2} />
+            <AppText role="Body" color="secondary" style={styles.sectionContent}>
+              {" "}checkmark replacing the{" "}
+            </AppText>
+            <Droplet size={18} color={semanticColor} fill={semanticColor} strokeWidth={0} />
+            <AppText role="Body" color="secondary" style={styles.sectionContent}>
+              {" "}icon, confirming you've met your essential fat intake.
+            </AppText>
+          </View>
         </View>
 
         <View style={styles.footer}>
@@ -134,10 +164,33 @@ const createStyles = (theme: Theme) =>
     },
     title: {
       textAlign: "center",
+      marginBottom: theme.spacing.lg,
+    },
+    heroSection: {
       marginBottom: theme.spacing.xl,
+      borderRadius: theme.components.cards.cornerRadius,
+      padding: theme.spacing.lg,
+    },
+    heroBarContainer: {
+      width: "100%",
+      marginBottom: theme.spacing.md,
+    },
+    heroTextContainer: {
+      width: "100%",
+    },
+    heroHeading: {
+      marginBottom: theme.spacing.sm,
+    },
+    heroText: {
+      lineHeight: 22,
     },
     section: {
       marginBottom: theme.spacing.lg,
+    },
+    iconExplanation: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      alignItems: "center",
     },
     sectionHeading: {
       marginBottom: theme.spacing.sm,

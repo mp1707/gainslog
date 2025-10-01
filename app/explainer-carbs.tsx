@@ -7,6 +7,7 @@ import { AppText } from "@/components/shared/AppText";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { Theme, useTheme } from "@/theme";
+import { CarbsStatDisplay } from "@/components/daily-food-logs/NutrientSummary/NutrientStatDisplay";
 
 export default function ExplainerCarbs() {
   const { colors, theme } = useTheme();
@@ -45,6 +46,24 @@ export default function ExplainerCarbs() {
           Carbs: Flexible Fuel
         </AppText>
 
+        <View style={[styles.heroSection, { backgroundColor: colors.secondaryBackground }]}>
+          <View style={styles.heroStatContainer}>
+            <CarbsStatDisplay total={218} />
+          </View>
+          <View style={styles.heroTextContainer}>
+            <AppText
+              role="Headline"
+              color="primary"
+              style={[styles.heroHeading, { color: semanticColor }]}
+            >
+              Why We Show It This Way
+            </AppText>
+            <AppText role="Body" color="secondary" style={styles.heroText}>
+              We display carbs as a simple total without a progress ring or bar. Since there's no fixed target to hit, showing just the total gives you the information you need without creating unnecessary pressure.
+            </AppText>
+          </View>
+        </View>
+
         <View style={styles.section}>
           <AppText
             role="Headline"
@@ -68,19 +87,6 @@ export default function ExplainerCarbs() {
           </AppText>
           <AppText role="Body" color="secondary" style={styles.sectionContent}>
             After you've met your protein goal and fat baseline (20%+), carbs make up the rest of your calorie budget. This makes them the most flexible macronutrient—adjust based on your energy needs and preferences.
-          </AppText>
-        </View>
-
-        <View style={styles.section}>
-          <AppText
-            role="Headline"
-            color="primary"
-            style={[styles.sectionHeading, { color: semanticColor }]}
-          >
-            Why We Show It This Way
-          </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            We display carbs as a simple total without a progress ring or bar. Since there's no fixed target to hit, showing just the total gives you the information you need without creating unnecessary pressure.
           </AppText>
         </View>
 
@@ -134,7 +140,25 @@ const createStyles = (theme: Theme) =>
     },
     title: {
       textAlign: "center",
+      marginBottom: theme.spacing.lg,
+    },
+    heroSection: {
       marginBottom: theme.spacing.xl,
+      borderRadius: theme.components.cards.cornerRadius,
+      padding: theme.spacing.lg,
+    },
+    heroStatContainer: {
+      width: "100%",
+      marginBottom: theme.spacing.md,
+    },
+    heroTextContainer: {
+      width: "100%",
+    },
+    heroHeading: {
+      marginBottom: theme.spacing.sm,
+    },
+    heroText: {
+      lineHeight: 22,
     },
     section: {
       marginBottom: theme.spacing.lg,

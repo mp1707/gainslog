@@ -7,6 +7,8 @@ import { AppText } from "@/components/shared/AppText";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { Theme, useTheme } from "@/theme";
+import { ProteinRingDisplay } from "@/components/daily-food-logs/NutrientSummary/NutrientStatDisplay";
+import { CircleCheckBig } from "lucide-react-native";
 
 export default function ExplainerProtein() {
   const { colors, theme } = useTheme();
@@ -44,6 +46,24 @@ export default function ExplainerProtein() {
         <AppText role="Title1" style={styles.title}>
           Protein: Build & Recover
         </AppText>
+
+        <View style={[styles.heroSection, { backgroundColor: colors.secondaryBackground }]}>
+          <View style={styles.heroRingContainer}>
+            <ProteinRingDisplay total={145} target={160} percentage={91} />
+          </View>
+          <View style={styles.heroTextContainer}>
+            <AppText
+              role="Headline"
+              color="primary"
+              style={[styles.heroHeading, { color: semanticColor }]}
+            >
+              Why We Show It This Way
+            </AppText>
+            <AppText role="Body" color="secondary" style={styles.heroText}>
+              The ring shows your daily progress toward your protein goal. When you reach 100%, you'll see a success indicator—this is a primary metric that drives your results.
+            </AppText>
+          </View>
+        </View>
 
         <View style={styles.section}>
           <AppText
@@ -93,11 +113,21 @@ export default function ExplainerProtein() {
             color="primary"
             style={[styles.sectionHeading, { color: semanticColor }]}
           >
-            Why We Show It This Way
+            The Success Checkmark
           </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            The ring shows your daily progress toward your protein goal. When you reach 100%, you'll see a success indicator—this is a primary metric that drives your results.
-          </AppText>
+          <View style={styles.iconExplanation}>
+            <AppText role="Body" color="secondary" style={styles.sectionContent}>
+              When you hit 100% of your protein goal, the{" "}
+            </AppText>
+            <BicepsFlexed size={18} color={semanticColor} fill={semanticColor} strokeWidth={0} />
+            <AppText role="Body" color="secondary" style={styles.sectionContent}>
+              {" "}icon is replaced with a success{" "}
+            </AppText>
+            <CircleCheckBig size={18} color={semanticColor} fill={colors.semanticSurfaces.protein} strokeWidth={2} />
+            <AppText role="Body" color="secondary" style={styles.sectionContent}>
+              {" "}checkmark to celebrate hitting this critical target.
+            </AppText>
+          </View>
         </View>
 
         <View style={styles.footer}>
@@ -137,10 +167,33 @@ const createStyles = (theme: Theme) =>
     },
     title: {
       textAlign: "center",
+      marginBottom: theme.spacing.lg,
+    },
+    heroSection: {
       marginBottom: theme.spacing.xl,
+      borderRadius: theme.components.cards.cornerRadius,
+      padding: theme.spacing.lg,
+      alignItems: "center",
+    },
+    heroRingContainer: {
+      marginBottom: theme.spacing.md,
+    },
+    heroTextContainer: {
+      width: "100%",
+    },
+    heroHeading: {
+      marginBottom: theme.spacing.sm,
+    },
+    heroText: {
+      lineHeight: 22,
     },
     section: {
       marginBottom: theme.spacing.lg,
+    },
+    iconExplanation: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      alignItems: "center",
     },
     sectionHeading: {
       marginBottom: theme.spacing.sm,
