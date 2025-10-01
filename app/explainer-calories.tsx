@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { X, Flame } from "lucide-react-native";
 
 import { AppText } from "@/components/shared/AppText";
@@ -13,6 +13,7 @@ export default function ExplainerCalories() {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const router = useRouter();
+  const params = useLocalSearchParams<{ total?: string; target?: string; percentage?: string }>();
 
   const handleClose = () => {
     if (router.canGoBack()) {
@@ -21,6 +22,11 @@ export default function ExplainerCalories() {
   };
 
   const semanticColor = colors.semantic.calories;
+
+  // Parse params with fallback to example data
+  const total = params.total ? parseInt(params.total) : 1850;
+  const target = params.target ? parseInt(params.target) : 2200;
+  const percentage = params.percentage ? parseInt(params.percentage) : 84;
 
   return (
     <GradientWrapper style={styles.container}>
@@ -48,7 +54,7 @@ export default function ExplainerCalories() {
 
         <View style={[styles.heroSection, { backgroundColor: colors.secondaryBackground }]}>
           <View style={styles.heroRingContainer}>
-            <CaloriesRingDisplay total={1850} target={2200} percentage={84} />
+            <CaloriesRingDisplay total={total} target={target} percentage={percentage} />
           </View>
           <View style={styles.heroTextContainer}>
             <AppText
@@ -70,35 +76,11 @@ export default function ExplainerCalories() {
             color="primary"
             style={[styles.sectionHeading, { color: semanticColor }]}
           >
-            Why Calories Matter
+            The Essentials
           </AppText>
           <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            Calories are the primary metric for weight management and the foundation of your nutrition strategy. Your calorie target directly determines whether you lose, maintain, or gain weight.
-          </AppText>
-        </View>
-
-        <View style={styles.section}>
-          <AppText
-            role="Headline"
-            color="primary"
-            style={[styles.sectionHeading, { color: semanticColor }]}
-          >
-            How Your Target is Set
-          </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            Your calorie goal is calculated from your Total Daily Energy Expenditure (TDEE), based on your age, sex, weight, height, and activity level. We use the Mifflin-St Jeor equation to estimate your baseline needs.
-          </AppText>
-        </View>
-
-        <View style={styles.section}>
-          <AppText
-            role="Headline"
-            color="primary"
-            style={[styles.sectionHeading, { color: semanticColor }]}
-          >
-            The Three Goals
-          </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
+            Calories are your energy budget—the primary driver of whether you lose, maintain, or gain weight. Your target is based on your Total Daily Energy Expenditure (TDEE), calculated from age, sex, weight, height, and activity level.
+            {"\n\n"}
             • Cut: -500 kcal from TDEE for gradual weight loss{"\n"}
             • Maintain: Exact TDEE to stay at current weight{"\n"}
             • Bulk: +500 kcal above TDEE for gradual weight gain

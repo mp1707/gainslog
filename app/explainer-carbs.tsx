@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { X, Zap } from "lucide-react-native";
 
 import { AppText } from "@/components/shared/AppText";
@@ -13,6 +13,7 @@ export default function ExplainerCarbs() {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const router = useRouter();
+  const params = useLocalSearchParams<{ total?: string }>();
 
   const handleClose = () => {
     if (router.canGoBack()) {
@@ -21,6 +22,9 @@ export default function ExplainerCarbs() {
   };
 
   const semanticColor = colors.semantic.carbs;
+
+  // Parse params with fallback to example data
+  const total = params.total ? parseInt(params.total) : 218;
 
   return (
     <GradientWrapper style={styles.container}>
@@ -48,7 +52,7 @@ export default function ExplainerCarbs() {
 
         <View style={[styles.heroSection, { backgroundColor: colors.secondaryBackground }]}>
           <View style={styles.heroStatContainer}>
-            <CarbsStatDisplay total={218} />
+            <CarbsStatDisplay total={total} />
           </View>
           <View style={styles.heroTextContainer}>
             <AppText
@@ -70,36 +74,12 @@ export default function ExplainerCarbs() {
             color="primary"
             style={[styles.sectionHeading, { color: semanticColor }]}
           >
-            Why Carbs Are Different
+            The Essentials
           </AppText>
           <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            Unlike protein and fat, carbohydrates don't have a strict minimum or maximum target. They serve as your flexible fuel source, filling the remaining calories after you've optimized protein and fat.
-          </AppText>
-        </View>
-
-        <View style={styles.section}>
-          <AppText
-            role="Headline"
-            color="primary"
-            style={[styles.sectionHeading, { color: semanticColor }]}
-          >
-            The Filler Macronutrient
-          </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            After you've met your protein goal and fat baseline (20%+), carbs make up the rest of your calorie budget. This makes them the most flexible macronutrient—adjust based on your energy needs and preferences.
-          </AppText>
-        </View>
-
-        <View style={styles.section}>
-          <AppText
-            role="Headline"
-            color="primary"
-            style={[styles.sectionHeading, { color: semanticColor }]}
-          >
-            Your Primary Energy Source
-          </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            Carbs are your body's preferred fuel for training and daily activity. Higher activity levels typically benefit from more carbs, while lower activity may mean fewer carbs—it's entirely up to you and what supports your goals.
+            Unlike protein and fat, carbs don't have a strict target—which is why we show just a simple total. They're your flexible fuel source, filling the remaining calories after protein and fat.
+            {"\n\n"}
+            Carbs are your body's preferred fuel for training and daily activity. Higher activity levels typically benefit from more carbs, lower activity may mean fewer. Adjust based on energy needs and what feels best.
           </AppText>
         </View>
 

@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { X, Droplet } from "lucide-react-native";
 
 import { AppText } from "@/components/shared/AppText";
@@ -14,6 +14,7 @@ export default function ExplainerFat() {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const router = useRouter();
+  const params = useLocalSearchParams<{ total?: string; target?: string; percentage?: string }>();
 
   const handleClose = () => {
     if (router.canGoBack()) {
@@ -22,6 +23,11 @@ export default function ExplainerFat() {
   };
 
   const semanticColor = colors.semantic.fat;
+
+  // Parse params with fallback to example data
+  const total = params.total ? parseInt(params.total) : 52;
+  const target = params.target ? parseInt(params.target) : 60;
+  const percentage = params.percentage ? parseInt(params.percentage) : 87;
 
   return (
     <GradientWrapper style={styles.container}>
@@ -40,16 +46,26 @@ export default function ExplainerFat() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.iconContainer}>
-          <Droplet size={64} color={semanticColor} fill={semanticColor} strokeWidth={1.5} />
+          <Droplet
+            size={64}
+            color={semanticColor}
+            fill={semanticColor}
+            strokeWidth={1.5}
+          />
         </View>
 
         <AppText role="Title1" style={styles.title}>
           Fat: Essential Baseline
         </AppText>
 
-        <View style={[styles.heroSection, { backgroundColor: colors.secondaryBackground }]}>
+        <View
+          style={[
+            styles.heroSection,
+            { backgroundColor: colors.secondaryBackground },
+          ]}
+        >
           <View style={styles.heroBarContainer}>
-            <FatProgressDisplay total={52} target={60} percentage={87} />
+            <FatProgressDisplay total={total} target={target} percentage={percentage} />
           </View>
           <View style={styles.heroTextContainer}>
             <AppText
@@ -60,10 +76,32 @@ export default function ExplainerFat() {
               Why We Show It This Way
             </AppText>
             <AppText role="Body" color="secondary" style={styles.heroText}>
-              The progress bar tracks your fat intake up to the 20% minimum threshold. This is more of a baseline check rather than a strict target—once you hit 20%, you're in a healthy range.
+              The progress bar tracks your fat intake up to the 20% minimum
+              threshold. This is more of a baseline check rather than a strict
+              target—once you hit 20%, you're in a healthy range.
             </AppText>
-            <AppText role="Body" color="secondary" style={[styles.heroText, styles.heroIconExplanation]}>
-              At 100%, the <Droplet size={16} color={semanticColor} fill={semanticColor} strokeWidth={0} style={styles.inlineIcon} /> icon becomes a <CircleCheckBig size={16} color={semanticColor} fill={colors.semanticSurfaces.fat} strokeWidth={2} style={styles.inlineIcon} /> checkmark.
+            <AppText
+              role="Body"
+              color="secondary"
+              style={[styles.heroText, styles.heroIconExplanation]}
+            >
+              At 100%, the{" "}
+              <Droplet
+                size={16}
+                color={semanticColor}
+                fill={semanticColor}
+                strokeWidth={0}
+                style={styles.inlineIcon}
+              />{" "}
+              icon becomes a{" "}
+              <CircleCheckBig
+                size={16}
+                color={semanticColor}
+                fill={colors.semanticSurfaces.fat}
+                strokeWidth={2}
+                style={styles.inlineIcon}
+              />{" "}
+              checkmark.
             </AppText>
           </View>
         </View>
@@ -74,36 +112,17 @@ export default function ExplainerFat() {
             color="primary"
             style={[styles.sectionHeading, { color: semanticColor }]}
           >
-            Why Fat Matters
+            The Essentials
           </AppText>
           <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            Dietary fat is essential for hormone production, vitamin absorption, and overall health. While it's not the primary focus like protein, maintaining a minimum intake is crucial for your wellbeing.
-          </AppText>
-        </View>
-
-        <View style={styles.section}>
-          <AppText
-            role="Headline"
-            color="primary"
-            style={[styles.sectionHeading, { color: semanticColor }]}
-          >
-            The 20% Minimum Rule
-          </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            A healthy baseline is at least 20% of your total calories from fat. This ensures adequate intake for essential bodily functions. The optimal range is typically 20-40% of calories, depending on your preferences and needs.
-          </AppText>
-        </View>
-
-        <View style={styles.section}>
-          <AppText
-            role="Headline"
-            color="primary"
-            style={[styles.sectionHeading, { color: semanticColor }]}
-          >
-            Flexibility Within Range
-          </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            After hitting your protein and calorie targets, you can adjust your fat intake anywhere in the 20-40% range based on what feels best for your body and training.
+            Fat is essential for hormone production, vitamin absorption, and
+            overall health. We track a minimum baseline of 20% of total
+            calories—not a strict target, which is why it's a progress bar
+            toward your minimal baseline.
+            {"\n\n"}
+            Once you hit 20%, you're in a healthy range. The optimal range is
+            20-40% depending on your preferences. After hitting protein and
+            calorie targets, adjust fat based on what feels best for your body.
           </AppText>
         </View>
 

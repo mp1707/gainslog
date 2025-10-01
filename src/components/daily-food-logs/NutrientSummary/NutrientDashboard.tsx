@@ -220,7 +220,12 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   // Handler for opening explainer pages
   const handleOpenModal = (nutrient: "calories" | "protein" | "fat" | "carbs") => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push(`/explainer-${nutrient}` as any);
+
+    const total = Math.round(totals[nutrient] || 0);
+    const target = Math.round(targets[nutrient] || 0);
+    const percentage = Math.round(percentages[nutrient] || 0);
+
+    router.push(`/explainer-${nutrient}?total=${total}&target=${target}&percentage=${percentage}` as any);
   };
 
   // Press handlers for rings

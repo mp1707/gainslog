@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { X, BicepsFlexed } from "lucide-react-native";
 
 import { AppText } from "@/components/shared/AppText";
@@ -14,6 +14,7 @@ export default function ExplainerProtein() {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const router = useRouter();
+  const params = useLocalSearchParams<{ total?: string; target?: string; percentage?: string }>();
 
   const handleClose = () => {
     if (router.canGoBack()) {
@@ -22,6 +23,11 @@ export default function ExplainerProtein() {
   };
 
   const semanticColor = colors.semantic.protein;
+
+  // Parse params with fallback to example data
+  const total = params.total ? parseInt(params.total) : 145;
+  const target = params.target ? parseInt(params.target) : 160;
+  const percentage = params.percentage ? parseInt(params.percentage) : 91;
 
   return (
     <GradientWrapper style={styles.container}>
@@ -49,7 +55,7 @@ export default function ExplainerProtein() {
 
         <View style={[styles.heroSection, { backgroundColor: colors.secondaryBackground }]}>
           <View style={styles.heroRingContainer}>
-            <ProteinRingDisplay total={145} target={160} percentage={91} />
+            <ProteinRingDisplay total={total} target={target} percentage={percentage} />
           </View>
           <View style={styles.heroTextContainer}>
             <AppText
@@ -74,39 +80,15 @@ export default function ExplainerProtein() {
             color="primary"
             style={[styles.sectionHeading, { color: semanticColor }]}
           >
-            Why Protein Matters
+            The Essentials
           </AppText>
           <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            Protein is critical for muscle growth, recovery, and maintenance. It's your primary macronutrient target alongside calories, and hitting your protein goal is essential for maximizing training adaptations.
-          </AppText>
-        </View>
-
-        <View style={styles.section}>
-          <AppText
-            role="Headline"
-            color="primary"
-            style={[styles.sectionHeading, { color: semanticColor }]}
-          >
-            How Your Target is Set
-          </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            Your protein goal is calculated based on your body weight multiplied by a goal factor that matches your training intensity. Factors range from 0.8 g/kg (basic maintenance) to 3.0 g/kg (maximum preservation during cutting).
-          </AppText>
-        </View>
-
-        <View style={styles.section}>
-          <AppText
-            role="Headline"
-            color="primary"
-            style={[styles.sectionHeading, { color: semanticColor }]}
-          >
-            Goal Factor Examples
-          </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
+            Protein is critical for muscle growth and recovery. It's your primary macronutrient target alongside calories. Your goal is bodyweight × a factor based on your muscle growth goal.
+            {"\n\n"}
             • 0.8 g/kg: Daily maintenance for general health{"\n"}
             • 1.6 g/kg: Optimal growth (evidence-based sweet spot){"\n"}
             • 2.2 g/kg: Anabolic insurance for dedicated athletes{"\n"}
-            • 3.0 g/kg: Maximum preservation during significant deficits
+            • 3.0 g/kg: Maximum preservation during cutting
           </AppText>
         </View>
 
