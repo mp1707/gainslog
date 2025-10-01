@@ -30,9 +30,9 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     menuItem: {
       flexDirection: "row",
       alignItems: "center",
-      paddingVertical: 12,
+      paddingVertical: 14,
       paddingHorizontal: 16,
-      gap: 12,
+      gap: 14,
     },
     separator: {
       height: 0.5,

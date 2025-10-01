@@ -223,8 +223,8 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
                 accessibilityLabel="Open settings"
                 accessibilityRole="button"
               >
-                <Settings size={20} color={colors.primaryText} />
-                <AppText role="Body">Settings</AppText>
+                <Settings size={24} color={colors.primaryText} />
+                <AppText role="Subhead" color="primary">Settings</AppText>
               </Pressable>
 
               <View style={styles.separator} />
@@ -235,8 +235,8 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
                 accessibilityLabel="Open calendar"
                 accessibilityRole="button"
               >
-                <CalendarDays size={20} color={colors.primaryText} />
-                <AppText role="Body">Calendar</AppText>
+                <CalendarDays size={24} color={colors.primaryText} />
+                <AppText role="Subhead" color="primary">Calendar</AppText>
               </Pressable>
             </View>
           </View>
@@ -245,15 +245,15 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
         <View style={styles.measureContainer} pointerEvents="none">
           <View onLayout={handleContentLayout} style={styles.content}>
             <View style={styles.menuItem}>
-              <Settings size={20} color={colors.primaryText} />
-              <AppText role="Body">Settings</AppText>
+              <Settings size={24} color={colors.primaryText} />
+              <AppText role="Subhead" color="primary">Settings</AppText>
             </View>
 
             <View style={styles.separator} />
 
             <View style={styles.menuItem}>
-              <CalendarDays size={20} color={colors.primaryText} />
-              <AppText role="Body">Calendar</AppText>
+              <CalendarDays size={24} color={colors.primaryText} />
+              <AppText role="Subhead" color="primary">Calendar</AppText>
             </View>
           </View>
         </View>
