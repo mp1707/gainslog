@@ -25,7 +25,7 @@ import { DailyTargets } from "@/types/models";
 const SummaryScreen = () => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
-  const { safeReplace } = useNavigationGuard();
+  const { safeReplace, safeNavigate } = useNavigationGuard();
   const [isConfirming, setIsConfirming] = useState(false);
 
   // Onboarding store state
@@ -33,10 +33,6 @@ const SummaryScreen = () => {
     calorieGoal,
     proteinGoal,
     fatPercentage,
-    setCalorieGoal,
-    setProteinGoal,
-    setFatPercentage,
-    reset,
   } = useOnboardingStore();
 
   // Main app store
@@ -44,31 +40,27 @@ const SummaryScreen = () => {
 
 
 
-  // Get stored values based on mode
+  // Get stored values with defaults
   const effectiveFatPercentage = fatPercentage ?? 30;
-  const baseCalories = calorieGoal || 0;
-  const baseProtein = proteinGoal || 0;
-  const baseFat = calorieGoal
+  const currentCalories = calorieGoal || 0;
+  const currentProtein = proteinGoal || 0;
+  const currentFat = calorieGoal
     ? calculateFatGramsFromPercentage(calorieGoal, effectiveFatPercentage)
     : 0;
 
-  // Calculate carbs using the base values
-  // When confirming, keep displaying the original values to prevent visual artifacts
-  const displayCalories = isConfirming ? baseCalories : (calorieGoal || 0);
-  const displayProtein = isConfirming ? baseProtein : (proteinGoal || 0);
-  const displayFat = isConfirming ? baseFat : (calorieGoal ? calculateFatGramsFromPercentage(calorieGoal, effectiveFatPercentage) : 0);
-
+  // Calculate carbs from the current values
   const currentCarbs = useMemo(() => {
-    const proteinCals = displayProtein * 4;
-    const fatCals = displayFat * 9;
-    const remainingCals = Math.max(0, displayCalories - proteinCals - fatCals);
+    const proteinCals = currentProtein * 4;
+    const fatCals = currentFat * 9;
+    const remainingCals = Math.max(0, currentCalories - proteinCals - fatCals);
     return Math.round(remainingCals / 4);
-  }, [displayCalories, displayProtein, displayFat]);
+  }, [currentCalories, currentProtein, currentFat]);
 
-  const currentCalories = baseCalories;
-  const currentProtein = baseProtein;
-  const currentFat = baseFat;
 
+  const handleAdjustTargets = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    safeNavigate("/onboarding/calorie-goal");
+  };
 
   const handleConfirmAndStartTracking = async () => {
     // Validate we have all required data
@@ -91,8 +83,8 @@ const SummaryScreen = () => {
     // Save to main app store
     setDailyTargets(newTargets);
 
-    // Clear the onboarding store
-    reset();
+    // Note: Onboarding store will be reset when re-entering via /onboarding/index.tsx
+    // No need to reset here to avoid visual artifacts
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
@@ -108,7 +100,7 @@ const SummaryScreen = () => {
       color: colors.semantic.calories,
       backgroundColor: colors.semanticSurfaces.calories,
       label: "Calories",
-      value: displayCalories,
+      value: currentCalories,
       unit: "kcal",
     },
     {
@@ -117,7 +109,7 @@ const SummaryScreen = () => {
       color: colors.semantic.protein,
       backgroundColor: colors.semanticSurfaces.protein,
       label: "Protein",
-      value: displayProtein,
+      value: currentProtein,
       unit: "g",
     },
     {
@@ -126,7 +118,7 @@ const SummaryScreen = () => {
       color: colors.semantic.fat,
       backgroundColor: colors.semanticSurfaces.fat,
       label: "Fat",
-      value: displayFat,
+      value: currentFat,
       unit: "g",
       percentage: `${effectiveFatPercentage}% of calories`,
     },
@@ -146,7 +138,7 @@ const SummaryScreen = () => {
       actionButton={
         <View style={styles.actionButtonsContainer}>
           <View style={styles.secondaryActions}>
-            <Pressable>
+            <Pressable onPress={handleAdjustTargets}>
               <AppText
                 role="Button"
                 color="accent"

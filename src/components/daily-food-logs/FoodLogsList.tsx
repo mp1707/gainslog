@@ -6,6 +6,8 @@ import { NutrientDashboard } from "./NutrientSummary/NutrientDashboard";
 import { EmptyFoodLogsState } from "./EmptyFoodLogsState";
 import { useTheme } from "@/theme/ThemeProvider";
 
+const DEFAULT_TARGETS = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+
 interface FoodLogsListProps {
   foodLogs: FoodLog[];
   dailyPercentages: any;
@@ -37,7 +39,6 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
 }) => {
   const { colors, theme } = useTheme();
   const flatListRef = useRef<FlatList>(null);
-  const defaultTargets = { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
   useEffect(() => {
     flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
@@ -80,11 +81,11 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
     () => (
       <NutrientDashboard
         percentages={dailyPercentages}
-        targets={dailyTargets || defaultTargets}
+        targets={dailyTargets || DEFAULT_TARGETS}
         totals={dailyTotals}
       />
     ),
-    [dailyPercentages, dailyTargets, dailyTotals, defaultTargets]
+    [dailyPercentages, dailyTargets, dailyTotals]
   );
 
   const contentContainerStyle = useMemo(

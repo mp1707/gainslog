@@ -66,6 +66,7 @@ export default function OnboardingLayout() {
           contentStyle: { backgroundColor: colors.primaryBackground },
         }}
       >
+        <Stack.Screen name="index" />
         <Stack.Screen name="age" />
         <Stack.Screen name="sex" />
         <Stack.Screen name="height" />

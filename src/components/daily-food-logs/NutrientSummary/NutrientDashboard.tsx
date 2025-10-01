@@ -82,6 +82,18 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   targets,
   totals,
 }) => {
+  // Check if there are no goals BEFORE any hooks
+  const hasNoGoals =
+    (targets.calories || 0) === 0 &&
+    (targets.protein || 0) === 0 &&
+    (targets.carbs || 0) === 0 &&
+    (targets.fat || 0) === 0;
+
+  // Early return before hooks if no goals are set
+  if (hasNoGoals) {
+    return <SetGoalsCTA />;
+  }
+
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const router = useRouter();
@@ -117,15 +129,6 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   // Animated progress bars for secondary stats
   const fatProgress = useSharedValue(0);
   const carbsProgress = useSharedValue(0);
-
-  const hasNoGoals = useMemo(() => {
-    return (
-      (targets.calories || 0) === 0 &&
-      (targets.protein || 0) === 0 &&
-      (targets.carbs || 0) === 0 &&
-      (targets.fat || 0) === 0
-    );
-  }, [targets]);
 
   const semanticColors = {
     calories: colors.semantic.calories,
@@ -290,10 +293,6 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   const carbsStatAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: carbsStatScale.value }],
   }));
-
-  if (hasNoGoals) {
-    return <SetGoalsCTA />;
-  }
 
   return (
     <View style={styles.container}>
