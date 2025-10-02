@@ -1,9 +1,5 @@
 import React, { useMemo, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  Pressable,
-} from "react-native";
+import { View, StyleSheet, Pressable } from "react-native";
 import { AppText } from "@/components/shared/AppText";
 import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
@@ -12,15 +8,9 @@ import { useAppStore } from "@/store/useAppStore";
 import { Button, Card } from "@/components/index";
 import { OnboardingScreen } from "./_components/OnboardingScreen";
 import * as Haptics from "expo-haptics";
-import {
-  Flame,
-  BicepsFlexed,
-  Wheat,
-  Droplet,
-} from "lucide-react-native";
+import { Flame, BicepsFlexed, Wheat, Droplet } from "lucide-react-native";
 import { calculateFatGramsFromPercentage } from "@/utils/nutritionCalculations";
 import { DailyTargets } from "@/types/models";
-
 
 const SummaryScreen = () => {
   const { colors, theme: themeObj } = useTheme();
@@ -29,16 +19,10 @@ const SummaryScreen = () => {
   const [isConfirming, setIsConfirming] = useState(false);
 
   // Onboarding store state
-  const {
-    calorieGoal,
-    proteinGoal,
-    fatPercentage,
-  } = useOnboardingStore();
+  const { calorieGoal, proteinGoal, fatPercentage } = useOnboardingStore();
 
   // Main app store
   const { setDailyTargets } = useAppStore();
-
-
 
   // Get stored values with defaults
   const effectiveFatPercentage = fatPercentage ?? 30;
@@ -55,7 +39,6 @@ const SummaryScreen = () => {
     const remainingCals = Math.max(0, currentCalories - proteinCals - fatCals);
     return Math.round(remainingCals / 4);
   }, [currentCalories, currentProtein, currentFat]);
-
 
   const handleAdjustTargets = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -139,11 +122,7 @@ const SummaryScreen = () => {
         <View style={styles.actionButtonsContainer}>
           <View style={styles.secondaryActions}>
             <Pressable onPress={handleAdjustTargets}>
-              <AppText
-                role="Button"
-                color="accent"
-                style={styles.centeredText}
-              >
+              <AppText role="Button" color="accent" style={styles.centeredText}>
                 Adjust Targets
               </AppText>
             </Pressable>
@@ -152,7 +131,9 @@ const SummaryScreen = () => {
             variant="primary"
             label={isConfirming ? "Starting..." : "Confirm & Start Tracking"}
             onPress={handleConfirmAndStartTracking}
-            disabled={currentCalories <= 0 || currentProtein <= 0 || isConfirming}
+            disabled={
+              currentCalories <= 0 || currentProtein <= 0 || isConfirming
+            }
           />
         </View>
       }
@@ -247,8 +228,9 @@ const createStyles = (colors: Colors, theme: Theme) => {
       alignSelf: "center",
     },
     targetsSection: {
-      gap: spacing.sm,
+      gap: spacing.md,
       marginBottom: spacing.xl,
+      paddingHorizontal: spacing.md,
     },
     cardOverrides: {
       minHeight: 60,
@@ -278,7 +260,7 @@ const createStyles = (colors: Colors, theme: Theme) => {
       marginBottom: spacing.xl,
     },
     actionButtonsContainer: {
-      gap: spacing.md,
+      gap: spacing.lg,
       alignItems: "stretch",
     },
     secondaryActions: {

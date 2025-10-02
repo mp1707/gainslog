@@ -157,7 +157,7 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       alignSelf: "center",
     },
     contentWrapper: {
-      paddingHorizontal: spacing.pageMargins.horizontal,
+      paddingHorizontal: spacing.md,
     },
     goalsSection: {
       gap: spacing.md,

@@ -35,10 +35,11 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
             </View>
           )}
           <View style={styles.centeredContent}>{children}</View>
-          {actionButton}
-        </KeyboardAwareScrollView>
 
-        {actionButton && <View style={styles.actionButtonContainer}></View>}
+          {actionButton && (
+            <View style={styles.actionButtonContainer}>{actionButton}</View>
+          )}
+        </KeyboardAwareScrollView>
       </View>
     </View>
   );
@@ -77,11 +78,7 @@ const createStyles = (colors: Colors, theme: Theme) => {
       justifyContent: "center",
     },
     actionButtonContainer: {
-      position: "absolute",
-      bottom: spacing.lg,
-      left: 0,
-      right: 0,
-      paddingHorizontal: spacing.pageMargins.horizontal,
+      paddingHorizontal: spacing.md,
     },
   });
 };

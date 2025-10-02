@@ -109,6 +109,7 @@ const createStyles = (themeObj: Theme) => {
     },
     methodsSection: {
       gap: spacing.md,
+      paddingHorizontal: spacing.md,
     },
   });
 };
