@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Info } from "lucide-react-native";
@@ -8,8 +8,8 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { Button } from "@/components/index";
 import { OnboardingScreen } from "./_components/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
-import { Picker } from "@react-native-picker/picker";
 import { Tooltip } from "@/components/shared/Tooltip";
+import { RulerPicker } from "@/components/shared/RulerPicker";
 
 const HeightSelectionScreen = () => {
   const { colors, theme: themeObj } = useTheme();
@@ -20,15 +20,6 @@ const HeightSelectionScreen = () => {
   const [selectedHeight, setSelectedHeight] = useState<number>(
     storedHeight || 175
   );
-
-  // Create height options array
-  const heightOptions = useMemo(() => {
-    const options: number[] = [];
-    for (let i = 100; i <= 250; i++) {
-      options.push(i);
-    }
-    return options;
-  }, []);
 
   const handleContinue = async () => {
     setStoredHeight(selectedHeight);
@@ -67,26 +58,14 @@ const HeightSelectionScreen = () => {
       </View>
 
       <View style={styles.pickerSection}>
-        <View style={styles.pickerArea}>
-          <View style={styles.pickerCol}>
-            <Picker
-              selectedValue={selectedHeight}
-              onValueChange={(value) => handleHeightChange(Number(value))}
-              itemStyle={{ color: colors.primaryText }}
-            >
-              {heightOptions.map((height) => (
-                <Picker.Item
-                  key={height}
-                  label={height.toString()}
-                  value={height}
-                />
-              ))}
-            </Picker>
-          </View>
-          <AppText role="Headline" style={styles.unitText}>
-            cm
-          </AppText>
-        </View>
+        <RulerPicker
+          min={100}
+          max={250}
+          value={selectedHeight}
+          onChange={handleHeightChange}
+          unit="cm"
+          backgroundColor={colors.semanticSurfaces.protein}
+        />
       </View>
     </OnboardingScreen>
   );
@@ -104,23 +83,7 @@ const createStyles = (colors: any, themeObj: any) => {
     },
     pickerSection: {
       alignItems: "center",
-    },
-    pickerArea: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      backgroundColor: colors.primaryBackground,
-      borderRadius: themeObj.components.cards.cornerRadius,
-      minWidth: 200,
-    },
-    pickerCol: {
-      flex: 1,
-      borderRadius: 14,
-      overflow: "hidden",
-      backgroundColor: "transparent",
-    },
-    unitText: {
-      paddingRight: spacing.md,
+      width: "100%",
     },
     infoRow: {
       flexDirection: "row",

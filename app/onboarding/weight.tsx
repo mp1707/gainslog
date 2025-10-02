@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
@@ -7,7 +7,7 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { Button } from "@/components/index";
 import { OnboardingScreen } from "./_components/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
-import { Picker } from "@react-native-picker/picker";
+import { RulerPicker } from "@/components/shared/RulerPicker";
 
 const WeightSelectionScreen = () => {
   const { colors, theme: themeObj } = useTheme();
@@ -18,15 +18,6 @@ const WeightSelectionScreen = () => {
   const [selectedWeight, setSelectedWeight] = useState<number>(
     storedWeight || 70
   );
-
-  // Create weight options array
-  const weightOptions = useMemo(() => {
-    const options: number[] = [];
-    for (let i = 30; i <= 300; i++) {
-      options.push(i);
-    }
-    return options;
-  }, []);
 
   const handleContinue = async () => {
     setStoredWeight(selectedWeight);
@@ -41,11 +32,7 @@ const WeightSelectionScreen = () => {
   return (
     <OnboardingScreen
       actionButton={
-        <Button
-          variant="primary"
-          label="Continue"
-          onPress={handleContinue}
-        />
+        <Button variant="primary" label="Continue" onPress={handleContinue} />
       }
     >
       <View style={styles.textSection}>
@@ -56,26 +43,13 @@ const WeightSelectionScreen = () => {
       </View>
 
       <View style={styles.pickerSection}>
-        <View style={styles.pickerArea}>
-          <View style={styles.pickerCol}>
-            <Picker
-              selectedValue={selectedWeight}
-              onValueChange={(value) => handleWeightChange(Number(value))}
-              itemStyle={{ color: colors.primaryText }}
-            >
-              {weightOptions.map((weight) => (
-                <Picker.Item
-                  key={weight}
-                  label={weight.toString()}
-                  value={weight}
-                />
-              ))}
-            </Picker>
-          </View>
-          <AppText role="Headline" style={styles.unitText}>
-            kg
-          </AppText>
-        </View>
+        <RulerPicker
+          min={30}
+          max={300}
+          value={selectedWeight}
+          onChange={handleWeightChange}
+          unit="kg"
+        />
       </View>
     </OnboardingScreen>
   );
@@ -98,23 +72,7 @@ const createStyles = (colors: any, themeObj: any) => {
     },
     pickerSection: {
       alignItems: "center",
-    },
-    pickerArea: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      backgroundColor: colors.primaryBackground,
-      borderRadius: themeObj.components.cards.cornerRadius,
-      minWidth: 200,
-    },
-    pickerCol: {
-      flex: 1,
-      borderRadius: 14,
-      overflow: "hidden",
-      backgroundColor: "transparent",
-    },
-    unitText: {
-      paddingRight: spacing.md,
+      width: "100%",
     },
   });
 };
