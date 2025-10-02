@@ -6,7 +6,7 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { useAppStore } from "@/store/useAppStore";
 import { Button, Card } from "@/components/index";
-import { OnboardingScreen } from "./_components/OnboardingScreen";
+import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 import * as Haptics from "expo-haptics";
 import { Flame, BicepsFlexed, Wheat, Droplet } from "lucide-react-native";
 import { calculateFatGramsFromPercentage } from "@/utils/nutritionCalculations";

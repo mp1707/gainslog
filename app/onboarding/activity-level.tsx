@@ -10,7 +10,7 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { ACTIVITY_LEVELS } from "@/components/settings/calculationMethods";
 import { StyleSheet } from "react-native";
 import { UserSettings } from "@/types/models";
-import { OnboardingScreen } from "./_components/OnboardingScreen";
+import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
 import { Tooltip } from "@/components/shared/Tooltip";
 

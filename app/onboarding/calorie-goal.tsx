@@ -10,7 +10,7 @@ import type { UserSettings } from "@/types/models";
 import { StyleSheet } from "react-native";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
-import { OnboardingScreen } from "./_components/OnboardingScreen";
+import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
 
 export default function Step3GoalsScreen() {
@@ -133,10 +133,14 @@ export default function Step3GoalsScreen() {
 
         {/* Footer Note */}
         <View style={styles.footer}>
-          <AppText role="Caption" color="secondary" style={styles.secondaryText}>
-            These recommendations are general guidelines based on the
-            Mifflin-St Jeor equation. Consult with a nutritionist or healthcare
-            provider for personalized advice.
+          <AppText
+            role="Caption"
+            color="secondary"
+            style={styles.secondaryText}
+          >
+            These recommendations are general guidelines based on the Mifflin-St
+            Jeor equation. Consult with a nutritionist or healthcare provider
+            for personalized advice.
           </AppText>
         </View>
       </View>

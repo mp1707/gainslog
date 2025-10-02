@@ -9,7 +9,7 @@ import { StyleSheet } from "react-native";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { useRouter } from "expo-router";
-import { OnboardingScreen } from "./_components/OnboardingScreen";
+import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
 
 const SexSelectionScreen = React.memo(function SexSelectionScreen() {
@@ -21,10 +21,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
     sex
   );
 
-  const styles = useMemo(
-    () => createStyles(themeObj),
-    [themeObj]
-  );
+  const styles = useMemo(() => createStyles(themeObj), [themeObj]);
 
   const handleSexSelect = useCallback(
     async (selectedSex: "male" | "female") => {

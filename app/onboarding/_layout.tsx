@@ -5,7 +5,7 @@ import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { View } from "react-native";
 import { useRouter } from "expo-router";
 import React, { useMemo } from "react";
-import { OnboardingHeader } from "./_components/OnboardingHeader";
+import { OnboardingHeader } from "../../src/components/onboarding/OnboardingHeader";
 
 const STEP_MAP: Record<string, number> = {
   "/onboarding/age": 1,

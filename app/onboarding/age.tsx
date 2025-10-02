@@ -5,7 +5,7 @@ import { Colors, Theme, useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { Button } from "@/components/index";
-import { OnboardingScreen } from "./_components/OnboardingScreen";
+import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
 import { Picker } from "@react-native-picker/picker";
 
@@ -44,11 +44,7 @@ const AgeSelectionScreen = () => {
         </AppText>
       }
       actionButton={
-        <Button
-          variant="primary"
-          label="Continue"
-          onPress={handleContinue}
-        />
+        <Button variant="primary" label="Continue" onPress={handleContinue} />
       }
     >
       <View style={styles.pickerSection}>

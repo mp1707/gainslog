@@ -5,7 +5,7 @@ import { useTheme } from "@/theme";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { Button } from "@/components/index";
-import { OnboardingScreen } from "./_components/OnboardingScreen";
+import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
 import { RulerPicker } from "@/components/shared/RulerPicker";
 

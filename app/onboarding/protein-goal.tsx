@@ -23,7 +23,7 @@ import {
 } from "@/utils/nutritionCalculations";
 import { useRouter } from "expo-router";
 import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
-import { OnboardingScreen } from "./_components/OnboardingScreen";
+import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 
 const METHODS: Record<
   ProteinGoalType,
@@ -194,7 +194,11 @@ export default function ProteinGoalsScreen() {
 
         {/* Footer Note */}
         <View style={styles.footer}>
-          <AppText role="Caption" color="secondary" style={styles.secondaryText}>
+          <AppText
+            role="Caption"
+            color="secondary"
+            style={styles.secondaryText}
+          >
             These recommendations are general guidelines. Consult with a
             nutritionist or healthcare provider for personalized advice.
           </AppText>
