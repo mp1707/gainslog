@@ -31,17 +31,16 @@ const WeightSelectionScreen = () => {
 
   return (
     <OnboardingScreen
+      title={<AppText role="Title2">What's your current weight?</AppText>}
+      subtitle={
+        <AppText role="Body" color="secondary" style={styles.secondaryText}>
+          This sets the starting point for your goals.
+        </AppText>
+      }
       actionButton={
         <Button variant="primary" label="Continue" onPress={handleContinue} />
       }
     >
-      <View style={styles.textSection}>
-        <AppText role="Title2">What's your current weight?</AppText>
-        <AppText role="Body" color="secondary" style={styles.secondaryText}>
-          This sets the starting point for your goals.
-        </AppText>
-      </View>
-
       <View style={styles.pickerSection}>
         <RulerPicker
           min={30}
@@ -60,11 +59,6 @@ export default WeightSelectionScreen;
 const createStyles = (colors: any, themeObj: any) => {
   const { spacing } = themeObj;
   return StyleSheet.create({
-    textSection: {
-      gap: spacing.sm,
-      alignItems: "center",
-      marginBottom: spacing.xl,
-    },
     secondaryText: {
       textAlign: "center",
       maxWidth: "75%",

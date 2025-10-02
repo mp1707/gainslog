@@ -33,6 +33,17 @@ const HeightSelectionScreen = () => {
 
   return (
     <OnboardingScreen
+      title={<AppText role="Title2">And your height?</AppText>}
+      subtitle={
+        <View style={styles.infoRow}>
+          <AppText role="Body" color="secondary" style={styles.infoText}>
+            For an accurate TDEE calculation.
+          </AppText>
+          <Tooltip text="TDEE stands for Total Daily Energy Expenditure—the estimated calories you burn each day based on your stats and activity level.">
+            <Info size={18} color={colors.secondaryText} />
+          </Tooltip>
+        </View>
+      }
       actionButton={
         <Button
           variant="primary"
@@ -41,22 +52,6 @@ const HeightSelectionScreen = () => {
         />
       }
     >
-      <View style={styles.textSection}>
-        <AppText role="Title2">And your height?</AppText>
-        <View style={styles.infoRow}>
-          <AppText
-            role="Body"
-            color="secondary"
-            style={styles.infoText}
-          >
-            For an accurate TDEE calculation.
-          </AppText>
-          <Tooltip text="TDEE stands for Total Daily Energy Expenditure—the estimated calories you burn each day based on your stats and activity level.">
-            <Info size={18} color={colors.secondaryText} />
-          </Tooltip>
-        </View>
-      </View>
-
       <View style={styles.pickerSection}>
         <RulerPicker
           min={100}
@@ -76,11 +71,6 @@ export default HeightSelectionScreen;
 const createStyles = (colors: any, themeObj: any) => {
   const { spacing } = themeObj;
   return StyleSheet.create({
-    textSection: {
-      gap: spacing.sm,
-      alignItems: "center",
-      marginBottom: spacing.xl,
-    },
     pickerSection: {
       alignItems: "center",
       width: "100%",

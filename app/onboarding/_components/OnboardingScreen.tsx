@@ -6,11 +6,15 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 interface OnboardingScreenProps {
   children: React.ReactNode;
   actionButton?: React.ReactNode;
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
 }
 
 export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
   children,
   actionButton,
+  title,
+  subtitle,
 }) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
@@ -24,12 +28,17 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {children}
+          {(title || subtitle) && (
+            <View style={styles.headerSection}>
+              {title}
+              {subtitle}
+            </View>
+          )}
+          <View style={styles.centeredContent}>{children}</View>
+          {actionButton}
         </KeyboardAwareScrollView>
 
-        {actionButton && (
-          <View style={styles.actionButtonContainer}>{actionButton}</View>
-        )}
+        {actionButton && <View style={styles.actionButtonContainer}></View>}
       </View>
     </View>
   );
@@ -54,9 +63,18 @@ const createStyles = (colors: Colors, theme: Theme) => {
     },
     scrollContent: {
       flexGrow: 1,
-      justifyContent: "center",
       paddingHorizontal: spacing.pageMargins.horizontal,
-      paddingVertical: spacing.xl,
+      paddingBottom: spacing.lg,
+      gap: spacing.lg,
+    },
+    headerSection: {
+      paddingTop: spacing.lg,
+      alignItems: "center",
+      gap: spacing.sm,
+    },
+    centeredContent: {
+      flex: 1,
+      justifyContent: "center",
     },
     actionButtonContainer: {
       position: "absolute",

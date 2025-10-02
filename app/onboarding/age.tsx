@@ -37,6 +37,12 @@ const AgeSelectionScreen = () => {
 
   return (
     <OnboardingScreen
+      title={<AppText role="Title2">What's your age?</AppText>}
+      subtitle={
+        <AppText role="Body" color="secondary" style={styles.secondaryText}>
+          To establish your metabolic baseline.
+        </AppText>
+      }
       actionButton={
         <Button
           variant="primary"
@@ -45,13 +51,6 @@ const AgeSelectionScreen = () => {
         />
       }
     >
-      <View style={styles.textSection}>
-        <AppText role="Title2">What's your age?</AppText>
-        <AppText role="Body" color="secondary" style={styles.secondaryText}>
-          To establish your metabolic baseline.
-        </AppText>
-      </View>
-
       <View style={styles.pickerSection}>
         <View style={styles.pickerArea}>
           <View style={styles.pickerCol}>
@@ -79,11 +78,6 @@ export default AgeSelectionScreen;
 const createStyles = (colors: Colors, theme: Theme) => {
   const { spacing } = theme;
   return StyleSheet.create({
-    textSection: {
-      gap: spacing.sm,
-      alignItems: "center",
-      marginBottom: spacing.xl,
-    },
     secondaryText: {
       textAlign: "center",
       maxWidth: "75%",

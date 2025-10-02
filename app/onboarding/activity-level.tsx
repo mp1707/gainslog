@@ -37,9 +37,9 @@ export default function Step2ActivityLevelScreen() {
   const activityLevels = Object.values(ACTIVITY_LEVELS);
 
   return (
-    <OnboardingScreen>
-      <View style={styles.textSection}>
-        <AppText role="Title2">How active are you?</AppText>
+    <OnboardingScreen
+      title={<AppText role="Title2">How active are you?</AppText>}
+      subtitle={
         <View style={styles.infoRow}>
           <AppText role="Body" color="secondary" style={styles.infoText}>
             Select your baseline. This is used to calibrate your TDEE.
@@ -48,8 +48,8 @@ export default function Step2ActivityLevelScreen() {
             <Info size={18} color={colors.secondaryText} />
           </Tooltip>
         </View>
-      </View>
-
+      }
+    >
       <View style={styles.methodsSection}>
         {activityLevels.map((activityLevel) => {
           // Map activity level to appropriate icon
@@ -95,10 +95,6 @@ const createStyles = (themeObj: Theme) => {
   const { spacing } = themeObj;
 
   return StyleSheet.create({
-    textSection: {
-      alignItems: "center",
-      marginBottom: spacing.xl,
-    },
     infoRow: {
       flexDirection: "row",
       alignItems: "center",

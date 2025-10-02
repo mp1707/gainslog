@@ -151,42 +151,44 @@ export default function ProteinGoalsScreen() {
   const methods = Object.values(METHODS);
 
   return (
-    <OnboardingScreen>
-      <View style={styles.textSection}>
-        <AppText role="Title2">Set Your Protein Target</AppText>
-        <AppText role="Body" color="secondary" style={styles.secondaryText}>
-          Choose a target based on your training intensity.
-        </AppText>
-        <AppText role="Body" color="secondary" style={styles.secondaryText}>
-          Based on your weight of {weight}kg
-        </AppText>
-      </View>
-
+    <OnboardingScreen
+      title={<AppText role="Title2">Set Your Protein Target</AppText>}
+      subtitle={
+        <>
+          <AppText role="Body" color="secondary" style={styles.secondaryText}>
+            Choose a target based on your training intensity.
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.secondaryText}>
+            Based on your weight of {weight}kg
+          </AppText>
+        </>
+      }
+    >
       <View style={styles.methodsSection}>
-            {methods.map((method) => {
-              const proteinGoal =
-                proteinGoals[method.id as keyof typeof proteinGoals];
-              const IconComponent = getIconForMethod(method.id as string);
+        {methods.map((method) => {
+          const proteinGoal =
+            proteinGoals[method.id as keyof typeof proteinGoals];
+          const IconComponent = getIconForMethod(method.id as string);
 
-              return (
-                <SelectionCard
-                  key={method.id}
-                  title={method.title}
-                  description={method.description}
-                  icon={IconComponent}
-                  iconColor={colors.accent}
-                  isSelected={selectedMethodId === method.id}
-                  onSelect={() => handleMethodSelect(method.id)}
-                  dailyTarget={{
-                    value: proteinGoal,
-                    unit: "g",
-                    label: "Daily Target",
-                  }}
-                  accessibilityLabel={`${method.title} protein calculation method`}
-                  accessibilityHint={`Calculate ${proteinGoal}g protein per day based on ${method.description.toLowerCase()}`}
-                />
-              );
-            })}
+          return (
+            <SelectionCard
+              key={method.id}
+              title={method.title}
+              description={method.description}
+              icon={IconComponent}
+              iconColor={colors.accent}
+              isSelected={selectedMethodId === method.id}
+              onSelect={() => handleMethodSelect(method.id)}
+              dailyTarget={{
+                value: proteinGoal,
+                unit: "g",
+                label: "Daily Target",
+              }}
+              accessibilityLabel={`${method.title} protein calculation method`}
+              accessibilityHint={`Calculate ${proteinGoal}g protein per day based on ${method.description.toLowerCase()}`}
+            />
+          );
+        })}
       </View>
 
       {/* Footer Note */}
@@ -207,11 +209,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
   const { spacing } = themeObj;
 
   return StyleSheet.create({
-    textSection: {
-      marginBottom: spacing.xl,
-      alignItems: "center",
-      gap: spacing.sm,
-    },
     secondaryText: {
       textAlign: "center",
       maxWidth: "75%",
