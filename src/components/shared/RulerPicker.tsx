@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, StyleSheet, Dimensions } from "react-native";
+import type { Insets } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,
@@ -14,6 +15,7 @@ import { AppText } from "@/components/shared/AppText";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const ITEM_WIDTH = 8;
 const VISIBLE_ITEMS = Math.floor(SCREEN_WIDTH / ITEM_WIDTH);
+const RULER_HIT_SLOP: Insets = { top: 80, bottom: 80 };
 
 interface RulerPickerProps {
   min: number;
@@ -37,7 +39,9 @@ export const RulerPicker: React.FC<RulerPickerProps> = ({
   const scrollViewRef = useRef<Animated.ScrollView>(null);
   const scrollX = useSharedValue(0);
   const [currentValue, setCurrentValue] = useState(value);
-  const lastValue = useRef(value);
+  const lastNotifiedValue = useRef(value);
+  const lastHapticValue = useRef(value);
+  const hasMounted = useRef(false);
 
   const totalItems = Math.floor((max - min) / step) + 1;
   const centerOffset = (SCREEN_WIDTH - ITEM_WIDTH) / 2;
@@ -51,10 +55,24 @@ export const RulerPicker: React.FC<RulerPickerProps> = ({
     });
   }, []);
 
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      lastHapticValue.current = currentValue;
+      return;
+    }
+
+    if (currentValue === lastHapticValue.current) {
+      return;
+    }
+
+    lastHapticValue.current = currentValue;
+    void Haptics.selectionAsync();
+  }, [currentValue]);
+
   const handleValueChange = (newValue: number) => {
-    if (newValue !== lastValue.current) {
-      lastValue.current = newValue;
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (newValue !== lastNotifiedValue.current) {
+      lastNotifiedValue.current = newValue;
       onChange(newValue);
     }
   };
@@ -147,6 +165,7 @@ export const RulerPicker: React.FC<RulerPickerProps> = ({
           scrollEventThrottle={16}
           snapToInterval={ITEM_WIDTH}
           decelerationRate="fast"
+          hitSlop={RULER_HIT_SLOP}
           contentContainerStyle={{
             paddingHorizontal: centerOffset,
           }}
