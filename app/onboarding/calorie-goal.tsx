@@ -54,7 +54,6 @@ export default function Step3GoalsScreen() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     safePush("/onboarding/protein-goal");
   };
-  console.log(sex, age, weight, height, activityLevel);
 
   if (!calorieGoals) {
     return (
