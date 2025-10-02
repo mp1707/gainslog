@@ -1,7 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { useTheme } from "@/theme";
-import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 interface OnboardingScreenProps {
@@ -17,7 +16,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
   const styles = createStyles(colors, theme);
 
   return (
-    <GradientWrapper style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.content}>
         <KeyboardAwareScrollView
           style={styles.scrollView}
@@ -32,7 +31,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
           <View style={styles.actionButtonContainer}>{actionButton}</View>
         )}
       </View>
-    </GradientWrapper>
+    </View>
   );
 };
 
@@ -46,7 +45,6 @@ const createStyles = (colors: Colors, theme: Theme) => {
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
-      paddingTop: spacing.md,
     },
     content: {
       flex: 1,
