@@ -165,6 +165,7 @@ const createStyles = (colors: any, themeObj: any, bgColor?: string) => {
       paddingVertical: spacing.xl,
       paddingHorizontal: spacing.md,
       minWidth: SCREEN_WIDTH - spacing.xl * 2,
+      gap: themeObj.spacing.md,
     },
     valueContainer: {
       alignItems: "center",

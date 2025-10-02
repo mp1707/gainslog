@@ -45,11 +45,7 @@ const HeightSelectionScreen = () => {
         </View>
       }
       actionButton={
-        <Button
-          variant="primary"
-          label="Continue"
-          onPress={handleContinue}
-        />
+        <Button variant="primary" label="Continue" onPress={handleContinue} />
       }
     >
       <View style={styles.pickerSection}>
@@ -59,7 +55,6 @@ const HeightSelectionScreen = () => {
           value={selectedHeight}
           onChange={handleHeightChange}
           unit="cm"
-          backgroundColor={colors.semanticSurfaces.protein}
         />
       </View>
     </OnboardingScreen>
