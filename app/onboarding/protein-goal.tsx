@@ -164,39 +164,41 @@ export default function ProteinGoalsScreen() {
         </>
       }
     >
-      <View style={styles.methodsSection}>
-        {methods.map((method) => {
-          const proteinGoal =
-            proteinGoals[method.id as keyof typeof proteinGoals];
-          const IconComponent = getIconForMethod(method.id as string);
+      <View style={styles.contentWrapper}>
+        <View style={styles.methodsSection}>
+          {methods.map((method) => {
+            const proteinGoal =
+              proteinGoals[method.id as keyof typeof proteinGoals];
+            const IconComponent = getIconForMethod(method.id as string);
 
-          return (
-            <SelectionCard
-              key={method.id}
-              title={method.title}
-              description={method.description}
-              icon={IconComponent}
-              iconColor={colors.accent}
-              isSelected={selectedMethodId === method.id}
-              onSelect={() => handleMethodSelect(method.id)}
-              dailyTarget={{
-                value: proteinGoal,
-                unit: "g",
-                label: "Daily Target",
-              }}
-              accessibilityLabel={`${method.title} protein calculation method`}
-              accessibilityHint={`Calculate ${proteinGoal}g protein per day based on ${method.description.toLowerCase()}`}
-            />
-          );
-        })}
-      </View>
+            return (
+              <SelectionCard
+                key={method.id}
+                title={method.title}
+                description={method.description}
+                icon={IconComponent}
+                iconColor={colors.accent}
+                isSelected={selectedMethodId === method.id}
+                onSelect={() => handleMethodSelect(method.id)}
+                dailyTarget={{
+                  value: proteinGoal,
+                  unit: "g",
+                  label: "Daily Target",
+                }}
+                accessibilityLabel={`${method.title} protein calculation method`}
+                accessibilityHint={`Calculate ${proteinGoal}g protein per day based on ${method.description.toLowerCase()}`}
+              />
+            );
+          })}
+        </View>
 
-      {/* Footer Note */}
-      <View style={styles.footer}>
-        <AppText role="Caption" color="secondary" style={styles.secondaryText}>
-          These recommendations are general guidelines. Consult with a
-          nutritionist or healthcare provider for personalized advice.
-        </AppText>
+        {/* Footer Note */}
+        <View style={styles.footer}>
+          <AppText role="Caption" color="secondary" style={styles.secondaryText}>
+            These recommendations are general guidelines. Consult with a
+            nutritionist or healthcare provider for personalized advice.
+          </AppText>
+        </View>
       </View>
     </OnboardingScreen>
   );
@@ -213,6 +215,9 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       textAlign: "center",
       maxWidth: "75%",
       alignSelf: "center",
+    },
+    contentWrapper: {
+      paddingHorizontal: spacing.pageMargins.horizontal,
     },
     methodsSection: {
       marginBottom: spacing.lg,

@@ -54,28 +54,30 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
         </AppText>
       }
     >
-      <View style={styles.selectionSection}>
-        <SelectionCard
-          title="Male"
-          description=""
-          icon={User}
-          iconColor="#4A90E2"
-          isSelected={selectedSex === "male"}
-          onSelect={() => handleSexSelect("male")}
-          accessibilityLabel="Select male as biological sex"
-          accessibilityHint="This will help calculate your calorie needs and advance to the next step"
-        />
+      <View style={styles.contentWrapper}>
+        <View style={styles.selectionSection}>
+          <SelectionCard
+            title="Male"
+            description=""
+            icon={User}
+            iconColor="#4A90E2"
+            isSelected={selectedSex === "male"}
+            onSelect={() => handleSexSelect("male")}
+            accessibilityLabel="Select male as biological sex"
+            accessibilityHint="This will help calculate your calorie needs and advance to the next step"
+          />
 
-        <SelectionCard
-          title="Female"
-          description=""
-          icon={User}
-          iconColor="#E24A90"
-          isSelected={selectedSex === "female"}
-          onSelect={() => handleSexSelect("female")}
-          accessibilityLabel="Select female as biological sex"
-          accessibilityHint="This will help calculate your calorie needs and advance to the next step"
-        />
+          <SelectionCard
+            title="Female"
+            description=""
+            icon={User}
+            iconColor="#E24A90"
+            isSelected={selectedSex === "female"}
+            onSelect={() => handleSexSelect("female")}
+            accessibilityLabel="Select female as biological sex"
+            accessibilityHint="This will help calculate your calorie needs and advance to the next step"
+          />
+        </View>
       </View>
     </OnboardingScreen>
   );
@@ -93,6 +95,9 @@ const createStyles = (theme: Theme) => {
       textAlign: "center",
       maxWidth: "75%",
       alignSelf: "center",
+    },
+    contentWrapper: {
+      paddingHorizontal: spacing.pageMargins.horizontal,
     },
     selectionSection: {
       gap: spacing.md,

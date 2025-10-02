@@ -63,12 +63,12 @@ const createStyles = (colors: Colors, theme: Theme) => {
     },
     scrollContent: {
       flexGrow: 1,
-      paddingHorizontal: spacing.pageMargins.horizontal,
       paddingBottom: spacing.lg,
       gap: spacing.lg,
     },
     headerSection: {
       paddingTop: spacing.lg,
+      paddingHorizontal: spacing.pageMargins.horizontal,
       alignItems: "center",
       gap: spacing.sm,
     },
@@ -79,8 +79,9 @@ const createStyles = (colors: Colors, theme: Theme) => {
     actionButtonContainer: {
       position: "absolute",
       bottom: spacing.lg,
-      left: spacing.pageMargins.horizontal,
-      right: spacing.pageMargins.horizontal,
+      left: 0,
+      right: 0,
+      paddingHorizontal: spacing.pageMargins.horizontal,
     },
   });
 };

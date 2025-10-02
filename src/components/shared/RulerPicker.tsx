@@ -22,7 +22,6 @@ interface RulerPickerProps {
   value: number;
   onChange: (value: number) => void;
   unit: string;
-  backgroundColor?: string;
 }
 
 export const RulerPicker: React.FC<RulerPickerProps> = ({
@@ -32,10 +31,9 @@ export const RulerPicker: React.FC<RulerPickerProps> = ({
   value,
   onChange,
   unit,
-  backgroundColor,
 }) => {
   const { colors, theme: themeObj } = useTheme();
-  const styles = createStyles(colors, themeObj, backgroundColor);
+  const styles = createStyles(colors, themeObj);
   const scrollViewRef = useRef<Animated.ScrollView>(null);
   const scrollX = useSharedValue(0);
   const [currentValue, setCurrentValue] = useState(value);
@@ -86,35 +84,45 @@ export const RulerPicker: React.FC<RulerPickerProps> = ({
 
   const renderTicks = () => {
     const ticks = [];
-    for (let i = 0; i < totalItems; i++) {
-      const tickValue = min + i * step;
-      const isMajorTick = tickValue % 10 === 0;
-      const isMiddleTick = tickValue % 5 === 0 && !isMajorTick;
+    const PADDING_ITEMS = 5;
 
-      ticks.push(
-        <View key={i} style={styles.tickContainer}>
-          {isMajorTick && (
-            <AppText
-              role="Caption"
-              color="secondary"
-              style={styles.tickLabel}
-              numberOfLines={1}
-            >
-              {tickValue}
-            </AppText>
-          )}
-          <View
-            style={[
-              styles.tick,
-              isMajorTick
-                ? styles.majorTick
-                : isMiddleTick
-                ? styles.middleTick
-                : styles.minorTick,
-            ]}
-          />
-        </View>
-      );
+    // Loop includes padding items before and after the range
+    for (let i = -PADDING_ITEMS; i < totalItems + PADDING_ITEMS; i++) {
+      // Check if this is a padding item (outside the valid range)
+      if (i < 0 || i >= totalItems) {
+        // Render empty tick container for padding
+        ticks.push(<View key={i} style={styles.tickContainer} />);
+      } else {
+        // Valid range - render tick with labels
+        const tickValue = min + i * step;
+        const isMajorTick = tickValue % 10 === 0;
+        const isMiddleTick = tickValue % 5 === 0 && !isMajorTick;
+
+        ticks.push(
+          <View key={i} style={styles.tickContainer}>
+            {isMajorTick && (
+              <AppText
+                role="Caption"
+                color="secondary"
+                style={styles.tickLabel}
+                numberOfLines={1}
+              >
+                {tickValue}
+              </AppText>
+            )}
+            <View
+              style={[
+                styles.tick,
+                isMajorTick
+                  ? styles.majorTick
+                  : isMiddleTick
+                  ? styles.middleTick
+                  : styles.minorTick,
+              ]}
+            />
+          </View>
+        );
+      }
     }
     return ticks;
   };
@@ -154,17 +162,14 @@ export const RulerPicker: React.FC<RulerPickerProps> = ({
   );
 };
 
-const createStyles = (colors: any, themeObj: any, bgColor?: string) => {
+const createStyles = (colors: any, themeObj: any) => {
   const { spacing } = themeObj;
 
   return StyleSheet.create({
     container: {
       alignItems: "center",
-      backgroundColor: bgColor || colors.primaryBackground,
-      borderRadius: themeObj.components.cards.cornerRadius,
       paddingVertical: spacing.xl,
-      paddingHorizontal: spacing.md,
-      minWidth: SCREEN_WIDTH - spacing.xl * 2,
+      minWidth: SCREEN_WIDTH,
       gap: themeObj.spacing.md,
     },
     valueContainer: {

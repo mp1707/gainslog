@@ -80,63 +80,65 @@ export default function Step3GoalsScreen() {
         </AppText>
       }
     >
-      <View style={styles.goalsSection}>
-        <SelectionCard
-          title="Cut"
-          description="Create a calorie deficit to lose weight gradually"
-          icon={TrendingDown}
-          iconColor={colors.error}
-          isSelected={selectedGoal === "lose"}
-          onSelect={() => handleGoalSelect("lose")}
-          dailyTarget={{
-            value: calorieGoals.lose,
-            unit: "kcal",
-            label: "Daily Target",
-          }}
-          accessibilityLabel="Lose Weight goal"
-          accessibilityHint={`Set ${calorieGoals.lose} calories as your daily goal to create a calorie deficit to lose weight gradually`}
-        />
+      <View style={styles.contentWrapper}>
+        <View style={styles.goalsSection}>
+          <SelectionCard
+            title="Cut"
+            description="Create a calorie deficit to lose weight gradually"
+            icon={TrendingDown}
+            iconColor={colors.error}
+            isSelected={selectedGoal === "lose"}
+            onSelect={() => handleGoalSelect("lose")}
+            dailyTarget={{
+              value: calorieGoals.lose,
+              unit: "kcal",
+              label: "Daily Target",
+            }}
+            accessibilityLabel="Lose Weight goal"
+            accessibilityHint={`Set ${calorieGoals.lose} calories as your daily goal to create a calorie deficit to lose weight gradually`}
+          />
 
-        <SelectionCard
-          title="Maintain"
-          description="Eat at maintenance calories to stay at current weight"
-          icon={Equal}
-          iconColor={colors.success}
-          isSelected={selectedGoal === "maintain"}
-          onSelect={() => handleGoalSelect("maintain")}
-          dailyTarget={{
-            value: calorieGoals.maintain,
-            unit: "kcal",
-            label: "Daily Target",
-          }}
-          accessibilityLabel="Maintain Weight goal"
-          accessibilityHint={`Set ${calorieGoals.maintain} calories as your daily goal to eat at maintenance calories to stay at current weight`}
-        />
+          <SelectionCard
+            title="Maintain"
+            description="Eat at maintenance calories to stay at current weight"
+            icon={Equal}
+            iconColor={colors.success}
+            isSelected={selectedGoal === "maintain"}
+            onSelect={() => handleGoalSelect("maintain")}
+            dailyTarget={{
+              value: calorieGoals.maintain,
+              unit: "kcal",
+              label: "Daily Target",
+            }}
+            accessibilityLabel="Maintain Weight goal"
+            accessibilityHint={`Set ${calorieGoals.maintain} calories as your daily goal to eat at maintenance calories to stay at current weight`}
+          />
 
-        <SelectionCard
-          title="Bulk"
-          description="Create a calorie surplus to gain weight gradually"
-          icon={TrendingUp}
-          iconColor={colors.semantic.protein}
-          isSelected={selectedGoal === "gain"}
-          onSelect={() => handleGoalSelect("gain")}
-          dailyTarget={{
-            value: calorieGoals.gain,
-            unit: "kcal",
-            label: "Daily Target",
-          }}
-          accessibilityLabel="Gain Weight goal"
-          accessibilityHint={`Set ${calorieGoals.gain} calories as your daily goal to create a calorie surplus to gain weight gradually`}
-        />
-      </View>
+          <SelectionCard
+            title="Bulk"
+            description="Create a calorie surplus to gain weight gradually"
+            icon={TrendingUp}
+            iconColor={colors.semantic.protein}
+            isSelected={selectedGoal === "gain"}
+            onSelect={() => handleGoalSelect("gain")}
+            dailyTarget={{
+              value: calorieGoals.gain,
+              unit: "kcal",
+              label: "Daily Target",
+            }}
+            accessibilityLabel="Gain Weight goal"
+            accessibilityHint={`Set ${calorieGoals.gain} calories as your daily goal to create a calorie surplus to gain weight gradually`}
+          />
+        </View>
 
-      {/* Footer Note */}
-      <View style={styles.footer}>
-        <AppText role="Caption" color="secondary" style={styles.secondaryText}>
-          These recommendations are general guidelines based on the
-          Mifflin-St Jeor equation. Consult with a nutritionist or healthcare
-          provider for personalized advice.
-        </AppText>
+        {/* Footer Note */}
+        <View style={styles.footer}>
+          <AppText role="Caption" color="secondary" style={styles.secondaryText}>
+            These recommendations are general guidelines based on the
+            Mifflin-St Jeor equation. Consult with a nutritionist or healthcare
+            provider for personalized advice.
+          </AppText>
+        </View>
       </View>
     </OnboardingScreen>
   );
@@ -153,6 +155,9 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
       textAlign: "center",
       maxWidth: "75%",
       alignSelf: "center",
+    },
+    contentWrapper: {
+      paddingHorizontal: spacing.pageMargins.horizontal,
     },
     goalsSection: {
       gap: spacing.md,
