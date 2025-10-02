@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
 import { View } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Home, User, Bike, Flame, Zap, Info } from "lucide-react-native";
@@ -17,16 +17,12 @@ import { Tooltip } from "@/components/shared/Tooltip";
 export default function Step2ActivityLevelScreen() {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(themeObj);
-  const { setActivityLevel } = useOnboardingStore();
+  const { activityLevel, setActivityLevel } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
-  const [selectedActivity, setSelectedActivity] = useState<
-    UserSettings["activityLevel"] | undefined
-  >();
 
   const handleActivityLevelSelect = async (
     level: UserSettings["activityLevel"]
   ) => {
-    setSelectedActivity(level);
     setActivityLevel(level);
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -51,7 +47,7 @@ export default function Step2ActivityLevelScreen() {
       }
     >
       <View style={styles.methodsSection}>
-        {activityLevels.map((activityLevel) => {
+        {activityLevels.map((level) => {
           // Map activity level to appropriate icon
           const getIcon = (id: string) => {
             switch (id) {
@@ -72,15 +68,15 @@ export default function Step2ActivityLevelScreen() {
 
           return (
             <SelectionCard
-              key={activityLevel.id}
-              title={activityLevel.title}
-              description={activityLevel.description}
-              icon={getIcon(activityLevel.id)}
+              key={level.id}
+              title={level.title}
+              description={level.description}
+              icon={getIcon(level.id)}
               iconColor={colors.secondaryText}
-              isSelected={selectedActivity === activityLevel.id}
-              onSelect={() => handleActivityLevelSelect(activityLevel.id)}
-              accessibilityLabel={`${activityLevel.title} activity level`}
-              accessibilityHint={`Calculate calories for ${activityLevel.description.toLowerCase()}`}
+              isSelected={activityLevel === level.id}
+              onSelect={() => handleActivityLevelSelect(level.id)}
+              accessibilityLabel={`${level.title} activity level`}
+              accessibilityHint={`Calculate calories for ${level.description.toLowerCase()}`}
             />
           );
         })}

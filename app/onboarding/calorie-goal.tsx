@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
 import { View } from "react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
@@ -16,12 +16,17 @@ import { AppText } from "@/components/shared/AppText";
 export default function Step3GoalsScreen() {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
-  const { age, sex, weight, height, activityLevel, setCalorieGoal } =
-    useOnboardingStore();
+  const {
+    age,
+    sex,
+    weight,
+    height,
+    activityLevel,
+    calorieGoalType,
+    setCalorieGoalType,
+    setCalorieGoal,
+  } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
-  const [selectedGoal, setSelectedGoal] = useState<
-    UserSettings["calorieGoalType"] | undefined
-  >();
 
   // Calculate calorie goals based on onboarding data
   const calorieGoals =
@@ -44,11 +49,12 @@ export default function Step3GoalsScreen() {
   ) => {
     if (!calorieGoals) return;
     if (!goalType) return;
-    setSelectedGoal(goalType);
+    setCalorieGoalType(goalType);
     setCalorieGoal(calorieGoals[goalType]);
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     safePush("/onboarding/protein-goal");
   };
+  console.log(sex, age, weight, height, activityLevel);
 
   if (!calorieGoals) {
     return (
@@ -57,7 +63,7 @@ export default function Step3GoalsScreen() {
           <Button
             variant="primary"
             label="Go Back"
-            onPress={() => safePush("/onboarding/protein-goal")}
+            onPress={() => safePush("/onboarding/activity-level")}
             disabled={false}
           />
         }
@@ -87,7 +93,7 @@ export default function Step3GoalsScreen() {
             description="Create a calorie deficit to lose weight gradually"
             icon={TrendingDown}
             iconColor={colors.error}
-            isSelected={selectedGoal === "lose"}
+            isSelected={calorieGoalType === "lose"}
             onSelect={() => handleGoalSelect("lose")}
             dailyTarget={{
               value: calorieGoals.lose,
@@ -103,7 +109,7 @@ export default function Step3GoalsScreen() {
             description="Eat at maintenance calories to stay at current weight"
             icon={Equal}
             iconColor={colors.success}
-            isSelected={selectedGoal === "maintain"}
+            isSelected={calorieGoalType === "maintain"}
             onSelect={() => handleGoalSelect("maintain")}
             dailyTarget={{
               value: calorieGoals.maintain,
@@ -119,7 +125,7 @@ export default function Step3GoalsScreen() {
             description="Create a calorie surplus to gain weight gradually"
             icon={TrendingUp}
             iconColor={colors.semantic.protein}
-            isSelected={selectedGoal === "gain"}
+            isSelected={calorieGoalType === "gain"}
             onSelect={() => handleGoalSelect("gain")}
             dailyTarget={{
               value: calorieGoals.gain,

@@ -15,7 +15,7 @@ import { AppText } from "@/components/shared/AppText";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const ITEM_WIDTH = 8;
 const VISIBLE_ITEMS = Math.floor(SCREEN_WIDTH / ITEM_WIDTH);
-const RULER_HIT_SLOP: Insets = { top: 80, bottom: 80 };
+const RULER_HIT_SLOP: Insets = { top: 120, bottom: 120, left: 20, right: 20 };
 
 interface RulerPickerProps {
   min: number;

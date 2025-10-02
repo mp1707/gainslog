@@ -12,25 +12,23 @@ import { RulerPicker } from "@/components/shared/RulerPicker";
 const WeightSelectionScreen = () => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
-  const { weight: storedWeight, setWeight: setStoredWeight } =
-    useOnboardingStore();
+  const { weight, setWeight } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
-  const [selectedWeight, setSelectedWeight] = useState<number>(
-    storedWeight || 70
-  );
+  const [currentWeight, setCurrentWeight] = useState(weight || 70);
 
   const handleContinue = async () => {
-    setStoredWeight(selectedWeight);
+    setWeight(currentWeight);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     safePush("/onboarding/activity-level");
   };
 
   const handleWeightChange = (value: number) => {
-    setSelectedWeight(value);
+    setCurrentWeight(value);
   };
 
   return (
     <OnboardingScreen
+      scrollEnabled={false}
       title={<AppText role="Title2">What's your current weight?</AppText>}
       subtitle={
         <AppText role="Body" color="secondary" style={styles.secondaryText}>
@@ -45,7 +43,7 @@ const WeightSelectionScreen = () => {
         <RulerPicker
           min={30}
           max={300}
-          value={selectedWeight}
+          value={currentWeight}
           onChange={handleWeightChange}
           unit="kg"
         />

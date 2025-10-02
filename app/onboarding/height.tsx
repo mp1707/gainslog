@@ -14,25 +14,23 @@ import { RulerPicker } from "@/components/shared/RulerPicker";
 const HeightSelectionScreen = () => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
-  const { height: storedHeight, setHeight: setStoredHeight } =
-    useOnboardingStore();
+  const { height, setHeight } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
-  const [selectedHeight, setSelectedHeight] = useState<number>(
-    storedHeight || 175
-  );
+  const [currentHeight, setCurrentHeight] = useState(height || 175);
 
   const handleContinue = async () => {
-    setStoredHeight(selectedHeight);
+    setHeight(currentHeight);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     safePush("/onboarding/weight");
   };
 
   const handleHeightChange = (value: number) => {
-    setSelectedHeight(value);
+    setCurrentHeight(value);
   };
 
   return (
     <OnboardingScreen
+      scrollEnabled={false}
       title={<AppText role="Title2">And your height?</AppText>}
       subtitle={
         <View style={styles.infoRow}>
@@ -52,7 +50,7 @@ const HeightSelectionScreen = () => {
         <RulerPicker
           min={100}
           max={250}
-          value={selectedHeight}
+          value={currentHeight}
           onChange={handleHeightChange}
           unit="cm"
         />

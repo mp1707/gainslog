@@ -65,7 +65,7 @@ export function useNavigationGuard() {
       timeoutRef.current = setTimeout(() => {
         console.warn("[NavigationGuard] Timeout reached, unlocking");
         unlockNavigation();
-      }, 400);
+      }, 300);
 
       try {
         navigationFn();
@@ -85,8 +85,8 @@ export function useNavigationGuard() {
 
   const maybeSchedule = useCallback(
     (navigationFn: () => void) => {
-      const minDelay = 300; // wait a beat after focus/transition
-      const MAX_WAIT = 1200; // ms; prevent guarding forever
+      const minDelay = 50; // wait a beat after focus/transition
+      const MAX_WAIT = 600; // ms; prevent guarding forever
       const CHECK_INTERVAL = 80;
       const startTs = Date.now();
 

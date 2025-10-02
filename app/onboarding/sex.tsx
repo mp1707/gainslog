@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState } from "react";
+import React, { useMemo, useCallback } from "react";
 import { View } from "react-native";
 import { User } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
@@ -7,25 +7,18 @@ import { SelectionCard } from "@/components/settings/SelectionCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { StyleSheet } from "react-native";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
-import { useRouter } from "expo-router";
 import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
 
-const SexSelectionScreen = React.memo(function SexSelectionScreen() {
+const SexSelectionScreen = () => {
   const { theme: themeObj } = useTheme();
   const { sex, setSex } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
-  const { back, dismissTo } = useRouter();
-  const [selectedSex, setSelectedSex] = useState<"male" | "female" | undefined>(
-    sex
-  );
 
   const styles = useMemo(() => createStyles(themeObj), [themeObj]);
 
   const handleSexSelect = useCallback(
     async (selectedSex: "male" | "female") => {
-      setSelectedSex(selectedSex);
       setSex(selectedSex);
 
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -34,13 +27,6 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
     },
     [setSex, safePush]
   );
-
-  const handleCancel = () => {
-    dismissTo("/");
-  };
-  const handleBack = () => {
-    back();
-  };
 
   return (
     <OnboardingScreen
@@ -58,7 +44,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
             description=""
             icon={User}
             iconColor="#4A90E2"
-            isSelected={selectedSex === "male"}
+            isSelected={sex === "male"}
             onSelect={() => handleSexSelect("male")}
             accessibilityLabel="Select male as biological sex"
             accessibilityHint="This will help calculate your calorie needs and advance to the next step"
@@ -69,7 +55,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
             description=""
             icon={User}
             iconColor="#E24A90"
-            isSelected={selectedSex === "female"}
+            isSelected={sex === "female"}
             onSelect={() => handleSexSelect("female")}
             accessibilityLabel="Select female as biological sex"
             accessibilityHint="This will help calculate your calorie needs and advance to the next step"
@@ -78,7 +64,7 @@ const SexSelectionScreen = React.memo(function SexSelectionScreen() {
       </View>
     </OnboardingScreen>
   );
-});
+};
 
 export default SexSelectionScreen;
 

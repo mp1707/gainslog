@@ -8,6 +8,7 @@ interface OnboardingScreenProps {
   actionButton?: React.ReactNode;
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
+  scrollEnabled?: boolean;
 }
 
 export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
@@ -15,6 +16,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
   actionButton,
   title,
   subtitle,
+  scrollEnabled = true,
 }) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
@@ -27,6 +29,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          scrollEnabled={scrollEnabled}
         >
           {(title || subtitle) && (
             <View style={styles.headerSection}>

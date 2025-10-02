@@ -10,6 +10,7 @@ export type OnboardingState = {
   activityLevel?: "sedentary" | "light" | "moderate" | "active" | "veryactive";
 
   // Goal data
+  calorieGoalType?: "lose" | "maintain" | "gain";
   calorieGoal?: number;
   proteinGoal?: number; // g
   fatPercentage?: number; // percentage of calories
@@ -23,6 +24,7 @@ export type OnboardingState = {
   setHeight: (height: number) => void;
   setWeight: (weight: number) => void;
   setActivityLevel: (level: "sedentary" | "light" | "moderate" | "active" | "veryactive") => void;
+  setCalorieGoalType: (type: "lose" | "maintain" | "gain") => void;
   setCalorieGoal: (goal: number) => void;
   setProteinGoal: (goal: number) => void;
   setFatPercentage: (percentage: number) => void;
@@ -38,6 +40,7 @@ export const useOnboardingStore = create<OnboardingState>()(
     height: undefined,
     weight: undefined,
     activityLevel: undefined,
+    calorieGoalType: undefined,
     calorieGoal: undefined,
     proteinGoal: undefined,
     fatPercentage: 30, // Default to 30%
@@ -71,6 +74,11 @@ export const useOnboardingStore = create<OnboardingState>()(
         state.activityLevel = level;
       }),
 
+    setCalorieGoalType: (type) =>
+      set((state) => {
+        state.calorieGoalType = type;
+      }),
+
     setCalorieGoal: (goal) =>
       set((state) => {
         state.calorieGoal = goal;
@@ -98,6 +106,7 @@ export const useOnboardingStore = create<OnboardingState>()(
         state.height = undefined;
         state.weight = undefined;
         state.activityLevel = undefined;
+        state.calorieGoalType = undefined;
         state.calorieGoal = undefined;
         state.proteinGoal = undefined;
         state.fatPercentage = 30;

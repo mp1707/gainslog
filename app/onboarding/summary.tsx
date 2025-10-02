@@ -41,7 +41,7 @@ const SummaryScreen = () => {
   }, [currentCalories, currentProtein, currentFat]);
 
   const handleAdjustTargets = async () => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     safeNavigate("/onboarding/calorie-goal");
   };
 

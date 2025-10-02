@@ -17,12 +17,6 @@ import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { StyleSheet } from "react-native";
 import { ProteinGoalType, UserSettings } from "@/types/models";
-import {
-  calculateCarbsFromMacros,
-  calculateFatGramsFromPercentage,
-} from "@/utils/nutritionCalculations";
-import { useRouter } from "expo-router";
-import { ModalHeader } from "@/components/daily-food-logs/ModalHeader";
 import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 
 const METHODS: Record<
@@ -103,19 +97,8 @@ export default function ProteinGoalsScreen() {
   const styles = createStyles(colors, themeObj);
   const { weight, setProteinGoal } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
-  const { back } = useRouter();
-  const router = useRouter();
-  const currentWeight = weight || 0;
-  const handleCancel = () => {
-    router.dismissTo("/");
-  };
 
-  const handleBack = () => {
-    back();
-  };
-  const [selectedMethodId, setSelectedMethodId] = React.useState<
-    UserSettings["proteinGoalType"] | undefined
-  >();
+  const currentWeight = weight || 0;
 
   const proteinGoals = useMemo(() => {
     return {
@@ -141,10 +124,9 @@ export default function ProteinGoalsScreen() {
   const handleMethodSelect = async (
     method: UserSettings["proteinGoalType"]
   ) => {
-    setSelectedMethodId(method);
     const proteinValue = proteinGoals[method as keyof typeof proteinGoals];
     setProteinGoal(proteinValue);
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     safePush("/onboarding/summary");
   };
 
@@ -178,7 +160,7 @@ export default function ProteinGoalsScreen() {
                 description={method.description}
                 icon={IconComponent}
                 iconColor={colors.accent}
-                isSelected={selectedMethodId === method.id}
+                isSelected={false}
                 onSelect={() => handleMethodSelect(method.id)}
                 dailyTarget={{
                   value: proteinGoal,
