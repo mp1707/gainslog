@@ -58,7 +58,7 @@ const ProgressSegment: React.FC<ProgressSegmentProps> = ({
   const isActive = step <= currentStep;
   const wasJustActivated = React.useRef(false);
 
-  const scale = useSharedValue(isActive ? 1 : 0);
+  const fillProgress = useSharedValue(isActive ? 1 : 0);
   const glow = useSharedValue(0);
   const containerScale = useSharedValue(1);
 
@@ -69,18 +69,6 @@ const ProgressSegment: React.FC<ProgressSegmentProps> = ({
 
       // Haptic feedback on completion
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-      // Bouncy fill animation with overshoot
-      scale.value = withSequence(
-        withSpring(1.1, {
-          damping: 15,
-          stiffness: 400,
-        }),
-        withSpring(1, {
-          damping: 20,
-          stiffness: 400,
-        })
-      );
 
       // Container scale pulse
       containerScale.value = withSequence(
@@ -101,17 +89,22 @@ const ProgressSegment: React.FC<ProgressSegmentProps> = ({
       );
     } else if (!isActive && wasJustActivated.current) {
       wasJustActivated.current = false;
-      scale.value = withSpring(0, {
-        damping: 30,
-        stiffness: 400,
-      });
       containerScale.value = 1;
       glow.value = 0;
+    }
+    if (isActive) {
+      fillProgress.value = withSpring(1, {
+        damping: 14,
+        stiffness: 320,
+        mass: 0.9,
+      });
+    } else {
+      fillProgress.value = withTiming(0, { duration: 220 });
     }
   }, [isActive]);
 
   const fillAnimatedStyle = useAnimatedStyle(() => ({
-    width: `${scale.value * 100}%`,
+    width: `${fillProgress.value * 100}%`,
   }));
 
   const containerAnimatedStyle = useAnimatedStyle(() => ({
