@@ -21,7 +21,7 @@ const TOTAL_STEPS = 7;
 
 export default function OnboardingLayout() {
   const { colors } = useTheme();
-  const { safeReplace } = useNavigationGuard();
+  const { safeDismissTo } = useNavigationGuard();
   const { setUserSkippedOnboarding } = useOnboardingStore();
   const router = useRouter();
   const pathname = usePathname();
@@ -31,7 +31,7 @@ export default function OnboardingLayout() {
 
   const handleSkip = () => {
     setUserSkippedOnboarding(true);
-    safeReplace("/");
+    safeDismissTo("/");
   };
 
   const handleBack = () => {

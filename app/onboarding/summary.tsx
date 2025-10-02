@@ -25,7 +25,7 @@ import { DailyTargets } from "@/types/models";
 const SummaryScreen = () => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
-  const { safeReplace, safeNavigate } = useNavigationGuard();
+  const { safeDismissTo, safeNavigate } = useNavigationGuard();
   const [isConfirming, setIsConfirming] = useState(false);
 
   // Onboarding store state
@@ -88,8 +88,8 @@ const SummaryScreen = () => {
 
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-    // Navigate to main dashboard
-    safeReplace("/");
+    // Dismiss the onboarding modal and return to root
+    safeDismissTo("/");
   };
 
   // Define the target rows data

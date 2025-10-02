@@ -134,6 +134,11 @@ export function useNavigationGuard() {
     [router, maybeSchedule]
   );
 
+  const safeDismiss = useCallback(
+    () => maybeSchedule(() => router.dismiss()),
+    [router, maybeSchedule]
+  );
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -149,6 +154,7 @@ export function useNavigationGuard() {
     safeReplace,
     safePush,
     safeDismissTo,
+    safeDismiss,
     isNavigating,
     unlockNavigation,
   };
