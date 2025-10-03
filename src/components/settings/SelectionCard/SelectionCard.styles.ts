@@ -11,11 +11,17 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
       ...componentStyles.cards,
       borderRadius: componentStyles.cards.cornerRadius,
       padding: spacing.lg,
+      borderWidth: 2,
+      borderColor: "transparent",
     },
 
     // Selected state
     selectedCard: {
       borderColor: colors.accent,
+      backgroundColor:
+        colorScheme === "dark"
+          ? `${colors.accent}0D` // ~5% opacity for dark mode
+          : `${colors.accent}08`, // ~3% opacity for light mode
     },
 
     // Content container
@@ -38,6 +44,14 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
       backgroundColor: colors.primaryBackground,
       justifyContent: "center",
       alignItems: "center",
+    },
+
+    // Selected icon container
+    selectedIconContainer: {
+      backgroundColor:
+        colorScheme === "dark"
+          ? `${colors.accent}1A` // ~10% opacity for dark mode
+          : `${colors.accent}14`, // ~8% opacity for light mode
     },
 
     // Text container

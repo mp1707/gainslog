@@ -37,6 +37,7 @@ const AgeSelectionScreen = () => {
 
   return (
     <OnboardingScreen
+      scrollEnabled={false}
       title={<AppText role="Title2">What's your age?</AppText>}
       subtitle={
         <AppText role="Body" color="secondary" style={styles.secondaryText}>

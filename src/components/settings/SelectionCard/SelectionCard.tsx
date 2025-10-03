@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, Pressable } from "react-native";
 import * as Haptics from "expo-haptics";
 import Animated, {
@@ -52,11 +52,37 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
 
   // Press animation shared values
   const pressScale = useSharedValue(1);
+  const selectedProgress = useSharedValue(isSelected ? 1 : 0);
+
+  // Update selected progress when isSelected changes
+  useEffect(() => {
+    selectedProgress.value = withSpring(isSelected ? 1 : 0, {
+      damping: 20,
+      stiffness: 300,
+    });
+  }, [isSelected, selectedProgress]);
 
   // Press animation styles
   const pressAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: pressScale.value }],
   }));
+
+  // Icon container animation style
+  const iconContainerAnimatedStyle = useAnimatedStyle(() => {
+    const backgroundColor =
+      colorScheme === "dark"
+        ? `${colors.accent}${Math.round(selectedProgress.value * 26)
+            .toString(16)
+            .padStart(2, "0")}` // 0-26 (0x00-0x1A, ~10%)
+        : `${colors.accent}${Math.round(selectedProgress.value * 20)
+            .toString(16)
+            .padStart(2, "0")}`; // 0-20 (0x00-0x14, ~8%)
+
+    return {
+      backgroundColor:
+        selectedProgress.value > 0 ? backgroundColor : colors.primaryBackground,
+    };
+  });
 
   // Icon configuration
   const finalIconColor = isSelected ? colors.accent : iconColor;
@@ -98,9 +124,11 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
       >
         <View style={styles.content}>
           <View style={styles.header}>
-            <View style={styles.iconContainer}>
+            <Animated.View
+              style={[styles.iconContainer, iconContainerAnimatedStyle]}
+            >
               <IconComponent size={24} color={finalIconColor} />
-            </View>
+            </Animated.View>
             <View style={styles.textContainer}>
               <Text style={[styles.title, isSelected && styles.selectedTitle]}>
                 {title}
