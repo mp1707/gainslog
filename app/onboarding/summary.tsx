@@ -5,7 +5,7 @@ import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { useAppStore } from "@/store/useAppStore";
-import { Button, Card } from "@/components/index";
+import { Button } from "@/components/index";
 import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 import * as Haptics from "expo-haptics";
 import { Flame, BicepsFlexed, Wheat, Droplet } from "lucide-react-native";
@@ -81,8 +81,8 @@ const SummaryScreen = () => {
       key: "calories" as const,
       icon: Flame,
       color: colors.semantic.calories,
-      backgroundColor: colors.semanticSurfaces.calories,
       label: "Calories",
+      subtitle: "Daily target",
       value: currentCalories,
       unit: "kcal",
     },
@@ -90,8 +90,8 @@ const SummaryScreen = () => {
       key: "protein" as const,
       icon: BicepsFlexed,
       color: colors.semantic.protein,
-      backgroundColor: colors.semanticSurfaces.protein,
       label: "Protein",
+      subtitle: "Daily target",
       value: currentProtein,
       unit: "g",
     },
@@ -99,18 +99,17 @@ const SummaryScreen = () => {
       key: "fat" as const,
       icon: Droplet,
       color: colors.semantic.fat,
-      backgroundColor: colors.semanticSurfaces.fat,
       label: "Fat",
+      subtitle: "Minimum baseline (20%)",
       value: currentFat,
       unit: "g",
-      percentage: `${effectiveFatPercentage}% of calories`,
     },
     {
       key: "carbs",
       icon: Wheat,
       color: colors.semantic.carbs,
-      backgroundColor: colors.semanticSurfaces.carbs,
       label: "Carbs",
+      subtitle: "Remainder",
       value: currentCarbs,
       unit: "g",
     },
@@ -151,40 +150,27 @@ const SummaryScreen = () => {
           const IconComponent = target.icon;
 
           return (
-            <View key={target.key}>
-              <Card padding={themeObj.spacing.md} style={styles.cardOverrides}>
-                <View style={styles.targetRowContent}>
-                  <View style={styles.targetLeft}>
-                    <View
-                      style={[
-                        styles.targetIconBackground,
-                        { backgroundColor: target.backgroundColor },
-                      ]}
-                    >
-                      <IconComponent
-                        size={20}
-                        color={target.color}
-                        fill={target.color}
-                        strokeWidth={0}
-                      />
-                    </View>
-                    <AppText role="Body">{target.label}</AppText>
-                  </View>
-
-                  <View style={styles.targetRight}>
-                    <View style={styles.targetValueContainer}>
-                      <AppText role="Headline">
-                        {target.value} {target.unit}
-                      </AppText>
-                      {target.percentage && (
-                        <AppText role="Caption" color="secondary">
-                          ({target.percentage})
-                        </AppText>
-                      )}
-                    </View>
-                  </View>
+            <View key={target.key} style={styles.targetRow}>
+              <View style={styles.targetLeft}>
+                <IconComponent
+                  size={20}
+                  color={target.color}
+                  fill={target.color}
+                  strokeWidth={0}
+                />
+                <View style={styles.targetLabels}>
+                  <AppText role="Body">{target.label}</AppText>
+                  <AppText role="Caption" color="secondary">
+                    {target.subtitle}
+                  </AppText>
                 </View>
-              </Card>
+              </View>
+
+              <View style={styles.targetRight}>
+                <AppText role="Headline">
+                  {target.value} {target.unit}
+                </AppText>
+              </View>
             </View>
           );
         })}
@@ -195,13 +181,9 @@ const SummaryScreen = () => {
         <AppText
           role="Caption"
           color="secondary"
-          style={[
-            styles.secondaryText,
-            { lineHeight: 18, textAlign: "center" },
-          ]}
+          style={styles.footerText}
         >
-          Tip: Fat is defaulted to 30% and can be adjusted. Carbs are calculated
-          from the remainder.
+          Fat is defaulted to 20% minimum. Carbs are calculated from the remainder.
         </AppText>
       </View>
     </OnboardingScreen>
@@ -219,7 +201,7 @@ const createStyles = (colors: Colors, theme: Theme) => {
   return StyleSheet.create({
     titleSection: {
       alignItems: "center",
-      marginBottom: spacing.xl,
+      marginBottom: spacing.lg,
       gap: spacing.xs,
     },
     secondaryText: {
@@ -229,35 +211,34 @@ const createStyles = (colors: Colors, theme: Theme) => {
     },
     targetsSection: {
       gap: spacing.md,
-      marginBottom: spacing.xl,
-      paddingHorizontal: spacing.md,
+      marginBottom: spacing.lg,
+      paddingHorizontal: spacing.lg,
     },
-    cardOverrides: {
-      minHeight: 60,
-    },
-    targetRowContent: {
+    targetRow: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      flex: 1,
+      paddingVertical: spacing.sm,
     },
     targetLeft: {
       flexDirection: "row",
       alignItems: "center",
       gap: spacing.md,
+      flex: 1,
+    },
+    targetLabels: {
+      gap: spacing.xs / 2,
     },
     targetRight: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: spacing.sm,
-    },
-    targetValueContainer: {
       alignItems: "flex-end",
-      minWidth: 88,
     },
     infoSection: {
-      paddingHorizontal: spacing.sm,
-      marginBottom: spacing.xl,
+      paddingHorizontal: spacing.lg,
+      marginBottom: spacing.md,
+    },
+    footerText: {
+      textAlign: "center",
+      lineHeight: 18,
     },
     actionButtonsContainer: {
       gap: spacing.lg,
@@ -269,10 +250,6 @@ const createStyles = (colors: Colors, theme: Theme) => {
     },
     centeredText: {
       textAlign: "center",
-    },
-    targetIconBackground: {
-      borderRadius: 100,
-      padding: spacing.sm,
     },
   });
 };

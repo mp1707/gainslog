@@ -8,13 +8,14 @@ import React, { useMemo } from "react";
 import { OnboardingHeader } from "../../src/components/onboarding/OnboardingHeader";
 
 const STEP_MAP: Record<string, number> = {
-  "/onboarding/age": 1,
-  "/onboarding/sex": 2,
-  "/onboarding/height": 3,
-  "/onboarding/weight": 4,
-  "/onboarding/activity-level": 5,
-  "/onboarding/calorie-goal": 6,
-  "/onboarding/protein-goal": 7,
+  "/onboarding/age": 0,
+  "/onboarding/sex": 1,
+  "/onboarding/height": 2,
+  "/onboarding/weight": 3,
+  "/onboarding/activity-level": 4,
+  "/onboarding/calorie-goal": 5,
+  "/onboarding/protein-goal": 6,
+  "/onboarding/summary": 7,
 };
 
 const TOTAL_STEPS = 7;
@@ -26,8 +27,8 @@ export default function OnboardingLayout() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const currentStep = useMemo(() => STEP_MAP[pathname] || 0, [pathname]);
-  const showProgressBar = currentStep > 0;
+  const currentStep = useMemo(() => STEP_MAP[pathname] ?? -1, [pathname]);
+  const showProgressBar = currentStep >= 0;
 
   const handleSkip = () => {
     setUserSkippedOnboarding(true);

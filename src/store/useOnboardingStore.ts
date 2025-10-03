@@ -43,7 +43,7 @@ export const useOnboardingStore = create<OnboardingState>()(
     calorieGoalType: undefined,
     calorieGoal: undefined,
     proteinGoal: undefined,
-    fatPercentage: 30, // Default to 30%
+    fatPercentage: 20, // Default to 20%
 
     // Skip functionality
     userSkippedOnboarding: false,
@@ -109,7 +109,7 @@ export const useOnboardingStore = create<OnboardingState>()(
         state.calorieGoalType = undefined;
         state.calorieGoal = undefined;
         state.proteinGoal = undefined;
-        state.fatPercentage = 30;
+        state.fatPercentage = 20;
         state.userSkippedOnboarding = false;
       }),
   }))
