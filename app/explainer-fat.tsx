@@ -2,20 +2,24 @@ import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { X, Droplet } from "lucide-react-native";
+import { X, Droplet, CircleCheckBig, TriangleAlert } from "lucide-react-native";
 
 import { AppText } from "@/components/shared/AppText";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { Theme, useTheme } from "@/theme";
 import { FatProgressDisplay } from "@/components/daily-food-logs/NutrientSummary/NutrientStatDisplay";
-import { CircleCheckBig } from "lucide-react-native";
 
 export default function ExplainerFat() {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const router = useRouter();
-  const params = useLocalSearchParams<{ total?: string; target?: string; percentage?: string }>();
+  const params = useLocalSearchParams<{
+    total?: string;
+    target?: string;
+    percentage?: string;
+    caloriesTarget?: string;
+  }>();
 
   const handleClose = () => {
     if (router.canGoBack()) {
@@ -29,6 +33,10 @@ export default function ExplainerFat() {
   const total = params.total ? parseInt(params.total) : 52;
   const target = params.target ? parseInt(params.target) : 60;
   const percentage = params.percentage ? parseInt(params.percentage) : 87;
+  // Calculate calories target from fat target if not provided (target is 20% of calories)
+  const caloriesTarget = params.caloriesTarget
+    ? parseInt(params.caloriesTarget)
+    : Math.round((target * 9) / 0.20);
 
   return (
     <GradientWrapper style={styles.container}>
@@ -68,7 +76,12 @@ export default function ExplainerFat() {
           ]}
         >
           <View style={styles.heroBarContainer}>
-            <FatProgressDisplay total={total} target={target} percentage={percentage} />
+            <FatProgressDisplay
+              total={total}
+              target={target}
+              percentage={percentage}
+              caloriesTarget={caloriesTarget}
+            />
           </View>
           <View style={styles.heroTextContainer}>
             <AppText
@@ -76,19 +89,17 @@ export default function ExplainerFat() {
               color="primary"
               style={[styles.heroHeading, { color: semanticColor }]}
             >
-              Why We Show It This Way
+              How to Read the Display
             </AppText>
             <AppText role="Body" color="secondary" style={styles.heroText}>
-              The progress bar tracks your fat intake up to the 20% minimum
-              threshold. This is more of a baseline check rather than a strict
-              target—once you hit 20%, you're in a healthy range.
+              The progress bar tracks your fat intake toward the 20% minimum
+              baseline. The icon changes to show your status:
             </AppText>
             <AppText
               role="Body"
               color="secondary"
               style={[styles.heroText, styles.heroIconExplanation]}
             >
-              At 100%, the{" "}
               <Droplet
                 size={16}
                 color={semanticColor}
@@ -96,7 +107,13 @@ export default function ExplainerFat() {
                 strokeWidth={0}
                 style={styles.inlineIcon}
               />{" "}
-              icon becomes a{" "}
+              Working toward minimum (below 20%)
+            </AppText>
+            <AppText
+              role="Body"
+              color="secondary"
+              style={[styles.heroText, styles.heroIconExplanation]}
+            >
               <CircleCheckBig
                 size={16}
                 color={semanticColor}
@@ -104,7 +121,21 @@ export default function ExplainerFat() {
                 strokeWidth={2}
                 style={styles.inlineIcon}
               />{" "}
-              checkmark.
+              Optimal range (20-35% of calories)
+            </AppText>
+            <AppText
+              role="Body"
+              color="secondary"
+              style={[styles.heroText, styles.heroIconExplanation]}
+            >
+              <TriangleAlert
+                size={16}
+                color={colors.warning}
+                fill={colors.warningBackground}
+                strokeWidth={2}
+                style={styles.inlineIcon}
+              />{" "}
+              Above recommended maximum (over 35%)
             </AppText>
           </View>
         </View>
@@ -124,7 +155,7 @@ export default function ExplainerFat() {
             toward your minimal baseline.
             {"\n\n"}
             Once you hit 20%, you're in a healthy range. The optimal range is
-            20-40% depending on your preferences. After hitting protein and
+            20-35% depending on your preferences. After hitting protein and
             calorie targets, adjust fat based on what feels best for your body.
           </AppText>
         </View>

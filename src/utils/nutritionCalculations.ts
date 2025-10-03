@@ -176,3 +176,20 @@ export const calculateMaxFatPercentage = (
   );
   return Math.max(10, Math.min(70, maxFatPercentage)); // Between 10% and 70%
 };
+
+/**
+ * Calculate fat percentage from total calories consumed
+ *
+ * @param fatGrams - Fat consumed in grams
+ * @param totalCalories - Total calories consumed
+ * @returns Fat as percentage of total calories (0-100)
+ */
+export const calculateFatPercentageFromCalories = (
+  fatGrams: number,
+  totalCalories: number
+): number => {
+  if (totalCalories === 0) return 0;
+  const fatCalories = fatGrams * 9;
+  const fatPercentage = (fatCalories / totalCalories) * 100;
+  return Math.round(fatPercentage);
+};

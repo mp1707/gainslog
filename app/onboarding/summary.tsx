@@ -25,11 +25,17 @@ const SummaryScreen = () => {
   const { setDailyTargets } = useAppStore();
 
   // Get stored values with defaults
-  const effectiveFatPercentage = fatPercentage ?? 30;
+  const effectiveFatPercentage = fatPercentage ?? 20;
   const currentCalories = calorieGoal || 0;
   const currentProtein = proteinGoal || 0;
   const currentFat = calorieGoal
     ? calculateFatGramsFromPercentage(calorieGoal, effectiveFatPercentage)
+    : 0;
+
+  // Calculate fat gram ranges (20-35%)
+  const fatMinGrams = currentFat; // 20% minimum
+  const fatMaxGrams = currentCalories
+    ? Math.round((currentCalories * 0.35) / 9) // 35% maximum
     : 0;
 
   // Calculate carbs from the current values
@@ -100,7 +106,7 @@ const SummaryScreen = () => {
       icon: Droplet,
       color: colors.semantic.fat,
       label: "Fat",
-      subtitle: "Minimum baseline (20%)",
+      subtitle: `Baseline ${fatMinGrams}-${fatMaxGrams}g`,
       value: currentFat,
       unit: "g",
     },
@@ -183,7 +189,7 @@ const SummaryScreen = () => {
           color="secondary"
           style={styles.footerText}
         >
-          Fat is defaulted to 20% minimum. Carbs are calculated from the remainder.
+          Fat baseline: 20-35% of calories. Carbs are calculated from the remainder.
         </AppText>
       </View>
     </OnboardingScreen>

@@ -8,6 +8,7 @@ import {
   ChevronDown,
   ChevronsDown,
   CircleCheckBig,
+  TriangleAlert,
 } from "lucide-react-native";
 
 import { AppText } from "@/components";
@@ -155,33 +156,67 @@ interface FatProgressDisplayProps {
   total: number;
   target: number;
   percentage: number;
+  caloriesTarget: number; // Added to calculate max range
 }
 
 export const FatProgressDisplay: React.FC<FatProgressDisplayProps> = ({
   total,
   target,
   percentage,
+  caloriesTarget,
 }) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(theme);
 
-  const isComplete = percentage >= 100;
-  const StatIcon = isComplete ? CircleCheckBig : Droplet;
+  // Calculate fat gram ranges (20-35%)
+  const fatMinGrams = target; // 20% minimum
+  const fatMaxGrams = caloriesTarget
+    ? Math.round((caloriesTarget * 0.35) / 9) // 35% maximum
+    : 0;
+
+  // Determine icon state based on gram ranges
+  const isFatInRange = total >= fatMinGrams && total <= fatMaxGrams;
+  const isFatAboveMax = total > fatMaxGrams && fatMaxGrams > 0;
+
+  // Select icon based on state
+  let StatIcon = Droplet;
+  let iconColor = colors.semantic.fat;
+  let iconFill = colors.semantic.fat;
+  let iconStrokeWidth = 0;
+
+  if (isFatAboveMax) {
+    StatIcon = TriangleAlert;
+    iconColor = colors.warning;
+    iconFill = colors.warningBackground;
+    iconStrokeWidth = 2;
+  } else if (isFatInRange) {
+    StatIcon = CircleCheckBig;
+    iconColor = colors.semantic.fat;
+    iconFill = colors.semanticSurfaces.fat;
+    iconStrokeWidth = 2;
+  }
 
   return (
     <View style={styles.statItemWrapper}>
       <View style={styles.statRow}>
         <StatIcon
           size={20}
-          color={colors.semantic.fat}
-          fill={isComplete ? colors.semanticSurfaces.fat : colors.semantic.fat}
-          strokeWidth={isComplete ? 2 : 0}
+          color={iconColor}
+          fill={iconFill}
+          strokeWidth={iconStrokeWidth}
         />
         <View style={styles.statContent}>
           <View style={styles.statHeader}>
-            <AppText role="Caption" color="secondary">
-              Fat (g)
-            </AppText>
+            <View style={styles.statLabelContainer}>
+              <AppText role="Caption" color="secondary">
+                Fat (g)
+              </AppText>
+              {fatMinGrams > 0 && (
+                <AppText role="Caption" color="secondary">
+                  Baseline {fatMinGrams}-{fatMaxGrams}g
+                </AppText>
+              )}
+            </View>
             <View style={styles.statValue}>
               <AppText role="Body" color="primary">
                 {total}
@@ -292,6 +327,9 @@ const createStyles = (theme: Theme) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
+    },
+    statLabelContainer: {
+      gap: theme.spacing.xs / 4,
     },
     statValue: {
       flexDirection: "row",

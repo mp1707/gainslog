@@ -16,6 +16,7 @@ import {
   ChevronDown,
   ChevronsDown,
   CircleCheckBig,
+  TriangleAlert,
 } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
@@ -207,18 +208,24 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   }, [percentages.protein, proteinIconScale]);
 
   useEffect(() => {
-    const fatTarget = targets.fat || 0;
+    const fatMinGrams = targets.fat || 0; // 20% minimum
+    const fatMaxGrams = targets.calories
+      ? Math.round((targets.calories) * 0.35 / 9) // 35% maximum
+      : 0;
     const fatCurrent = totals.fat || 0;
-    const fatPercentage =
-      fatTarget > 0 ? (fatCurrent / fatTarget) * 100 : 0;
 
-    if (fatPercentage >= 100) {
+    // Trigger animation if in optimal range (min-max grams) or above max
+    const isInRange = fatCurrent >= fatMinGrams && fatCurrent <= fatMaxGrams;
+    const isAboveMax = fatCurrent > fatMaxGrams && fatMaxGrams > 0;
+    const shouldAnimate = isInRange || isAboveMax;
+
+    if (shouldAnimate) {
       fatIconScale.value = 0.5;
       fatIconScale.value = withSpring(1, ICON_SPRING_CONFIG);
     } else {
       fatIconScale.value = 1;
     }
-  }, [totals.fat, targets.fat, fatIconScale]);
+  }, [totals.fat, targets.fat, targets.calories, fatIconScale]);
 
   // Handler for opening explainer pages
   const handleOpenModal = (nutrient: "calories" | "protein" | "fat" | "carbs") => {
@@ -228,7 +235,17 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     const target = Math.round(targets[nutrient] || 0);
     const percentage = Math.round(percentages[nutrient] || 0);
 
-    router.push(`/explainer-${nutrient}?total=${total}&target=${target}&percentage=${percentage}` as any);
+    // For fat explainer, also pass calories target to calculate range
+    if (nutrient === "fat") {
+      const caloriesTarget = Math.round(targets.calories || 0);
+      router.push(
+        `/explainer-${nutrient}?total=${total}&target=${target}&percentage=${percentage}&caloriesTarget=${caloriesTarget}` as any
+      );
+    } else {
+      router.push(
+        `/explainer-${nutrient}?total=${total}&target=${target}&percentage=${percentage}` as any
+      );
+    }
   };
 
   // Press handlers for rings
@@ -417,14 +434,40 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
             config.key === "fat" ? totals.fat || 0 : totals.carbs || 0;
           const actualTarget =
             config.key === "fat" ? targets.fat || 0 : targets.carbs || 0;
-          const statPercentage =
-            actualTarget > 0 ? (actualCurrent / actualTarget) * 100 : 0;
-          const isStatComplete = statPercentage >= 100 && config.key === "fat";
-          const StatIcon = isStatComplete ? CircleCheckBig : Icon;
+
+          // For fat: calculate gram ranges based on target calories (20-35%)
+          // targets.fat represents the 20% minimum baseline
+          const fatMinGrams = actualTarget; // 20% minimum
+          const fatMaxGrams = config.key === "fat"
+            ? Math.round((targets.calories || 0) * 0.35 / 9) // 35% maximum
+            : 0;
+          const currentFatGrams = actualCurrent;
+
+          // Determine fat icon state based on GRAM ranges (not percentage of consumed calories)
+          const isFatInRange = currentFatGrams >= fatMinGrams && currentFatGrams <= fatMaxGrams && config.key === "fat";
+          const isFatAboveMax = currentFatGrams > fatMaxGrams && config.key === "fat" && fatMaxGrams > 0;
+
+          const isStatComplete = isFatInRange;
+          const isStatWarning = isFatAboveMax;
+
+          // Select icon based on state (fat only)
+          let StatIcon = Icon;
+          if (config.key === "fat") {
+            if (isStatWarning) {
+              StatIcon = TriangleAlert;
+            } else if (isStatComplete) {
+              StatIcon = CircleCheckBig;
+            }
+          }
+
+          // Format fat label with range
+          const fatRangeLabel = config.key === "fat" && fatMinGrams > 0
+            ? `${fatMinGrams}-${fatMaxGrams}g`
+            : null;
 
           // Animated style for secondary stat icon scale (only for fat)
           const statIconAnimatedStyle = useAnimatedStyle(() => ({
-            transform: [{ scale: isStatComplete ? fatIconScale.value : 1 }],
+            transform: [{ scale: (isStatComplete || isStatWarning) ? fatIconScale.value : 1 }],
           }));
 
           const statAnimatedStyle =
@@ -448,16 +491,33 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                 <Animated.View style={statIconAnimatedStyle}>
                   <StatIcon
                     size={20}
-                    color={iconColor}
-                    fill={isStatComplete ? surfaceColors[config.key] : iconColor}
-                    strokeWidth={isStatComplete ? 2 : 0}
+                    color={
+                      isStatWarning
+                        ? colors.warning
+                        : iconColor
+                    }
+                    fill={
+                      isStatWarning
+                        ? colors.warningBackground
+                        : isStatComplete
+                        ? surfaceColors[config.key]
+                        : iconColor
+                    }
+                    strokeWidth={isStatComplete || isStatWarning ? 2 : 0}
                   />
                 </Animated.View>
                 <View style={styles.statContent}>
                   <View style={styles.statHeader}>
-                    <AppText role="Caption" color="secondary">
-                      {config.label}
-                    </AppText>
+                    <View style={styles.statLabelContainer}>
+                      <AppText role="Caption" color="secondary">
+                        {config.label}
+                      </AppText>
+                      {fatRangeLabel && (
+                        <AppText role="Caption" color="secondary">
+                          Baseline {fatRangeLabel}
+                        </AppText>
+                      )}
+                    </View>
                     <View style={styles.statValue}>
                       {config.hasTarget ? (
                         <>
@@ -556,6 +616,9 @@ const createStyles = (theme: Theme) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
+    },
+    statLabelContainer: {
+      gap: theme.spacing.xs / 4,
     },
     statValue: {
       flexDirection: "row",
