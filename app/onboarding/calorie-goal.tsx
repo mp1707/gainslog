@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View } from "react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
@@ -25,8 +25,14 @@ export default function Step3GoalsScreen() {
     calorieGoalType,
     setCalorieGoalType,
     setCalorieGoal,
+    setInputMethod,
   } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
+
+  // Ensure we're in calculate mode when entering questionnaire
+  useEffect(() => {
+    setInputMethod("calculate");
+  }, [setInputMethod]);
 
   // Calculate calorie goals based on onboarding data
   const calorieGoals =

@@ -30,6 +30,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           scrollEnabled={scrollEnabled}
+          bottomOffset={155}
         >
           {(title || subtitle) && (
             <View style={styles.headerSection}>

@@ -10,7 +10,7 @@ export default function OnboardingIndex() {
     // Reset onboarding store to ensure clean state
     reset();
     // Redirect to first step
-    router.replace("/onboarding/age");
+    router.replace("/onboarding/target-method");
   }, []);
 
   return null;

@@ -15,6 +15,11 @@ export type OnboardingState = {
   proteinGoal?: number; // g
   fatPercentage?: number; // percentage of calories
 
+  // Input method tracking
+  inputMethod?: "calculate" | "manual";
+  carbGoal?: number; // g (for manual input)
+  fatGoal?: number; // g (for manual input)
+
   // Skip functionality
   userSkippedOnboarding: boolean;
 
@@ -28,6 +33,9 @@ export type OnboardingState = {
   setCalorieGoal: (goal: number) => void;
   setProteinGoal: (goal: number) => void;
   setFatPercentage: (percentage: number) => void;
+  setInputMethod: (method: "calculate" | "manual") => void;
+  setCarbGoal: (goal: number) => void;
+  setFatGoal: (goal: number) => void;
   setUserSkippedOnboarding: (skipped: boolean) => void;
   reset: () => void;
 };
@@ -44,6 +52,11 @@ export const useOnboardingStore = create<OnboardingState>()(
     calorieGoal: undefined,
     proteinGoal: undefined,
     fatPercentage: 20, // Default to 20%
+
+    // Input method tracking
+    inputMethod: undefined,
+    carbGoal: undefined,
+    fatGoal: undefined,
 
     // Skip functionality
     userSkippedOnboarding: false,
@@ -94,6 +107,21 @@ export const useOnboardingStore = create<OnboardingState>()(
         state.fatPercentage = percentage;
       }),
 
+    setInputMethod: (method) =>
+      set((state) => {
+        state.inputMethod = method;
+      }),
+
+    setCarbGoal: (goal) =>
+      set((state) => {
+        state.carbGoal = goal;
+      }),
+
+    setFatGoal: (goal) =>
+      set((state) => {
+        state.fatGoal = goal;
+      }),
+
     setUserSkippedOnboarding: (skipped) =>
       set((state) => {
         state.userSkippedOnboarding = skipped;
@@ -110,6 +138,9 @@ export const useOnboardingStore = create<OnboardingState>()(
         state.calorieGoal = undefined;
         state.proteinGoal = undefined;
         state.fatPercentage = 20;
+        state.inputMethod = undefined;
+        state.carbGoal = undefined;
+        state.fatGoal = undefined;
         state.userSkippedOnboarding = false;
       }),
   }))

@@ -12,43 +12,79 @@ import { Flame, BicepsFlexed, Wheat, Droplet } from "lucide-react-native";
 import { calculateFatGramsFromPercentage } from "@/utils/nutritionCalculations";
 import { DailyTargets } from "@/types/models";
 
-const SummaryScreen = () => {
+const CalculatorSummaryScreen = () => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { safeDismissTo, safeNavigate } = useNavigationGuard();
   const [isConfirming, setIsConfirming] = useState(false);
 
   // Onboarding store state
-  const { calorieGoal, proteinGoal, fatPercentage } = useOnboardingStore();
+  const {
+    calorieGoal,
+    proteinGoal,
+    fatPercentage,
+    inputMethod,
+    carbGoal,
+    fatGoal,
+    setInputMethod,
+  } = useOnboardingStore();
 
   // Main app store
   const { setDailyTargets } = useAppStore();
+
+  // Detect input method
+  const isManualMode = inputMethod === "manual";
 
   // Get stored values with defaults
   const effectiveFatPercentage = fatPercentage ?? 20;
   const currentCalories = calorieGoal || 0;
   const currentProtein = proteinGoal || 0;
-  const currentFat = calorieGoal
+
+  // Fat calculation: Use manual value if in manual mode, otherwise calculate from percentage
+  const currentFat = isManualMode
+    ? fatGoal || 0
+    : calorieGoal
     ? calculateFatGramsFromPercentage(calorieGoal, effectiveFatPercentage)
     : 0;
 
-  // Calculate fat gram ranges (20-35%)
+  // Calculate fat gram ranges (20-35%) - only for calculated mode
   const fatMinGrams = currentFat; // 20% minimum
   const fatMaxGrams = currentCalories
     ? Math.round((currentCalories * 0.35) / 9) // 35% maximum
     : 0;
 
-  // Calculate carbs from the current values
+  // Carbs calculation: Use manual value if in manual mode, otherwise calculate from remainder
   const currentCarbs = useMemo(() => {
+    if (isManualMode) {
+      return carbGoal || 0;
+    }
     const proteinCals = currentProtein * 4;
     const fatCals = currentFat * 9;
     const remainingCals = Math.max(0, currentCalories - proteinCals - fatCals);
     return Math.round(remainingCals / 4);
-  }, [currentCalories, currentProtein, currentFat]);
+  }, [isManualMode, carbGoal, currentCalories, currentProtein, currentFat]);
 
   const handleAdjustTargets = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     safeNavigate("/onboarding/calorie-goal");
+  };
+
+  const handleSwitchToManual = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    // Pre-fill manual input with calculated values by navigating
+    safeNavigate("/onboarding/manual-calories");
+  };
+
+  const handleRecalculate = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    // Switch to calculate mode and navigate to questionnaire
+    setInputMethod("calculate");
+    safeNavigate("/onboarding/age");
+  };
+
+  const handleEditTargets = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    safeNavigate("/onboarding/manual-calories");
   };
 
   const handleConfirmAndStartTracking = async () => {
@@ -106,7 +142,9 @@ const SummaryScreen = () => {
       icon: Droplet,
       color: colors.semantic.fat,
       label: "Fat",
-      subtitle: `Baseline ${fatMinGrams}-${fatMaxGrams}g`,
+      subtitle: isManualMode
+        ? "Daily target"
+        : `Baseline ${fatMinGrams}-${fatMaxGrams}g`,
       value: currentFat,
       unit: "g",
     },
@@ -115,7 +153,7 @@ const SummaryScreen = () => {
       icon: Wheat,
       color: colors.semantic.carbs,
       label: "Carbs",
-      subtitle: "Remainder",
+      subtitle: isManualMode ? "Daily target" : "Remainder",
       value: currentCarbs,
       unit: "g",
     },
@@ -126,11 +164,49 @@ const SummaryScreen = () => {
       actionButton={
         <View style={styles.actionButtonsContainer}>
           <View style={styles.secondaryActions}>
-            <Pressable onPress={handleAdjustTargets}>
-              <AppText role="Button" color="accent" style={styles.centeredText}>
-                Adjust Targets
-              </AppText>
-            </Pressable>
+            {isManualMode ? (
+              <>
+                <Pressable onPress={handleEditTargets}>
+                  <AppText
+                    role="Button"
+                    color="accent"
+                    style={styles.centeredText}
+                  >
+                    Edit Targets
+                  </AppText>
+                </Pressable>
+                <Pressable onPress={handleRecalculate}>
+                  <AppText
+                    role="Caption"
+                    color="secondary"
+                    style={styles.centeredText}
+                  >
+                    Recalculate from Profile
+                  </AppText>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Pressable onPress={handleAdjustTargets}>
+                  <AppText
+                    role="Button"
+                    color="accent"
+                    style={styles.centeredText}
+                  >
+                    Adjust Targets
+                  </AppText>
+                </Pressable>
+                <Pressable onPress={handleSwitchToManual}>
+                  <AppText
+                    role="Caption"
+                    color="secondary"
+                    style={styles.centeredText}
+                  >
+                    Switch to Manual Entry
+                  </AppText>
+                </Pressable>
+              </>
+            )}
           </View>
           <Button
             variant="primary"
@@ -147,7 +223,9 @@ const SummaryScreen = () => {
       <View style={styles.titleSection}>
         <AppText role="Title2">Your Daily Blueprint</AppText>
         <AppText role="Body" color="secondary" style={styles.secondaryText}>
-          Here are your starting targets. You can adjust these anytime.
+          {isManualMode
+            ? "Your custom targets are ready to go."
+            : "Here are your starting targets. You can adjust these anytime."}
         </AppText>
       </View>
       {/* Targets List */}
@@ -184,19 +262,17 @@ const SummaryScreen = () => {
 
       {/* Informational Footer */}
       <View style={styles.infoSection}>
-        <AppText
-          role="Caption"
-          color="secondary"
-          style={styles.footerText}
-        >
-          Fat baseline: 20-35% of calories. Carbs are calculated from the remainder.
+        <AppText role="Caption" color="secondary" style={styles.footerText}>
+          {isManualMode
+            ? "Custom targets set. Adjust anytime in settings."
+            : "Fat baseline: 20-35% of calories. Carbs are calculated from the remainder."}
         </AppText>
       </View>
     </OnboardingScreen>
   );
 };
 
-export default SummaryScreen;
+export default CalculatorSummaryScreen;
 
 type Colors = ReturnType<typeof useTheme>["colors"];
 type Theme = ReturnType<typeof useTheme>["theme"];
