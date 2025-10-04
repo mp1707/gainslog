@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, StyleSheet } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, StyleSheet, TextInput as RNTextInput } from "react-native";
 import { AppText } from "@/components/shared/AppText";
 import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
@@ -10,6 +10,7 @@ import { Button } from "@/components/shared/Button";
 import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { CalorieBreakdown } from "@/components/onboarding/CalorieBreakdown";
+import { KeyboardStickyView } from "react-native-keyboard-controller";
 
 const ManualFatScreen = () => {
   const { colors, theme: themeObj } = useTheme();
@@ -21,9 +22,18 @@ const ManualFatScreen = () => {
     fatGoal,
     setFatGoal,
   } = useOnboardingStore();
+  const inputRef = useRef<RNTextInput>(null);
 
   // Initialize with store value if available
   const [fat, setFat] = useState(fatGoal?.toString() || "");
+
+  // Auto-focus input on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleContinue = async () => {
     const fatNum = parseInt(fat, 10);
@@ -44,78 +54,65 @@ const ManualFatScreen = () => {
     usedCalories <= calorieGoal;
 
   return (
-    <OnboardingScreen
-      actionButton={
-        <Button
-          variant="primary"
-          label="Continue"
-          onPress={handleContinue}
-          disabled={!isValid}
-        />
-      }
-    >
-      <View style={styles.contentWrapper}>
-        {/* Header */}
-        <View style={styles.headerSection}>
-          <AppText role="Title2">Set Your Fat Target</AppText>
-          <AppText role="Body" color="secondary" style={styles.subtitle}>
-            How much fat will you eat per day?
-          </AppText>
-        </View>
-
-        {/* Calorie breakdown - info section */}
-        {calorieGoal && proteinGoal !== undefined && (
-          <View style={styles.breakdownSection}>
-            <CalorieBreakdown
-              totalCalories={calorieGoal}
-              proteinGrams={proteinGoal}
-              fatGrams={parseInt(fat || "0", 10)}
-              highlightMacro="fat"
-            />
+    <>
+      <OnboardingScreen>
+        <View style={styles.contentWrapper}>
+          {/* Header */}
+          <View style={styles.headerSection}>
+            <AppText role="Title2">Set Your Fat Target</AppText>
+            <AppText role="Body" color="secondary" style={styles.subtitle}>
+              How much fat will you eat per day?
+            </AppText>
           </View>
-        )}
 
-        {/* Helper Info */}
-        <View style={styles.helperSection}>
-          <AppText role="Caption" color="secondary" style={styles.helperText}>
-            Fat provides 9 kcal per gram.
-          </AppText>
-        </View>
-
-        {/* Input Section */}
-        <View style={styles.inputSection}>
-          <View style={styles.inputRow}>
-            <View style={styles.labelSection}>
-              <Droplet size={20} color={colors.semantic.fat} fill={colors.semantic.fat} strokeWidth={0} />
-              <AppText role="Body" color="secondary">Daily Fat</AppText>
-            </View>
-
-            <View style={styles.inputValueSection}>
-              <TextInput
-                value={fat}
-                onChangeText={setFat}
-                keyboardType="numeric"
-                placeholder="65"
-                fontSize="Headline"
-                style={styles.input}
+          {/* Calorie breakdown - info section */}
+          {calorieGoal && proteinGoal !== undefined && (
+            <View style={styles.breakdownSection}>
+              <CalorieBreakdown
+                totalCalories={calorieGoal}
+                proteinGrams={proteinGoal}
+                fatGrams={parseInt(fat || "0", 10)}
+                highlightMacro="fat"
               />
-              <AppText role="Body" color="secondary">
-                g
-              </AppText>
-            </View>
-          </View>
-
-          {/* Show calorie calculation inline */}
-          {fat && parseInt(fat, 10) > 0 && (
-            <View style={styles.calorieInfo}>
-              <AppText role="Caption" color="secondary">
-                {fatCalories} kcal from fat
-              </AppText>
             </View>
           )}
+
+          {/* Helper Info */}
+          <View style={styles.helperSection}>
+            <AppText role="Caption" color="secondary" style={styles.helperText}>
+              Fat provides 9 kcal per gram. {fat && parseInt(fat, 10) > 0 && `${fatCalories} kcal from fat.`}
+            </AppText>
+          </View>
         </View>
-      </View>
-    </OnboardingScreen>
+      </OnboardingScreen>
+
+      {/* Sticky Input + Button */}
+      <KeyboardStickyView offset={{ closed: 0, opened: 0 }} style={styles.stickyContainer}>
+        <View style={styles.stickyContent}>
+          <View style={styles.inputContainer}>
+            <Droplet size={20} color={colors.semantic.fat} fill={colors.semantic.fat} strokeWidth={0} />
+            <TextInput
+              ref={inputRef}
+              value={fat}
+              onChangeText={setFat}
+              keyboardType="numeric"
+              placeholder="65"
+              fontSize="Headline"
+              containerStyle={{ backgroundColor: colors.subtleBackground }}
+              style={styles.input}
+            />
+            <AppText role="Body" color="secondary">g</AppText>
+          </View>
+          <Button
+            variant="primary"
+            label="Continue"
+            onPress={handleContinue}
+            disabled={!isValid}
+            style={styles.continueButton}
+          />
+        </View>
+      </KeyboardStickyView>
+    </>
   );
 };
 
@@ -130,7 +127,9 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
   return StyleSheet.create({
     contentWrapper: {
       paddingHorizontal: spacing.lg,
-      gap: spacing.lg,
+      gap: spacing.xl,
+      flex: 1,
+      justifyContent: "center",
     },
     headerSection: {
       alignItems: "center",
@@ -148,38 +147,35 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     helperText: {
       textAlign: "center",
+      lineHeight: 22,
     },
-    inputSection: {
-      gap: spacing.sm,
-    },
-    inputRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      gap: spacing.md,
-      paddingVertical: spacing.md,
+    stickyContainer: {
+      backgroundColor: colors.primaryBackground,
+      borderTopWidth: 1,
+      borderTopColor: colors.subtleBackground,
       paddingBottom: spacing.md,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.subtleBackground,
     },
-    labelSection: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: spacing.xs,
-      flex: 1,
-    },
-    inputValueSection: {
+    stickyContent: {
       flexDirection: "row",
       alignItems: "center",
       gap: spacing.sm,
-      minWidth: 120,
+      paddingHorizontal: spacing.md,
+      paddingTop: spacing.md,
+    },
+    inputContainer: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.sm,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
     },
     input: {
       flex: 1,
-      textAlign: "right",
+      textAlign: "center",
     },
-    calorieInfo: {
-      alignItems: "center",
+    continueButton: {
+      minWidth: 100,
     },
   });
 };
