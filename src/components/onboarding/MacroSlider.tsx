@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { View, StyleSheet, Pressable } from "react-native";
 import Slider from "@react-native-community/slider";
 import { AppText } from "@/components/shared/AppText";
@@ -16,6 +16,9 @@ interface MacroSliderProps {
   maxCalories: number;
   caloriesPerGram: number;
   step?: number;
+  isAnySliderDragging?: boolean;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
 }
 
 export const MacroSlider = ({
@@ -27,12 +30,27 @@ export const MacroSlider = ({
   maxCalories,
   caloriesPerGram,
   step = 5,
+  isAnySliderDragging = false,
+  onDragStart,
+  onDragEnd,
 }: MacroSliderProps) => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
 
   const maxGrams = Math.floor(maxCalories / caloriesPerGram);
   const calories = grams * caloriesPerGram;
+
+  // Track slider key to force re-mount when needed (but not during any drag)
+  const [sliderKey, setSliderKey] = useState(0);
+  const prevMaxGrams = useRef(maxGrams);
+
+  // Update slider key when maxGrams changes, but only when no slider is dragging
+  useEffect(() => {
+    if (!isAnySliderDragging && prevMaxGrams.current !== maxGrams) {
+      setSliderKey((k) => k + 1);
+    }
+    prevMaxGrams.current = maxGrams;
+  }, [maxGrams, isAnySliderDragging]);
 
   // Calculate percentage based on total budget (passed as maxCalories for protein,
   // or remaining for fat) but show it relative to the original total
@@ -69,7 +87,12 @@ export const MacroSlider = ({
     onChange(clampedValue);
   };
 
+  const handleSliderStart = () => {
+    onDragStart?.();
+  };
+
   const handleSliderComplete = async () => {
+    onDragEnd?.();
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   };
 
@@ -120,11 +143,13 @@ export const MacroSlider = ({
       {/* Slider */}
       <View style={styles.sliderContainer}>
         <Slider
+          key={sliderKey}
           style={styles.slider}
           minimumValue={0}
           maximumValue={maxGrams}
           value={grams}
           onValueChange={handleSliderChange}
+          onSlidingStart={handleSliderStart}
           onSlidingComplete={handleSliderComplete}
           minimumTrackTintColor={iconColor}
           maximumTrackTintColor={colors.subtleBackground}

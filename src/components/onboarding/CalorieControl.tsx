@@ -12,6 +12,8 @@ interface CalorieControlProps {
   min?: number;
   max?: number;
   step?: number;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
 }
 
 export const CalorieControl = ({
@@ -20,6 +22,8 @@ export const CalorieControl = ({
   min = 1200,
   max = 4500,
   step = 50,
+  onDragStart,
+  onDragEnd,
 }: CalorieControlProps) => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
@@ -41,7 +45,12 @@ export const CalorieControl = ({
     onChange(roundedValue);
   };
 
+  const handleSliderStart = () => {
+    onDragStart?.();
+  };
+
   const handleSliderComplete = async () => {
+    onDragEnd?.();
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   };
 
@@ -97,6 +106,7 @@ export const CalorieControl = ({
           maximumValue={max}
           value={value}
           onValueChange={handleSliderChange}
+          onSlidingStart={handleSliderStart}
           onSlidingComplete={handleSliderComplete}
           minimumTrackTintColor={colors.accent}
           maximumTrackTintColor={colors.subtleBackground}
