@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { ScrollView as RNScrollView } from "react-native-gesture-handler";
 import { Check, X } from "lucide-react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { makeSelectLogById } from "@/store/selectors";
@@ -278,12 +277,11 @@ export default function Edit() {
           accessibilityLabel="Close"
         />
       </View>
-      <KeyboardAwareScrollView
+      <RNScrollView
         ref={scrollRef as any}
         style={[styles.scrollView]}
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="handled"
-        bottomOffset={200}
         bounces={false}
         overScrollMode="never"
         scrollEnabled={!isEditing}
@@ -353,7 +351,7 @@ export default function Edit() {
             />
           </>
         )}
-      </KeyboardAwareScrollView>
+      </RNScrollView>
       {/* Bottom Sheet Editor replacing KeyboardStickyView */}
       <BottomSheet
         ref={sheetRef as any}
