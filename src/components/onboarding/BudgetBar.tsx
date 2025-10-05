@@ -60,13 +60,6 @@ export const BudgetBar = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <AppText role="Caption" color="secondary">
-          Daily Calorie Budget
-        </AppText>
-        <AppText role="Headline">{totalCalories} kcal</AppText>
-      </View>
-
       {/* Budget Bar */}
       <View style={styles.barContainer}>
         <View style={styles.barTrack}>
@@ -130,11 +123,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
   return StyleSheet.create({
     container: {
       gap: spacing.md,
-    },
-    header: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
     },
     barContainer: {
       //

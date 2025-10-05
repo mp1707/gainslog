@@ -120,24 +120,21 @@ const ManualInputScreen = () => {
             />
           </View>
 
-          {/* Budget Bar */}
+          {/* Macro Distribution Section */}
           {calories > 0 && (
-            <Animated.View entering={FadeIn} style={styles.section}>
+            <Animated.View entering={FadeIn} style={styles.macrosSection}>
+              <AppText role="Headline" style={styles.sectionTitle}>
+                Macro Distribution
+              </AppText>
+
               <BudgetBar
                 totalCalories={calories}
                 proteinCalories={proteinCalories}
                 fatCalories={fatCalories}
                 carbCalories={carbCalories}
               />
-            </Animated.View>
-          )}
 
-          {/* Macro Sliders Section */}
-          {calories > 0 && (
-            <Animated.View entering={FadeIn.delay(100)} style={styles.macrosSection}>
-              <AppText role="Headline" style={styles.sectionTitle}>
-                Allocate Your Macros
-              </AppText>
+              {/* Macro Sliders */}
 
               {/* Protein Slider */}
               <MacroSlider
