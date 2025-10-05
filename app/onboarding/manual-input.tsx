@@ -28,10 +28,10 @@ const ManualInputScreen = () => {
     setInputMethod,
   } = useOnboardingStore();
 
-  // Initialize state - always start fresh with protein/fat at 0
+  // Initialize state from store values if available
   const [calories, setCalories] = useState(calorieGoal || 2500);
-  const [protein, setProtein] = useState(0);
-  const [fat, setFat] = useState(0);
+  const [protein, setProtein] = useState(proteinGoal || 0);
+  const [fat, setFat] = useState(fatGoal || 0);
 
   // Ensure we're in manual mode
   useEffect(() => {
@@ -65,7 +65,7 @@ const ManualInputScreen = () => {
   const fatCalories = fat * 9;
   const usedCalories = proteinCalories + fatCalories;
   const remainingCalories = calories - usedCalories;
-  const carbGrams = Math.max(0, Math.floor(remainingCalories / 4));
+  const carbGrams = Math.max(0, Math.round(remainingCalories / 4));
   const carbCalories = carbGrams * 4;
 
   // Validation - just ensure calories are set
