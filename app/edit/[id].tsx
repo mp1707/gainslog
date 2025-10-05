@@ -258,6 +258,13 @@ export default function Edit() {
     }
   };
 
+  // Dynamically disable modal swipe gesture when bottom sheet is open
+  useEffect(() => {
+    navigation.setOptions({
+      gestureEnabled: !isEditing,
+    });
+  }, [isEditing, navigation]);
+
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.closeButtonLeft}>
@@ -357,6 +364,7 @@ export default function Edit() {
         ref={sheetRef as any}
         snapPoints={["70%"]}
         enablePanDownToClose
+        activeOffsetY={10}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
         backgroundStyle={{
