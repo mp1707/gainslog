@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Pressable } from "react-native";
 import Slider from "@react-native-community/slider";
 import { AppText } from "@/components/shared/AppText";
@@ -27,6 +27,13 @@ export const CalorieControl = ({
 }: CalorieControlProps) => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
+
+  // Force remount on initial render to fix React Native Slider position bug
+  const [sliderKey, setSliderKey] = useState(0);
+
+  useEffect(() => {
+    setSliderKey(1);
+  }, []);
 
   const handleIncrement = async () => {
     const newValue = Math.min(value + step, max);
@@ -101,6 +108,7 @@ export const CalorieControl = ({
       {/* Slider */}
       <View style={styles.sliderContainer}>
         <Slider
+          key={sliderKey}
           style={styles.slider}
           minimumValue={min}
           maximumValue={max}

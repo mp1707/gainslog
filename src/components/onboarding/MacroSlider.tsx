@@ -44,6 +44,11 @@ export const MacroSlider = ({
   const [sliderKey, setSliderKey] = useState(0);
   const prevMaxGrams = useRef(maxGrams);
 
+  // Force remount on initial render to fix React Native Slider position bug
+  useEffect(() => {
+    setSliderKey(1);
+  }, []);
+
   // Update slider key when maxGrams changes, but only when no slider is dragging
   useEffect(() => {
     if (!isAnySliderDragging && prevMaxGrams.current !== maxGrams) {
