@@ -61,7 +61,7 @@ const CalculatorSummaryScreen = () => {
     const proteinCals = currentProtein * 4;
     const fatCals = currentFat * 9;
     const remainingCals = Math.max(0, currentCalories - proteinCals - fatCals);
-    return Math.round(remainingCals / 4);
+    return Math.floor(remainingCals / 4);
   }, [isManualMode, carbGoal, currentCalories, currentProtein, currentFat]);
 
   const handleAdjustTargets = async () => {

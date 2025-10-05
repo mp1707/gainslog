@@ -22,7 +22,7 @@ const TargetMethodScreen = () => {
     if (method === "calculate") {
       safePush("/onboarding/age");
     } else {
-      safePush("/onboarding/manual-calories");
+      safePush("/onboarding/manual-input");
     }
   };
 

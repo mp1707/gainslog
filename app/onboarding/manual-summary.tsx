@@ -66,7 +66,7 @@ const ManualSummaryScreen = () => {
 
   const handleEditTargets = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    safeNavigate("/onboarding/manual-calories");
+    safeNavigate("/onboarding/manual-input");
   };
 
   return (
