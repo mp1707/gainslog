@@ -18,19 +18,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useEstimation } from "@/hooks/useEstimation";
 import { useNavigation } from "@react-navigation/native";
 import { ConfidenceCard } from "@/components/refine-page/ConfidenceCard/ConfidenceCard";
-import { TitleCard } from "@/components/refine-page/TitleCard/TitleCard";
 import { MacrosCard } from "@/components/refine-page/MacrosCard/MacrosCard";
 import { ComponentsList } from "@/components/refine-page/ComponentsList/ComponentsList";
-import { ComponentEditorSheet } from "@/components/refine-page/ComponentEditorSheet/ComponentEditorSheet";
+import { ComponentEditor } from "@/components/refine-page/ComponentEditor";
 import { FloatingAction } from "@/components/refine-page/FloatingAction/FloatingAction";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { AppText } from "@/components/index";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
-  BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
-import { LinearGradient } from "expo-linear-gradient";
 import { TextInput } from "@/components/shared/TextInput";
 import { getRefinementInfoDetailed } from "@/utils/getRefinementInfo";
 
@@ -52,27 +49,15 @@ export default function Edit() {
   const router = useRouter();
 
   const { colors, theme } = useTheme();
-  const styles = createStyles(colors, theme);
+  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const { runEditEstimation } = useEstimation();
   const scrollRef = useRef<RNScrollView | null>(null);
-  const navigation = useNavigation();
 
   // Local state to hold edits (do not mutate store until confirmed)
   const [editedLog, setEditedLog] = useState<FoodLog | undefined>(originalLog);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefined, setIsRefined] = useState(false);
   const [revealKey, setRevealKey] = useState(0);
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const [addingNew, setAddingNew] = useState(false);
-  const [tempName, setTempName] = useState("");
-  const [tempAmount, setTempAmount] = useState<number>(0);
-  const [tempUnit, setTempUnit] = useState<FoodComponent["unit"]>("g");
-  // When adding a new ingredient, we auto-focus the Name field once
-  const [focusNameOnAdd, setFocusNameOnAdd] = useState(false);
-  // Local focus state for sticky editor inputs (for accent border)
-  const [nameFocused, setNameFocused] = useState(false);
-  const [amountFocused, setAmountFocused] = useState(false);
-  const isEditing = expandedIndex !== null || addingNew;
   const [isDirty, setIsDirty] = useState(false);
   // Snapshot of components at last successful estimation
   const [lastEstimatedComponents, setLastEstimatedComponents] = useState<
@@ -82,16 +67,16 @@ export default function Edit() {
   // Title editing state
   const [isTitleEditing, setIsTitleEditing] = useState(false);
   const [tempTitle, setTempTitle] = useState(editedLog?.title || "");
+
+  // Component editing state - simplified with two-state approach
+  const [editingComponent, setEditingComponent] = useState<{
+    index: number | "new";
+    component: FoodComponent;
+  } | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+
   const sheetRef = useRef<BottomSheet | null>(null);
-  const openGuardAtRef = useRef<number>(0);
-  useEffect(() => {
-    if (isEditing) {
-      // Imperatively open without controlling the index prop
-      sheetRef.current?.expand?.();
-    } else {
-      sheetRef.current?.close?.();
-    }
-  }, [isEditing]);
+  const navigation = useNavigation();
 
   // Note: per-id modal, cleanup happens on unmount
 
@@ -146,14 +131,18 @@ export default function Edit() {
     const curr = editedLog?.foodComponents ?? [];
 
     if (baseline.length !== curr.length) return true;
+
+    // Quick reference check first
+    if (baseline === curr) return false;
+
     for (let i = 0; i < baseline.length; i++) {
       const o = baseline[i];
       const c = curr[i];
-      if ((o?.name ?? "") !== (c?.name ?? "")) return true;
-      if ((o?.amount ?? 0) !== (c?.amount ?? 0)) return true;
-      if ((o?.unit ?? "") !== (c?.unit ?? "")) return true;
-      if ((o?.needsRefinement ?? false) !== (c?.needsRefinement ?? false))
-        return true;
+      if (o === c) continue; // Same reference, skip
+      if (o.name !== c.name) return true;
+      if (o.amount !== c.amount) return true;
+      if (o.unit !== c.unit) return true;
+      if (o.needsRefinement !== c.needsRefinement) return true;
     }
     return false;
   }, [lastEstimatedComponents, editedLog?.foodComponents]);
@@ -173,16 +162,6 @@ export default function Edit() {
   const isConfidenceLoading = isLoading || !!originalLog?.isEstimating;
 
   // Handlers for components editing
-  const handleUpdateComponent = (index: number, updated: FoodComponent) => {
-    setEditedLog((prev) => {
-      if (!prev) return prev;
-      const comps = [...(prev.foodComponents || [])];
-      comps[index] = updated;
-      return { ...prev, foodComponents: comps };
-    });
-    setIsDirty(true);
-  };
-
   const handleDeleteComponent = (index: number) => {
     setEditedLog((prev) => {
       if (!prev) return prev;
@@ -205,17 +184,43 @@ export default function Edit() {
     setIsDirty(true);
   };
 
+  const handleOpenEditor = (index: number, component: FoodComponent) => {
+    setEditingComponent({ index, component });
+    setSheetOpen(true);
+  };
+
   const handleAddComponent = () => {
-    // Do not insert an empty row. Open editor first and add on Save.
-    openGuardAtRef.current = Date.now();
-    setTimeout(() => {
-      setAddingNew(true);
-      setExpandedIndex(null);
-      setTempName("");
-      setTempAmount(0);
-      setTempUnit("g");
-      setFocusNameOnAdd(true);
-    }, 30);
+    setEditingComponent({
+      index: "new",
+      component: { name: "", amount: 0, unit: "g", needsRefinement: false },
+    });
+    setSheetOpen(true);
+  };
+
+  const handleSaveComponent = (component: FoodComponent) => {
+    if (!editingComponent) return;
+
+    setEditedLog((prev) => {
+      if (!prev) return prev;
+
+      const comps = [...(prev.foodComponents || [])];
+      if (editingComponent.index === "new") {
+        comps.push(component);
+      } else {
+        comps[editingComponent.index] = component;
+      }
+
+      return { ...prev, foodComponents: comps };
+    });
+
+    setIsDirty(true);
+    // Use ref method to close sheet
+    sheetRef.current?.close();
+  };
+
+  const handleCancelEdit = () => {
+    // Use ref method to close sheet
+    sheetRef.current?.close();
   };
 
   const handleReestimate = async () => {
@@ -261,9 +266,9 @@ export default function Edit() {
   // Dynamically disable modal swipe gesture when bottom sheet is open
   useEffect(() => {
     navigation.setOptions({
-      gestureEnabled: !isEditing,
+      gestureEnabled: !sheetOpen,
     });
-  }, [isEditing, navigation]);
+  }, [sheetOpen, navigation]);
 
   return (
     <GradientWrapper style={styles.container}>
@@ -291,7 +296,7 @@ export default function Edit() {
         keyboardShouldPersistTaps="handled"
         bounces={false}
         overScrollMode="never"
-        scrollEnabled={!isEditing}
+        scrollEnabled={!sheetOpen}
       >
         {isTitleEditing ? (
           <TextInput
@@ -320,17 +325,7 @@ export default function Edit() {
             {/* Editable component list */}
             <ComponentsList
               components={editedLog.foodComponents || []}
-              onPressItem={(index, comp) => {
-                openGuardAtRef.current = Date.now();
-                setTimeout(() => {
-                  setExpandedIndex(index);
-                  setAddingNew(false);
-                  setTempName(comp.name);
-                  setTempAmount(comp.amount ?? 0);
-                  setTempUnit(comp.unit ?? "g");
-                  setFocusNameOnAdd(false);
-                }, 30);
-              }}
+              onPressItem={handleOpenEditor}
               onDeleteItem={handleDeleteComponent}
               onAddPress={handleAddComponent}
               onMarkOk={handleMarkComponentOk}
@@ -359,27 +354,28 @@ export default function Edit() {
           </>
         )}
       </RNScrollView>
-      {/* Bottom Sheet Editor replacing KeyboardStickyView */}
+      {/* Bottom Sheet Editor */}
       <BottomSheet
         ref={sheetRef as any}
-        snapPoints={["70%"]}
+        index={sheetOpen ? 0 : -1}
+        snapPoints={["50%"]}
+        enableDynamicSizing={false}
         enablePanDownToClose
-        activeOffsetY={10}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
+        android_keyboardInputMode="adjustResize"
         backgroundStyle={{
           backgroundColor: colors.secondaryBackground,
-          borderRadius: "10%",
         }}
-        onClose={() => {
-          const sinceOpen = Date.now() - openGuardAtRef.current;
-          if (sinceOpen < 250) {
-            sheetRef.current?.expand?.();
-            return;
+        onChange={(index) => {
+          if (index === -1) {
+            // Sheet fully closed, update state and clear editing
+            setSheetOpen(false);
+            setEditingComponent(null);
+          } else if (index === 0) {
+            // Sheet opened, update state
+            setSheetOpen(true);
           }
-          setExpandedIndex(null);
-          setAddingNew(false);
-          setFocusNameOnAdd(false);
         }}
         handleIndicatorStyle={{
           backgroundColor: colors.secondaryText,
@@ -393,73 +389,22 @@ export default function Edit() {
             opacity={0.35}
             appearsOnIndex={0}
             disappearsOnIndex={-1}
-            // Avoid closing immediately from the same tap that opens the sheet
-            pressBehavior="none"
+            pressBehavior="close"
           />
         )}
       >
-        {isEditing && (
+        {editingComponent && (
           <BottomSheetView style={{ flex: 1 }}>
-            <BottomSheetScrollView
-              keyboardShouldPersistTaps="handled"
-              bounces={false}
-              contentContainerStyle={{
-                paddingHorizontal: theme.spacing.lg,
-                paddingTop: theme.spacing.lg,
-                paddingBottom: theme.spacing.xl,
-                gap: theme.spacing.md,
-              }}
-            >
-              <ComponentEditorSheet
-                tempName={tempName}
-                tempAmount={tempAmount}
-                tempUnit={tempUnit}
-                setTempName={setTempName}
-                setTempAmount={setTempAmount}
-                setTempUnit={setTempUnit}
-                focusNameOnAdd={focusNameOnAdd}
-                nameFocused={nameFocused}
-                amountFocused={amountFocused}
-                setNameFocused={setNameFocused}
-                setAmountFocused={setAmountFocused}
-                onCancel={() => {
-                  setExpandedIndex(null);
-                  setAddingNew(false);
-                  setFocusNameOnAdd(false);
-                }}
-                onSave={() => {
-                  const newComp: FoodComponent = {
-                    name: tempName.trim(),
-                    amount: Number(tempAmount) || 0,
-                    unit: tempUnit,
-                    needsRefinement: false,
-                  };
-                  if (addingNew) {
-                    setEditedLog((prev) => {
-                      if (!prev) return prev;
-                      return {
-                        ...prev,
-                        foodComponents: [
-                          ...(prev.foodComponents || []),
-                          newComp,
-                        ],
-                      };
-                    });
-                    setIsDirty(true);
-                  } else if (expandedIndex !== null) {
-                    handleUpdateComponent(expandedIndex, newComp);
-                  }
-                  setExpandedIndex(null);
-                  setAddingNew(false);
-                  setFocusNameOnAdd(false);
-                }}
-                saveDisabled={tempName.trim().length === 0 || tempAmount <= 0}
-              />
-            </BottomSheetScrollView>
+            <ComponentEditor
+              component={editingComponent.component}
+              isAdding={editingComponent.index === "new"}
+              onSave={handleSaveComponent}
+              onCancel={handleCancelEdit}
+            />
           </BottomSheetView>
         )}
       </BottomSheet>
-      {!isEditing && editedLog && (
+      {!sheetOpen && editedLog && (
         <FloatingAction
           onPress={handleReestimate}
           disabled={
