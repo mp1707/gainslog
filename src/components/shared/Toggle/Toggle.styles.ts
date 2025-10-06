@@ -26,7 +26,7 @@ export const useStyles = () =>
         top: containerPadding,
         left: containerPadding,
         height: sliderHeight,
-        backgroundColor: colors.secondaryBackground,
+        backgroundColor: colors.primaryBackground,
         borderRadius: theme.components.cards.cornerRadius,
         zIndex: 1,
         shadowColor: "rgba(0, 0, 0, 0.12)",
