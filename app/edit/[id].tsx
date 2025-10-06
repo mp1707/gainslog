@@ -194,6 +194,10 @@ export default function Edit() {
   const handleSaveComponent = (component: FoodComponent) => {
     if (!editingComponent) return;
 
+    // Clear editing state immediately
+    setEditingComponent(null);
+    setSheetOpen(false);
+
     setEditedLog((prev) => {
       if (!prev) return prev;
 
@@ -208,12 +212,11 @@ export default function Edit() {
     });
 
     setIsDirty(true);
-    // Close sheet
-    setSheetOpen(false);
   };
 
   const handleCancelEdit = () => {
-    // Close sheet
+    // Clear editing state immediately
+    setEditingComponent(null);
     setSheetOpen(false);
   };
 

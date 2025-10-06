@@ -1,10 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Dimensions } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  withTiming,
+  Easing,
   runOnJS,
 } from "react-native-reanimated";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
@@ -30,6 +32,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   const { colors, theme } = useTheme();
   const translateY = useSharedValue(SCREEN_HEIGHT);
   const contentHeight = useSharedValue(0);
+  const [visible, setVisible] = useState(false);
 
   // Trigger haptic and close
   const handleClose = () => {
@@ -40,17 +43,28 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   // Animate sheet position based on open state
   useEffect(() => {
     if (open) {
-      translateY.value = withSpring(0, {
-        damping: 25,
-        stiffness: 350,
+      // Show immediately and animate in
+      setVisible(true);
+      translateY.value = withTiming(0, {
+        duration: 300,
+        easing: Easing.out(Easing.cubic),
       });
-    } else {
-      translateY.value = withSpring(SCREEN_HEIGHT, {
-        damping: 30,
-        stiffness: 400,
-      });
+    } else if (visible) {
+      // Animate out then hide
+      translateY.value = withTiming(
+        SCREEN_HEIGHT,
+        {
+          duration: 250,
+          easing: Easing.in(Easing.cubic),
+        },
+        (finished) => {
+          if (finished) {
+            runOnJS(setVisible)(false);
+          }
+        }
+      );
     }
-  }, [open]);
+  }, [open, visible]);
 
   // Pan gesture for drag-to-close
   const panGesture = Gesture.Pan()
@@ -66,18 +80,18 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
         event.velocityY > CLOSE_VELOCITY_THRESHOLD;
 
       if (shouldClose) {
-        translateY.value = withSpring(
+        translateY.value = withTiming(
           SCREEN_HEIGHT,
           {
-            damping: 30,
-            stiffness: 400,
+            duration: 250,
+            easing: Easing.in(Easing.cubic),
           },
           () => {
             runOnJS(handleClose)();
           }
         );
       } else {
-        // Spring back to open position
+        // Snap back to open position
         translateY.value = withSpring(0, {
           damping: 25,
           stiffness: 350,
@@ -94,7 +108,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     contentHeight.value = height;
   };
 
-  if (!open) return null;
+  if (!visible) return null;
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">

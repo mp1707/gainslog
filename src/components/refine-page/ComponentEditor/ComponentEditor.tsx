@@ -5,7 +5,8 @@ import { Picker } from "@react-native-picker/picker";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
+  withTiming,
+  Easing,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { ChevronDown } from "lucide-react-native";
@@ -62,9 +63,9 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   // Animate picker expansion
   useEffect(() => {
-    pickerHeight.value = withSpring(isUnitPickerExpanded ? 180 : 0, {
-      damping: 30,
-      stiffness: 400,
+    pickerHeight.value = withTiming(isUnitPickerExpanded ? 180 : 0, {
+      duration: 200,
+      easing: Easing.out(Easing.cubic),
     });
   }, [isUnitPickerExpanded]);
 

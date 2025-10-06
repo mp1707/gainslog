@@ -1,9 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
+  Easing,
+  runOnJS,
 } from "react-native-reanimated";
 
 interface BottomSheetBackdropProps {
@@ -18,18 +20,36 @@ export const BottomSheetBackdrop: React.FC<BottomSheetBackdropProps> = ({
   opacity = 0.35,
 }) => {
   const backdropOpacity = useSharedValue(0);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    backdropOpacity.value = withTiming(open ? opacity : 0, {
-      duration: 250,
-    });
-  }, [open, opacity]);
+    if (open) {
+      setVisible(true);
+      backdropOpacity.value = withTiming(opacity, {
+        duration: 300,
+        easing: Easing.out(Easing.cubic),
+      });
+    } else if (visible) {
+      backdropOpacity.value = withTiming(
+        0,
+        {
+          duration: 250,
+          easing: Easing.in(Easing.cubic),
+        },
+        (finished) => {
+          if (finished) {
+            runOnJS(setVisible)(false);
+          }
+        }
+      );
+    }
+  }, [open, opacity, visible]);
 
   const backdropStyle = useAnimatedStyle(() => ({
     opacity: backdropOpacity.value,
   }));
 
-  if (!open) return null;
+  if (!visible) return null;
 
   return (
     <Pressable style={StyleSheet.absoluteFill} onPress={onPress}>
