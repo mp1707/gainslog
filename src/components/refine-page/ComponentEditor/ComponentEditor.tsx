@@ -58,12 +58,17 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
   );
   const [isUnitPickerExpanded, setIsUnitPickerExpanded] = useState(false);
 
-  // Animated picker height
+  // Animated picker height and chevron rotation
   const pickerHeight = useSharedValue(0);
+  const chevronRotation = useSharedValue(0);
 
-  // Animate picker expansion
+  // Animate picker expansion and chevron rotation
   useEffect(() => {
-    pickerHeight.value = withTiming(isUnitPickerExpanded ? 180 : 0, {
+    pickerHeight.value = withTiming(isUnitPickerExpanded ? 220 : 0, {
+      duration: 200,
+      easing: Easing.out(Easing.cubic),
+    });
+    chevronRotation.value = withTiming(isUnitPickerExpanded ? 180 : 0, {
       duration: 200,
       easing: Easing.out(Easing.cubic),
     });
@@ -72,6 +77,10 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
   const pickerAnimatedStyle = useAnimatedStyle(() => ({
     height: pickerHeight.value,
     opacity: pickerHeight.value > 0 ? 1 : 0,
+  }));
+
+  const chevronAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${chevronRotation.value}deg` }],
   }));
 
   // Update form when component prop changes
@@ -89,7 +98,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   const handleUnitPress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    // Dismiss keyboard before opening picker
+    // Dismiss keyboard before toggling picker
     Keyboard.dismiss();
     setIsUnitPickerExpanded((prev) => !prev);
   }, []);
@@ -97,9 +106,15 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
   const handleUnitSelect = useCallback((value: FoodComponent["unit"]) => {
     setUnit(value);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    // Auto-collapse after selection
-    setIsUnitPickerExpanded(false);
+    // Keep picker open - user must tap unit field again to close
   }, []);
+
+  const handleInputFocus = useCallback(() => {
+    // Collapse picker when any text input is focused
+    if (isUnitPickerExpanded) {
+      setIsUnitPickerExpanded(false);
+    }
+  }, [isUnitPickerExpanded]);
 
   const handleSave = useCallback(() => {
     const amountValue = Number(amount);
@@ -156,6 +171,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
             keyboardAppearance={colorScheme}
             returnKeyType="next"
             autoFocus={isAdding}
+            onFocus={handleInputFocus}
           />
         </View>
 
@@ -174,6 +190,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
               style={styles.textInput}
               keyboardType="decimal-pad"
               keyboardAppearance={colorScheme}
+              onFocus={handleInputFocus}
             />
           </View>
 
@@ -190,7 +207,9 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
               ]}
             >
               <AppText role="Body">{unit}</AppText>
-              <ChevronDown size={20} color={colors.secondaryText} />
+              <Animated.View style={chevronAnimatedStyle}>
+                <ChevronDown size={20} color={colors.secondaryText} />
+              </Animated.View>
             </Pressable>
           </View>
         </View>
