@@ -19,10 +19,10 @@ import { ComponentEditor } from "@/components/refine-page/ComponentEditor";
 import { FloatingAction } from "@/components/refine-page/FloatingAction/FloatingAction";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { AppText } from "@/components/index";
-import BottomSheet, {
+import {
+  BottomSheet,
   BottomSheetBackdrop,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
+} from "@/components/shared/BottomSheet";
 import { TextInput } from "@/components/shared/TextInput";
 import { getRefinementInfoDetailed } from "@/utils/getRefinementInfo";
 
@@ -70,7 +70,6 @@ export default function Edit() {
   } | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  const sheetRef = useRef<BottomSheet | null>(null);
   const navigation = useNavigation();
 
   // Note: per-id modal, cleanup happens on unmount
@@ -209,13 +208,13 @@ export default function Edit() {
     });
 
     setIsDirty(true);
-    // Use ref method to close sheet
-    sheetRef.current?.close();
+    // Close sheet
+    setSheetOpen(false);
   };
 
   const handleCancelEdit = () => {
-    // Use ref method to close sheet
-    sheetRef.current?.close();
+    // Close sheet
+    setSheetOpen(false);
   };
 
   const handleReestimate = async () => {
@@ -350,51 +349,28 @@ export default function Edit() {
         )}
       </RNScrollView>
       {/* Bottom Sheet Editor */}
+      <BottomSheetBackdrop
+        open={sheetOpen}
+        onPress={() => {
+          setSheetOpen(false);
+          setEditingComponent(null);
+        }}
+        opacity={0.35}
+      />
       <BottomSheet
-        ref={sheetRef as any}
-        index={sheetOpen ? 0 : -1}
-        snapPoints={["50%"]}
-        enableDynamicSizing={false}
-        enablePanDownToClose
-        keyboardBehavior="interactive"
-        keyboardBlurBehavior="restore"
-        android_keyboardInputMode="adjustResize"
-        backgroundStyle={styles.bottomSheet}
-        onChange={(index) => {
-          if (index === -1) {
-            // Sheet fully closed, update state and clear editing
-            setSheetOpen(false);
-            setEditingComponent(null);
-          } else if (index === 0) {
-            // Sheet opened, update state
-            setSheetOpen(true);
-          }
+        open={sheetOpen}
+        onClose={() => {
+          setSheetOpen(false);
+          setEditingComponent(null);
         }}
-        handleIndicatorStyle={{
-          backgroundColor: colors.secondaryText,
-          width: 40,
-          height: 4,
-          borderRadius: 2,
-        }}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            opacity={0.35}
-            appearsOnIndex={0}
-            disappearsOnIndex={-1}
-            pressBehavior="close"
-          />
-        )}
       >
         {editingComponent && (
-          <BottomSheetView style={{ flex: 1 }}>
-            <ComponentEditor
-              component={editingComponent.component}
-              isAdding={editingComponent.index === "new"}
-              onSave={handleSaveComponent}
-              onCancel={handleCancelEdit}
-            />
-          </BottomSheetView>
+          <ComponentEditor
+            component={editingComponent.component}
+            isAdding={editingComponent.index === "new"}
+            onSave={handleSaveComponent}
+            onCancel={handleCancelEdit}
+          />
         )}
       </BottomSheet>
       {!sheetOpen && editedLog && (

@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { View, Pressable, Platform, Keyboard } from "react-native";
-import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import { TextInput } from "@/components/shared/TextInput";
 import { Picker } from "@react-native-picker/picker";
 import Animated, {
   useSharedValue,
@@ -55,7 +55,23 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
   const [unit, setUnit] = useState<FoodComponent["unit"]>(
     component?.unit || "g"
   );
-  const [showUnitPicker, setShowUnitPicker] = useState(false);
+  const [isUnitPickerExpanded, setIsUnitPickerExpanded] = useState(false);
+
+  // Animated picker height
+  const pickerHeight = useSharedValue(0);
+
+  // Animate picker expansion
+  useEffect(() => {
+    pickerHeight.value = withSpring(isUnitPickerExpanded ? 180 : 0, {
+      damping: 30,
+      stiffness: 400,
+    });
+  }, [isUnitPickerExpanded]);
+
+  const pickerAnimatedStyle = useAnimatedStyle(() => ({
+    height: pickerHeight.value,
+    opacity: pickerHeight.value > 0 ? 1 : 0,
+  }));
 
   // Update form when component prop changes
   useEffect(() => {
@@ -74,12 +90,14 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     // Dismiss keyboard before opening picker
     Keyboard.dismiss();
-    setShowUnitPicker(true);
+    setIsUnitPickerExpanded((prev) => !prev);
   }, []);
 
-  const handleUnitPickerDone = useCallback(() => {
+  const handleUnitSelect = useCallback((value: FoodComponent["unit"]) => {
+    setUnit(value);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setShowUnitPicker(false);
+    // Auto-collapse after selection
+    setIsUnitPickerExpanded(false);
   }, []);
 
   const handleSave = useCallback(() => {
@@ -121,20 +139,66 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
         </AppText>
       </View>
 
-      {showUnitPicker ? (
-        /* Unit Picker Mode */
-        <>
-          <View style={styles.pickerHeader}>
-            <AppText role="Headline">Select Unit</AppText>
-            <Pressable onPress={handleUnitPickerDone} style={styles.doneButton}>
-              <AppText role="Headline" color="accent">
-                Done
-              </AppText>
+      {/* Form Section */}
+      <View style={styles.formSection}>
+        {/* Name Input */}
+        <View style={styles.fieldGroup}>
+          <AppText role="Caption" color="secondary" style={styles.label}>
+            Name
+          </AppText>
+          <TextInput
+            value={name}
+            onChangeText={setName}
+            placeholder="e.g. Chicken Breast"
+            placeholderTextColor={colors.secondaryText}
+            style={styles.textInput}
+            keyboardAppearance={colorScheme}
+            returnKeyType="next"
+            autoFocus={isAdding}
+          />
+        </View>
+
+        {/* Amount and Unit Row */}
+        <View style={styles.rowGroup}>
+          {/* Amount Input */}
+          <View style={[styles.fieldGroup, styles.flexField]}>
+            <AppText role="Caption" color="secondary" style={styles.label}>
+              Amount
+            </AppText>
+            <TextInput
+              value={amount}
+              onChangeText={handleAmountChange}
+              placeholder="150"
+              placeholderTextColor={colors.secondaryText}
+              style={styles.textInput}
+              keyboardType="decimal-pad"
+              keyboardAppearance={colorScheme}
+            />
+          </View>
+
+          {/* Unit Selector */}
+          <View style={[styles.fieldGroup, styles.unitField]}>
+            <AppText role="Caption" color="secondary" style={styles.label}>
+              Unit
+            </AppText>
+            <Pressable
+              onPress={handleUnitPress}
+              style={({ pressed }) => [
+                styles.unitSelector,
+                pressed && styles.unitSelectorPressed,
+              ]}
+            >
+              <AppText role="Body">{unit}</AppText>
+              <ChevronDown size={20} color={colors.secondaryText} />
             </Pressable>
           </View>
+        </View>
+
+        {/* Inline Animated Picker */}
+        <Animated.View style={[styles.pickerContainer, pickerAnimatedStyle]}>
           <Picker
             selectedValue={unit}
-            onValueChange={(value) => setUnit(value as FoodComponent["unit"])}
+            onValueChange={(value) => handleUnitSelect(value as FoodComponent["unit"])}
             itemStyle={Platform.OS === "ios" ? styles.pickerItemIOS : undefined}
             style={styles.picker}
           >
@@ -142,85 +206,27 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
               <Picker.Item key={u} label={u} value={u} />
             ))}
           </Picker>
-        </>
-      ) : (
-        /* Form Mode */
-        <>
-          <View style={styles.formSection}>
-            {/* Name Input */}
-            <View style={styles.fieldGroup}>
-              <AppText role="Caption" color="secondary" style={styles.label}>
-                Name
-              </AppText>
-              <BottomSheetTextInput
-                value={name}
-                onChangeText={setName}
-                placeholder="e.g. Chicken Breast"
-                placeholderTextColor={colors.secondaryText}
-                style={styles.textInput}
-                keyboardAppearance={colorScheme}
-                returnKeyType="next"
-                autoFocus={isAdding}
-              />
-            </View>
+        </Animated.View>
+      </View>
 
-            {/* Amount and Unit Row */}
-            <View style={styles.rowGroup}>
-              {/* Amount Input */}
-              <View style={[styles.fieldGroup, styles.flexField]}>
-                <AppText role="Caption" color="secondary" style={styles.label}>
-                  Amount
-                </AppText>
-                <BottomSheetTextInput
-                  value={amount}
-                  onChangeText={handleAmountChange}
-                  placeholder="150"
-                  placeholderTextColor={colors.secondaryText}
-                  style={styles.textInput}
-                  keyboardType="decimal-pad"
-                  keyboardAppearance={colorScheme}
-                />
-              </View>
-
-              {/* Unit Selector */}
-              <View style={[styles.fieldGroup, styles.unitField]}>
-                <AppText role="Caption" color="secondary" style={styles.label}>
-                  Unit
-                </AppText>
-                <Pressable
-                  onPress={handleUnitPress}
-                  style={({ pressed }) => [
-                    styles.unitSelector,
-                    pressed && styles.unitSelectorPressed,
-                  ]}
-                >
-                  <AppText role="Body">{unit}</AppText>
-                  <ChevronDown size={20} color={colors.secondaryText} />
-                </Pressable>
-              </View>
-            </View>
-          </View>
-
-          {/* Action Buttons */}
-          <View style={styles.actionButtons}>
-            <View style={styles.buttonWrapper}>
-              <Button
-                label="Cancel"
-                variant="tertiary"
-                onPress={handleCancel}
-              />
-            </View>
-            <View style={styles.buttonWrapper}>
-              <Button
-                label="Save"
-                variant="primary"
-                onPress={handleSave}
-                disabled={!isValid}
-              />
-            </View>
-          </View>
-        </>
-      )}
+      {/* Action Buttons */}
+      <View style={styles.actionButtons}>
+        <View style={styles.buttonWrapper}>
+          <Button
+            label="Cancel"
+            variant="tertiary"
+            onPress={handleCancel}
+          />
+        </View>
+        <View style={styles.buttonWrapper}>
+          <Button
+            label="Save"
+            variant="primary"
+            onPress={handleSave}
+            disabled={!isValid}
+          />
+        </View>
+      </View>
     </View>
   );
 };

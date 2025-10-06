@@ -4,7 +4,6 @@ import type { Colors, Theme } from "@/theme";
 export const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     container: {
-      flex: 1,
       backgroundColor: colors.secondaryBackground,
     },
     header: {
@@ -15,7 +14,6 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     formSection: {
       paddingHorizontal: theme.spacing.lg,
       gap: theme.spacing.sm,
-      flex: 1,
     },
     fieldGroup: {
       gap: theme.spacing.xs,
@@ -62,18 +60,9 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     unitSelectorPressed: {
       backgroundColor: colors.subtleBackground,
     },
-    pickerHeader: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.md,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-    },
-    doneButton: {
-      paddingVertical: theme.spacing.xs,
-      paddingHorizontal: theme.spacing.sm,
+    pickerContainer: {
+      overflow: "hidden",
+      marginTop: theme.spacing.xs,
     },
     picker: {
       flex: 1,
