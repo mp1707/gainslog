@@ -1,12 +1,7 @@
 import { useAppStore } from "@/store/useAppStore";
 import { Colors, Theme, useTheme } from "@/theme";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {
-  StyleSheet,
-  View,
-  ActivityIndicator,
-  Pressable,
-} from "react-native";
+import { StyleSheet, View, ActivityIndicator, Pressable } from "react-native";
 import { ScrollView as RNScrollView } from "react-native-gesture-handler";
 import { Check, X } from "lucide-react-native";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
@@ -364,9 +359,7 @@ export default function Edit() {
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
         android_keyboardInputMode="adjustResize"
-        backgroundStyle={{
-          backgroundColor: colors.secondaryBackground,
-        }}
+        backgroundStyle={styles.bottomSheet}
         onChange={(index) => {
           if (index === -1) {
             // Sheet fully closed, update state and clear editing
@@ -451,6 +444,10 @@ const createStyles = (colors: Colors, theme: Theme) =>
       color: colors.primaryText,
       fontSize: theme.typography.Title2.fontSize,
       fontWeight: "600",
+    },
+    bottomSheet: {
+      borderRadius: theme.components.cards.cornerRadius,
+      backgroundColor: colors.secondaryBackground,
     },
     loadingContainer: {
       flex: 1,
