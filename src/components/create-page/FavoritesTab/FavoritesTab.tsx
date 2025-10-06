@@ -43,6 +43,7 @@ export const FavoritesTab: React.FC<FavoritesTabProps> = ({
         style={styles.scrollView}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
+        bounces={false}
       >
         {filteredFavorites.map((favorite) => (
           <SwipeToFunctions

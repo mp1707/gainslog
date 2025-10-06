@@ -9,7 +9,7 @@ import Animated, {
   Easing,
   runOnJS,
 } from "react-native-reanimated";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 
@@ -134,14 +134,18 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
             />
           </View>
 
-          {/* Content with Keyboard Avoidance */}
-          <KeyboardAvoidingView
+          {/* Content with Keyboard Awareness */}
+          <KeyboardAwareScrollView
             style={styles.content}
-            behavior="padding"
-            keyboardVerticalOffset={0}
+            contentContainerStyle={styles.scrollContent}
+            bottomOffset={20}
+            extraKeyboardSpace={16}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            bounces={false}
           >
             <View onLayout={handleLayout}>{children}</View>
-          </KeyboardAvoidingView>
+          </KeyboardAwareScrollView>
         </Animated.View>
       </GestureDetector>
     </View>
@@ -167,5 +171,8 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
 });
