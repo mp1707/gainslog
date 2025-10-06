@@ -112,19 +112,19 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-      <GestureDetector gesture={panGesture}>
-        <Animated.View
-          style={[
-            styles.container,
-            {
-              backgroundColor: colors.secondaryBackground,
-              borderTopLeftRadius: theme.components.cards.cornerRadius,
-              borderTopRightRadius: theme.components.cards.cornerRadius,
-            },
-            sheetStyle,
-          ]}
-        >
-          {/* Grabber Handle */}
+      <Animated.View
+        style={[
+          styles.container,
+          {
+            backgroundColor: colors.secondaryBackground,
+            borderTopLeftRadius: theme.components.cards.cornerRadius,
+            borderTopRightRadius: theme.components.cards.cornerRadius,
+          },
+          sheetStyle,
+        ]}
+      >
+        {/* Grabber Handle - ONLY THIS IS DRAGGABLE */}
+        <GestureDetector gesture={panGesture}>
           <View style={styles.grabberContainer}>
             <View
               style={[
@@ -133,21 +133,21 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
               ]}
             />
           </View>
+        </GestureDetector>
 
-          {/* Content with Keyboard Awareness */}
-          <KeyboardAwareScrollView
-            style={styles.content}
-            contentContainerStyle={styles.scrollContent}
-            bottomOffset={20}
-            extraKeyboardSpace={16}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-            bounces={false}
-          >
-            <View onLayout={handleLayout}>{children}</View>
-          </KeyboardAwareScrollView>
-        </Animated.View>
-      </GestureDetector>
+        {/* Content with Keyboard Awareness */}
+        <KeyboardAwareScrollView
+          style={styles.content}
+          contentContainerStyle={styles.scrollContent}
+          bottomOffset={20}
+          extraKeyboardSpace={16}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
+          <View onLayout={handleLayout}>{children}</View>
+        </KeyboardAwareScrollView>
+      </Animated.View>
     </View>
   );
 };
@@ -162,7 +162,8 @@ const styles = StyleSheet.create({
   },
   grabberContainer: {
     alignItems: "center",
-    paddingVertical: 12,
+    paddingTop: 16,
+    paddingBottom: 20,
   },
   grabber: {
     width: 40,
