@@ -478,7 +478,7 @@ const layout = {
     buttonHeight: 48, // 6×8pt - RoundButton size with proper padding
     padding: 16, // 2×8pt - Standard padding
     dateSliderHeight: 96, // 12×8pt - DateSlider container height
-    spacing: 16, // 2×8pt - Space between header elements
+    spacing: 24, // 3×8pt - Space between header elements
   },
 
   // Calculate dynamic header height that aligns to 8pt grid
