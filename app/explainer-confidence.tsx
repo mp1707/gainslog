@@ -46,113 +46,69 @@ export default function ExplainerConfidence() {
         </View>
 
         <AppText role="Title1" style={styles.title}>
-          Estimation Confidence
+          Confidence Score
         </AppText>
 
-        <View style={[styles.heroSection, { backgroundColor: colors.secondaryBackground }]}>
-          <View style={styles.heroBarContainer}>
-            <StaticConfidenceBar confidenceLevel={3} />
-          </View>
-          <View style={styles.heroTextContainer}>
-            <AppText
-              role="Headline"
-              color="primary"
-              style={[styles.heroHeading, { color: semanticColor }]}
-            >
-              Understanding Your Confidence Score
-            </AppText>
-            <AppText role="Body" color="secondary" style={styles.heroText}>
-              The confidence bar shows how detailed your food entry is. More specific measurements and ingredient details lead to more accurate macro estimates.
-            </AppText>
-          </View>
-        </View>
+        <AppText role="Body" color="secondary" style={styles.subtitle}>
+          Shows how precise your food entry is. More detail = more accurate macros.
+        </AppText>
 
-        <View style={styles.section}>
-          <View style={styles.levelHeader}>
+        <View style={styles.levelsContainer}>
+          <View style={styles.levelItem}>
             <StaticConfidenceBar confidenceLevel={3} />
-            <AppText
-              role="Headline"
-              color="primary"
-              style={[styles.levelHeading, { color: semanticColor }]}
-            >
-              Detailed Estimation
-            </AppText>
+            <View style={styles.levelText}>
+              <AppText role="Headline" color="primary" style={[{ color: semanticColor }]}>
+                Detailed
+              </AppText>
+              <AppText role="Subhead" color="secondary">
+                All ingredients with precise amounts
+              </AppText>
+            </View>
           </View>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            All three bars filled means you've provided precise measurements for all ingredients. Your macro estimates are highly accurate.
-            {"\n\n"}
-            • All ingredients have specific amounts{"\n"}
-            • Precise units used (g, ml, oz, etc.){"\n"}
-            • No components flagged for refinement
-          </AppText>
-        </View>
 
-        <View style={styles.section}>
-          <View style={styles.levelHeader}>
+          <View style={styles.levelItem}>
             <StaticConfidenceBar confidenceLevel={2} />
-            <AppText
-              role="Headline"
-              color="primary"
-              style={styles.levelHeading}
-            >
-              Good Estimation
-            </AppText>
+            <View style={styles.levelText}>
+              <AppText role="Headline" color="primary">
+                Good
+              </AppText>
+              <AppText role="Subhead" color="secondary">
+                Most ingredients well-defined
+              </AppText>
+            </View>
           </View>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            Two bars filled indicates most ingredients are well-defined, but some details could be more precise.
-            {"\n\n"}
-            To reach Detailed Estimation:{"\n"}
-            • Use more specific units where possible{"\n"}
-            • Refine any flagged components{"\n"}
-            • Add missing ingredient amounts
-          </AppText>
-        </View>
 
-        <View style={styles.section}>
-          <View style={styles.levelHeader}>
+          <View style={styles.levelItem}>
             <StaticConfidenceBar confidenceLevel={1} />
-            <AppText
-              role="Headline"
-              color="primary"
-              style={styles.levelHeading}
-            >
-              Broad Estimation
-            </AppText>
+            <View style={styles.levelText}>
+              <AppText role="Headline" color="primary">
+                Broad
+              </AppText>
+              <AppText role="Subhead" color="secondary">
+                Basic info present, needs refinement
+              </AppText>
+            </View>
           </View>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            One bar filled means basic information is present, but many details are missing or imprecise.
-            {"\n\n"}
-            To improve:{"\n"}
-            • Add specific measurements to ingredients{"\n"}
-            • Review and refine flagged components{"\n"}
-            • Include all ingredient amounts
-          </AppText>
-        </View>
 
-        <View style={styles.section}>
-          <View style={styles.levelHeader}>
+          <View style={styles.levelItem}>
             <StaticConfidenceBar confidenceLevel={0} />
-            <AppText
-              role="Headline"
-              color="primary"
-              style={styles.levelHeading}
-            >
-              Estimation Pending
-            </AppText>
+            <View style={styles.levelText}>
+              <AppText role="Headline" color="primary">
+                Pending
+              </AppText>
+              <AppText role="Subhead" color="secondary">
+                Add amounts to calculate
+              </AppText>
+            </View>
           </View>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            No bars filled means ingredients need refinement before we can provide an accurate estimate.
-            {"\n\n"}
-            Next steps:{"\n"}
-            • Add ingredient amounts and units{"\n"}
-            • Refine all flagged components{"\n"}
-            • Tap "Recalculate" when ready
-          </AppText>
         </View>
 
-        <View style={styles.footer}>
-          <AppText role="Caption" color="secondary" style={styles.footerText}>
-            Confidence levels help you understand the accuracy of your macro estimates. More precise entries lead to better tracking and results.
+        <View style={[styles.tipCard, { backgroundColor: colors.secondaryBackground }]}>
+          <AppText role="Subhead" color="primary" style={styles.tipTitle}>
+            💡 Quick Tip
+          </AppText>
+          <AppText role="Body" color="secondary">
+            Use specific units (g, oz, ml) and refine flagged items to improve accuracy.
           </AppText>
         </View>
       </ScrollView>
@@ -186,47 +142,31 @@ const createStyles = (theme: Theme) =>
     },
     title: {
       textAlign: "center",
-      marginBottom: theme.spacing.lg,
-    },
-    heroSection: {
-      marginBottom: theme.spacing.xl,
-      borderRadius: theme.components.cards.cornerRadius,
-      padding: theme.spacing.lg,
-    },
-    heroBarContainer: {
-      width: "100%",
-      marginBottom: theme.spacing.lg,
-    },
-    heroTextContainer: {
-      width: "100%",
-    },
-    heroHeading: {
       marginBottom: theme.spacing.sm,
     },
-    heroText: {
-      lineHeight: 22,
+    subtitle: {
+      textAlign: "center",
+      marginBottom: theme.spacing.xl,
+      paddingHorizontal: theme.spacing.md,
+      lineHeight: 20,
     },
-    section: {
+    levelsContainer: {
+      gap: theme.spacing.lg,
       marginBottom: theme.spacing.xl,
     },
-    levelHeader: {
+    levelItem: {
       gap: theme.spacing.md,
-      marginBottom: theme.spacing.md,
     },
-    levelHeading: {
-      marginTop: theme.spacing.xs,
+    levelText: {
+      gap: theme.spacing.xs,
     },
-    sectionContent: {
-      lineHeight: 22,
+    tipCard: {
+      borderRadius: theme.components.cards.cornerRadius,
+      padding: theme.spacing.lg,
+      gap: theme.spacing.sm,
+      marginTop: theme.spacing.md,
     },
-    footer: {
-      marginTop: theme.spacing.xl,
-      paddingTop: theme.spacing.lg,
-      borderTopWidth: 1,
-      borderTopColor: "rgba(128, 128, 128, 0.2)",
-    },
-    footerText: {
-      textAlign: "center",
-      lineHeight: 18,
+    tipTitle: {
+      marginBottom: theme.spacing.xs,
     },
   });

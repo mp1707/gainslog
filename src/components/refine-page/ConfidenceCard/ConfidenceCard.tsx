@@ -220,7 +220,11 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
 
   const handlePress = useCallback(() => {
     Haptics.impactAsync(theme.interactions.haptics.light);
-    router.push("/explainer-confidence");
+
+    // Small delay to allow press animation to complete before modal opens
+    setTimeout(() => {
+      router.push("/explainer-confidence");
+    }, 100);
   }, [router]);
 
   useEffect(() => {
