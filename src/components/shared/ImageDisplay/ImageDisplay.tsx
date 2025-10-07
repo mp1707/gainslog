@@ -17,12 +17,14 @@ interface ImageDisplayProps {
   imageUrl?: string;
   isUploading: boolean;
   deleteImage?: () => void;
+  onExpand?: (isExpanded: boolean) => void;
 }
 
 export const ImageDisplay: React.FC<ImageDisplayProps> = ({
   imageUrl,
   isUploading,
   deleteImage,
+  onExpand,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme, colorScheme);
@@ -84,7 +86,9 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
 
   const handlePress = () => {
     Haptics.selectionAsync();
-    setIsExpanded(!isExpanded);
+    const newExpandedState = !isExpanded;
+    setIsExpanded(newExpandedState);
+    onExpand?.(newExpandedState);
   };
 
   // Animated styles

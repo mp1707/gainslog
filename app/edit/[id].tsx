@@ -220,6 +220,15 @@ export default function Edit() {
     setSheetOpen(false);
   };
 
+  const handleImageExpand = (isExpanded: boolean) => {
+    if (isExpanded) {
+      // Wait for spring animation to complete before scrolling
+      setTimeout(() => {
+        scrollRef.current?.scrollToEnd({ animated: true });
+      }, 400);
+    }
+  };
+
   const handleReestimate = async () => {
     if (!editedLog) return;
     // Scroll to bottom when re-estimating to show macros section
@@ -347,6 +356,7 @@ export default function Edit() {
             <ImageDisplay
               imageUrl={editedLog.localImagePath}
               isUploading={false}
+              onExpand={handleImageExpand}
             />
           </>
         )}
