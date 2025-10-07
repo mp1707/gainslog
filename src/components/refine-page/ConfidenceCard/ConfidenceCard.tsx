@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
-import { LayoutChangeEvent, Platform, View } from "react-native";
+import { LayoutChangeEvent, Platform, Pressable, View } from "react-native";
 import Animated, {
   Easing,
   cancelAnimation,
@@ -7,11 +7,13 @@ import Animated, {
   useSharedValue,
   withDelay,
   withRepeat,
+  withSpring,
   withTiming,
 } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 import { Check, Sparkles } from "lucide-react-native";
+import { useRouter } from "expo-router";
 
 import { Card, AppText } from "@/components";
 import { useTheme } from "@/theme";
@@ -67,6 +69,7 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
 
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const router = useRouter();
 
   const barOne = useSharedValue(sanitizedLevel > 0 ? 1 : 0);
   const barTwo = useSharedValue(sanitizedLevel > 1 ? 1 : 0);
@@ -102,6 +105,7 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
   const loadingLoop = useSharedValue(0);
   const loadingPulse = useSharedValue(0);
   const infoOpacity = useSharedValue(isLoading ? 0.35 : 1);
+  const pressScale = useSharedValue(1);
 
   const previousLevelRef = useRef<ConfidenceLevel>(sanitizedLevel);
   const previousLoadingRef = useRef<boolean>(!!isLoading);
@@ -199,6 +203,25 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
     },
     [barWidth]
   );
+
+  const handlePressIn = useCallback(() => {
+    pressScale.value = withSpring(0.98, {
+      damping: 15,
+      stiffness: 400,
+    });
+  }, [pressScale]);
+
+  const handlePressOut = useCallback(() => {
+    pressScale.value = withSpring(1, {
+      damping: 15,
+      stiffness: 400,
+    });
+  }, [pressScale]);
+
+  const handlePress = useCallback(() => {
+    Haptics.selectionAsync();
+    router.push("/explainer-confidence");
+  }, [router]);
 
   useEffect(() => {
     if (!hasInitializedRef.current && !isLoading) {
@@ -433,72 +456,87 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
     transform: [{ translateY: (1 - infoOpacity.value) * 6 }],
   }));
 
+  const pressScaleStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pressScale.value }],
+  }));
+
   return (
-    <Card style={styles.card}>
-      <AppText role="Caption" style={styles.sectionLabel}>
-        ESTIMATION CONFIDENCE
-      </AppText>
-      <View style={styles.titleRow}>
-        <AppText
-          role="Headline"
-          style={[
-            styles.titleText,
-            headline.highlight && !isLoading ? { color: colors.accent } : null,
-          ]}
-        >
-          {displayTitle}
-        </AppText>
-      </View>
-      <View style={styles.barsRow}>
-        <View style={styles.barsContainer}>
-          {bars.map((progress, index) => (
-            <View
-              key={`bar-${index}`}
+    <Pressable
+      onPress={handlePress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      accessibilityRole="button"
+      accessibilityLabel="View confidence explanation"
+      accessibilityHint="Double tap to learn more about estimation confidence"
+    >
+      <Animated.View style={pressScaleStyle}>
+        <Card style={styles.card}>
+          <AppText role="Caption" style={styles.sectionLabel}>
+            ESTIMATION CONFIDENCE
+          </AppText>
+          <View style={styles.titleRow}>
+            <AppText
+              role="Headline"
               style={[
-                styles.barTrack,
-                index !== bars.length - 1 ? styles.barTrackSpacing : null,
+                styles.titleText,
+                headline.highlight && !isLoading ? { color: colors.accent } : null,
               ]}
-              onLayout={index === 0 ? onTrackLayout : undefined}
             >
-              <Animated.View
-                pointerEvents="none"
-                style={[styles.barGlow, barGlowStyles[index]]}
-              />
-              <Animated.View
-                pointerEvents="none"
-                style={[styles.barFill, barAnimatedStyles[index]]}
-              />
-              {isLoading ? (
-                <AnimatedLinearGradient
-                  pointerEvents="none"
-                  colors={[
-                    `${colors.white}00`,
-                    `${colors.accent}33`,
-                    `${colors.white}00`,
-                  ]}
-                  start={{ x: 0, y: 0.5 }}
-                  end={{ x: 1, y: 0.5 }}
-                  style={[styles.barShimmer, barShimmerStyles[index]]}
-                />
-              ) : null}
-            </View>
-          ))}
-        </View>
-      </View>
-      {infoSubText ? (
-        <Animated.View style={[styles.infoContainer, infoAnimatedStyle]}>
-          <View style={styles.infoPill}>
-            <Sparkles
-              size={14}
-              color={colors.secondaryText}
-              style={styles.infoIconSpacing}
-            />
-            <AppText role="Caption" style={styles.infoText}>
-              {infoSubText}
+              {displayTitle}
             </AppText>
           </View>
-        </Animated.View>
-      ) : null}
-    </Card>
+          <View style={styles.barsRow}>
+            <View style={styles.barsContainer}>
+              {bars.map((progress, index) => (
+                <View
+                  key={`bar-${index}`}
+                  style={[
+                    styles.barTrack,
+                    index !== bars.length - 1 ? styles.barTrackSpacing : null,
+                  ]}
+                  onLayout={index === 0 ? onTrackLayout : undefined}
+                >
+                  <Animated.View
+                    pointerEvents="none"
+                    style={[styles.barGlow, barGlowStyles[index]]}
+                  />
+                  <Animated.View
+                    pointerEvents="none"
+                    style={[styles.barFill, barAnimatedStyles[index]]}
+                  />
+                  {isLoading ? (
+                    <AnimatedLinearGradient
+                      pointerEvents="none"
+                      colors={[
+                        `${colors.white}00`,
+                        `${colors.accent}33`,
+                        `${colors.white}00`,
+                      ]}
+                      start={{ x: 0, y: 0.5 }}
+                      end={{ x: 1, y: 0.5 }}
+                      style={[styles.barShimmer, barShimmerStyles[index]]}
+                    />
+                  ) : null}
+                </View>
+              ))}
+            </View>
+          </View>
+          {infoSubText ? (
+            <Animated.View style={[styles.infoContainer, infoAnimatedStyle]}>
+              <View style={styles.infoPill}>
+                <Sparkles
+                  size={14}
+                  color={colors.secondaryText}
+                  style={styles.infoIconSpacing}
+                />
+                <AppText role="Caption" style={styles.infoText}>
+                  {infoSubText}
+                </AppText>
+              </View>
+            </Animated.View>
+          ) : null}
+        </Card>
+      </Animated.View>
+    </Pressable>
   );
 };
