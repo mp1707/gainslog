@@ -5,9 +5,13 @@ import {
 } from "react-native";
 import Animated, {
   Easing as ReanimatedEasing,
+  runOnJS,
+  useAnimatedReaction,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withDelay,
+  withSequence,
   withTiming,
 } from "react-native-reanimated";
 import { AppText, Card } from "@/components";
@@ -27,49 +31,89 @@ interface MacrosCardProps {
   revealKey?: number;
 }
 
-// Utility to run a quick slot-machine then count-up animation via state
+// Optimized utility using Reanimated - runs on UI thread without re-renders
 const useNumberReveal = (initial: number) => {
   const prevRef = useRef(initial);
-  const [display, setDisplay] = useState(initial);
+  const targetValue = useSharedValue(initial);
+  const flickerProgress = useSharedValue(0);
+  const countProgress = useSharedValue(0);
+
+  // Derived value for the display number - all calculations on UI thread
+  const displayValue = useDerivedValue(() => {
+    'worklet';
+    const target = targetValue.value;
+
+    // During flicker phase (0-1), show random values
+    if (flickerProgress.value < 1) {
+      // Generate pseudo-random flicker based on progress
+      const seed = Math.floor(flickerProgress.value * 10);
+      const randomFactor = (seed * 9301 + 49297) % 233280 / 233280;
+      return Math.max(0, Math.round(target * randomFactor));
+    }
+
+    // During count phase, interpolate from previous to target
+    const from = prevRef.current;
+    const t = countProgress.value;
+    const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+    return Math.round(from + (target - from) * eased);
+  }, []);
 
   const animateTo = (target: number) => {
     const startPrev = prevRef.current;
     prevRef.current = target;
+    targetValue.value = target;
 
-    // Phase 1: slot-machine (random flicker ~250ms)
-    const flickerDuration = 250;
-    const flickerStep = 35;
-    let elapsed = 0;
-    const flicker = setInterval(() => {
-      elapsed += flickerStep;
-      setDisplay(Math.max(0, Math.round(target * Math.random())));
-      if (elapsed >= flickerDuration) {
-        clearInterval(flicker);
-        // Phase 2: count-up/down to target (~450ms)
-        const total = 450;
-        const start = Date.now();
-        const from = isNaN(startPrev) ? 0 : startPrev;
-        const tick = () => {
-          const t = Math.min(1, (Date.now() - start) / total);
-          const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
-          const val = Math.round(from + (target - from) * eased);
-          setDisplay(val);
-          if (t < 1) requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
+    // Reset progress values
+    flickerProgress.value = 0;
+    countProgress.value = 0;
+
+    // Phase 1: Flicker animation (250ms)
+    flickerProgress.value = withTiming(1, {
+      duration: 250,
+      easing: ReanimatedEasing.linear,
+    }, (finished) => {
+      'worklet';
+      if (finished) {
+        // Phase 2: Count-up animation (450ms)
+        countProgress.value = withTiming(1, {
+          duration: 450,
+          easing: ReanimatedEasing.out(ReanimatedEasing.cubic),
+        });
       }
-    }, flickerStep);
+    });
   };
 
-  return { display, animateTo } as const;
+  return { displayValue, animateTo } as const;
 };
+
+// Component to display animated numbers with minimal re-renders
+// Re-renders only when the rounded value changes (acceptable during 700ms animation)
+const AnimatedNumber = React.memo(({ value, suffix }: {
+  value: Animated.SharedValue<number>,
+  suffix: string
+}) => {
+  const [displayValue, setDisplayValue] = useState(Math.round(value.value));
+
+  // Update only when integer value changes - runs on UI thread, bridges to JS only on change
+  useAnimatedReaction(
+    () => Math.round(value.value),
+    (current, previous) => {
+      if (current !== previous) {
+        runOnJS(setDisplayValue)(current);
+      }
+    }
+  );
+
+  return <>{`${displayValue} ${suffix}`}</>;
+});
 
 interface MacroRowProps {
   item: {
     key: string;
     label: string;
     color: string;
-    value: string;
+    value: Animated.SharedValue<number>;
+    suffix: string;
   };
   index: number;
   processing: boolean;
@@ -78,7 +122,7 @@ interface MacroRowProps {
   theme: Theme;
 }
 
-const MacroRow = ({
+const MacroRowComponent = ({
   item,
   index,
   processing,
@@ -89,38 +133,27 @@ const MacroRow = ({
   const [rowWidth, setRowWidth] = useState(0);
   const [rowHeight, setRowHeight] = useState(theme.spacing.lg + theme.spacing.xs);
 
-  const rowWidthValue = useSharedValue(0);
-  const slideDistance = useSharedValue(theme.spacing.xl);
+  // Single shared value for all animations - others derived from this
   const transition = useSharedValue(processing ? 1 : 0);
-  const loaderOpacity = useSharedValue(processing ? 1 : 0);
-  const valueOpacity = useSharedValue(processing ? 0 : 1);
+  const rowWidthValue = useSharedValue(0);
 
   const handleRowLayout = useCallback(
     (event: LayoutChangeEvent) => {
       const { width, height } = event.nativeEvent.layout;
       if (width !== rowWidth) {
         setRowWidth(width);
+        rowWidthValue.value = width;
       }
       const nextHeight = Math.max(height, theme.spacing.lg + theme.spacing.xs);
       if (nextHeight !== rowHeight) {
         setRowHeight(nextHeight);
       }
-      rowWidthValue.value = width;
-      slideDistance.value = Math.max(theme.spacing.xl, width * 0.18);
     },
-    [rowHeight, rowWidth, rowWidthValue, slideDistance, theme.spacing.lg, theme.spacing.xl, theme.spacing.xs],
+    [rowHeight, rowWidth, rowWidthValue, theme.spacing.lg, theme.spacing.xs],
   );
 
   useEffect(() => {
     if (processing) {
-      valueOpacity.value = withTiming(0, {
-        duration: 120,
-        easing: ReanimatedEasing.out(ReanimatedEasing.cubic),
-      });
-      loaderOpacity.value = withTiming(1, {
-        duration: 200,
-        easing: ReanimatedEasing.out(ReanimatedEasing.cubic),
-      });
       transition.value = withTiming(1, {
         duration: 320,
         easing: ReanimatedEasing.inOut(ReanimatedEasing.cubic),
@@ -130,22 +163,8 @@ const MacroRow = ({
         duration: 420,
         easing: ReanimatedEasing.out(ReanimatedEasing.cubic),
       });
-      loaderOpacity.value = withDelay(
-        260,
-        withTiming(0, {
-          duration: 140,
-          easing: ReanimatedEasing.out(ReanimatedEasing.cubic),
-        }),
-      );
-      valueOpacity.value = withDelay(
-        260,
-        withTiming(1, {
-          duration: 280,
-          easing: ReanimatedEasing.out(ReanimatedEasing.cubic),
-        }),
-      );
     }
-  }, [loaderOpacity, processing, transition, valueOpacity]);
+  }, [processing, transition]);
 
   const loaderHeight = Math.max(rowHeight, theme.spacing.lg + theme.spacing.xs);
 
@@ -171,30 +190,45 @@ const MacroRow = ({
   }, [rowWidth, theme.spacing.xl]);
 
   const loaderAnimatedStyle = useAnimatedStyle(() => {
-    const calculatedWidth = Math.max(rowWidthValue.value * transition.value, 0);
+    'worklet';
+    const t = transition.value;
+    const calculatedWidth = Math.max(rowWidthValue.value * t, 0);
+
+    // Derive loader opacity from transition
+    // Fast fade-in when loading (0->1), delayed fade-out when done (1->0)
+    const loaderOpacity = t > 0.5 ? 1 : t * 2;
+
     return {
-      opacity: loaderOpacity.value,
+      opacity: loaderOpacity,
       width: calculatedWidth,
     };
   });
 
-  const labelAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: 1 - transition.value,
-    transform: [
-      {
-        translateX: transition.value * slideDistance.value,
-      },
-    ],
-  }));
+  const labelAnimatedStyle = useAnimatedStyle(() => {
+    'worklet';
+    const t = transition.value;
+    const slideDistance = Math.max(theme.spacing.xl, rowWidthValue.value * 0.18);
 
-  const valueAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: valueOpacity.value,
-    transform: [
-      {
-        translateX: transition.value * slideDistance.value * 0.35,
-      },
-    ],
-  }));
+    return {
+      opacity: 1 - t,
+      transform: [{ translateX: t * slideDistance }],
+    };
+  });
+
+  const valueAnimatedStyle = useAnimatedStyle(() => {
+    'worklet';
+    const t = transition.value;
+    const slideDistance = Math.max(theme.spacing.xl, rowWidthValue.value * 0.18);
+
+    // Derive value opacity from transition with delay effect
+    // Stay hidden during loading (t > 0.4), then fade in
+    const valueOpacity = t < 0.4 ? 1 : Math.max(0, (1 - t) / 0.6);
+
+    return {
+      opacity: valueOpacity,
+      transform: [{ translateX: t * slideDistance * 0.35 }],
+    };
+  });
 
   return (
     <View style={styles.macroRow} onLayout={handleRowLayout}>
@@ -202,7 +236,7 @@ const MacroRow = ({
         pointerEvents="none"
         style={[styles.macroLoaderLayer, loaderAnimatedStyle]}
       >
-        {rowWidth > 0 ? (
+        {processing && rowWidth > 0 ? (
           <MacroLineLoader
             width={rowWidth}
             height={loaderHeight}
@@ -237,12 +271,29 @@ const MacroRow = ({
       </Animated.View>
       <Animated.View style={[styles.macroValueContainer, valueAnimatedStyle]}>
         <AppText role="Body" color="secondary" numberOfLines={1}>
-          {item.value}
+          <AnimatedNumber value={item.value} suffix={item.suffix} />
         </AppText>
       </Animated.View>
     </View>
   );
 };
+
+// Memoized to prevent re-renders when parent updates
+const MacroRow = React.memo(MacroRowComponent, (prev, next) => {
+  // Only re-render if these specific props change
+  return (
+    prev.processing === next.processing &&
+    prev.index === next.index &&
+    prev.item.key === next.item.key &&
+    prev.item.label === next.item.label &&
+    prev.item.color === next.item.color &&
+    prev.item.value === next.item.value && // Shared value reference
+    prev.item.suffix === next.item.suffix &&
+    prev.styles === next.styles &&
+    prev.colors === next.colors &&
+    prev.theme === next.theme
+  );
+});
 
 export const MacrosCard: React.FC<MacrosCardProps> = ({
   calories,
@@ -275,32 +326,36 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
         key: "calories",
         label: "Calories",
         color: colors.semantic.calories,
-        value: `${cals.display} kcal`,
+        value: cals.displayValue,
+        suffix: "kcal",
       },
       {
         key: "protein",
         label: "Protein",
         color: colors.semantic.protein,
-        value: `${prot.display} g`,
+        value: prot.displayValue,
+        suffix: "g",
       },
       {
         key: "carbs",
         label: "Carbs",
         color: colors.semantic.carbs,
-        value: `${crb.display} g`,
+        value: crb.displayValue,
+        suffix: "g",
       },
       {
         key: "fat",
         label: "Fat",
         color: colors.semantic.fat,
-        value: `${ft.display} g`,
+        value: ft.displayValue,
+        suffix: "g",
       },
     ],
     [
-      cals.display,
-      prot.display,
-      crb.display,
-      ft.display,
+      cals.displayValue,
+      prot.displayValue,
+      crb.displayValue,
+      ft.displayValue,
       colors.semantic.calories,
       colors.semantic.protein,
       colors.semantic.carbs,

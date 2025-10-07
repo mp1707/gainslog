@@ -31,16 +31,7 @@ const MacroLineLoaderComponent = ({
   const progress = useSharedValue(0);
   const sway = useSharedValue(0);
 
-  const widthValue = useSharedValue(width);
-  const heightValue = useSharedValue(height);
-  const densityValue = useSharedValue(Math.max(0.35, squiggleDensity));
-  const detailDensityValue = useSharedValue(
-    detailDensity !== undefined
-      ? Math.max(0.35, detailDensity)
-      : Math.max(0.5, squiggleDensity * 1.2),
-  );
-  const amplitudeValue = useSharedValue(Math.max(0.35, amplitudeScale));
-
+  // Consolidated: Single effect for animations
   useEffect(() => {
     const densityFactor = Math.max(0.35, squiggleDensity);
     const speedMultiplier = Math.sqrt(densityFactor);
@@ -70,48 +61,33 @@ const MacroLineLoaderComponent = ({
     };
   }, [index, progress, squiggleDensity, sway]);
 
-  useEffect(() => {
-    widthValue.value = width;
-    heightValue.value = height;
-  }, [width, height, widthValue, heightValue]);
-
-  useEffect(() => {
-    densityValue.value = Math.max(0.35, squiggleDensity);
-  }, [densityValue, squiggleDensity]);
-
-  useEffect(() => {
-    detailDensityValue.value =
-      detailDensity !== undefined
-        ? Math.max(0.35, detailDensity)
-        : Math.max(0.5, squiggleDensity * 1.2);
-  }, [detailDensity, detailDensityValue, squiggleDensity]);
-
-  useEffect(() => {
-    amplitudeValue.value = Math.max(0.35, amplitudeScale);
-  }, [amplitudeScale, amplitudeValue]);
-
   const path = useDerivedValue<SkPath>(() => {
     'worklet';
-    const canvasWidth = widthValue.value;
-    const canvasHeight = heightValue.value;
-    const densityFactor = densityValue.value;
-    const detailFactor = detailDensityValue.value;
-    const amplitudeFactor = amplitudeValue.value;
     const pathInstance = Skia.Path.Make();
 
-    if (canvasWidth <= 0 || canvasHeight <= 0) {
+    if (width <= 0 || height <= 0) {
       return pathInstance;
     }
 
-    const strokeWidth = Math.max(1.75, canvasHeight * 0.16);
-    const horizontalInset = Math.min(canvasWidth / 6, strokeWidth);
-    const usableWidth = Math.max(0, canvasWidth - horizontalInset * 2);
-    const baseY = canvasHeight / 2;
+    // Use props directly instead of shared values for static properties
+    const densityFactor = Math.max(0.35, squiggleDensity);
+    const detailFactor = detailDensity !== undefined
+      ? Math.max(0.35, detailDensity)
+      : Math.max(0.5, squiggleDensity * 1.2);
+    const amplitudeFactor = Math.max(0.35, amplitudeScale);
+
+    const strokeWidth = Math.max(1.75, height * 0.16);
+    const horizontalInset = Math.min(width / 6, strokeWidth);
+    const usableWidth = Math.max(0, width - horizontalInset * 2);
+    const baseY = height / 2;
+
+    // Restored original segment calculation for maximum smoothness (no cap)
     const segments = Math.max(
       24,
-      Math.round(Math.max(usableWidth, 1) / Math.max(2, 8 / Math.max(0.4, densityFactor))),
+      Math.round(Math.max(usableWidth, 1) / Math.max(2, 8 / Math.max(0.4, densityFactor)))
     );
-    const baseAmplitude = canvasHeight * 0.28;
+
+    const baseAmplitude = height * 0.28;
     const dynamicAmplitude = baseAmplitude * amplitudeFactor;
     const swayPhase = sway.value * Math.PI * 2;
     const basePhase = progress.value;
@@ -121,33 +97,28 @@ const MacroLineLoaderComponent = ({
 
     pathInstance.moveTo(horizontalInset, baseY);
 
+    // Pre-calculate constants outside loop for better performance
+    const verticalInset = strokeWidth * 0.8;
+    const amplitudeVariation = dynamicAmplitude * (0.75 + 0.35 * Math.sin(swayPhase + index));
+    const basePhase2 = basePhase * 2 + swayPhase + index * 1.3;
+
+    // Optimized loop with pre-calculated values
     for (let i = 1; i <= segments; i += 1) {
       const t = i / segments;
       const x = horizontalInset + t * usableWidth;
 
       const envelope = Math.sin(Math.PI * t);
       const mainWave = Math.sin(basePhase + primaryOffset + t * mainFrequency);
-      const detailWave = Math.sin(
-        basePhase * 2 + swayPhase + index * 1.3 + t * detailFrequency,
-      );
+      const detailWave = Math.sin(basePhase2 + t * detailFrequency);
 
-      const amplitudeVariation =
-        dynamicAmplitude * (0.75 + 0.35 * Math.sin(swayPhase + index));
-      const y =
-        baseY +
-        envelope * amplitudeVariation * 0.65 * mainWave +
-        envelope * dynamicAmplitude * 0.35 * detailWave;
+      const y = baseY + envelope * (amplitudeVariation * 0.65 * mainWave + dynamicAmplitude * 0.35 * detailWave);
+      const clampedY = Math.min(Math.max(y, verticalInset), height - verticalInset);
 
-      const verticalInset = strokeWidth * 0.8;
-      const clampedY = Math.min(
-        Math.max(y, verticalInset),
-        canvasHeight - verticalInset,
-      );
       pathInstance.lineTo(x, clampedY);
     }
 
     return pathInstance;
-  }, [index]);
+  }, [index, width, height, squiggleDensity, detailDensity, amplitudeScale]);
 
   return (
     <Canvas style={{ width, height }}>
