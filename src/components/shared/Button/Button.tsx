@@ -10,10 +10,11 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { LucideIcon } from "lucide-react-native";
-import { useTheme } from "@/theme";
+import { useTheme, theme } from "@/theme";
 import { createStyles } from "./Button.styles";
 
 export type ButtonVariant = "primary" | "secondary" | "tertiary";
@@ -98,12 +99,12 @@ export const Button = React.memo<ButtonProps>(
     const handlePressIn = useCallback(
       (event: any) => {
         if (!disabled) {
-          scale.value = withSpring(0.98, {
-            stiffness: 400,
-            damping: 30,
+          scale.value = withTiming(theme.interactions.press.scale, {
+            duration: theme.interactions.press.timing.duration,
+            easing: theme.interactions.press.timing.easing,
           });
           // Trigger configurable haptic on press-in for immediate feedback
-          const style = hapticImpact ?? Haptics.ImpactFeedbackStyle.Light;
+          const style = hapticImpact ?? theme.interactions.haptics.light;
           Haptics.impactAsync(style);
         }
         onPressIn?.(event);
@@ -115,8 +116,8 @@ export const Button = React.memo<ButtonProps>(
       (event: any) => {
         if (!disabled) {
           scale.value = withSpring(1, {
-            stiffness: 400,
-            damping: 30,
+            damping: theme.interactions.press.spring.damping,
+            stiffness: theme.interactions.press.spring.stiffness,
           });
         }
         onPressOut?.(event);

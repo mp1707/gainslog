@@ -1,8 +1,15 @@
 import React from "react";
 import { View, Pressable, Text } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
 
 import { ProgressRingsStatic } from "@/components/shared/ProgressRings";
-import { useTheme } from "@/theme";
+import { useTheme, theme } from "@/theme";
 import { getTodayKey } from "@/utils/dateHelpers";
 
 export interface DayData {
@@ -28,42 +35,67 @@ export const DayItem: React.FC<DayItemProps> = React.memo(
     const today = getTodayKey();
     const isToday = item.date === today;
 
+    const scale = useSharedValue(1);
+
+    const handlePressIn = () => {
+      scale.value = withTiming(theme.interactions.press.scale, {
+        duration: theme.interactions.press.timing.duration,
+        easing: theme.interactions.press.timing.easing,
+      });
+      Haptics.impactAsync(theme.interactions.haptics.light);
+    };
+
+    const handlePressOut = () => {
+      scale.value = withSpring(1.0, {
+        damping: theme.interactions.press.spring.damping,
+        stiffness: theme.interactions.press.spring.stiffness,
+      });
+    };
+
+    const handlePress = () => {
+      onPress(item.date);
+    };
+
+    const pressAnimatedStyle = useAnimatedStyle(() => ({
+      transform: [{ scale: scale.value }],
+    }));
+
     return (
       <Pressable
-        style={({ pressed }) => [
-          styles.itemContainer,
-          pressed && { opacity: 0.7, transform: [{ scale: 0.95 }] },
-        ]}
-        onPress={() => onPress(item.date)}
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
         accessibilityLabel={`Select ${item.date}`}
         accessibilityRole="button"
       >
-        <View
-          style={[
-            styles.weekdayContainer,
-            isSelected && styles.selectedWeekdayContainer,
-          ]}
-        >
-          <Text
+        <Animated.View style={[styles.itemContainer, pressAnimatedStyle]}>
+          <View
             style={[
-              styles.weekdayText,
-              isSelected && styles.selectedWeekdayText,
-              isToday && { color: colors.accent, fontWeight: "800" },
+              styles.weekdayContainer,
+              isSelected && styles.selectedWeekdayContainer,
             ]}
           >
-            {item.weekday}
-          </Text>
-        </View>
-        <View style={styles.progressContainer}>
-          <ProgressRingsStatic
-            percentages={item.percentages}
-            size={45}
-            strokeWidth={6}
-            spacing={1}
-            padding={1}
-            nutrientKeys={["calories", "protein"]}
-          />
-        </View>
+            <Text
+              style={[
+                styles.weekdayText,
+                isSelected && styles.selectedWeekdayText,
+                isToday && { color: colors.accent, fontWeight: "800" },
+              ]}
+            >
+              {item.weekday}
+            </Text>
+          </View>
+          <View style={styles.progressContainer}>
+            <ProgressRingsStatic
+              percentages={item.percentages}
+              size={45}
+              strokeWidth={6}
+              spacing={1}
+              padding={1}
+              nutrientKeys={["calories", "protein"]}
+            />
+          </View>
+        </Animated.View>
       </Pressable>
     );
   }

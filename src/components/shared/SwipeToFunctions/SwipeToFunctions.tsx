@@ -10,7 +10,6 @@ import Animated, {
   runOnJS,
   interpolate,
   Extrapolation,
-  Easing,
 } from "react-native-reanimated";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { lockNav, isNavLocked } from "@/utils/navigationLock";
@@ -206,10 +205,13 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
       "worklet";
       if (!isPressing.value) return;
       isPressing.value = false;
-      scale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+      scale.value = withSpring(1.0, {
+        damping: theme.interactions.press.spring.damping,
+        stiffness: theme.interactions.press.spring.stiffness,
+      });
       pressFlashOpacity.value = withTiming(0, {
         duration: 200,
-        easing: Easing.out(Easing.quad),
+        easing: theme.interactions.press.timing.easing,
       });
     };
 
@@ -222,13 +224,13 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
           isPressing.value = true;
           tapStartMs.value = Date.now();
           // Subtle scale and dim
-          scale.value = withTiming(0.97, {
-            duration: 120,
-            easing: Easing.out(Easing.quad),
+          scale.value = withTiming(theme.interactions.press.scale, {
+            duration: theme.interactions.press.timing.duration,
+            easing: theme.interactions.press.timing.easing,
           });
           pressFlashOpacity.value = withTiming(0.08, {
             duration: 100,
-            easing: Easing.out(Easing.quad),
+            easing: theme.interactions.press.timing.easing,
           });
         }
       })
@@ -422,11 +424,14 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
           isPressing.value = false;
           scale.value = withTiming(
             1.0,
-            { duration: 120, easing: Easing.out(Easing.quad) },
+            {
+              duration: theme.interactions.press.timing.duration,
+              easing: theme.interactions.press.timing.easing,
+            },
             () => {
               pressFlashOpacity.value = withTiming(0, {
                 duration: 150,
-                easing: Easing.out(Easing.quad),
+                easing: theme.interactions.press.timing.easing,
               });
               runOnJS(triggerTap)();
             }

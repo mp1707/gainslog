@@ -16,7 +16,7 @@ import { Check, Sparkles } from "lucide-react-native";
 import { useRouter } from "expo-router";
 
 import { Card, AppText } from "@/components";
-import { useTheme } from "@/theme";
+import { useTheme, theme } from "@/theme";
 import { createStyles } from "./ConfidenceCard.styles";
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
@@ -205,21 +205,21 @@ export const ConfidenceCard: React.FC<ConfidenceCardProps> = ({
   );
 
   const handlePressIn = useCallback(() => {
-    pressScale.value = withSpring(0.98, {
-      damping: 15,
-      stiffness: 400,
+    pressScale.value = withTiming(theme.interactions.press.scale, {
+      duration: theme.interactions.press.timing.duration,
+      easing: theme.interactions.press.timing.easing,
     });
   }, [pressScale]);
 
   const handlePressOut = useCallback(() => {
     pressScale.value = withSpring(1, {
-      damping: 15,
-      stiffness: 400,
+      damping: theme.interactions.press.spring.damping,
+      stiffness: theme.interactions.press.spring.stiffness,
     });
   }, [pressScale]);
 
   const handlePress = useCallback(() => {
-    Haptics.selectionAsync();
+    Haptics.impactAsync(theme.interactions.haptics.light);
     router.push("/explainer-confidence");
   }, [router]);
 

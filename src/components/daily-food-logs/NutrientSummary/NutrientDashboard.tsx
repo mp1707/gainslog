@@ -23,7 +23,7 @@ import { useRouter } from "expo-router";
 
 import { AppText } from "@/components";
 import { DashboardRing } from "@/components/shared/ProgressRings";
-import { Theme, useTheme } from "@/theme";
+import { Theme, useTheme, theme } from "@/theme";
 import { useNumberReveal, SPRING_CONFIG } from "@/hooks/useAnimationConfig";
 
 import { SetGoalsCTA } from "./SetGoalsCTA";
@@ -250,48 +250,60 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
 
   // Press handlers for rings
   const handleCaloriesRingPressIn = () => {
-    caloriesRingScale.value = withTiming(0.97, {
-      duration: 150,
-      easing: Easing.out(Easing.quad),
+    caloriesRingScale.value = withTiming(theme.interactions.press.scale, {
+      duration: theme.interactions.press.timing.duration,
+      easing: theme.interactions.press.timing.easing,
     });
   };
 
   const handleCaloriesRingPressOut = () => {
-    caloriesRingScale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+    caloriesRingScale.value = withSpring(1.0, {
+      damping: theme.interactions.press.spring.damping,
+      stiffness: theme.interactions.press.spring.stiffness,
+    });
   };
 
   const handleProteinRingPressIn = () => {
-    proteinRingScale.value = withTiming(0.97, {
-      duration: 150,
-      easing: Easing.out(Easing.quad),
+    proteinRingScale.value = withTiming(theme.interactions.press.scale, {
+      duration: theme.interactions.press.timing.duration,
+      easing: theme.interactions.press.timing.easing,
     });
   };
 
   const handleProteinRingPressOut = () => {
-    proteinRingScale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+    proteinRingScale.value = withSpring(1.0, {
+      damping: theme.interactions.press.spring.damping,
+      stiffness: theme.interactions.press.spring.stiffness,
+    });
   };
 
   // Press handlers for stats
   const handleFatStatPressIn = () => {
-    fatStatScale.value = withTiming(0.97, {
-      duration: 150,
-      easing: Easing.out(Easing.quad),
+    fatStatScale.value = withTiming(theme.interactions.press.scale, {
+      duration: theme.interactions.press.timing.duration,
+      easing: theme.interactions.press.timing.easing,
     });
   };
 
   const handleFatStatPressOut = () => {
-    fatStatScale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+    fatStatScale.value = withSpring(1.0, {
+      damping: theme.interactions.press.spring.damping,
+      stiffness: theme.interactions.press.spring.stiffness,
+    });
   };
 
   const handleCarbsStatPressIn = () => {
-    carbsStatScale.value = withTiming(0.97, {
-      duration: 150,
-      easing: Easing.out(Easing.quad),
+    carbsStatScale.value = withTiming(theme.interactions.press.scale, {
+      duration: theme.interactions.press.timing.duration,
+      easing: theme.interactions.press.timing.easing,
     });
   };
 
   const handleCarbsStatPressOut = () => {
-    carbsStatScale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+    carbsStatScale.value = withSpring(1.0, {
+      damping: theme.interactions.press.spring.damping,
+      stiffness: theme.interactions.press.spring.stiffness,
+    });
   };
 
   // Animated styles for press feedback

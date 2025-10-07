@@ -6,11 +6,10 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
   withSpring,
-  Easing,
 } from "react-native-reanimated";
 import type { LucideIcon } from "lucide-react-native";
 
-import { useTheme } from "@/theme";
+import { useTheme, theme } from "@/theme";
 import { createStyles } from "./SelectionCard.styles";
 
 export interface SelectionCardProps {
@@ -93,14 +92,17 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
   };
 
   const handlePressIn = () => {
-    pressScale.value = withTiming(0.97, {
-      duration: 150,
-      easing: Easing.out(Easing.quad),
+    pressScale.value = withTiming(theme.interactions.press.scale, {
+      duration: theme.interactions.press.timing.duration,
+      easing: theme.interactions.press.timing.easing,
     });
   };
 
   const handlePressOut = () => {
-    pressScale.value = withSpring(1.0, { damping: 25, stiffness: 350 });
+    pressScale.value = withSpring(1.0, {
+      damping: theme.interactions.press.spring.damping,
+      stiffness: theme.interactions.press.spring.stiffness,
+    });
   };
 
   const IconComponent = icon;

@@ -1,5 +1,7 @@
 // Centralized theme system based on "Focused Motivation" design system
 import { Appearance } from "react-native";
+import { Easing } from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
 
 // Base spacing unit
 const SPACING_UNIT = 8;
@@ -470,6 +472,26 @@ const animations = {
   },
 } as const;
 
+// Interaction configurations for consistent press animations and haptics
+const interactions = {
+  press: {
+    scale: 0.97, // Apple-like subtle scale for premium feel
+    timing: {
+      duration: 120, // Fast, responsive press-in
+      easing: Easing.out(Easing.quad),
+    },
+    spring: {
+      damping: 25, // Controlled bounce
+      stiffness: 350, // Snappy release
+    },
+  },
+  haptics: {
+    light: Haptics.ImpactFeedbackStyle.Light,
+    medium: Haptics.ImpactFeedbackStyle.Medium,
+    heavy: Haptics.ImpactFeedbackStyle.Heavy,
+  },
+} as const;
+
 // Layout system for 8pt grid compliance
 const layout = {
   // Header component dimensions (all in 8pt multiples)
@@ -560,6 +582,7 @@ export const theme = {
   layout,
   components,
   animations,
+  interactions,
   // Helper functions
   getColors,
   getComponentStyles,
