@@ -4,6 +4,7 @@ import { useTheme } from "@/theme/ThemeProvider";
 import { Favorite } from "@/types/models";
 import { useRouter } from "expo-router";
 import { useCallback, useRef, useState, useEffect } from "react";
+import * as Haptics from "expo-haptics";
 import {
   StyleSheet,
   TextInput as RNTextInput,
@@ -65,6 +66,7 @@ export default function Create() {
     async (uri: string) => {
       if (!draftId) return;
       setIsProcessingImage(true);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       try {
         const { localImagePath, supabaseImagePath } = await processImage(uri);
         updateDraft(draftId, {

@@ -35,7 +35,7 @@ export const EstimationTab: React.FC<EstimationTabProps> = ({
       bottomOffset={250}
     >
       <View style={styles.content}>
-        {imageUrl && (
+        {(imageUrl || isUploadingImage) && (
           <ImageDisplay imageUrl={imageUrl} isUploading={isUploadingImage} />
         )}
         <TextInput
