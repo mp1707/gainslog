@@ -1,15 +1,8 @@
 import React, { useMemo } from "react";
-import { View, Pressable } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from "react-native-reanimated";
-import * as Haptics from "expo-haptics";
+import { View, TouchableOpacity } from "react-native";
 import { AppText } from "@/components";
 import { ProgressRingsStatic } from "@/components/shared/ProgressRings";
-import { useTheme, theme } from "@/theme";
+import { useTheme } from "@/theme";
 import { createStyles } from "./CalendarDay.styles";
 import { isToday } from "@/utils/dateHelpers";
 
@@ -109,31 +102,6 @@ const CalendarDayComponent: React.FC<CalendarDayProps> = ({
     ];
   }, [colors.accent, colors.semantic.calories, percentages, simplifiedInnerScale, styles.simplifiedRingInner, useSimplifiedRings]);
 
-  const scale = useSharedValue(1);
-
-  const handlePressIn = () => {
-    if (isCurrentMonth && !isFuture) {
-      scale.value = withTiming(theme.interactions.press.scale, {
-        duration: theme.interactions.press.timing.duration,
-        easing: theme.interactions.press.timing.easing,
-      });
-      Haptics.impactAsync(theme.interactions.haptics.light);
-    }
-  };
-
-  const handlePressOut = () => {
-    if (isCurrentMonth && !isFuture) {
-      scale.value = withSpring(1.0, {
-        damping: theme.interactions.press.spring.damping,
-        stiffness: theme.interactions.press.spring.stiffness,
-      });
-    }
-  };
-
-  const pressAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
   const progressContent = useSimplifiedRings ? (
     <View style={styles.simplifiedRingWrapper}>
       <View style={simplifiedInnerStyle} />
@@ -152,19 +120,17 @@ const CalendarDayComponent: React.FC<CalendarDayProps> = ({
   );
 
   return (
-    <Pressable
+    <TouchableOpacity
+      style={containerStyle}
       onPress={handlePress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
       disabled={!isCurrentMonth || isFuture}
+      activeOpacity={0.7}
     >
-      <Animated.View style={[containerStyle, pressAnimatedStyle]}>
-        {progressContent}
-        <AppText role="Caption" style={textStyle}>
-          {day}
-        </AppText>
-      </Animated.View>
-    </Pressable>
+      {progressContent}
+      <AppText role="Caption" style={textStyle}>
+        {day}
+      </AppText>
+    </TouchableOpacity>
   );
 };
 
