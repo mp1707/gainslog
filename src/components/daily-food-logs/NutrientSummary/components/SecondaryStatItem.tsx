@@ -27,6 +27,8 @@ interface SecondaryStatItemProps {
   iconColor: string;
   /** Fill color for complete state */
   iconFill: string;
+  /** Optional icon stroke width */
+  iconStrokeWidth?: number;
   /** Animated scale for icon */
   iconScale: SharedValue<number>;
   /** Animated progress value */
@@ -60,6 +62,7 @@ export const SecondaryStatItem: React.FC<SecondaryStatItemProps> = ({
   hasTarget,
   iconColor,
   iconFill,
+  iconStrokeWidth,
   iconScale,
   progressValue,
   progressFillColor,
@@ -76,7 +79,7 @@ export const SecondaryStatItem: React.FC<SecondaryStatItemProps> = ({
   let StatIcon = Icon;
   let finalIconColor = iconColor;
   let finalIconFill = iconFill;
-  let finalStrokeWidth = 0;
+  let finalStrokeWidth = iconStrokeWidth ?? 0;
 
   if (nutrientKey === "fat" && fatIconState) {
     if (fatIconState === "warning") {
@@ -86,7 +89,10 @@ export const SecondaryStatItem: React.FC<SecondaryStatItemProps> = ({
       finalStrokeWidth = 2;
     } else if (fatIconState === "complete") {
       StatIcon = CircleCheckBig;
-      finalStrokeWidth = 2;
+      // Use passed iconStrokeWidth if provided, otherwise default to 2
+      if (iconStrokeWidth === undefined) {
+        finalStrokeWidth = 2;
+      }
     }
   }
 

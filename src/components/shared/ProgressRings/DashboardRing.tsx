@@ -18,12 +18,11 @@ import {
   useSharedValue,
   withDelay,
   withSpring,
-  withTiming,
 } from "react-native-reanimated";
 import Animated from "react-native-reanimated";
 
 import { AppText } from "@/components";
-import { Colors, Theme, useTheme } from "@/theme";
+import { Theme, useTheme } from "@/theme";
 import { Flame } from "lucide-react-native";
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
@@ -172,7 +171,6 @@ const calculateRingState = (
   const offsetDistance = strokeWidth * 0.55;
   const shadowX = endX + Math.cos(tangentAngle) * offsetDistance;
   const shadowY = endY + Math.sin(tangentAngle) * offsetDistance;
-  const opacity = ratio > 0.002 ? 1 : 0;
   const effectIntensity = clamp01((sweepValue - 0.1) / 0.3);
   const stops = deriveStops(baseColor, sweepValue, effectIntensity);
   const color = colorAtOffset(sweepValue, stops);
@@ -373,7 +371,7 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   testID,
   Icon = Flame,
 }) => {
-  const { colors, theme, colorScheme } = useTheme();
+  const { theme, colorScheme } = useTheme();
   const isDark = colorScheme === "dark";
   const progress = useSharedValue(0);
   const ratio = Math.max(0, (percentage ?? 0) / 100);

@@ -180,6 +180,8 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
           const fatIconState =
             config.key === "fat" ? calculations.fatIconState : undefined;
 
+          const isFatComplete = config.key === "fat" && fatIconState === "complete";
+
           return (
             <SecondaryStatItem
               key={config.key}
@@ -190,7 +192,12 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
               targetValue={targetValue}
               hasTarget={config.hasTarget}
               iconColor={semanticColors[config.key]}
-              iconFill={semanticColors[config.key]}
+              iconFill={
+                isFatComplete
+                  ? surfaceColors[config.key]
+                  : semanticColors[config.key]
+              }
+              iconStrokeWidth={isFatComplete ? 2 : 0}
               iconScale={iconScale}
               progressValue={progressValue}
               progressFillColor={semanticColors[config.key]}

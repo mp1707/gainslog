@@ -180,8 +180,8 @@ export const FatProgressDisplay: React.FC<FatProgressDisplayProps> = ({
 
   // Select icon based on state
   let StatIcon = Droplet;
-  let iconColor = colors.semantic.fat;
-  let iconFill = colors.semantic.fat;
+  let iconColor: string = colors.semantic.fat;
+  let iconFill: string = colors.semantic.fat;
   let iconStrokeWidth = 0;
 
   if (isFatAboveMax) {
