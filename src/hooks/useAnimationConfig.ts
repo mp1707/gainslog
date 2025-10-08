@@ -122,6 +122,22 @@ export const useNumberReveal = (initial: number) => {
     }
   }, []);
 
+  const setValue = useCallback((value: number) => {
+    // Clear any existing animations
+    if (flickerRef.current) {
+      clearInterval(flickerRef.current);
+      flickerRef.current = null;
+    }
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+
+    // Set value instantly without animation
+    prevRef.current = value;
+    setDisplay(value);
+  }, []);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -134,5 +150,5 @@ export const useNumberReveal = (initial: number) => {
     };
   }, []);
 
-  return { display, animateTo } as const;
+  return { display, animateTo, setValue } as const;
 };

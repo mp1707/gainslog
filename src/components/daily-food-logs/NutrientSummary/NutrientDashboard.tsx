@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { View, StyleSheet, Pressable } from "react-native";
 import Animated, {
   useSharedValue,
@@ -25,6 +25,7 @@ import { AppText } from "@/components";
 import { DashboardRing } from "@/components/shared/ProgressRings";
 import { Theme, useTheme, theme } from "@/theme";
 import { useNumberReveal, SPRING_CONFIG } from "@/hooks/useAnimationConfig";
+import { useAppStore } from "@/store/useAppStore";
 
 import { SetGoalsCTA } from "./SetGoalsCTA";
 
@@ -98,6 +99,10 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const router = useRouter();
+  const { selectedDate } = useAppStore();
+
+  // Track previous selected date to detect date changes
+  const prevSelectedDate = useRef(selectedDate);
 
   // Animated scales for icon transitions
   const proteinIconScale = useSharedValue(1);
@@ -146,26 +151,54 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
 
   // Trigger count-up animations when delta values change
   useEffect(() => {
-    animatedCaloriesDelta.animateTo(Math.abs(caloriesDelta));
-    animatedProteinDelta.animateTo(Math.abs(proteinDelta));
-  }, [caloriesDelta, proteinDelta]);
+    const dateChanged = prevSelectedDate.current !== selectedDate;
+
+    if (dateChanged) {
+      // Date changed: set values instantly without animation
+      animatedCaloriesDelta.setValue(Math.abs(caloriesDelta));
+      animatedProteinDelta.setValue(Math.abs(proteinDelta));
+      prevSelectedDate.current = selectedDate;
+    } else {
+      // Same date: animate (food log added/deleted)
+      animatedCaloriesDelta.animateTo(Math.abs(caloriesDelta));
+      animatedProteinDelta.animateTo(Math.abs(proteinDelta));
+    }
+  }, [caloriesDelta, proteinDelta, selectedDate]);
 
   // Trigger count-up animations when secondary stats totals change
-  // Staggered to match progress bar animations (800ms delay for fat)
   useEffect(() => {
-    animatedFatTotal.animateTo(Math.round(totals.fat || 0), 800);
-    animatedCarbsTotal.animateTo(Math.round(totals.carbs || 0));
-  }, [totals.fat, totals.carbs]);
+    const dateChanged = prevSelectedDate.current !== selectedDate;
+
+    if (dateChanged) {
+      // Date changed: set values instantly without animation
+      animatedFatTotal.setValue(Math.round(totals.fat || 0));
+      animatedCarbsTotal.setValue(Math.round(totals.carbs || 0));
+    } else {
+      // Same date: animate with stagger (800ms delay for fat)
+      animatedFatTotal.animateTo(Math.round(totals.fat || 0), 800);
+      animatedCarbsTotal.animateTo(Math.round(totals.carbs || 0));
+    }
+  }, [totals.fat, totals.carbs, selectedDate]);
 
   // Trigger count-up animations when ring label totals change
-  // Staggered to match ring animations (0ms for calories, 400ms for protein)
   useEffect(() => {
-    animatedCaloriesTotal.animateTo(Math.round(totals.calories || 0), 0);
-    animatedProteinTotal.animateTo(Math.round(totals.protein || 0), 400);
-  }, [totals.calories, totals.protein]);
+    const dateChanged = prevSelectedDate.current !== selectedDate;
+
+    if (dateChanged) {
+      // Date changed: set values instantly without animation
+      animatedCaloriesTotal.setValue(Math.round(totals.calories || 0));
+      animatedProteinTotal.setValue(Math.round(totals.protein || 0));
+    } else {
+      // Same date: animate with stagger (0ms for calories, 400ms for protein)
+      animatedCaloriesTotal.animateTo(Math.round(totals.calories || 0), 0);
+      animatedProteinTotal.animateTo(Math.round(totals.protein || 0), 400);
+    }
+  }, [totals.calories, totals.protein, selectedDate]);
 
   // Trigger progress bar animations with spring matching rings
   useEffect(() => {
+    const dateChanged = prevSelectedDate.current !== selectedDate;
+
     const fatTarget = targets.fat || 0;
     const fatCurrent = totals.fat || 0;
     const fatPercentage =
@@ -176,16 +209,22 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     const carbsPercentage =
       carbsTarget > 0 ? Math.min((carbsCurrent / carbsTarget) * 100, 100) : 0;
 
-    // Animate with same spring config and delay as rings
-    fatProgress.value = withDelay(
-      800, // After the two rings (400 * 2)
-      withSpring(fatPercentage, SPRING_CONFIG)
-    );
+    if (dateChanged) {
+      // Date changed: set values instantly without animation
+      fatProgress.value = fatPercentage;
+      carbsProgress.value = carbsPercentage;
+    } else {
+      // Same date: animate with spring and delay
+      fatProgress.value = withDelay(
+        800, // After the two rings (400 * 2)
+        withSpring(fatPercentage, SPRING_CONFIG)
+      );
 
-    carbsProgress.value = withDelay(
-      800, // Same delay as fat (or stagger if desired)
-      withSpring(carbsPercentage, SPRING_CONFIG)
-    );
+      carbsProgress.value = withDelay(
+        800, // Same delay as fat
+        withSpring(carbsPercentage, SPRING_CONFIG)
+      );
+    }
   }, [
     totals.fat,
     totals.carbs,
@@ -193,21 +232,30 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     targets.carbs,
     fatProgress,
     carbsProgress,
+    selectedDate,
   ]);
 
   // Trigger icon scale animations when reaching 100%
   useEffect(() => {
+    const dateChanged = prevSelectedDate.current !== selectedDate;
     const proteinPercentage = percentages.protein || 0;
 
-    if (proteinPercentage >= 100) {
-      proteinIconScale.value = 0.5;
-      proteinIconScale.value = withSpring(1, ICON_SPRING_CONFIG);
-    } else {
+    if (dateChanged) {
+      // Date changed: set icon to final state without animation
       proteinIconScale.value = 1;
+    } else {
+      // Same date: animate icon bounce when reaching 100%
+      if (proteinPercentage >= 100) {
+        proteinIconScale.value = 0.5;
+        proteinIconScale.value = withSpring(1, ICON_SPRING_CONFIG);
+      } else {
+        proteinIconScale.value = 1;
+      }
     }
-  }, [percentages.protein, proteinIconScale]);
+  }, [percentages.protein, proteinIconScale, selectedDate]);
 
   useEffect(() => {
+    const dateChanged = prevSelectedDate.current !== selectedDate;
     const fatMinGrams = targets.fat || 0; // 20% minimum
     const fatMaxGrams = targets.calories
       ? Math.round((targets.calories) * 0.35 / 9) // 35% maximum
@@ -219,13 +267,19 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     const isAboveMax = fatCurrent > fatMaxGrams && fatMaxGrams > 0;
     const shouldAnimate = isInRange || isAboveMax;
 
-    if (shouldAnimate) {
-      fatIconScale.value = 0.5;
-      fatIconScale.value = withSpring(1, ICON_SPRING_CONFIG);
-    } else {
+    if (dateChanged) {
+      // Date changed: set icon to final state without animation
       fatIconScale.value = 1;
+    } else {
+      // Same date: animate icon bounce when reaching optimal range
+      if (shouldAnimate) {
+        fatIconScale.value = 0.5;
+        fatIconScale.value = withSpring(1, ICON_SPRING_CONFIG);
+      } else {
+        fatIconScale.value = 1;
+      }
     }
-  }, [totals.fat, targets.fat, targets.calories, fatIconScale]);
+  }, [totals.fat, targets.fat, targets.calories, fatIconScale, selectedDate]);
 
   // Handler for opening explainer pages
   const handleOpenModal = (nutrient: "calories" | "protein" | "fat" | "carbs") => {
@@ -323,6 +377,9 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     transform: [{ scale: carbsStatScale.value }],
   }));
 
+  // Check if date changed for skipAnimation prop
+  const dateChanged = prevSelectedDate.current !== selectedDate;
+
   return (
     <View style={styles.container}>
       <View style={styles.ringsRow}>
@@ -387,6 +444,7 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                   animationDelay={index * 400}
                   strokeWidth={20}
                   Icon={ChevronIcon}
+                  skipAnimation={dateChanged}
                 />
                 <View style={styles.ringLabelContainer}>
                   <View style={styles.ringLabelHeader}>

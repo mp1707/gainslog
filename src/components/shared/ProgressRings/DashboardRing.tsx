@@ -350,6 +350,7 @@ interface DashboardRingProps {
   detailUnit?: string;
   showDetail?: boolean;
   animationDelay?: number;
+  skipAnimation?: boolean;
   testID?: string;
   Icon?: React.ComponentType<{ size: number; color: string; fill: string }>;
 }
@@ -368,6 +369,7 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   detailUnit: _detailUnit,
   showDetail: _showDetail = false,
   animationDelay = 0,
+  skipAnimation = false,
   testID,
   Icon = Flame,
 }) => {
@@ -383,15 +385,21 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   const tipRotation = useSharedValue(0);
 
   useEffect(() => {
-    progress.value = withDelay(
-      animationDelay,
-      withSpring(ratio, {
-        mass: 1.2,
-        damping: 25,
-        stiffness: 80,
-      })
-    );
-  }, [animationDelay, ratio, progress]);
+    if (skipAnimation) {
+      // Skip animation: set value instantly
+      progress.value = ratio;
+    } else {
+      // Animate with delay and spring
+      progress.value = withDelay(
+        animationDelay,
+        withSpring(ratio, {
+          mass: 1.2,
+          damping: 25,
+          stiffness: 80,
+        })
+      );
+    }
+  }, [animationDelay, ratio, progress, skipAnimation]);
 
   const center = size / 2;
   const gapSize = 4;
