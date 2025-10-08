@@ -149,26 +149,24 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     fat: colors.semanticSurfaces.fat,
   } as const;
 
+  // Check if date changed for skipAnimation prop
+  const dateChanged = prevSelectedDate.current !== selectedDate;
+
   // Trigger count-up animations when delta values change
   useEffect(() => {
-    const dateChanged = prevSelectedDate.current !== selectedDate;
-
     if (dateChanged) {
       // Date changed: set values instantly without animation
       animatedCaloriesDelta.setValue(Math.abs(caloriesDelta));
       animatedProteinDelta.setValue(Math.abs(proteinDelta));
-      prevSelectedDate.current = selectedDate;
     } else {
       // Same date: animate (food log added/deleted)
       animatedCaloriesDelta.animateTo(Math.abs(caloriesDelta));
       animatedProteinDelta.animateTo(Math.abs(proteinDelta));
     }
-  }, [caloriesDelta, proteinDelta, selectedDate]);
+  }, [caloriesDelta, proteinDelta, selectedDate, dateChanged]);
 
   // Trigger count-up animations when secondary stats totals change
   useEffect(() => {
-    const dateChanged = prevSelectedDate.current !== selectedDate;
-
     if (dateChanged) {
       // Date changed: set values instantly without animation
       animatedFatTotal.setValue(Math.round(totals.fat || 0));
@@ -178,12 +176,10 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
       animatedFatTotal.animateTo(Math.round(totals.fat || 0), 800);
       animatedCarbsTotal.animateTo(Math.round(totals.carbs || 0));
     }
-  }, [totals.fat, totals.carbs, selectedDate]);
+  }, [totals.fat, totals.carbs, selectedDate, dateChanged]);
 
   // Trigger count-up animations when ring label totals change
   useEffect(() => {
-    const dateChanged = prevSelectedDate.current !== selectedDate;
-
     if (dateChanged) {
       // Date changed: set values instantly without animation
       animatedCaloriesTotal.setValue(Math.round(totals.calories || 0));
@@ -193,12 +189,10 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
       animatedCaloriesTotal.animateTo(Math.round(totals.calories || 0), 0);
       animatedProteinTotal.animateTo(Math.round(totals.protein || 0), 400);
     }
-  }, [totals.calories, totals.protein, selectedDate]);
+  }, [totals.calories, totals.protein, selectedDate, dateChanged]);
 
   // Trigger progress bar animations with spring matching rings
   useEffect(() => {
-    const dateChanged = prevSelectedDate.current !== selectedDate;
-
     const fatTarget = targets.fat || 0;
     const fatCurrent = totals.fat || 0;
     const fatPercentage =
@@ -233,11 +227,11 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     fatProgress,
     carbsProgress,
     selectedDate,
+    dateChanged,
   ]);
 
   // Trigger icon scale animations when reaching 100%
   useEffect(() => {
-    const dateChanged = prevSelectedDate.current !== selectedDate;
     const proteinPercentage = percentages.protein || 0;
 
     if (dateChanged) {
@@ -252,10 +246,9 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
         proteinIconScale.value = 1;
       }
     }
-  }, [percentages.protein, proteinIconScale, selectedDate]);
+  }, [percentages.protein, proteinIconScale, selectedDate, dateChanged]);
 
   useEffect(() => {
-    const dateChanged = prevSelectedDate.current !== selectedDate;
     const fatMinGrams = targets.fat || 0; // 20% minimum
     const fatMaxGrams = targets.calories
       ? Math.round((targets.calories) * 0.35 / 9) // 35% maximum
@@ -279,7 +272,12 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
         fatIconScale.value = 1;
       }
     }
-  }, [totals.fat, targets.fat, targets.calories, fatIconScale, selectedDate]);
+  }, [totals.fat, targets.fat, targets.calories, fatIconScale, selectedDate, dateChanged]);
+
+  // Update ref after all animation logic has run
+  useEffect(() => {
+    prevSelectedDate.current = selectedDate;
+  }, [selectedDate]);
 
   // Handler for opening explainer pages
   const handleOpenModal = (nutrient: "calories" | "protein" | "fat" | "carbs") => {
@@ -376,9 +374,6 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   const carbsStatAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: carbsStatScale.value }],
   }));
-
-  // Check if date changed for skipAnimation prop
-  const dateChanged = prevSelectedDate.current !== selectedDate;
 
   return (
     <View style={styles.container}>
