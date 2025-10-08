@@ -72,6 +72,7 @@ export default function Create() {
         updateDraft(draftId, {
           localImagePath,
           supabaseImagePath,
+          pendingImageUri: undefined, // Clear the pending URI
           calories: 0,
           protein: 0,
           carbs: 0,
@@ -86,6 +87,13 @@ export default function Create() {
     },
     [draftId, updateDraft]
   );
+
+  // Watch for pending image URI from camera and process it
+  useEffect(() => {
+    if (draft?.pendingImageUri) {
+      handleNewImageSelected(draft.pendingImageUri);
+    }
+  }, [draft?.pendingImageUri, handleNewImageSelected]);
 
   // Capture the base description when recording starts
   useEffect(() => {

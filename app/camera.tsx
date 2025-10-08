@@ -7,8 +7,6 @@ import { CameraIcon, X } from "lucide-react-native";
 import { useMemo, useRef, useState, useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
-import { processImage } from "@/utils/processImage";
-import { showErrorToast } from "@/lib/toast";
 import { useCreationStore } from "@/store/useCreationStore";
 import { useLocalSearchParams } from "expo-router";
 
@@ -22,33 +20,23 @@ export default function Camera() {
   const updateDraft = useCreationStore((state) => state.updateDraft);
   const { logId } = useLocalSearchParams<{ logId?: string }>();
 
-  // ++ CREATE a single handler for any image URI (from camera or library)
+  // Handler for image URI - immediately closes camera and returns to create screen
+  // Image processing will happen on the create screen to show loading skeleton
   const handleImageUri = useCallback(
-    async (uri: string) => {
-      try {
-        const { localImagePath, supabaseImagePath } = await processImage(uri);
-        if (typeof logId !== "string" || !logId) {
-          // If camera isn't given a draft to update, just dismiss
-          if (router.canGoBack()) router.back();
-          return;
-        }
-
-        // Update the proper draft with the new image and reset nutrition
-        updateDraft(logId, {
-          localImagePath,
-          supabaseImagePath,
-          calories: 0,
-          protein: 0,
-          carbs: 0,
-          fat: 0,
-          estimationConfidence: 0,
-        });
-
-        // Simply go back. The previous screen will react to the state change.
+    (uri: string) => {
+      if (typeof logId !== "string" || !logId) {
+        // If camera isn't given a draft to update, just dismiss
         if (router.canGoBack()) router.back();
-      } catch (error) {
-        showErrorToast("Error processing image", "Please try again.");
+        return;
       }
+
+      // Immediately update draft with temporary flag to trigger processing
+      updateDraft(logId, {
+        pendingImageUri: uri,
+      });
+
+      // Close camera immediately - create screen will handle processing
+      if (router.canGoBack()) router.back();
     },
     [router, updateDraft, logId]
   );

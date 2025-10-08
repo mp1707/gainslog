@@ -6,6 +6,7 @@ export type FoodLog = {
   description?: string;
   supabaseImagePath?: string;
   localImagePath?: string;
+  pendingImageUri?: string; // Temporary URI before processing
   foodComponents: FoodComponent[];
   calories: number;
   protein: number;
