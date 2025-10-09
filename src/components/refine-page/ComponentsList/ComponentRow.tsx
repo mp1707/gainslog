@@ -4,6 +4,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  interpolateColor,
 } from "react-native-reanimated";
 import { Check, Lightbulb } from "lucide-react-native";
 import { AppText } from "@/components";
@@ -37,26 +38,48 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
   const styles = createStyles(colors, theme);
   const hasRecommendation = !!component.recommendedMeasurement;
 
-  // Animation values
-  const expandHeight = useSharedValue(0);
-  const expandOpacity = useSharedValue(0);
+  // Single source of truth for perfect animation sync
+  const expandProgress = useSharedValue(0);
 
   useEffect(() => {
-    expandHeight.value = withSpring(isExpanded ? 200 : 0, {
+    const springConfig = {
       damping: theme.interactions.press.spring.damping,
       stiffness: theme.interactions.press.spring.stiffness,
-    });
-    expandOpacity.value = withSpring(isExpanded ? 1 : 0, {
-      damping: theme.interactions.press.spring.damping,
-      stiffness: theme.interactions.press.spring.stiffness,
-    });
+    };
+
+    // Single animation drives all visual changes
+    expandProgress.value = withSpring(isExpanded ? 1 : 0, springConfig);
   }, [isExpanded, theme]);
 
+  // All animations derived from single progress value
   const expandedStyle = useAnimatedStyle(() => ({
-    maxHeight: expandHeight.value,
-    opacity: expandOpacity.value,
+    maxHeight: expandProgress.value * 200,
+    opacity: expandProgress.value,
     overflow: "hidden",
+    marginTop: expandProgress.value * theme.spacing.sm,
   }));
+
+  const lightbulbBgStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      expandProgress.value,
+      [0, 1],
+      ["transparent", colors.tertiaryBackground]
+    ),
+    borderTopLeftRadius: HIGHLIGHT_BORDER_RADIUS,
+    borderTopRightRadius: HIGHLIGHT_BORDER_RADIUS,
+  }));
+
+  // Conditional padding and margins only when expanded
+  const lightbulbContainerStyle = useAnimatedStyle(() => {
+    const isExpanding = expandProgress.value > 0;
+    return {
+      paddingTop: isExpanding ? theme.spacing.md : 0,
+      paddingBottom: isExpanding ? theme.spacing.md : 0,
+      paddingHorizontal: isExpanding ? theme.spacing.md : 0,
+      marginTop: isExpanding ? -theme.spacing.md : 0,
+      marginBottom: isExpanding ? -theme.spacing.md : 0,
+    };
+  });
 
   return (
     <Animated.View>
@@ -85,28 +108,13 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
                 {component.amount} {component.unit ?? ""}
               </AppText>
               {hasRecommendation && (
-                <View
-                  style={[
-                    isExpanded && {
-                      backgroundColor: colors.tertiaryBackground,
-                      borderTopLeftRadius: HIGHLIGHT_BORDER_RADIUS,
-                      borderTopRightRadius: HIGHLIGHT_BORDER_RADIUS,
-                    },
-                    {
-                      paddingTop: theme.spacing.md,
-                      paddingBottom: theme.spacing.md,
-                      paddingHorizontal: theme.spacing.md,
-                      marginTop: -theme.spacing.md,
-                      marginBottom: -theme.spacing.md,
-                    },
-                  ]}
-                >
+                <Animated.View style={[lightbulbBgStyle, lightbulbContainerStyle]}>
                   <Lightbulb
                     size={18}
                     color={colors.semantic.fat}
                     fill={colors.semantic.fat}
                   />
-                </View>
+                </Animated.View>
               )}
             </View>
           </View>
@@ -117,8 +125,8 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
               <View
                 style={{
                   backgroundColor: colors.tertiaryBackground,
-                  padding: theme.spacing.md,
-                  marginTop: theme.spacing.sm,
+                  paddingVertical: theme.spacing.lg,
+                  paddingHorizontal: theme.spacing.md,
                   gap: theme.spacing.md,
                   borderTopLeftRadius: HIGHLIGHT_BORDER_RADIUS,
                   borderBottomLeftRadius: HIGHLIGHT_BORDER_RADIUS,
