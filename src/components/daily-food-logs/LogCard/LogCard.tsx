@@ -62,7 +62,7 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
   // Animation values for staggered reveal
   const titleOpacity = useSharedValue(isLoading ? 0 : 1);
   const nutritionOpacity = useSharedValue(isLoading ? 0 : 1);
-  const confidenceBadgeOpacity = useSharedValue(isLoading ? 0 : 1);
+  const refinementBadgeOpacity = useSharedValue(isLoading ? 0 : 1);
 
   const displayTitle = foodLog.title || "New Log";
 
@@ -85,7 +85,7 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
         150,
         withSpring(1, { stiffness: 400, damping: 30 })
       );
-      confidenceBadgeOpacity.value = withDelay(
+      refinementBadgeOpacity.value = withDelay(
         300,
         withSpring(1, { stiffness: 400, damping: 30 })
       );
@@ -93,12 +93,12 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
       // If card renders without loading, show content immediately without animation
       titleOpacity.value = 1;
       nutritionOpacity.value = 1;
-      confidenceBadgeOpacity.value = 1;
+      refinementBadgeOpacity.value = 1;
     } else if (isLoading) {
       // Hide content during loading
       titleOpacity.value = 0;
       nutritionOpacity.value = 0;
-      confidenceBadgeOpacity.value = 0;
+      refinementBadgeOpacity.value = 0;
     }
 
     // Update the previous loading state
@@ -114,9 +114,8 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
     ],
   }));
 
-
-  const confidenceBadgeAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: confidenceBadgeOpacity.value,
+  const refinementBadgeAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: refinementBadgeOpacity.value,
   }));
 
   const refinementInfo = getRefinementInfo(foodLog.foodComponents);
@@ -130,7 +129,6 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
       <Card elevated={true} style={styles.card}>
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
-            {/* Title Section */}
             <LogCardTitle
               title={displayTitle}
               isLoading={isLoading}
@@ -143,8 +141,6 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
               maxItems={2}
               style={styles.foodComponentList}
             />
-
-            {/* Confidence Badge Section */}
             {isLoading ? (
               <SkeletonPill width={80} height={28} />
             ) : (
@@ -152,8 +148,8 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
                 <RefinementInfo
                   refinementText={refinementInfo}
                   animated={true}
-                  animatedStyle={confidenceBadgeAnimatedStyle}
-                  style={styles.confidenceInfo}
+                  animatedStyle={refinementBadgeAnimatedStyle}
+                  style={styles.refinementInfo}
                 />
               )
             )}
@@ -262,10 +258,7 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
       <Card style={styles.card}>
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
-            <LogCardTitle
-              title={displayTitle}
-              style={styles.title}
-            />
+            <LogCardTitle title={displayTitle} style={styles.title} />
             <FoodComponentList
               foodComponents={foodLog.foodComponents}
               maxItems={3}
@@ -274,7 +267,7 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
             {refinementInfo && (
               <RefinementInfo
                 refinementText={refinementInfo}
-                style={styles.confidenceInfo}
+                style={styles.refinementInfo}
               />
             )}
           </View>
@@ -451,4 +444,3 @@ export const LogCard = memo(LogCardInner, (prev, next) => {
   if (prev.contextMenuPreset !== next.contextMenuPreset) return false;
   return prev.foodLog === next.foodLog;
 });
-

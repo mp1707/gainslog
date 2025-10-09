@@ -33,7 +33,7 @@ export const createStyles = (colors: Colors) =>
       flexDirection: "column",
       flex: 1,
     },
-    confidenceInfo: {
+    refinementInfo: {
       flexDirection: "row",
       alignItems: "center",
       gap: theme.spacing.xs,
@@ -83,12 +83,6 @@ export const createStyles = (colors: Colors) =>
 
       width: "90%",
       marginTop: theme.spacing.xs,
-    },
-    skeletonConfidenceBadge: {
-      height: 28,
-      width: 80,
-      backgroundColor: colors.border,
-      borderRadius: theme.spacing.sm,
     },
     skeletonNutritionContainer: {
       gap: theme.spacing.sm,

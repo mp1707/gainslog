@@ -127,8 +127,6 @@ export default function Edit() {
     return false;
   }, [lastEstimatedComponents, editedLog?.foodComponents]);
 
-  const isConfidenceLoading = isLoading || !!originalLog?.isEstimating;
-
   // Handlers for components editing
   const handleDeleteComponent = (index: number) => {
     setEditedLog((prev) => {
@@ -320,7 +318,7 @@ export default function Edit() {
               protein={editedLog.protein}
               carbs={editedLog.carbs}
               fat={editedLog.fat}
-              processing={isConfidenceLoading}
+              processing={isLoading}
               revealKey={revealKey}
             />
 
