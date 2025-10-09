@@ -11,7 +11,7 @@ const lightColors = {
   // Core UI
   primaryBackground: "#F6F8FA", // soft neutral (cooler than #F9F9F9)
   secondaryBackground: "#FFFFFF",
-  tertiaryBackground: "#FFFFFF",
+  tertiaryBackground: "#F0F2F5", // light gray with better visibility
   gradientFromBackground: "#FFFFFF",
   gradientToBackground: "#F3F7F6", // whisper of teal to echo brand
   primaryText: "#121417", // inkier, better contrast

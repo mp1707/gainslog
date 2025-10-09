@@ -78,7 +78,6 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
 
   // Press animation shared values
   const scale = useSharedValue(1);
-  const pressFlashOpacity = useSharedValue(0);
 
   // Track if gesture started as a press (for tap vs swipe differentiation)
   const isPressing = useSharedValue(false);
@@ -209,10 +208,6 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
         damping: theme.interactions.press.spring.damping,
         stiffness: theme.interactions.press.spring.stiffness,
       });
-      pressFlashOpacity.value = withTiming(0, {
-        duration: 200,
-        easing: theme.interactions.press.timing.easing,
-      });
     };
 
     return Gesture.Pan()
@@ -223,13 +218,9 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
         if (!isDeleting.value) {
           isPressing.value = true;
           tapStartMs.value = Date.now();
-          // Subtle scale and dim
+          // Subtle scale
           scale.value = withTiming(theme.interactions.press.scale, {
             duration: theme.interactions.press.timing.duration,
-            easing: theme.interactions.press.timing.easing,
-          });
-          pressFlashOpacity.value = withTiming(0.08, {
-            duration: 100,
             easing: theme.interactions.press.timing.easing,
           });
         }
@@ -429,10 +420,6 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
               easing: theme.interactions.press.timing.easing,
             },
             () => {
-              pressFlashOpacity.value = withTiming(0, {
-                duration: 150,
-                easing: theme.interactions.press.timing.easing,
-              });
               runOnJS(triggerTap)();
             }
           );
@@ -485,11 +472,6 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
       transform: [{ scale: scale.value }],
     };
   });
-
-  const pressFlashAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: pressFlashOpacity.value,
-    backgroundColor: colors.primaryText,
-  }));
 
   const deleteButtonContainerStyle = useAnimatedStyle(() => {
     // Hide delete button immediately when delete animation starts or if no delete action
@@ -668,21 +650,6 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
           <GestureDetector gesture={enhancedGesture}>
             <Animated.View style={animatedStyle}>
               {children}
-              {/* Press flash overlay for press feedback */}
-              <Animated.View
-                style={[
-                  {
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    borderRadius,
-                  },
-                  pressFlashAnimatedStyle,
-                ]}
-                pointerEvents="none"
-              />
             </Animated.View>
           </GestureDetector>
         </Animated.View>
