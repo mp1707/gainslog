@@ -18,13 +18,14 @@ import { ComponentsList } from "@/components/refine-page/ComponentsList/Componen
 import { ComponentEditor } from "@/components/refine-page/ComponentEditor";
 import { FloatingAction } from "@/components/refine-page/FloatingAction/FloatingAction";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
-import { AppText } from "@/components/index";
+import { AppText, Card } from "@/components/index";
 import {
   BottomSheet,
   BottomSheetBackdrop,
 } from "@/components/shared/BottomSheet";
 import { TextInput } from "@/components/shared/TextInput";
 import { getRefinementInfoDetailed } from "@/utils/getRefinementInfo";
+import { hasAmbiguousUnit as hasAmbiguousUnitFn } from "@/utils/hasAmbiguousUnit";
 
 const deriveConfidenceLevel = (confidence?: number): 0 | 1 | 2 | 3 => {
   if (!confidence) return 0;
@@ -276,6 +277,12 @@ export default function Edit() {
     });
   }, [sheetOpen, navigation]);
 
+  const hasAmbiguousUnit = useMemo(() => {
+    return editedLog
+      ? hasAmbiguousUnitFn(editedLog.foodComponents || [])
+      : false;
+  }, [editedLog]);
+
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.closeButtonLeft}>
@@ -342,6 +349,17 @@ export default function Edit() {
               infoSubText={confidenceInfoSubText}
               isLoading={isConfidenceLoading}
             />
+            {hasAmbiguousUnit && (
+              <Card>
+                <AppText role="Subhead" color="primary" style={styles.tipTitle}>
+                  💡 Quick Tip
+                </AppText>
+                <AppText role="Body" color="secondary">
+                  Use specific units (g, oz, ml) to improve macro nutrient
+                  estimation accuracy.
+                </AppText>
+              </Card>
+            )}
             {/* Macros display */}
             <MacrosCard
               calories={editedLog.calories}
@@ -443,5 +461,8 @@ const createStyles = (colors: Colors, theme: Theme) =>
       alignItems: "center",
       justifyContent: "center",
       paddingVertical: theme.spacing.xl,
+    },
+    tipTitle: {
+      marginBottom: theme.spacing.xs,
     },
   });
