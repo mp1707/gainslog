@@ -5,14 +5,16 @@ import { OpenAI } from "https://deno.land/x/openai@v4.52.7/mod.ts";
 import { Ratelimit } from "https://cdn.skypack.dev/@upstash/ratelimit@latest";
 import { Redis } from "https://deno.land/x/upstash_redis@v1.19.3/mod.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.39.4";
-
 // Initialize Supabase client with service role key for privileged operations
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL") ?? "",
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-  { auth: { persistSession: false } }
+  {
+    auth: {
+      persistSession: false,
+    },
+  }
 );
-
 // Fallback response for non-food images or API failures
 const INVALID_IMAGE_RESPONSE = {
   generatedTitle: "Invalid Image",
@@ -21,17 +23,14 @@ const INVALID_IMAGE_RESPONSE = {
   protein: 0,
   carbs: 0,
   fat: 0,
-  // macrosPerReferencePortion intentionally omitted when not present
 };
-
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(2, "60 s"),
   analytics: true,
   prefix: "@upstash/ratelimit",
 });
-
-function getClientIp(req: Request) {
+function getClientIp(req) {
   const ipHeader = req.headers.get("x-forwarded-for");
   if (ipHeader) return ipHeader.split(",")[0].trim();
   return "unknown";
@@ -177,81 +176,104 @@ Return this shape if the image is not food:
   "fat": 0
 }
 `;
-
 const openai = new OpenAI();
-
 // Simple API key validation
-function validateApiKey(request: Request) {
+function validateApiKey(request) {
   const authHeader = request.headers.get("authorization");
   const apiKeyHeader = request.headers.get("apikey");
   if (authHeader?.startsWith("Bearer ") || apiKeyHeader) return true;
   return false;
 }
-
 Deno.serve(async (req) => {
   const identifier = getClientIp(req);
   const { success } = await ratelimit.limit(identifier);
   if (!success) {
-    return new Response(JSON.stringify({ error: "AI_ESTIMATION_RATE_LIMIT" }), {
-      status: 429,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        error: "AI_ESTIMATION_RATE_LIMIT",
+      }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
-
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers":
       "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   };
-
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders });
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders,
+    });
   }
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Only POST method allowed" }), {
-      status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        error: "Only POST method allowed",
+      }),
+      {
+        status: 405,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
-
   if (!validateApiKey(req)) {
-    return new Response(JSON.stringify({ error: "Invalid API key" }), {
-      status: 401,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        error: "Invalid API key",
+      }),
+      {
+        status: 401,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
-
   try {
     const { imagePath, title, description } = await req.json();
-
     const bucket = "food-images";
     const expiresIn = 60;
-
     if (!imagePath?.trim()) {
-      return new Response(JSON.stringify({ error: "ImagePath is required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({
+          error: "ImagePath is required",
+        }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
     }
-
     const { data, error } = await supabase.storage
       .from(bucket)
       .createSignedUrl(imagePath, expiresIn);
-
     if (error || !data) {
       console.error("Signed URL error:", error);
       return new Response(
-        JSON.stringify({ error: "Failed to create signed URL" }),
+        JSON.stringify({
+          error: "Failed to create signed URL",
+        }),
         {
           status: 500,
           headers: corsHeaders,
         }
       );
     }
-
     const imageUrl = data.signedUrl;
-
     let userPrompt =
       "Analyze this food image and estimate its nutritional content. If a clear, exact nutrition label is visible, include macrosPerReferencePortion with an exact referencePortionAmount like '40 g' or '100 ml' and integer macros for that portion.";
     if (title?.trim() || description?.trim()) {
@@ -260,31 +282,40 @@ Deno.serve(async (req) => {
       if (description?.trim())
         userPrompt += ` Description: ${description.trim()}.`;
     }
-
     const messages = [
-      { role: "system", content: SYSTEM_PROMPT },
+      {
+        role: "system",
+        content: SYSTEM_PROMPT,
+      },
       {
         role: "user",
         content: [
-          { type: "text", text: userPrompt },
-          { type: "image_url", image_url: { url: imageUrl, detail: "high" } },
+          {
+            type: "text",
+            text: userPrompt,
+          },
+          {
+            type: "image_url",
+            image_url: {
+              url: imageUrl,
+              detail: "high",
+            },
+          },
         ],
       },
     ];
-
     const chatCompletion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages,
-      response_format: { type: "json_object" },
+      response_format: {
+        type: "json_object",
+      },
       temperature: 0.2,
       max_completion_tokens: 1000,
     });
-
     const messageContent = chatCompletion.choices?.[0]?.message?.content;
     if (!messageContent) throw new Error("AI returned an empty message.");
-
     const nutrition = JSON.parse(messageContent);
-
     const ALLOWED_UNITS = [
       "g",
       "oz",
@@ -297,7 +328,6 @@ Deno.serve(async (req) => {
       "piece",
       "serving",
     ];
-
     // Sanitize components (no limit on number of components)
     const sanitizedComponents = Array.isArray(nutrition.foodComponents)
       ? nutrition.foodComponents
@@ -317,27 +347,16 @@ Deno.serve(async (req) => {
           })
           .filter((comp) => comp.name && comp.name !== "Unknown Item")
       : [];
-
     // Optional macrosPerReferencePortion (no complex sanitization)
     // Keep ONLY if object exists with a non-empty referencePortionAmount string
     // and numeric integer macro values (>=0). We trust the model for exactness per prompt.
-    let sanitizedReferenceMacros:
-      | undefined
-      | {
-          referencePortionAmount: string; // e.g., "40 g"
-          caloriesForReferencePortion: number;
-          proteinForReferencePortion: number;
-          carbsForReferencePortion: number;
-          fatForReferencePortion: number;
-        };
-
+    let sanitizedReferenceMacros;
     if (
       nutrition.macrosPerReferencePortion &&
       typeof nutrition.macrosPerReferencePortion === "object"
     ) {
       const m = nutrition.macrosPerReferencePortion;
       const amountStr = String(m.referencePortionAmount || "").trim();
-
       const cal = Math.max(
         0,
         Math.round(Number(m.caloriesForReferencePortion) || 0)
@@ -354,7 +373,6 @@ Deno.serve(async (req) => {
         0,
         Math.round(Number(m.fatForReferencePortion) || 0)
       );
-
       if (amountStr) {
         sanitizedReferenceMacros = {
           referencePortionAmount: amountStr,
@@ -365,8 +383,7 @@ Deno.serve(async (req) => {
         };
       }
     }
-
-    const result: any = {
+    const result = {
       generatedTitle: nutrition.generatedTitle || "Food Image Analysis",
       foodComponents: sanitizedComponents,
       calories: Math.max(0, Math.round(nutrition.calories || 0)),
@@ -374,20 +391,24 @@ Deno.serve(async (req) => {
       carbs: Math.max(0, Math.round(nutrition.carbs || 0)),
       fat: Math.max(0, Math.round(nutrition.fat || 0)),
     };
-
     if (sanitizedReferenceMacros) {
       result.macrosPerReferencePortion = sanitizedReferenceMacros;
     }
-
     return new Response(JSON.stringify(result), {
       status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
     });
   } catch (error) {
     console.warn("Error validating AI response, using fallback:", error);
     return new Response(JSON.stringify(INVALID_IMAGE_RESPONSE), {
       status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
+      headers: {
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
     });
   }
 });
