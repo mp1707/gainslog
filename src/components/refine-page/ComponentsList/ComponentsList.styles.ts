@@ -6,6 +6,9 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     container: {
       gap: theme.spacing.xs,
     },
+    componentRowContainer: {
+      gap: theme.spacing.lg,
+    },
     cardHeaderRow: {
       flexDirection: "row",
       alignItems: "center",
@@ -20,14 +23,15 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      paddingVertical: theme.spacing.md,
       backgroundColor: colors.secondaryBackground,
       gap: theme.spacing.md,
     },
     solidBackgroundForSwipe: {
       backgroundColor: colors.secondaryBackground,
     },
-
+    componentExpandContainer: {
+      flexDirection: "row",
+    },
     leftColumn: {
       flex: 1,
     },

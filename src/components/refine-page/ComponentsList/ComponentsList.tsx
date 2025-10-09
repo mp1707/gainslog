@@ -1,20 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { TouchableOpacity, View } from "react-native";
-import Animated, { Easing, LinearTransition } from "react-native-reanimated";
-import { Plus, Lightbulb } from "lucide-react-native";
+import { Plus } from "lucide-react-native";
+import * as Haptics from "expo-haptics";
 import { AppText, Card } from "@/components";
 import { useTheme } from "@/theme";
 import { createStyles } from "./ComponentsList.styles";
 import type { FoodComponent } from "@/types/models";
-import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions/SwipeToFunctions";
+import { ComponentRow } from "./ComponentRow";
 
-const HIGHLIGHT_BORDER_RADIUS = 14;
 interface ComponentsListProps {
   components: FoodComponent[];
   onPressItem: (index: number, comp: FoodComponent) => void;
   onDeleteItem: (index: number) => void;
   onAddPress: () => void;
-  onShowSuggestion?: (index: number, comp: FoodComponent) => void;
+  onAcceptRecommendation: (index: number, comp: FoodComponent) => void;
   disabled?: boolean;
 }
 
@@ -23,20 +22,34 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
   onPressItem,
   onDeleteItem,
   onAddPress,
-  onShowSuggestion,
+  onAcceptRecommendation,
   disabled,
 }) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const handleRowTap = (index: number, comp: FoodComponent) => {
-    if (comp.recommendedMeasurement && onShowSuggestion) {
-      // Has recommendation → show AI suggestion sheet
-      onShowSuggestion(index, comp);
+    if (comp.recommendedMeasurement) {
+      // Has recommendation → toggle inline expansion
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      setExpandedIndex(expandedIndex === index ? null : index);
     } else {
       // No recommendation → show edit sheet
       onPressItem(index, comp);
     }
+  };
+
+  const handleAcceptRecommendation = (index: number, comp: FoodComponent) => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setExpandedIndex(null);
+    onAcceptRecommendation(index, comp);
+  };
+
+  const handleEditManually = (index: number, comp: FoodComponent) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setExpandedIndex(null);
+    onPressItem(index, comp);
   };
 
   return (
@@ -46,45 +59,22 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
           COMPONENTS
         </AppText>
       </View>
-      {components.map((comp, index) => (
-        <Animated.View key={`${comp.name}-${index}`}>
-          <SwipeToFunctions
-            onDelete={() => onDeleteItem(index)}
+      <View style={styles.componentRowContainer}>
+        {components.map((comp, index) => (
+          <ComponentRow
+            key={`${comp.name}-${index}`}
+            component={comp}
+            index={index}
+            isExpanded={expandedIndex === index}
             onTap={() => handleRowTap(index, comp)}
-            borderRadius={HIGHLIGHT_BORDER_RADIUS}
-          >
-            <View
-              style={[
-                styles.solidBackgroundForSwipe,
-                { borderRadius: HIGHLIGHT_BORDER_RADIUS },
-              ]}
-            >
-              <View
-                style={[
-                  styles.componentRow,
-                  { borderRadius: HIGHLIGHT_BORDER_RADIUS },
-                ]}
-              >
-                <View style={styles.leftColumn}>
-                  <AppText style={styles.componentName}>{comp.name}</AppText>
-                </View>
-                <View style={styles.rightColumn}>
-                  <AppText color="secondary" style={styles.amountText}>
-                    {comp.amount} {comp.unit ?? ""}
-                  </AppText>
-                  {comp.recommendedMeasurement && (
-                    <Lightbulb
-                      size={18}
-                      color={colors.semantic.fat}
-                      fill={colors.semantic.fat}
-                    />
-                  )}
-                </View>
-              </View>
-            </View>
-          </SwipeToFunctions>
-        </Animated.View>
-      ))}
+            onDelete={() => onDeleteItem(index)}
+            onAcceptRecommendation={() =>
+              handleAcceptRecommendation(index, comp)
+            }
+            onEditManually={() => handleEditManually(index, comp)}
+          />
+        ))}
+      </View>
       <TouchableOpacity
         onPress={onAddPress}
         style={styles.addRow}

@@ -11,6 +11,7 @@ const lightColors = {
   // Core UI
   primaryBackground: "#F6F8FA", // soft neutral (cooler than #F9F9F9)
   secondaryBackground: "#FFFFFF",
+  tertiaryBackground: "#FFFFFF",
   gradientFromBackground: "#FFFFFF",
   gradientToBackground: "#F3F7F6", // whisper of teal to echo brand
   primaryText: "#121417", // inkier, better contrast
@@ -26,7 +27,7 @@ const lightColors = {
   subtleBorder: "rgba(18, 20, 23, 0.06)",
 
   // Accent & system
-  accent: "#1EC8B6",   
+  accent: "#1EC8B6",
   recording: "#FF4E3A",
   error: "#FF4E3A",
   warning: "#FFB020",
@@ -91,6 +92,7 @@ const darkColors = {
   // Core UI Colors
   primaryBackground: "#000000",
   secondaryBackground: "#1C1C1E",
+  tertiaryBackground: "#2C2C2E",
   gradientFromBackground: "#131313",
   gradientToBackground: "#000000",
   primaryText: "#F2F2F7",
@@ -480,7 +482,11 @@ const layout = {
   // Calculate dynamic header height that aligns to 8pt grid
   calculateHeaderHeight: (safeAreaTop: number = 0): number => {
     const { header } = layout;
-    const contentHeight = header.titleHeight + header.dateSliderHeight + header.padding * 2 + header.spacing;
+    const contentHeight =
+      header.titleHeight +
+      header.dateSliderHeight +
+      header.padding * 2 +
+      header.spacing;
     const totalHeight = safeAreaTop + contentHeight;
 
     // Round up to nearest 8pt to maintain grid alignment

@@ -15,7 +15,6 @@ import { useNavigation } from "@react-navigation/native";
 import { MacrosCard } from "@/components/refine-page/MacrosCard/MacrosCard";
 import { ComponentsList } from "@/components/refine-page/ComponentsList/ComponentsList";
 import { ComponentEditor } from "@/components/refine-page/ComponentEditor";
-import { AISuggestionSheet } from "@/components/refine-page/AISuggestionSheet";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { AppText, Card } from "@/components/index";
 import {
@@ -56,13 +55,6 @@ export default function Edit() {
     component: FoodComponent;
   } | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
-
-  // AI Suggestion state
-  const [suggestionSheet, setSuggestionSheet] = useState<{
-    open: boolean;
-    component?: FoodComponent;
-    index: number;
-  }>({ open: false, index: -1 });
 
   // Change tracking for recalculation
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -244,17 +236,13 @@ export default function Edit() {
     }
   };
 
-  // AI Suggestion handlers
-  const handleShowSuggestion = (index: number, component: FoodComponent) => {
-    setSuggestionSheet({ open: true, component, index });
-  };
+  // Accept recommendation handler
+  const handleAcceptRecommendation = (index: number, component: FoodComponent) => {
+    if (!component.recommendedMeasurement) return;
 
-  const handleUseRecommendation = () => {
-    if (!suggestionSheet.component?.recommendedMeasurement) return;
-
-    const { amount, unit } = suggestionSheet.component.recommendedMeasurement;
+    const { amount, unit } = component.recommendedMeasurement;
     const updatedComponent: FoodComponent = {
-      ...suggestionSheet.component,
+      ...component,
       amount,
       unit: unit as FoodComponent["unit"],
       recommendedMeasurement: undefined, // Clear recommendation after use
@@ -263,33 +251,21 @@ export default function Edit() {
     setEditedLog((prev) => {
       if (!prev) return prev;
       const comps = [...(prev.foodComponents || [])];
-      comps[suggestionSheet.index] = updatedComponent;
+      comps[index] = updatedComponent;
       return { ...prev, foodComponents: comps };
     });
 
     setIsDirty(true);
     setHasUnsavedChanges(true);
     setChangesCount((prev) => prev + 1);
-    setSuggestionSheet({ open: false, index: -1 });
-  };
-
-  const handleEditManually = () => {
-    // Close suggestion sheet and open component editor instead
-    if (!suggestionSheet.component) return;
-    setSuggestionSheet({ open: false, index: -1 });
-    setEditingComponent({
-      index: suggestionSheet.index,
-      component: suggestionSheet.component,
-    });
-    setSheetOpen(true);
   };
 
   // Dynamically disable modal swipe gesture when bottom sheet is open
   useEffect(() => {
     navigation.setOptions({
-      gestureEnabled: !sheetOpen && !suggestionSheet.open,
+      gestureEnabled: !sheetOpen,
     });
-  }, [sheetOpen, suggestionSheet.open, navigation]);
+  }, [sheetOpen, navigation]);
 
   return (
     <GradientWrapper style={styles.container}>
@@ -317,7 +293,7 @@ export default function Edit() {
         keyboardShouldPersistTaps="handled"
         bounces={false}
         overScrollMode="never"
-        scrollEnabled={!sheetOpen && !suggestionSheet.open}
+        scrollEnabled={!sheetOpen}
       >
         {isTitleEditing ? (
           <TextInput
@@ -349,7 +325,7 @@ export default function Edit() {
               onPressItem={handleOpenEditor}
               onDeleteItem={handleDeleteComponent}
               onAddPress={handleAddComponent}
-              onShowSuggestion={handleShowSuggestion}
+              onAcceptRecommendation={handleAcceptRecommendation}
               disabled={isLoading || originalLog?.isEstimating}
             />
             {/* Macros display */}
@@ -396,25 +372,6 @@ export default function Edit() {
             isAdding={editingComponent.index === "new"}
             onSave={handleSaveComponent}
             onCancel={handleCancelEdit}
-          />
-        )}
-      </BottomSheet>
-
-      {/* AI Suggestion Bottom Sheet */}
-      <BottomSheetBackdrop
-        open={suggestionSheet.open}
-        onPress={() => setSuggestionSheet({ open: false, index: -1 })}
-        opacity={0.35}
-      />
-      <BottomSheet
-        open={suggestionSheet.open}
-        onClose={() => setSuggestionSheet({ open: false, index: -1 })}
-      >
-        {suggestionSheet.component && (
-          <AISuggestionSheet
-            component={suggestionSheet.component}
-            onUseRecommendation={handleUseRecommendation}
-            onEditManually={handleEditManually}
           />
         )}
       </BottomSheet>

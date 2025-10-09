@@ -82,7 +82,7 @@ export const Button = React.memo<ButtonProps>(
           case "secondary":
             return colors.secondaryBackground;
           case "tertiary":
-            return colors.subtleBackground;
+            return colors.tertiaryBackground;
           default:
             return colors.accent;
         }
