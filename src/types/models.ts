@@ -1,3 +1,5 @@
+import { MacrosPerReferencePortion } from "../lib";
+
 export type FoodLog = {
   id: string;
   logDate: string; // YYYY-MM-DD
@@ -14,6 +16,7 @@ export type FoodLog = {
   fat: number;
   estimationConfidence?: number;
   isEstimating?: boolean;
+  macrosPerReferencePortion?: MacrosPerReferencePortion;
 };
 
 export type FoodComponent = {

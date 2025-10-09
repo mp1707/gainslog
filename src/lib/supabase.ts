@@ -3,12 +3,21 @@ import { createClient } from "@supabase/supabase-js";
 import { showErrorToast } from "./toast";
 import { FoodComponent } from "@/types/models";
 
+export type MacrosPerReferencePortion = {
+  referencePortionAmount: string;
+  caloriesForReferencePortion: number;
+  proteinForReferencePortion: number;
+  carbsForReferencePortion: number;
+  fatForReferencePortion: number;
+};
+
 export interface TextEstimateRequest {
   description: string;
 }
 
 export interface RefineRequest {
   foodComponents: string;
+  macrosPerReferencePortion?: MacrosPerReferencePortion;
 }
 
 export interface ImageEstimateRequest {
@@ -32,6 +41,7 @@ export interface FoodEstimateResponse {
   carbs: number;
   fat: number;
   foodComponents: FoodComponent[];
+  macrosPerReferencePortion?: MacrosPerReferencePortion;
 }
 export interface RefinedFoodEstimateResponse {
   calories: number;
@@ -92,7 +102,7 @@ export const refineEstimation = async (
   console.log("Refine estimation request:", request);
 
   const response = await fetch(
-    `${supabaseUrl}/functions/v1/refineTextEstimationV3`,
+    `${supabaseUrl}/functions/v1/refineEstimationV4`,
     {
       method: "POST",
       headers: {
@@ -120,6 +130,8 @@ export const refineEstimation = async (
     throw new Error("AI_ESTIMATION_FAILED");
   }
 
+  console.log("refine response data:", data);
+
   return data as RefinedFoodEstimateResponse;
 };
 
@@ -129,7 +141,7 @@ export const estimateNutritionImageBased = async (
   console.log("Image estimation request:", request);
 
   const response = await fetch(
-    `${supabaseUrl}/functions/v1/imageEstimationV3`,
+    `${supabaseUrl}/functions/v1/imageEstimationV4`,
     {
       method: "POST",
       headers: {

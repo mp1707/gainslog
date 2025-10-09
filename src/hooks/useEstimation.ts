@@ -25,10 +25,11 @@ const makeCompletedFromInitial = (
   protein: results.protein,
   carbs: results.carbs,
   fat: results.fat,
-  estimationConfidence: hasAmbiguousUnit(results.foodComponents) 
+  estimationConfidence: hasAmbiguousUnit(results.foodComponents)
     ? Math.min(results.estimationConfidence, 75)
     : results.estimationConfidence,
   foodComponents: results.foodComponents,
+  macrosPerReferencePortion: results.macrosPerReferencePortion,
   isEstimating: false,
 });
 
@@ -100,6 +101,7 @@ export const useEstimation = () => {
 
       const refined: RefinedFoodEstimateResponse = await refineEstimation({
         foodComponents: foodComponentsString,
+        macrosPerReferencePortion: editedLog.macrosPerReferencePortion,
       });
       const completedLog = makeCompletedFromRefinement(editedLog, refined);
       onComplete(completedLog);
@@ -109,5 +111,3 @@ export const useEstimation = () => {
 
   return { runCreateEstimation, runEditEstimation };
 };
-
-

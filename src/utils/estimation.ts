@@ -37,6 +37,7 @@ export const applyEstimationResults = (
     fat: results.fat,
     estimationConfidence: results.estimationConfidence,
     foodComponents: results.foodComponents,
+    macrosPerReferencePortion: results.macrosPerReferencePortion,
     isEstimating: false,
   };
 };

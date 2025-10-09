@@ -90,6 +90,7 @@ export default function Edit() {
         carbs: editedLog.carbs,
         fat: editedLog.fat,
         foodComponents: editedLog.foodComponents || [],
+        macrosPerReferencePortion: editedLog.macrosPerReferencePortion,
       });
     }
     router.back();
