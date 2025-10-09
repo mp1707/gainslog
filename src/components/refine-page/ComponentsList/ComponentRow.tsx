@@ -14,8 +14,6 @@ import { useTheme } from "@/theme";
 import { createStyles } from "./ComponentsList.styles";
 import type { FoodComponent } from "@/types/models";
 
-const HIGHLIGHT_BORDER_RADIUS = 14;
-
 interface ComponentRowProps {
   component: FoodComponent;
   index: number;
@@ -53,10 +51,10 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
 
   // All animations derived from single progress value
   const expandedStyle = useAnimatedStyle(() => ({
-    maxHeight: expandProgress.value * 200,
+    maxHeight: expandProgress.value * 300,
     opacity: expandProgress.value,
     overflow: "hidden",
-    marginTop: expandProgress.value * theme.spacing.sm,
+    marginTop: expandProgress.value * theme.spacing.md,
   }));
 
   const lightbulbBgStyle = useAnimatedStyle(() => ({
@@ -65,18 +63,18 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
       [0, 1],
       ["transparent", colors.tertiaryBackground]
     ),
-    borderTopLeftRadius: HIGHLIGHT_BORDER_RADIUS,
-    borderTopRightRadius: HIGHLIGHT_BORDER_RADIUS,
+    borderTopLeftRadius: theme.components.cards.cornerRadius,
+    borderTopRightRadius: theme.components.cards.cornerRadius,
   }));
 
   const lightbulbContainerStyle = useAnimatedStyle(() => {
     const isExpanding = expandProgress.value > 0;
     return {
       paddingTop: isExpanding ? theme.spacing.md : 0,
-      paddingBottom: isExpanding ? theme.spacing.md : 0,
+      paddingBottom: isExpanding ? theme.spacing.lg : 0,
       paddingHorizontal: expandProgress.value * theme.spacing.md,
       marginTop: isExpanding ? -theme.spacing.md : 0,
-      marginBottom: isExpanding ? -theme.spacing.md : 0,
+      marginBottom: isExpanding ? -theme.spacing.lg : 0,
     };
   });
 
@@ -85,18 +83,18 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
       <SwipeToFunctions
         onDelete={onDelete}
         onTap={onTap}
-        borderRadius={HIGHLIGHT_BORDER_RADIUS}
+        borderRadius={theme.components.cards.cornerRadius}
       >
         <View
           style={[
             styles.solidBackgroundForSwipe,
-            { borderRadius: HIGHLIGHT_BORDER_RADIUS },
+            { borderRadius: theme.components.cards.cornerRadius },
           ]}
         >
           <View
             style={[
               styles.componentRow,
-              { borderRadius: HIGHLIGHT_BORDER_RADIUS },
+              { borderRadius: theme.components.cards.cornerRadius },
             ]}
           >
             <View style={styles.leftColumn}>
@@ -107,7 +105,9 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
                 {component.amount} {component.unit ?? ""}
               </AppText>
               {hasRecommendation && (
-                <Animated.View style={[lightbulbBgStyle, lightbulbContainerStyle]}>
+                <Animated.View
+                  style={[lightbulbBgStyle, lightbulbContainerStyle]}
+                >
                   <Lightbulb
                     size={18}
                     color={colors.semantic.fat}
@@ -126,26 +126,31 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
                   backgroundColor: colors.tertiaryBackground,
                   paddingVertical: theme.spacing.lg,
                   paddingHorizontal: theme.spacing.md,
-                  gap: theme.spacing.md,
-                  borderTopLeftRadius: HIGHLIGHT_BORDER_RADIUS,
-                  borderBottomLeftRadius: HIGHLIGHT_BORDER_RADIUS,
-                  borderBottomRightRadius: HIGHLIGHT_BORDER_RADIUS,
+                  gap: theme.spacing.xl,
+                  borderTopLeftRadius: theme.components.cards.cornerRadius,
+                  borderBottomLeftRadius: theme.components.cards.cornerRadius,
+                  borderBottomRightRadius: theme.components.cards.cornerRadius,
                 }}
               >
-                <AppText role="Body" color="secondary">
-                  We estimate{" "}
-                  <AppText role="Body" style={{ color: colors.primaryText }}>
-                    {component.amount} {component.unit}
-                  </AppText>{" "}
-                  is about{" "}
-                  <AppText role="Body" style={{ color: colors.primaryText }}>
-                    {component.recommendedMeasurement.amount}{" "}
-                    {component.recommendedMeasurement.unit}
-                  </AppText>
-                  .
-                </AppText>
-
                 <View style={{ gap: theme.spacing.sm }}>
+                  <AppText role="Headline" color="primary">
+                    Improve Accuracy?
+                  </AppText>
+                  <AppText role="Body" color="secondary">
+                    We estimate{" "}
+                    <AppText role="Body" style={{ color: colors.primaryText }}>
+                      {component.amount} {component.unit}
+                    </AppText>{" "}
+                    is about{" "}
+                    <AppText role="Body" style={{ color: colors.primaryText }}>
+                      {component.recommendedMeasurement.amount}{" "}
+                      {component.recommendedMeasurement.unit}
+                    </AppText>
+                    .
+                  </AppText>
+                </View>
+
+                <View style={{ gap: theme.spacing.md }}>
                   <Button
                     label="Edit Manually"
                     variant="tertiary"
