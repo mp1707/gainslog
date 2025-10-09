@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { View } from "react-native";
 import * as Haptics from "expo-haptics";
-import { Info } from "lucide-react-native";
+import { Info, Lightbulb } from "lucide-react-native";
 import { AppText } from "@/components/shared/AppText";
 import { Button } from "@/components/shared/Button/Button";
 import { useTheme } from "@/theme";
@@ -20,10 +20,7 @@ export const AISuggestionSheet: React.FC<AISuggestionSheetProps> = ({
   onEditManually,
 }) => {
   const { colors, theme } = useTheme();
-  const styles = useMemo(
-    () => createStyles(colors, theme),
-    [colors, theme]
-  );
+  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
   if (!component.recommendedMeasurement) {
     return null;
@@ -46,10 +43,13 @@ export const AISuggestionSheet: React.FC<AISuggestionSheetProps> = ({
     <View style={styles.container}>
       {/* Header with Icon */}
       <View style={styles.header}>
-        <View style={styles.iconContainer}>
-          <Info size={24} color={colors.accent} />
-        </View>
-        <AppText role="Title2">AI Suggestion</AppText>
+        <Lightbulb
+          size={24}
+          color={colors.semantic.fat}
+          fill={colors.semantic.fat}
+        />
+
+        <AppText role="Title2">Improve Accuracy?</AppText>
       </View>
 
       {/* Description */}
@@ -58,8 +58,8 @@ export const AISuggestionSheet: React.FC<AISuggestionSheetProps> = ({
           We estimate{" "}
           <AppText role="Body" style={styles.highlightText}>
             {originalText}
-          </AppText>
-          {" "}is about{" "}
+          </AppText>{" "}
+          is about{" "}
           <AppText role="Body" style={styles.highlightText}>
             {recommendedText}
           </AppText>
@@ -71,7 +71,7 @@ export const AISuggestionSheet: React.FC<AISuggestionSheetProps> = ({
       <View style={styles.actionButtons}>
         <View style={styles.buttonWrapper}>
           <Button
-            label={`Use ${recommendedText}`}
+            label={`Accept ${recommendedText}`}
             variant="primary"
             onPress={handleUseRecommendation}
           />

@@ -407,7 +407,7 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
       {hasUnsavedChanges && !processing && (
         <View style={styles.blurOverlay}>
           <BlurView
-            intensity={colorScheme === "dark" ? 20 : 40}
+            intensity={8}
             tint={colorScheme}
             style={styles.blurView}
           >

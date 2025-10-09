@@ -14,14 +14,6 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       marginBottom: theme.spacing.md,
       gap: theme.spacing.sm,
     },
-    iconContainer: {
-      width: 32,
-      height: 32,
-      borderRadius: 16,
-      backgroundColor: colors.accent + "20",
-      alignItems: "center",
-      justifyContent: "center",
-    },
     descriptionContainer: {
       marginBottom: theme.spacing.lg,
     },

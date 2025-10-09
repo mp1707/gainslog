@@ -1,8 +1,7 @@
 import React from "react";
-import { TouchableOpacity, View, Pressable } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import Animated, { Easing, LinearTransition } from "react-native-reanimated";
-import { Plus, Info } from "lucide-react-native";
-import * as Haptics from "expo-haptics";
+import { Plus, Lightbulb } from "lucide-react-native";
 import { AppText, Card } from "@/components";
 import { useTheme } from "@/theme";
 import { createStyles } from "./ComponentsList.styles";
@@ -30,10 +29,14 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
 
-  const handleSuggestionPress = (event: any, index: number, comp: FoodComponent) => {
-    event.stopPropagation();
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    onShowSuggestion?.(index, comp);
+  const handleRowTap = (index: number, comp: FoodComponent) => {
+    if (comp.recommendedMeasurement && onShowSuggestion) {
+      // Has recommendation → show AI suggestion sheet
+      onShowSuggestion(index, comp);
+    } else {
+      // No recommendation → show edit sheet
+      onPressItem(index, comp);
+    }
   };
 
   return (
@@ -47,7 +50,7 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
         <Animated.View key={`${comp.name}-${index}`}>
           <SwipeToFunctions
             onDelete={() => onDeleteItem(index)}
-            onTap={() => onPressItem(index, comp)}
+            onTap={() => handleRowTap(index, comp)}
             borderRadius={HIGHLIGHT_BORDER_RADIUS}
           >
             <View
@@ -70,13 +73,11 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
                     {comp.amount} {comp.unit ?? ""}
                   </AppText>
                   {comp.recommendedMeasurement && (
-                    <Pressable
-                      onPress={(e) => handleSuggestionPress(e, index, comp)}
-                      style={styles.infoIconContainer}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                    >
-                      <Info size={18} color={colors.accent} />
-                    </Pressable>
+                    <Lightbulb
+                      size={18}
+                      color={colors.semantic.fat}
+                      fill={colors.semantic.fat}
+                    />
                   )}
                 </View>
               </View>
