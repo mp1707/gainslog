@@ -69,13 +69,12 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
     borderTopRightRadius: HIGHLIGHT_BORDER_RADIUS,
   }));
 
-  // Conditional padding and margins only when expanded
   const lightbulbContainerStyle = useAnimatedStyle(() => {
     const isExpanding = expandProgress.value > 0;
     return {
       paddingTop: isExpanding ? theme.spacing.md : 0,
       paddingBottom: isExpanding ? theme.spacing.md : 0,
-      paddingHorizontal: isExpanding ? theme.spacing.md : 0,
+      paddingHorizontal: expandProgress.value * theme.spacing.md,
       marginTop: isExpanding ? -theme.spacing.md : 0,
       marginBottom: isExpanding ? -theme.spacing.md : 0,
     };
