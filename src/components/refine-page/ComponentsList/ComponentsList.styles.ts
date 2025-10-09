@@ -24,13 +24,6 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       backgroundColor: colors.secondaryBackground,
       gap: theme.spacing.md,
     },
-    refineHighlight: {
-      backgroundColor: colors.successBackground,
-      borderLeftWidth: 3,
-      borderLeftColor: colors.accent,
-      paddingLeft: theme.spacing.md,
-      paddingRight: theme.spacing.md,
-    },
     solidBackgroundForSwipe: {
       backgroundColor: colors.secondaryBackground,
     },
@@ -66,13 +59,5 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     },
     amountText: {
       marginRight: theme.spacing.sm,
-    },
-    helperText: {
-      marginTop: theme.spacing.xs / 2,
-      color: colors.accent,
-      opacity: 0.9,
-    },
-    okButton: {
-      marginHorizontal: theme.spacing.xs / 2,
     },
   });

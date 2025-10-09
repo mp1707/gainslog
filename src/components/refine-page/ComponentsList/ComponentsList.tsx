@@ -1,7 +1,7 @@
 import React from "react";
 import { TouchableOpacity, View } from "react-native";
 import Animated, { Easing, LinearTransition } from "react-native-reanimated";
-import { Plus, Check } from "lucide-react-native";
+import { Plus } from "lucide-react-native";
 import { AppText, Card } from "@/components";
 import { useTheme } from "@/theme";
 import { createStyles } from "./ComponentsList.styles";
@@ -15,7 +15,6 @@ interface ComponentsListProps {
   onDeleteItem: (index: number) => void;
   onAddPress: () => void;
   disabled?: boolean;
-  onMarkOk?: (index: number) => void;
 }
 
 export const ComponentsList: React.FC<ComponentsListProps> = ({
@@ -24,7 +23,6 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
   onDeleteItem,
   onAddPress,
   disabled,
-  onMarkOk,
 }) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
@@ -42,11 +40,6 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
             onDelete={() => onDeleteItem(index)}
             onTap={() => onPressItem(index, comp)}
             borderRadius={HIGHLIGHT_BORDER_RADIUS}
-            onLeftFunction={
-              comp.needsRefinement ? () => onMarkOk?.(index) : undefined
-            }
-            leftIcon={<Check size={24} color="white" />}
-            leftBackgroundColor={colors.accent}
           >
             <View
               style={[
@@ -57,17 +50,11 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
               <View
                 style={[
                   styles.componentRow,
-                  comp.needsRefinement && styles.refineHighlight,
                   { borderRadius: HIGHLIGHT_BORDER_RADIUS },
                 ]}
               >
                 <View style={styles.leftColumn}>
                   <AppText style={styles.componentName}>{comp.name}</AppText>
-                  {comp.needsRefinement && (
-                    <AppText role="Caption" style={styles.helperText}>
-                      Review suggested amount.
-                    </AppText>
-                  )}
                 </View>
                 <View style={styles.rightColumn}>
                   <AppText color="secondary" style={styles.amountText}>

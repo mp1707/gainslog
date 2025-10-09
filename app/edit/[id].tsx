@@ -12,7 +12,6 @@ import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useEstimation } from "@/hooks/useEstimation";
 import { useNavigation } from "@react-navigation/native";
-import { ConfidenceCard } from "@/components/refine-page/ConfidenceCard/ConfidenceCard";
 import { MacrosCard } from "@/components/refine-page/MacrosCard/MacrosCard";
 import { ComponentsList } from "@/components/refine-page/ComponentsList/ComponentsList";
 import { ComponentEditor } from "@/components/refine-page/ComponentEditor";
@@ -24,19 +23,7 @@ import {
   BottomSheetBackdrop,
 } from "@/components/shared/BottomSheet";
 import { TextInput } from "@/components/shared/TextInput";
-import { getRefinementInfoDetailed } from "@/utils/getRefinementInfo";
 import { hasAmbiguousUnit as hasAmbiguousUnitFn } from "@/utils/hasAmbiguousUnit";
-
-const deriveConfidenceLevel = (confidence?: number): 0 | 1 | 2 | 3 => {
-  if (!confidence) return 0;
-
-  const normalized = Math.min(100, Math.max(0, Math.floor(confidence)));
-
-  if (normalized >= 76) return 3;
-  if (normalized >= 50) return 2;
-  if (normalized >= 30) return 1;
-  return 0;
-};
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -93,8 +80,6 @@ export default function Edit() {
   // Check if title has changed
   const titleChanged = tempTitle.trim() !== (originalLog?.title || "").trim();
 
-  // Confidence UI is handled inside ConfidenceCard component
-
   const handleDone = () => {
     if (id && editedLog) {
       // Persist all updated values to the store
@@ -104,7 +89,6 @@ export default function Edit() {
         protein: editedLog.protein,
         carbs: editedLog.carbs,
         fat: editedLog.fat,
-        estimationConfidence: editedLog.estimationConfidence,
         foodComponents: editedLog.foodComponents || [],
       });
     }
@@ -142,18 +126,6 @@ export default function Edit() {
     return false;
   }, [lastEstimatedComponents, editedLog?.foodComponents]);
 
-  const estimationConfidence = editedLog?.estimationConfidence ?? 0;
-  const confidenceLevel = useMemo(
-    () => deriveConfidenceLevel(estimationConfidence),
-    [estimationConfidence]
-  );
-  const confidenceInfoSubText = useMemo(
-    () =>
-      editedLog?.foodComponents &&
-      getRefinementInfoDetailed(editedLog.foodComponents),
-    [editedLog?.foodComponents]
-  );
-
   const isConfidenceLoading = isLoading || !!originalLog?.isEstimating;
 
   // Handlers for components editing
@@ -161,19 +133,6 @@ export default function Edit() {
     setEditedLog((prev) => {
       if (!prev) return prev;
       const comps = (prev.foodComponents || []).filter((_, i) => i !== index);
-      return { ...prev, foodComponents: comps };
-    });
-    setIsDirty(true);
-  };
-
-  const handleMarkComponentOk = (index: number) => {
-    setEditedLog((prev) => {
-      if (!prev) return prev;
-      const comps = [...(prev.foodComponents || [])];
-      const existing = comps[index];
-      if (existing) {
-        comps[index] = { ...existing, needsRefinement: false };
-      }
       return { ...prev, foodComponents: comps };
     });
     setIsDirty(true);
@@ -341,13 +300,7 @@ export default function Edit() {
               onPressItem={handleOpenEditor}
               onDeleteItem={handleDeleteComponent}
               onAddPress={handleAddComponent}
-              onMarkOk={handleMarkComponentOk}
               disabled={isLoading || originalLog?.isEstimating}
-            />
-            <ConfidenceCard
-              confidenceLevel={confidenceLevel}
-              infoSubText={confidenceInfoSubText}
-              isLoading={isConfidenceLoading}
             />
             {hasAmbiguousUnit && (
               <Card>
