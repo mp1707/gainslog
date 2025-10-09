@@ -35,7 +35,6 @@ export interface ImageRefineRequest {
 
 export interface FoodEstimateResponse {
   generatedTitle: string;
-  estimationConfidence: number;
   calories: number;
   protein: number;
   carbs: number;

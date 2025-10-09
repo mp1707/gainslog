@@ -3,7 +3,6 @@ import { FoodEstimateResponse } from "../lib";
 
 export type EstimationInput = Omit<
   FoodLog,
-  | "estimationConfidence"
   | "isEstimating"
   | "calories"
   | "protein"
@@ -19,7 +18,6 @@ export const createEstimationLog = (logData: EstimationInput): FoodLog => {
     protein: 0,
     carbs: 0,
     fat: 0,
-    estimationConfidence: 0,
     isEstimating: true,
   };
 };
@@ -35,7 +33,6 @@ export const applyEstimationResults = (
     protein: results.protein,
     carbs: results.carbs,
     fat: results.fat,
-    estimationConfidence: results.estimationConfidence,
     foodComponents: results.foodComponents,
     macrosPerReferencePortion: results.macrosPerReferencePortion,
     isEstimating: false,

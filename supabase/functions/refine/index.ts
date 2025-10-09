@@ -17,7 +17,6 @@ function getClientIp(req) {
 const ERROR_RESPONSE = {
   generatedTitle: "Refinement Error",
   foodComponents: [],
-  estimationConfidence: 0,
   calories: 0,
   protein: 0,
   carbs: 0,

@@ -67,14 +67,6 @@ const lightColors = {
     iconColor: "#C2185B",
   },
 
-  // Confidence chips
-  confidence: {
-    high: { background: "rgba(16, 185, 129, 0.14)", text: "#0FA47A" },
-    medium: { background: "rgba(255, 176, 32, 0.14)", text: "#C98A00" },
-    low: { background: "rgba(255, 78, 58, 0.14)", text: "#D34431" },
-    uncertain: { background: "rgba(18, 20, 23, 0.06)", text: "#6B7280" },
-  },
-
   // Log status
   logStatus: {
     potential: {
@@ -167,25 +159,7 @@ const darkColors = {
     iconColor: "#F06292",
   },
 
-  // Log Status & Confidence
-  confidence: {
-    high: {
-      background: "rgba(77, 242, 222, 0.15)",
-      text: "#4DF2DE",
-    },
-    medium: {
-      background: "rgba(255, 213, 79, 0.15)",
-      text: "#FFD54F",
-    },
-    low: {
-      background: "rgba(255, 102, 90, 0.15)",
-      text: "#FF665A",
-    },
-    uncertain: {
-      background: "rgba(242, 242, 247, 0.15)",
-      text: "#8D8D93",
-    },
-  },
+  // Log Status
   logStatus: {
     // Stage 1: Neutral, subtle CTA.
     potential: {

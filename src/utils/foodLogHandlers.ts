@@ -26,7 +26,6 @@ export const createLogAgainHandler = (
       protein: log.protein,
       carbs: log.carbs,
       fat: log.fat,
-      estimationConfidence: 100,
       isEstimating: false,
     });
   };

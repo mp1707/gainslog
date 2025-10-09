@@ -65,10 +65,6 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
   const confidenceBadgeOpacity = useSharedValue(isLoading ? 0 : 1);
 
   const displayTitle = foodLog.title || "New Log";
-  const estimationConfidence =
-    "estimationConfidence" in foodLog
-      ? foodLog.estimationConfidence
-      : undefined;
 
   useEffect(() => {
     const wasLoading = previousLoadingRef.current;
@@ -124,8 +120,6 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
   }));
 
   const refinementInfo = getRefinementInfo(foodLog.foodComponents);
-
-  console.log(foodLog.foodComponents);
 
   return (
     <Pressable

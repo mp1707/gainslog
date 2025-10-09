@@ -1,1 +1,0 @@
-export { StaticConfidenceBar } from "./StaticConfidenceBar";

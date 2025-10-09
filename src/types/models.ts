@@ -14,7 +14,6 @@ export type FoodLog = {
   protein: number;
   carbs: number;
   fat: number;
-  estimationConfidence?: number;
   isEstimating?: boolean;
   macrosPerReferencePortion?: MacrosPerReferencePortion;
 };

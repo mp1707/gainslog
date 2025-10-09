@@ -8,6 +8,5 @@
   "calories": "integer",
   "protein": "integer",
   "carbs": "integer",
-  "fat": "integer",
-  "estimationConfidence": "integer"
+  "fat": "integer"
 }

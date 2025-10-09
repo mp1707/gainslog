@@ -77,7 +77,6 @@ export default function Create() {
           protein: 0,
           carbs: 0,
           fat: 0,
-          estimationConfidence: 0,
         });
       } catch (error) {
         showErrorToast("Error processing image", "Please try again.");
@@ -141,7 +140,6 @@ export default function Create() {
         logDate: selectedDate,
         createdAt: new Date().toISOString(),
         isEstimating: false,
-        estimationConfidence: 100,
         id: generateFoodLogId(),
       });
       router.back();
