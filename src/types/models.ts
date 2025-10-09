@@ -33,6 +33,10 @@ export type FoodComponent = {
     | "scoop"
     | "piece"
     | "serving";
+  recommendedMeasurement?: {
+    amount: number;
+    unit: string;
+  };
 };
 
 export type Favorite = {

@@ -15,7 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import { MacrosCard } from "@/components/refine-page/MacrosCard/MacrosCard";
 import { ComponentsList } from "@/components/refine-page/ComponentsList/ComponentsList";
 import { ComponentEditor } from "@/components/refine-page/ComponentEditor";
-import { FloatingAction } from "@/components/refine-page/FloatingAction/FloatingAction";
+import { AISuggestionSheet } from "@/components/refine-page/AISuggestionSheet";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { AppText, Card } from "@/components/index";
 import {
@@ -23,7 +23,6 @@ import {
   BottomSheetBackdrop,
 } from "@/components/shared/BottomSheet";
 import { TextInput } from "@/components/shared/TextInput";
-import { hasAmbiguousUnit as hasAmbiguousUnitFn } from "@/utils/hasAmbiguousUnit";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -57,6 +56,17 @@ export default function Edit() {
     component: FoodComponent;
   } | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+
+  // AI Suggestion state
+  const [suggestionSheet, setSuggestionSheet] = useState<{
+    open: boolean;
+    component?: FoodComponent;
+    index: number;
+  }>({ open: false, index: -1 });
+
+  // Change tracking for recalculation
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [changesCount, setChangesCount] = useState(0);
 
   const navigation = useNavigation();
 
@@ -171,6 +181,8 @@ export default function Edit() {
     });
 
     setIsDirty(true);
+    setHasUnsavedChanges(true);
+    setChangesCount((prev) => prev + 1);
   };
 
   const handleCancelEdit = () => {
@@ -203,6 +215,10 @@ export default function Edit() {
       setIsDirty(true); // local changes pending save
       setHasReestimated(true); // enable Done button
 
+      // Reset change tracking after successful recalculation
+      setHasUnsavedChanges(false);
+      setChangesCount(0);
+
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setIsRefined(true);
       setRevealKey((k) => k + 1);
@@ -228,18 +244,52 @@ export default function Edit() {
     }
   };
 
+  // AI Suggestion handlers
+  const handleShowSuggestion = (index: number, component: FoodComponent) => {
+    setSuggestionSheet({ open: true, component, index });
+  };
+
+  const handleUseRecommendation = () => {
+    if (!suggestionSheet.component?.recommendedMeasurement) return;
+
+    const { amount, unit } = suggestionSheet.component.recommendedMeasurement;
+    const updatedComponent: FoodComponent = {
+      ...suggestionSheet.component,
+      amount,
+      unit: unit as FoodComponent["unit"],
+      recommendedMeasurement: undefined, // Clear recommendation after use
+    };
+
+    setEditedLog((prev) => {
+      if (!prev) return prev;
+      const comps = [...(prev.foodComponents || [])];
+      comps[suggestionSheet.index] = updatedComponent;
+      return { ...prev, foodComponents: comps };
+    });
+
+    setIsDirty(true);
+    setHasUnsavedChanges(true);
+    setChangesCount((prev) => prev + 1);
+    setSuggestionSheet({ open: false, index: -1 });
+  };
+
+  const handleEditManually = () => {
+    // Close suggestion sheet and open component editor instead
+    if (!suggestionSheet.component) return;
+    setSuggestionSheet({ open: false, index: -1 });
+    setEditingComponent({
+      index: suggestionSheet.index,
+      component: suggestionSheet.component,
+    });
+    setSheetOpen(true);
+  };
+
   // Dynamically disable modal swipe gesture when bottom sheet is open
   useEffect(() => {
     navigation.setOptions({
-      gestureEnabled: !sheetOpen,
+      gestureEnabled: !sheetOpen && !suggestionSheet.open,
     });
-  }, [sheetOpen, navigation]);
-
-  const hasAmbiguousUnit = useMemo(() => {
-    return editedLog
-      ? hasAmbiguousUnitFn(editedLog.foodComponents || [])
-      : false;
-  }, [editedLog]);
+  }, [sheetOpen, suggestionSheet.open, navigation]);
 
   return (
     <GradientWrapper style={styles.container}>
@@ -256,7 +306,7 @@ export default function Edit() {
           Icon={Check}
           onPress={handleDone}
           variant={"primary"}
-          disabled={!hasReestimated && !isDirty && !titleChanged}
+          disabled={!hasReestimated && !isDirty && !titleChanged && !hasUnsavedChanges && changesCount === 0}
           accessibilityLabel="Close"
         />
       </View>
@@ -267,7 +317,7 @@ export default function Edit() {
         keyboardShouldPersistTaps="handled"
         bounces={false}
         overScrollMode="never"
-        scrollEnabled={!sheetOpen}
+        scrollEnabled={!sheetOpen && !suggestionSheet.open}
       >
         {isTitleEditing ? (
           <TextInput
@@ -299,19 +349,9 @@ export default function Edit() {
               onPressItem={handleOpenEditor}
               onDeleteItem={handleDeleteComponent}
               onAddPress={handleAddComponent}
+              onShowSuggestion={handleShowSuggestion}
               disabled={isLoading || originalLog?.isEstimating}
             />
-            {hasAmbiguousUnit && (
-              <Card>
-                <AppText role="Subhead" color="primary" style={styles.tipTitle}>
-                  💡 Quick Tip
-                </AppText>
-                <AppText role="Body" color="secondary">
-                  Use specific units (g, oz, ml) to improve macro nutrient
-                  estimation accuracy.
-                </AppText>
-              </Card>
-            )}
             {/* Macros display */}
             <MacrosCard
               calories={editedLog.calories}
@@ -320,6 +360,9 @@ export default function Edit() {
               fat={editedLog.fat}
               processing={isLoading}
               revealKey={revealKey}
+              hasUnsavedChanges={hasUnsavedChanges}
+              changesCount={changesCount}
+              onRecalculate={handleReestimate}
             />
 
             {/* Image display (like on create) */}
@@ -331,7 +374,7 @@ export default function Edit() {
           </>
         )}
       </RNScrollView>
-      {/* Bottom Sheet Editor */}
+      {/* Component Editor Bottom Sheet */}
       <BottomSheetBackdrop
         open={sheetOpen}
         onPress={() => {
@@ -356,20 +399,25 @@ export default function Edit() {
           />
         )}
       </BottomSheet>
-      {!sheetOpen && editedLog && (
-        <FloatingAction
-          onPress={handleReestimate}
-          disabled={
-            isLoading ||
-            originalLog?.isEstimating ||
-            lastEstimatedComponents === undefined ||
-            !componentsChangedSinceLastEstimate ||
-            (editedLog.foodComponents?.length || 0) === 0
-          }
-          isProcessing={isLoading || !!originalLog?.isEstimating}
-          didSucceed={isRefined}
-        />
-      )}
+
+      {/* AI Suggestion Bottom Sheet */}
+      <BottomSheetBackdrop
+        open={suggestionSheet.open}
+        onPress={() => setSuggestionSheet({ open: false, index: -1 })}
+        opacity={0.35}
+      />
+      <BottomSheet
+        open={suggestionSheet.open}
+        onClose={() => setSuggestionSheet({ open: false, index: -1 })}
+      >
+        {suggestionSheet.component && (
+          <AISuggestionSheet
+            component={suggestionSheet.component}
+            onUseRecommendation={handleUseRecommendation}
+            onEditManually={handleEditManually}
+          />
+        )}
+      </BottomSheet>
     </GradientWrapper>
   );
 }
@@ -413,8 +461,5 @@ const createStyles = (colors: Colors, theme: Theme) =>
       alignItems: "center",
       justifyContent: "center",
       paddingVertical: theme.spacing.xl,
-    },
-    tipTitle: {
-      marginBottom: theme.spacing.xs,
     },
   });

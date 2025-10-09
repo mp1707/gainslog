@@ -66,7 +66,7 @@ export const estimateTextBased = async (
 ): Promise<FoodEstimateResponse> => {
   console.log("Text estimation request:", request);
 
-  const response = await fetch(`${supabaseUrl}/functions/v1/textEstimationV3`, {
+  const response = await fetch(`${supabaseUrl}/functions/v1/textEstimationV5`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -140,7 +140,7 @@ export const estimateNutritionImageBased = async (
   console.log("Image estimation request:", request);
 
   const response = await fetch(
-    `${supabaseUrl}/functions/v1/imageEstimationV4`,
+    `${supabaseUrl}/functions/v1/imageEstimationV5`,
     {
       method: "POST",
       headers: {

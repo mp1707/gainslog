@@ -18,6 +18,7 @@ function getClientIp(req: Request) {
   return "unknown";
 }
 
+// Updated error/fallback response (estimationConfidence removed)
 const ERROR_RESPONSE = {
   generatedTitle: "Estimation Error",
   foodComponents: [],
@@ -27,6 +28,9 @@ const ERROR_RESPONSE = {
   fat: 0,
 };
 
+// UPDATED SYSTEM PROMPT:
+// - Adds OPTIONAL per-component "recommendedMeasurement" when unit is ambiguous ("piece" or "serving").
+// - Removes any mention of estimationConfidence.
 const SYSTEM_PROMPT = `You are a meticulous nutrition expert. Analyze a user's text description of a meal and return a single, valid JSON object with your nutritional estimation. Decompose the meal into components.
 
 STRICT OUTPUT RULES
@@ -40,7 +44,14 @@ JSON OUTPUT SCHEMA
 {
   "generatedTitle": "string",
   "foodComponents": [
-    { "name": "string", "amount": number, "unit": "string", "needsRefinement": boolean }
+    {
+      "name": "string",
+      "amount": number,
+      "unit": "string",
+      "needsRefinement": boolean,
+      // OPTIONAL — include ONLY when unit is "piece" or "serving"
+      // "recommendedMeasurement": { "amount": number, "unit": "string" }
+    }
   ],
   "calories": integer,
   "protein": integer,
@@ -57,6 +68,7 @@ UNIT & SYNONYM NORMALIZATION
   * "tablespoons" → "tbsp", "teaspoons" → "tsp"
   * "cups" → "cup", "ounces" → "oz", "fluid ounces" → "fl oz"
 - Vague units ("serving", "piece") are allowed but usually require needsRefinement: true unless a standard size is explicit (e.g., "1 cup").
+- When using "piece"/"serving", ALSO add "recommendedMeasurement" with a realistic exact alternative (prefer "g" or "ml" when appropriate), e.g., a medium apple → {"amount": 180, "unit": "g"}.
 
 CORE LOGIC
 1) Deconstruct:
@@ -65,7 +77,7 @@ CORE LOGIC
 2) Amount handling (CRITICAL):
    - If user provides a specific quantity (e.g., "150 g chicken", "2 slices bread"), set that amount/unit and needsRefinement: false.
    - If not provided, estimate a reasonable standard portion; set needsRefinement: true.
-   - If the unit is vague ("serving", "piece", "handful"), estimate and set needsRefinement: true.
+   - If the unit is vague ("serving" or "piece"), estimate and set needsRefinement: true and add "recommendedMeasurement".
 3) Title:
    - generatedTitle starts with ONE fitting emoji + 1–3 concise words. No trailing punctuation. Example: "🥗 Chicken Bowl".
 4) Macros:
@@ -99,7 +111,7 @@ Expected JSON:
   "foodComponents": [
     { "name": "muesli", "amount": 60, "unit": "g", "needsRefinement": true },
     { "name": "quark", "amount": 250, "unit": "g", "needsRefinement": true },
-    { "name": "apple", "amount": 1, "unit": "piece", "needsRefinement": true }
+    { "name": "apple", "amount": 1, "unit": "piece", "needsRefinement": true, "recommendedMeasurement": { "amount": 180, "unit": "g" } }
   ],
   "calories": 480,
   "protein": 28,
@@ -113,7 +125,7 @@ Expected JSON:
 {
   "generatedTitle": "🥪 Sandwich & Soda",
   "foodComponents": [
-    { "name": "sandwich (ham & cheese, white bread)", "amount": 1, "unit": "piece", "needsRefinement": true },
+    { "name": "sandwich (ham & cheese, white bread)", "amount": 1, "unit": "piece", "needsRefinement": true, "recommendedMeasurement": { "amount": 250, "unit": "g" } },
     { "name": "cola", "amount": 330, "unit": "ml", "needsRefinement": true }
   ],
   "calories": 620,
@@ -185,7 +197,6 @@ Deno.serve(async (req) => {
 
   try {
     const { description } = await req.json();
-
     if (
       !description ||
       typeof description !== "string" ||
@@ -202,7 +213,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const userPrompt = `Estimate the nutrition for the following meal: ${description}.`;
+    const userPrompt = `Estimate the nutrition for the following meal. If you use an ambiguous unit ("piece" or "serving") for any component, ALSO include "recommendedMeasurement" with a realistic exact amount and unit (prefer grams or milliliters): ${description}.`;
 
     const chatCompletion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -233,13 +244,24 @@ Deno.serve(async (req) => {
       "serving",
     ];
 
+    const EXACT_UNITS = [
+      "g",
+      "oz",
+      "ml",
+      "fl oz",
+      "cup",
+      "tbsp",
+      "tsp",
+      "scoop",
+    ];
+
     const result = {
       generatedTitle: nutrition.generatedTitle || "AI Estimate",
       foodComponents: Array.isArray(nutrition.foodComponents)
         ? nutrition.foodComponents
             .map((comp) => {
               const lowerCaseUnit = String(comp.unit || "").toLowerCase();
-              return {
+              const base: any = {
                 name: String(comp.name || "Unknown Item"),
                 amount: Math.max(0, Number(comp.amount) || 0),
                 unit: ALLOWED_UNITS.includes(lowerCaseUnit)
@@ -250,6 +272,28 @@ Deno.serve(async (req) => {
                     ? comp.needsRefinement
                     : true,
               };
+
+              // Pass through recommendedMeasurement if present and sane
+              if (
+                comp.recommendedMeasurement &&
+                typeof comp.recommendedMeasurement === "object"
+              ) {
+                const rmAmount = Math.max(
+                  0,
+                  Number(comp.recommendedMeasurement.amount) || 0
+                );
+                const rmUnit = String(
+                  comp.recommendedMeasurement.unit || ""
+                ).toLowerCase();
+                if (rmAmount > 0 && EXACT_UNITS.includes(rmUnit)) {
+                  base.recommendedMeasurement = {
+                    amount: rmAmount,
+                    unit: rmUnit,
+                  };
+                }
+              }
+
+              return base;
             })
             .filter((comp) => comp.name && comp.name !== "Unknown Item")
         : [],

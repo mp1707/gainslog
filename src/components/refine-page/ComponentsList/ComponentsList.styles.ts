@@ -60,4 +60,12 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     amountText: {
       marginRight: theme.spacing.sm,
     },
+    infoIconContainer: {
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      backgroundColor: colors.accent + "20",
+      alignItems: "center",
+      justifyContent: "center",
+    },
   });

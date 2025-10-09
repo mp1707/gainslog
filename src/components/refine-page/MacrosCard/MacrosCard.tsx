@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   LayoutChangeEvent,
   View,
+  Pressable,
 } from "react-native";
 import Animated, {
   Easing as ReanimatedEasing,
@@ -14,7 +15,10 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated";
+import { BlurView } from "expo-blur";
+import * as Haptics from "expo-haptics";
 import { AppText, Card } from "@/components";
+import { Button } from "@/components/shared/Button/Button";
 import { useTheme } from "@/theme";
 import type { Colors, Theme } from "@/theme";
 import { createStyles } from "./MacrosCard.styles";
@@ -29,6 +33,10 @@ interface MacrosCardProps {
   processing?: boolean;
   // Changes to this key will trigger slot-machine style counters
   revealKey?: number;
+  // New props for stale state
+  hasUnsavedChanges?: boolean;
+  changesCount?: number;
+  onRecalculate?: () => void;
 }
 
 // Optimized utility using Reanimated - runs on UI thread without re-renders
@@ -302,8 +310,11 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
   fat,
   processing = false,
   revealKey,
+  hasUnsavedChanges = false,
+  changesCount = 0,
+  onRecalculate,
 }) => {
-  const { colors, theme } = useTheme();
+  const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme);
 
   const cals = useNumberReveal(calories ?? 0);
@@ -363,8 +374,18 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
     ],
   );
 
+  const handleRecalculate = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    onRecalculate?.();
+  };
+
+  const recalculateLabel = useMemo(() => {
+    const changeWord = changesCount === 1 ? "change" : "changes";
+    return `Recalculate (${changesCount} ${changeWord})`;
+  }, [changesCount]);
+
   return (
-    <Card>
+    <Card style={styles.cardContainer}>
       <AppText role="Caption" style={styles.sectionHeader}>
         MACROS
       </AppText>
@@ -381,6 +402,26 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
           {index < macroItems.length - 1 && <View style={styles.divider} />}
         </React.Fragment>
       ))}
+
+      {/* Stale State Overlay */}
+      {hasUnsavedChanges && !processing && (
+        <View style={styles.blurOverlay}>
+          <BlurView
+            intensity={colorScheme === "dark" ? 20 : 40}
+            tint={colorScheme}
+            style={styles.blurView}
+          >
+            <View style={styles.recalculateButtonContainer}>
+              <Button
+                label={recalculateLabel}
+                variant="primary"
+                onPress={handleRecalculate}
+                disabled={processing}
+              />
+            </View>
+          </BlurView>
+        </View>
+      )}
     </Card>
   );
 };

@@ -1,7 +1,8 @@
 import React from "react";
-import { TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View, Pressable } from "react-native";
 import Animated, { Easing, LinearTransition } from "react-native-reanimated";
-import { Plus } from "lucide-react-native";
+import { Plus, Info } from "lucide-react-native";
+import * as Haptics from "expo-haptics";
 import { AppText, Card } from "@/components";
 import { useTheme } from "@/theme";
 import { createStyles } from "./ComponentsList.styles";
@@ -14,6 +15,7 @@ interface ComponentsListProps {
   onPressItem: (index: number, comp: FoodComponent) => void;
   onDeleteItem: (index: number) => void;
   onAddPress: () => void;
+  onShowSuggestion?: (index: number, comp: FoodComponent) => void;
   disabled?: boolean;
 }
 
@@ -22,10 +24,17 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
   onPressItem,
   onDeleteItem,
   onAddPress,
+  onShowSuggestion,
   disabled,
 }) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
+
+  const handleSuggestionPress = (event: any, index: number, comp: FoodComponent) => {
+    event.stopPropagation();
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onShowSuggestion?.(index, comp);
+  };
 
   return (
     <Card style={styles.container}>
@@ -60,6 +69,15 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
                   <AppText color="secondary" style={styles.amountText}>
                     {comp.amount} {comp.unit ?? ""}
                   </AppText>
+                  {comp.recommendedMeasurement && (
+                    <Pressable
+                      onPress={(e) => handleSuggestionPress(e, index, comp)}
+                      style={styles.infoIconContainer}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <Info size={18} color={colors.accent} />
+                    </Pressable>
+                  )}
                 </View>
               </View>
             </View>

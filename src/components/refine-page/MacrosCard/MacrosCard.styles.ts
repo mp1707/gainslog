@@ -3,6 +3,10 @@ import type { Colors, Theme } from "@/theme";
 
 export const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
+    cardContainer: {
+      position: "relative",
+      overflow: "hidden",
+    },
     sectionHeader: {
       marginBottom: theme.spacing.sm,
       letterSpacing: 0.6,
@@ -55,5 +59,23 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     divider: {
       height: 1,
       backgroundColor: colors.border,
+    },
+    blurOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      borderRadius: theme.components.cards.cornerRadius,
+      overflow: "hidden",
+    },
+    blurView: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    recalculateButtonContainer: {
+      paddingHorizontal: theme.spacing.md,
+      width: "100%",
     },
   });
