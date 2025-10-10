@@ -5,14 +5,16 @@ import { OpenAI } from "https://deno.land/x/openai@v4.52.7/mod.ts";
 import { Ratelimit } from "https://cdn.skypack.dev/@upstash/ratelimit@latest";
 import { Redis } from "https://deno.land/x/upstash_redis@v1.19.3/mod.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.39.4";
-
 // Initialize Supabase client with service role key for privileged operations
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL") ?? "",
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-  { auth: { persistSession: false } }
+  {
+    auth: {
+      persistSession: false,
+    },
+  }
 );
-
 // Fallback response for non-food images or API failures
 const INVALID_IMAGE_RESPONSE = {
   generatedTitle: "Invalid Image",
@@ -22,20 +24,17 @@ const INVALID_IMAGE_RESPONSE = {
   carbs: 0,
   fat: 0,
 };
-
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(2, "60 s"),
   analytics: true,
   prefix: "@upstash/ratelimit",
 });
-
 function getClientIp(req) {
   const ipHeader = req.headers.get("x-forwarded-for");
   if (ipHeader) return ipHeader.split(",")[0].trim();
   return "unknown";
 }
-
 // ──────────────────────────────────────────────────────────────────────────────
 // UPDATED SYSTEM PROMPT:
 // - Adds OPTIONAL per-component "recommendedMeasurement" when unit is ambiguous ("piece" or "serving").
@@ -49,7 +48,7 @@ STRICT OUTPUT RULES
 - Units must be lowercase and singular.
 - Totals (calories, protein, carbs, fat) must be the sum of components and roughly consistent with kcal ≈ 4p + 4c + 9f.
 - OPTIONAL FIELD POLICY (label basis): Include "macrosPerReferencePortion" ONLY if the image shows an exact printed nutrition label with numeric macro values tied to a clear basis (e.g., "per 100 g", "per 1 serving (40 g)"). If not exact, omit this field entirely.
-- OPTIONAL FIELD POLICY (recommendedMeasurement): If you output an ambiguous unit ("piece" or "serving") for a component, ALSO include a "recommendedMeasurement" with an exact measurable alternative (e.g., grams or milliliters) that best fits the item. This gives the user a precise option to accept later.
+- OPTIONAL FIELD POLICY (recommendedMeasurement): If you output an ambiguous unit (only for "piece" or "serving") for a component, ALSO include a "recommendedMeasurement" with an exact measurable alternative (e.g., grams or milliliters) that best fits the item. This gives the user a precise option to accept later.
 
 JSON OUTPUT SCHEMA
 {
@@ -86,7 +85,8 @@ UNIT & SYNONYM NORMALIZATION
   * "slices", "slice", "pcs" → "piece"
   * "tablespoons" → "tbsp", "teaspoons" → "tsp"
   * "cups" → "cup", "ounces" → "oz", "fluid ounces" → "fl oz"
-- Vague units ("serving", "piece") are allowed but typically require needsRefinement: true unless a standard size is explicit (e.g., "1 cup").
+- Prefer units that are exact ("g", "oz", "ml", "fl oz", "cup", "tbsp", "tsp", "scoop")
+- Only use the ambiguous units ("piece" and "serving") if it makes more sense than exact ones (for example an apple is usually described as 1 piece)
 - When using "piece"/"serving", ALSO provide "recommendedMeasurement" with a realistic exact amount and unit (prefer "g" or "ml" when appropriate).
 
 CORE LOGIC
@@ -210,9 +210,7 @@ Return this shape if the image is not food:
   "fat": 0
 }
 `;
-
 const openai = new OpenAI();
-
 // Simple API key validation
 function validateApiKey(request) {
   const authHeader = request.headers.get("authorization");
@@ -220,106 +218,138 @@ function validateApiKey(request) {
   if (authHeader?.startsWith("Bearer ") || apiKeyHeader) return true;
   return false;
 }
-
 Deno.serve(async (req) => {
   const identifier = getClientIp(req);
   const { success } = await ratelimit.limit(identifier);
   if (!success) {
-    return new Response(JSON.stringify({ error: "AI_ESTIMATION_RATE_LIMIT" }), {
-      status: 429,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        error: "AI_ESTIMATION_RATE_LIMIT",
+      }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
-
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers":
       "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   };
-
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders });
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders,
+    });
   }
-
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Only POST method allowed" }), {
-      status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        error: "Only POST method allowed",
+      }),
+      {
+        status: 405,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
-
   if (!validateApiKey(req)) {
-    return new Response(JSON.stringify({ error: "Invalid API key" }), {
-      status: 401,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        error: "Invalid API key",
+      }),
+      {
+        status: 401,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
-
   try {
     const { imagePath, title, description } = await req.json();
-
     const bucket = "food-images";
     const expiresIn = 60;
-
     if (!imagePath?.trim()) {
-      return new Response(JSON.stringify({ error: "ImagePath is required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({
+          error: "ImagePath is required",
+        }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
     }
-
     const { data, error } = await supabase.storage
       .from(bucket)
       .createSignedUrl(imagePath, expiresIn);
-
     if (error || !data) {
       console.error("Signed URL error:", error);
       return new Response(
-        JSON.stringify({ error: "Failed to create signed URL" }),
+        JSON.stringify({
+          error: "Failed to create signed URL",
+        }),
         {
           status: 500,
           headers: corsHeaders,
         }
       );
     }
-
     const imageUrl = data.signedUrl;
-
     let userPrompt =
-      "Analyze this food image and estimate its nutritional content. If a clear, exact nutrition label is visible, include macrosPerReferencePortion with an exact referencePortionAmount like '40 g' or '100 ml' and integer macros for that portion. If you use 'piece' or 'serving' for a component, ALSO include recommendedMeasurement with an exact amount+unit (e.g., grams or milliliters).";
-
+      "Analyze this food image and estimate its nutritional content. If you use 'piece' or 'serving' as a unit for a component, ALSO include recommendedMeasurement with an exact amount+unit (e.g., grams or milliliters). If a clear, exact nutrition label is visible, include macrosPerReferencePortion with an exact referencePortionAmount like '40 g' or '100 ml' and integer macros for that portion. ";
     if (title?.trim() || description?.trim()) {
       userPrompt += " Additional context:";
       if (title?.trim()) userPrompt += ` Title: ${title.trim()}.`;
       if (description?.trim())
         userPrompt += ` Description: ${description.trim()}.`;
     }
-
     const messages = [
-      { role: "system", content: SYSTEM_PROMPT },
+      {
+        role: "system",
+        content: SYSTEM_PROMPT,
+      },
       {
         role: "user",
         content: [
-          { type: "text", text: userPrompt },
-          { type: "image_url", image_url: { url: imageUrl, detail: "high" } },
+          {
+            type: "text",
+            text: userPrompt,
+          },
+          {
+            type: "image_url",
+            image_url: {
+              url: imageUrl,
+              detail: "high",
+            },
+          },
         ],
       },
     ];
-
     const chatCompletion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages,
-      response_format: { type: "json_object" },
+      response_format: {
+        type: "json_object",
+      },
       temperature: 0.2,
       max_completion_tokens: 1000,
     });
-
     const messageContent = chatCompletion.choices?.[0]?.message?.content;
     if (!messageContent) throw new Error("AI returned an empty message.");
-
     const nutrition = JSON.parse(messageContent);
-
     const ALLOWED_UNITS = [
       "g",
       "oz",
@@ -332,7 +362,6 @@ Deno.serve(async (req) => {
       "piece",
       "serving",
     ];
-
     const EXACT_UNITS = [
       "g",
       "oz",
@@ -343,13 +372,11 @@ Deno.serve(async (req) => {
       "tsp",
       "scoop",
     ];
-
     // Sanitize components (no limit on number of components)
     const sanitizedComponents = Array.isArray(nutrition.foodComponents)
       ? nutrition.foodComponents
           .map((comp) => {
             const lowerCaseUnit = String(comp.unit || "").toLowerCase();
-
             // Base component
             const base = {
               name: String(comp.name || "Unknown Item"),
@@ -362,7 +389,6 @@ Deno.serve(async (req) => {
                   ? comp.needsRefinement
                   : true,
             };
-
             // Optional recommendedMeasurement passthrough (normalize unit if present)
             if (
               comp.recommendedMeasurement &&
@@ -382,12 +408,10 @@ Deno.serve(async (req) => {
                 };
               }
             }
-
             return base;
           })
           .filter((comp) => comp.name && comp.name !== "Unknown Item")
       : [];
-
     // Optional macrosPerReferencePortion passthrough (no complex sanitization)
     let sanitizedReferenceMacros;
     if (
@@ -422,7 +446,6 @@ Deno.serve(async (req) => {
         };
       }
     }
-
     const result = {
       generatedTitle: nutrition.generatedTitle || "Food Image Analysis",
       foodComponents: sanitizedComponents,
@@ -431,20 +454,24 @@ Deno.serve(async (req) => {
       carbs: Math.max(0, Math.round(nutrition.carbs || 0)),
       fat: Math.max(0, Math.round(nutrition.fat || 0)),
     };
-
     if (sanitizedReferenceMacros) {
       result.macrosPerReferencePortion = sanitizedReferenceMacros;
     }
-
     return new Response(JSON.stringify(result), {
       status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
     });
   } catch (error) {
     console.warn("Error validating AI response, using fallback:", error);
     return new Response(JSON.stringify(INVALID_IMAGE_RESPONSE), {
       status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
+      headers: {
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
     });
   }
 });
