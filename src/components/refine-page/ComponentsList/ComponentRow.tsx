@@ -75,13 +75,14 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
       paddingHorizontal: expandProgress.value * theme.spacing.md,
       marginTop: isExpanding ? -theme.spacing.md : 0,
       marginBottom: isExpanding ? -theme.spacing.lg : 0,
+      marginRight: (1 - expandProgress.value) * theme.spacing.md,
     };
   });
 
   return (
     <Animated.View>
       <SwipeToFunctions
-        onDelete={onDelete}
+        onDelete={isExpanded ? undefined : onDelete}
         onTap={onTap}
         borderRadius={theme.components.cards.cornerRadius}
       >
@@ -98,7 +99,9 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
             ]}
           >
             <View style={styles.leftColumn}>
-              <AppText style={styles.componentName}>{component.name}</AppText>
+              <AppText numberOfLines={1} style={styles.componentName}>
+                {component.name}
+              </AppText>
             </View>
             <View style={styles.rightColumn}>
               <AppText color="secondary" style={styles.amountText}>

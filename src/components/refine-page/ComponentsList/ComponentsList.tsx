@@ -59,22 +59,20 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
           COMPONENTS
         </AppText>
       </View>
-      <View style={styles.componentRowContainer}>
-        {components.map((comp, index) => (
-          <ComponentRow
-            key={`${comp.name}-${index}`}
-            component={comp}
-            index={index}
-            isExpanded={expandedIndex === index}
-            onTap={() => handleRowTap(index, comp)}
-            onDelete={() => onDeleteItem(index)}
-            onAcceptRecommendation={() =>
-              handleAcceptRecommendation(index, comp)
-            }
-            onEditManually={() => handleEditManually(index, comp)}
-          />
-        ))}
-      </View>
+
+      {components.map((comp, index) => (
+        <ComponentRow
+          key={`${comp.name}-${index}`}
+          component={comp}
+          index={index}
+          isExpanded={expandedIndex === index}
+          onTap={() => handleRowTap(index, comp)}
+          onDelete={() => onDeleteItem(index)}
+          onAcceptRecommendation={() => handleAcceptRecommendation(index, comp)}
+          onEditManually={() => handleEditManually(index, comp)}
+        />
+      ))}
+
       <TouchableOpacity
         onPress={onAddPress}
         style={styles.addRow}
