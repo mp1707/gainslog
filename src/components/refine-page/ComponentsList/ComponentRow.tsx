@@ -67,15 +67,23 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
     borderTopRightRadius: theme.components.cards.cornerRadius,
   }));
 
+  const animatedAmountTextStyle = useAnimatedStyle(() => ({
+    marginRight:
+      theme.spacing.sm +
+      (component.recommendedMeasurement
+        ? (1 - expandProgress.value) * -theme.spacing.sm
+        : 0),
+  }));
+
   const lightbulbContainerStyle = useAnimatedStyle(() => {
     const isExpanding = expandProgress.value > 0;
     return {
       paddingTop: isExpanding ? theme.spacing.md : 0,
       paddingBottom: isExpanding ? theme.spacing.lg : 0,
-      paddingHorizontal: expandProgress.value * theme.spacing.md,
+      paddingHorizontal: theme.spacing.md,
       marginTop: isExpanding ? -theme.spacing.md : 0,
       marginBottom: isExpanding ? -theme.spacing.lg : 0,
-      marginRight: (1 - expandProgress.value) * theme.spacing.md,
+      // marginRight: (1 - expandProgress.value) * -theme.spacing.sm,
     };
   });
 
@@ -104,9 +112,14 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
               </AppText>
             </View>
             <View style={styles.rightColumn}>
-              <AppText color="secondary" style={styles.amountText}>
-                {component.amount} {component.unit ?? ""}
-              </AppText>
+              <Animated.View style={animatedAmountTextStyle}>
+                <AppText
+                  color="secondary"
+                  // style={styles.amountText}
+                >
+                  {component.amount} {component.unit ?? ""}
+                </AppText>
+              </Animated.View>
               {hasRecommendation && (
                 <Animated.View
                   style={[lightbulbBgStyle, lightbulbContainerStyle]}
