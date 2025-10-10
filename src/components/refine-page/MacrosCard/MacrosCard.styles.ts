@@ -85,5 +85,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       textAlign: "right",
       padding: 0,
       margin: 0,
+      borderWidth: 0,
+      backgroundColor: "transparent",
     },
   });

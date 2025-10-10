@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { LayoutChangeEvent, TextInput, View } from "react-native";
 import Animated, {
   Easing as ReanimatedEasing,
@@ -42,14 +48,14 @@ const useNumberReveal = (initial: number) => {
 
   // Derived value for the display number - all calculations on UI thread
   const displayValue = useDerivedValue(() => {
-    'worklet';
+    "worklet";
     const target = targetValue.value;
 
     // During flicker phase (0-1), show random values
     if (flickerProgress.value < 1) {
       // Generate pseudo-random flicker based on progress
       const seed = Math.floor(flickerProgress.value * 10);
-      const randomFactor = (seed * 9301 + 49297) % 233280 / 233280;
+      const randomFactor = ((seed * 9301 + 49297) % 233280) / 233280;
       return Math.max(0, Math.round(target * randomFactor));
     }
 
@@ -61,8 +67,7 @@ const useNumberReveal = (initial: number) => {
   }, []);
 
   const animateTo = (target: number) => {
-    const startPrev = prevValue.value;
-    prevValue.value = target;
+    prevValue.value = targetValue.value;
     targetValue.value = target;
 
     // Reset progress values
@@ -70,19 +75,23 @@ const useNumberReveal = (initial: number) => {
     countProgress.value = 0;
 
     // Phase 1: Flicker animation (250ms)
-    flickerProgress.value = withTiming(1, {
-      duration: 250,
-      easing: ReanimatedEasing.linear,
-    }, (finished) => {
-      'worklet';
-      if (finished) {
-        // Phase 2: Count-up animation (450ms)
-        countProgress.value = withTiming(1, {
-          duration: 450,
-          easing: ReanimatedEasing.out(ReanimatedEasing.cubic),
-        });
+    flickerProgress.value = withTiming(
+      1,
+      {
+        duration: 250,
+        easing: ReanimatedEasing.linear,
+      },
+      (finished) => {
+        "worklet";
+        if (finished) {
+          // Phase 2: Count-up animation (450ms)
+          countProgress.value = withTiming(1, {
+            duration: 450,
+            easing: ReanimatedEasing.out(ReanimatedEasing.cubic),
+          });
+        }
       }
-    });
+    );
   };
 
   return { displayValue, animateTo } as const;
@@ -92,27 +101,47 @@ const useNumberReveal = (initial: number) => {
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
 // Component to display animated numbers - runs entirely on UI thread
-const AnimatedNumber = React.memo(({ value, suffix, styles }: {
-  value: Animated.SharedValue<number>,
-  suffix: string,
-  styles: any
-}) => {
-  const animatedProps = useAnimatedProps(() => {
-    'worklet';
-    return {
-      value: `${Math.round(value.value)} ${suffix}`,
-    } as any; // Type assertion to bypass TextInput readonly restriction
-  });
+// Uses frame throttling to update at 30fps for better performance
+const AnimatedNumber = React.memo(
+  ({
+    value,
+    suffix,
+    styles,
+  }: {
+    value: Animated.SharedValue<number>;
+    suffix: string;
+    styles: any;
+  }) => {
+    const frameCount = useSharedValue(0);
 
-  return (
-    <AnimatedTextInput
-      editable={false}
-      value={`0 ${suffix}`}
-      animatedProps={animatedProps}
-      style={[styles.animatedNumberText, { color: 'inherit' }]}
-    />
-  );
-});
+    const animatedProps = useAnimatedProps(() => {
+      "worklet";
+
+      // Frame throttling: only update every 2nd frame (30fps instead of 60fps)
+      frameCount.value += 1;
+      const shouldUpdate = frameCount.value % 2 === 0;
+
+      if (!shouldUpdate && frameCount.value > 2) {
+        // Return previous value to skip this frame
+        return {} as any;
+      }
+
+      return {
+        text: `${Math.round(value.value)} ${suffix}`,
+      } as any;
+    });
+
+    return (
+      <AnimatedTextInput
+        editable={false}
+        underlineColorAndroid="transparent"
+        defaultValue={`0 ${suffix}`}
+        animatedProps={animatedProps}
+        style={[styles.animatedNumberText]}
+      />
+    );
+  }
+);
 
 interface MacroRowProps {
   item: {
@@ -138,7 +167,9 @@ const MacroRowComponent = ({
   theme,
 }: MacroRowProps) => {
   const [rowWidth, setRowWidth] = useState(0);
-  const [rowHeight, setRowHeight] = useState(theme.spacing.lg + theme.spacing.xs);
+  const [rowHeight, setRowHeight] = useState(
+    theme.spacing.lg + theme.spacing.xs
+  );
 
   // Single shared value for all animations - others derived from this
   const transition = useSharedValue(processing ? 1 : 0);
@@ -156,7 +187,7 @@ const MacroRowComponent = ({
         setRowHeight(nextHeight);
       }
     },
-    [rowHeight, rowWidth, rowWidthValue, theme.spacing.lg, theme.spacing.xs],
+    [rowHeight, rowWidth, rowWidthValue, theme.spacing.lg, theme.spacing.xs]
   );
 
   useEffect(() => {
@@ -197,7 +228,7 @@ const MacroRowComponent = ({
   }, [rowWidth, theme.spacing.xl]);
 
   const loaderAnimatedStyle = useAnimatedStyle(() => {
-    'worklet';
+    "worklet";
     const t = transition.value;
     const calculatedWidth = Math.max(rowWidthValue.value * t, 0);
 
@@ -212,9 +243,12 @@ const MacroRowComponent = ({
   });
 
   const labelAnimatedStyle = useAnimatedStyle(() => {
-    'worklet';
+    "worklet";
     const t = transition.value;
-    const slideDistance = Math.max(theme.spacing.xl, rowWidthValue.value * 0.18);
+    const slideDistance = Math.max(
+      theme.spacing.xl,
+      rowWidthValue.value * 0.18
+    );
 
     return {
       opacity: 1 - t,
@@ -223,9 +257,12 @@ const MacroRowComponent = ({
   });
 
   const valueAnimatedStyle = useAnimatedStyle(() => {
-    'worklet';
+    "worklet";
     const t = transition.value;
-    const slideDistance = Math.max(theme.spacing.xl, rowWidthValue.value * 0.18);
+    const slideDistance = Math.max(
+      theme.spacing.xl,
+      rowWidthValue.value * 0.18
+    );
 
     // Derive value opacity from transition with delay effect
     // Stay hidden during loading (t > 0.4), then fade in
@@ -268,12 +305,7 @@ const MacroRowComponent = ({
           },
         ]}
       >
-        <View
-          style={[
-            styles.macroDot,
-            { backgroundColor: item.color },
-          ]}
-        />
+        <View style={[styles.macroDot, { backgroundColor: item.color }]} />
         <AppText>{item.label}</AppText>
       </Animated.View>
       <Animated.View style={[styles.macroValueContainer, valueAnimatedStyle]}>
@@ -328,7 +360,7 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
     setTimeout(() => crb.animateTo(carbs ?? 0), 100);
     setTimeout(() => ft.animateTo(fat ?? 0), 150);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [revealKey]);
+  }, [revealKey, calories, protein, carbs, fat]);
 
   // Use ref for stable array reference - shared values update automatically
   const macroItemsRef = useRef([
@@ -368,7 +400,12 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
     macroItemsRef.current[1].color = colors.semantic.protein;
     macroItemsRef.current[2].color = colors.semantic.carbs;
     macroItemsRef.current[3].color = colors.semantic.fat;
-  }, [colors.semantic.calories, colors.semantic.protein, colors.semantic.carbs, colors.semantic.fat]);
+  }, [
+    colors.semantic.calories,
+    colors.semantic.protein,
+    colors.semantic.carbs,
+    colors.semantic.fat,
+  ]);
 
   const handleRecalculate = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -400,18 +437,16 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
             colors={colors}
             theme={theme}
           />
-          {index < macroItemsRef.current.length - 1 && <View style={styles.divider} />}
+          {index < macroItemsRef.current.length - 1 && (
+            <View style={styles.divider} />
+          )}
         </React.Fragment>
       ))}
 
       {/* Stale State Overlay */}
       {hasUnsavedChanges && !processing && (
         <View style={styles.blurOverlay}>
-          <BlurView
-            intensity={8}
-            tint={colorScheme}
-            style={styles.blurView}
-          >
+          <BlurView intensity={8} tint={colorScheme} style={styles.blurView}>
             <View style={styles.recalculateButtonContainer}>
               <Button
                 label={recalculateLabel}
