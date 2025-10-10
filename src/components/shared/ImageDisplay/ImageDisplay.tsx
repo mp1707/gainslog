@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View, Image, TouchableOpacity } from "react-native";
 import Animated, {
   useSharedValue,
@@ -7,7 +7,7 @@ import Animated, {
   withRepeat,
   withSpring,
   interpolate,
-  runOnJS,
+  cancelAnimation,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
@@ -27,7 +27,7 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
   onExpand,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
-  const styles = createStyles(colors, theme, colorScheme);
+  const styles = useMemo(() => createStyles(colors, theme, colorScheme), [colors, theme, colorScheme]);
   
   // Toggle state for height expansion
   const [isExpanded, setIsExpanded] = useState(false);
@@ -45,8 +45,11 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
       skeletonOpacity.value = withRepeat(
         withTiming(0.7, { duration: 1000 }),
         -1,
-        true
+        true,
       );
+    } else {
+      cancelAnimation(skeletonOpacity);
+      skeletonOpacity.value = 0.3;
     }
   }, [isUploading, skeletonOpacity]);
   

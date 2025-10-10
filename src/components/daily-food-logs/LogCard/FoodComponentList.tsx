@@ -1,23 +1,26 @@
-import React from "react";
-import { View } from "react-native";
+import React, { useMemo } from "react";
+import { StyleProp, View, ViewStyle } from "react-native";
 import { FoodComponent } from "@/types/models";
 import { AppText } from "@/components";
 
 interface FoodComponentListProps {
   foodComponents: FoodComponent[];
   maxItems?: number;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
 }
 
-export const FoodComponentList: React.FC<FoodComponentListProps> = ({
+const FoodComponentListComponent: React.FC<FoodComponentListProps> = ({
   foodComponents,
   maxItems = 3,
   style,
 }) => {
   if (foodComponents.length === 0) return null;
 
-  const displayComponents = foodComponents.slice(0, maxItems);
-  const hasMore = foodComponents.length > maxItems;
+  const displayComponents = useMemo(
+    () => foodComponents.slice(0, maxItems),
+    [foodComponents, maxItems],
+  );
+  const hasMore = displayComponents.length < foodComponents.length;
 
   return (
     <View style={style}>
@@ -32,3 +35,5 @@ export const FoodComponentList: React.FC<FoodComponentListProps> = ({
     </View>
   );
 };
+
+export const FoodComponentList = React.memo(FoodComponentListComponent);

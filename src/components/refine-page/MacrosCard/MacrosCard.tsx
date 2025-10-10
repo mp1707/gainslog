@@ -1,9 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  LayoutChangeEvent,
-  View,
-  Pressable,
-} from "react-native";
+import { LayoutChangeEvent, View } from "react-native";
 import Animated, {
   Easing as ReanimatedEasing,
   runOnJS,
@@ -11,8 +7,6 @@ import Animated, {
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
-  withDelay,
-  withSequence,
   withTiming,
 } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
@@ -95,7 +89,7 @@ const useNumberReveal = (initial: number) => {
 };
 
 // Component to display animated numbers with minimal re-renders
-// Re-renders only when the rounded value changes (acceptable during 700ms animation)
+// Re-renders only when the rounded value changes (acceptable during animation)
 const AnimatedNumber = React.memo(({ value, suffix }: {
   value: Animated.SharedValue<number>,
   suffix: string
@@ -109,7 +103,8 @@ const AnimatedNumber = React.memo(({ value, suffix }: {
       if (current !== previous) {
         runOnJS(setDisplayValue)(current);
       }
-    }
+    },
+    [suffix],
   );
 
   return <>{`${displayValue} ${suffix}`}</>;
@@ -315,7 +310,7 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
   onRecalculate,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
-  const styles = createStyles(colors, theme);
+  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
   const cals = useNumberReveal(calories ?? 0);
   const prot = useNumberReveal(protein ?? 0);
