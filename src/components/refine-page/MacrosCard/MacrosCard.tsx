@@ -29,6 +29,7 @@ interface MacrosCardProps {
   // New props for stale state
   hasUnsavedChanges?: boolean;
   changesCount?: number;
+  foodComponentsCount?: number;
   onRecalculate?: () => void;
 }
 
@@ -308,6 +309,7 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
   revealKey,
   hasUnsavedChanges = false,
   changesCount = 0,
+  foodComponentsCount = 0,
   onRecalculate,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
@@ -373,10 +375,15 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
     onRecalculate?.();
   };
 
+  const isEmpty = foodComponentsCount === 0;
+
   const recalculateLabel = useMemo(() => {
+    if (isEmpty) {
+      return "Add items to calculate";
+    }
     const changeWord = changesCount === 1 ? "change" : "changes";
     return `Recalculate (${changesCount} ${changeWord})`;
-  }, [changesCount]);
+  }, [isEmpty, changesCount]);
 
   return (
     <Card style={styles.cardContainer}>
@@ -410,7 +417,7 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
                 label={recalculateLabel}
                 variant="primary"
                 onPress={handleRecalculate}
-                disabled={processing}
+                disabled={processing || isEmpty}
               />
             </View>
           </BlurView>

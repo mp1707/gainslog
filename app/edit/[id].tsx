@@ -137,6 +137,8 @@ export default function Edit() {
       return { ...prev, foodComponents: comps };
     });
     setIsDirty(true);
+    setHasUnsavedChanges(true);
+    setChangesCount((prev) => prev + 1);
   };
 
   const handleOpenEditor = (index: number, component: FoodComponent) => {
@@ -181,15 +183,6 @@ export default function Edit() {
     // Clear editing state immediately
     setEditingComponent(null);
     setSheetOpen(false);
-  };
-
-  const handleImageExpand = (isExpanded: boolean) => {
-    if (isExpanded) {
-      // Wait for spring animation to complete before scrolling
-      setTimeout(() => {
-        scrollRef.current?.scrollToEnd({ animated: true });
-      }, 400);
-    }
   };
 
   const handleReestimate = async () => {
@@ -237,7 +230,10 @@ export default function Edit() {
   };
 
   // Accept recommendation handler
-  const handleAcceptRecommendation = (index: number, component: FoodComponent) => {
+  const handleAcceptRecommendation = (
+    index: number,
+    component: FoodComponent
+  ) => {
     if (!component.recommendedMeasurement) return;
 
     const { amount, unit } = component.recommendedMeasurement;
@@ -282,7 +278,13 @@ export default function Edit() {
           Icon={Check}
           onPress={handleDone}
           variant={"primary"}
-          disabled={!hasReestimated && !isDirty && !titleChanged && !hasUnsavedChanges && changesCount === 0}
+          disabled={
+            !hasReestimated &&
+            !isDirty &&
+            !titleChanged &&
+            !hasUnsavedChanges &&
+            changesCount === 0
+          }
           accessibilityLabel="Close"
         />
       </View>
@@ -338,14 +340,8 @@ export default function Edit() {
               revealKey={revealKey}
               hasUnsavedChanges={hasUnsavedChanges}
               changesCount={changesCount}
+              foodComponentsCount={editedLog.foodComponents?.length || 0}
               onRecalculate={handleReestimate}
-            />
-
-            {/* Image display (like on create) */}
-            <ImageDisplay
-              imageUrl={editedLog.localImagePath}
-              isUploading={false}
-              onExpand={handleImageExpand}
             />
           </>
         )}
@@ -398,7 +394,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
     contentContainer: {
       paddingHorizontal: theme.spacing.md,
       paddingTop: theme.spacing.xxl + theme.spacing.xl,
-      paddingBottom: theme.spacing.xxl * 2,
+      paddingBottom: theme.spacing.lg,
       gap: theme.spacing.md,
     },
     header: {

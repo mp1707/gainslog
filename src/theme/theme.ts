@@ -100,7 +100,7 @@ const darkColors = {
   border: "#38383A",
   white: "#FFFFFF",
   black: "#000000",
-  disabledBackground: "hsla(240, 24%, 96%, 0.15)",
+  disabledBackground: "#2C2C2E",
   disabledText: "rgba(242, 242, 247, 0.4)",
 
   // Subtle UI elements
