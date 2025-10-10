@@ -6,7 +6,7 @@ import Animated, {
   withSpring,
   interpolateColor,
 } from "react-native-reanimated";
-import { Check, Lightbulb } from "lucide-react-native";
+import { Check, Lightbulb, X } from "lucide-react-native";
 import { AppText } from "@/components";
 import { Button } from "@/components/shared/Button/Button";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions/SwipeToFunctions";
@@ -58,9 +58,9 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
 
   const borderStyle = useAnimatedStyle(() => ({
     backgroundColor: interpolateColor(
-      expandProgress.value ,
+      expandProgress.value,
       [0, 1],
-      ['transparent', colors.tertiaryBackground]
+      ["transparent", colors.tertiaryBackground]
     ),
     borderRadius: theme.components.cards.cornerRadius,
     margin: -theme.spacing.md,
@@ -68,6 +68,7 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
 
   const paddingStyle = useAnimatedStyle(() => ({
     padding: theme.spacing.md,
+    paddingRight: theme.spacing.sm,
   }));
 
   const lightbulbStyle = useAnimatedStyle(() => ({
@@ -75,9 +76,9 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
     transform: [{ scale: 1 - expandProgress.value * 0.5 }],
   }));
 
-  const amountSlideStyle = useAnimatedStyle(() => ({
-    marginRight:
-      expandProgress.value * -(theme.spacing.sm + 18 + theme.spacing.sm),
+  const xIconStyle = useAnimatedStyle(() => ({
+    opacity: expandProgress.value,
+    transform: [{ scale: 0.5 + expandProgress.value * 0.5 }],
   }));
 
   return (
@@ -101,21 +102,47 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
                 </AppText>
               </View>
               <View style={styles.rightColumn}>
-                <Animated.View style={amountSlideStyle}>
-                  <AppText color="secondary">
-                    {component.amount} {component.unit ?? ""}
-                  </AppText>
-                </Animated.View>
+                <AppText color="secondary">
+                  {component.amount} {component.unit ?? ""}
+                  {!isExpanded && !hasRecommendation && " "}
+                </AppText>
                 {hasRecommendation && (
-                  <Animated.View
-                    style={[{ marginLeft: theme.spacing.sm }, lightbulbStyle]}
+                  <View
+                    style={{
+                      marginLeft: theme.spacing.sm,
+                      width: 18,
+                      height: 18,
+                    }}
                   >
-                    <Lightbulb
-                      size={18}
-                      color={colors.semantic.fat}
-                      fill={colors.semantic.fat}
-                    />
-                  </Animated.View>
+                    <Animated.View
+                      style={[{ position: "absolute" }, lightbulbStyle]}
+                    >
+                      <Lightbulb
+                        size={18}
+                        color={colors.semantic.fat}
+                        fill={colors.semantic.fat}
+                      />
+                    </Animated.View>
+                    <Animated.View
+                      style={[
+                        {
+                          position: "absolute",
+                          backgroundColor: colors.secondaryBackground,
+                          padding: theme.spacing.xs,
+                          margin: -theme.spacing.xs,
+                          borderRadius: 18,
+                        },
+                        xIconStyle,
+                      ]}
+                    >
+                      <X
+                        size={18}
+                        color={colors.secondaryText}
+                        strokeWidth={2}
+                        fill={colors.secondaryText}
+                      />
+                    </Animated.View>
+                  </View>
                 )}
               </View>
             </Animated.View>
