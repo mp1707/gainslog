@@ -231,7 +231,7 @@ Deno.serve(async (req) => {
     }
     const userPrompt = `Estimate the nutrition for the following meal. If you use an ambiguous unit ("piece" or "serving") for any component, ALSO include "recommendedMeasurement" with a realistic exact amount and unit (prefer grams or milliliters): ${description}.`;
     const chatCompletion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-5-mini",
       messages: [
         {
           role: "system",
@@ -245,7 +245,8 @@ Deno.serve(async (req) => {
       response_format: {
         type: "json_object",
       },
-      temperature: 0.1,
+      verbosity: "medium",
+      reasoning_effort: "low",
     });
     const messageContent = chatCompletion.choices[0].message.content;
     if (!messageContent) throw new Error("AI returned an empty message.");

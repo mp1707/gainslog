@@ -339,13 +339,13 @@ Deno.serve(async (req) => {
       },
     ];
     const chatCompletion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-5-mini",
       messages,
       response_format: {
         type: "json_object",
       },
-      temperature: 0.2,
-      max_completion_tokens: 1000,
+      verbosity: "medium",
+      reasoning_effort: "low",
     });
     const messageContent = chatCompletion.choices?.[0]?.message?.content;
     if (!messageContent) throw new Error("AI returned an empty message.");

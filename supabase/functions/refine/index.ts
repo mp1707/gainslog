@@ -183,7 +183,7 @@ Deno.serve(async (req) => {
       : "Calculate the total nutrition using general nutrition knowledge for these components: " +
         JSON.stringify(payload);
     const chatCompletion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-5-mini",
       messages: [
         {
           role: "system",
@@ -197,7 +197,8 @@ Deno.serve(async (req) => {
       response_format: {
         type: "json_object",
       },
-      temperature: 0.2,
+      verbosity: "medium",
+      reasoning_effort: "low",
     });
     const messageContent = chatCompletion.choices[0].message.content;
     if (!messageContent) throw new Error("AI returned an empty message.");
