@@ -53,39 +53,31 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
   const expandedStyle = useAnimatedStyle(() => ({
     maxHeight: expandProgress.value * 300,
     opacity: expandProgress.value,
-    overflow: "hidden",
     marginTop: expandProgress.value * theme.spacing.md,
   }));
 
-  const lightbulbBgStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      expandProgress.value,
-      [0, 1],
-      ["transparent", colors.tertiaryBackground]
-    ),
-    borderTopLeftRadius: theme.components.cards.cornerRadius,
-    borderTopRightRadius: theme.components.cards.cornerRadius,
+  const borderStyle = useAnimatedStyle(() => ({
+    borderWidth: expandProgress.value * 2,
+    borderColor: colors.tertiaryBackground,
+    backgroundColor: colors.tertiaryBackground,
+    borderRadius: theme.components.cards.cornerRadius,
+
+    margin: expandProgress.value * -theme.spacing.sm,
   }));
 
-  const animatedAmountTextStyle = useAnimatedStyle(() => ({
+  const paddingStyle = useAnimatedStyle(() => ({
+    padding: expandProgress.value * theme.spacing.md,
+  }));
+
+  const lightbulbStyle = useAnimatedStyle(() => ({
+    opacity: 1 - expandProgress.value,
+    transform: [{ scale: 1 - expandProgress.value * 0.5 }],
+  }));
+
+  const amountSlideStyle = useAnimatedStyle(() => ({
     marginRight:
-      theme.spacing.sm +
-      (component.recommendedMeasurement
-        ? (1 - expandProgress.value) * -theme.spacing.sm
-        : 0),
+      expandProgress.value * -(theme.spacing.sm + 18 + theme.spacing.sm),
   }));
-
-  const lightbulbContainerStyle = useAnimatedStyle(() => {
-    const isExpanding = expandProgress.value > 0;
-    return {
-      paddingTop: isExpanding ? theme.spacing.md : 0,
-      paddingBottom: isExpanding ? theme.spacing.lg : 0,
-      paddingHorizontal: theme.spacing.md,
-      marginTop: isExpanding ? -theme.spacing.md : 0,
-      marginBottom: isExpanding ? -theme.spacing.lg : 0,
-      // marginRight: (1 - expandProgress.value) * -theme.spacing.sm,
-    };
-  });
 
   return (
     <Animated.View>
@@ -100,88 +92,90 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
             { borderRadius: theme.components.cards.cornerRadius },
           ]}
         >
-          <View
-            style={[
-              styles.componentRow,
-              { borderRadius: theme.components.cards.cornerRadius },
-            ]}
-          >
-            <View style={styles.leftColumn}>
-              <AppText numberOfLines={1} style={styles.componentName}>
-                {component.name}
-              </AppText>
-            </View>
-            <View style={styles.rightColumn}>
-              <Animated.View style={animatedAmountTextStyle}>
-                <AppText
-                  color="secondary"
-                  // style={styles.amountText}
-                >
-                  {component.amount} {component.unit ?? ""}
+          <Animated.View style={borderStyle}>
+            <Animated.View
+              style={[
+                styles.componentRow,
+                { borderRadius: theme.components.cards.cornerRadius },
+                paddingStyle,
+              ]}
+            >
+              <View style={styles.leftColumn}>
+                <AppText numberOfLines={1} style={styles.componentName}>
+                  {component.name}
                 </AppText>
-              </Animated.View>
-              {hasRecommendation && (
-                <Animated.View
-                  style={[lightbulbBgStyle, lightbulbContainerStyle]}
-                >
-                  <Lightbulb
-                    size={18}
-                    color={colors.semantic.fat}
-                    fill={colors.semantic.fat}
-                  />
+              </View>
+              <View style={styles.rightColumn}>
+                <Animated.View style={amountSlideStyle}>
+                  <AppText color="secondary">
+                    {component.amount} {component.unit ?? ""}
+                  </AppText>
                 </Animated.View>
-              )}
-            </View>
-          </View>
-
-          {/* Expandable Recommendation Section */}
-          {hasRecommendation && component.recommendedMeasurement && (
-            <Animated.View style={expandedStyle}>
-              <View
-                style={{
-                  backgroundColor: colors.tertiaryBackground,
-                  paddingVertical: theme.spacing.lg,
-                  paddingHorizontal: theme.spacing.md,
-                  gap: theme.spacing.xl,
-                  borderTopLeftRadius: theme.components.cards.cornerRadius,
-                  borderBottomLeftRadius: theme.components.cards.cornerRadius,
-                  borderBottomRightRadius: theme.components.cards.cornerRadius,
-                }}
-              >
-                <View style={{ gap: theme.spacing.sm }}>
-                  <AppText role="Headline" color="primary">
-                    Improve Accuracy?
-                  </AppText>
-                  <AppText role="Body" color="secondary">
-                    We estimate{" "}
-                    <AppText role="Body" style={{ color: colors.primaryText }}>
-                      {component.amount} {component.unit}
-                    </AppText>{" "}
-                    is about{" "}
-                    <AppText role="Body" style={{ color: colors.primaryText }}>
-                      {component.recommendedMeasurement.amount}{" "}
-                      {component.recommendedMeasurement.unit}
-                    </AppText>
-                    .
-                  </AppText>
-                </View>
-
-                <View style={{ gap: theme.spacing.md }}>
-                  <Button
-                    label="Edit Manually"
-                    variant="tertiary"
-                    onPress={onEditManually}
-                  />
-                  <Button
-                    label={`Accept ${component.recommendedMeasurement.amount} ${component.recommendedMeasurement.unit}`}
-                    variant="primary"
-                    onPress={onAcceptRecommendation}
-                    Icon={Check}
-                  />
-                </View>
+                {hasRecommendation && (
+                  <Animated.View
+                    style={[{ marginLeft: theme.spacing.sm }, lightbulbStyle]}
+                  >
+                    <Lightbulb
+                      size={18}
+                      color={colors.semantic.fat}
+                      fill={colors.semantic.fat}
+                    />
+                  </Animated.View>
+                )}
               </View>
             </Animated.View>
-          )}
+
+            {/* Expandable Recommendation Section */}
+            {hasRecommendation && component.recommendedMeasurement && (
+              <Animated.View style={expandedStyle}>
+                <View
+                  style={{
+                    paddingVertical: theme.spacing.lg,
+                    paddingHorizontal: theme.spacing.md,
+                    gap: theme.spacing.xl,
+                  }}
+                >
+                  <View style={{ gap: theme.spacing.sm }}>
+                    <AppText role="Headline" color="primary">
+                      Improve Accuracy?
+                    </AppText>
+                    <AppText role="Body" color="secondary">
+                      We estimate{" "}
+                      <AppText
+                        role="Body"
+                        style={{ color: colors.primaryText }}
+                      >
+                        {component.amount} {component.unit}
+                      </AppText>{" "}
+                      is about{" "}
+                      <AppText
+                        role="Body"
+                        style={{ color: colors.primaryText }}
+                      >
+                        {component.recommendedMeasurement.amount}{" "}
+                        {component.recommendedMeasurement.unit}
+                      </AppText>
+                      .
+                    </AppText>
+                  </View>
+
+                  <View style={{ gap: theme.spacing.md }}>
+                    <Button
+                      label="Edit Manually"
+                      variant="tertiary"
+                      onPress={onEditManually}
+                    />
+                    <Button
+                      label={`Accept ${component.recommendedMeasurement.amount} ${component.recommendedMeasurement.unit}`}
+                      variant="primary"
+                      onPress={onAcceptRecommendation}
+                      Icon={Check}
+                    />
+                  </View>
+                </View>
+              </Animated.View>
+            )}
+          </Animated.View>
         </View>
       </SwipeToFunctions>
     </Animated.View>
