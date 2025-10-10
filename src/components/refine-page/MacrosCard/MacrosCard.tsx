@@ -35,7 +35,7 @@ interface MacrosCardProps {
 
 // Optimized utility using Reanimated - runs on UI thread without re-renders
 const useNumberReveal = (initial: number) => {
-  const prevRef = useRef(initial);
+  const prevValue = useSharedValue(initial);
   const targetValue = useSharedValue(initial);
   const flickerProgress = useSharedValue(0);
   const countProgress = useSharedValue(0);
@@ -54,15 +54,15 @@ const useNumberReveal = (initial: number) => {
     }
 
     // During count phase, interpolate from previous to target
-    const from = prevRef.current;
+    const from = prevValue.value;
     const t = countProgress.value;
     const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
     return Math.round(from + (target - from) * eased);
   }, []);
 
   const animateTo = (target: number) => {
-    const startPrev = prevRef.current;
-    prevRef.current = target;
+    const startPrev = prevValue.value;
+    prevValue.value = target;
     targetValue.value = target;
 
     // Reset progress values
