@@ -57,15 +57,17 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
   }));
 
   const borderStyle = useAnimatedStyle(() => ({
-    borderWidth: expandProgress.value * 2,
-    borderColor: colors.tertiaryBackground,
-    backgroundColor: colors.tertiaryBackground,
+    backgroundColor: interpolateColor(
+      expandProgress.value ,
+      [0, 1],
+      ['transparent', colors.tertiaryBackground]
+    ),
     borderRadius: theme.components.cards.cornerRadius,
-    margin: expandProgress.value * -theme.spacing.md,
+    margin: -theme.spacing.md,
   }));
 
   const paddingStyle = useAnimatedStyle(() => ({
-    padding: expandProgress.value * theme.spacing.md,
+    padding: theme.spacing.md,
   }));
 
   const lightbulbStyle = useAnimatedStyle(() => ({
@@ -83,14 +85,8 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
       <SwipeToFunctions
         onDelete={isExpanded ? undefined : onDelete}
         onTap={onTap}
-        borderRadius={theme.components.cards.cornerRadius}
       >
-        <View
-          style={[
-            styles.solidBackgroundForSwipe,
-            { borderRadius: theme.components.cards.cornerRadius },
-          ]}
-        >
+        <View style={[styles.solidBackgroundForSwipe]}>
           <Animated.View style={borderStyle}>
             <Animated.View
               style={[

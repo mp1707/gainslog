@@ -20,7 +20,6 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      backgroundColor: colors.secondaryBackground,
       gap: theme.spacing.md,
     },
     solidBackgroundForSwipe: {
@@ -37,6 +36,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       flexDirection: "row",
       alignItems: "center",
       gap: theme.spacing.sm,
+      marginRight: theme.spacing.sm,
     },
     deleteAction: {
       backgroundColor: colors.error,
@@ -44,7 +44,6 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       alignItems: "center",
       paddingHorizontal: theme.spacing.lg,
       marginVertical: theme.spacing.xs,
-      borderRadius: theme.components.cards.cornerRadius,
       flexDirection: "row",
       gap: theme.spacing.sm,
     },
