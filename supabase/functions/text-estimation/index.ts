@@ -4,20 +4,17 @@
 import { OpenAI } from "https://deno.land/x/openai@v4.52.7/mod.ts";
 import { Ratelimit } from "https://cdn.skypack.dev/@upstash/ratelimit@latest";
 import { Redis } from "https://deno.land/x/upstash_redis@v1.19.3/mod.ts";
-
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(10, "60 s"),
   analytics: true,
   prefix: "@upstash/ratelimit",
 });
-
-function getClientIp(req: Request) {
+function getClientIp(req) {
   const ipHeader = req.headers.get("x-forwarded-for");
   if (ipHeader) return ipHeader.split(",")[0].trim();
   return "unknown";
 }
-
 // Updated error/fallback response (estimationConfidence removed)
 const ERROR_RESPONSE = {
   generatedTitle: "Estimation Error",
@@ -27,7 +24,6 @@ const ERROR_RESPONSE = {
   carbs: 0,
   fat: 0,
 };
-
 // UPDATED SYSTEM PROMPT:
 // - Adds OPTIONAL per-component "recommendedMeasurement" when unit is ambiguous ("piece" or "serving").
 // - Removes any mention of estimationConfidence.
@@ -151,50 +147,68 @@ Expected JSON:
   "fat": 26
 }
 `;
-
 const openai = new OpenAI();
-
-function validateApiKey(request: Request) {
+function validateApiKey(request) {
   const authHeader = request.headers.get("authorization");
   const apiKeyHeader = request.headers.get("apikey");
   return authHeader?.startsWith("Bearer ") || apiKeyHeader;
 }
-
 Deno.serve(async (req) => {
   const identifier = getClientIp(req);
   const { success } = await ratelimit.limit(identifier);
   if (!success) {
-    return new Response(JSON.stringify({ error: "AI_ESTIMATION_RATE_LIMIT" }), {
-      status: 429,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        error: "AI_ESTIMATION_RATE_LIMIT",
+      }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
-
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers":
       "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
   };
-
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders });
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders,
+    });
   }
-
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Only POST method allowed" }), {
-      status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        error: "Only POST method allowed",
+      }),
+      {
+        status: 405,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
-
   if (!validateApiKey(req)) {
-    return new Response(JSON.stringify({ error: "Invalid API key" }), {
-      status: 401,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        error: "Invalid API key",
+      }),
+      {
+        status: 401,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
-
   try {
     const { description } = await req.json();
     if (
@@ -208,28 +222,34 @@ Deno.serve(async (req) => {
         }),
         {
           status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
         }
       );
     }
-
     const userPrompt = `Estimate the nutrition for the following meal. If you use an ambiguous unit ("piece" or "serving") for any component, ALSO include "recommendedMeasurement" with a realistic exact amount and unit (prefer grams or milliliters): ${description}.`;
-
     const chatCompletion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: userPrompt },
+        {
+          role: "system",
+          content: SYSTEM_PROMPT,
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
       ],
-      response_format: { type: "json_object" },
+      response_format: {
+        type: "json_object",
+      },
       temperature: 0.1,
     });
-
     const messageContent = chatCompletion.choices[0].message.content;
     if (!messageContent) throw new Error("AI returned an empty message.");
-
     const nutrition = JSON.parse(messageContent);
-
     // Sanitize and structure the final result with the new foodComponents field
     const ALLOWED_UNITS = [
       "g",
@@ -243,7 +263,6 @@ Deno.serve(async (req) => {
       "piece",
       "serving",
     ];
-
     const EXACT_UNITS = [
       "g",
       "oz",
@@ -254,14 +273,13 @@ Deno.serve(async (req) => {
       "tsp",
       "scoop",
     ];
-
     const result = {
       generatedTitle: nutrition.generatedTitle || "AI Estimate",
       foodComponents: Array.isArray(nutrition.foodComponents)
         ? nutrition.foodComponents
             .map((comp) => {
               const lowerCaseUnit = String(comp.unit || "").toLowerCase();
-              const base: any = {
+              const base = {
                 name: String(comp.name || "Unknown Item"),
                 amount: Math.max(0, Number(comp.amount) || 0),
                 unit: ALLOWED_UNITS.includes(lowerCaseUnit)
@@ -272,7 +290,6 @@ Deno.serve(async (req) => {
                     ? comp.needsRefinement
                     : true,
               };
-
               // Pass through recommendedMeasurement if present and sane
               if (
                 comp.recommendedMeasurement &&
@@ -292,7 +309,6 @@ Deno.serve(async (req) => {
                   };
                 }
               }
-
               return base;
             })
             .filter((comp) => comp.name && comp.name !== "Unknown Item")
@@ -302,16 +318,21 @@ Deno.serve(async (req) => {
       carbs: Math.max(0, Math.round(nutrition.carbs || 0)),
       fat: Math.max(0, Math.round(nutrition.fat || 0)),
     };
-
     return new Response(JSON.stringify(result), {
       status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
     });
   } catch (error) {
     console.error("Error in text-based estimation:", error);
     return new Response(JSON.stringify(ERROR_RESPONSE), {
       status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
     });
   }
 });
