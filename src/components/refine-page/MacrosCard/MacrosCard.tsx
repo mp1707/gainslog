@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { LayoutChangeEvent, View } from "react-native";
+import { LayoutChangeEvent, TextInput, View } from "react-native";
 import Animated, {
   Easing as ReanimatedEasing,
-  runOnJS,
-  useAnimatedReaction,
+  useAnimatedProps,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
@@ -88,26 +87,30 @@ const useNumberReveal = (initial: number) => {
   return { displayValue, animateTo } as const;
 };
 
-// Component to display animated numbers with minimal re-renders
-// Re-renders only when the rounded value changes (acceptable during animation)
-const AnimatedNumber = React.memo(({ value, suffix }: {
+// Create animated text input component
+const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
+
+// Component to display animated numbers - runs entirely on UI thread
+const AnimatedNumber = React.memo(({ value, suffix, styles }: {
   value: Animated.SharedValue<number>,
-  suffix: string
+  suffix: string,
+  styles: any
 }) => {
-  const [displayValue, setDisplayValue] = useState(Math.round(value.value));
+  const animatedProps = useAnimatedProps(() => {
+    'worklet';
+    return {
+      value: `${Math.round(value.value)} ${suffix}`,
+    } as any; // Type assertion to bypass TextInput readonly restriction
+  });
 
-  // Update only when integer value changes - runs on UI thread, bridges to JS only on change
-  useAnimatedReaction(
-    () => Math.round(value.value),
-    (current, previous) => {
-      if (current !== previous) {
-        runOnJS(setDisplayValue)(current);
-      }
-    },
-    [suffix],
+  return (
+    <AnimatedTextInput
+      editable={false}
+      value={`0 ${suffix}`}
+      animatedProps={animatedProps}
+      style={[styles.animatedNumberText, { color: 'inherit' }]}
+    />
   );
-
-  return <>{`${displayValue} ${suffix}`}</>;
 });
 
 interface MacroRowProps {
@@ -273,9 +276,7 @@ const MacroRowComponent = ({
         <AppText>{item.label}</AppText>
       </Animated.View>
       <Animated.View style={[styles.macroValueContainer, valueAnimatedStyle]}>
-        <AppText role="Body" color="secondary" numberOfLines={1}>
-          <AnimatedNumber value={item.value} suffix={item.suffix} />
-        </AppText>
+        <AnimatedNumber value={item.value} suffix={item.suffix} styles={styles} />
       </Animated.View>
     </View>
   );
@@ -317,57 +318,55 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
   const crb = useNumberReveal(carbs ?? 0);
   const ft = useNumberReveal(fat ?? 0);
 
-  // On reveal key changes, animate to target values
+  // On reveal key changes, animate to target values with staggered delays
   useEffect(() => {
+    // Stagger animations by 50ms each to spread computational load
     cals.animateTo(calories ?? 0);
-    prot.animateTo(protein ?? 0);
-    crb.animateTo(carbs ?? 0);
-    ft.animateTo(fat ?? 0);
+    setTimeout(() => prot.animateTo(protein ?? 0), 50);
+    setTimeout(() => crb.animateTo(carbs ?? 0), 100);
+    setTimeout(() => ft.animateTo(fat ?? 0), 150);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [revealKey]);
 
-  const macroItems = useMemo(
-    () => [
-      {
-        key: "calories",
-        label: "Calories",
-        color: colors.semantic.calories,
-        value: cals.displayValue,
-        suffix: "kcal",
-      },
-      {
-        key: "protein",
-        label: "Protein",
-        color: colors.semantic.protein,
-        value: prot.displayValue,
-        suffix: "g",
-      },
-      {
-        key: "carbs",
-        label: "Carbs",
-        color: colors.semantic.carbs,
-        value: crb.displayValue,
-        suffix: "g",
-      },
-      {
-        key: "fat",
-        label: "Fat",
-        color: colors.semantic.fat,
-        value: ft.displayValue,
-        suffix: "g",
-      },
-    ],
-    [
-      cals.displayValue,
-      prot.displayValue,
-      crb.displayValue,
-      ft.displayValue,
-      colors.semantic.calories,
-      colors.semantic.protein,
-      colors.semantic.carbs,
-      colors.semantic.fat,
-    ],
-  );
+  // Use ref for stable array reference - shared values update automatically
+  const macroItemsRef = useRef([
+    {
+      key: "calories",
+      label: "Calories",
+      color: colors.semantic.calories,
+      value: cals.displayValue,
+      suffix: "kcal",
+    },
+    {
+      key: "protein",
+      label: "Protein",
+      color: colors.semantic.protein,
+      value: prot.displayValue,
+      suffix: "g",
+    },
+    {
+      key: "carbs",
+      label: "Carbs",
+      color: colors.semantic.carbs,
+      value: crb.displayValue,
+      suffix: "g",
+    },
+    {
+      key: "fat",
+      label: "Fat",
+      color: colors.semantic.fat,
+      value: ft.displayValue,
+      suffix: "g",
+    },
+  ]);
+
+  // Update only colors when theme changes
+  useEffect(() => {
+    macroItemsRef.current[0].color = colors.semantic.calories;
+    macroItemsRef.current[1].color = colors.semantic.protein;
+    macroItemsRef.current[2].color = colors.semantic.carbs;
+    macroItemsRef.current[3].color = colors.semantic.fat;
+  }, [colors.semantic.calories, colors.semantic.protein, colors.semantic.carbs, colors.semantic.fat]);
 
   const handleRecalculate = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -384,7 +383,7 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
       <AppText role="Caption" style={styles.sectionHeader}>
         MACROS
       </AppText>
-      {macroItems.map((item, index) => (
+      {macroItemsRef.current.map((item, index) => (
         <React.Fragment key={item.key}>
           <MacroRow
             item={item}
@@ -394,7 +393,7 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
             colors={colors}
             theme={theme}
           />
-          {index < macroItems.length - 1 && <View style={styles.divider} />}
+          {index < macroItemsRef.current.length - 1 && <View style={styles.divider} />}
         </React.Fragment>
       ))}
 

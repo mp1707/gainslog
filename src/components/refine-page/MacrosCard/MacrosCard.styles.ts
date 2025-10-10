@@ -78,4 +78,12 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       paddingHorizontal: theme.spacing.md,
       width: "100%",
     },
+    animatedNumberText: {
+      fontSize: theme.typography.Body.fontSize,
+      fontFamily: theme.typography.Body.fontFamily,
+      color: colors.secondaryText,
+      textAlign: "right",
+      padding: 0,
+      margin: 0,
+    },
   });
