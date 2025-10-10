@@ -61,8 +61,7 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
     borderColor: colors.tertiaryBackground,
     backgroundColor: colors.tertiaryBackground,
     borderRadius: theme.components.cards.cornerRadius,
-
-    margin: expandProgress.value * -theme.spacing.sm,
+    margin: expandProgress.value * -theme.spacing.md,
   }));
 
   const paddingStyle = useAnimatedStyle(() => ({
@@ -130,15 +129,23 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
               <Animated.View style={expandedStyle}>
                 <View
                   style={{
-                    paddingVertical: theme.spacing.lg,
-                    paddingHorizontal: theme.spacing.md,
+                    padding: theme.spacing.md,
                     gap: theme.spacing.xl,
                   }}
                 >
-                  <View style={{ gap: theme.spacing.sm }}>
-                    <AppText role="Headline" color="primary">
-                      Improve Accuracy?
-                    </AppText>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      gap: theme.spacing.sm,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Lightbulb
+                      size={18}
+                      color={colors.semantic.fat}
+                      fill={colors.semantic.fat}
+                    />
                     <AppText role="Body" color="secondary">
                       We estimate{" "}
                       <AppText
@@ -159,7 +166,7 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
                     </AppText>
                   </View>
 
-                  <View style={{ gap: theme.spacing.md }}>
+                  <View style={{ gap: theme.spacing.sm }}>
                     <Button
                       label="Edit Manually"
                       variant="tertiary"
