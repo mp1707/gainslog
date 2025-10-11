@@ -26,6 +26,7 @@ import { NutritionList } from "./NutritionList";
 import { createStyles as createNutritionStyles } from "./NutritionList/NutritionList.styles";
 import { FoodComponentList } from "./FoodComponentList";
 import { LogCardTitle } from "./LogCardTitle";
+import { RefinementInfo } from "./RefinementInfo";
 
 interface LogCardProps {
   foodLog: FoodLog | Favorite;
@@ -59,8 +60,10 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
   // Animation values for staggered reveal
   const titleOpacity = useSharedValue(isLoading ? 0 : 1);
   const nutritionOpacity = useSharedValue(isLoading ? 0 : 1);
+  const refinementOpacity = useSharedValue(isLoading ? 0 : 1);
 
   const displayTitle = foodLog.title || "New Log";
+  const needsReview = "needsUserReview" in foodLog && foodLog.needsUserReview;
 
   useEffect(() => {
     const wasLoading = previousLoadingRef.current;
@@ -81,14 +84,20 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
         150,
         withSpring(1, { stiffness: 400, damping: 30 })
       );
+      refinementOpacity.value = withDelay(
+        300,
+        withSpring(1, { stiffness: 400, damping: 30 })
+      );
     } else if (!isLoading && !wasLoading) {
       // If card renders without loading, show content immediately without animation
       titleOpacity.value = 1;
       nutritionOpacity.value = 1;
+      refinementOpacity.value = 1;
     } else if (isLoading) {
       // Hide content during loading
       titleOpacity.value = 0;
       nutritionOpacity.value = 0;
+      refinementOpacity.value = 0;
     }
 
     // Update the previous loading state
@@ -104,6 +113,15 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
     ],
   }));
 
+  const refinementAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: refinementOpacity.value,
+    transform: [
+      {
+        scale: 0.95 + refinementOpacity.value * 0.05,
+      },
+    ],
+  }));
+
   return (
     <Pressable
       style={styles.cardContainer}
@@ -111,7 +129,7 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
       delayLongPress={500}
       accessibilityState={{ disabled: isLoading }}
     >
-      <Card elevated={true} style={styles.card}>
+      <Card elevated={true} style={needsReview ? [styles.card, styles.cardWithReviewBorder] : styles.card}>
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
             <LogCardTitle
@@ -120,12 +138,21 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
               animated={true}
               animatedStyle={titleAnimatedStyle}
               style={styles.title}
+              needsUserReview={"needsUserReview" in foodLog ? foodLog.needsUserReview : false}
             />
             <FoodComponentList
               foodComponents={foodLog.foodComponents}
               maxItems={2}
               style={styles.foodComponentList}
             />
+            {needsReview && !isLoading && (
+              <RefinementInfo
+                refinementText="Review & confirm"
+                animated={true}
+                animatedStyle={refinementAnimatedStyle}
+                style={styles.refinementInfo}
+              />
+            )}
           </View>
 
           <View style={styles.rightSection}>
@@ -226,6 +253,7 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
   // Note: press scale is handled by SwipeToFunctions to avoid double-scaling
 
   const displayTitle = foodLog.title || "New Log";
+  const needsReview = "needsUserReview" in foodLog && foodLog.needsUserReview;
 
   return (
     <Pressable
@@ -233,15 +261,25 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
       onLongPress={onLongPress}
       delayLongPress={500}
     >
-      <Card style={styles.card}>
+      <Card style={needsReview ? [styles.card, styles.cardWithReviewBorder] : styles.card}>
         <View style={styles.contentContainer}>
           <View style={styles.leftSection}>
-            <LogCardTitle title={displayTitle} style={styles.title} />
+            <LogCardTitle
+              title={displayTitle}
+              style={styles.title}
+              needsUserReview={"needsUserReview" in foodLog ? foodLog.needsUserReview : false}
+            />
             <FoodComponentList
               foodComponents={foodLog.foodComponents}
               maxItems={3}
               style={styles.foodComponentList}
             />
+            {needsReview && (
+              <RefinementInfo
+                refinementText="Review & confirm"
+                style={styles.refinementInfo}
+              />
+            )}
           </View>
 
           <View style={styles.rightSection}>

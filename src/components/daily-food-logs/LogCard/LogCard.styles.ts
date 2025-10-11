@@ -104,4 +104,8 @@ export const createStyles = (colors: Colors) =>
       backgroundColor: colors.border,
       borderRadius: theme.spacing.md,
     },
+    cardWithReviewBorder: {
+      borderWidth: 2,
+      borderColor: colors.accent,
+    },
   });

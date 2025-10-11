@@ -18,6 +18,7 @@ export type FoodLog = {
   carbs: number;
   fat: number;
   isEstimating?: boolean;
+  needsUserReview?: boolean;
   macrosPerReferencePortion?: MacrosPerReferencePortion;
 };
 

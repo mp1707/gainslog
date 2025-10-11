@@ -22,6 +22,7 @@ export const createLogAgainHandler = (
       carbs: log.carbs,
       fat: log.fat,
       isEstimating: false,
+      needsUserReview: false,
     });
   };
 };

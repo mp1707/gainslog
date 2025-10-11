@@ -140,6 +140,7 @@ export default function Create() {
         logDate: selectedDate,
         createdAt: new Date().toISOString(),
         isEstimating: false,
+        needsUserReview: false,
         id: generateFoodLogId(),
       });
       router.back();

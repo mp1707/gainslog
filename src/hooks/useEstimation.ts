@@ -27,6 +27,7 @@ const makeCompletedFromInitial = (
   foodComponents: results.foodComponents,
   macrosPerReferencePortion: results.macrosPerReferencePortion,
   isEstimating: false,
+  needsUserReview: true,
 });
 
 const makeCompletedFromRefinement = (

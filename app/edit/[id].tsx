@@ -68,7 +68,13 @@ export default function Edit() {
   useEffect(() => {
     // Only sync from store when not locally editing/dirty
     if (!editedLog || !isDirty) {
-      setEditedLog(originalLog);
+      if (originalLog && originalLog.needsUserReview) {
+        // If log needs review, immediately mark as reviewed in local state
+        setEditedLog({ ...originalLog, needsUserReview: false });
+        setIsDirty(true);
+      } else {
+        setEditedLog(originalLog);
+      }
     }
   }, [originalLog, isDirty]);
 
@@ -93,6 +99,7 @@ export default function Edit() {
         fat: editedLog.fat,
         foodComponents: editedLog.foodComponents || [],
         macrosPerReferencePortion: editedLog.macrosPerReferencePortion,
+        needsUserReview: editedLog.needsUserReview,
       });
     }
     router.back();
