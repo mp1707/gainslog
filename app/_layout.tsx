@@ -154,6 +154,18 @@ function ThemedStack() {
           gestureEnabled: true,
         }}
       />
+      <Stack.Screen
+        name="explainer-ai-estimation"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+          contentStyle: {
+            borderRadius: "10%",
+            overflow: "hidden",
+          },
+          gestureEnabled: true,
+        }}
+      />
     </Stack>
   );
 }

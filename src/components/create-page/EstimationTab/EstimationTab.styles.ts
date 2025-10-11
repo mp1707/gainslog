@@ -24,6 +24,11 @@ export const createStyles = (
       paddingTop: theme.spacing.md,
       // alignItems: "center",
     },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.xs,
+    },
     textInputContainer: {
       // minHeight: 150,
       backgroundColor: componentStyles.cards.backgroundColor,
