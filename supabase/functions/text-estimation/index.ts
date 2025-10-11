@@ -25,16 +25,17 @@ const ERROR_RESPONSE = {
   fat: 0,
 };
 // UPDATED SYSTEM PROMPT:
-// - Adds OPTIONAL per-component "recommendedMeasurement" when unit is ambiguous ("piece" or "serving").
-// - Removes any mention of estimationConfidence.
-const SYSTEM_PROMPT = `You are a meticulous nutrition expert. Analyze a user's text description of a meal and return a single, valid JSON object with your nutritional estimation. Decompose the meal into components.
+// - Restricts all component units to "g", "ml", or "piece".
+// - Removes any "needsRefinement" usage from the schema.
+// - Keeps OPTIONAL per-component "recommendedMeasurement" when unit is "piece".
+const SYSTEM_PROMPT = `You are a meticulous nutrition expert. Analyze a user's text description of a meal and return ONE valid JSON object with your nutritional estimation. Decompose the meal into components.
 
 STRICT OUTPUT RULES
-- Return ONLY one JSON object (no prose, no markdown).
+- Return ONLY one JSON object (no prose, no markdown, no trailing text).
 - Use EXACTLY the schema below (no extra keys, no nulls).
 - All numbers must be integers. Round half up.
 - Units must be lowercase and singular.
-- Sum macros from components to produce the totals.
+- Totals (calories, protein, carbs, fat) must be the sum of components and roughly consistent with kcal ≈ 4p + 4c + 9f.
 
 JSON OUTPUT SCHEMA
 {
@@ -44,8 +45,7 @@ JSON OUTPUT SCHEMA
       "name": "string",
       "amount": number,
       "unit": "string",
-      "needsRefinement": boolean,
-      // OPTIONAL — include ONLY when unit is "piece" or "serving"
+      // OPTIONAL — include ONLY when unit is "piece"
       // "recommendedMeasurement": { "amount": number, "unit": "string" }
     }
   ],
@@ -56,47 +56,46 @@ JSON OUTPUT SCHEMA
 }
 
 VALID UNITS (unit field)
-"g", "oz", "ml", "fl oz", "cup", "tbsp", "tsp", "scoop", "piece", "serving"
+"g", "ml", "piece"
 
 UNIT & SYNONYM NORMALIZATION
-- Normalize plurals and synonyms to the valid list:
-  * "slices", "slice", "pcs" → "piece"
-  * "tablespoons" → "tbsp", "teaspoons" → "tsp"
-  * "cups" → "cup", "ounces" → "oz", "fluid ounces" → "fl oz"
-- Vague units ("serving", "piece") are allowed but usually require needsRefinement: true unless a standard size is explicit (e.g., "1 cup").
-- When using "piece"/"serving", ALSO add "recommendedMeasurement" with a realistic exact alternative (prefer "g" or "ml" when appropriate), e.g., a medium apple → {"amount": 180, "unit": "g"}.
+- Normalize plurals and synonyms:
+  * "grams" → "g"
+  * "milliliters", "millilitres" → "ml"
+  * "pcs", "pieces", "slice", "slices" → "piece"
+- Prefer exact measurable units ("g" or "ml").
+- Use the ambiguous unit "piece" only when it is the clearest description (e.g., whole apple, burger).
+- Whenever you output "piece", ALSO add "recommendedMeasurement" with a realistic exact alternative (prefer "g" or "ml").
 
 CORE LOGIC
-1) Deconstruct:
-   - Parse the description into distinct ingredients/components.
-   - Avoid generic catch-alls like "sauce" if specifics are present (e.g., "tomato sauce", "pesto").
+1) Deconstruct the description into distinct, specific components. Avoid vague catch-alls when detail is implied (e.g., choose "tomato sauce" over "sauce" if context suggests it).
 2) Amount handling (CRITICAL):
-   - If user provides a specific quantity (e.g., "150 g chicken", "2 slices bread"), set that amount/unit and needsRefinement: false.
-   - If not provided, estimate a reasonable standard portion; set needsRefinement: true.
-   - If the unit is vague ("serving" or "piece"), estimate and set needsRefinement: true and add "recommendedMeasurement".
-3) Title:
-   - generatedTitle starts with ONE fitting emoji + 1–3 concise words. No trailing punctuation. Example: "🥗 Chicken Bowl".
+   - Honor explicit amounts and units from the user.
+   - When the user provides a count of items ("2 bananas"), convert to { amount: 2, unit: "piece" } and include a best-fit recommendedMeasurement in grams.
+   - If quantities are missing, estimate a sensible single-serving amount and choose "g" or "ml" when possible. Only fall back to "piece" when no better measurable unit fits.
+3) Title formatting:
+   - generatedTitle starts with ONE fitting emoji followed by 1–3 concise words. No ending punctuation. Example: "🥗 Chicken Bowl".
 4) Macros:
-   - Provide realistic integers for calories, protein, carbs, fat as totals across components.
-   - Ensure calories≈(protein*4 + carbs*4 + fat*9) within a reasonable margin.
-   - Extreme inputs ARE possible and must be calculated literally (e.g., "100 pizzas" is 100 pizzas).
+   - Provide realistic integers for calories, protein, carbs, and fat across the entire meal.
+   - Keep calories roughly consistent with macros via 4/4/9 rule, but prioritize the best domain knowledge estimate when conflicts arise.
+   - Respect extreme quantities literally ("100 pancakes" → very high totals).
 
 EXAMPLE SCENARIOS
 
 HIGH SPECIFICITY (user provides quantities)
-User: "40g oats with 20g nuts and 1 cup of milk."
+User: "40 g oats with 200 ml milk and 15 g almonds."
 Expected JSON:
 {
-  "generatedTitle": "🥣 Oats with Nuts",
+  "generatedTitle": "🥣 Oats with Milk",
   "foodComponents": [
-    { "name": "oats", "amount": 40, "unit": "g", "needsRefinement": false },
-    { "name": "nuts", "amount": 20, "unit": "g", "needsRefinement": false },
-    { "name": "milk", "amount": 1, "unit": "cup", "needsRefinement": false }
+    { "name": "oats", "amount": 40, "unit": "g" },
+    { "name": "milk", "amount": 200, "unit": "ml" },
+    { "name": "almonds", "amount": 15, "unit": "g" }
   ],
-  "calories": 450,
-  "protein": 15,
-  "carbs": 40,
-  "fat": 25
+  "calories": 310,
+  "protein": 13,
+  "carbs": 34,
+  "fat": 14
 }
 
 MISSING QUANTITIES (estimate sensible portions)
@@ -105,46 +104,46 @@ Expected JSON:
 {
   "generatedTitle": "🍎 Muesli with Apple",
   "foodComponents": [
-    { "name": "muesli", "amount": 60, "unit": "g", "needsRefinement": true },
-    { "name": "quark", "amount": 250, "unit": "g", "needsRefinement": true },
-    { "name": "apple", "amount": 1, "unit": "piece", "needsRefinement": true, "recommendedMeasurement": { "amount": 180, "unit": "g" } }
+    { "name": "muesli", "amount": 60, "unit": "g" },
+    { "name": "quark", "amount": 200, "unit": "g" },
+    { "name": "apple", "amount": 1, "unit": "piece", "recommendedMeasurement": { "amount": 180, "unit": "g" } }
   ],
-  "calories": 480,
-  "protein": 28,
-  "carbs": 60,
+  "calories": 460,
+  "protein": 26,
+  "carbs": 58,
   "fat": 14
 }
 
-VERY VAGUE (use typical assumptions)
-User: "Had a sandwich and a soda."
+VERY VAGUE (convert counts to pieces with refinements)
+User: "Two slices of pepperoni pizza and a cola."
 Expected JSON:
 {
-  "generatedTitle": "🥪 Sandwich & Soda",
+  "generatedTitle": "🍕 Pizza & Cola",
   "foodComponents": [
-    { "name": "sandwich (ham & cheese, white bread)", "amount": 1, "unit": "piece", "needsRefinement": true, "recommendedMeasurement": { "amount": 250, "unit": "g" } },
-    { "name": "cola", "amount": 330, "unit": "ml", "needsRefinement": true }
+    { "name": "pepperoni pizza slice", "amount": 2, "unit": "piece", "recommendedMeasurement": { "amount": 300, "unit": "g" } },
+    { "name": "cola", "amount": 330, "unit": "ml" }
   ],
-  "calories": 620,
-  "protein": 22,
-  "carbs": 82,
-  "fat": 20
+  "calories": 880,
+  "protein": 30,
+  "carbs": 98,
+  "fat": 38
 }
 
-COMPLETE, MIXED UNITS
-User: "200g grilled chicken, 150g cooked rice, 80g broccoli, 1 tbsp olive oil."
+MIXED DETAIL (partially specified)
+User: "grilled chicken with rice and vegetables, plus a 250 ml smoothie."
 Expected JSON:
 {
   "generatedTitle": "🍗 Chicken Plate",
   "foodComponents": [
-    { "name": "grilled chicken breast", "amount": 200, "unit": "g", "needsRefinement": false },
-    { "name": "cooked white rice", "amount": 150, "unit": "g", "needsRefinement": false },
-    { "name": "broccoli", "amount": 80, "unit": "g", "needsRefinement": false },
-    { "name": "olive oil", "amount": 1, "unit": "tbsp", "needsRefinement": false }
+    { "name": "grilled chicken breast", "amount": 180, "unit": "g" },
+    { "name": "cooked white rice", "amount": 150, "unit": "g" },
+    { "name": "mixed vegetables", "amount": 100, "unit": "g" },
+    { "name": "fruit smoothie", "amount": 250, "unit": "ml" }
   ],
-  "calories": 720,
-  "protein": 63,
-  "carbs": 56,
-  "fat": 26
+  "calories": 730,
+  "protein": 55,
+  "carbs": 78,
+  "fat": 22
 }
 `;
 const openai = new OpenAI();
@@ -229,7 +228,7 @@ Deno.serve(async (req) => {
         }
       );
     }
-    const userPrompt = `Estimate the nutrition for the following meal. If you use an ambiguous unit ("piece" or "serving") for any component, ALSO include "recommendedMeasurement" with a realistic exact amount and unit (prefer grams or milliliters): ${description}.`;
+    const userPrompt = `Estimate the nutrition for the following meal. If you use the unit "piece" for any component, ALSO include "recommendedMeasurement" with a realistic exact amount and unit (prefer grams or milliliters): ${description}.`;
     const chatCompletion = await openai.chat.completions.create({
       model: "gpt-5-mini",
       messages: [
@@ -252,28 +251,8 @@ Deno.serve(async (req) => {
     if (!messageContent) throw new Error("AI returned an empty message.");
     const nutrition = JSON.parse(messageContent);
     // Sanitize and structure the final result with the new foodComponents field
-    const ALLOWED_UNITS = [
-      "g",
-      "oz",
-      "ml",
-      "fl oz",
-      "cup",
-      "tbsp",
-      "tsp",
-      "scoop",
-      "piece",
-      "serving",
-    ];
-    const EXACT_UNITS = [
-      "g",
-      "oz",
-      "ml",
-      "fl oz",
-      "cup",
-      "tbsp",
-      "tsp",
-      "scoop",
-    ];
+    const ALLOWED_UNITS = ["g", "ml", "piece"];
+    const EXACT_UNITS = ["g", "ml"];
     const result = {
       generatedTitle: nutrition.generatedTitle || "AI Estimate",
       foodComponents: Array.isArray(nutrition.foodComponents)
@@ -286,13 +265,10 @@ Deno.serve(async (req) => {
                 unit: ALLOWED_UNITS.includes(lowerCaseUnit)
                   ? lowerCaseUnit
                   : "piece",
-                needsRefinement:
-                  typeof comp.needsRefinement === "boolean"
-                    ? comp.needsRefinement
-                    : true,
               };
               // Pass through recommendedMeasurement if present and sane
               if (
+                base.unit === "piece" &&
                 comp.recommendedMeasurement &&
                 typeof comp.recommendedMeasurement === "object"
               ) {
