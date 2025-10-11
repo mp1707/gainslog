@@ -35,6 +35,9 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       flexShrink: 0,
       flexGrow: 1,
     },
+    staticValueText: {
+      textAlign: "right",
+    },
     macroDot: {
       width: theme.spacing.sm,
       height: theme.spacing.sm,

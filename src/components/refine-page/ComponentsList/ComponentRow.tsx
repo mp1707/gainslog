@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -11,6 +11,7 @@ import { AppText } from "@/components";
 import { Button } from "@/components/shared/Button/Button";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions/SwipeToFunctions";
 import { useTheme } from "@/theme";
+import type { Colors, Theme } from "@/theme";
 import { createStyles } from "./ComponentsList.styles";
 import type { FoodComponent } from "@/types/models";
 
@@ -18,38 +19,84 @@ interface ComponentRowProps {
   component: FoodComponent;
   index: number;
   isExpanded: boolean;
+  onTap: (index: number, comp: FoodComponent) => void;
+  onDelete: (index: number) => void;
+  onAcceptRecommendation: (index: number, comp: FoodComponent) => void;
+  onEditManually: (index: number, comp: FoodComponent) => void;
+}
+
+const StaticComponentRow: React.FC<{
+  component: FoodComponent;
+  onTap: () => void;
+  onDelete: () => void;
+  styles: ReturnType<typeof createStyles>;
+  theme: Theme;
+}> = ({ component, onTap, onDelete, styles, theme }) => (
+  <SwipeToFunctions onDelete={onDelete} onTap={onTap}>
+    <View style={styles.solidBackgroundForSwipe}>
+      <View
+        style={{
+          margin: -theme.spacing.md,
+          borderRadius: theme.components.cards.cornerRadius,
+        }}
+      >
+        <View
+          style={[
+            styles.componentRow,
+            {
+              borderRadius: theme.components.cards.cornerRadius,
+              padding: theme.spacing.md,
+              paddingRight: theme.spacing.sm,
+            },
+          ]}
+        >
+          <View style={styles.leftColumn}>
+            <AppText numberOfLines={1} style={styles.componentName}>
+              {component.name}
+            </AppText>
+          </View>
+          <View style={styles.rightColumn}>
+            <AppText color="secondary">
+              {component.amount} {component.unit ?? ""}
+            </AppText>
+          </View>
+        </View>
+      </View>
+    </View>
+  </SwipeToFunctions>
+);
+
+const RecommendationComponentRow: React.FC<{
+  component: FoodComponent;
+  isExpanded: boolean;
   onTap: () => void;
   onDelete: () => void;
   onAcceptRecommendation: () => void;
   onEditManually: () => void;
-}
-
-export const ComponentRow: React.FC<ComponentRowProps> = ({
+  styles: ReturnType<typeof createStyles>;
+  colors: Colors;
+  theme: Theme;
+}> = ({
   component,
   isExpanded,
   onTap,
   onDelete,
   onAcceptRecommendation,
   onEditManually,
+  styles,
+  colors,
+  theme,
 }) => {
-  const { colors, theme } = useTheme();
-  const styles = createStyles(colors, theme);
-  const hasRecommendation = !!component.recommendedMeasurement;
-
-  // Single source of truth for perfect animation sync
   const expandProgress = useSharedValue(0);
+  const { damping, stiffness } = theme.interactions.press.spring;
 
   useEffect(() => {
-    const springConfig = {
-      damping: theme.interactions.press.spring.damping,
-      stiffness: theme.interactions.press.spring.stiffness,
-    };
+    expandProgress.value = withSpring(isExpanded ? 1 : 0, {
+      damping,
+      stiffness,
+    });
+  }, [expandProgress, isExpanded, damping, stiffness]);
 
-    // Single animation drives all visual changes
-    expandProgress.value = withSpring(isExpanded ? 1 : 0, springConfig);
-  }, [isExpanded, theme]);
-
-  // All animations derived from single progress value
   const expandedStyle = useAnimatedStyle(() => ({
     maxHeight: expandProgress.value * 300,
     opacity: expandProgress.value,
@@ -87,7 +134,7 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
         onDelete={isExpanded ? undefined : onDelete}
         onTap={onTap}
       >
-        <View style={[styles.solidBackgroundForSwipe]}>
+        <View style={styles.solidBackgroundForSwipe}>
           <Animated.View style={borderStyle}>
             <Animated.View
               style={[
@@ -104,51 +151,45 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
               <View style={styles.rightColumn}>
                 <AppText color="secondary">
                   {component.amount} {component.unit ?? ""}
-                  {!isExpanded && !hasRecommendation && " "}
                 </AppText>
-                {hasRecommendation && (
-                  <View
-                    style={{
-                      marginLeft: theme.spacing.sm,
-                      width: 18,
-                      height: 18,
-                    }}
+                <View
+                  style={{
+                    marginLeft: theme.spacing.sm,
+                    width: 18,
+                    height: 18,
+                  }}
+                >
+                  <Animated.View style={[{ position: "absolute" }, lightbulbStyle]}>
+                    <Lightbulb
+                      size={18}
+                      color={colors.semantic.fat}
+                      fill={colors.semantic.fat}
+                    />
+                  </Animated.View>
+                  <Animated.View
+                    style={[
+                      {
+                        position: "absolute",
+                        backgroundColor: colors.secondaryBackground,
+                        padding: theme.spacing.xs,
+                        margin: -theme.spacing.xs,
+                        borderRadius: 18,
+                      },
+                      xIconStyle,
+                    ]}
                   >
-                    <Animated.View
-                      style={[{ position: "absolute" }, lightbulbStyle]}
-                    >
-                      <Lightbulb
-                        size={18}
-                        color={colors.semantic.fat}
-                        fill={colors.semantic.fat}
-                      />
-                    </Animated.View>
-                    <Animated.View
-                      style={[
-                        {
-                          position: "absolute",
-                          backgroundColor: colors.secondaryBackground,
-                          padding: theme.spacing.xs,
-                          margin: -theme.spacing.xs,
-                          borderRadius: 18,
-                        },
-                        xIconStyle,
-                      ]}
-                    >
-                      <X
-                        size={18}
-                        color={colors.secondaryText}
-                        strokeWidth={2}
-                        fill={colors.secondaryText}
-                      />
-                    </Animated.View>
-                  </View>
-                )}
+                    <X
+                      size={18}
+                      color={colors.secondaryText}
+                      strokeWidth={2}
+                      fill={colors.secondaryText}
+                    />
+                  </Animated.View>
+                </View>
               </View>
             </Animated.View>
 
-            {/* Expandable Recommendation Section */}
-            {hasRecommendation && component.recommendedMeasurement && (
+            {component.recommendedMeasurement && (
               <Animated.View style={expandedStyle}>
                 <View
                   style={{
@@ -211,3 +252,89 @@ export const ComponentRow: React.FC<ComponentRowProps> = ({
     </Animated.View>
   );
 };
+
+const ComponentRowComponent: React.FC<ComponentRowProps> = ({
+  component,
+  isExpanded,
+  index,
+  onTap,
+  onDelete,
+  onAcceptRecommendation,
+  onEditManually,
+}) => {
+  const { colors, theme } = useTheme();
+  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const hasRecommendation = !!component.recommendedMeasurement;
+
+  const handleTap = useCallback(() => onTap(index, component), [
+    onTap,
+    index,
+    component,
+  ]);
+
+  const handleDelete = useCallback(() => onDelete(index), [onDelete, index]);
+
+  const handleAccept = useCallback(
+    () => onAcceptRecommendation(index, component),
+    [onAcceptRecommendation, index, component]
+  );
+
+  const handleEdit = useCallback(
+    () => onEditManually(index, component),
+    [onEditManually, index, component]
+  );
+
+  if (!hasRecommendation) {
+    return (
+      <StaticComponentRow
+        component={component}
+        onTap={handleTap}
+        onDelete={handleDelete}
+        styles={styles}
+        theme={theme}
+      />
+    );
+  }
+
+  return (
+    <RecommendationComponentRow
+      component={component}
+      isExpanded={isExpanded}
+      onTap={handleTap}
+      onDelete={handleDelete}
+      onAcceptRecommendation={handleAccept}
+      onEditManually={handleEdit}
+      styles={styles}
+      colors={colors}
+      theme={theme}
+    />
+  );
+};
+
+export const ComponentRow = React.memo(ComponentRowComponent, (prev, next) => {
+  const prevComp = prev.component;
+  const nextComp = next.component;
+
+  const prevRec = prevComp.recommendedMeasurement;
+  const nextRec = nextComp.recommendedMeasurement;
+
+  const recommendationsEqual =
+    (!!prevRec === !!nextRec) &&
+    (!prevRec ||
+      (prevRec.amount === nextRec?.amount &&
+        prevRec.unit === nextRec?.unit));
+
+  return (
+    prev.index === next.index &&
+    prev.isExpanded === next.isExpanded &&
+    prevComp.name === nextComp.name &&
+    prevComp.amount === nextComp.amount &&
+    prevComp.unit === nextComp.unit &&
+    prevComp.needsRefinement === nextComp.needsRefinement &&
+    recommendationsEqual &&
+    prev.onTap === next.onTap &&
+    prev.onDelete === next.onDelete &&
+    prev.onAcceptRecommendation === next.onAcceptRecommendation &&
+    prev.onEditManually === next.onEditManually
+  );
+});

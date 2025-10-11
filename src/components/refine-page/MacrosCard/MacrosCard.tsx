@@ -28,16 +28,26 @@ interface MacrosCardProps {
   protein?: number | null;
   carbs?: number | null;
   fat?: number | null;
-  // When true, dim numbers as stale
   processing?: boolean;
-  // Changes to this key will trigger slot-machine style counters
   revealKey?: number;
-  // New props for stale state
   hasUnsavedChanges?: boolean;
   changesCount?: number;
   foodComponentsCount?: number;
   onRecalculate?: () => void;
 }
+
+type MacroSharedValue = Animated.SharedValue<number>;
+
+type StaticMacroItem = {
+  key: string;
+  label: string;
+  color: string;
+  value: number;
+  suffix: string;
+};
+
+const normalizeMacro = (value?: number | null) =>
+  typeof value === "number" && Number.isFinite(value) ? value : 0;
 
 // Optimized utility using Reanimated - runs on UI thread without re-renders
 const useNumberReveal = (initial: number) => {
@@ -51,18 +61,15 @@ const useNumberReveal = (initial: number) => {
     "worklet";
     const target = targetValue.value;
 
-    // During flicker phase (0-1), show random values
     if (flickerProgress.value < 1) {
-      // Generate pseudo-random flicker based on progress
       const seed = Math.floor(flickerProgress.value * 10);
       const randomFactor = ((seed * 9301 + 49297) % 233280) / 233280;
       return Math.max(0, Math.round(target * randomFactor));
     }
 
-    // During count phase, interpolate from previous to target
     const from = prevValue.value;
     const t = countProgress.value;
-    const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+    const eased = 1 - Math.pow(1 - t, 3);
     return Math.round(from + (target - from) * eased);
   }, []);
 
@@ -70,11 +77,9 @@ const useNumberReveal = (initial: number) => {
     prevValue.value = targetValue.value;
     targetValue.value = target;
 
-    // Reset progress values
     flickerProgress.value = 0;
     countProgress.value = 0;
 
-    // Phase 1: Flicker animation (250ms)
     flickerProgress.value = withTiming(
       1,
       {
@@ -84,7 +89,6 @@ const useNumberReveal = (initial: number) => {
       (finished) => {
         "worklet";
         if (finished) {
-          // Phase 2: Count-up animation (450ms)
           countProgress.value = withTiming(1, {
             duration: 450,
             easing: ReanimatedEasing.out(ReanimatedEasing.cubic),
@@ -97,32 +101,26 @@ const useNumberReveal = (initial: number) => {
   return { displayValue, animateTo } as const;
 };
 
-// Create animated text input component
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
-// Component to display animated numbers - runs entirely on UI thread
-// Uses frame throttling to update at 30fps for better performance
 const AnimatedNumber = React.memo(
   ({
     value,
     suffix,
     styles,
   }: {
-    value: Animated.SharedValue<number>;
+    value: MacroSharedValue;
     suffix: string;
-    styles: any;
+    styles: ReturnType<typeof createStyles>;
   }) => {
     const frameCount = useSharedValue(0);
 
     const animatedProps = useAnimatedProps(() => {
       "worklet";
-
-      // Frame throttling: only update every 2nd frame (30fps instead of 60fps)
       frameCount.value += 1;
       const shouldUpdate = frameCount.value % 2 === 0;
 
       if (!shouldUpdate && frameCount.value > 2) {
-        // Return previous value to skip this frame
         return {} as any;
       }
 
@@ -148,7 +146,7 @@ interface MacroRowProps {
     key: string;
     label: string;
     color: string;
-    value: Animated.SharedValue<number>;
+    value: MacroSharedValue;
     suffix: string;
   };
   index: number;
@@ -171,7 +169,6 @@ const MacroRowComponent = ({
     theme.spacing.lg + theme.spacing.xs
   );
 
-  // Single shared value for all animations - others derived from this
   const transition = useSharedValue(processing ? 1 : 0);
   const rowWidthValue = useSharedValue(0);
 
@@ -232,8 +229,6 @@ const MacroRowComponent = ({
     const t = transition.value;
     const calculatedWidth = Math.max(rowWidthValue.value * t, 0);
 
-    // Derive loader opacity from transition
-    // Fast fade-in when loading (0->1), delayed fade-out when done (1->0)
     const loaderOpacity = t > 0.5 ? 1 : t * 2;
 
     return {
@@ -264,8 +259,6 @@ const MacroRowComponent = ({
       rowWidthValue.value * 0.18
     );
 
-    // Derive value opacity from transition with delay effect
-    // Stay hidden during loading (t > 0.4), then fade in
     const valueOpacity = t < 0.4 ? 1 : Math.max(0, (1 - t) / 0.6);
 
     return {
@@ -315,22 +308,158 @@ const MacroRowComponent = ({
   );
 };
 
-// Memoized to prevent re-renders when parent updates
 const MacroRow = React.memo(MacroRowComponent, (prev, next) => {
-  // Only re-render if these specific props change
   return (
     prev.processing === next.processing &&
     prev.index === next.index &&
     prev.item.key === next.item.key &&
     prev.item.label === next.item.label &&
     prev.item.color === next.item.color &&
-    prev.item.value === next.item.value && // Shared value reference
+    prev.item.value === next.item.value &&
     prev.item.suffix === next.item.suffix &&
     prev.styles === next.styles &&
     prev.colors === next.colors &&
     prev.theme === next.theme
   );
 });
+
+interface AnimatedMacrosContentProps {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  processing: boolean;
+  revealKey?: number;
+  styles: ReturnType<typeof createStyles>;
+  colors: Colors;
+  theme: Theme;
+}
+
+const AnimatedMacrosContent: React.FC<AnimatedMacrosContentProps> = React.memo(
+  ({
+    calories,
+    protein,
+    carbs,
+    fat,
+    processing,
+    revealKey,
+    styles,
+    colors,
+    theme,
+  }) => {
+    const cals = useNumberReveal(calories);
+    const prot = useNumberReveal(protein);
+    const crb = useNumberReveal(carbs);
+    const ft = useNumberReveal(fat);
+
+    useEffect(() => {
+      const timers: Array<ReturnType<typeof setTimeout>> = [];
+
+      cals.animateTo(calories);
+      timers.push(
+        setTimeout(() => prot.animateTo(protein), 50)
+      );
+      timers.push(
+        setTimeout(() => crb.animateTo(carbs), 100)
+      );
+      timers.push(
+        setTimeout(() => ft.animateTo(fat), 150)
+      );
+
+      return () => {
+        timers.forEach((timer) => clearTimeout(timer));
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [revealKey, calories, protein, carbs, fat]);
+
+    const macroItemsRef = useRef([
+      {
+        key: "calories",
+        label: "Calories",
+        color: colors.semantic.calories,
+        value: cals.displayValue,
+        suffix: "kcal",
+      },
+      {
+        key: "protein",
+        label: "Protein",
+        color: colors.semantic.protein,
+        value: prot.displayValue,
+        suffix: "g",
+      },
+      {
+        key: "carbs",
+        label: "Carbs",
+        color: colors.semantic.carbs,
+        value: crb.displayValue,
+        suffix: "g",
+      },
+      {
+        key: "fat",
+        label: "Fat",
+        color: colors.semantic.fat,
+        value: ft.displayValue,
+        suffix: "g",
+      },
+    ]);
+
+    useEffect(() => {
+      macroItemsRef.current[0].color = colors.semantic.calories;
+      macroItemsRef.current[1].color = colors.semantic.protein;
+      macroItemsRef.current[2].color = colors.semantic.carbs;
+      macroItemsRef.current[3].color = colors.semantic.fat;
+    }, [
+      colors.semantic.calories,
+      colors.semantic.protein,
+      colors.semantic.carbs,
+      colors.semantic.fat,
+    ]);
+
+    return (
+      <>
+        {macroItemsRef.current.map((item, index) => (
+          <React.Fragment key={item.key}>
+            <MacroRow
+              item={item}
+              index={index}
+              processing={processing}
+              styles={styles}
+              colors={colors}
+              theme={theme}
+            />
+            {index < macroItemsRef.current.length - 1 && (
+              <View style={styles.divider} />
+            )}
+          </React.Fragment>
+        ))}
+      </>
+    );
+  }
+);
+
+const StaticMacrosContent: React.FC<{
+  items: StaticMacroItem[];
+  styles: ReturnType<typeof createStyles>;
+}> = React.memo(({ items, styles }) => (
+  <>
+    {items.map((item, index) => (
+      <React.Fragment key={item.key}>
+        <View style={styles.macroRow}>
+          <View style={styles.macroLabelContainer}>
+            <View style={[styles.macroDot, { backgroundColor: item.color }]} />
+            <AppText>{item.label}</AppText>
+          </View>
+          <View style={styles.macroValueContainer}>
+            <AppText color="secondary" style={styles.staticValueText}>
+              {item.value} {item.suffix}
+            </AppText>
+          </View>
+        </View>
+        {index < items.length - 1 && <View style={styles.divider} />}
+      </React.Fragment>
+    ))}
+  </>
+));
 
 export const MacrosCard: React.FC<MacrosCardProps> = ({
   calories,
@@ -347,73 +476,102 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
   const { colors, theme, colorScheme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
-  const cals = useNumberReveal(calories ?? 0);
-  const prot = useNumberReveal(protein ?? 0);
-  const crb = useNumberReveal(carbs ?? 0);
-  const ft = useNumberReveal(fat ?? 0);
+  const normalizedValues = useMemo(
+    () => ({
+      calories: normalizeMacro(calories),
+      protein: normalizeMacro(protein),
+      carbs: normalizeMacro(carbs),
+      fat: normalizeMacro(fat),
+    }),
+    [calories, protein, carbs, fat]
+  );
 
-  // On reveal key changes, animate to target values with staggered delays
+  const [isRevealActive, setIsRevealActive] = useState(false);
+  const revealKeyRef = useRef(revealKey);
+  const revealTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
-    // Stagger animations by 50ms each to spread computational load
-    cals.animateTo(calories ?? 0);
-    setTimeout(() => prot.animateTo(protein ?? 0), 50);
-    setTimeout(() => crb.animateTo(carbs ?? 0), 100);
-    setTimeout(() => ft.animateTo(fat ?? 0), 150);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [revealKey, calories, protein, carbs, fat]);
+    if (revealKeyRef.current === revealKey) {
+      return;
+    }
 
-  // Use ref for stable array reference - shared values update automatically
-  const macroItemsRef = useRef([
-    {
-      key: "calories",
-      label: "Calories",
-      color: colors.semantic.calories,
-      value: cals.displayValue,
-      suffix: "kcal",
-    },
-    {
-      key: "protein",
-      label: "Protein",
-      color: colors.semantic.protein,
-      value: prot.displayValue,
-      suffix: "g",
-    },
-    {
-      key: "carbs",
-      label: "Carbs",
-      color: colors.semantic.carbs,
-      value: crb.displayValue,
-      suffix: "g",
-    },
-    {
-      key: "fat",
-      label: "Fat",
-      color: colors.semantic.fat,
-      value: ft.displayValue,
-      suffix: "g",
-    },
-  ]);
+    revealKeyRef.current = revealKey;
 
-  // Update only colors when theme changes
+    if (revealTimeoutRef.current) {
+      clearTimeout(revealTimeoutRef.current);
+      revealTimeoutRef.current = null;
+    }
+
+    if (revealKey === undefined) {
+      setIsRevealActive(false);
+      return;
+    }
+
+    setIsRevealActive(true);
+    const timeout = setTimeout(() => {
+      revealTimeoutRef.current = null;
+      setIsRevealActive(false);
+    }, 900);
+
+    revealTimeoutRef.current = timeout;
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [revealKey]);
+
   useEffect(() => {
-    macroItemsRef.current[0].color = colors.semantic.calories;
-    macroItemsRef.current[1].color = colors.semantic.protein;
-    macroItemsRef.current[2].color = colors.semantic.carbs;
-    macroItemsRef.current[3].color = colors.semantic.fat;
-  }, [
-    colors.semantic.calories,
-    colors.semantic.protein,
-    colors.semantic.carbs,
-    colors.semantic.fat,
-  ]);
+    return () => {
+      if (revealTimeoutRef.current) {
+        clearTimeout(revealTimeoutRef.current);
+      }
+    };
+  }, []);
 
-  const handleRecalculate = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    onRecalculate?.();
-  };
+  const staticItems = useMemo<StaticMacroItem[]>(
+    () => [
+      {
+        key: "calories",
+        label: "Calories",
+        color: colors.semantic.calories,
+        value: Math.round(normalizedValues.calories),
+        suffix: "kcal",
+      },
+      {
+        key: "protein",
+        label: "Protein",
+        color: colors.semantic.protein,
+        value: Math.round(normalizedValues.protein),
+        suffix: "g",
+      },
+      {
+        key: "carbs",
+        label: "Carbs",
+        color: colors.semantic.carbs,
+        value: Math.round(normalizedValues.carbs),
+        suffix: "g",
+      },
+      {
+        key: "fat",
+        label: "Fat",
+        color: colors.semantic.fat,
+        value: Math.round(normalizedValues.fat),
+        suffix: "g",
+      },
+    ],
+    [
+      colors.semantic.calories,
+      colors.semantic.protein,
+      colors.semantic.carbs,
+      colors.semantic.fat,
+      normalizedValues.calories,
+      normalizedValues.protein,
+      normalizedValues.carbs,
+      normalizedValues.fat,
+    ]
+  );
 
   const isEmpty = foodComponentsCount === 0;
-
   const recalculateLabel = useMemo(() => {
     if (isEmpty) {
       return "Add items to calculate";
@@ -422,28 +580,35 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
     return `Recalculate (${changesCount} ${changeWord})`;
   }, [isEmpty, changesCount]);
 
+  const useAnimatedVariant = processing || isRevealActive;
+
+  const handleRecalculate = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    onRecalculate?.();
+  };
+
   return (
     <Card style={styles.cardContainer}>
       <AppText role="Caption" style={styles.sectionHeader}>
         MACROS
       </AppText>
-      {macroItemsRef.current.map((item, index) => (
-        <React.Fragment key={item.key}>
-          <MacroRow
-            item={item}
-            index={index}
-            processing={processing}
-            styles={styles}
-            colors={colors}
-            theme={theme}
-          />
-          {index < macroItemsRef.current.length - 1 && (
-            <View style={styles.divider} />
-          )}
-        </React.Fragment>
-      ))}
 
-      {/* Stale State Overlay */}
+      {useAnimatedVariant ? (
+        <AnimatedMacrosContent
+          calories={normalizedValues.calories}
+          protein={normalizedValues.protein}
+          carbs={normalizedValues.carbs}
+          fat={normalizedValues.fat}
+          processing={processing}
+          revealKey={revealKey}
+          styles={styles}
+          colors={colors}
+          theme={theme}
+        />
+      ) : (
+        <StaticMacrosContent items={staticItems} styles={styles} />
+      )}
+
       {hasUnsavedChanges && !processing && (
         <View style={styles.blurOverlay}>
           <BlurView intensity={8} tint={colorScheme} style={styles.blurView}>

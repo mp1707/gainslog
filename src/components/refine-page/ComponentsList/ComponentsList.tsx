@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Plus } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
@@ -26,31 +26,38 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
   disabled,
 }) => {
   const { colors, theme } = useTheme();
-  const styles = createStyles(colors, theme);
+  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
-  const handleRowTap = (index: number, comp: FoodComponent) => {
-    if (comp.recommendedMeasurement) {
-      // Has recommendation → toggle inline expansion
+  const handleRowTap = useCallback(
+    (index: number, comp: FoodComponent) => {
+      if (comp.recommendedMeasurement) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setExpandedIndex((prev) => (prev === index ? null : index));
+      } else {
+        onPressItem(index, comp);
+      }
+    },
+    [onPressItem]
+  );
+
+  const handleAcceptRecommendation = useCallback(
+    (index: number, comp: FoodComponent) => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setExpandedIndex(null);
+      onAcceptRecommendation(index, comp);
+    },
+    [onAcceptRecommendation]
+  );
+
+  const handleEditManually = useCallback(
+    (index: number, comp: FoodComponent) => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      setExpandedIndex(expandedIndex === index ? null : index);
-    } else {
-      // No recommendation → show edit sheet
+      setExpandedIndex(null);
       onPressItem(index, comp);
-    }
-  };
-
-  const handleAcceptRecommendation = (index: number, comp: FoodComponent) => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    setExpandedIndex(null);
-    onAcceptRecommendation(index, comp);
-  };
-
-  const handleEditManually = (index: number, comp: FoodComponent) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setExpandedIndex(null);
-    onPressItem(index, comp);
-  };
+    },
+    [onPressItem]
+  );
 
   return (
     <Card style={styles.container}>
@@ -66,10 +73,10 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
           component={comp}
           index={index}
           isExpanded={expandedIndex === index}
-          onTap={() => handleRowTap(index, comp)}
-          onDelete={() => onDeleteItem(index)}
-          onAcceptRecommendation={() => handleAcceptRecommendation(index, comp)}
-          onEditManually={() => handleEditManually(index, comp)}
+          onTap={handleRowTap}
+          onDelete={onDeleteItem}
+          onAcceptRecommendation={handleAcceptRecommendation}
+          onEditManually={handleEditManually}
         />
       ))}
 
