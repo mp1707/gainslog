@@ -8,20 +8,15 @@ export const createLogAgainHandler = (
 ) => {
   return (log: FoodLog | Favorite) => {
     const now = new Date().toISOString();
-    
-    // Set needsRefinement = false for all food components since user is satisfied with current values
-    const updatedFoodComponents: FoodComponent[] = log.foodComponents.map(component => ({
-      ...component,
-      needsRefinement: false
-    }));
-
     addFoodLog({
       id: generateFoodLogId(),
       logDate: selectedDate,
       createdAt: now,
       title: log.title,
       description: log.description,
-      foodComponents: updatedFoodComponents,
+      foodComponents: log.foodComponents.map((component) => ({
+        ...component,
+      })),
       calories: log.calories,
       protein: log.protein,
       carbs: log.carbs,
@@ -39,12 +34,6 @@ export const createSaveToFavoritesHandler = (
     const already = favorites.some((f) => f.id === log.id);
     if (already) return; // guard against duplicates
 
-    // Set needsRefinement = false for all food components since user is satisfied with current values
-    const updatedFoodComponents: FoodComponent[] = log.foodComponents.map(component => ({
-      ...component,
-      needsRefinement: false
-    }));
-
     addFavorite({
       id: log.id,
       title: log.title,
@@ -53,7 +42,9 @@ export const createSaveToFavoritesHandler = (
       protein: log.protein,
       carbs: log.carbs,
       fat: log.fat,
-      foodComponents: updatedFoodComponents,
+      foodComponents: log.foodComponents.map((component) => ({
+        ...component,
+      })),
     });
 
     // Use HUD instead of toast
@@ -117,15 +108,11 @@ export const createToggleFavoriteHandler = (
         subtitle: foodLog.title
       });
     } else {
-      // Set needsRefinement = false for all food components since user is satisfied with current values
-      const updatedFoodComponents: FoodComponent[] = foodLog.foodComponents.map(component => ({
-        ...component,
-        needsRefinement: false
-      }));
-
       addFavorite({
         ...foodLog,
-        foodComponents: updatedFoodComponents
+        foodComponents: foodLog.foodComponents.map((component) => ({
+          ...component,
+        })),
       });
 
       // Use HUD instead of toast

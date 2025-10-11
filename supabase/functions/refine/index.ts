@@ -56,7 +56,7 @@ You MUST return a JSON object with this exact structure:
 
 ### You Will Receive
 1) "foodComponents": an array of items:
-   { "name": "string", "amount": number, "unit": "string", "needsRefinement": boolean }
+   { "name": "string", "amount": number, "unit": "string" }
 
 2) "macrosPerReferencePortion": exact label data:
    {
@@ -70,10 +70,10 @@ You MUST return a JSON object with this exact structure:
 ### CRITICAL INSTRUCTIONS:
 
 **USE THE LABEL BASIS FOR SCALING WHERE APPLICABLE (PREFERRED):**
-- Parse "referencePortionAmount" as "<number> <unit>" (units like g, ml, oz, fl oz).
+- Parse "referencePortionAmount" as "<number> <unit>" (units like g or ml).
 - Compute per-unit macros by dividing label macros by the numeric quantity.
   Example: "40 g" and 190 kcal → per-gram kcal ≈ 190/40.
-- For any component amounts using a compatible unit with the label basis (e.g., grams with grams, ml with ml, ounces with ounces), scale linearly from the per-unit macros.
+- For any component amounts using a compatible unit with the label basis (e.g., grams with grams or milliliters with milliliters), scale linearly from the per-unit macros.
 - If multiple components correspond to the same packaged item, scale each by its own amount and sum.
 - Components that are unrelated to the labeled item or use incompatible units should be estimated using general nutrition knowledge. Sum everything.
 

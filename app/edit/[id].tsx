@@ -107,28 +107,6 @@ export default function Edit() {
     }
   }, [editedLog, lastEstimatedComponents]);
 
-  // Track if components have changed relative to last successful estimation
-  const componentsChangedSinceLastEstimate = useMemo(() => {
-    const baseline = lastEstimatedComponents ?? [];
-    const curr = editedLog?.foodComponents ?? [];
-
-    if (baseline.length !== curr.length) return true;
-
-    // Quick reference check first
-    if (baseline === curr) return false;
-
-    for (let i = 0; i < baseline.length; i++) {
-      const o = baseline[i];
-      const c = curr[i];
-      if (o === c) continue; // Same reference, skip
-      if (o.name !== c.name) return true;
-      if (o.amount !== c.amount) return true;
-      if (o.unit !== c.unit) return true;
-      if (o.needsRefinement !== c.needsRefinement) return true;
-    }
-    return false;
-  }, [lastEstimatedComponents, editedLog?.foodComponents]);
-
   // Handlers for components editing
   const handleDeleteComponent = (index: number) => {
     setEditedLog((prev) => {
@@ -149,7 +127,7 @@ export default function Edit() {
   const handleAddComponent = () => {
     setEditingComponent({
       index: "new",
-      component: { name: "", amount: 0, unit: "g", needsRefinement: false },
+      component: { name: "", amount: 0, unit: "g" },
     });
     setSheetOpen(true);
   };

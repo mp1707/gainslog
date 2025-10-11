@@ -330,7 +330,6 @@ export const ComponentRow = React.memo(ComponentRowComponent, (prev, next) => {
     prevComp.name === nextComp.name &&
     prevComp.amount === nextComp.amount &&
     prevComp.unit === nextComp.unit &&
-    prevComp.needsRefinement === nextComp.needsRefinement &&
     recommendationsEqual &&
     prev.onTap === next.onTap &&
     prev.onDelete === next.onDelete &&

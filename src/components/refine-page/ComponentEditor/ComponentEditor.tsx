@@ -23,18 +23,7 @@ interface ComponentEditorProps {
   onCancel: () => void;
 }
 
-const UNIT_OPTIONS: FoodComponent["unit"][] = [
-  "g",
-  "oz",
-  "ml",
-  "fl oz",
-  "cup",
-  "tbsp",
-  "tsp",
-  "scoop",
-  "piece",
-  "serving",
-];
+const UNIT_OPTIONS: FoodComponent["unit"][] = ["g", "ml", "piece"];
 
 export const ComponentEditor: React.FC<ComponentEditorProps> = ({
   component,
@@ -123,7 +112,6 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
         name: name.trim(),
         amount: amountValue,
         unit,
-        needsRefinement: false,
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }

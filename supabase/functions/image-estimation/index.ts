@@ -341,28 +341,8 @@ Deno.serve(async (req) => {
     const messageContent = chatCompletion.choices?.[0]?.message?.content;
     if (!messageContent) throw new Error("AI returned an empty message.");
     const nutrition = JSON.parse(messageContent);
-    const ALLOWED_UNITS = [
-      "g",
-      "oz",
-      "ml",
-      "fl oz",
-      "cup",
-      "tbsp",
-      "tsp",
-      "scoop",
-      "piece",
-      "serving",
-    ];
-    const EXACT_UNITS = [
-      "g",
-      "oz",
-      "ml",
-      "fl oz",
-      "cup",
-      "tbsp",
-      "tsp",
-      "scoop",
-    ];
+    const ALLOWED_UNITS = ["g", "ml", "piece"];
+    const EXACT_UNITS = ["g", "ml"];
     // Sanitize components (no limit on number of components)
     const sanitizedComponents = Array.isArray(nutrition.foodComponents)
       ? nutrition.foodComponents
@@ -375,13 +355,10 @@ Deno.serve(async (req) => {
               unit: ALLOWED_UNITS.includes(lowerCaseUnit)
                 ? lowerCaseUnit
                 : "piece",
-              needsRefinement:
-                typeof comp.needsRefinement === "boolean"
-                  ? comp.needsRefinement
-                  : true,
             };
             // Optional recommendedMeasurement passthrough (normalize unit if present)
             if (
+              base.unit === "piece" &&
               comp.recommendedMeasurement &&
               typeof comp.recommendedMeasurement === "object"
             ) {

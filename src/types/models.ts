@@ -1,5 +1,8 @@
 import { MacrosPerReferencePortion } from "../lib";
 
+export type FoodUnit = "g" | "ml" | "piece";
+export type ExactMeasurementUnit = Exclude<FoodUnit, "piece">;
+
 export type FoodLog = {
   id: string;
   logDate: string; // YYYY-MM-DD
@@ -21,21 +24,10 @@ export type FoodLog = {
 export type FoodComponent = {
   amount: number;
   name: string;
-  needsRefinement: boolean;
-  unit:
-    | "g"
-    | "oz"
-    | "ml"
-    | "fl oz"
-    | "cup"
-    | "tbsp"
-    | "tsp"
-    | "scoop"
-    | "piece"
-    | "serving";
+  unit: FoodUnit;
   recommendedMeasurement?: {
     amount: number;
-    unit: string;
+    unit: ExactMeasurementUnit;
   };
 };
 

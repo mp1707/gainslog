@@ -18,16 +18,13 @@ import { Favorite, FoodLog } from "@/types/models";
 import { useTheme } from "@/theme";
 import { Card } from "@/components/Card";
 import { AppText } from "@/components";
-import { SkeletonPill } from "@/components/shared";
 import { ContextMenu, ContextMenuItem } from "@/components/shared/ContextMenu";
 import { useAppStore } from "@/store/useAppStore";
 import { isNavLocked, lockNav } from "@/utils/navigationLock";
 import { createStyles } from "./LogCard.styles";
 import { NutritionList } from "./NutritionList";
 import { createStyles as createNutritionStyles } from "./NutritionList/NutritionList.styles";
-import { getRefinementInfo } from "@/utils/getRefinementInfo";
 import { FoodComponentList } from "./FoodComponentList";
-import { RefinementInfo } from "./RefinementInfo";
 import { LogCardTitle } from "./LogCardTitle";
 
 interface LogCardProps {
@@ -62,7 +59,6 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
   // Animation values for staggered reveal
   const titleOpacity = useSharedValue(isLoading ? 0 : 1);
   const nutritionOpacity = useSharedValue(isLoading ? 0 : 1);
-  const refinementBadgeOpacity = useSharedValue(isLoading ? 0 : 1);
 
   const displayTitle = foodLog.title || "New Log";
 
@@ -85,20 +81,14 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
         150,
         withSpring(1, { stiffness: 400, damping: 30 })
       );
-      refinementBadgeOpacity.value = withDelay(
-        300,
-        withSpring(1, { stiffness: 400, damping: 30 })
-      );
     } else if (!isLoading && !wasLoading) {
       // If card renders without loading, show content immediately without animation
       titleOpacity.value = 1;
       nutritionOpacity.value = 1;
-      refinementBadgeOpacity.value = 1;
     } else if (isLoading) {
       // Hide content during loading
       titleOpacity.value = 0;
       nutritionOpacity.value = 0;
-      refinementBadgeOpacity.value = 0;
     }
 
     // Update the previous loading state
@@ -113,12 +103,6 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
       },
     ],
   }));
-
-  const refinementBadgeAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: refinementBadgeOpacity.value,
-  }));
-
-  const refinementInfo = getRefinementInfo(foodLog.foodComponents);
 
   return (
     <Pressable
@@ -142,18 +126,6 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
               maxItems={2}
               style={styles.foodComponentList}
             />
-            {isLoading ? (
-              <SkeletonPill width={80} height={28} />
-            ) : (
-              refinementInfo && (
-                <RefinementInfo
-                  refinementText={refinementInfo}
-                  animated={true}
-                  animatedStyle={refinementBadgeAnimatedStyle}
-                  style={styles.refinementInfo}
-                />
-              )
-            )}
           </View>
 
           <View style={styles.rightSection}>
@@ -171,7 +143,11 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
         </View>
       </Card>
       {isLoading && (
-        <View pointerEvents="auto" style={styles.interactionBlocker} accessible={false} />
+        <View
+          pointerEvents="auto"
+          style={styles.interactionBlocker}
+          accessible={false}
+        />
       )}
     </Pressable>
   );
@@ -251,8 +227,6 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
 
   const displayTitle = foodLog.title || "New Log";
 
-  const refinementInfo = getRefinementInfo(foodLog.foodComponents);
-
   return (
     <Pressable
       style={styles.cardContainer}
@@ -268,12 +242,6 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
               maxItems={3}
               style={styles.foodComponentList}
             />
-            {refinementInfo && (
-              <RefinementInfo
-                refinementText={refinementInfo}
-                style={styles.refinementInfo}
-              />
-            )}
           </View>
 
           <View style={styles.rightSection}>
