@@ -8,6 +8,15 @@ export const createStyles = (colors: Colors) =>
       position: "relative",
     },
     card: {},
+    interactionBlocker: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      borderRadius: theme.components.cards.cornerRadius,
+      zIndex: 10,
+    },
     pressable: {
       flex: 1,
     },

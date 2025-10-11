@@ -8,6 +8,7 @@ import { useTheme } from "@/theme/ThemeProvider";
 
 interface FoodLogItemProps {
   item: FoodLog;
+  isLoading?: boolean;
   onDelete: (log: FoodLog | Favorite) => void;
   onToggleFavorite: (log: FoodLog) => void;
   onEdit: (log: FoodLog | Favorite) => void;
@@ -18,6 +19,7 @@ interface FoodLogItemProps {
 
 export const FoodLogItem: React.FC<FoodLogItemProps> = ({
   item,
+  isLoading,
   onDelete,
   onToggleFavorite,
   onEdit,
@@ -26,9 +28,10 @@ export const FoodLogItem: React.FC<FoodLogItemProps> = ({
   onRemoveFromFavorites,
 }) => {
   const { theme } = useTheme();
+  const isItemLoading = Boolean(isLoading ?? item.isEstimating);
 
   return (
-    <Animated.View 
+    <Animated.View
       style={{ paddingHorizontal: theme.spacing.md }}
       layout={LinearTransition}
     >
@@ -36,11 +39,11 @@ export const FoodLogItem: React.FC<FoodLogItemProps> = ({
         onDelete={() => onDelete(item)}
         onLeftFunction={() => onToggleFavorite(item)}
         leftIcon={<Star size={24} color="white" />}
-        onTap={() => onEdit(item)}
+        onTap={isItemLoading ? undefined : () => onEdit(item)}
       >
         <LogCard
           foodLog={item}
-          isLoading={item.isEstimating}
+          isLoading={isItemLoading}
           onLogAgain={onLogAgain}
           onSaveToFavorites={onSaveToFavorites}
           onRemoveFromFavorites={onRemoveFromFavorites}

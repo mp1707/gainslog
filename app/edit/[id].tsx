@@ -263,6 +263,15 @@ export default function Edit() {
     });
   }, [sheetOpen, navigation]);
 
+  const doneDisabled =
+    isLoading ||
+    Boolean(originalLog?.isEstimating) ||
+    (!hasReestimated &&
+      !isDirty &&
+      !titleChanged &&
+      !hasUnsavedChanges &&
+      changesCount === 0);
+
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.closeButtonLeft}>
@@ -278,13 +287,7 @@ export default function Edit() {
           Icon={Check}
           onPress={handleDone}
           variant={"primary"}
-          disabled={
-            !hasReestimated &&
-            !isDirty &&
-            !titleChanged &&
-            !hasUnsavedChanges &&
-            changesCount === 0
-          }
+          disabled={doneDisabled}
           accessibilityLabel="Close"
         />
       </View>

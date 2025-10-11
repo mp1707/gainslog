@@ -59,6 +59,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
     ({ item }) => (
       <FoodLogItem
         item={item}
+        isLoading={item.isEstimating}
         onDelete={onDelete}
         onToggleFavorite={onToggleFavorite}
         onEdit={onEdit}

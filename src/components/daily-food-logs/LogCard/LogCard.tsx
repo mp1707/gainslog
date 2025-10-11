@@ -123,8 +123,9 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
   return (
     <Pressable
       style={styles.cardContainer}
-      onLongPress={onLongPress}
+      onLongPress={isLoading ? undefined : onLongPress}
       delayLongPress={500}
+      accessibilityState={{ disabled: isLoading }}
     >
       <Card elevated={true} style={styles.card}>
         <View style={styles.contentContainer}>
@@ -169,6 +170,9 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
           </View>
         </View>
       </Card>
+      {isLoading && (
+        <View pointerEvents="auto" style={styles.interactionBlocker} accessible={false} />
+      )}
     </Pressable>
   );
 };
