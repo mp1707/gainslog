@@ -344,7 +344,7 @@ Deno.serve(async (req) => {
       response_format: {
         type: "json_object",
       },
-      verbosity: "medium",
+      verbosity: "low",
       reasoning_effort: "low",
     });
     const messageContent = chatCompletion.choices?.[0]?.message?.content;
