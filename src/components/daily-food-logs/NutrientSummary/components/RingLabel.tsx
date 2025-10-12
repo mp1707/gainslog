@@ -17,12 +17,14 @@ interface RingLabelProps {
   iconFill: string;
   /** Icon stroke width */
   iconStrokeWidth: number;
-  /** Label text (e.g., "Calories (kcal)") */
+  /** Label text (e.g., "Calories") */
   label: string;
   /** Current value */
   currentValue: number | string;
   /** Target value */
   targetValue: number;
+  /** Optional unit to append to target value (e.g., "g", "kcal") */
+  unit?: string;
 }
 
 /**
@@ -36,9 +38,10 @@ interface RingLabelProps {
  *   iconColor={colors.semantic.protein}
  *   iconFill={colors.semantic.protein}
  *   iconStrokeWidth={0}
- *   label="Protein (g)"
+ *   label="Protein"
  *   currentValue={120}
  *   targetValue={160}
+ *   unit="g"
  * />
  * ```
  */
@@ -51,6 +54,7 @@ export const RingLabel: React.FC<RingLabelProps> = ({
   label,
   currentValue,
   targetValue,
+  unit,
 }) => {
   const iconAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: iconScale.value }],
@@ -79,7 +83,7 @@ export const RingLabel: React.FC<RingLabelProps> = ({
           {" / "}
         </AppText>
         <AppText role="Caption" color="secondary">
-          {targetValue}
+          {targetValue}{unit}
         </AppText>
       </View>
     </View>

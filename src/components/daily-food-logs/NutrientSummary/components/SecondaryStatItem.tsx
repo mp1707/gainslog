@@ -17,6 +17,8 @@ interface SecondaryStatItemProps {
   Icon: LucideIcon;
   /** Label text */
   label: string;
+  /** Optional unit to append to values (e.g., "g") */
+  unit?: string;
   /** Current animated value */
   currentValue: number | string;
   /** Target value */
@@ -57,6 +59,7 @@ export const SecondaryStatItem: React.FC<SecondaryStatItemProps> = ({
   nutrientKey,
   Icon,
   label,
+  unit,
   currentValue,
   targetValue,
   hasTarget,
@@ -142,12 +145,12 @@ export const SecondaryStatItem: React.FC<SecondaryStatItemProps> = ({
                     {" / "}
                   </AppText>
                   <AppText role="Caption" color="secondary">
-                    {targetValue}
+                    {targetValue}{unit}
                   </AppText>
                 </>
               ) : (
                 <AppText role="Caption" color="secondary">
-                  {currentValue}
+                  {currentValue}{unit}
                 </AppText>
               )}
             </View>

@@ -13,6 +13,8 @@ interface RingStatItemProps {
   nutrientKey: "calories" | "protein";
   /** Label text */
   label: string;
+  /** Optional unit to append to target value (e.g., "g", "kcal") */
+  unit?: string;
   /** Percentage complete (0-100) */
   percentage: number;
   /** Animated current value */
@@ -55,6 +57,7 @@ interface RingStatItemProps {
  */
 export const RingStatItem: React.FC<RingStatItemProps> = ({
   label,
+  unit,
   percentage,
   currentValue,
   targetValue,
@@ -108,6 +111,7 @@ export const RingStatItem: React.FC<RingStatItemProps> = ({
           label={label}
           currentValue={currentValue}
           targetValue={targetValue}
+          unit={unit}
         />
       </Animated.View>
     </Pressable>

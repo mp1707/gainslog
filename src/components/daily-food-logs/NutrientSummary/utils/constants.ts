@@ -47,13 +47,15 @@ export const FAT_CALCULATION = {
 export const RING_CONFIG = [
   {
     key: "calories" as const,
-    label: "Calories (kcal)",
+    label: "Calories",
+    unit: "kcal",
     Icon: Flame,
     hasTarget: true,
   },
   {
     key: "protein" as const,
-    label: "Protein (g)",
+    label: "Protein",
+    unit: "g",
     Icon: BicepsFlexed,
     hasTarget: true,
   },
@@ -67,12 +69,14 @@ export const SECONDARY_STATS = [
   {
     key: "fat" as const,
     label: "Fat",
+    unit: "g",
     Icon: Droplet,
     hasTarget: true,
   },
   {
     key: "carbs" as const,
-    label: "Carbs (g)",
+    label: "Carbs",
+    unit: "g",
     Icon: Zap,
     hasTarget: false,
   },
