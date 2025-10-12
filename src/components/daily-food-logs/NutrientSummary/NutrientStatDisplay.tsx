@@ -213,7 +213,7 @@ export const FatProgressDisplay: React.FC<FatProgressDisplayProps> = ({
               </AppText>
               {fatMinGrams > 0 && (
                 <AppText role="Caption" color="secondary">
-                  Baseline {fatMinGrams}-{fatMaxGrams}g
+                  min {fatMinGrams}g - max {fatMaxGrams}g
                 </AppText>
               )}
             </View>

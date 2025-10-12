@@ -48,53 +48,51 @@ export default function ExplainerCalories() {
         overScrollMode="never"
       >
         <View style={styles.iconContainer}>
-          <Flame size={64} color={semanticColor} fill={semanticColor} strokeWidth={1.5} />
+          <Flame size={32} color={semanticColor} fill={semanticColor} strokeWidth={1.5} />
         </View>
 
         <AppText role="Title1" style={styles.title}>
           Calories: Your Energy Budget
         </AppText>
 
-        <View style={[styles.heroSection, { backgroundColor: colors.secondaryBackground }]}>
-          <View style={styles.heroRingContainer}>
+        <View style={[styles.unifiedCard, { backgroundColor: colors.secondaryBackground }]}>
+          <View style={styles.ringContainer}>
             <CaloriesRingDisplay total={total} target={target} percentage={percentage} />
           </View>
-          <View style={styles.heroTextContainer}>
-            <AppText
-              role="Headline"
-              color="primary"
-              style={[styles.heroHeading, { color: semanticColor }]}
-            >
-              Why We Show It This Way
-            </AppText>
-            <AppText role="Body" color="secondary" style={styles.heroText}>
-              The ring displays your remaining or exceeded calories for the day. This helps you stay on track and make informed decisions about your meals throughout the day.
-            </AppText>
-          </View>
-        </View>
 
-        <View style={styles.section}>
           <AppText
             role="Headline"
             color="primary"
             style={[styles.sectionHeading, { color: semanticColor }]}
           >
-            The Essentials
+            How to Read the Ring
           </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            Calories are your energy budget—the primary driver of whether you lose, maintain, or gain weight. Your target is based on your Total Daily Energy Expenditure (TDEE), calculated from age, sex, weight, height, and activity level.
-            {"\n\n"}
-            • Cut: -500 kcal from TDEE for gradual weight loss{"\n"}
-            • Maintain: Exact TDEE to stay at current weight{"\n"}
-            • Bulk: +500 kcal above TDEE for gradual weight gain
+          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+            • Displays remaining or exceeded calories for the day
           </AppText>
-        </View>
 
-        <View style={styles.footer}>
-          <AppText role="Caption" color="secondary" style={styles.footerText}>
-            These recommendations are general guidelines. Consult with a
-            nutritionist or healthcare provider for personalized advice.
+          <AppText
+            role="Headline"
+            color="primary"
+            style={[styles.sectionHeading, { color: semanticColor, marginTop: theme.spacing.md }]}
+          >
+            Energy Targets
           </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+            • <AppText role="Body" color="primary" style={styles.bold}>Cut:</AppText> -500 kcal (gradual loss)
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+            • <AppText role="Body" color="primary" style={styles.bold}>Maintain:</AppText> TDEE (stay current weight)
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+            • <AppText role="Body" color="primary" style={styles.bold}>Bulk:</AppText> +500 kcal (gradual gain)
+          </AppText>
+
+          <View style={styles.footer}>
+            <AppText role="Caption" color="secondary" style={styles.footerText}>
+              General guidelines. Consult a nutritionist for personalized advice.
+            </AppText>
+          </View>
         </View>
       </ScrollView>
     </GradientWrapper>
@@ -117,53 +115,44 @@ const createStyles = (theme: Theme) =>
     },
     scrollContent: {
       paddingHorizontal: theme.spacing.lg,
-      paddingTop: theme.spacing.xxl,
+      paddingTop: theme.spacing.xl,
       paddingBottom: theme.spacing.xl,
     },
     iconContainer: {
       alignItems: "center",
-      marginTop: theme.spacing.lg,
-      marginBottom: theme.spacing.md,
+      marginTop: theme.spacing.md,
+      marginBottom: theme.spacing.sm,
     },
     title: {
       textAlign: "center",
-      marginBottom: theme.spacing.lg,
-    },
-    heroSection: {
-      marginBottom: theme.spacing.xl,
-      borderRadius: theme.components.cards.cornerRadius,
-      padding: theme.spacing.lg,
-      alignItems: "center",
-    },
-    heroRingContainer: {
       marginBottom: theme.spacing.md,
     },
-    heroTextContainer: {
-      width: "100%",
+    unifiedCard: {
+      borderRadius: theme.components.cards.cornerRadius,
+      padding: theme.spacing.lg,
     },
-    heroHeading: {
-      marginBottom: theme.spacing.sm,
-    },
-    heroText: {
-      lineHeight: 22,
-    },
-    section: {
-      marginBottom: theme.spacing.lg,
+    ringContainer: {
+      alignItems: "center",
+      marginBottom: theme.spacing.md,
     },
     sectionHeading: {
-      marginBottom: theme.spacing.sm,
+      marginBottom: theme.spacing.xs,
     },
-    sectionContent: {
-      lineHeight: 22,
+    bulletPoint: {
+      lineHeight: 20,
+      marginBottom: theme.spacing.xxs,
+    },
+    bold: {
+      fontWeight: "600",
     },
     footer: {
-      marginTop: theme.spacing.xl,
-      paddingTop: theme.spacing.lg,
+      marginTop: theme.spacing.md,
+      paddingTop: theme.spacing.md,
       borderTopWidth: 1,
       borderTopColor: "rgba(128, 128, 128, 0.2)",
     },
     footerText: {
       textAlign: "center",
-      lineHeight: 18,
+      lineHeight: 16,
     },
   });

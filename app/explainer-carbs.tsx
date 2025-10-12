@@ -46,51 +46,45 @@ export default function ExplainerCarbs() {
         overScrollMode="never"
       >
         <View style={styles.iconContainer}>
-          <Zap size={64} color={semanticColor} fill={semanticColor} strokeWidth={1.5} />
+          <Zap size={32} color={semanticColor} fill={semanticColor} strokeWidth={1.5} />
         </View>
 
         <AppText role="Title1" style={styles.title}>
           Carbs: Flexible Fuel
         </AppText>
 
-        <View style={[styles.heroSection, { backgroundColor: colors.secondaryBackground }]}>
-          <View style={styles.heroStatContainer}>
+        <View style={[styles.unifiedCard, { backgroundColor: colors.secondaryBackground }]}>
+          <View style={styles.statContainer}>
             <CarbsStatDisplay total={total} />
           </View>
-          <View style={styles.heroTextContainer}>
-            <AppText
-              role="Headline"
-              color="primary"
-              style={[styles.heroHeading, { color: semanticColor }]}
-            >
-              Why We Show It This Way
-            </AppText>
-            <AppText role="Body" color="secondary" style={styles.heroText}>
-              We display carbs as a simple total without a progress ring or bar. Since there's no fixed target to hit, showing just the total gives you the information you need without creating unnecessary pressure.
-            </AppText>
-          </View>
-        </View>
 
-        <View style={styles.section}>
           <AppText
             role="Headline"
             color="primary"
             style={[styles.sectionHeading, { color: semanticColor }]}
           >
-            The Essentials
+            A Flexible Total
           </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            Unlike protein and fat, carbs don't have a strict target—which is why we show just a simple total. They're your flexible fuel source, filling the remaining calories after protein and fat.
-            {"\n\n"}
-            Carbs are your body's preferred fuel for training and daily activity. Higher activity levels typically benefit from more carbs, lower activity may mean fewer. Adjust based on energy needs and what feels best.
+          <AppText role="Body" color="secondary" style={styles.content}>
+            No fixed target—carbs fill remaining calories after protein and fat.
           </AppText>
-        </View>
 
-        <View style={styles.footer}>
-          <AppText role="Caption" color="secondary" style={styles.footerText}>
-            These recommendations are general guidelines. Consult with a
-            nutritionist or healthcare provider for personalized advice.
+          <AppText
+            role="Headline"
+            color="primary"
+            style={[styles.sectionHeading, { color: semanticColor, marginTop: theme.spacing.md }]}
+          >
+            Your Fuel Source
           </AppText>
+          <AppText role="Body" color="secondary" style={styles.content}>
+            Preferred fuel for training and activity. Adjust based on energy needs and activity level.
+          </AppText>
+
+          <View style={styles.footer}>
+            <AppText role="Caption" color="secondary" style={styles.footerText}>
+              General guidelines. Consult a nutritionist for personalized advice.
+            </AppText>
+          </View>
         </View>
       </ScrollView>
     </GradientWrapper>
@@ -113,53 +107,40 @@ const createStyles = (theme: Theme) =>
     },
     scrollContent: {
       paddingHorizontal: theme.spacing.lg,
-      paddingTop: theme.spacing.xxl,
+      paddingTop: theme.spacing.xl,
       paddingBottom: theme.spacing.xl,
     },
     iconContainer: {
       alignItems: "center",
-      marginTop: theme.spacing.lg,
-      marginBottom: theme.spacing.md,
+      marginTop: theme.spacing.md,
+      marginBottom: theme.spacing.sm,
     },
     title: {
       textAlign: "center",
-      marginBottom: theme.spacing.lg,
+      marginBottom: theme.spacing.md,
     },
-    heroSection: {
-      marginBottom: theme.spacing.xl,
+    unifiedCard: {
       borderRadius: theme.components.cards.cornerRadius,
       padding: theme.spacing.lg,
     },
-    heroStatContainer: {
+    statContainer: {
       width: "100%",
       marginBottom: theme.spacing.md,
     },
-    heroTextContainer: {
-      width: "100%",
-    },
-    heroHeading: {
-      marginBottom: theme.spacing.sm,
-    },
-    heroText: {
-      lineHeight: 22,
-    },
-    section: {
-      marginBottom: theme.spacing.lg,
-    },
     sectionHeading: {
-      marginBottom: theme.spacing.sm,
+      marginBottom: theme.spacing.xs,
     },
-    sectionContent: {
-      lineHeight: 22,
+    content: {
+      lineHeight: 20,
     },
     footer: {
-      marginTop: theme.spacing.xl,
-      paddingTop: theme.spacing.lg,
+      marginTop: theme.spacing.md,
+      paddingTop: theme.spacing.md,
       borderTopWidth: 1,
       borderTopColor: "rgba(128, 128, 128, 0.2)",
     },
     footerText: {
       textAlign: "center",
-      lineHeight: 18,
+      lineHeight: 16,
     },
   });

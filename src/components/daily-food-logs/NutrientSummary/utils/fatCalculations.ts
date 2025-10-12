@@ -20,7 +20,7 @@ export type FatIconState = "complete" | "warning" | "default";
  * Fat should be between 20-35% of total calorie intake.
  *
  * @param caloriesTarget - The target daily calorie intake
- * @param fatMinGrams - The minimum fat baseline (20% of calories)
+ * @param fatMinGrams - The minimum fat (20% of calories)
  * @returns Object containing min and max fat in grams
  *
  * @example
@@ -76,10 +76,10 @@ export const getFatIconState = (
  *
  * @param minGrams - Minimum recommended fat
  * @param maxGrams - Maximum recommended fat
- * @returns Formatted string like "44-78g", or null if minGrams is 0
+ * @returns Formatted string like "min 44g - max 78g", or null if minGrams is 0
  *
  * @example
- * formatFatRangeLabel(44, 78) // returns "44-78g"
+ * formatFatRangeLabel(44, 78) // returns "min 44g - max 78g"
  * formatFatRangeLabel(0, 0) // returns null
  */
 export const formatFatRangeLabel = (
@@ -87,5 +87,5 @@ export const formatFatRangeLabel = (
   maxGrams: number
 ): string | null => {
   if (minGrams === 0) return null;
-  return `${minGrams}-${maxGrams}g`;
+  return `(min ${minGrams}g - max ${maxGrams}g)`;
 };

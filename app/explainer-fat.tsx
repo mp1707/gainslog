@@ -58,7 +58,7 @@ export default function ExplainerFat() {
       >
         <View style={styles.iconContainer}>
           <Droplet
-            size={64}
+            size={32}
             color={semanticColor}
             fill={semanticColor}
             strokeWidth={1.5}
@@ -69,13 +69,8 @@ export default function ExplainerFat() {
           Fat: Essential Baseline
         </AppText>
 
-        <View
-          style={[
-            styles.heroSection,
-            { backgroundColor: colors.secondaryBackground },
-          ]}
-        >
-          <View style={styles.heroBarContainer}>
+        <View style={[styles.unifiedCard, { backgroundColor: colors.secondaryBackground }]}>
+          <View style={styles.barContainer}>
             <FatProgressDisplay
               total={total}
               target={target}
@@ -83,88 +78,40 @@ export default function ExplainerFat() {
               caloriesTarget={caloriesTarget}
             />
           </View>
-          <View style={styles.heroTextContainer}>
-            <AppText
-              role="Headline"
-              color="primary"
-              style={[styles.heroHeading, { color: semanticColor }]}
-            >
-              How to Read the Display
-            </AppText>
-            <AppText role="Body" color="secondary" style={styles.heroText}>
-              The progress bar tracks your fat intake toward the 20% minimum
-              baseline. The icon changes to show your status:
-            </AppText>
-            <AppText
-              role="Body"
-              color="secondary"
-              style={[styles.heroText, styles.heroIconExplanation]}
-            >
-              <Droplet
-                size={16}
-                color={semanticColor}
-                fill={semanticColor}
-                strokeWidth={0}
-                style={styles.inlineIcon}
-              />{" "}
-              Working toward minimum (below 20%)
-            </AppText>
-            <AppText
-              role="Body"
-              color="secondary"
-              style={[styles.heroText, styles.heroIconExplanation]}
-            >
-              <CircleCheckBig
-                size={16}
-                color={semanticColor}
-                fill={colors.semanticSurfaces.fat}
-                strokeWidth={2}
-                style={styles.inlineIcon}
-              />{" "}
-              Optimal range (20-35% of calories)
-            </AppText>
-            <AppText
-              role="Body"
-              color="secondary"
-              style={[styles.heroText, styles.heroIconExplanation]}
-            >
-              <TriangleAlert
-                size={16}
-                color={colors.warning}
-                fill={colors.warningBackground}
-                strokeWidth={2}
-                style={styles.inlineIcon}
-              />{" "}
-              Above recommended maximum (over 35%)
-            </AppText>
-          </View>
-        </View>
 
-        <View style={styles.section}>
           <AppText
             role="Headline"
             color="primary"
             style={[styles.sectionHeading, { color: semanticColor }]}
           >
-            The Essentials
+            How to Read the Bar
           </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            Fat is essential for hormone production, vitamin absorption, and
-            overall health. We track a minimum baseline of 20% of total
-            calories—not a strict target, which is why it's a progress bar
-            toward your minimal baseline.
-            {"\n\n"}
-            Once you hit 20%, you're in a healthy range. The optimal range is
-            20-35% depending on your preferences. After hitting protein and
-            calorie targets, adjust fat based on what feels best for your body.
+          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+            • <Droplet size={16} color={semanticColor} fill={semanticColor} strokeWidth={0} style={styles.inlineIcon} /> Below 20% minimum
           </AppText>
-        </View>
+          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+            • <CircleCheckBig size={16} color={semanticColor} fill={colors.semanticSurfaces.fat} strokeWidth={2} style={styles.inlineIcon} /> Optimal (20-35%)
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+            • <TriangleAlert size={16} color={colors.warning} fill={colors.warningBackground} strokeWidth={2} style={styles.inlineIcon} /> Above maximum (35%+)
+          </AppText>
 
-        <View style={styles.footer}>
-          <AppText role="Caption" color="secondary" style={styles.footerText}>
-            These recommendations are general guidelines. Consult with a
-            nutritionist or healthcare provider for personalized advice.
+          <AppText
+            role="Headline"
+            color="primary"
+            style={[styles.sectionHeading, { color: semanticColor, marginTop: theme.spacing.md }]}
+          >
+            Why It Matters
           </AppText>
+          <AppText role="Body" color="secondary" style={styles.content}>
+            Essential for hormones, vitamin absorption, and health. Hit 20% minimum, optimal range is 20-35%.
+          </AppText>
+
+          <View style={styles.footer}>
+            <AppText role="Caption" color="secondary" style={styles.footerText}>
+              General guidelines. Consult a nutritionist for personalized advice.
+            </AppText>
+          </View>
         </View>
       </ScrollView>
     </GradientWrapper>
@@ -187,64 +134,47 @@ const createStyles = (theme: Theme) =>
     },
     scrollContent: {
       paddingHorizontal: theme.spacing.lg,
-      paddingTop: theme.spacing.xxl,
+      paddingTop: theme.spacing.xl,
       paddingBottom: theme.spacing.xl,
     },
     iconContainer: {
       alignItems: "center",
-      marginTop: theme.spacing.lg,
-      marginBottom: theme.spacing.md,
+      marginTop: theme.spacing.md,
+      marginBottom: theme.spacing.sm,
     },
     title: {
       textAlign: "center",
-      marginBottom: theme.spacing.lg,
+      marginBottom: theme.spacing.md,
     },
-    heroSection: {
-      marginBottom: theme.spacing.xl,
+    unifiedCard: {
       borderRadius: theme.components.cards.cornerRadius,
       padding: theme.spacing.lg,
     },
-    heroBarContainer: {
+    barContainer: {
       width: "100%",
       marginBottom: theme.spacing.md,
     },
-    heroTextContainer: {
-      width: "100%",
+    sectionHeading: {
+      marginBottom: theme.spacing.xs,
     },
-    heroHeading: {
-      marginBottom: theme.spacing.sm,
+    bulletPoint: {
+      lineHeight: 20,
+      marginBottom: theme.spacing.xxs,
     },
-    heroText: {
-      lineHeight: 22,
-    },
-    heroIconExplanation: {
-      marginTop: theme.spacing.sm,
+    content: {
+      lineHeight: 20,
     },
     inlineIcon: {
       marginBottom: -2,
     },
-    section: {
-      marginBottom: theme.spacing.lg,
-    },
-    iconExplanation: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      alignItems: "center",
-    },
-    sectionHeading: {
-      marginBottom: theme.spacing.sm,
-    },
-    sectionContent: {
-      lineHeight: 22,
-    },
     footer: {
-      marginTop: theme.spacing.xl,
-      paddingTop: theme.spacing.lg,
+      marginTop: theme.spacing.md,
+      paddingTop: theme.spacing.md,
       borderTopWidth: 1,
       borderTopColor: "rgba(128, 128, 128, 0.2)",
     },
     footerText: {
       textAlign: "center",
-      lineHeight: 18,
+      lineHeight: 16,
     },
   });

@@ -128,7 +128,7 @@ export const SecondaryStatItem: React.FC<SecondaryStatItemProps> = ({
               </AppText>
               {fatRangeLabel && (
                 <AppText role="Caption" color="secondary">
-                  Baseline {fatRangeLabel}
+                  {fatRangeLabel}
                 </AppText>
               )}
             </View>
@@ -146,7 +146,7 @@ export const SecondaryStatItem: React.FC<SecondaryStatItemProps> = ({
                   </AppText>
                 </>
               ) : (
-                <AppText role="Body" color="secondary">
+                <AppText role="Caption" color="secondary">
                   {currentValue}
                 </AppText>
               )}
@@ -184,7 +184,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   labelContainer: {
-    gap: theme.spacing.xs / 4,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing.xs,
   },
   value: {
     flexDirection: "row",

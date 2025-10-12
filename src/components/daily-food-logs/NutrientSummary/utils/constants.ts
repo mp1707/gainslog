@@ -66,7 +66,7 @@ export const RING_CONFIG = [
 export const SECONDARY_STATS = [
   {
     key: "fat" as const,
-    label: "Fat (g)",
+    label: "Fat",
     Icon: Droplet,
     hasTarget: true,
   },

@@ -49,57 +49,57 @@ export default function ExplainerProtein() {
         overScrollMode="never"
       >
         <View style={styles.iconContainer}>
-          <BicepsFlexed size={64} color={semanticColor} fill={semanticColor} strokeWidth={1.5} />
+          <BicepsFlexed size={32} color={semanticColor} fill={semanticColor} strokeWidth={1.5} />
         </View>
 
         <AppText role="Title1" style={styles.title}>
           Protein: Build & Recover
         </AppText>
 
-        <View style={[styles.heroSection, { backgroundColor: colors.secondaryBackground }]}>
-          <View style={styles.heroRingContainer}>
+        <View style={[styles.unifiedCard, { backgroundColor: colors.secondaryBackground }]}>
+          <View style={styles.ringContainer}>
             <ProteinRingDisplay total={total} target={target} percentage={percentage} />
           </View>
-          <View style={styles.heroTextContainer}>
-            <AppText
-              role="Headline"
-              color="primary"
-              style={[styles.heroHeading, { color: semanticColor }]}
-            >
-              Why We Show It This Way
-            </AppText>
-            <AppText role="Body" color="secondary" style={styles.heroText}>
-              The ring shows your daily progress toward your protein goal. When you reach 100%, you'll see a success indicator—this is a primary metric that drives your results.
-            </AppText>
-            <AppText role="Body" color="secondary" style={[styles.heroText, styles.heroIconExplanation]}>
-              When you hit 100%, the <BicepsFlexed size={16} color={semanticColor} fill={semanticColor} strokeWidth={0} style={styles.inlineIcon} /> icon becomes a <CircleCheckBig size={16} color={semanticColor} fill={colors.semanticSurfaces.protein} strokeWidth={2} style={styles.inlineIcon} /> checkmark.
-            </AppText>
-          </View>
-        </View>
 
-        <View style={styles.section}>
           <AppText
             role="Headline"
             color="primary"
             style={[styles.sectionHeading, { color: semanticColor }]}
           >
-            The Essentials
+            How to Read the Ring
           </AppText>
-          <AppText role="Body" color="secondary" style={styles.sectionContent}>
-            Protein is critical for muscle growth and recovery. It's your primary macronutrient target alongside calories. Your goal is bodyweight × a factor based on your muscle growth goal.
-            {"\n\n"}
-            • 0.8 g/kg: Daily maintenance for general health{"\n"}
-            • 1.6 g/kg: Optimal growth (evidence-based sweet spot){"\n"}
-            • 2.2 g/kg: Anabolic insurance for dedicated athletes{"\n"}
-            • 3.0 g/kg: Maximum preservation during cutting
+          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+            • <AppText role="Body" color="primary" style={styles.bold}>Ring Progress:</AppText> Tracks toward 100%
           </AppText>
-        </View>
+          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+            • <BicepsFlexed size={16} color={semanticColor} fill={semanticColor} strokeWidth={0} style={styles.inlineIcon} /> → <CircleCheckBig size={16} color={semanticColor} fill={colors.semanticSurfaces.protein} strokeWidth={2} style={styles.inlineIcon} /> when you hit your goal
+          </AppText>
 
-        <View style={styles.footer}>
-          <AppText role="Caption" color="secondary" style={styles.footerText}>
-            These recommendations are general guidelines. Consult with a
-            nutritionist or healthcare provider for personalized advice.
+          <AppText
+            role="Headline"
+            color="primary"
+            style={[styles.sectionHeading, { color: semanticColor, marginTop: theme.spacing.md }]}
+          >
+            Nutrition Guidelines
           </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+            • <AppText role="Body" color="primary" style={styles.bold}>0.8 g/kg:</AppText> Maintenance
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+            • <AppText role="Body" color="primary" style={styles.bold}>1.6 g/kg:</AppText> Optimal Growth
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+            • <AppText role="Body" color="primary" style={styles.bold}>2.2 g/kg:</AppText> Dedicated Athletes
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+            • <AppText role="Body" color="primary" style={styles.bold}>3.0 g/kg:</AppText> Preservation (Cutting)
+          </AppText>
+
+          <View style={styles.footer}>
+            <AppText role="Caption" color="secondary" style={styles.footerText}>
+              General guidelines. Consult a nutritionist for personalized advice.
+            </AppText>
+          </View>
         </View>
       </ScrollView>
     </GradientWrapper>
@@ -122,64 +122,47 @@ const createStyles = (theme: Theme) =>
     },
     scrollContent: {
       paddingHorizontal: theme.spacing.lg,
-      paddingTop: theme.spacing.xxl,
+      paddingTop: theme.spacing.xl,
       paddingBottom: theme.spacing.xl,
     },
     iconContainer: {
       alignItems: "center",
-      marginTop: theme.spacing.lg,
-      marginBottom: theme.spacing.md,
+      marginTop: theme.spacing.md,
+      marginBottom: theme.spacing.sm,
     },
     title: {
       textAlign: "center",
-      marginBottom: theme.spacing.lg,
-    },
-    heroSection: {
-      marginBottom: theme.spacing.xl,
-      borderRadius: theme.components.cards.cornerRadius,
-      padding: theme.spacing.lg,
-      alignItems: "center",
-    },
-    heroRingContainer: {
       marginBottom: theme.spacing.md,
     },
-    heroTextContainer: {
-      width: "100%",
+    unifiedCard: {
+      borderRadius: theme.components.cards.cornerRadius,
+      padding: theme.spacing.lg,
     },
-    heroHeading: {
-      marginBottom: theme.spacing.sm,
+    ringContainer: {
+      alignItems: "center",
+      marginBottom: theme.spacing.md,
     },
-    heroText: {
-      lineHeight: 22,
+    sectionHeading: {
+      marginBottom: theme.spacing.xs,
     },
-    heroIconExplanation: {
-      marginTop: theme.spacing.sm,
+    bulletPoint: {
+      lineHeight: 20,
+      marginBottom: theme.spacing.xxs,
+    },
+    bold: {
+      fontWeight: "600",
     },
     inlineIcon: {
       marginBottom: -2,
     },
-    section: {
-      marginBottom: theme.spacing.lg,
-    },
-    iconExplanation: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      alignItems: "center",
-    },
-    sectionHeading: {
-      marginBottom: theme.spacing.sm,
-    },
-    sectionContent: {
-      lineHeight: 22,
-    },
     footer: {
-      marginTop: theme.spacing.xl,
-      paddingTop: theme.spacing.lg,
+      marginTop: theme.spacing.md,
+      paddingTop: theme.spacing.md,
       borderTopWidth: 1,
       borderTopColor: "rgba(128, 128, 128, 0.2)",
     },
     footerText: {
       textAlign: "center",
-      lineHeight: 18,
+      lineHeight: 16,
     },
   });
