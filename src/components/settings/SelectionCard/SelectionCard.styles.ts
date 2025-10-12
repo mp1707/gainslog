@@ -11,13 +11,13 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
       ...componentStyles.cards,
       borderRadius: componentStyles.cards.cornerRadius,
       padding: spacing.lg,
-      borderWidth: 2,
+      borderWidth: 1,
       borderColor: "transparent",
     },
 
     // Selected state
     selectedCard: {
-      borderColor: colors.accent,
+      borderColor: colors.highlightBorder,
       backgroundColor:
         colorScheme === "dark"
           ? `${colors.accent}0D` // ~5% opacity for dark mode
