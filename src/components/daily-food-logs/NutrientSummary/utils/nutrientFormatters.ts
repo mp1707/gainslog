@@ -34,20 +34,23 @@ export const getChevronIcon = (percentage: number): LucideIcon => {
  *
  * @param defaultIcon - The default icon to use
  * @param isComplete - Whether the nutrient target is complete
- * @param nutrientKey - The nutrient type (only "protein" shows completion icon)
- * @returns CircleCheckBig if complete and protein, defaultIcon otherwise
+ * @param nutrientKey - The nutrient type
+ * @returns CircleCheckBig if complete and protein or fat, defaultIcon otherwise
  *
  * @example
  * getNutrientIcon(BicepsFlexed, true, "protein") // returns CircleCheckBig
  * getNutrientIcon(BicepsFlexed, false, "protein") // returns BicepsFlexed
+ * getNutrientIcon(Droplet, true, "fat") // returns CircleCheckBig
  * getNutrientIcon(Flame, true, "calories") // returns Flame
  */
 export const getNutrientIcon = (
   defaultIcon: LucideIcon,
   isComplete: boolean,
-  nutrientKey: "calories" | "protein"
+  nutrientKey: "calories" | "protein" | "fat" | "carbs"
 ): LucideIcon => {
-  return isComplete && nutrientKey === "protein" ? CircleCheckBig : defaultIcon;
+  return isComplete && (nutrientKey === "protein" || nutrientKey === "fat")
+    ? CircleCheckBig
+    : defaultIcon;
 };
 
 /**

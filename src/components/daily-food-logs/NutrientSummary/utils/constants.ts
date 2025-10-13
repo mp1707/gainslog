@@ -28,19 +28,6 @@ export const ICON_SPRING_CONFIG = {
 } as const;
 
 /**
- * Fat macro calculation constants
- * Based on percentage of total calorie intake
- */
-export const FAT_CALCULATION = {
-  /** Minimum fat percentage (20% of calories) */
-  MIN_PERCENTAGE: 0.20,
-  /** Maximum fat percentage (35% of calories) */
-  MAX_PERCENTAGE: 0.35,
-  /** Calories per gram of fat */
-  CALORIES_PER_GRAM: 9,
-} as const;
-
-/**
  * Configuration for ring nutrients (calories and protein)
  * These are displayed as circular progress rings
  */

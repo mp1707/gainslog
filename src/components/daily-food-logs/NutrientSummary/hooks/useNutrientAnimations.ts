@@ -21,23 +21,19 @@ interface UseNutrientAnimationsParams {
   percentages: NutrientValues;
   caloriesDelta: number;
   proteinDelta: number;
-  fatPercentage: number;
-  carbsPercentage: number;
   isProteinComplete: boolean;
-  fatIconState: "complete" | "warning" | "default";
+  fatIconState: "complete" | "default";
 }
 
 /**
  * Hook that consolidates all nutrient animation logic
- * Handles number reveals, progress bars, and icon animations
+ * Handles number reveals and icon animations
  */
 export const useNutrientAnimations = ({
   totals,
   targets,
   caloriesDelta,
   proteinDelta,
-  fatPercentage,
-  carbsPercentage,
   isProteinComplete,
   fatIconState,
   percentages,
@@ -63,10 +59,6 @@ export const useNutrientAnimations = ({
   // Animated values for ring label totals
   const animatedCaloriesTotal = useNumberReveal(Math.round(totals.calories || 0));
   const animatedProteinTotal = useNumberReveal(Math.round(totals.protein || 0));
-
-  // Animated progress bars for secondary stats
-  const fatProgress = useSharedValue(0);
-  const carbsProgress = useSharedValue(0);
 
   // Trigger count-up animations when delta values change
   useEffect(() => {
@@ -101,24 +93,6 @@ export const useNutrientAnimations = ({
     }
   }, [totals.calories, totals.protein, selectedDate, dateChanged]);
 
-  // Trigger progress bar animations with spring matching rings
-  useEffect(() => {
-    if (dateChanged) {
-      fatProgress.value = fatPercentage;
-      carbsProgress.value = carbsPercentage;
-    } else {
-      fatProgress.value = withDelay(
-        ANIMATION_DELAYS.FAT_STAT,
-        withSpring(fatPercentage, SPRING_CONFIG)
-      );
-
-      carbsProgress.value = withDelay(
-        ANIMATION_DELAYS.CARBS_STAT,
-        withSpring(carbsPercentage, SPRING_CONFIG)
-      );
-    }
-  }, [fatPercentage, carbsPercentage, selectedDate, dateChanged]);
-
   // Trigger icon scale animations when protein reaches 100%
   useEffect(() => {
     if (dateChanged) {
@@ -133,21 +107,19 @@ export const useNutrientAnimations = ({
     }
   }, [percentages.protein, proteinIconScale, selectedDate, dateChanged, isProteinComplete]);
 
-  // Trigger icon scale animations when fat reaches optimal range
+  // Trigger icon scale animations when fat reaches target
   useEffect(() => {
-    const shouldAnimate = fatIconState === "complete" || fatIconState === "warning";
-
     if (dateChanged) {
       fatIconScale.value = 1;
     } else {
-      if (shouldAnimate) {
+      if (fatIconState === "complete") {
         fatIconScale.value = 0.5;
         fatIconScale.value = withSpring(1, ICON_SPRING_CONFIG);
       } else {
         fatIconScale.value = 1;
       }
     }
-  }, [totals.fat, targets.fat, targets.calories, fatIconScale, selectedDate, dateChanged, fatIconState]);
+  }, [totals.fat, targets.fat, fatIconScale, selectedDate, dateChanged, fatIconState]);
 
   // Update ref after all animation logic has run
   useEffect(() => {
@@ -169,9 +141,5 @@ export const useNutrientAnimations = ({
     animatedCarbsTotal: animatedCarbsTotal.display,
     animatedCaloriesTotal: animatedCaloriesTotal.display,
     animatedProteinTotal: animatedProteinTotal.display,
-
-    // Progress bars
-    fatProgress,
-    carbsProgress,
   };
 };

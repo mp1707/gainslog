@@ -22,6 +22,7 @@ import {
 import Animated from "react-native-reanimated";
 
 import { AppText } from "@/components";
+import type { TypographyRole } from "@/components";
 import { Theme, useTheme } from "@/theme";
 import { Flame } from "lucide-react-native";
 
@@ -351,6 +352,8 @@ interface DashboardRingProps {
   skipAnimation?: boolean;
   testID?: string;
   Icon?: React.ComponentType<{ size: number; color: string; fill: string }>;
+  valueRole?: TypographyRole;
+  detailRole?: TypographyRole;
 }
 
 export const DashboardRing: React.FC<DashboardRingProps> = ({
@@ -370,6 +373,8 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   skipAnimation = false,
   testID,
   Icon = Flame,
+  valueRole,
+  detailRole,
 }) => {
   const { theme, colorScheme } = useTheme();
   const isDark = colorScheme === "dark";
@@ -476,15 +481,9 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
         </Animated.View>
         <View style={styles.valueContainer} pointerEvents="none">
           <View style={styles.textLayer}>
-            <AppText
-              role="Title1"
-              style={textColor && { color: textColor }}
-            >{`${displayValue}`}</AppText>
+            <AppText role="Title2" color="primary">{`${displayValue}`}</AppText>
             {detailValue ? (
-              <AppText
-                role="Caption"
-                style={[styles.remaining, { color: textColor }]}
-              >
+              <AppText role="Caption" color="secondary">
                 {detailValue}
               </AppText>
             ) : null}
