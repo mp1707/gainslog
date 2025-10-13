@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { X, Droplet, CircleCheckBig, TriangleAlert } from "lucide-react-native";
+import { X, Droplet } from "lucide-react-native";
 
 import { AppText } from "@/components/shared/AppText";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
@@ -18,7 +18,6 @@ export default function ExplainerFat() {
     total?: string;
     target?: string;
     percentage?: string;
-    caloriesTarget?: string;
   }>();
 
   const handleClose = () => {
@@ -32,11 +31,9 @@ export default function ExplainerFat() {
   // Parse params with fallback to example data
   const total = params.total ? parseInt(params.total) : 52;
   const target = params.target ? parseInt(params.target) : 60;
-  const percentage = params.percentage ? parseInt(params.percentage) : 87;
-  // Calculate calories target from fat target if not provided (target is 20% of calories)
-  const caloriesTarget = params.caloriesTarget
-    ? parseInt(params.caloriesTarget)
-    : Math.round((target * 9) / 0.20);
+  const percentage = params.percentage ? parseInt(params.percentage) : undefined;
+  const computedPercentage = target > 0 ? Math.round((total / target) * 100) : 0;
+  const progressPercentage = percentage ?? computedPercentage;
 
   return (
     <GradientWrapper style={styles.container}>
@@ -70,13 +67,8 @@ export default function ExplainerFat() {
         </AppText>
 
         <View style={[styles.unifiedCard, { backgroundColor: colors.secondaryBackground }]}>
-          <View style={styles.barContainer}>
-            <FatProgressDisplay
-              total={total}
-              target={target}
-              percentage={percentage}
-              caloriesTarget={caloriesTarget}
-            />
+          <View style={styles.labelContainer}>
+            <FatProgressDisplay total={total} target={target} />
           </View>
 
           <AppText
@@ -84,16 +76,10 @@ export default function ExplainerFat() {
             color="primary"
             style={[styles.sectionHeading, { color: semanticColor }]}
           >
-            How to Read the Bar
+            Hit Your Daily Target
           </AppText>
-          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-            • <Droplet size={16} color={semanticColor} fill={semanticColor} strokeWidth={0} style={styles.inlineIcon} /> Below 20% minimum
-          </AppText>
-          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-            • <CircleCheckBig size={16} color={semanticColor} fill={colors.semanticSurfaces.fat} strokeWidth={2} style={styles.inlineIcon} /> Optimal (20-35%)
-          </AppText>
-          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-            • <TriangleAlert size={16} color={colors.warning} fill={colors.warningBackground} strokeWidth={2} style={styles.inlineIcon} /> Above maximum (35%+)
+          <AppText role="Body" color="secondary" style={styles.content}>
+            Aim for about {target}g of fat each day. You're currently at {progressPercentage}% of that goal with {total}g logged.
           </AppText>
 
           <AppText
@@ -104,7 +90,24 @@ export default function ExplainerFat() {
             Why It Matters
           </AppText>
           <AppText role="Body" color="secondary" style={styles.content}>
-            Essential for hormones, vitamin absorption, and health. Hit 20% minimum, optimal range is 20-35%.
+            Dietary fat keeps hormones balanced, aids vitamin absorption, and helps meals stay satisfying. Stay close to your target to keep energy steady.
+          </AppText>
+
+          <AppText
+            role="Headline"
+            color="primary"
+            style={[styles.sectionHeading, { color: semanticColor, marginTop: theme.spacing.md }]}
+          >
+            Smart Sources
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+            • Cook with olive oil, avocado oil, or grass-fed butter.
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+            • Add satiating fats like salmon, eggs, nuts, and seeds.
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+            • Pair fats with protein to slow digestion and feel fuller longer.
           </AppText>
 
           <View style={styles.footer}>
@@ -150,7 +153,7 @@ const createStyles = (theme: Theme) =>
       borderRadius: theme.components.cards.cornerRadius,
       padding: theme.spacing.lg,
     },
-    barContainer: {
+    labelContainer: {
       width: "100%",
       marginBottom: theme.spacing.md,
     },
@@ -159,13 +162,10 @@ const createStyles = (theme: Theme) =>
     },
     bulletPoint: {
       lineHeight: 20,
-      marginBottom: theme.spacing.xxs,
+      marginBottom: theme.spacing.xs / 2,
     },
     content: {
       lineHeight: 20,
-    },
-    inlineIcon: {
-      marginBottom: -2,
     },
     footer: {
       marginTop: theme.spacing.md,

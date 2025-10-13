@@ -147,7 +147,7 @@ const createStyles = (theme: Theme) =>
     },
     bulletPoint: {
       lineHeight: 20,
-      marginBottom: theme.spacing.xxs,
+      marginBottom: theme.spacing.xs / 2,
     },
     bold: {
       fontWeight: "600",

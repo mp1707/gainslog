@@ -3,14 +3,15 @@ import { View, StyleSheet } from "react-native";
 import { Theme, useTheme } from "@/theme";
 import { SetGoalsCTA } from "./SetGoalsCTA";
 import { RingStatItem } from "./components/RingStatItem";
-import { SecondaryStatItem } from "./components/SecondaryStatItem";
+import { NutrientLabelItem } from "./components/NutrientLabelItem";
 import { useNutrientCalculations } from "./hooks/useNutrientCalculations";
 import { useNutrientAnimations } from "./hooks/useNutrientAnimations";
 import { useNutrientNavigation } from "./hooks/useNutrientNavigation";
 import {
   RING_CONFIG,
-  SECONDARY_STATS,
+  NUTRIENT_LABELS,
   ANIMATION_DELAYS,
+  type NutrientKey,
 } from "./utils/constants";
 import { getChevronIcon, getNutrientIcon } from "./utils/nutrientFormatters";
 
@@ -27,29 +28,34 @@ interface NutrientDashboardProps {
   totals: NutrientValues;
 }
 
+const COLUMNS: Array<{
+  ringKey: "calories" | "protein";
+  labels: NutrientKey[];
+}> = [
+  {
+    ringKey: "calories",
+    labels: ["calories", "fat"],
+  },
+  {
+    ringKey: "protein",
+    labels: ["protein", "carbs"],
+  },
+];
+
 /**
- * Dashboard displaying nutrient intake progress with ring and bar visualizations
- *
- * Features:
- * - Ring displays for calories and protein (primary metrics)
- * - Bar displays for fat and carbs (secondary metrics)
- * - Animated number reveals and progress indicators
- * - Press feedback and navigation to explainer pages
- * - Smart icon states (completion checkmarks, warning indicators)
+ * Dashboard displaying nutrient intake progress with ring and label visualizations.
  */
 export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   percentages,
   targets,
   totals,
 }) => {
-  // Check if there are no goals BEFORE any hooks
   const hasNoGoals =
     (targets.calories || 0) === 0 &&
     (targets.protein || 0) === 0 &&
     (targets.carbs || 0) === 0 &&
     (targets.fat || 0) === 0;
 
-  // Early return before hooks if no goals are set
   if (hasNoGoals) {
     return <SetGoalsCTA />;
   }
@@ -57,7 +63,6 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  // Semantic colors
   const semanticColors = useMemo(
     () => ({
       calories: colors.semantic.calories,
@@ -78,19 +83,14 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     [colors]
   );
 
-  // Custom hooks for separated concerns
   const calculations = useNutrientCalculations({ totals, targets, percentages });
 
   const animations = useNutrientAnimations({
     totals,
-    targets,
     percentages,
     caloriesDelta: calculations.caloriesDelta,
     proteinDelta: calculations.proteinDelta,
-    fatPercentage: calculations.fatPercentage,
-    carbsPercentage: calculations.carbsPercentage,
     isProteinComplete: calculations.isProteinComplete,
-    fatIconState: calculations.fatIconState,
   });
 
   const { handleOpenExplainer } = useNutrientNavigation({
@@ -99,117 +99,88 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     percentages,
   });
 
+  const animatedTotals: Record<NutrientKey, number> = {
+    calories: animations.animatedCaloriesTotal,
+    protein: animations.animatedProteinTotal,
+    fat: animations.animatedFatTotal,
+    carbs: animations.animatedCarbsTotal,
+  };
+
+  const labelTargets: Partial<Record<NutrientKey, number>> = {
+    calories: Math.round(targets.calories || 0),
+    protein: Math.round(targets.protein || 0),
+    fat: Math.round(targets.fat || 0),
+  };
+
   return (
     <View style={styles.container}>
-      {/* Ring Stats (Calories & Protein) */}
-      <View style={styles.ringsRow}>
-        {RING_CONFIG.map((config, index) => {
-          const percentage = percentages[config.key] || 0;
-          const currentValue =
-            config.key === "calories"
-              ? animations.animatedCaloriesTotal
-              : animations.animatedProteinTotal;
-          const targetValue = Math.round(targets[config.key] || 0);
+      <View style={styles.columns}>
+        {COLUMNS.map((column) => {
+          const ringConfig = RING_CONFIG.find((item) => item.key === column.ringKey)!;
+          const ringPercentage = percentages[column.ringKey] || 0;
           const deltaValue =
-            config.key === "calories"
+            column.ringKey === "calories"
               ? animations.animatedCaloriesDelta
               : animations.animatedProteinDelta;
           const deltaLabel =
-            config.key === "calories"
+            column.ringKey === "calories"
               ? calculations.caloriesDeltaLabel
               : calculations.proteinDeltaLabel;
-
-          const ChevronIcon = getChevronIcon(percentage);
-          const isComplete = calculations.isProteinComplete && config.key === "protein";
-          const LabelIcon = getNutrientIcon(config.Icon, isComplete, config.key);
-
-          const iconScale =
-            config.key === "protein"
-              ? animations.proteinIconScale
-              : animations.proteinIconScale; // Use same for now
+          const chevronIcon = getChevronIcon(ringPercentage);
+          const isProteinComplete =
+            column.ringKey === "protein" && calculations.isProteinComplete;
 
           return (
-            <RingStatItem
-              key={config.key}
-              nutrientKey={config.key}
-              label={config.label}
-              unit={config.unit}
-              percentage={percentage}
-              currentValue={currentValue}
-              targetValue={targetValue}
-              deltaValue={deltaValue}
-              deltaLabel={deltaLabel}
-              ringColor={semanticColors[config.key]}
-              trackColor={surfaceColors[config.key]}
-              textColor={colors.primaryText}
-              ChevronIcon={ChevronIcon}
-              LabelIcon={LabelIcon}
-              iconColor={semanticColors[config.key]}
-              iconFill={
-                isComplete
-                  ? surfaceColors[config.key]
-                  : semanticColors[config.key]
-              }
-              iconStrokeWidth={isComplete ? 2 : 0}
-              iconScale={iconScale}
-              animationDelay={index * ANIMATION_DELAYS.RING_STAGGER}
-              skipAnimation={animations.dateChanged}
-              onPress={() => handleOpenExplainer(config.key)}
-            />
-          );
-        })}
-      </View>
+            <View key={column.ringKey} style={styles.column}>
+              <View style={styles.ringWrapper}>
+                <RingStatItem
+                  label={ringConfig.label}
+                  percentage={ringPercentage}
+                  deltaValue={deltaValue}
+                  deltaLabel={deltaLabel}
+                  ringColor={semanticColors[column.ringKey]}
+                  trackColor={surfaceColors[column.ringKey]}
+                  textColor={colors.primaryText}
+                  ChevronIcon={chevronIcon}
+                  animationDelay={
+                    column.ringKey === "calories" ? 0 : ANIMATION_DELAYS.RING_STAGGER
+                  }
+                  skipAnimation={animations.dateChanged}
+                  onPress={() => handleOpenExplainer(column.ringKey)}
+                />
+              </View>
 
-      {/* Secondary Stats (Fat & Carbs) */}
-      <View style={styles.statsContainer}>
-        {SECONDARY_STATS.map((config) => {
-          const currentValue =
-            config.key === "fat"
-              ? animations.animatedFatTotal
-              : animations.animatedCarbsTotal;
-          const targetValue = Math.round(targets[config.key] || 0);
-          const progressValue =
-            config.key === "fat" ? animations.fatProgress : animations.carbsProgress;
+              {column.labels.map((labelKey) => {
+                const config = NUTRIENT_LABELS[labelKey];
+                const IconComponent =
+                  labelKey === "protein"
+                    ? getNutrientIcon(config.Icon, calculations.isProteinComplete, "protein")
+                    : config.Icon;
+                const targetValue = config.hasTarget ? labelTargets[labelKey] ?? 0 : null;
+                const iconFill =
+                  labelKey === "protein" && calculations.isProteinComplete
+                    ? surfaceColors.protein
+                    : semanticColors[labelKey];
+                const iconStrokeWidth =
+                  labelKey === "protein" && calculations.isProteinComplete ? 2 : 0;
 
-          const iconScale =
-            config.key === "fat"
-              ? animations.fatIconScale
-              : animations.fatIconScale; // Carbs doesn't animate
-
-          const fatRangeLabel =
-            config.key === "fat" ? calculations.fatRangeLabel : null;
-          const fatIconState =
-            config.key === "fat" ? calculations.fatIconState : undefined;
-
-          const isFatComplete = config.key === "fat" && fatIconState === "complete";
-
-          return (
-            <SecondaryStatItem
-              key={config.key}
-              nutrientKey={config.key}
-              Icon={config.Icon}
-              label={config.label}
-              unit={config.unit}
-              currentValue={currentValue}
-              targetValue={targetValue}
-              hasTarget={config.hasTarget}
-              iconColor={semanticColors[config.key]}
-              iconFill={
-                isFatComplete
-                  ? surfaceColors[config.key]
-                  : semanticColors[config.key]
-              }
-              iconStrokeWidth={isFatComplete ? 2 : 0}
-              iconScale={iconScale}
-              progressValue={progressValue}
-              progressFillColor={semanticColors[config.key]}
-              progressTrackColor={surfaceColors[config.key]}
-              fatRangeLabel={fatRangeLabel}
-              fatIconState={fatIconState}
-              warningColor={colors.warning}
-              warningBackgroundColor={colors.warningBackground}
-              onPress={() => handleOpenExplainer(config.key)}
-            />
+                return (
+                  <NutrientLabelItem
+                    key={labelKey}
+                    Icon={IconComponent}
+                    iconScale={labelKey === "protein" ? animations.proteinIconScale : undefined}
+                    iconColor={semanticColors[labelKey]}
+                    iconFill={iconFill}
+                    iconStrokeWidth={iconStrokeWidth}
+                    label={config.label}
+                    currentValue={animatedTotals[labelKey]}
+                    targetValue={config.hasTarget ? targetValue : null}
+                    unit={config.unit}
+                    onPress={() => handleOpenExplainer(labelKey)}
+                  />
+                );
+              })}
+            </View>
           );
         })}
       </View>
@@ -220,19 +191,19 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
 const createStyles = (theme: Theme) =>
   StyleSheet.create({
     container: {
-      paddingHorizontal: theme.spacing.md,
-      gap: theme.spacing.lg,
-      marginTop: theme.spacing.xs,
+      padding: theme.spacing.md,
+      paddingTop: theme.spacing.xs,
     },
-    ringsRow: {
+    columns: {
       flexDirection: "row",
       justifyContent: "space-between",
-      alignItems: "center",
       gap: theme.spacing.lg,
     },
-    statsContainer: {
-      gap: theme.spacing.md,
-      marginBottom: theme.spacing.md,
-      paddingHorizontal: theme.spacing.md,
+    column: {
+      flex: 1,
+      gap: theme.spacing.lg,
+    },
+    ringWrapper: {
+      alignItems: "center",
     },
   });

@@ -1,10 +1,4 @@
 import { useMemo } from "react";
-import {
-  calculateFatRange,
-  getFatIconState,
-  formatFatRangeLabel,
-  type FatIconState,
-} from "../utils/fatCalculations";
 import { formatDeltaLabel } from "../utils/nutrientFormatters";
 
 interface NutrientValues {
@@ -54,35 +48,6 @@ export const useNutrientCalculations = ({
   // Protein completion state
   const isProteinComplete = (percentages.protein || 0) >= 100;
 
-  // Fat calculations
-  const fatRange = useMemo(
-    () => calculateFatRange(targets.calories || 0, targets.fat || 0),
-    [targets.calories, targets.fat]
-  );
-
-  const fatIconState: FatIconState = useMemo(
-    () => getFatIconState(totals.fat || 0, fatRange.minGrams, fatRange.maxGrams),
-    [totals.fat, fatRange]
-  );
-
-  const fatRangeLabel = useMemo(
-    () => formatFatRangeLabel(fatRange.minGrams, fatRange.maxGrams),
-    [fatRange]
-  );
-
-  // Percentage calculations for secondary stats
-  const fatPercentage = useMemo(() => {
-    const target = targets.fat || 0;
-    const current = totals.fat || 0;
-    return target > 0 ? Math.min((current / target) * 100, 100) : 0;
-  }, [totals.fat, targets.fat]);
-
-  const carbsPercentage = useMemo(() => {
-    const target = targets.carbs || 0;
-    const current = totals.carbs || 0;
-    return target > 0 ? Math.min((current / target) * 100, 100) : 0;
-  }, [totals.carbs, targets.carbs]);
-
   return {
     // Delta values
     caloriesDelta: formattedCaloriesDelta,
@@ -92,14 +57,5 @@ export const useNutrientCalculations = ({
 
     // Completion states
     isProteinComplete,
-
-    // Fat-specific
-    fatRange,
-    fatIconState,
-    fatRangeLabel,
-
-    // Percentages
-    fatPercentage,
-    carbsPercentage,
   };
 };

@@ -35,17 +35,9 @@ export const useNutrientNavigation = ({
       const target = Math.round(targets[nutrient] || 0);
       const percentage = Math.round(percentages[nutrient] || 0);
 
-      // For fat explainer, also pass calories target to calculate range
-      if (nutrient === "fat") {
-        const caloriesTarget = Math.round(targets.calories || 0);
-        router.push(
-          `/explainer-${nutrient}?total=${total}&target=${target}&percentage=${percentage}&caloriesTarget=${caloriesTarget}` as any
-        );
-      } else {
-        router.push(
-          `/explainer-${nutrient}?total=${total}&target=${target}&percentage=${percentage}` as any
-        );
-      }
+      router.push(
+        `/explainer-${nutrient}?total=${total}&target=${target}&percentage=${percentage}` as any
+      );
     },
     [totals, targets, percentages, router]
   );

@@ -1,26 +1,16 @@
 import React from "react";
 import { StyleSheet, Pressable } from "react-native";
 import Animated from "react-native-reanimated";
-import type { SharedValue } from "react-native-reanimated";
 import type { LucideIcon } from "lucide-react-native";
 import { theme } from "@/theme";
 import { usePressAnimation } from "@/hooks/usePressAnimation";
 import { DashboardRing } from "@/components/shared/ProgressRings";
-import { RingLabel } from "./RingLabel";
 
 interface RingStatItemProps {
-  /** The nutrient key */
-  nutrientKey: "calories" | "protein";
   /** Label text */
   label: string;
-  /** Optional unit to append to target value (e.g., "g", "kcal") */
-  unit?: string;
   /** Percentage complete (0-100) */
   percentage: number;
-  /** Animated current value */
-  currentValue: number | string;
-  /** Target value */
-  targetValue: number;
   /** Delta value (remaining or over) */
   deltaValue: number | string;
   /** Delta label ("remaining" or "over") */
@@ -33,16 +23,6 @@ interface RingStatItemProps {
   textColor: string;
   /** Chevron icon */
   ChevronIcon: LucideIcon;
-  /** Label icon */
-  LabelIcon: LucideIcon;
-  /** Icon color */
-  iconColor: string;
-  /** Icon fill */
-  iconFill: string;
-  /** Icon stroke width */
-  iconStrokeWidth: number;
-  /** Animated scale for label icon */
-  iconScale: SharedValue<number>;
   /** Animation delay in ms */
   animationDelay: number;
   /** Whether to skip animation */
@@ -57,21 +37,13 @@ interface RingStatItemProps {
  */
 export const RingStatItem: React.FC<RingStatItemProps> = ({
   label,
-  unit,
   percentage,
-  currentValue,
-  targetValue,
   deltaValue,
   deltaLabel,
   ringColor,
   trackColor,
   textColor,
   ChevronIcon,
-  LabelIcon,
-  iconColor,
-  iconFill,
-  iconStrokeWidth,
-  iconScale,
   animationDelay,
   skipAnimation,
   onPress,
@@ -102,17 +74,6 @@ export const RingStatItem: React.FC<RingStatItemProps> = ({
           Icon={ChevronIcon}
           skipAnimation={skipAnimation}
         />
-        <RingLabel
-          Icon={LabelIcon}
-          iconScale={iconScale}
-          iconColor={iconColor}
-          iconFill={iconFill}
-          iconStrokeWidth={iconStrokeWidth}
-          label={label}
-          currentValue={currentValue}
-          targetValue={targetValue}
-          unit={unit}
-        />
       </Animated.View>
     </Pressable>
   );
@@ -120,7 +81,7 @@ export const RingStatItem: React.FC<RingStatItemProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: "center",
+    width: "100%",
   },
 });

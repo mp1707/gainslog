@@ -1,9 +1,4 @@
-import {
-  Droplet,
-  Flame,
-  BicepsFlexed,
-  Zap,
-} from "lucide-react-native";
+import { Droplet, Flame, BicepsFlexed, Zap } from "lucide-react-native";
 
 /**
  * Animation delay constants for staggered animations
@@ -11,10 +6,8 @@ import {
 export const ANIMATION_DELAYS = {
   /** Delay between ring animations (400ms per ring) */
   RING_STAGGER: 400,
-  /** Delay for fat stat animation (after both rings) */
+  /** Delay for fat total animation (after both rings) */
   FAT_STAT: 800,
-  /** Delay for carbs stat animation (same as fat for simultaneous animation) */
-  CARBS_STAT: 800,
 } as const;
 
 /**
@@ -28,16 +21,33 @@ export const ICON_SPRING_CONFIG = {
 } as const;
 
 /**
- * Fat macro calculation constants
- * Based on percentage of total calorie intake
+ * Display configuration shared across all nutrient labels
  */
-export const FAT_CALCULATION = {
-  /** Minimum fat percentage (20% of calories) */
-  MIN_PERCENTAGE: 0.20,
-  /** Maximum fat percentage (35% of calories) */
-  MAX_PERCENTAGE: 0.35,
-  /** Calories per gram of fat */
-  CALORIES_PER_GRAM: 9,
+export const NUTRIENT_LABELS = {
+  calories: {
+    label: "Calories",
+    unit: "kcal",
+    Icon: Flame,
+    hasTarget: true,
+  },
+  protein: {
+    label: "Protein",
+    unit: "g",
+    Icon: BicepsFlexed,
+    hasTarget: true,
+  },
+  fat: {
+    label: "Fat",
+    unit: "g",
+    Icon: Droplet,
+    hasTarget: true,
+  },
+  carbs: {
+    label: "Carbs",
+    unit: "g",
+    Icon: Zap,
+    hasTarget: false,
+  },
 } as const;
 
 /**
@@ -47,42 +57,15 @@ export const FAT_CALCULATION = {
 export const RING_CONFIG = [
   {
     key: "calories" as const,
-    label: "Calories",
-    unit: "kcal",
-    Icon: Flame,
-    hasTarget: true,
+    ...NUTRIENT_LABELS.calories,
   },
   {
     key: "protein" as const,
-    label: "Protein",
-    unit: "g",
-    Icon: BicepsFlexed,
-    hasTarget: true,
-  },
-] as const;
-
-/**
- * Configuration for secondary stats (fat and carbs)
- * These are displayed as horizontal progress bars
- */
-export const SECONDARY_STATS = [
-  {
-    key: "fat" as const,
-    label: "Fat",
-    unit: "g",
-    Icon: Droplet,
-    hasTarget: true,
-  },
-  {
-    key: "carbs" as const,
-    label: "Carbs",
-    unit: "g",
-    Icon: Zap,
-    hasTarget: false,
+    ...NUTRIENT_LABELS.protein,
   },
 ] as const;
 
 /**
  * Type for nutrient keys
  */
-export type NutrientKey = "calories" | "protein" | "carbs" | "fat";
+export type NutrientKey = keyof typeof NUTRIENT_LABELS;
