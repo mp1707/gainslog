@@ -14,8 +14,6 @@ interface NutrientValues {
 interface UseNutrientAnimationsParams {
   totals: NutrientValues;
   percentages: NutrientValues;
-  caloriesDelta: number;
-  proteinDelta: number;
   isProteinComplete: boolean;
 }
 
@@ -25,8 +23,6 @@ interface UseNutrientAnimationsParams {
  */
 export const useNutrientAnimations = ({
   totals,
-  caloriesDelta,
-  proteinDelta,
   isProteinComplete,
   percentages,
 }: UseNutrientAnimationsParams) => {
@@ -39,10 +35,6 @@ export const useNutrientAnimations = ({
   // Animated scales for icon transitions
   const proteinIconScale = useSharedValue(1);
 
-  // Animated values for delta amounts (remaining or over)
-  const animatedCaloriesDelta = useNumberReveal(Math.abs(caloriesDelta));
-  const animatedProteinDelta = useNumberReveal(Math.abs(proteinDelta));
-
   // Animated values for secondary stats totals
   const animatedFatTotal = useNumberReveal(Math.round(totals.fat || 0));
   const animatedCarbsTotal = useNumberReveal(Math.round(totals.carbs || 0));
@@ -50,17 +42,6 @@ export const useNutrientAnimations = ({
   // Animated values for ring label totals
   const animatedCaloriesTotal = useNumberReveal(Math.round(totals.calories || 0));
   const animatedProteinTotal = useNumberReveal(Math.round(totals.protein || 0));
-
-  // Trigger count-up animations when delta values change
-  useEffect(() => {
-    if (dateChanged) {
-      animatedCaloriesDelta.setValue(Math.abs(caloriesDelta));
-      animatedProteinDelta.setValue(Math.abs(proteinDelta));
-    } else {
-      animatedCaloriesDelta.animateTo(Math.abs(caloriesDelta));
-      animatedProteinDelta.animateTo(Math.abs(proteinDelta));
-    }
-  }, [caloriesDelta, proteinDelta, selectedDate, dateChanged]);
 
   // Trigger count-up animations when secondary stats totals change
   useEffect(() => {
@@ -111,8 +92,6 @@ export const useNutrientAnimations = ({
     proteinIconScale,
 
     // Animated number displays
-    animatedCaloriesDelta: animatedCaloriesDelta.display,
-    animatedProteinDelta: animatedProteinDelta.display,
     animatedFatTotal: animatedFatTotal.display,
     animatedCarbsTotal: animatedCarbsTotal.display,
     animatedCaloriesTotal: animatedCaloriesTotal.display,

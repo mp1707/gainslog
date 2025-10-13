@@ -6,6 +6,7 @@ import { NutrientLabel } from "./components/NutrientLabel";
 import { DashboardRing } from "@/components/shared/ProgressRings";
 import { Theme, useTheme } from "@/theme";
 import { getNutrientIcon } from "./utils/nutrientFormatters";
+import { AppText } from "@/components";
 
 interface CaloriesRingDisplayProps {
   total: number;
@@ -21,9 +22,6 @@ export const CaloriesRingDisplay: React.FC<CaloriesRingDisplayProps> = ({
   const { colors, theme } = useTheme();
   const styles = createStyles(theme);
 
-  const delta = target - total;
-  const isOver = total >= target;
-  const label = isOver ? "over" : "remaining";
   const ChevronIcon = percentage >= 100 ? ChevronsDown : ChevronDown;
 
   return (
@@ -34,25 +32,21 @@ export const CaloriesRingDisplay: React.FC<CaloriesRingDisplayProps> = ({
         trackColor={colors.semanticSurfaces.calories}
         textColor={colors.primaryText}
         label="Calories"
-        displayValue={Math.abs(delta).toString()}
+        displayValue={total}
         displayUnit=""
-        detailValue={label}
+        detailValue={`of ${target}kcal target`}
         detailUnit=""
         showDetail={false}
         animationDelay={0}
         strokeWidth={20}
         Icon={ChevronIcon}
       />
-      <NutrientLabel
-        Icon={Flame}
-        iconColor={colors.semantic.calories}
-        iconFill={colors.semantic.calories}
-        label="Calories"
-        currentValue={total}
-        targetValue={target}
-        unit="kcal"
-        style={styles.inlineLabel}
-      />
+      <View style={styles.ringFooter}>
+        <Flame size={22} color={colors.semantic.calories} fill={colors.semantic.calories} />
+        <AppText role="Subhead" color="secondary">
+          Calories (kcal)
+        </AppText>
+      </View>
     </View>
   );
 };
@@ -71,9 +65,6 @@ export const ProteinRingDisplay: React.FC<ProteinRingDisplayProps> = ({
   const { colors, theme } = useTheme();
   const styles = createStyles(theme);
 
-  const delta = target - total;
-  const isOver = total >= target;
-  const label = isOver ? "over" : "remaining";
   const ChevronIcon = percentage >= 100 ? ChevronsDown : ChevronDown;
   const IconComponent = getNutrientIcon(BicepsFlexed, percentage >= 100, "protein");
   const iconFill = percentage >= 100
@@ -89,26 +80,26 @@ export const ProteinRingDisplay: React.FC<ProteinRingDisplayProps> = ({
         trackColor={colors.semanticSurfaces.protein}
         textColor={colors.primaryText}
         label="Protein"
-        displayValue={Math.abs(delta).toString()}
+        displayValue={total}
         displayUnit=""
-        detailValue={label}
+        detailValue={`of ${target}g target`}
         detailUnit=""
         showDetail={false}
         animationDelay={0}
         strokeWidth={20}
         Icon={ChevronIcon}
       />
-      <NutrientLabel
-        Icon={IconComponent}
-        iconColor={colors.semantic.protein}
-        iconFill={iconFill}
-        iconStrokeWidth={iconStrokeWidth}
-        label="Protein"
-        currentValue={total}
-        targetValue={target}
-        unit="g"
-        style={styles.inlineLabel}
-      />
+      <View style={styles.ringFooter}>
+        <IconComponent
+          size={22}
+          color={colors.semantic.protein}
+          fill={iconFill}
+          strokeWidth={iconStrokeWidth}
+        />
+        <AppText role="Subhead" color="secondary">
+          Protein (g)
+        </AppText>
+      </View>
     </View>
   );
 };
@@ -169,6 +160,12 @@ const createStyles = (theme: Theme) =>
     block: {
       alignItems: "center",
       gap: theme.spacing.md,
+    },
+    ringFooter: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: theme.spacing.xs,
     },
     inlineLabel: {
       marginLeft: 0,

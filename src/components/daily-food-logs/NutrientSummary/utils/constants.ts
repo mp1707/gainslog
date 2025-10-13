@@ -32,7 +32,7 @@ export const NUTRIENT_LABELS = {
   },
   protein: {
     label: "Protein",
-    unit: "g",
+    unit: "grams",
     Icon: BicepsFlexed,
     hasTarget: true,
   },

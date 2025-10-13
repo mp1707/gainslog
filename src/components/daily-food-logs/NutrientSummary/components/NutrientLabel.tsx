@@ -93,7 +93,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    marginLeft: theme.spacing.xl,
     gap: theme.spacing.md,
   },
   iconWrapper: {

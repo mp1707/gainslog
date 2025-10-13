@@ -480,14 +480,13 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
               role="Title1"
               style={textColor && { color: textColor }}
             >{`${displayValue}`}</AppText>
-            {detailValue ? (
-              <AppText
-                role="Caption"
-                style={[styles.remaining, { color: textColor }]}
-              >
-                {detailValue}
-              </AppText>
-            ) : null}
+
+            <AppText role="Caption" style={styles.remaining} color="secondary">
+              {detailValue}
+            </AppText>
+            <AppText role="Caption" style={styles.remaining} color="secondary">
+              {_displayUnit}
+            </AppText>
           </View>
         </View>
       </View>
