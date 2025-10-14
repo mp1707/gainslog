@@ -95,7 +95,7 @@ const getIconForMethod = (methodId: string) => {
 export default function ProteinGoalsScreen() {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
-  const { weight, setProteinGoal } = useOnboardingStore();
+  const { weight, setProteinGoal, setProteinGoalType } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
 
   const currentWeight = weight || 0;
@@ -126,6 +126,7 @@ export default function ProteinGoalsScreen() {
   ) => {
     const proteinValue = proteinGoals[method as keyof typeof proteinGoals];
     setProteinGoal(proteinValue);
+    setProteinGoalType(method as ProteinGoalType);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     safePush("/onboarding/calculator-summary");
   };

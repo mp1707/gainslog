@@ -24,7 +24,7 @@ import {
 import { getNutrientIcon } from "./utils/nutrientFormatters";
 import { Flame, BicepsFlexed } from "lucide-react-native";
 
-const ICON_SIZE = 20;
+const ICON_SIZE = 18;
 
 interface NutrientValues {
   calories?: number;

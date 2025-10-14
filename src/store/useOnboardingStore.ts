@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { ProteinGoalType } from "@/types/models";
 
 export type OnboardingState = {
   // User demographic data
@@ -13,6 +14,7 @@ export type OnboardingState = {
   calorieGoalType?: "lose" | "maintain" | "gain";
   calorieGoal?: number;
   proteinGoal?: number; // g
+  proteinGoalType?: ProteinGoalType; // tracking protein calculation method
   fatPercentage?: number; // percentage of calories
 
   // Input method tracking
@@ -32,6 +34,7 @@ export type OnboardingState = {
   setCalorieGoalType: (type: "lose" | "maintain" | "gain") => void;
   setCalorieGoal: (goal: number) => void;
   setProteinGoal: (goal: number) => void;
+  setProteinGoalType: (type: ProteinGoalType) => void;
   setFatPercentage: (percentage: number) => void;
   setInputMethod: (method: "calculate" | "manual") => void;
   setCarbGoal: (goal: number) => void;
@@ -51,6 +54,7 @@ export const useOnboardingStore = create<OnboardingState>()(
     calorieGoalType: undefined,
     calorieGoal: undefined,
     proteinGoal: undefined,
+    proteinGoalType: undefined,
     fatPercentage: 20, // Default to 20%
 
     // Input method tracking
@@ -102,6 +106,11 @@ export const useOnboardingStore = create<OnboardingState>()(
         state.proteinGoal = goal;
       }),
 
+    setProteinGoalType: (type) =>
+      set((state) => {
+        state.proteinGoalType = type;
+      }),
+
     setFatPercentage: (percentage) =>
       set((state) => {
         state.fatPercentage = percentage;
@@ -137,6 +146,7 @@ export const useOnboardingStore = create<OnboardingState>()(
         state.calorieGoalType = undefined;
         state.calorieGoal = undefined;
         state.proteinGoal = undefined;
+        state.proteinGoalType = undefined;
         state.fatPercentage = 20;
         state.inputMethod = undefined;
         state.carbGoal = undefined;
