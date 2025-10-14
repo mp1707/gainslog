@@ -107,43 +107,7 @@ function ThemedStack() {
         }}
       />
       <Stack.Screen
-        name="explainer-calories"
-        options={{
-          presentation: "modal",
-          headerShown: false,
-          contentStyle: {
-            borderRadius: "10%",
-            overflow: "hidden",
-          },
-          gestureEnabled: true,
-        }}
-      />
-      <Stack.Screen
-        name="explainer-protein"
-        options={{
-          presentation: "modal",
-          headerShown: false,
-          contentStyle: {
-            borderRadius: "10%",
-            overflow: "hidden",
-          },
-          gestureEnabled: true,
-        }}
-      />
-      <Stack.Screen
-        name="explainer-fat"
-        options={{
-          presentation: "modal",
-          headerShown: false,
-          contentStyle: {
-            borderRadius: "10%",
-            overflow: "hidden",
-          },
-          gestureEnabled: true,
-        }}
-      />
-      <Stack.Screen
-        name="explainer-carbs"
+        name="explainer-macros"
         options={{
           presentation: "modal",
           headerShown: false,

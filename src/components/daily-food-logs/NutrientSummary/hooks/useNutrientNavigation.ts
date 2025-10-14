@@ -35,8 +35,10 @@ export const useNutrientNavigation = ({
       const target = Math.round(targets[nutrient] || 0);
       const percentage = Math.round(percentages[nutrient] || 0);
 
+      // Navigate to the macro explainer modal (opens at overview page)
+      // The overview page allows navigation to individual nutrient pages
       router.push(
-        `/explainer-${nutrient}?total=${total}&target=${target}&percentage=${percentage}` as any
+        `/explainer-macros?total=${total}&target=${target}&percentage=${percentage}` as any
       );
     },
     [totals, targets, percentages, router]
