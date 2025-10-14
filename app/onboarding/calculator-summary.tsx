@@ -41,7 +41,7 @@ const CalculatorSummaryScreen = () => {
   const { setDailyTargets } = useAppStore();
 
   // Get stored values with defaults
-  const effectiveFatPercentage = fatPercentage ?? 20;
+  const   effectiveFatPercentage = fatPercentage ?? 20;
   const currentCalories = calorieGoal || 0;
   const currentProtein = proteinGoal || 0;
 
@@ -115,33 +115,37 @@ const CalculatorSummaryScreen = () => {
       subtitle: "Daily target",
       value: currentCalories,
       unit: "kcal",
+      kcal: undefined,
     },
     {
       key: "protein" as const,
       icon: BicepsFlexed,
       color: colors.semantic.protein,
-      label: "Protein",
+      label: "Protein - 4 kcal /g",
       subtitle: proteinSubtitle,
       value: currentProtein,
       unit: "g",
+      kcal: currentProtein * 4,
     },
     {
       key: "fat" as const,
       icon: Droplet,
       color: colors.semantic.fat,
-      label: "Fat",
+      label: "Fat - 9 kcal /g",
       subtitle: fatSubtitle,
       value: currentFat,
       unit: "g",
+      kcal: currentFat * 9,
     },
     {
       key: "carbs",
       icon: Wheat,
       color: colors.semantic.carbs,
-      label: "Carbs",
+      label: "Carbs - 4 kcal /g",
       subtitle: "Remainder",
       value: currentCarbs,
       unit: "g",
+      kcal: currentCarbs * 4,
     },
   ];
 
@@ -204,10 +208,22 @@ const CalculatorSummaryScreen = () => {
                 <AppText role="Headline">
                   {target.value} {target.unit}
                 </AppText>
+                {target.kcal !== undefined && (
+                  <AppText role="Caption" color="secondary">
+                    {Math.round(target.kcal)} kcal
+                  </AppText>
+                )}
               </View>
             </View>
           );
         })}
+      </View>
+
+      {/* Helper Info */}
+      <View style={styles.helperSection}>
+        <AppText role="Caption" color="secondary" style={styles.helperText}>
+          Note: Small variations may occur due to rounding.
+        </AppText>
       </View>
     </OnboardingScreen>
   );
@@ -234,7 +250,6 @@ const createStyles = (colors: Colors, theme: Theme) => {
     },
     targetsSection: {
       gap: spacing.md,
-      marginBottom: spacing.lg,
       paddingHorizontal: spacing.lg,
     },
     targetRow: {
@@ -254,6 +269,15 @@ const createStyles = (colors: Colors, theme: Theme) => {
     },
     targetRight: {
       alignItems: "flex-end",
+      gap: spacing.xs / 2,
+    },
+    helperSection: {
+      paddingHorizontal: spacing.lg,
+      marginTop: spacing.lg,
+      marginBottom: spacing.lg,
+    },
+    helperText: {
+      textAlign: "center",
     },
     actionButtonsContainer: {
       gap: spacing.lg,
