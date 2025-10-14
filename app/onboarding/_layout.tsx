@@ -3,7 +3,6 @@ import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { View } from "react-native";
-import { useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import { OnboardingHeader } from "../../src/components/onboarding/OnboardingHeader";
 
@@ -28,9 +27,8 @@ const CALCULATE_STEP_MAP: Record<string, number> = {
 
 export default function OnboardingLayout() {
   const { colors } = useTheme();
-  const { safeDismissTo } = useNavigationGuard();
+  const { safeDismissTo, safeBack } = useNavigationGuard();
   const { setUserSkippedOnboarding } = useOnboardingStore();
-  const router = useRouter();
   const pathname = usePathname();
 
   // Detect which flow the user is in
@@ -57,7 +55,7 @@ export default function OnboardingLayout() {
   };
 
   const handleBack = () => {
-    router.back();
+    safeBack();
   };
 
   return (

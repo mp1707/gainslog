@@ -14,7 +14,6 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { Card, AppText, Button } from "src/components";
 import { ChevronRight, X } from "lucide-react-native";
 import { AppearanceCard } from "@/components/settings/AppearanceCard";
-import { useRouter } from "expo-router";
 import { seedFoodLogs } from "@/utils/seed";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
@@ -23,9 +22,8 @@ export default function SettingsTab() {
   const isLoadingTargets = false;
   const { colors, theme: themeObj } = useTheme();
   const keyboardOffset = useKeyboardOffset(true);
-  const { safeNavigate, isNavigating } = useNavigationGuard();
+  const { safeNavigate, safeBack, isNavigating } = useNavigationGuard();
   const { clearAllLogs, clearNutritionGoals } = useAppStore();
-  const { back } = useRouter();
 
   const styles = useMemo(
     () => createStyles(colors, themeObj, keyboardOffset),
@@ -35,7 +33,7 @@ export default function SettingsTab() {
   // Nutrition calculators moved under /Goals; provide a single entry link
 
   const handleClose = () => {
-    back();
+    safeBack();
   };
 
   const handleSeedData = () => {

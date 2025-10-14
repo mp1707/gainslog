@@ -9,3 +9,4 @@ Quick Rules:
 - for state management use our central store @store (zustand and async storage)
 - for icons use lucide
 - for keyboard management use keyboard-controller
+- for navigation call Expo Router through useSafeRouter

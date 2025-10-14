@@ -1,6 +1,6 @@
 import { useAppStore } from "@/store/useAppStore";
 import { Colors, Theme, useTheme } from "@/theme";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { StyleSheet, View, ActivityIndicator, Pressable } from "react-native";
 import { ScrollView as RNScrollView } from "react-native-gesture-handler";
 import { Check, X } from "lucide-react-native";
@@ -22,12 +22,13 @@ import {
   BottomSheetBackdrop,
 } from "@/components/shared/BottomSheet";
 import { TextInput } from "@/components/shared/TextInput";
+import { useSafeRouter } from "@/hooks/useSafeRouter";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const originalLog = useAppStore(makeSelectLogById(id));
   const updateFoodLog = useAppStore((s) => s.updateFoodLog);
-  const router = useRouter();
+  const router = useSafeRouter();
 
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);

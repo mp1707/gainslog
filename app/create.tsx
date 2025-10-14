@@ -2,7 +2,6 @@ import { useAppStore } from "@/store/useAppStore";
 import { Theme } from "@/theme/theme";
 import { useTheme } from "@/theme/ThemeProvider";
 import { Favorite } from "@/types/models";
-import { useRouter } from "expo-router";
 import { useCallback, useRef, useState, useEffect } from "react";
 import * as Haptics from "expo-haptics";
 import {
@@ -26,13 +25,14 @@ import { processImage } from "@/utils/processImage";
 import { useCreationStore } from "@/store/useCreationStore"; // keyed drafts store
 import { useDraft } from "@/hooks/useDraft";
 import { generateFoodLogId } from "@/utils/idGenerator";
+import { useSafeRouter } from "@/hooks/useSafeRouter";
 
 const inputAccessoryViewID = "create-input-accessory";
 
 export default function Create() {
   const { theme } = useTheme();
   const styles = createStyles(theme);
-  const router = useRouter();
+  const router = useSafeRouter();
   const { startNewDraft, clearDraft, updateDraft } = useCreationStore();
   const [draftId, setDraftId] = useState<string | null>(null);
   const draft = useDraft(draftId);

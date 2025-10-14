@@ -6,7 +6,7 @@ import {
   Dimensions,
   ViewToken,
 } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { X } from "lucide-react-native";
 
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
@@ -18,6 +18,7 @@ import { ProteinExplainer } from "@/components/explainer-macros/ProteinExplainer
 import { FatExplainer } from "@/components/explainer-macros/FatExplainer";
 import { CarbsExplainer } from "@/components/explainer-macros/CarbsExplainer";
 import { Colors, Theme, useTheme } from "@/theme";
+import { useSafeRouter } from "@/hooks/useSafeRouter";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -37,7 +38,7 @@ const PAGES: ExplainerPage[] = [
 export default function ExplainerMacrosScreen() {
   const { theme, colors } = useTheme();
   const styles = useMemo(() => createStyles(theme, colors), [theme, colors]);
-  const router = useRouter();
+  const router = useSafeRouter();
   const params = useLocalSearchParams<{
     total?: string;
     target?: string;

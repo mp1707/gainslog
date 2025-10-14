@@ -1,12 +1,11 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { BicepsFlexed, CircleCheckBig } from "lucide-react-native";
-import { useRouter } from "expo-router";
-
 import { AppText } from "@/components/shared/AppText";
 import { Button } from "@/components/shared/Button/Button";
 import { Theme, useTheme } from "@/theme";
 import { DashboardRing } from "@/components/shared/ProgressRings";
+import { useSafeRouter } from "@/hooks/useSafeRouter";
 
 interface ProteinExplainerProps {
   total?: number;
@@ -21,7 +20,7 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
-  const router = useRouter();
+  const router = useSafeRouter();
 
   const semanticColor = colors.semantic.protein;
 

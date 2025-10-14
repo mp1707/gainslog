@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
 import { View, TextInput as RNTextInput, Pressable } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Info } from "lucide-react-native";
 import Animated from "react-native-reanimated";
@@ -10,6 +9,7 @@ import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { TextInput } from "@/components/shared/TextInput";
 import { AppText } from "@/components/shared/AppText";
 import { usePressAnimation } from "@/hooks/usePressAnimation";
+import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { createStyles } from "./EstimationTab.styles";
 
 interface EstimationTabProps {
@@ -31,7 +31,7 @@ export const EstimationTab: React.FC<EstimationTabProps> = ({
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme, !!imageUrl, colorScheme);
-  const router = useRouter();
+  const router = useSafeRouter();
   const { handlePressIn, handlePressOut, pressAnimatedStyle } = usePressAnimation();
 
   const handleOpenExplainer = useCallback(() => {

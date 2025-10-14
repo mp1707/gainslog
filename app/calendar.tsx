@@ -1,7 +1,6 @@
 import React, { useMemo, useCallback, useState, useRef, useEffect } from "react";
 import { View, Dimensions, StyleSheet, ViewToken } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
-import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { Colors, Theme, useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
@@ -13,6 +12,7 @@ import {
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { X } from "lucide-react-native";
+import { useSafeRouter } from "@/hooks/useSafeRouter";
 
 interface MonthData {
   year: number;
@@ -34,7 +34,7 @@ export default function Calendar() {
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const { selectedDate, setSelectedDate, foodLogs, dailyTargets } =
     useAppStore();
-  const router = useRouter();
+  const router = useSafeRouter();
 
   // Get current selected date components
   const selectedDateObj = useMemo(

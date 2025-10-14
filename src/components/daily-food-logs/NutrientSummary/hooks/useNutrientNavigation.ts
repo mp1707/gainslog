@@ -1,6 +1,8 @@
 import { useCallback } from "react";
-import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
+
+import { useSafeRouter } from "@/hooks/useSafeRouter";
+
 import type { NutrientKey } from "../utils/constants";
 
 interface NutrientValues {
@@ -25,7 +27,7 @@ export const useNutrientNavigation = ({
   targets,
   percentages,
 }: UseNutrientNavigationParams) => {
-  const router = useRouter();
+  const router = useSafeRouter();
 
   const handleOpenExplainer = useCallback(
     (nutrient: NutrientKey) => {

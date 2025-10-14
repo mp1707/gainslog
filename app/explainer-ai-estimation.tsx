@@ -1,18 +1,18 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { useRouter } from "expo-router";
 import { X, Sparkles, Pencil, Camera, Mic } from "lucide-react-native";
 
 import { AppText } from "@/components/shared/AppText";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { Theme, useTheme } from "@/theme";
+import { useSafeRouter } from "@/hooks/useSafeRouter";
 
 export default function ExplainerAiEstimation() {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
-  const router = useRouter();
+  const router = useSafeRouter();
 
   const handleClose = () => {
     if (router.canGoBack()) {

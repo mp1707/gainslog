@@ -14,7 +14,6 @@ import {
   Square,
 } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
-import { useRouter } from "expo-router";
 import Animated, {
   Easing,
   runOnJS,
@@ -27,6 +26,7 @@ import Animated, {
 import { useTheme } from "@/theme";
 import { Button } from "@/components";
 import { RoundButton } from "@/components/shared/RoundButton";
+import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { createStyles } from "./KeyboardAccessory.styles";
 
 interface KeyboardAccessoryProps {
@@ -152,7 +152,7 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
 }) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
-  const router = useRouter();
+  const router = useSafeRouter();
 
   const containerRef = useRef<View | null>(null);
   const micAnchorRef = useRef<View | null>(null);

@@ -6,16 +6,17 @@ import { CameraView } from "expo-camera";
 import { CameraIcon, X } from "lucide-react-native";
 import { useMemo, useRef, useState, useCallback } from "react";
 import { StyleSheet, View } from "react-native";
-import { useRouter } from "expo-router";
-import { useCreationStore } from "@/store/useCreationStore";
 import { useLocalSearchParams } from "expo-router";
+
+import { useSafeRouter } from "@/hooks/useSafeRouter";
+import { useCreationStore } from "@/store/useCreationStore";
 
 export default function Camera() {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const cameraRef = useRef<CameraView>(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
-  const router = useRouter();
+  const router = useSafeRouter();
 
   const updateDraft = useCreationStore((state) => state.updateDraft);
   const { logId } = useLocalSearchParams<{ logId?: string }>();

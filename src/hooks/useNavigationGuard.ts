@@ -1,27 +1,52 @@
 import { useRouter } from "expo-router";
-import { useRef, useState, useCallback, useEffect } from "react";
-import { useFocusEffect } from "@react-navigation/native";
 import { InteractionManager } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import { useNavigationTransition } from "@/context/NavigationTransitionContext";
 
+const NAVIGATION_LOCK_TIMEOUT = 1600;
+const TRANSITION_RELEASE_DELAY = 48;
+const MIN_HOLD_BEFORE_UNLOCK = 120;
+
 /**
- * Navigation guard hook to prevent multiple rapid navigation calls
- * using Expo Router only.
+ * Navigation guard hook to prevent multiple rapid navigation calls when using Expo Router.
+ * Keeps navigation locked until the current transition completes (or a timeout fires) and
+ * optionally queues the latest intent to run after unlock.
  */
 export function useNavigationGuard() {
   const router = useRouter();
   const lockedRef = useRef(false);
   const [isNavigating, setIsNavigating] = useState(false);
+
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const unlockAfterTransitionRef = useRef<NodeJS.Timeout | null>(null);
+
   const lastFocusAtRef = useRef<number>(Date.now());
+  const lastNavigationAtRef = useRef<number>(0);
+
+  const transitionStartedRef = useRef(false);
+  const pendingNavigationRef = useRef<(() => void) | null>(null);
+
   const { isTransitioning } = useNavigationTransition();
   const isTransitioningRef = useRef(isTransitioning);
+
+  const clearAllTimeouts = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    if (unlockAfterTransitionRef.current) {
+      clearTimeout(unlockAfterTransitionRef.current);
+      unlockAfterTransitionRef.current = null;
+    }
+  }, []);
 
   useEffect(() => {
     isTransitioningRef.current = isTransitioning;
   }, [isTransitioning]);
 
-  // Track when the screen becomes focused to delay navigation slightly
+  // Track when the screen becomes focused to delay navigation slightly.
   useFocusEffect(
     useCallback(() => {
       lastFocusAtRef.current = Date.now();
@@ -29,7 +54,7 @@ export function useNavigationGuard() {
     }, [])
   );
 
-  // When transitions finish, bump focus time reference
+  // When transitions finish, bump focus time reference.
   useEffect(() => {
     if (!isTransitioning) {
       lastFocusAtRef.current = Date.now();
@@ -37,56 +62,51 @@ export function useNavigationGuard() {
   }, [isTransitioning]);
 
   const unlockNavigation = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
+    if (!lockedRef.current) {
+      clearAllTimeouts();
+      return;
     }
+
+    clearAllTimeouts();
     lockedRef.current = false;
+    transitionStartedRef.current = false;
     setIsNavigating(false);
-  }, []);
+  }, [clearAllTimeouts]);
 
   const executeNavigation = useCallback(
     (navigationFn: () => void) => {
       if (lockedRef.current) {
+        pendingNavigationRef.current = navigationFn;
         console.warn("[NavigationGuard] Navigation already in progress");
         return;
       }
 
-      // Clear any existing timeout first
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
+      clearAllTimeouts();
 
       lockedRef.current = true;
+      transitionStartedRef.current = false;
+      lastNavigationAtRef.current = Date.now();
       setIsNavigating(true);
 
-      // fallback unlock
       timeoutRef.current = setTimeout(() => {
         console.warn("[NavigationGuard] Timeout reached, unlocking");
         unlockNavigation();
-      }, 300);
+      }, NAVIGATION_LOCK_TIMEOUT);
 
       try {
         navigationFn();
-        // Clear timeout after successful navigation
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-          timeoutRef.current = null;
-        }
-        unlockNavigation();
       } catch (err) {
         console.error("[NavigationGuard] Navigation failed:", err);
         unlockNavigation();
       }
     },
-    [unlockNavigation]
+    [clearAllTimeouts, unlockNavigation]
   );
 
   const maybeSchedule = useCallback(
     (navigationFn: () => void) => {
-      const minDelay = 50; // wait a beat after focus/transition
-      const MAX_WAIT = 600; // ms; prevent guarding forever
+      const minDelay = 50;
+      const MAX_WAIT = 600;
       const CHECK_INTERVAL = 80;
       const startTs = Date.now();
 
@@ -139,15 +159,52 @@ export function useNavigationGuard() {
     [router, maybeSchedule]
   );
 
-  // Cleanup timeout on unmount
+  const safeBack = useCallback(
+    () => maybeSchedule(() => router.back()),
+    [router, maybeSchedule]
+  );
+
   useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
-    };
-  }, []);
+    if (isTransitioning) {
+      isTransitioningRef.current = true;
+      transitionStartedRef.current = true;
+      return;
+    }
+
+    isTransitioningRef.current = false;
+
+    if (!lockedRef.current) {
+      return;
+    }
+
+    const elapsed = Date.now() - lastNavigationAtRef.current;
+    const holdFor = transitionStartedRef.current
+      ? TRANSITION_RELEASE_DELAY
+      : Math.max(MIN_HOLD_BEFORE_UNLOCK - elapsed, TRANSITION_RELEASE_DELAY);
+
+    unlockAfterTransitionRef.current = setTimeout(() => {
+      unlockNavigation();
+    }, holdFor);
+  }, [isTransitioning, unlockNavigation]);
+
+  useEffect(() => {
+    if (lockedRef.current || !pendingNavigationRef.current) {
+      return;
+    }
+
+    const next = pendingNavigationRef.current;
+    pendingNavigationRef.current = null;
+    if (next) {
+      maybeSchedule(next);
+    }
+  }, [isNavigating, maybeSchedule]);
+
+  useEffect(() => () => {
+    clearAllTimeouts();
+    lockedRef.current = false;
+    transitionStartedRef.current = false;
+    pendingNavigationRef.current = null;
+  }, [clearAllTimeouts]);
 
   return {
     safeNavigate,
@@ -155,7 +212,9 @@ export function useNavigationGuard() {
     safePush,
     safeDismissTo,
     safeDismiss,
+    safeBack,
     isNavigating,
     unlockNavigation,
   };
 }
+

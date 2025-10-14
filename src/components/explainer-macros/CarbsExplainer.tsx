@@ -1,11 +1,11 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { Zap } from "lucide-react-native";
-import { useRouter } from "expo-router";
 
 import { AppText } from "@/components/shared/AppText";
 import { Button } from "@/components/shared/Button/Button";
 import { Theme, useTheme } from "@/theme";
+import { useSafeRouter } from "@/hooks/useSafeRouter";
 
 interface CarbsExplainerProps {
   total?: number;
@@ -14,7 +14,7 @@ interface CarbsExplainerProps {
 export const CarbsExplainer: React.FC<CarbsExplainerProps> = ({ total = 218 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
-  const router = useRouter();
+  const router = useSafeRouter();
 
   const semanticColor = colors.semantic.carbs;
 
