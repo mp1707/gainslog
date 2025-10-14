@@ -25,15 +25,14 @@ export const CarbsExplainer: React.FC<CarbsExplainerProps> = ({ total = 218 }) =
   return (
     <View style={styles.container}>
       <AppText role="Title1" style={styles.title}>
-        Carbs: Flexible Fuel
+        Carbs
       </AppText>
-
+      <AppText role="Caption" style={styles.subTitle}>
+        Flexible Fuel
+      </AppText>
       <View style={styles.content}>
         {/* MacroGridCell-style display */}
         <View style={styles.displaySection}>
-          <AppText role="Subhead" color="secondary" style={styles.label}>
-            Carbs
-          </AppText>
           <View style={styles.valueRow}>
             <View style={styles.iconWrapper}>
               <Zap
@@ -95,7 +94,10 @@ const createStyles = (theme: Theme) =>
     },
     title: {
       textAlign: "center",
-      marginBottom: theme.spacing.md,
+    },
+    subTitle: {
+      textAlign: "center",
+      marginBottom: theme.spacing.lg,
     },
     content: {
       flex: 1,
@@ -103,11 +105,8 @@ const createStyles = (theme: Theme) =>
     displaySection: {
       alignItems: "center",
       justifyContent: "center",
-      marginBottom: theme.spacing.md,
+      marginBottom: theme.spacing.lg,
       gap: theme.spacing.xs,
-    },
-    label: {
-      textAlign: "center",
     },
     valueRow: {
       flexDirection: "row",

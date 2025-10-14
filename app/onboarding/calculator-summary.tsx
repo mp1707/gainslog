@@ -69,12 +69,6 @@ const CalculatorSummaryScreen = () => {
     safeNavigate("/onboarding/calorie-goal");
   };
 
-  const handleSwitchToManual = async () => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    // Pre-fill manual input with calculated values by navigating
-    safeNavigate("/onboarding/manual-calories");
-  };
-
   const handleRecalculate = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     // Switch to calculate mode and navigate to questionnaire
@@ -194,15 +188,6 @@ const CalculatorSummaryScreen = () => {
                     style={styles.centeredText}
                   >
                     Adjust Targets
-                  </AppText>
-                </Pressable>
-                <Pressable onPress={handleSwitchToManual}>
-                  <AppText
-                    role="Caption"
-                    color="secondary"
-                    style={styles.centeredText}
-                  >
-                    Switch to Manual Entry
                   </AppText>
                 </Pressable>
               </>

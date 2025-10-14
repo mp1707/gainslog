@@ -27,7 +27,7 @@ export const DotProgressIndicator: React.FC<DotProgressIndicatorProps> = ({
           key={index}
           isActive={index === currentPage}
           activeColor={colors.accent}
-          inactiveColor={colors.subtleBackground}
+          inactiveColor={colors.disabledBackground}
         />
       ))}
     </View>
@@ -42,14 +42,14 @@ interface DotProps {
 
 const Dot: React.FC<DotProps> = ({ isActive, activeColor, inactiveColor }) => {
   const scale = useSharedValue(isActive ? 1 : 0.7);
-  const opacity = useSharedValue(isActive ? 1 : 0.5);
+  const opacity = useSharedValue(isActive ? 1 : 1);
 
   useEffect(() => {
     scale.value = withSpring(isActive ? 1 : 0.7, {
       damping: 20,
       stiffness: 300,
     });
-    opacity.value = withSpring(isActive ? 1 : 0.5, {
+    opacity.value = withSpring(isActive ? 1 : 1, {
       damping: 20,
       stiffness: 300,
     });

@@ -351,6 +351,7 @@ interface DashboardRingProps {
   skipAnimation?: boolean;
   testID?: string;
   Icon?: React.ComponentType<{ size: number; color: string; fill: string }>;
+  smallIcon?: boolean;
 }
 
 export const DashboardRing: React.FC<DashboardRingProps> = ({
@@ -370,17 +371,17 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   skipAnimation = false,
   testID,
   Icon = Flame,
+  smallIcon = false,
 }) => {
   const { theme, colorScheme } = useTheme();
   const isDark = colorScheme === "dark";
   const progress = useSharedValue(0);
   const ratio = Math.max(0, (percentage ?? 0) / 100);
 
-  // Animated values for tip icon position and rotation
+  // Animated values for tip icon position
   const tipX = useSharedValue(0);
   const tipY = useSharedValue(0);
   const tipOpacity = useSharedValue(0);
-  const tipRotation = useSharedValue(0);
 
   useEffect(() => {
     if (skipAnimation) {
@@ -406,7 +407,7 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
     trackColor ?? adjustColor(color, isDark ? -0.55 : -0.4);
   const shadowColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.32)";
 
-  // Calculate tip position with rotation transforms
+  // Calculate tip position
   useAnimatedReaction(
     () => progress.value,
     (currentProgress) => {
@@ -430,20 +431,20 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
       tipX.value = finalX;
       tipY.value = finalY;
       tipOpacity.value = progressRatio > 0.002 ? 1 : 0;
-      tipRotation.value = finalAngle;
     },
     [center, radius]
   );
 
   const styles = useMemo(() => createStyles(size, theme), [size, theme]);
 
-  const iconSize = strokeWidth * 0.75;
+  const iconSize = strokeWidth * 0.65;
+  const smallIconSize = strokeWidth * 0.55;
+  const backgroundSize = iconSize * 1.3;
   const tipIconStyle = useAnimatedStyle(() => ({
     position: "absolute",
-    left: tipX.value - iconSize / 2,
-    top: tipY.value - iconSize / 2,
+    left: tipX.value - backgroundSize / 2,
+    top: tipY.value - backgroundSize / 2,
     opacity: tipOpacity.value,
-    transform: [{ rotate: `${tipRotation.value}rad` }],
   }));
 
   return (
@@ -467,12 +468,23 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
           </Group>
         </Canvas>
         <Animated.View style={tipIconStyle} pointerEvents="none">
-          <Icon
-            size={iconSize}
-            color={resolvedTrackColor}
-            fill={"transparent"}
-            strokeWidth={2.5}
-          />
+          <View
+            style={{
+              width: backgroundSize,
+              height: backgroundSize,
+              borderRadius: backgroundSize / 2,
+              backgroundColor: resolvedTrackColor,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Icon
+              size={smallIcon ? smallIconSize : iconSize}
+              color={color}
+              fill={color}
+              strokeWidth={2.5}
+            />
+          </View>
         </Animated.View>
         <View style={styles.valueContainer} pointerEvents="none">
           <View style={styles.textLayer}>

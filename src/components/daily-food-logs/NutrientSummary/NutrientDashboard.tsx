@@ -21,9 +21,10 @@ import {
   ANIMATION_DELAYS,
   type NutrientKey,
 } from "./utils/constants";
-import { getChevronIcon, getNutrientIcon } from "./utils/nutrientFormatters";
+import { getNutrientIcon } from "./utils/nutrientFormatters";
+import { Flame, BicepsFlexed } from "lucide-react-native";
 
-const ICON_SIZE = 22;
+const ICON_SIZE = 20;
 
 interface NutrientValues {
   calories?: number;
@@ -151,12 +152,12 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
         {RING_KEYS.map((ringKey, index) => {
           const ringConfig = RING_CONFIG.find((item) => item.key === ringKey)!;
           const ringPercentage = percentages[ringKey] || 0;
-          const chevronIcon = getChevronIcon(ringPercentage);
           const { handlePressIn, handlePressOut, pressAnimatedStyle } =
             ringPressAnimations[ringKey];
           const ringTarget = labelTargets[ringKey];
           const ringDetailValue =
             typeof ringTarget === "number" ? `of ${ringTarget}` : undefined;
+          const ringIcon = ringKey === "calories" ? Flame : BicepsFlexed;
 
           return (
             <View key={ringKey} style={styles.ringCell}>
@@ -186,8 +187,10 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                     displayValue={animatedTotals[ringKey]}
                     detailValue={ringDetailValue}
                     animationDelay={index * ANIMATION_DELAYS.RING_STAGGER}
-                    strokeWidth={18}
-                    Icon={chevronIcon}
+                    strokeWidth={22}
+                    size={184}
+                    Icon={ringIcon}
+                    smallIcon={ringKey === "protein"}
                     skipAnimation={animations.dateChanged}
                   />
                 </Animated.View>

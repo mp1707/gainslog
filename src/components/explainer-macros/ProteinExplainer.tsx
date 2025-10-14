@@ -1,13 +1,12 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
-import { BicepsFlexed, CircleCheckBig, ChevronDown, ChevronsDown } from "lucide-react-native";
+import { BicepsFlexed, CircleCheckBig } from "lucide-react-native";
 import { useRouter } from "expo-router";
 
 import { AppText } from "@/components/shared/AppText";
 import { Button } from "@/components/shared/Button/Button";
 import { Theme, useTheme } from "@/theme";
 import { DashboardRing } from "@/components/shared/ProgressRings";
-import { getNutrientIcon } from "@/components/daily-food-logs/NutrientSummary/utils/nutrientFormatters";
 
 interface ProteinExplainerProps {
   total?: number;
@@ -25,8 +24,6 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
   const router = useRouter();
 
   const semanticColor = colors.semantic.protein;
-  const ChevronIcon = percentage >= 100 ? ChevronsDown : ChevronDown;
-  const isComplete = percentage >= 100;
 
   const handleChangeTargets = () => {
     router.push("/onboarding/target-method");
@@ -35,14 +32,13 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
   return (
     <View style={styles.container}>
       <AppText role="Title1" style={styles.title}>
-        Protein: Build & Recover
+        Protein
       </AppText>
-
+      <AppText role="Caption" style={styles.subTitle}>
+        Build & Recover
+      </AppText>
       <View style={styles.content}>
         <View style={styles.ringSection}>
-          <AppText role="Subhead" color="secondary" style={styles.ringLabel}>
-            Protein
-          </AppText>
           <View style={styles.ringContainer}>
             <DashboardRing
               percentage={percentage}
@@ -53,47 +49,87 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
               displayUnit="g"
               detailValue={`of ${target}`}
               animationDelay={0}
-              strokeWidth={18}
-              Icon={ChevronIcon}
+              strokeWidth={22}
+              Icon={BicepsFlexed}
+              smallIcon
               skipAnimation
             />
           </View>
         </View>
 
-        <AppText role="Headline" color="primary" style={[styles.sectionHeading, { color: semanticColor }]}>
+        <AppText
+          role="Headline"
+          color="primary"
+          style={[styles.sectionHeading, { color: semanticColor }]}
+        >
           How to Read the Ring
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • The ring tracks your progress toward 100% of your daily protein target
+          • The ring tracks your progress toward your daily protein target
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • When you reach your goal, the icon changes: <BicepsFlexed size={16} color={semanticColor} fill={semanticColor} strokeWidth={0} style={styles.inlineIcon} /> → <CircleCheckBig size={16} color={semanticColor} fill={colors.semanticSurfaces.protein} strokeWidth={2} style={styles.inlineIcon} />
+          • The{" "}
+          <BicepsFlexed
+            size={16}
+            color={semanticColor}
+            fill={semanticColor}
+            strokeWidth={0}
+            style={styles.inlineIcon}
+          />{" "}
+          icon marks your current position on the ring
         </AppText>
 
         <AppText
           role="Headline"
           color="primary"
-          style={[styles.sectionHeading, { color: semanticColor, marginTop: theme.spacing.md }]}
+          style={[
+            styles.sectionHeading,
+            { color: semanticColor, marginTop: theme.spacing.md },
+          ]}
         >
           Nutrition Guidelines
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • <AppText role="Body" color="primary" style={styles.bold}>0.8 g/kg:</AppText> Daily Maintenance
+          •{" "}
+          <AppText role="Body" color="primary" style={styles.bold}>
+            0.8 g/kg:
+          </AppText>{" "}
+          Daily Maintenance
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • <AppText role="Body" color="primary" style={styles.bold}>1.2 g/kg:</AppText> Active Lifestyle
+          •{" "}
+          <AppText role="Body" color="primary" style={styles.bold}>
+            1.2 g/kg:
+          </AppText>{" "}
+          Active Lifestyle
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • <AppText role="Body" color="primary" style={styles.bold}>1.6 g/kg:</AppText> Optimal Growth
+          •{" "}
+          <AppText role="Body" color="primary" style={styles.bold}>
+            1.6 g/kg:
+          </AppText>{" "}
+          Optimal Growth
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • <AppText role="Body" color="primary" style={styles.bold}>2.0 g/kg:</AppText> Dedicated Athlete
+          •{" "}
+          <AppText role="Body" color="primary" style={styles.bold}>
+            2.0 g/kg:
+          </AppText>{" "}
+          Dedicated Athlete
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • <AppText role="Body" color="primary" style={styles.bold}>2.2 g/kg:</AppText> Anabolic Insurance
+          •{" "}
+          <AppText role="Body" color="primary" style={styles.bold}>
+            2.2 g/kg:
+          </AppText>{" "}
+          Anabolic Insurance
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • <AppText role="Body" color="primary" style={styles.bold}>3.0 g/kg:</AppText> Max Preservation (Cutting)
+          •{" "}
+          <AppText role="Body" color="primary" style={styles.bold}>
+            3.0 g/kg:
+          </AppText>{" "}
+          Max Preservation (Cutting)
         </AppText>
       </View>
 
@@ -118,18 +154,17 @@ const createStyles = (theme: Theme) =>
     },
     title: {
       textAlign: "center",
-      marginBottom: theme.spacing.md,
+    },
+    subTitle: {
+      textAlign: "center",
+      marginBottom: theme.spacing.lg,
     },
     content: {
       flex: 1,
     },
     ringSection: {
       alignItems: "center",
-      marginBottom: theme.spacing.md,
-      gap: theme.spacing.sm,
-    },
-    ringLabel: {
-      textAlign: "center",
+      marginBottom: theme.spacing.lg,
     },
     ringContainer: {
       alignItems: "center",

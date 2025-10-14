@@ -33,15 +33,14 @@ export const FatExplainer: React.FC<FatExplainerProps> = ({
   return (
     <View style={styles.container}>
       <AppText role="Title1" style={styles.title}>
-        Fat: Essential Baseline
+        Fat
       </AppText>
-
+      <AppText role="Caption" style={styles.subTitle}>
+        Essential Baseline
+      </AppText>
       <View style={styles.content}>
         {/* MacroGridCell-style display */}
         <View style={styles.displaySection}>
-          <AppText role="Subhead" color="secondary" style={styles.label}>
-            Fat
-          </AppText>
           <View style={styles.valueRow}>
             <View style={styles.iconWrapper}>
               <Droplet
@@ -144,7 +143,10 @@ const createStyles = (theme: Theme) =>
     },
     title: {
       textAlign: "center",
-      marginBottom: theme.spacing.md,
+    },
+    subTitle: {
+      textAlign: "center",
+      marginBottom: theme.spacing.lg,
     },
     content: {
       flex: 1,
@@ -152,11 +154,8 @@ const createStyles = (theme: Theme) =>
     displaySection: {
       alignItems: "center",
       justifyContent: "center",
-      marginBottom: theme.spacing.md,
+      marginBottom: theme.spacing.lg,
       gap: theme.spacing.xs,
-    },
-    label: {
-      textAlign: "center",
     },
     valueRow: {
       flexDirection: "row",

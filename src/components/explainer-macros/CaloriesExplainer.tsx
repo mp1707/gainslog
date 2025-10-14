@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
-import { ChevronDown, ChevronsDown } from "lucide-react-native";
+import { Flame } from "lucide-react-native";
 import { useRouter } from "expo-router";
 
 import { AppText } from "@/components/shared/AppText";
@@ -24,7 +24,6 @@ export const CaloriesExplainer: React.FC<CaloriesExplainerProps> = ({
   const router = useRouter();
 
   const semanticColor = colors.semantic.calories;
-  const ChevronIcon = percentage >= 100 ? ChevronsDown : ChevronDown;
 
   const handleChangeTargets = () => {
     router.push("/onboarding/target-method");
@@ -33,14 +32,13 @@ export const CaloriesExplainer: React.FC<CaloriesExplainerProps> = ({
   return (
     <View style={styles.container}>
       <AppText role="Title1" style={styles.title}>
-        Calories: Your Energy Budget
+        Calories
       </AppText>
-
+      <AppText role="Caption" style={styles.subTitle}>
+        Your Energy Budget
+      </AppText>
       <View style={styles.content}>
         <View style={styles.ringSection}>
-          <AppText role="Subhead" color="secondary" style={styles.ringLabel}>
-            Calories
-          </AppText>
           <View style={styles.ringContainer}>
             <DashboardRing
               percentage={percentage}
@@ -51,8 +49,8 @@ export const CaloriesExplainer: React.FC<CaloriesExplainerProps> = ({
               displayUnit="kcal"
               detailValue={`of ${target}`}
               animationDelay={0}
-              strokeWidth={18}
-              Icon={ChevronIcon}
+              strokeWidth={22}
+              Icon={Flame}
               skipAnimation
             />
           </View>
@@ -62,13 +60,10 @@ export const CaloriesExplainer: React.FC<CaloriesExplainerProps> = ({
           How to Read the Ring
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • The ring shows your consumed calories vs. your daily target
+          • The ring tracks your progress toward 100% of your daily calorie target
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • <ChevronDown size={16} color={semanticColor} strokeWidth={2} style={styles.inlineIcon} /> Single chevron means you're under your target
-        </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • <ChevronsDown size={16} color={semanticColor} strokeWidth={2} style={styles.inlineIcon} /> Double chevron means you've reached or exceeded your target
+          • The <Flame size={16} color={semanticColor} fill={semanticColor} strokeWidth={0} style={styles.inlineIcon} /> icon marks your current position on the ring
         </AppText>
 
         <AppText
@@ -110,18 +105,17 @@ const createStyles = (theme: Theme) =>
     },
     title: {
       textAlign: "center",
-      marginBottom: theme.spacing.md,
+    },
+    subTitle: {
+      textAlign: "center",
+      marginBottom: theme.spacing.lg,
     },
     content: {
       flex: 1,
     },
     ringSection: {
       alignItems: "center",
-      marginBottom: theme.spacing.md,
-      gap: theme.spacing.sm,
-    },
-    ringLabel: {
-      textAlign: "center",
+      marginBottom: theme.spacing.lg,
     },
     ringContainer: {
       alignItems: "center",
