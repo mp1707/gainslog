@@ -1,7 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { View, StyleSheet, Pressable } from "react-native";
 import Animated, {
   useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSpring,
   type SharedValue,
 } from "react-native-reanimated";
 import { Theme, useTheme } from "@/theme";
@@ -119,6 +122,29 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     fat: Math.round(targets.fat || 0),
   };
 
+  // Animated progress bar width for fat (0-100 percentage)
+  const fatProgressWidth = useSharedValue(0);
+
+  // Animate fat progress bar with stagger after rings
+  useEffect(() => {
+    const fatPercentage = Math.min(percentages.fat || 0, 100);
+
+    if (animations.dateChanged) {
+      // Skip animation: set value instantly on date changes
+      fatProgressWidth.value = fatPercentage;
+    } else {
+      // Animate with delay and spring (after both rings at 800ms)
+      fatProgressWidth.value = withDelay(
+        ANIMATION_DELAYS.FAT_STAT,
+        withSpring(fatPercentage, {
+          mass: 1.2,
+          damping: 25,
+          stiffness: 80,
+        })
+      );
+    }
+  }, [percentages.fat, animations.dateChanged, fatProgressWidth]);
+
   return (
     <View style={styles.container}>
       <View style={styles.ringRow}>
@@ -182,6 +208,7 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
             percentage={percentages.fat}
             semanticColor={semanticColors.fat}
             showProgressBar
+            animatedProgressWidth={fatProgressWidth}
             onPress={() => handleOpenExplainer("fat")}
           />
           <MacroGridCell
@@ -205,6 +232,7 @@ interface MacroGridCellProps {
   percentage?: number;
   semanticColor: string;
   showProgressBar?: boolean;
+  animatedProgressWidth?: SharedValue<number>;
   iconScale?: SharedValue<number>;
   isComplete?: boolean;
   onPress?: () => void;
@@ -218,6 +246,7 @@ const MacroGridCell: React.FC<MacroGridCellProps> = ({
   percentage,
   semanticColor,
   showProgressBar = false,
+  animatedProgressWidth,
   iconScale,
   isComplete = false,
   onPress,
@@ -241,9 +270,21 @@ const MacroGridCell: React.FC<MacroGridCellProps> = ({
     transform: [{ scale: iconScale ? iconScale.value : 1 }],
   }));
 
-  // Convert percentage to decimal for width (e.g., 75% -> 0.75)
-  const progressBarFillWidth =
-    showProgressBar && percentage ? Math.min(percentage, 100) / 100 : 0;
+  // Animated style for progress bar fill
+  const progressBarAnimatedStyle = useAnimatedStyle(() => {
+    if (animatedProgressWidth) {
+      // Use animated value (0-100 percentage)
+      return {
+        width: `${animatedProgressWidth.value}%`,
+      };
+    }
+    // Fallback to static width if no animated value provided
+    const staticWidth =
+      showProgressBar && percentage ? Math.min(percentage, 100) : 0;
+    return {
+      width: `${staticWidth}%`,
+    };
+  });
 
   const cellContent = (
     <View style={styles.cellContainer}>
@@ -295,10 +336,8 @@ const MacroGridCell: React.FC<MacroGridCellProps> = ({
           <Animated.View
             style={[
               styles.progressBarFill,
-              {
-                backgroundColor: semanticColor,
-                width: `${progressBarFillWidth * 100}%`,
-              },
+              { backgroundColor: semanticColor },
+              progressBarAnimatedStyle,
             ]}
           />
         </View>
