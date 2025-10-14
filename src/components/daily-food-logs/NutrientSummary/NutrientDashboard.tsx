@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect } from "react";
-import { View, StyleSheet, Pressable } from "react-native";
+import { View, StyleSheet, Pressable, useWindowDimensions } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -61,6 +61,13 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
 
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const { width: screenWidth } = useWindowDimensions();
+
+  // Calculate responsive ring size: 40% of screen width
+  const ringSize = useMemo(() => screenWidth * 0.45, [screenWidth]);
+
+  // Scale stroke width proportionally (maintaining ~0.12 ratio from original 22/184)
+  const strokeWidth = useMemo(() => Math.max(ringSize * 0.12, 18), [ringSize]);
 
   const semanticColors = useMemo(
     () =>
@@ -187,8 +194,8 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                     displayValue={animatedTotals[ringKey]}
                     detailValue={ringDetailValue}
                     animationDelay={index * ANIMATION_DELAYS.RING_STAGGER}
-                    strokeWidth={22}
-                    size={184}
+                    strokeWidth={strokeWidth}
+                    size={ringSize}
                     Icon={ringIcon}
                     smallIcon={ringKey === "protein"}
                     skipAnimation={animations.dateChanged}
