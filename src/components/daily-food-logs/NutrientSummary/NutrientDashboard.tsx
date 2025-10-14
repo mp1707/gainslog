@@ -1,17 +1,10 @@
 import React, { useMemo } from "react";
-import {
-  View,
-  StyleSheet,
-  Pressable,
-  type StyleProp,
-  type ViewStyle,
-} from "react-native";
+import { View, StyleSheet, Pressable } from "react-native";
 import Animated, {
   useAnimatedStyle,
   type SharedValue,
 } from "react-native-reanimated";
-import type { LucideIcon } from "lucide-react-native";
-import { theme, Theme, useTheme } from "@/theme";
+import { Theme, useTheme } from "@/theme";
 import { SetGoalsCTA } from "./SetGoalsCTA";
 import { AppText } from "@/components";
 import { DashboardRing } from "@/components/shared/ProgressRings";
@@ -28,8 +21,6 @@ import {
 import { getChevronIcon, getNutrientIcon } from "./utils/nutrientFormatters";
 
 const ICON_SIZE = 22;
-const ICON_GAP = theme.spacing.md;
-const ICON_SPACE = ICON_SIZE + ICON_GAP;
 
 interface NutrientValues {
   calories?: number;
@@ -45,10 +36,6 @@ interface NutrientDashboardProps {
 }
 
 const RING_KEYS = ["calories", "protein"] as const;
-const LABEL_GROUPS: Record<(typeof RING_KEYS)[number], NutrientKey[]> = {
-  calories: ["calories", "fat"],
-  protein: ["protein", "carbs"],
-};
 
 /**
  * Dashboard displaying nutrient intake progress with ring and label visualizations.
@@ -144,10 +131,16 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
           const ringTarget = labelTargets[ringKey];
           const ringDetailValue =
             typeof ringTarget === "number" ? `of ${ringTarget}` : undefined;
-          const labelKeys = LABEL_GROUPS[ringKey];
 
           return (
             <View key={ringKey} style={styles.ringCell}>
+              <AppText
+                role="Subhead"
+                color="secondary"
+                style={styles.ringLabel}
+              >
+                {ringConfig.label}
+              </AppText>
               <Pressable
                 onPress={() => handleOpenExplainer(ringKey)}
                 onPressIn={handlePressIn}
@@ -173,70 +166,215 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                   />
                 </Animated.View>
               </Pressable>
-              <View style={styles.labelGroup}>
-                {labelKeys.map((labelKey) => {
-                  const config = NUTRIENT_LABELS[labelKey];
-                  const iconScale =
-                    labelKey === "protein"
-                      ? animations.proteinIconScale
-                      : undefined;
-
-                  const {
-                    iconColor,
-                    iconFill,
-                    iconStrokeWidth,
-                    IconComponent,
-                  } = getLabelIconConfig({
-                    labelKey,
-                    config,
-                    semanticColors,
-                    surfaceColors,
-                    calculations,
-                  });
-
-                  const totalValue =
-                    labelKey === "fat" || labelKey === "carbs"
-                      ? animatedTotals[labelKey]
-                      : undefined;
-                  const targetValue =
-                    labelKey === "fat" ? labelTargets.fat : undefined;
-                  const unit =
-                    labelKey === "fat" || labelKey === "carbs"
-                      ? config.unit
-                      : undefined;
-
-                  return (
-                    <View key={labelKey} style={styles.labelItem}>
-                      <NutrientSummaryLabel
-                        Icon={IconComponent}
-                        iconScale={iconScale}
-                        iconColor={iconColor}
-                        iconFill={iconFill}
-                        iconStrokeWidth={iconStrokeWidth}
-                        label={config.label}
-                        unit={unit}
-                        totalValue={totalValue}
-                        targetValue={targetValue}
-                        onPress={() => handleOpenExplainer(labelKey)}
-                      />
-                    </View>
-                  );
-                })}
-              </View>
             </View>
           );
         })}
       </View>
+
+      {/* Macro Grid: Fat and Carbs only */}
+      <View style={styles.macroGrid}>
+        <View style={styles.gridRow}>
+          <MacroGridCell
+            nutrientKey="fat"
+            total={animatedTotals.fat}
+            target={labelTargets.fat}
+            unit="g"
+            percentage={percentages.fat}
+            semanticColor={semanticColors.fat}
+            showProgressBar
+            onPress={() => handleOpenExplainer("fat")}
+          />
+          <MacroGridCell
+            nutrientKey="carbs"
+            total={animatedTotals.carbs}
+            unit="g"
+            semanticColor={semanticColors.carbs}
+            onPress={() => handleOpenExplainer("carbs")}
+          />
+        </View>
+      </View>
     </View>
   );
 };
+
+interface MacroGridCellProps {
+  nutrientKey: NutrientKey;
+  total: number | string;
+  target?: number | string;
+  unit: string;
+  percentage?: number;
+  semanticColor: string;
+  showProgressBar?: boolean;
+  iconScale?: SharedValue<number>;
+  isComplete?: boolean;
+  onPress?: () => void;
+}
+
+const MacroGridCell: React.FC<MacroGridCellProps> = ({
+  nutrientKey,
+  total,
+  target,
+  unit,
+  percentage,
+  semanticColor,
+  showProgressBar = false,
+  iconScale,
+  isComplete = false,
+  onPress,
+}) => {
+  const { theme, colors } = useTheme();
+  const styles = useMemo(() => createGridCellStyles(theme), [theme]);
+  const { handlePressIn, handlePressOut, pressAnimatedStyle } =
+    usePressAnimation({
+      disabled: !onPress,
+    });
+
+  const config = NUTRIENT_LABELS[nutrientKey];
+
+  // Only use getNutrientIcon for calories and protein (rings)
+  const IconComponent =
+    nutrientKey === "calories" || nutrientKey === "protein"
+      ? getNutrientIcon(config.Icon, isComplete, nutrientKey)
+      : config.Icon;
+
+  const iconAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: iconScale ? iconScale.value : 1 }],
+  }));
+
+  // Convert percentage to decimal for width (e.g., 75% -> 0.75)
+  const progressBarFillWidth =
+    showProgressBar && percentage ? Math.min(percentage, 100) / 100 : 0;
+
+  const cellContent = (
+    <View style={styles.cellContainer}>
+      {/* Label Text */}
+      <AppText role="Subhead" color="secondary" style={styles.label}>
+        {config.label}
+      </AppText>
+
+      {/* Icon + Value Row */}
+      <View style={styles.valueRow}>
+        <Animated.View style={[styles.iconContainer, iconAnimatedStyle]}>
+          <IconComponent
+            size={ICON_SIZE}
+            color={semanticColor}
+            fill={semanticColor}
+            strokeWidth={0}
+          />
+        </Animated.View>
+        <View style={styles.valueContainer}>
+          <AppText role="Headline" color="primary">
+            {total}
+          </AppText>
+          {target != null && (
+            <>
+              <AppText role="Body" color="secondary">
+                {" "}
+                /{" "}
+              </AppText>
+              <AppText role="Body" color="secondary">
+                {target}
+              </AppText>
+            </>
+          )}
+          <AppText role="Body" color="secondary" style={styles.unitText}>
+            {" "}
+            {unit}
+          </AppText>
+        </View>
+      </View>
+
+      {/* Progress Bar (Fat only) */}
+      {showProgressBar && (
+        <View
+          style={[
+            styles.progressBarTrack,
+            { backgroundColor: colors.disabledBackground },
+          ]}
+        >
+          <Animated.View
+            style={[
+              styles.progressBarFill,
+              {
+                backgroundColor: semanticColor,
+                width: `${progressBarFillWidth * 100}%`,
+              },
+            ]}
+          />
+        </View>
+      )}
+    </View>
+  );
+
+  if (!onPress) {
+    return cellContent;
+  }
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={styles.pressableCell}
+    >
+      <Animated.View style={pressAnimatedStyle}>{cellContent}</Animated.View>
+    </Pressable>
+  );
+};
+
+const createGridCellStyles = (theme: Theme) =>
+  StyleSheet.create({
+    pressableCell: {
+      flex: 1,
+    },
+    cellContainer: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: theme.spacing.xs,
+    },
+    valueRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: theme.spacing.xs,
+    },
+    iconContainer: {
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    valueContainer: {
+      flexDirection: "row",
+      alignItems: "baseline",
+      justifyContent: "center",
+      flexWrap: "wrap",
+    },
+    unitText: {
+      marginLeft: theme.spacing.xs / 2,
+    },
+    progressBarTrack: {
+      width: "55%",
+      height: 5,
+      borderRadius: 2.5,
+      overflow: "hidden",
+      marginTop: theme.spacing.xs,
+    },
+    progressBarFill: {
+      height: "100%",
+      borderRadius: 2.5,
+    },
+    label: {
+      textAlign: "center",
+    },
+  });
 
 const createStyles = (theme: Theme) =>
   StyleSheet.create({
     container: {
       paddingHorizontal: theme.spacing.md,
       paddingTop: theme.spacing.xs,
-      paddingBottom: theme.spacing.lg,
+      paddingBottom: theme.spacing.xl,
       gap: theme.spacing.xl,
     },
     ringRow: {
@@ -247,208 +385,20 @@ const createStyles = (theme: Theme) =>
     ringCell: {
       flex: 1,
       alignItems: "center",
+      gap: theme.spacing.sm,
     },
     ringPressable: {
       width: "100%",
       alignItems: "center",
     },
-    labelGroup: {
-      marginTop: theme.spacing.md,
-      alignSelf: "center",
-      alignItems: "stretch",
-      gap: theme.spacing.xl,
-      maxWidth: 240,
+    ringLabel: {
+      textAlign: "center",
     },
-    labelItem: {
-      width: "100%",
-      alignSelf: "stretch",
+    macroGrid: {
+      gap: theme.spacing.lg,
     },
-  });
-
-interface LabelIconConfigParams {
-  labelKey: NutrientKey;
-  config: (typeof NUTRIENT_LABELS)[NutrientKey];
-  semanticColors: Record<NutrientKey, string>;
-  surfaceColors: Record<NutrientKey, string>;
-  calculations: ReturnType<typeof useNutrientCalculations>;
-}
-
-interface LabelIconConfigResult {
-  IconComponent:
-    | LucideIcon
-    | React.ComponentType<{
-        size: number;
-        color: string;
-        fill?: string;
-        strokeWidth?: number;
-      }>;
-  iconColor: string;
-  iconFill?: string;
-  iconStrokeWidth: number;
-}
-
-const getLabelIconConfig = ({
-  labelKey,
-  config,
-  semanticColors,
-  surfaceColors,
-  calculations,
-}: LabelIconConfigParams): LabelIconConfigResult => {
-  if (labelKey === "protein") {
-    const isComplete = calculations.isProteinComplete;
-
-    return {
-      IconComponent: getNutrientIcon(config.Icon, isComplete, "protein"),
-      iconColor: semanticColors.protein,
-      iconFill: isComplete ? surfaceColors.protein : semanticColors.protein,
-      iconStrokeWidth: isComplete ? 2 : 0,
-    };
-  }
-
-  if (labelKey === "calories") {
-    return {
-      IconComponent: getNutrientIcon(config.Icon, false, "calories"),
-      iconColor: semanticColors.calories,
-      iconFill: semanticColors.calories,
-      iconStrokeWidth: 0,
-    };
-  }
-
-  return {
-    IconComponent: config.Icon,
-    iconColor: semanticColors[labelKey],
-    iconFill: semanticColors[labelKey],
-    iconStrokeWidth: 0,
-  };
-};
-
-interface NutrientSummaryLabelProps {
-  Icon:
-    | LucideIcon
-    | React.ComponentType<{
-        size: number;
-        color: string;
-        fill?: string;
-        strokeWidth?: number;
-      }>;
-  iconScale?: SharedValue<number>;
-  iconColor: string;
-  iconFill?: string;
-  iconStrokeWidth?: number;
-  label: string;
-  unit?: string;
-  totalValue?: number | string;
-  targetValue?: number | string;
-  onPress?: () => void;
-  style?: StyleProp<ViewStyle>;
-}
-
-const NutrientSummaryLabel: React.FC<NutrientSummaryLabelProps> = ({
-  Icon,
-  iconScale,
-  iconColor,
-  iconFill,
-  iconStrokeWidth = 0,
-  label,
-  unit,
-  totalValue,
-  targetValue,
-  onPress,
-  style,
-}) => {
-  const { theme } = useTheme();
-  const labelStyles = useMemo(() => createLabelStyles(theme), [theme]);
-  const { handlePressIn, handlePressOut, pressAnimatedStyle } =
-    usePressAnimation({
-      disabled: !onPress,
-    });
-
-  const iconAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: iconScale ? iconScale.value : 1 }],
-  }));
-
-  const labelContent = (
-    <View style={[labelStyles.container, style]}>
-      <Animated.View style={[labelStyles.iconWrapper, iconAnimatedStyle]}>
-        <Icon
-          size={22}
-          color={iconColor}
-          fill={iconFill}
-          strokeWidth={iconStrokeWidth}
-        />
-      </Animated.View>
-      <View style={labelStyles.textContainer}>
-        <AppText role="Subhead" color="secondary">
-          {label}
-        </AppText>
-        {totalValue != null ? (
-          <View style={labelStyles.valuesRow}>
-            <AppText role="Headline" color="primary">
-              {totalValue}
-            </AppText>
-            {targetValue != null ? (
-              <>
-                <AppText role="Body" color="secondary">
-                  /
-                </AppText>
-                <AppText role="Body" color="secondary">
-                  {targetValue}
-                  {unit}
-                </AppText>
-              </>
-            ) : unit ? (
-              <AppText
-                role="Body"
-                color="secondary"
-                style={labelStyles.unitSpacing}
-              >
-                {unit}
-              </AppText>
-            ) : null}
-          </View>
-        ) : null}
-      </View>
-    </View>
-  );
-
-  if (!onPress) {
-    return labelContent;
-  }
-
-  return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-    >
-      <Animated.View style={pressAnimatedStyle}>{labelContent}</Animated.View>
-    </Pressable>
-  );
-};
-
-const createLabelStyles = (theme: Theme) =>
-  StyleSheet.create({
-    container: {
+    gridRow: {
       flexDirection: "row",
-      alignItems: "center",
-      gap: ICON_GAP,
-      flexShrink: 0,
-      marginLeft: -ICON_SPACE,
-    },
-    iconWrapper: {
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    textContainer: {
-      gap: theme.spacing.xs / 2,
-    },
-    valuesRow: {
-      flexDirection: "row",
-      alignItems: "flex-end",
-      gap: theme.spacing.xs,
-    },
-    unitSpacing: {
-      marginBottom: 2,
+      gap: theme.spacing.lg,
     },
   });
