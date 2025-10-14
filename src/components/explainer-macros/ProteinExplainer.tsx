@@ -1,10 +1,13 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
-import { BicepsFlexed, CircleCheckBig } from "lucide-react-native";
+import { BicepsFlexed, CircleCheckBig, ChevronDown, ChevronsDown } from "lucide-react-native";
+import { useRouter } from "expo-router";
 
 import { AppText } from "@/components/shared/AppText";
+import { Button } from "@/components/shared/Button/Button";
 import { Theme, useTheme } from "@/theme";
-import { ProteinRingDisplay } from "@/components/daily-food-logs/NutrientSummary/NutrientStatDisplay";
+import { DashboardRing } from "@/components/shared/ProgressRings";
+import { getNutrientIcon } from "@/components/daily-food-logs/NutrientSummary/utils/nutrientFormatters";
 
 interface ProteinExplainerProps {
   total?: number;
@@ -19,32 +22,52 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const router = useRouter();
 
   const semanticColor = colors.semantic.protein;
+  const ChevronIcon = percentage >= 100 ? ChevronsDown : ChevronDown;
+  const isComplete = percentage >= 100;
+
+  const handleChangeTargets = () => {
+    router.push("/onboarding/target-method");
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.iconContainer}>
-        <BicepsFlexed size={32} color={semanticColor} fill={semanticColor} strokeWidth={1.5} />
-      </View>
-
       <AppText role="Title1" style={styles.title}>
         Protein: Build & Recover
       </AppText>
 
       <View style={styles.content}>
-        <View style={styles.ringContainer}>
-          <ProteinRingDisplay total={total} target={target} percentage={percentage} />
+        <View style={styles.ringSection}>
+          <AppText role="Subhead" color="secondary" style={styles.ringLabel}>
+            Protein
+          </AppText>
+          <View style={styles.ringContainer}>
+            <DashboardRing
+              percentage={percentage}
+              color={semanticColor}
+              trackColor={colors.semanticSurfaces.protein}
+              textColor={colors.primaryText}
+              displayValue={total}
+              displayUnit="g"
+              detailValue={`of ${target}`}
+              animationDelay={0}
+              strokeWidth={18}
+              Icon={ChevronIcon}
+              skipAnimation
+            />
+          </View>
         </View>
 
         <AppText role="Headline" color="primary" style={[styles.sectionHeading, { color: semanticColor }]}>
           How to Read the Ring
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • <AppText role="Body" color="primary" style={styles.bold}>Ring Progress:</AppText> Tracks toward 100%
+          • The ring tracks your progress toward 100% of your daily protein target
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • <BicepsFlexed size={16} color={semanticColor} fill={semanticColor} strokeWidth={0} style={styles.inlineIcon} /> → <CircleCheckBig size={16} color={semanticColor} fill={colors.semanticSurfaces.protein} strokeWidth={2} style={styles.inlineIcon} /> when you hit your goal
+          • When you reach your goal, the icon changes: <BicepsFlexed size={16} color={semanticColor} fill={semanticColor} strokeWidth={0} style={styles.inlineIcon} /> → <CircleCheckBig size={16} color={semanticColor} fill={colors.semanticSurfaces.protein} strokeWidth={2} style={styles.inlineIcon} />
         </AppText>
 
         <AppText
@@ -55,17 +78,31 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
           Nutrition Guidelines
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • <AppText role="Body" color="primary" style={styles.bold}>0.8 g/kg:</AppText> Maintenance
+          • <AppText role="Body" color="primary" style={styles.bold}>0.8 g/kg:</AppText> Daily Maintenance
+        </AppText>
+        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+          • <AppText role="Body" color="primary" style={styles.bold}>1.2 g/kg:</AppText> Active Lifestyle
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
           • <AppText role="Body" color="primary" style={styles.bold}>1.6 g/kg:</AppText> Optimal Growth
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • <AppText role="Body" color="primary" style={styles.bold}>2.2 g/kg:</AppText> Dedicated Athletes
+          • <AppText role="Body" color="primary" style={styles.bold}>2.0 g/kg:</AppText> Dedicated Athlete
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • <AppText role="Body" color="primary" style={styles.bold}>3.0 g/kg:</AppText> Preservation (Cutting)
+          • <AppText role="Body" color="primary" style={styles.bold}>2.2 g/kg:</AppText> Anabolic Insurance
         </AppText>
+        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
+          • <AppText role="Body" color="primary" style={styles.bold}>3.0 g/kg:</AppText> Max Preservation (Cutting)
+        </AppText>
+      </View>
+
+      <View style={styles.buttonContainer}>
+        <Button
+          label="Change targets"
+          variant="secondary"
+          onPress={handleChangeTargets}
+        />
       </View>
     </View>
   );
@@ -79,11 +116,6 @@ const createStyles = (theme: Theme) =>
       paddingTop: theme.spacing.md,
       paddingBottom: theme.spacing.xl,
     },
-    iconContainer: {
-      alignItems: "center",
-      marginTop: theme.spacing.md,
-      marginBottom: theme.spacing.sm,
-    },
     title: {
       textAlign: "center",
       marginBottom: theme.spacing.md,
@@ -91,9 +123,16 @@ const createStyles = (theme: Theme) =>
     content: {
       flex: 1,
     },
-    ringContainer: {
+    ringSection: {
       alignItems: "center",
       marginBottom: theme.spacing.md,
+      gap: theme.spacing.sm,
+    },
+    ringLabel: {
+      textAlign: "center",
+    },
+    ringContainer: {
+      alignItems: "center",
     },
     sectionHeading: {
       marginBottom: theme.spacing.xs,
@@ -107,5 +146,9 @@ const createStyles = (theme: Theme) =>
     },
     inlineIcon: {
       marginBottom: -2,
+    },
+    buttonContainer: {
+      alignItems: "center",
+      paddingTop: theme.spacing.lg,
     },
   });

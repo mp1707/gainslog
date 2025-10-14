@@ -1,5 +1,11 @@
 import React, { useRef, useState, useCallback, useMemo } from "react";
-import { View, StyleSheet, FlatList, Dimensions, ViewToken } from "react-native";
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  Dimensions,
+  ViewToken,
+} from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { X } from "lucide-react-native";
 
@@ -11,7 +17,7 @@ import { CaloriesExplainer } from "@/components/explainer-macros/CaloriesExplain
 import { ProteinExplainer } from "@/components/explainer-macros/ProteinExplainer";
 import { FatExplainer } from "@/components/explainer-macros/FatExplainer";
 import { CarbsExplainer } from "@/components/explainer-macros/CarbsExplainer";
-import { Theme, useTheme } from "@/theme";
+import { Colors, Theme, useTheme } from "@/theme";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -29,10 +35,14 @@ const PAGES: ExplainerPage[] = [
 ];
 
 export default function ExplainerMacrosScreen() {
-  const { theme } = useTheme();
-  const styles = useMemo(() => createStyles(theme), [theme]);
+  const { theme, colors } = useTheme();
+  const styles = useMemo(() => createStyles(theme, colors), [theme, colors]);
   const router = useRouter();
-  const params = useLocalSearchParams<{ total?: string; target?: string; percentage?: string }>();
+  const params = useLocalSearchParams<{
+    total?: string;
+    target?: string;
+    percentage?: string;
+  }>();
 
   const [currentPage, setCurrentPage] = useState(0);
   const flatListRef = useRef<FlatList>(null);
@@ -59,7 +69,9 @@ export default function ExplainerMacrosScreen() {
   // Parse params for data
   const total = params.total ? parseInt(params.total) : undefined;
   const target = params.target ? parseInt(params.target) : undefined;
-  const percentage = params.percentage ? parseInt(params.percentage) : undefined;
+  const percentage = params.percentage
+    ? parseInt(params.percentage)
+    : undefined;
 
   const renderPage = useCallback(
     ({ item }: { item: ExplainerPage }) => {
@@ -76,10 +88,13 @@ export default function ExplainerMacrosScreen() {
   const keyExtractor = useCallback((item: ExplainerPage) => item.id, []);
 
   return (
-    <GradientWrapper style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.progressContainer}>
-          <DotProgressIndicator currentPage={currentPage} totalPages={PAGES.length} />
+          <DotProgressIndicator
+            currentPage={currentPage}
+            totalPages={PAGES.length}
+          />
         </View>
         <View style={styles.closeButton}>
           <RoundButton
@@ -111,14 +126,15 @@ export default function ExplainerMacrosScreen() {
           index,
         })}
       />
-    </GradientWrapper>
+    </View>
   );
 }
 
-const createStyles = (theme: Theme) =>
+const createStyles = (theme: Theme, colors: Colors) =>
   StyleSheet.create({
     container: {
       flex: 1,
+      backgroundColor: colors.primaryBackground,
     },
     header: {
       paddingTop: theme.spacing.xl,

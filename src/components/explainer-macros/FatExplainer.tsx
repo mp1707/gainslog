@@ -1,10 +1,11 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { Droplet } from "lucide-react-native";
+import { useRouter } from "expo-router";
 
 import { AppText } from "@/components/shared/AppText";
+import { Button } from "@/components/shared/Button/Button";
 import { Theme, useTheme } from "@/theme";
-import { FatProgressDisplay } from "@/components/daily-food-logs/NutrientSummary/NutrientStatDisplay";
 
 interface FatExplainerProps {
   total?: number;
@@ -19,25 +20,71 @@ export const FatExplainer: React.FC<FatExplainerProps> = ({
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const router = useRouter();
 
   const semanticColor = colors.semantic.fat;
-
   const computedPercentage = target > 0 ? Math.round((total / target) * 100) : 0;
   const progressPercentage = percentage ?? computedPercentage;
 
+  const handleChangeTargets = () => {
+    router.push("/onboarding/target-method");
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.iconContainer}>
-        <Droplet size={32} color={semanticColor} fill={semanticColor} strokeWidth={1.5} />
-      </View>
-
       <AppText role="Title1" style={styles.title}>
         Fat: Essential Baseline
       </AppText>
 
       <View style={styles.content}>
-        <View style={styles.labelContainer}>
-          <FatProgressDisplay total={total} target={target} />
+        {/* MacroGridCell-style display */}
+        <View style={styles.displaySection}>
+          <AppText role="Subhead" color="secondary" style={styles.label}>
+            Fat
+          </AppText>
+          <View style={styles.valueRow}>
+            <View style={styles.iconWrapper}>
+              <Droplet
+                size={22}
+                color={semanticColor}
+                fill={semanticColor}
+                strokeWidth={0}
+              />
+            </View>
+            <View style={styles.valueContainer}>
+              <AppText role="Headline" color="primary">
+                {total}
+              </AppText>
+              <AppText role="Body" color="secondary">
+                {" "}
+                /{" "}
+              </AppText>
+              <AppText role="Body" color="secondary">
+                {target}
+              </AppText>
+              <AppText role="Body" color="secondary" style={styles.unitText}>
+                {" "}
+                g
+              </AppText>
+            </View>
+          </View>
+          {/* Progress Bar */}
+          <View
+            style={[
+              styles.progressBarTrack,
+              { backgroundColor: colors.disabledBackground },
+            ]}
+          >
+            <View
+              style={[
+                styles.progressBarFill,
+                {
+                  backgroundColor: semanticColor,
+                  width: `${Math.min(progressPercentage, 100)}%`,
+                },
+              ]}
+            />
+          </View>
         </View>
 
         <AppText role="Headline" color="primary" style={[styles.sectionHeading, { color: semanticColor }]}>
@@ -66,14 +113,22 @@ export const FatExplainer: React.FC<FatExplainerProps> = ({
           Smart Sources
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • Cook with olive oil, avocado oil, or grass-fed butter.
+          • Cook with olive oil, avocado oil, or grass-fed butter
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • Add satiating fats like salmon, eggs, nuts, and seeds.
+          • Add satiating fats like salmon, eggs, nuts, and seeds
         </AppText>
         <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • Pair fats with protein to slow digestion and feel fuller longer.
+          • Pair fats with protein to slow digestion and feel fuller longer
         </AppText>
+      </View>
+
+      <View style={styles.buttonContainer}>
+        <Button
+          label="Change targets"
+          variant="secondary"
+          onPress={handleChangeTargets}
+        />
       </View>
     </View>
   );
@@ -87,11 +142,6 @@ const createStyles = (theme: Theme) =>
       paddingTop: theme.spacing.md,
       paddingBottom: theme.spacing.xl,
     },
-    iconContainer: {
-      alignItems: "center",
-      marginTop: theme.spacing.md,
-      marginBottom: theme.spacing.sm,
-    },
     title: {
       textAlign: "center",
       marginBottom: theme.spacing.md,
@@ -99,9 +149,44 @@ const createStyles = (theme: Theme) =>
     content: {
       flex: 1,
     },
-    labelContainer: {
-      width: "100%",
+    displaySection: {
+      alignItems: "center",
+      justifyContent: "center",
       marginBottom: theme.spacing.md,
+      gap: theme.spacing.xs,
+    },
+    label: {
+      textAlign: "center",
+    },
+    valueRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: theme.spacing.xs,
+    },
+    iconWrapper: {
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    valueContainer: {
+      flexDirection: "row",
+      alignItems: "baseline",
+      justifyContent: "center",
+      flexWrap: "wrap",
+    },
+    unitText: {
+      marginLeft: theme.spacing.xs / 2,
+    },
+    progressBarTrack: {
+      width: "55%",
+      height: 5,
+      borderRadius: 2.5,
+      overflow: "hidden",
+      marginTop: theme.spacing.xs,
+    },
+    progressBarFill: {
+      height: "100%",
+      borderRadius: 2.5,
     },
     sectionHeading: {
       marginBottom: theme.spacing.xs,
@@ -112,5 +197,9 @@ const createStyles = (theme: Theme) =>
     },
     contentText: {
       lineHeight: 20,
+    },
+    buttonContainer: {
+      alignItems: "center",
+      paddingTop: theme.spacing.lg,
     },
   });

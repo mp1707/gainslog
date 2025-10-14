@@ -71,8 +71,8 @@ const ManualInputScreen = () => {
   const carbGrams = Math.max(0, Math.round(remainingCalories / 4));
   const carbCalories = carbGrams * 4;
 
-  // Validation - just ensure calories are set
-  const isValid = calories > 0;
+  // Validation - ensure calories, protein, and fat are all set
+  const isValid = calories > 0 && protein > 0 && fat > 0;
 
   const handleContinue = async () => {
     // Save to store
