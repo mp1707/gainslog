@@ -512,8 +512,9 @@ export const ProgressRings: React.FC<ProgressRingsProps> = ({
         alignItems: "center",
         justifyContent: "center",
       }}
+      pointerEvents="none"
     >
-      <Canvas style={{ width: size, height: size }}>
+      <Canvas style={{ width: size, height: size }} pointerEvents="none">
         <Group
           origin={vec(center, center)}
           transform={[{ rotate: -Math.PI / 2 }]}
@@ -604,8 +605,9 @@ export const ProgressRingsStatic: React.FC<ProgressRingsStaticProps> = ({
         alignItems: "center",
         justifyContent: "center",
       }}
+      pointerEvents="none"
     >
-      <Canvas style={{ width: size, height: size }}>
+      <Canvas style={{ width: size, height: size }} pointerEvents="none">
         <Group
           origin={vec(center, center)}
           transform={[{ rotate: -Math.PI / 2 }]}

@@ -126,6 +126,7 @@ export default function TodayTab() {
       />
       <MaskedView
         style={[styles.headerWrapper, { height: headerHeight }]}
+        pointerEvents="box-none"
         maskElement={
           <LinearGradient
             colors={[
@@ -142,6 +143,7 @@ export default function TodayTab() {
           intensity={20}
           tint={colorScheme}
           style={styles.blurContainer}
+          pointerEvents="box-none"
         >
           <View style={{ paddingTop: insets.top }}>
             <DateSlider />
