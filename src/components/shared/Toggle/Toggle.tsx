@@ -8,7 +8,8 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { useStyles } from "./Toggle.styles";
+import { useTheme } from "@/theme";
+import { createStyles } from "./Toggle.styles";
 
 export interface ToggleOption<T> {
   value: T;
@@ -28,7 +29,8 @@ export function Toggle<T>({
   onChange,
   accessibilityLabel,
 }: ToggleProps<T>): JSX.Element {
-  const styles = useStyles();
+  const { colors, theme, colorScheme } = useTheme();
+  const styles = createStyles(colors, theme, colorScheme);
 
   const currentIndex = options.findIndex((o) => o.value === value);
   const slideAnimation = useSharedValue(currentIndex >= 0 ? currentIndex : 0);

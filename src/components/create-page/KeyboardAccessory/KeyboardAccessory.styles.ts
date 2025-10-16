@@ -1,11 +1,11 @@
 import { StyleSheet } from "react-native";
-import type { Colors, Theme } from "@/theme";
+import type { Colors, Theme, ColorScheme } from "@/theme";
 
-export const createStyles = (colors: Colors, theme: Theme) =>
+export const createStyles = (colors: Colors, theme: Theme, colorScheme: ColorScheme) =>
   StyleSheet.create({
     container: {
       marginHorizontal: theme.spacing.sm,
-      backgroundColor: colors.secondaryBackground,
+      backgroundColor: colorScheme === "light" ? colors.tertiaryBackground : colors.secondaryBackground,
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",

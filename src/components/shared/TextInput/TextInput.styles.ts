@@ -1,9 +1,10 @@
 import { StyleSheet } from "react-native";
-import type { Colors, Theme } from "@/theme";
+import type { Colors, Theme, ColorScheme } from "@/theme";
 
 export const createStyles = (
   colors: Colors,
   theme: Theme,
+  colorScheme: ColorScheme,
   isFocused: boolean,
   fontSize: string
 ) =>
@@ -15,7 +16,7 @@ export const createStyles = (
       borderWidth: 2,
       borderColor: isFocused ? colors.accent : "transparent",
       borderRadius: theme.components.cards.cornerRadius,
-      backgroundColor: "transparent",
+      backgroundColor: colorScheme === "light" ? colors.tertiaryBackground : colors.secondaryBackground,
     },
     textInput: {
       flex: 1,

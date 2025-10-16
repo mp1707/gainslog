@@ -63,6 +63,11 @@ const adjustColor = (hexColor: string, amount: number) => {
   return rgbToHex(scaleChannel(r), scaleChannel(g), scaleChannel(b));
 };
 
+const hexToRgba = (hex: string, alpha: number): string => {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 const interpolateColor = (from: string, to: string, t: number) => {
   const fromRgb = hexToRgb(from);
   const toRgb = hexToRgb(to);
@@ -79,13 +84,15 @@ type GradientStop = { position: number; color: string };
 const deriveStops = (
   baseColor: string,
   sweep: number,
-  effectIntensity: number
+  effectIntensity: number,
+  isDark: boolean
 ): GradientStop[] => {
   const normalized = clamp01(sweep);
   const intensity = clamp01(effectIntensity);
 
-  const darkBase = adjustColor(baseColor, -0.35);
-  const lightBase = adjustColor(baseColor, 0.12);
+  // Tone down gradient adjustments for light mode
+  const darkBase = adjustColor(baseColor, isDark ? -0.35 : -0.18);
+  const lightBase = adjustColor(baseColor, isDark ? 0.12 : 0.06);
 
   const midShade = baseColor;
   const startShade = interpolateColor(midShade, darkBase, intensity);
@@ -94,8 +101,9 @@ const deriveStops = (
   const tailShade = startShade;
 
   const highlightEnd = Math.max(normalized, 0);
+  // Reduce highlight flare width in light mode
   const highlightStart = Math.max(
-    Math.min(highlightEnd - 0.12, highlightEnd),
+    Math.min(highlightEnd - (isDark ? 0.12 : 0.08), highlightEnd),
     0
   );
   const warmPoint = Math.max(
@@ -158,7 +166,8 @@ const calculateRingState = (
   center: number,
   radius: number,
   strokeWidth: number,
-  baseColor: string
+  baseColor: string,
+  isDark: boolean
 ): RingAnimationState => {
   const ratio = Math.max(rawRatio, 0);
   const capped = Math.min(ratio, 1);
@@ -172,7 +181,7 @@ const calculateRingState = (
   const shadowX = endX + Math.cos(tangentAngle) * offsetDistance;
   const shadowY = endY + Math.sin(tangentAngle) * offsetDistance;
   const effectIntensity = clamp01((sweepValue - 0.1) / 0.3);
-  const stops = deriveStops(baseColor, sweepValue, effectIntensity);
+  const stops = deriveStops(baseColor, sweepValue, effectIntensity, isDark);
   const color = colorAtOffset(sweepValue, stops);
 
   return {
@@ -207,6 +216,7 @@ interface BaseRingLayerProps {
   baseColor: string;
   trackOpacity: number;
   shadowColor: string;
+  isDark: boolean;
 }
 
 interface AnimatedRingLayerProps extends BaseRingLayerProps {
@@ -296,7 +306,8 @@ const AnimatedRingLayer: React.FC<AnimatedRingLayerProps> = ({
       baseProps.center,
       baseProps.radius,
       baseProps.strokeWidth,
-      baseProps.baseColor
+      baseProps.baseColor,
+      baseProps.isDark
     )
   );
 
@@ -307,7 +318,8 @@ const AnimatedRingLayer: React.FC<AnimatedRingLayerProps> = ({
         baseProps.center,
         baseProps.radius,
         baseProps.strokeWidth,
-        baseProps.baseColor
+        baseProps.baseColor,
+        baseProps.isDark
       );
       setState((prev) => (ringStatesEqual(prev, nextState) ? prev : nextState));
     },
@@ -316,6 +328,7 @@ const AnimatedRingLayer: React.FC<AnimatedRingLayerProps> = ({
       baseProps.radius,
       baseProps.strokeWidth,
       baseProps.baseColor,
+      baseProps.isDark,
     ]
   );
 
@@ -403,9 +416,17 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   const center = size / 2;
   const gapSize = 4;
   const radius = center - strokeWidth / 2 - gapSize;
-  const resolvedTrackColor =
-    trackColor ?? adjustColor(color, isDark ? -0.55 : -0.4);
-  const shadowColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.32)";
+  // Use neutral track fallback in light mode for cleaner appearance
+  const resolvedTrackColor = trackColor ?? (isDark
+    ? adjustColor(color, -0.55)
+    : "rgba(17, 24, 39, 0.06)" // neutral fallback for light
+  );
+  // Tip badge: solid color (lightened in light mode, darkened in dark mode)
+  const tipBadgeBackground = isDark
+    ? resolvedTrackColor
+    : adjustColor(color, 0.85); // Solid light color (85% lighter)
+  // Gentler shadow in light mode (0.12 vs 0.32)
+  const shadowColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(0, 0, 0, 0.12)";
 
   // Calculate tip position
   useAnimatedReaction(
@@ -462,8 +483,9 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
               center={center}
               trackColor={resolvedTrackColor}
               baseColor={color}
-              trackOpacity={1}
+              trackOpacity={0.75}
               shadowColor={shadowColor}
+              isDark={isDark}
             />
           </Group>
         </Canvas>
@@ -473,7 +495,8 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
               width: backgroundSize,
               height: backgroundSize,
               borderRadius: backgroundSize / 2,
-              backgroundColor: resolvedTrackColor,
+              // Track-colored background (more opaque in light for contrast)
+              backgroundColor: tipBadgeBackground,
               justifyContent: "center",
               alignItems: "center",
             }}

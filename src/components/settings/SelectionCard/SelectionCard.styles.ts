@@ -18,10 +18,11 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
     // Selected state
     selectedCard: {
       borderColor: colors.highlightBorder,
+      borderWidth: 2, // Stronger border for light mode clarity
       backgroundColor:
         colorScheme === "dark"
           ? `${colors.accent}0D` // ~5% opacity for dark mode
-          : `${colors.accent}08`, // ~3% opacity for light mode
+          : `${colors.accent}0A`, // ~4% opacity - just a whisper for light mode
     },
 
     // Content container
@@ -51,7 +52,7 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
       backgroundColor:
         colorScheme === "dark"
           ? `${colors.accent}1A` // ~10% opacity for dark mode
-          : `${colors.accent}14`, // ~8% opacity for light mode
+          : `${colors.accent}19`, // ~10% opacity for light mode too
     },
 
     // Text container

@@ -1,25 +1,24 @@
 // Toggle.styles.ts
 import { StyleSheet, PixelRatio } from "react-native";
-import { useThemedStyles } from "@/theme";
+import type { Colors, Theme, ColorScheme } from "@/theme";
 
-export const useStyles = () =>
-  useThemedStyles((colors, theme) => {
-    const fontScale = PixelRatio.getFontScale();
-    const baseHeight = 40;
-    const scaledHeight = Math.max(44, baseHeight * fontScale);
-    const containerPadding = 2;
-    const sliderHeight = scaledHeight - containerPadding * 2;
+export const createStyles = (colors: Colors, theme: Theme, colorScheme: ColorScheme) => {
+  const fontScale = PixelRatio.getFontScale();
+  const baseHeight = 40;
+  const scaledHeight = Math.max(44, baseHeight * fontScale);
+  const containerPadding = 2;
+  const sliderHeight = scaledHeight - containerPadding * 2;
 
-    return StyleSheet.create({
-      toggleContainer: {
-        flexDirection: "row",
-        borderRadius: theme.components.cards.cornerRadius,
-        overflow: "hidden",
-        position: "relative",
-        minHeight: scaledHeight,
-        backgroundColor: colors.secondaryBackground,
-        padding: containerPadding,
-      },
+  return StyleSheet.create({
+    toggleContainer: {
+      flexDirection: "row",
+      borderRadius: theme.components.cards.cornerRadius,
+      overflow: "hidden",
+      position: "relative",
+      minHeight: scaledHeight,
+      backgroundColor: colorScheme === "light" ? colors.tertiaryBackground : colors.secondaryBackground,
+      padding: containerPadding,
+    },
 
       toggleSlider: {
         position: "absolute",
@@ -61,4 +60,4 @@ export const useStyles = () =>
         color: colors.primaryText,
       },
     });
-  });
+};

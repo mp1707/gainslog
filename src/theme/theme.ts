@@ -8,15 +8,15 @@ const SPACING_UNIT = 8;
 
 // Color palettes
 const lightColors = {
-  // Core UI
-  primaryBackground: "#F6F8FA", // soft neutral (cooler than #F9F9F9)
+  // Core UI - "Paper" strategy for clean, crisp hierarchy
+  primaryBackground: "#FFFFFF",
   secondaryBackground: "#FFFFFF",
-  tertiaryBackground: "#F0F2F5", // light gray with better visibility
+  tertiaryBackground: "#F6F8FA", // for grouped areas (sheets, pickers)
   gradientFromBackground: "#FFFFFF",
-  gradientToBackground: "#F3F7F6", // whisper of teal to echo brand
+  gradientToBackground: "#FFFFFF", // flat white - no banding
   primaryText: "#121417", // inkier, better contrast
-  secondaryText: "#6B7280", // slate-500; readable on white
-  border: "#E6EBF0", // cool subtle divider
+  secondaryText: "#5B6472", // slightly darker for AA+ on white
+  border: "rgba(17, 24, 39, 0.08)", // ~zinc-900 @8%, cooler hairline
   white: "#FFFFFF",
   black: "#000000",
   disabledBackground: "rgba(18, 20, 23, 0.06)",
@@ -34,20 +34,20 @@ const lightColors = {
   warning: "#FFB020",
   success: "#10B981",
 
-  // Semantic macro colors (slightly deeper for contrast)
+  // Semantic macro colors (deepened one step for readability on white)
   semantic: {
-    calories: "#44EBD4",
-    protein: "#5E87FF", // a hair deeper than #6A9BFF
-    carbs: "#FF6D6D",
-    fat: "#FFC233", // warmer than #FFC107 for legibility
+    calories: "#1EC8B6", // same family, slightly deeper
+    protein: "#4F76FF",
+    carbs: "#FF5D5D",
+    fat: "#F5B72A",
   },
 
-  // Subtle tints for semantic surfaces
+  // Subtle tints for semantic surfaces (alpha for neutral tracks)
   semanticSurfaces: {
-    calories: "#C5F5EE",
-    protein: "#D6E4FF",
-    carbs: "#FFD6D6",
-    fat: "#FFE8C2",
+    calories: "rgba(68, 235, 212, 0.18)",
+    protein: "rgba(94, 135, 255, 0.18)",
+    carbs: "rgba(255, 109, 109, 0.16)",
+    fat: "rgba(255, 194, 51, 0.18)",
   },
 
   // Tinted badge backgrounds (≈16% opacity)
@@ -247,12 +247,14 @@ const components = {
     cornerRadius: 26,
     lightMode: {
       backgroundColor: lightColors.secondaryBackground,
-      // iOS-friendly soft shadow
-      shadowColor: "rgba(10, 20, 30, 0.10)", // cool shadow, not grey
-      shadowOffset: { width: 0, height: 12 },
+      // Soft iOS shadow + hairline for crisp elevation
+      shadowColor: "rgba(0, 0, 0, 0.08)",
+      shadowOffset: { width: 0, height: 6 },
       shadowOpacity: 1,
-      shadowRadius: 24,
-      elevation: 6,
+      shadowRadius: 16,
+      elevation: 3,
+      borderWidth: 1,
+      borderColor: lightColors.border,
     },
     darkMode: {
       backgroundColor: darkColors.secondaryBackground,
@@ -269,7 +271,7 @@ const components = {
       primary: {
         default: {
           backgroundColor: lightColors.accent,
-          textColor: lightColors.black,
+          textColor: lightColors.white, // HIG: white text on filled accent
         },
         active: {
           backgroundColor: lightColors.accent + "CC", // Slightly lighter on active

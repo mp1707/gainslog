@@ -47,8 +47,8 @@ const MiniWaveform: React.FC<{ volumeLevel: number; isActive: boolean }> = ({
   volumeLevel,
   isActive,
 }) => {
-  const { colors, theme } = useTheme();
-  const styles = createStyles(colors, theme);
+  const { colors, theme, colorScheme } = useTheme();
+  const styles = createStyles(colors, theme, colorScheme);
   const BAR_COUNT = 32;
   const MIN_BAR_HEIGHT = 3;
   const MAX_BAR_HEIGHT = 42;
@@ -150,8 +150,8 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   isRecording = false,
   volumeLevel = 0,
 }) => {
-  const { colors, theme } = useTheme();
-  const styles = createStyles(colors, theme);
+  const { colors, theme, colorScheme } = useTheme();
+  const styles = createStyles(colors, theme, colorScheme);
   const router = useSafeRouter();
 
   const containerRef = useRef<View | null>(null);

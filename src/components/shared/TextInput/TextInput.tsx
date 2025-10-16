@@ -12,7 +12,7 @@ export const TextInput = forwardRef<RNTextInput, CustomTextInputProps>(
   ({ containerStyle, style, fontSize = "Body", onFocus, onBlur, ...props }, ref) => {
     const { colors, theme, colorScheme } = useTheme();
     const [isFocused, setIsFocused] = useState(false);
-    const styles = createStyles(colors, theme, isFocused, fontSize);
+    const styles = createStyles(colors, theme, colorScheme, isFocused, fontSize);
 
     const handleFocus = (e: any) => {
       setIsFocused(true);
