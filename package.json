@@ -11,9 +11,14 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "devdevicebuild": "APP_VARIANT=development npx expo run:ios --device",
-    "previewdevicebuild": "APP_VARIANT=preview npx expo run:ios --device"
+    "previewdevicebuild": "APP_VARIANT=preview npx expo run:ios --device",
+    "eas:build": "EAS_SKIP_AUTO_FINGERPRINT=1 eas build --profile development --platform ios",
+    "eas:update:dev": "EAS_SKIP_AUTO_FINGERPRINT=1 eas update --branch development",
+    "eas:update:preview": "EAS_SKIP_AUTO_FINGERPRINT=1 eas update --branch preview",
+    "eas:update:prod": "EAS_SKIP_AUTO_FINGERPRINT=1 eas update --branch production"
   },
   "dependencies": {
+    "@expo/ui": "~0.2.0-beta.7",
     "@expo/vector-icons": "^15.0.2",
     "@gorhom/bottom-sheet": "^5.2.6",
     "@react-native-async-storage/async-storage": "2.2.0",
