@@ -5,13 +5,12 @@ import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { View } from "react-native";
 import React, { useMemo } from "react";
 import { OnboardingHeader } from "../../src/components/onboarding/OnboardingHeader";
+import { useNavigationTransition } from "@/context/NavigationTransitionContext";
 
 // Manual flow step mapping
 const MANUAL_STEP_MAP: Record<string, number> = {
-  "/onboarding/manual-calories": 1,
-  "/onboarding/manual-protein": 2,
-  "/onboarding/manual-fat": 3,
-  "/onboarding/manual-summary": 4,
+  "/onboarding/manual-input": 1,
+  "/onboarding/manual-summary": 2,
 };
 
 // Calculate flow step mapping
@@ -29,6 +28,7 @@ export default function OnboardingLayout() {
   const { colors } = useTheme();
   const { safeDismissTo, safeBack } = useNavigationGuard();
   const { setUserSkippedOnboarding } = useOnboardingStore();
+  const { setTransitioning } = useNavigationTransition();
   const pathname = usePathname();
 
   // Detect which flow the user is in
@@ -46,7 +46,7 @@ export default function OnboardingLayout() {
   }, [pathname, isManualFlow, isTargetMethod, isSummary]);
 
   // Dynamic total steps based on flow
-  const totalSteps = isManualFlow ? 4 : 7;
+  const totalSteps = isManualFlow ? 2 : 7;
   const showProgressBar = currentStep >= 0 && !isManualFlow;
 
   const handleSkip = () => {
@@ -73,6 +73,10 @@ export default function OnboardingLayout() {
           animation: "slide_from_right",
           contentStyle: { backgroundColor: colors.primaryBackground },
         }}
+        screenListeners={{
+          transitionStart: () => setTransitioning(true),
+          transitionEnd: () => setTransitioning(false),
+        }}
       >
         <Stack.Screen name="index" />
         <Stack.Screen name="target-method" />
@@ -83,9 +87,7 @@ export default function OnboardingLayout() {
         <Stack.Screen name="activity-level" />
         <Stack.Screen name="calorie-goal" />
         <Stack.Screen name="protein-goal" />
-        <Stack.Screen name="manual-calories" />
-        <Stack.Screen name="manual-protein" />
-        <Stack.Screen name="manual-fat" />
+        <Stack.Screen name="manual-input" />
         <Stack.Screen name="manual-summary" />
         <Stack.Screen name="calculator-summary" />
       </Stack>

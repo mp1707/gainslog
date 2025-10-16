@@ -1,5 +1,4 @@
 import {
-  SafeAreaView,
   StyleSheet,
   View,
 } from "react-native";
@@ -144,9 +143,9 @@ export default function TodayTab() {
           tint={colorScheme}
           style={styles.blurContainer}
         >
-          <SafeAreaView>
+          <View style={{ paddingTop: insets.top }}>
             <DateSlider />
-          </SafeAreaView>
+          </View>
         </BlurView>
       </MaskedView>
     </View>

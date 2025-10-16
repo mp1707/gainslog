@@ -3,10 +3,12 @@ import { useTheme } from "@/theme";
 import React from "react";
 import { CancelButton } from "@/components/shared/CancelButton";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { useNavigationTransition } from "@/context/NavigationTransitionContext";
 
 export default function SettingsLayout() {
   const { safeDismissTo } = useNavigationGuard();
   const { colors } = useTheme();
+  const { setTransitioning } = useNavigationTransition();
   const handleCancel = () => {
     safeDismissTo("/settings");
   };
@@ -24,6 +26,10 @@ export default function SettingsLayout() {
         headerShadowVisible: false,
         animation: "slide_from_right",
         headerRight: () => <CancelButton onPress={handleCancel} />,
+      }}
+      screenListeners={{
+        transitionStart: () => setTransitioning(true),
+        transitionEnd: () => setTransitioning(false),
       }}
     >
       {/* Settings main page */}

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useNavigationTransition } from "@/context/NavigationTransitionContext";
 
-const NAVIGATION_LOCK_TIMEOUT = 1600;
+const NAVIGATION_LOCK_TIMEOUT = 2500;
 const TRANSITION_RELEASE_DELAY = 48;
 const MIN_HOLD_BEFORE_UNLOCK = 120;
 
