@@ -1,5 +1,5 @@
 import * as ImageManipulator from "expo-image-manipulator";
-import * as FileSystem from "expo-file-system";
+import { File, Paths } from "expo-file-system";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 import { uploadToSupabaseStorage } from "./uploadToSupabaseStorage";
@@ -26,19 +26,17 @@ export const processImage = async (
   );
 
   const uniqueFilename = `${uuidv4()}.jpg`;
-  // Define the permanent path in the app's sandboxed document directory.
-  const permanentPath = `${FileSystem.documentDirectory}${uniqueFilename}`;
 
   // Move the resized image from its temporary cache location to the permanent path.
-  await FileSystem.moveAsync({
-    from: resizedImage.uri,
-    to: permanentPath,
-  });
+  const sourceFile = new File(resizedImage.uri);
+  const targetFile = new File(Paths.document, uniqueFilename);
+  await sourceFile.move(targetFile);
 
-  const supabaseImagePath = await uploadToSupabaseStorage(permanentPath);
+  // After moving, sourceFile.uri is automatically updated to the new location
+  const supabaseImagePath = await uploadToSupabaseStorage(sourceFile.uri);
 
   return {
-    localImagePath: permanentPath,
+    localImagePath: sourceFile.uri,
     supabaseImagePath,
   };
 };

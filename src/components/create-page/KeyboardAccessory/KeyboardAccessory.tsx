@@ -213,7 +213,7 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
     textInputRef?.current?.blur();
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         quality: 1,
       });
 
