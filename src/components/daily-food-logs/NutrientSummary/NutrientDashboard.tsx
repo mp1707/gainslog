@@ -49,16 +49,7 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   targets,
   totals,
 }) => {
-  const hasNoGoals =
-    (targets.calories || 0) === 0 &&
-    (targets.protein || 0) === 0 &&
-    (targets.carbs || 0) === 0 &&
-    (targets.fat || 0) === 0;
-
-  if (hasNoGoals) {
-    return <SetGoalsCTA />;
-  }
-
+  // Call ALL hooks FIRST (before any early returns)
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const { width: screenWidth } = useWindowDimensions();
@@ -152,6 +143,17 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
       );
     }
   }, [percentages.fat, animations.dateChanged, fatProgressWidth]);
+
+  // Check conditions AFTER all hooks are called
+  const hasNoGoals =
+    (targets.calories || 0) === 0 &&
+    (targets.protein || 0) === 0 &&
+    (targets.carbs || 0) === 0 &&
+    (targets.fat || 0) === 0;
+
+  if (hasNoGoals) {
+    return <SetGoalsCTA />;
+  }
 
   return (
     <View style={styles.container}>
