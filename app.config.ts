@@ -14,7 +14,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: "gainslog",
   version: "1.0.0",
   orientation: "portrait",
-  userInterfaceStyle: "light",
+  // userInterfaceStyle: "light",
   newArchEnabled: true,
   scheme: SCHEME,
   ios: {
@@ -58,6 +58,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: "./assets/favicon.png",
   },
   plugins: [
+    "expo-router",
     // Add Expo Dev Client to ensure URL schemes and local network permissions
     // are injected into the native iOS project for development builds.
     "expo-dev-client",
