@@ -1,5 +1,11 @@
-import React, { useMemo, useEffect } from "react";
-import { View, StyleSheet, Pressable, useWindowDimensions } from "react-native";
+import React, { useMemo, useEffect, useState, useCallback } from "react";
+import {
+  View,
+  StyleSheet,
+  Pressable,
+  useWindowDimensions,
+  Button,
+} from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -7,13 +13,13 @@ import Animated, {
   withSpring,
   type SharedValue,
 } from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
 import { Theme, useTheme } from "@/theme";
 import { SetGoalsCTA } from "./SetGoalsCTA";
 import { AppText } from "@/components";
 import { DashboardRing } from "@/components/shared/ProgressRings";
 import { useNutrientCalculations } from "./hooks/useNutrientCalculations";
 import { useNutrientAnimations } from "./hooks/useNutrientAnimations";
-import { useNutrientNavigation } from "./hooks/useNutrientNavigation";
 import { usePressAnimation } from "@/hooks/usePressAnimation";
 import {
   RING_CONFIG,
@@ -23,6 +29,7 @@ import {
 } from "./utils/constants";
 import { getNutrientIcon } from "./utils/nutrientFormatters";
 import { Flame, BicepsFlexed } from "lucide-react-native";
+import { MacrosExplainerSheet } from "./MacrosExplainerSheet";
 
 const ICON_SIZE = 18;
 
@@ -94,11 +101,28 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     isProteinComplete: calculations.isProteinComplete,
   });
 
-  const { handleOpenExplainer } = useNutrientNavigation({
-    totals,
-    targets,
-    percentages,
-  });
+  // Bottom sheet state - separate mounting from visibility for smooth animations
+  const [sheetMounted, setSheetMounted] = useState(false);
+  const [sheetVisible, setSheetVisible] = useState(false);
+
+  const handleOpenSheet = useCallback(() => {
+    setSheetMounted(true); // Mount component first
+    setTimeout(() => setSheetVisible(true), 50); // Then animate in
+  }, []);
+
+  const handleCloseSheet = useCallback(() => {
+    setSheetVisible(false); // Trigger close animation
+    setTimeout(() => setSheetMounted(false), 300); // Unmount after animation completes
+  }, []);
+
+  const handleOpenExplainer = useCallback(
+    (nutrient: NutrientKey) => {
+      console.log(`Opening explainer for ${nutrient}`);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      handleOpenSheet();
+    },
+    [handleOpenSheet]
+  );
 
   const caloriesPressAnimation = usePressAnimation();
   const proteinPressAnimation = usePressAnimation();
@@ -178,12 +202,18 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                 {ringConfig.label}
               </AppText>
               <Pressable
-                onPress={() => handleOpenExplainer(ringKey)}
+                onPress={() => {
+                  console.log("Ring Pressable pressed:", ringKey);
+                  handleOpenExplainer(ringKey);
+                }}
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
                 style={styles.ringPressable}
               >
-                <Animated.View style={pressAnimatedStyle}>
+                <Animated.View
+                  style={pressAnimatedStyle}
+                  pointerEvents="box-none"
+                >
                   <DashboardRing
                     label={ringConfig.label}
                     displayUnit={ringConfig.unit}
@@ -221,17 +251,31 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
             semanticColor={semanticColors.fat}
             showProgressBar
             animatedProgressWidth={fatProgressWidth}
-            onPress={() => handleOpenExplainer("fat")}
+            onPress={() => {
+              console.log("Fat cell pressed");
+              handleOpenExplainer("fat");
+            }}
           />
           <MacroGridCell
             nutrientKey="carbs"
             total={animatedTotals.carbs}
             unit="g"
             semanticColor={semanticColors.carbs}
-            onPress={() => handleOpenExplainer("carbs")}
+            onPress={() => {
+              console.log("Carbs cell pressed");
+              handleOpenExplainer("carbs");
+            }}
           />
         </View>
       </View>
+
+      {/* Macros Explainer Bottom Sheet */}
+      {sheetMounted && (
+        <MacrosExplainerSheet
+          isOpen={sheetVisible}
+          onClose={handleCloseSheet}
+        />
+      )}
     </View>
   );
 };

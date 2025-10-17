@@ -6,19 +6,16 @@ import {
   Dimensions,
   ViewToken,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
-import { X } from "lucide-react-native";
+import { BottomSheet, Host } from "@expo/ui/swift-ui";
 
-import { GradientWrapper } from "@/components/shared/GradientWrapper";
-import { RoundButton } from "@/components/shared/RoundButton";
 import { DotProgressIndicator } from "@/components/explainer-macros/DotProgressIndicator";
 import { MacrosOverview } from "@/components/explainer-macros/MacrosOverview";
 import { CaloriesExplainer } from "@/components/explainer-macros/CaloriesExplainer";
 import { ProteinExplainer } from "@/components/explainer-macros/ProteinExplainer";
 import { FatExplainer } from "@/components/explainer-macros/FatExplainer";
 import { CarbsExplainer } from "@/components/explainer-macros/CarbsExplainer";
+import { HeaderButton } from "@/components/iosSpecific/HeaderButton";
 import { Colors, Theme, useTheme } from "@/theme";
-import { useSafeRouter } from "@/hooks/useSafeRouter";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -35,24 +32,24 @@ const PAGES: ExplainerPage[] = [
   { id: "carbs", component: CarbsExplainer },
 ];
 
-export default function ExplainerMacrosScreen() {
+interface MacrosExplainerSheetProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const MacrosExplainerSheet: React.FC<MacrosExplainerSheetProps> = ({
+  isOpen,
+  onClose,
+}) => {
   const { theme, colors } = useTheme();
   const styles = useMemo(() => createStyles(theme, colors), [theme, colors]);
-  const router = useSafeRouter();
-  const params = useLocalSearchParams<{
-    total?: string;
-    target?: string;
-    percentage?: string;
-  }>();
-
   const [currentPage, setCurrentPage] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 
-  const handleClose = () => {
-    if (router.canGoBack()) {
-      router.back();
-    }
-  };
+  // Hardcoded example values for testing
+  const total = 1850;
+  const target = 2000;
+  const percentage = 93;
 
   const onViewableItemsChanged = useCallback(
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
@@ -66,13 +63,6 @@ export default function ExplainerMacrosScreen() {
   const viewabilityConfig = useRef({
     itemVisiblePercentThreshold: 50,
   }).current;
-
-  // Parse params for data
-  const total = params.total ? parseInt(params.total) : undefined;
-  const target = params.target ? parseInt(params.target) : undefined;
-  const percentage = params.percentage
-    ? parseInt(params.percentage)
-    : undefined;
 
   const renderPage = useCallback(
     ({ item }: { item: ExplainerPage }) => {
@@ -89,54 +79,63 @@ export default function ExplainerMacrosScreen() {
   const keyExtractor = useCallback((item: ExplainerPage) => item.id, []);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.progressContainer}>
-          <DotProgressIndicator
-            currentPage={currentPage}
-            totalPages={PAGES.length}
-          />
-        </View>
-        <View style={styles.closeButton}>
-          <RoundButton
-            onPress={handleClose}
-            Icon={X}
-            variant="tertiary"
-            accessibilityLabel="Close explainer"
-          />
-        </View>
-      </View>
+    <Host
+      style={{ position: "absolute", width: SCREEN_WIDTH }}
+    >
+      <BottomSheet
+        isOpened={isOpen}
+        onIsOpenedChange={(opened) => {
+          if (!opened) {
+            onClose();
+          }
+        }}
+      >
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <View style={styles.progressContainer}>
+              <DotProgressIndicator
+                currentPage={currentPage}
+                totalPages={PAGES.length}
+              />
+            </View>
+            <View style={styles.closeButton}>
+              <HeaderButton
+                buttonProps={{
+                  onPress: onClose,
+                }}
+              />
+            </View>
+          </View>
 
-      <FlatList
-        ref={flatListRef}
-        data={PAGES}
-        renderItem={renderPage}
-        keyExtractor={keyExtractor}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        bounces={false}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
-        snapToInterval={SCREEN_WIDTH}
-        decelerationRate="fast"
-        scrollEventThrottle={16}
-        getItemLayout={(_, index) => ({
-          length: SCREEN_WIDTH,
-          offset: SCREEN_WIDTH * index,
-          index,
-        })}
-      />
-    </View>
+          <FlatList
+            ref={flatListRef}
+            data={PAGES}
+            renderItem={renderPage}
+            keyExtractor={keyExtractor}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            bounces={false}
+            onViewableItemsChanged={onViewableItemsChanged}
+            viewabilityConfig={viewabilityConfig}
+            snapToInterval={SCREEN_WIDTH}
+            decelerationRate="fast"
+            scrollEventThrottle={16}
+            getItemLayout={(_, index) => ({
+              length: SCREEN_WIDTH,
+              offset: SCREEN_WIDTH * index,
+              index,
+            })}
+          />
+        </View>
+      </BottomSheet>
+    </Host>
   );
-}
+};
 
 const createStyles = (theme: Theme, colors: Colors) =>
   StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.primaryBackground,
-    },
+    container: {},
     header: {
       paddingTop: theme.spacing.xl,
       paddingHorizontal: theme.spacing.md,

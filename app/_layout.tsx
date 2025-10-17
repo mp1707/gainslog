@@ -11,6 +11,7 @@ import {
   NavigationTransitionProvider,
   useNavigationTransition,
 } from "@/context/NavigationTransitionContext";
+import { useColorScheme } from "react-native";
 
 function ThemedStack() {
   const { colors, isThemeLoaded } = useTheme();
@@ -22,6 +23,16 @@ function ThemedStack() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, isThemeLoaded]);
+
+  const colorScheme = useColorScheme();
+
+  const { colorScheme: appColorScheme, toggleColorScheme } = useTheme();
+
+  useEffect(() => {
+    if (appColorScheme !== colorScheme) {
+      toggleColorScheme();
+    }
+  }, [colorScheme, toggleColorScheme]);
 
   return (
     <Stack
@@ -96,18 +107,6 @@ function ThemedStack() {
       />
       <Stack.Screen
         name="onboarding"
-        options={{
-          presentation: "modal",
-          headerShown: false,
-          contentStyle: {
-            borderRadius: "10%",
-            overflow: "hidden",
-          },
-          gestureEnabled: true,
-        }}
-      />
-      <Stack.Screen
-        name="explainer-macros"
         options={{
           presentation: "modal",
           headerShown: false,
