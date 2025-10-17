@@ -426,6 +426,644 @@ export function SettingsForm() {
 - `Section.header?: string` - Section title
 - `Section.footer?: string` - Section description
 
+## Complete Component Catalog
+
+This section provides a comprehensive reference of ALL available iOS Expo UI SwiftUI components. Components are organized by category, with status indicators showing which are fully documented vs experimental.
+
+### Component Status Legend
+
+- ✅ **Documented** - Fully documented in this guide with examples
+- 🧪 **Experimental** - Available but documentation pending
+- 📚 **Beta** - In beta, API may change
+
+### Layout Components
+
+#### ✅ VStack (Vertical Stack)
+Stack components vertically with spacing and alignment control.
+- See detailed documentation in Component Reference section above
+
+#### ✅ HStack (Horizontal Stack)
+Stack components horizontally with spacing and alignment control.
+- See detailed documentation in Component Reference section above
+
+#### ✅ Spacer
+Creates flexible space between components in stacks.
+- See detailed documentation in Component Reference section above
+
+#### ✅ Form
+Container for iOS-style settings forms.
+- See detailed documentation in Component Reference section above
+
+#### ✅ Section
+Grouping component within forms with headers and footers.
+- See detailed documentation in Component Reference section above
+
+#### 🧪 List
+Native iOS list component for displaying collections of data.
+
+```typescript
+import { Host, List } from '@expo/ui/swift-ui';
+
+<Host>
+  <List>
+    {items.map(item => (
+      <Text key={item.id}>{item.name}</Text>
+    ))}
+  </List>
+</Host>
+```
+
+**Use Cases:**
+- Settings lists
+- Data collections
+- Menu items
+- iOS-style grouped lists
+
+### Input Components
+
+#### ✅ Button
+Interactive button with native iOS styling.
+- See detailed documentation in Component Reference section above
+
+#### ✅ Switch
+Native iOS toggle switch.
+- See detailed documentation in Component Reference section above
+
+#### ✅ Slider
+Continuous value selection with native iOS styling.
+- See detailed documentation in Component Reference section above
+
+#### 🧪 TextField
+Native iOS text input field.
+
+```typescript
+import { Host, TextField } from '@expo/ui/swift-ui';
+
+<Host>
+  <TextField
+    value={text}
+    onValueChange={setText}
+    placeholder="Enter text"
+  />
+</Host>
+```
+
+**Props:**
+- `value: string` - Current text value
+- `onValueChange: (text: string) => void` - Text change callback
+- `placeholder?: string` - Placeholder text
+- `modifiers?: Modifier[]`
+
+**Integration Example:**
+
+```typescript
+import { useState } from 'react';
+import { Host, VStack, TextField, Text } from '@expo/ui/swift-ui';
+import { padding, background, cornerRadius } from '@expo/ui/swift-ui/modifiers';
+
+export function UserNameInput() {
+  const [name, setName] = useState('');
+  const { theme } = useTheme();
+
+  return (
+    <Host>
+      <VStack
+        spacing={8}
+        modifiers={[
+          padding({ all: theme.spacing.md }),
+          background({ color: theme.colors.cardBackground }),
+          cornerRadius({ radius: theme.borderRadius.md })
+        ]}
+      >
+        <Text>Name</Text>
+        <TextField
+          value={name}
+          onValueChange={setName}
+          placeholder="Enter your name"
+        />
+      </VStack>
+    </Host>
+  );
+}
+```
+
+#### 🧪 Stepper
+Increment/decrement numeric values with +/- buttons.
+
+```typescript
+import { Host, Stepper, HStack, Text } from '@expo/ui/swift-ui';
+
+<Host>
+  <HStack spacing={12}>
+    <Text>Reps</Text>
+    <Stepper
+      value={reps}
+      onValueChange={setReps}
+      min={1}
+      max={100}
+      step={1}
+    />
+  </HStack>
+</Host>
+```
+
+**Use Cases:**
+- Workout rep counters
+- Set counters
+- Numeric settings
+- Quantity selectors
+
+#### 🧪 DateTimePicker
+Native iOS date and time picker with multiple display styles.
+
+```typescript
+import { Host, DateTimePicker } from '@expo/ui/swift-ui';
+
+// Date picker
+<Host>
+  <DateTimePicker
+    value={selectedDate}
+    onValueChange={setSelectedDate}
+    mode="date"
+    displayMode="wheel"
+  />
+</Host>
+
+// Time picker
+<Host>
+  <DateTimePicker
+    value={selectedTime}
+    onValueChange={setSelectedTime}
+    mode="time"
+    displayMode="wheel"
+  />
+</Host>
+```
+
+**Props:**
+- `value: Date` - Current date/time value
+- `onValueChange: (date: Date) => void` - Change callback
+- `mode: 'date' | 'time' | 'dateTime'` - Picker mode
+- `displayMode?: 'wheel' | 'picker'` - Display style
+
+**Gainslog Use Cases:**
+- Workout start time
+- Meal logging time
+- Goal deadline selection
+- Weight tracking date
+
+#### 🧪 ColorPicker
+Native iOS color selection interface.
+
+```typescript
+import { Host, ColorPicker } from '@expo/ui/swift-ui';
+
+<Host>
+  <ColorPicker
+    value={selectedColor}
+    onValueChange={setSelectedColor}
+  />
+</Host>
+```
+
+**Use Cases:**
+- Theme customization
+- Exercise category colors
+- Custom workout colors
+- Tag color selection
+
+#### 🧪 Picker
+Native iOS picker with segmented and wheel variants.
+
+```typescript
+import { Host, Picker } from '@expo/ui/swift-ui';
+
+// Segmented picker
+<Host>
+  <Picker
+    variant="segmented"
+    selectedValue={unit}
+    onValueChange={setUnit}
+    options={['kg', 'lbs']}
+  />
+</Host>
+
+// Wheel picker
+<Host>
+  <Picker
+    variant="wheel"
+    selectedValue={weight}
+    onValueChange={setWeight}
+    options={weightOptions}
+  />
+</Host>
+```
+
+**Gainslog Use Cases:**
+- Unit selection (kg/lbs)
+- Exercise type selection
+- Muscle group selection
+- Activity level selection
+
+### Display Components
+
+#### ✅ Text
+Native iOS text rendering with SwiftUI modifiers.
+- See detailed documentation in Component Reference section above
+
+#### 🧪 Image
+Native iOS image component with system symbol support.
+
+```typescript
+import { Host, Image, VStack } from '@expo/ui/swift-ui';
+import { frame, foregroundStyle } from '@expo/ui/swift-ui/modifiers';
+
+<Host>
+  <VStack spacing={8} alignment="center">
+    <Image
+      systemName="figure.run"
+      modifiers={[
+        frame({ width: 40, height: 40 }),
+        foregroundStyle({ color: 'blue' })
+      ]}
+    />
+  </VStack>
+</Host>
+```
+
+**Props:**
+- `systemName: string` - SF Symbols name
+- `modifiers?: Modifier[]`
+
+**Use Cases:**
+- SF Symbols icons
+- System icons
+- Workout type icons
+- Category icons
+
+#### ✅ CircularProgress
+Circular loading/progress indicator.
+- See detailed documentation in Component Reference section above
+
+#### ✅ LinearProgress
+Linear progress bar for tracking completion.
+- See detailed documentation in Component Reference section above
+
+#### 🧪 Gauge
+Circular gauge for displaying metric values.
+
+```typescript
+import { Host, Gauge, VStack, Text } from '@expo/ui/swift-ui';
+
+<Host>
+  <VStack spacing={12} alignment="center">
+    <Gauge
+      value={calories}
+      min={0}
+      max={targetCalories}
+      modifiers={[frame({ width: 200, height: 200 })]}
+    >
+      <VStack alignment="center">
+        <Text>{calories}</Text>
+        <Text>kcal</Text>
+      </VStack>
+    </Gauge>
+  </VStack>
+</Host>
+```
+
+**Gainslog Use Cases:**
+- Daily calorie gauge
+- Macro progress visualization
+- Workout intensity meter
+- Weekly goal completion
+
+#### 🧪 Chart
+SwiftUI Charts for data visualization.
+
+```typescript
+import { Host, Chart } from '@expo/ui/swift-ui';
+
+// Various chart types available:
+// - BarChart
+// - LineChart
+// - AreaChart
+// - PieChart
+
+<Host>
+  <Chart
+    data={workoutData}
+    type="bar"
+    modifiers={[
+      frame({ height: 300 }),
+      padding({ all: 16 })
+    ]}
+  />
+</Host>
+```
+
+**Gainslog Use Cases:**
+- Weight progression charts
+- Volume over time
+- Calorie trends
+- Macro distribution
+- Workout frequency visualization
+- Body measurements tracking
+
+**Note:** Chart implementation varies by type. Check the [examples repository](https://github.com/expo/expo/tree/main/apps/native-component-list/src/screens/UI/ChartScreen.tsx) for detailed usage.
+
+### Interactive Components
+
+#### 🧪 BottomSheet
+Native iOS slide-up modal panels.
+
+```typescript
+import { Host, BottomSheet, VStack, Text, Button } from '@expo/ui/swift-ui';
+
+<Host>
+  <BottomSheet
+    isPresented={showSheet}
+    onDismiss={() => setShowSheet(false)}
+  >
+    <VStack spacing={16} modifiers={[padding({ all: 20 })]}>
+      <Text>Select Exercise</Text>
+      {exercises.map(exercise => (
+        <Button
+          key={exercise.id}
+          action={() => selectExercise(exercise)}
+        >
+          <Text>{exercise.name}</Text>
+        </Button>
+      ))}
+    </VStack>
+  </BottomSheet>
+</Host>
+```
+
+**Props:**
+- `isPresented: boolean` - Sheet visibility
+- `onDismiss: () => void` - Dismiss callback
+- `modifiers?: Modifier[]`
+
+**Gainslog Use Cases:**
+- Exercise selection
+- Quick add menu
+- Filter options
+- Settings panels
+- Action sheets
+
+#### 🧪 ContextMenu
+Long-press context menus for additional actions.
+
+```typescript
+import { Host, ContextMenu, Text } from '@expo/ui/swift-ui';
+
+<Host>
+  <ContextMenu
+    menuItems={[
+      { title: 'Edit', action: handleEdit },
+      { title: 'Delete', action: handleDelete, destructive: true },
+      { title: 'Duplicate', action: handleDuplicate }
+    ]}
+  >
+    <Text>Long press for options</Text>
+  </ContextMenu>
+</Host>
+```
+
+**Gainslog Use Cases:**
+- Exercise long-press options
+- Meal entry actions
+- Workout template actions
+- Quick edit/delete
+
+#### 🧪 AlertDialog
+Native iOS alert dialogs.
+
+```typescript
+import { Host, AlertDialog } from '@expo/ui/swift-ui';
+
+<Host>
+  <AlertDialog
+    isPresented={showAlert}
+    title="Delete Workout?"
+    message="This action cannot be undone."
+    buttons={[
+      {
+        title: 'Cancel',
+        style: 'cancel',
+        action: () => setShowAlert(false)
+      },
+      {
+        title: 'Delete',
+        style: 'destructive',
+        action: handleDelete
+      }
+    ]}
+  />
+</Host>
+```
+
+**Gainslog Use Cases:**
+- Delete confirmations
+- Error messages
+- Success notifications
+- Important warnings
+
+#### 🧪 ShareLink
+Native iOS share sheet integration.
+
+```typescript
+import { Host, ShareLink, Button, Text } from '@expo/ui/swift-ui';
+
+<Host>
+  <ShareLink
+    item="Check out my workout progress!"
+    subject="My Fitness Journey"
+  >
+    <Button>
+      <Text>Share Progress</Text>
+    </Button>
+  </ShareLink>
+</Host>
+```
+
+**Gainslog Use Cases:**
+- Share workout results
+- Share progress photos
+- Share achievements
+- Export workout data
+
+### Visual Effects Components
+
+#### ✅ GlassEffect
+Liquid glass blur effects (iOS 26+).
+- See detailed documentation in Modifiers API section
+
+#### 🧪 AnimationModifier
+Advanced SwiftUI animation modifiers.
+
+```typescript
+import { Host, VStack, AnimationModifier } from '@expo/ui/swift-ui';
+
+<Host>
+  <VStack
+    modifiers={[
+      AnimationModifier({
+        type: 'spring',
+        stiffness: 300,
+        damping: 20
+      })
+    ]}
+  >
+    <Text>Animated Content</Text>
+  </VStack>
+</Host>
+```
+
+**Use Cases:**
+- Custom transitions
+- Interactive animations
+- Spring physics
+- Gesture-driven animations
+
+#### 🧪 MatchedGeometryEffect
+Shared element transitions between views.
+
+```typescript
+import { Host, MatchedGeometryEffect } from '@expo/ui/swift-ui';
+
+<Host>
+  <MatchedGeometryEffect
+    id="exerciseCard"
+    namespace="workout"
+  >
+    {/* Content that animates between views */}
+  </MatchedGeometryEffect>
+</Host>
+```
+
+**Gainslog Use Cases:**
+- Exercise card expansion
+- Workout detail transitions
+- Navigation animations
+- Hero transitions
+
+#### 🧪 Shape
+Custom SwiftUI shapes for advanced layouts.
+
+```typescript
+import { Host, Shape } from '@expo/ui/swift-ui';
+
+<Host>
+  <Shape
+    type="roundedRectangle"
+    cornerRadius={16}
+    modifiers={[
+      fill({ color: 'blue' }),
+      frame({ width: 200, height: 100 })
+    ]}
+  />
+</Host>
+```
+
+**Shape Types:**
+- `roundedRectangle`
+- `circle`
+- `capsule`
+- `ellipse`
+
+### Advanced Components
+
+#### 🧪 Carousel
+Swipeable carousel for content browsing.
+
+```typescript
+import { Host, Carousel } from '@expo/ui/swift-ui';
+
+<Host>
+  <Carousel
+    items={workoutImages}
+    onItemChange={setCurrentIndex}
+  />
+</Host>
+```
+
+**Gainslog Use Cases:**
+- Exercise tutorials
+- Progress photo galleries
+- Onboarding screens
+- Feature showcases
+
+#### 🧪 Chip
+Tag-like UI elements for labels and filters.
+
+```typescript
+import { Host, HStack, Chip } from '@expo/ui/swift-ui';
+
+<Host>
+  <HStack spacing={8}>
+    <Chip
+      label="Upper Body"
+      selected={selectedTags.includes('upper')}
+      onPress={() => toggleTag('upper')}
+    />
+    <Chip
+      label="Strength"
+      selected={selectedTags.includes('strength')}
+      onPress={() => toggleTag('strength')}
+    />
+  </HStack>
+</Host>
+```
+
+**Gainslog Use Cases:**
+- Exercise tags
+- Muscle group filters
+- Workout type labels
+- Category selection
+
+#### 🧪 HostingRNViews
+Advanced component for hosting React Native views within SwiftUI.
+
+```typescript
+import { Host, HostingRNViews } from '@expo/ui/swift-ui';
+import { View, Text as RNText } from 'react-native';
+
+<Host>
+  <HostingRNViews>
+    <View>
+      <RNText>React Native content in SwiftUI</RNText>
+    </View>
+  </HostingRNViews>
+</Host>
+```
+
+**Use Cases:**
+- Mixing React Native and SwiftUI
+- Complex integrations
+- Third-party RN components
+- Migration scenarios
+
+### Platform Requirements & Limitations
+
+**General Requirements:**
+- iOS only (no Android or web support)
+- Expo SDK 52+
+- Development builds required (not available in Expo Go)
+- Some components require specific iOS versions
+
+**Component-Specific Requirements:**
+- **GlassEffect**: iOS 26+ and Xcode 26+
+- **Chart**: May require iOS 16+
+- **MatchedGeometryEffect**: iOS 14+
+
+**Beta Status:**
+All Expo UI components are currently in beta. APIs may change between versions. Always check the [official documentation](https://docs.expo.dev/versions/latest/sdk/ui/swift-ui/) for the latest updates.
+
+**Example Repository:**
+For the most up-to-date implementation examples, refer to the [native-component-list](https://github.com/expo/expo/tree/main/apps/native-component-list/src/screens/UI) repository.
+
 ## Modifiers API
 
 Modifiers customize the appearance and behavior of SwiftUI components. They're applied via the `modifiers` prop as an array.
