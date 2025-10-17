@@ -3,9 +3,8 @@ import { Colors, Theme, useTheme } from "@/theme";
 import { useLocalSearchParams } from "expo-router";
 import { StyleSheet, View, ActivityIndicator, Pressable } from "react-native";
 import { ScrollView as RNScrollView } from "react-native-gesture-handler";
-import { Check, X } from "lucide-react-native";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
-import { RoundButton } from "@/components/shared/RoundButton";
+import { IOSButton } from "@/components/shared/IOSButton";
 import { makeSelectLogById } from "@/store/selectors";
 import type { FoodLog, FoodComponent } from "@/types/models";
 import * as Haptics from "expo-haptics";
@@ -261,18 +260,21 @@ export default function Edit() {
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.closeButtonLeft}>
-        <RoundButton
-          Icon={X}
+        <IOSButton
+          variant="glass"
+          systemIcon="xmark"
+          iconColor={colors.primaryText}
           onPress={() => router.back()}
-          variant={"tertiary"}
           accessibilityLabel="Close"
         />
       </View>
       <View style={styles.closeButton}>
-        <RoundButton
-          Icon={Check}
+        <IOSButton
+          variant="glassProminent"
+          systemIcon="checkmark"
+          iconColor={colors.black}
+          buttonColor={colors.accent}
           onPress={handleDone}
-          variant={"primary"}
           disabled={doneDisabled}
           accessibilityLabel="Close"
         />

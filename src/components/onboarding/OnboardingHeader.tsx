@@ -1,7 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { ChevronLeft, X } from "lucide-react-native";
-import { RoundButton } from "@/components/shared/RoundButton";
+import { IOSButton } from "@/components/shared/IOSButton";
 import { useTheme } from "@/theme";
 import { ProgressBar } from "./ProgressBar";
 
@@ -28,19 +27,21 @@ export const OnboardingHeader: React.FC<OnboardingHeaderProps> = ({
       {/* Navigation buttons */}
       <View style={styles.navigationContainer}>
         <View style={styles.backButton}>
-          <RoundButton
+          <IOSButton
+            variant="glass"
+            systemIcon="chevron.left"
+            iconColor={colors.primaryText}
             onPress={onBack}
-            Icon={ChevronLeft}
-            variant="tertiary"
             accessibilityLabel="Go back"
             accessibilityHint="Navigate to previous step"
           />
         </View>
         <View style={styles.skipButton}>
-          <RoundButton
+          <IOSButton
+            variant="glass"
+            systemIcon="xmark"
+            iconColor={colors.primaryText}
             onPress={onSkip}
-            Icon={X}
-            variant="tertiary"
             accessibilityLabel="Skip onboarding"
             accessibilityHint="Skip the onboarding process"
           />

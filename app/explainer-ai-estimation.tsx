@@ -1,11 +1,11 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { X, Sparkles, Pencil, Camera, Mic } from "lucide-react-native";
+import { Sparkles, Pencil, Camera, Mic } from "lucide-react-native";
 
 import { AppText } from "@/components/shared/AppText";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
-import { RoundButton } from "@/components/shared/RoundButton";
+import { IOSButton } from "@/components/shared/IOSButton";
 import { Theme, useTheme } from "@/theme";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
 
@@ -23,10 +23,11 @@ export default function ExplainerAiEstimation() {
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.closeButton}>
-        <RoundButton
+        <IOSButton
+          variant="glass"
+          systemIcon="xmark"
+          iconColor={colors.primaryText}
           onPress={handleClose}
-          Icon={X}
-          variant="tertiary"
           accessibilityLabel="Close explainer"
         />
       </View>

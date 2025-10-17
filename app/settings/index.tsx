@@ -12,10 +12,10 @@ import { useAppStore } from "@/store/useAppStore";
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { Card, AppText, Button } from "src/components";
-import { ChevronRight, X } from "lucide-react-native";
+import { ChevronRight } from "lucide-react-native";
 import { AppearanceCard } from "@/components/settings/AppearanceCard";
 import { seedFoodLogs } from "@/utils/seed";
-import { RoundButton } from "@/components/shared/RoundButton";
+import { IOSButton } from "@/components/shared/IOSButton";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 export default function SettingsTab() {
@@ -94,10 +94,11 @@ export default function SettingsTab() {
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <GradientWrapper style={styles.container}>
         <View style={styles.closeButton}>
-          <RoundButton
+          <IOSButton
+            variant="glass"
+            systemIcon="xmark"
+            iconColor={colors.primaryText}
             onPress={handleClose}
-            Icon={X}
-            variant="tertiary"
             accessibilityLabel="Go back"
             accessibilityHint="Returns to previous screen"
           />

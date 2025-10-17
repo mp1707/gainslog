@@ -11,6 +11,7 @@ interface IOSButtonProps {
   controlSize?: "regular" | "small" | "large";
   buttonColor?: string;
   onPress: () => void;
+  disabled?: boolean;
 
   // Icon props
   systemIcon: string;
@@ -20,6 +21,10 @@ interface IOSButtonProps {
   // Host props
   withHost?: boolean;
   hostStyle?: ViewStyle;
+
+  // Accessibility
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
 export const IOSButton: React.FC<IOSButtonProps> = ({
@@ -27,11 +32,14 @@ export const IOSButton: React.FC<IOSButtonProps> = ({
   controlSize = "regular",
   buttonColor,
   onPress,
+  disabled = false,
   systemIcon,
   iconColor,
   iconPadding,
   withHost = true,
   hostStyle,
+  accessibilityLabel,
+  accessibilityHint,
 }) => {
   const { theme } = useTheme();
 
@@ -54,6 +62,9 @@ export const IOSButton: React.FC<IOSButtonProps> = ({
       controlSize={controlSize}
       color={buttonColor}
       onPress={onPress}
+      disabled={disabled}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint={accessibilityHint}
     >
       <Image
         modifiers={[padding(finalIconPadding)]}

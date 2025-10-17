@@ -10,8 +10,7 @@ import {
   generateMonthKeys,
 } from "@/hooks/useOptimizedNutritionData";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
-import { RoundButton } from "@/components/shared/RoundButton";
-import { X } from "lucide-react-native";
+import { IOSButton } from "@/components/shared/IOSButton";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
 
 interface MonthData {
@@ -274,10 +273,11 @@ export default function Calendar() {
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.headerContainer}>
-        <RoundButton
+        <IOSButton
+          variant="glass"
+          systemIcon="xmark"
+          iconColor={colors.primaryText}
           onPress={handleCancel}
-          Icon={X}
-          variant="tertiary"
           accessibilityLabel="Close calendar"
         />
       </View>

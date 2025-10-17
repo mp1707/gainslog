@@ -26,13 +26,14 @@ import { useCreationStore } from "@/store/useCreationStore"; // keyed drafts sto
 import { useDraft } from "@/hooks/useDraft";
 import { generateFoodLogId } from "@/utils/idGenerator";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
+import { useRouter } from "expo-router";
 
 const inputAccessoryViewID = "create-input-accessory";
 
 export default function Create() {
   const { theme } = useTheme();
   const styles = createStyles(theme);
-  const router = useSafeRouter();
+  const router = useRouter();
   const { startNewDraft, clearDraft, updateDraft } = useCreationStore();
   const [draftId, setDraftId] = useState<string | null>(null);
   const draft = useDraft(draftId);

@@ -1,10 +1,9 @@
 import React from "react";
 import { View } from "react-native";
-import { X } from "lucide-react-native";
 import { useTheme } from "@/theme";
 import { AppText } from "@/components";
 import { DatePicker } from "@/components/shared/DatePicker";
-import { RoundButton } from "@/components/shared/RoundButton";
+import { IOSButton } from "@/components/shared/IOSButton";
 import { createStyles } from "./CreateHeader.styles";
 import { useAppStore } from "@/store/useAppStore";
 import { formatDate } from "@/utils/formatDate";
@@ -27,10 +26,11 @@ export const CreateHeader: React.FC<CreateHeaderProps> = ({ onCancel }) => {
         </AppText>
         <View style={styles.headerActions}>
           <DatePicker buttonVariant="tertiary" />
-          <RoundButton
+          <IOSButton
+            variant="glass"
+            systemIcon="xmark"
+            iconColor={colors.primaryText}
             onPress={onCancel}
-            Icon={X}
-            variant="tertiary"
             accessibilityLabel="Close create screen"
           />
         </View>
