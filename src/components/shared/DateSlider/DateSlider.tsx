@@ -214,8 +214,6 @@ export const DateSlider = () => {
 
   return (
     <View style={styles.container}>
-      <Header />
-
       <View
         style={[
           styles.sliderContainer,

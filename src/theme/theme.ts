@@ -476,7 +476,7 @@ const interactions = {
 const layout = {
   // Header component dimensions (all in 8pt multiples)
   header: {
-    titleHeight: 32, // 4×8pt - Title2 line height + padding
+    titleHeight: 48, // 4×8pt - Title2 line height + padding
     buttonHeight: 48, // 6×8pt - RoundButton size with proper padding
     padding: 16, // 2×8pt - Standard padding
     dateSliderHeight: 96, // 12×8pt - DateSlider container height

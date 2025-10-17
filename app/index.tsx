@@ -18,6 +18,7 @@ import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { FoodLogsList } from "@/components/daily-food-logs/FoodLogsList";
+import { DailyFoodLogsHeader } from "@/components/daily-food-logs";
 import {
   createLogAgainHandler,
   createSaveToFavoritesHandler,
@@ -146,6 +147,7 @@ export default function TodayTab() {
           pointerEvents="box-none"
         >
           <View style={{ paddingTop: insets.top }}>
+            <DailyFoodLogsHeader />
             <DateSlider />
           </View>
         </BlurView>

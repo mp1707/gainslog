@@ -7,12 +7,12 @@ export const createStyles = (colors: Colors, theme: Theme, itemWidth: number) =>
       // Remove fixed height to accommodate header
     },
     sliderContainer: {
-      height: 96, // 12×8pt - strict 8pt grid compliance
+      // height: 96, // 12×8pt - strict 8pt grid compliance
     },
     itemContainer: {
       alignItems: "center",
       justifyContent: "center",
-      height: 96, // 12×8pt - strict 8pt grid compliance
+      // height: 96, // 12×8pt - strict 8pt grid compliance
       width: itemWidth,
     },
     weekdayContainer: {

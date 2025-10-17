@@ -14,7 +14,7 @@ import { CaloriesExplainer } from "@/components/explainer-macros/CaloriesExplain
 import { ProteinExplainer } from "@/components/explainer-macros/ProteinExplainer";
 import { FatExplainer } from "@/components/explainer-macros/FatExplainer";
 import { CarbsExplainer } from "@/components/explainer-macros/CarbsExplainer";
-import { HeaderButton } from "@/components/iosSpecific/HeaderButton";
+import { IOSButton } from "@/components/shared/IOSButton";
 import { Colors, Theme, useTheme } from "@/theme";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -79,9 +79,7 @@ export const MacrosExplainerSheet: React.FC<MacrosExplainerSheetProps> = ({
   const keyExtractor = useCallback((item: ExplainerPage) => item.id, []);
 
   return (
-    <Host
-      style={{ position: "absolute", width: SCREEN_WIDTH }}
-    >
+    <Host style={{ position: "absolute", width: SCREEN_WIDTH }}>
       <BottomSheet
         isOpened={isOpen}
         onIsOpenedChange={(opened) => {
@@ -89,6 +87,7 @@ export const MacrosExplainerSheet: React.FC<MacrosExplainerSheetProps> = ({
             onClose();
           }
         }}
+        presentationDragIndicator="visible"
       >
         <View style={styles.container}>
           <View style={styles.header}>
@@ -99,10 +98,13 @@ export const MacrosExplainerSheet: React.FC<MacrosExplainerSheetProps> = ({
               />
             </View>
             <View style={styles.closeButton}>
-              <HeaderButton
-                buttonProps={{
-                  onPress: onClose,
-                }}
+              <IOSButton
+                variant="glass"
+                controlSize="regular"
+                systemIcon="xmark"
+                iconColor={colors.primaryText}
+                iconPadding={{ vertical: theme.spacing.xs * 1.5 }}
+                onPress={onClose}
               />
             </View>
           </View>
@@ -143,6 +145,7 @@ const createStyles = (theme: Theme, colors: Colors) =>
       zIndex: 10,
     },
     progressContainer: {
+      paddingTop: theme.spacing.md,
       alignItems: "center",
       width: "100%",
     },
