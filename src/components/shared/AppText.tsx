@@ -13,7 +13,7 @@ export type TypographyRole =
 
 interface AppTextProps extends Omit<TextProps, "role"> {
   role?: TypographyRole;
-  color?: "primary" | "secondary" | "accent" | "white" | "disabled";
+  color?: "primary" | "secondary" | "accent" | "white" | "disabled" | "black";
   children: React.ReactNode;
 }
 
@@ -44,6 +44,9 @@ export const AppText: React.FC<AppTextProps> = ({
         break;
       case "white":
         textColor = colors.white;
+        break;
+      case "black":
+        textColor = colors.black;
         break;
       case "disabled":
         textColor = colors.disabledText;

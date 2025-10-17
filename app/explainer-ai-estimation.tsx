@@ -29,6 +29,7 @@ export default function ExplainerAiEstimation() {
           iconColor={colors.primaryText}
           onPress={handleClose}
           accessibilityLabel="Close explainer"
+          controlSize="small"
         />
       </View>
 
@@ -65,7 +66,8 @@ export default function ExplainerAiEstimation() {
                 •
               </AppText>
               <AppText role="Body" color="secondary" style={styles.bulletText}>
-                Add weights or volumes for precision. (e.g., "150g chicken breast" vs. "chicken breast")
+                Add weights or volumes for precision. (e.g., "150g chicken
+                breast" vs. "chicken breast")
               </AppText>
             </View>
             <View style={styles.bulletRow}>
@@ -73,7 +75,8 @@ export default function ExplainerAiEstimation() {
                 •
               </AppText>
               <AppText role="Body" color="secondary" style={styles.bulletText}>
-                Include cooking methods and key ingredients. (e.g., "grilled with olive oil")
+                Include cooking methods and key ingredients. (e.g., "grilled
+                with olive oil")
               </AppText>
             </View>
           </View>

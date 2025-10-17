@@ -32,6 +32,7 @@ export const CreateHeader: React.FC<CreateHeaderProps> = ({ onCancel }) => {
             iconColor={colors.primaryText}
             onPress={onCancel}
             accessibilityLabel="Close create screen"
+            controlSize="small"
           />
         </View>
       </View>

@@ -19,7 +19,8 @@ export const DatePicker = ({
 
   // Map RoundButton variants to IOSButton variants
   const iosVariant = buttonVariant === "primary" ? "glassProminent" : "glass";
-  const iconColor = buttonVariant === "primary" ? colors.black : colors.primaryText;
+  const iconColor =
+    buttonVariant === "primary" ? colors.black : colors.primaryText;
   const buttonColor = buttonVariant === "primary" ? colors.accent : undefined;
 
   return (
@@ -30,6 +31,7 @@ export const DatePicker = ({
       buttonColor={buttonColor}
       onPress={handleCalendarPress}
       accessibilityLabel="Open calendar"
+      controlSize="small"
     />
   );
 };

@@ -100,7 +100,7 @@ export const MacrosExplainerSheet: React.FC<MacrosExplainerSheetProps> = ({
             <View style={styles.closeButton}>
               <IOSButton
                 variant="glass"
-                controlSize="regular"
+                controlSize="small"
                 systemIcon="xmark"
                 iconColor={colors.primaryText}
                 iconPadding={{ vertical: theme.spacing.xs * 1.5 }}

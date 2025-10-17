@@ -34,6 +34,7 @@ export const OnboardingHeader: React.FC<OnboardingHeaderProps> = ({
             onPress={onBack}
             accessibilityLabel="Go back"
             accessibilityHint="Navigate to previous step"
+            controlSize="small"
           />
         </View>
         <View style={styles.skipButton}>
@@ -44,6 +45,7 @@ export const OnboardingHeader: React.FC<OnboardingHeaderProps> = ({
             onPress={onSkip}
             accessibilityLabel="Skip onboarding"
             accessibilityHint="Skip the onboarding process"
+            controlSize="small"
           />
         </View>
       </View>

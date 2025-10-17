@@ -1,7 +1,13 @@
 import { useAppStore } from "@/store/useAppStore";
 import { Colors, Theme, useTheme } from "@/theme";
 import { useLocalSearchParams } from "expo-router";
-import { StyleSheet, View, ActivityIndicator, Pressable } from "react-native";
+import {
+  StyleSheet,
+  View,
+  ActivityIndicator,
+  Pressable,
+  Dimensions,
+} from "react-native";
 import { ScrollView as RNScrollView } from "react-native-gesture-handler";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { IOSButton } from "@/components/shared/IOSButton";
@@ -16,12 +22,11 @@ import { ComponentsList } from "@/components/refine-page/ComponentsList/Componen
 import { ComponentEditor } from "@/components/refine-page/ComponentEditor";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { AppText, Card } from "@/components/index";
-import {
-  BottomSheet,
-  BottomSheetBackdrop,
-} from "@/components/shared/BottomSheet";
+import { BottomSheet, Host } from "@expo/ui/swift-ui";
 import { TextInput } from "@/components/shared/TextInput";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -266,6 +271,7 @@ export default function Edit() {
           iconColor={colors.primaryText}
           onPress={() => router.back()}
           accessibilityLabel="Close"
+          controlSize="small"
         />
       </View>
       <View style={styles.closeButton}>
@@ -277,6 +283,7 @@ export default function Edit() {
           onPress={handleDone}
           disabled={doneDisabled}
           accessibilityLabel="Close"
+          controlSize="small"
         />
       </View>
       <RNScrollView
@@ -338,30 +345,27 @@ export default function Edit() {
         )}
       </RNScrollView>
       {/* Component Editor Bottom Sheet */}
-      <BottomSheetBackdrop
-        open={sheetOpen}
-        onPress={() => {
-          setSheetOpen(false);
-          setEditingComponent(null);
-        }}
-        opacity={0.35}
-      />
-      <BottomSheet
-        open={sheetOpen}
-        onClose={() => {
-          setSheetOpen(false);
-          setEditingComponent(null);
-        }}
-      >
-        {editingComponent && (
-          <ComponentEditor
-            component={editingComponent.component}
-            isAdding={editingComponent.index === "new"}
-            onSave={handleSaveComponent}
-            onCancel={handleCancelEdit}
-          />
-        )}
-      </BottomSheet>
+      <Host style={{ position: "absolute", width: SCREEN_WIDTH }}>
+        <BottomSheet
+          isOpened={sheetOpen}
+          onIsOpenedChange={(opened) => {
+            if (!opened) {
+              setSheetOpen(false);
+              setEditingComponent(null);
+            }
+          }}
+          presentationDragIndicator="visible"
+        >
+          {editingComponent && (
+            <ComponentEditor
+              component={editingComponent.component}
+              isAdding={editingComponent.index === "new"}
+              onSave={handleSaveComponent}
+              onCancel={handleCancelEdit}
+            />
+          )}
+        </BottomSheet>
+      </Host>
     </GradientWrapper>
   );
 }

@@ -1,4 +1,10 @@
-import React, { useMemo, useCallback, useState, useRef, useEffect } from "react";
+import React, {
+  useMemo,
+  useCallback,
+  useState,
+  useRef,
+  useEffect,
+} from "react";
 import { View, Dimensions, StyleSheet, ViewToken } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import * as Haptics from "expo-haptics";
@@ -42,7 +48,10 @@ export default function Calendar() {
   );
   const selectedYear = selectedDateObj.getFullYear();
   const selectedMonth = selectedDateObj.getMonth() + 1;
-  const selectedMonthKey = useMemo(() => getMonthKeyFromDateKey(selectedDate), [selectedDate]);
+  const selectedMonthKey = useMemo(
+    () => getMonthKeyFromDateKey(selectedDate),
+    [selectedDate]
+  );
 
   // Get actual current date for month generation
   const actualCurrentDate = useMemo(() => new Date(), []);
@@ -88,7 +97,9 @@ export default function Calendar() {
     initialScrollIndex >= 0 ? initialScrollIndex : 0;
 
   const initialMonthKey = useMemo(() => {
-    return monthsData[safeInitialScrollIndex]?.key ?? monthsData[0]?.key ?? null;
+    return (
+      monthsData[safeInitialScrollIndex]?.key ?? monthsData[0]?.key ?? null
+    );
   }, [monthsData, safeInitialScrollIndex]);
 
   const [hydratedMonths, setHydratedMonths] = useState<Set<string>>(() => {
@@ -100,38 +111,43 @@ export default function Calendar() {
   });
 
   const hydratedMonthsRef = useRef(hydratedMonths);
-  const hydrationTimeoutsRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const hydrationTimeoutsRef = useRef<
+    Record<string, ReturnType<typeof setTimeout>>
+  >({});
 
   useEffect(() => {
     hydratedMonthsRef.current = hydratedMonths;
   }, [hydratedMonths]);
 
-  const scheduleHydration = useCallback((keys: Array<string | null | undefined>) => {
-    keys.forEach((candidate) => {
-      if (!candidate) {
-        return;
-      }
+  const scheduleHydration = useCallback(
+    (keys: Array<string | null | undefined>) => {
+      keys.forEach((candidate) => {
+        if (!candidate) {
+          return;
+        }
 
-      if (
-        hydratedMonthsRef.current.has(candidate) ||
-        hydrationTimeoutsRef.current[candidate]
-      ) {
-        return;
-      }
+        if (
+          hydratedMonthsRef.current.has(candidate) ||
+          hydrationTimeoutsRef.current[candidate]
+        ) {
+          return;
+        }
 
-      hydrationTimeoutsRef.current[candidate] = setTimeout(() => {
-        setHydratedMonths((prev) => {
-          if (prev.has(candidate)) {
-            return prev;
-          }
-          const next = new Set(prev);
-          next.add(candidate);
-          return next;
-        });
-        delete hydrationTimeoutsRef.current[candidate];
-      }, HYDRATION_DELAY_MS);
-    });
-  }, []);
+        hydrationTimeoutsRef.current[candidate] = setTimeout(() => {
+          setHydratedMonths((prev) => {
+            if (prev.has(candidate)) {
+              return prev;
+            }
+            const next = new Set(prev);
+            next.add(candidate);
+            return next;
+          });
+          delete hydrationTimeoutsRef.current[candidate];
+        }, HYDRATION_DELAY_MS);
+      });
+    },
+    []
+  );
 
   useEffect(() => {
     return () => {
@@ -213,8 +229,8 @@ export default function Calendar() {
         const monthKey = item?.key
           ? item.key
           : typeof viewToken.key === "string"
-            ? viewToken.key
-            : null;
+          ? viewToken.key
+          : null;
 
         if (!monthKey) {
           return;
@@ -262,12 +278,7 @@ export default function Calendar() {
         />
       );
     },
-    [
-      selectedDate,
-      getDailyPercentages,
-      handleDateSelect,
-      hydratedMonths,
-    ]
+    [selectedDate, getDailyPercentages, handleDateSelect, hydratedMonths]
   );
 
   return (
@@ -279,6 +290,7 @@ export default function Calendar() {
           iconColor={colors.primaryText}
           onPress={handleCancel}
           accessibilityLabel="Close calendar"
+          controlSize="small"
         />
       </View>
       <View style={styles.calendarContainer}>

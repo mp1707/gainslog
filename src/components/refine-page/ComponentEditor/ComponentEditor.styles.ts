@@ -3,12 +3,18 @@ import type { Colors, Theme } from "@/theme";
 
 export const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
-    container: {
-      backgroundColor: colors.secondaryBackground,
-    },
-    header: {
-      paddingHorizontal: theme.spacing.lg,
+    container: {},
+    buttonHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingHorizontal: theme.spacing.md,
       paddingTop: theme.spacing.md,
+      paddingBottom: theme.spacing.sm,
+    },
+    titleSection: {
+      paddingHorizontal: theme.spacing.lg,
+      paddingTop: theme.spacing.sm,
       paddingBottom: theme.spacing.md,
     },
     formSection: {
@@ -22,7 +28,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       flex: 1,
     },
     unitField: {
-      minWidth: 100,
+      minWidth: "45%",
     },
     label: {
       paddingLeft: theme.spacing.xs,
@@ -44,7 +50,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       gap: theme.spacing.sm,
       alignItems: "flex-start",
     },
-    unitSelector: {
+    unitPickerTrigger: {
       backgroundColor: colors.primaryBackground,
       borderRadius: 24, // Pill-shaped
       borderWidth: 1,
@@ -56,30 +62,5 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       justifyContent: "space-between",
       gap: theme.spacing.xs,
       minHeight: 48, // Touch target
-    },
-    unitSelectorPressed: {
-      backgroundColor: colors.subtleBackground,
-    },
-    pickerContainer: {
-      overflow: "hidden",
-      marginTop: theme.spacing.xs,
-    },
-    picker: {
-      flex: 1,
-    },
-    pickerItemIOS: {
-      color: colors.primaryText,
-      fontSize: theme.typography.Body.fontSize,
-    },
-    actionButtons: {
-      flexDirection: "row",
-      gap: theme.spacing.md,
-      paddingHorizontal: theme.spacing.lg,
-      paddingTop: theme.spacing.md,
-      paddingBottom: theme.spacing.xl,
-      backgroundColor: colors.secondaryBackground,
-    },
-    buttonWrapper: {
-      flex: 1,
     },
   });

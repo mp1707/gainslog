@@ -101,6 +101,7 @@ export default function SettingsTab() {
             onPress={handleClose}
             accessibilityLabel="Go back"
             accessibilityHint="Returns to previous screen"
+            controlSize="small"
           />
         </View>
         <ScrollView

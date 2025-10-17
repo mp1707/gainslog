@@ -1,20 +1,28 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { View, Pressable, Platform, Keyboard } from "react-native";
+import { View } from "react-native";
 import { TextInput } from "@/components/shared/TextInput";
-import { Picker } from "@react-native-picker/picker";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  Easing,
-} from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { ChevronDown } from "lucide-react-native";
 import { AppText } from "@/components/shared/AppText";
-import { Button } from "@/components/shared/Button/Button";
+import { IOSButton } from "@/components/shared/IOSButton";
 import { useTheme } from "@/theme";
 import { createStyles } from "./ComponentEditor.styles";
 import type { FoodComponent } from "@/types/models";
+import {
+  Button,
+  Host,
+  Text,
+  VStack,
+  Picker,
+  ContextMenu,
+  Image,
+  HStack,
+} from "@expo/ui/swift-ui";
+import {
+  buttonStyle,
+  fixedSize,
+  frame,
+  padding,
+} from "@expo/ui/swift-ui/modifiers";
 
 interface ComponentEditorProps {
   component: FoodComponent | null;
@@ -32,10 +40,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
   onCancel,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
-  const styles = useMemo(
-    () => createStyles(colors, theme),
-    [colors, theme]
-  );
+  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
   // Form state
   const [name, setName] = useState(component?.name || "");
@@ -45,32 +50,6 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
   const [unit, setUnit] = useState<FoodComponent["unit"]>(
     component?.unit || "g"
   );
-  const [isUnitPickerExpanded, setIsUnitPickerExpanded] = useState(false);
-
-  // Animated picker height and chevron rotation
-  const pickerHeight = useSharedValue(0);
-  const chevronRotation = useSharedValue(0);
-
-  // Animate picker expansion and chevron rotation
-  useEffect(() => {
-    pickerHeight.value = withTiming(isUnitPickerExpanded ? 220 : 0, {
-      duration: 200,
-      easing: Easing.out(Easing.cubic),
-    });
-    chevronRotation.value = withTiming(isUnitPickerExpanded ? 180 : 0, {
-      duration: 200,
-      easing: Easing.out(Easing.cubic),
-    });
-  }, [isUnitPickerExpanded]);
-
-  const pickerAnimatedStyle = useAnimatedStyle(() => ({
-    height: pickerHeight.value,
-    opacity: pickerHeight.value > 0 ? 1 : 0,
-  }));
-
-  const chevronAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${chevronRotation.value}deg` }],
-  }));
 
   // Update form when component prop changes
   useEffect(() => {
@@ -85,25 +64,10 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
     }
   }, [component]);
 
-  const handleUnitPress = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    // Dismiss keyboard before toggling picker
-    Keyboard.dismiss();
-    setIsUnitPickerExpanded((prev) => !prev);
+  const handleUnitSelect = useCallback((index: number) => {
+    setUnit(UNIT_OPTIONS[index]);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   }, []);
-
-  const handleUnitSelect = useCallback((value: FoodComponent["unit"]) => {
-    setUnit(value);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    // Keep picker open - user must tap unit field again to close
-  }, []);
-
-  const handleInputFocus = useCallback(() => {
-    // Collapse picker when any text input is focused
-    if (isUnitPickerExpanded) {
-      setIsUnitPickerExpanded(false);
-    }
-  }, [isUnitPickerExpanded]);
 
   const handleSave = useCallback(() => {
     const amountValue = Number(amount);
@@ -136,8 +100,30 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
+      {/* Button Header */}
+      <View style={styles.buttonHeader}>
+        <IOSButton
+          variant="glass"
+          controlSize="small"
+          systemIcon="xmark"
+          iconColor={colors.primaryText}
+          iconPadding={{ vertical: theme.spacing.xs * 1.5 }}
+          onPress={handleCancel}
+        />
+        <IOSButton
+          variant="glassProminent"
+          controlSize="small"
+          systemIcon="checkmark"
+          iconColor={colors.black}
+          buttonColor={colors.accent}
+          iconPadding={{ vertical: theme.spacing.xs * 1.5 }}
+          onPress={handleSave}
+          disabled={!isValid}
+        />
+      </View>
+
+      {/* Title */}
+      <View style={styles.titleSection}>
         <AppText role="Title2">
           {isAdding ? "New Ingredient" : "Edit Ingredient"}
         </AppText>
@@ -159,7 +145,6 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
             keyboardAppearance={colorScheme}
             returnKeyType="next"
             autoFocus={isAdding}
-            onFocus={handleInputFocus}
           />
         </View>
 
@@ -178,7 +163,6 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
               style={styles.textInput}
               keyboardType="decimal-pad"
               keyboardAppearance={colorScheme}
-              onFocus={handleInputFocus}
             />
           </View>
 
@@ -187,52 +171,49 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
             <AppText role="Caption" color="secondary" style={styles.label}>
               Unit
             </AppText>
-            <Pressable
-              onPress={handleUnitPress}
-              style={({ pressed }) => [
-                styles.unitSelector,
-                pressed && styles.unitSelectorPressed,
-              ]}
-            >
-              <AppText role="Body">{unit}</AppText>
-              <Animated.View style={chevronAnimatedStyle}>
-                <ChevronDown size={20} color={colors.secondaryText} />
-              </Animated.View>
-            </Pressable>
+            <Host matchContents style={{ flex: 1 }}>
+              <ContextMenu
+                modifiers={[buttonStyle("glass")]}
+                activationMethod="singlePress"
+              >
+                <ContextMenu.Items>
+                  <Picker
+                    selectedIndex={UNIT_OPTIONS.indexOf(unit)}
+                    options={UNIT_OPTIONS}
+                    onOptionSelected={({ nativeEvent: { index } }) =>
+                      handleUnitSelect(index)
+                    }
+                    modifiers={[
+                      padding({
+                        horizontal: theme.spacing.md,
+                        vertical: theme.spacing.sm,
+                      }),
+                    ]}
+                    variant="inline"
+                  />
+                </ContextMenu.Items>
+                <ContextMenu.Trigger>
+                  <HStack
+                    spacing={theme.spacing.xs}
+                    modifiers={[
+                      padding({
+                        horizontal: theme.spacing.md,
+                        vertical: theme.spacing.sm,
+                      }),
+                      frame({ minWidth: 100 }),
+                    ]}
+                  >
+                    <Text>{unit}</Text>
+                    <Image
+                      systemName="chevron.down"
+                      size={16}
+                      color={colors.secondaryText}
+                    />
+                  </HStack>
+                </ContextMenu.Trigger>
+              </ContextMenu>
+            </Host>
           </View>
-        </View>
-
-        {/* Inline Animated Picker */}
-        <Animated.View style={[styles.pickerContainer, pickerAnimatedStyle]}>
-          <Picker
-            selectedValue={unit}
-            onValueChange={(value) => handleUnitSelect(value as FoodComponent["unit"])}
-            itemStyle={Platform.OS === "ios" ? styles.pickerItemIOS : undefined}
-            style={styles.picker}
-          >
-            {UNIT_OPTIONS.map((u) => (
-              <Picker.Item key={u} label={u} value={u} />
-            ))}
-          </Picker>
-        </Animated.View>
-      </View>
-
-      {/* Action Buttons */}
-      <View style={styles.actionButtons}>
-        <View style={styles.buttonWrapper}>
-          <Button
-            label="Cancel"
-            variant="tertiary"
-            onPress={handleCancel}
-          />
-        </View>
-        <View style={styles.buttonWrapper}>
-          <Button
-            label="Save"
-            variant="primary"
-            onPress={handleSave}
-            disabled={!isValid}
-          />
         </View>
       </View>
     </View>
