@@ -1,11 +1,11 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { Sparkles, Pencil, Camera, Mic } from "lucide-react-native";
+import { Sparkles, Pencil, Camera, Mic, X } from "lucide-react-native";
 
 import { AppText } from "@/components/shared/AppText";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
-import { IOSButton } from "@/components/shared/IOSButton";
+import { DynamicRoundButton } from "@/components/shared/DynamicRoundButton";
 import { Theme, useTheme } from "@/theme";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
 
@@ -23,12 +23,13 @@ export default function ExplainerAiEstimation() {
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.closeButton}>
-        <IOSButton
-          variant="glass"
+        <DynamicRoundButton
+          variant="secondary"
           systemIcon="xmark"
-          iconColor={colors.primaryText}
+          legacyIcon={X}
           onPress={handleClose}
           accessibilityLabel="Close explainer"
+          controlSize="small"
         />
       </View>
 
@@ -65,7 +66,8 @@ export default function ExplainerAiEstimation() {
                 •
               </AppText>
               <AppText role="Body" color="secondary" style={styles.bulletText}>
-                Add weights or volumes for precision. (e.g., "150g chicken breast" vs. "chicken breast")
+                Add weights or volumes for precision. (e.g., "150g chicken
+                breast" vs. "chicken breast")
               </AppText>
             </View>
             <View style={styles.bulletRow}>
@@ -73,7 +75,8 @@ export default function ExplainerAiEstimation() {
                 •
               </AppText>
               <AppText role="Body" color="secondary" style={styles.bulletText}>
-                Include cooking methods and key ingredients. (e.g., "grilled with olive oil")
+                Include cooking methods and key ingredients. (e.g., "grilled
+                with olive oil")
               </AppText>
             </View>
           </View>

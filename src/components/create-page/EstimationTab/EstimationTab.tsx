@@ -1,5 +1,10 @@
 import React, { useCallback } from "react";
-import { View, TextInput as RNTextInput, Pressable } from "react-native";
+import {
+  View,
+  TextInput as RNTextInput,
+  Pressable,
+  ScrollView,
+} from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import * as Haptics from "expo-haptics";
 import { Info } from "lucide-react-native";
@@ -32,7 +37,8 @@ export const EstimationTab: React.FC<EstimationTabProps> = ({
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme, !!imageUrl, colorScheme);
   const router = useSafeRouter();
-  const { handlePressIn, handlePressOut, pressAnimatedStyle } = usePressAnimation();
+  const { handlePressIn, handlePressOut, pressAnimatedStyle } =
+    usePressAnimation();
 
   const handleOpenExplainer = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -45,7 +51,6 @@ export const EstimationTab: React.FC<EstimationTabProps> = ({
       contentContainerStyle={styles.scrollContent}
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="interactive"
-      bottomOffset={250}
     >
       <View style={styles.content}>
         {(imageUrl || isUploadingImage) && (

@@ -3,10 +3,11 @@ import { View } from "react-native";
 import { useTheme } from "@/theme";
 import { AppText } from "@/components";
 import { DatePicker } from "@/components/shared/DatePicker";
-import { IOSButton } from "@/components/shared/IOSButton";
+import { DynamicRoundButton } from "@/components/shared/DynamicRoundButton";
 import { createStyles } from "./CreateHeader.styles";
 import { useAppStore } from "@/store/useAppStore";
 import { formatDate } from "@/utils/formatDate";
+import { X } from "lucide-react-native";
 
 interface CreateHeaderProps {
   onCancel: () => void;
@@ -26,12 +27,13 @@ export const CreateHeader: React.FC<CreateHeaderProps> = ({ onCancel }) => {
         </AppText>
         <View style={styles.headerActions}>
           <DatePicker buttonVariant="tertiary" />
-          <IOSButton
-            variant="glass"
+          <DynamicRoundButton
+            variant="secondary"
+            legacyIcon={X}
             systemIcon="xmark"
-            iconColor={colors.primaryText}
             onPress={onCancel}
             accessibilityLabel="Close create screen"
+            controlSize="small"
           />
         </View>
       </View>

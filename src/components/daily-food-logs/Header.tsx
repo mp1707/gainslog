@@ -4,13 +4,15 @@ import { Button, ContextMenu, Host, Image } from "@expo/ui/swift-ui";
 import * as Haptics from "expo-haptics";
 
 import { AppText } from "@/components/shared/AppText";
-import { IOSButton } from "@/components/shared/IOSButton";
+import { DynamicRoundButton } from "@/components/shared/DynamicRoundButton";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useAppStore } from "@/store/useAppStore";
 import { useTheme } from "@/theme";
 import { Theme } from "@/theme/theme";
 import { formatDate } from "@/utils/formatDate";
-import { buttonStyle, padding } from "@expo/ui/swift-ui/modifiers";
+import { buttonStyle, clipShape, padding } from "@expo/ui/swift-ui/modifiers";
+import { Plus } from "lucide-react-native";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
 
 export const Header: React.FC = () => {
   const { safeNavigate, safePush } = useNavigationGuard();
@@ -44,16 +46,24 @@ export const Header: React.FC = () => {
         <Host matchContents style={styles.nativeHost}>
           <ContextMenu
             activationMethod="singlePress"
-            modifiers={[buttonStyle("glass")]}
+            modifiers={[
+              isLiquidGlassAvailable()
+                ? buttonStyle("glass")
+                : buttonStyle("bordered"),
+              clipShape("circle"),
+            ]}
           >
             <ContextMenu.Trigger>
               <Image
                 modifiers={[
                   padding({
-                    vertical: theme.spacing.xs * 3.5,
+                    vertical: !isLiquidGlassAvailable()
+                      ? theme.spacing.xs * 2.8
+                      : theme.spacing.xs * 3.5,
                   }),
                 ]}
                 systemName={"ellipsis"}
+                color={colors.primaryText}
               />
             </ContextMenu.Trigger>
             <ContextMenu.Items>
@@ -66,13 +76,11 @@ export const Header: React.FC = () => {
             </ContextMenu.Items>
           </ContextMenu>
         </Host>
-        <IOSButton
-          variant="glassProminent"
+        <DynamicRoundButton
+          variant="primary"
           controlSize="regular"
-          buttonColor={colors.accent}
           systemIcon="plus"
-          iconColor={colors.black}
-          iconPadding={{ vertical: theme.spacing.xs * 1.5 }}
+          legacyIcon={Plus}
           onPress={handleCreatePress}
           hostStyle={styles.nativeHost}
         />

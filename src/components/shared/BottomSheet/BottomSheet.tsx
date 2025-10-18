@@ -140,7 +140,6 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
           style={styles.content}
           contentContainerStyle={styles.scrollContent}
           bottomOffset={20}
-          extraKeyboardSpace={16}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
           bounces={false}

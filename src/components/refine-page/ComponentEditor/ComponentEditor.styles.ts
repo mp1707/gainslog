@@ -76,7 +76,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       gap: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
       paddingTop: theme.spacing.md,
-      paddingBottom: theme.spacing.xl,
+      paddingBottom: theme.spacing.lg,
       backgroundColor: colors.secondaryBackground,
     },
     buttonWrapper: {

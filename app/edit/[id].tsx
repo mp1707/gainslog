@@ -1,10 +1,17 @@
 import { useAppStore } from "@/store/useAppStore";
 import { Colors, Theme, useTheme } from "@/theme";
 import { useLocalSearchParams } from "expo-router";
-import { StyleSheet, View, ActivityIndicator, Pressable } from "react-native";
+import {
+  StyleSheet,
+  View,
+  ActivityIndicator,
+  Pressable,
+  Dimensions,
+} from "react-native";
 import { ScrollView as RNScrollView } from "react-native-gesture-handler";
+import { X, Check } from "lucide-react-native";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
-import { IOSButton } from "@/components/shared/IOSButton";
+import { DynamicRoundButton } from "@/components/shared/DynamicRoundButton";
 import { makeSelectLogById } from "@/store/selectors";
 import type { FoodLog, FoodComponent } from "@/types/models";
 import * as Haptics from "expo-haptics";
@@ -260,23 +267,24 @@ export default function Edit() {
   return (
     <GradientWrapper style={styles.container}>
       <View style={styles.closeButtonLeft}>
-        <IOSButton
-          variant="glass"
+        <DynamicRoundButton
+          variant="secondary"
           systemIcon="xmark"
-          iconColor={colors.primaryText}
+          legacyIcon={X}
           onPress={() => router.back()}
           accessibilityLabel="Close"
+          controlSize="small"
         />
       </View>
       <View style={styles.closeButton}>
-        <IOSButton
-          variant="glassProminent"
+        <DynamicRoundButton
+          variant="primary"
           systemIcon="checkmark"
-          iconColor={colors.black}
-          buttonColor={colors.accent}
+          legacyIcon={Check}
           onPress={handleDone}
           disabled={doneDisabled}
           accessibilityLabel="Close"
+          controlSize="small"
         />
       </View>
       <RNScrollView

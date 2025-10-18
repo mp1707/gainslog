@@ -1,8 +1,9 @@
 import React, { useCallback } from "react";
 import * as Haptics from "expo-haptics";
+import { Calendar } from "lucide-react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useTheme } from "@/theme";
-import { IOSButton } from "../IOSButton";
+import { DynamicRoundButton } from "../DynamicRoundButton";
 
 export const DatePicker = ({
   buttonVariant = "secondary",
@@ -10,26 +11,20 @@ export const DatePicker = ({
   buttonVariant?: "primary" | "secondary" | "tertiary";
 }) => {
   const { safePush } = useNavigationGuard();
-  const { colors } = useTheme();
 
   const handleCalendarPress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     safePush("/calendar");
   }, [safePush]);
 
-  // Map RoundButton variants to IOSButton variants
-  const iosVariant = buttonVariant === "primary" ? "glassProminent" : "glass";
-  const iconColor = buttonVariant === "primary" ? colors.black : colors.primaryText;
-  const buttonColor = buttonVariant === "primary" ? colors.accent : undefined;
-
   return (
-    <IOSButton
-      variant={iosVariant}
+    <DynamicRoundButton
+      variant={buttonVariant}
       systemIcon="calendar"
-      iconColor={iconColor}
-      buttonColor={buttonColor}
+      legacyIcon={Calendar}
       onPress={handleCalendarPress}
       accessibilityLabel="Open calendar"
+      controlSize="small"
     />
   );
 };

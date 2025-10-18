@@ -7,6 +7,7 @@ import {
   ViewToken,
 } from "react-native";
 import { BottomSheet, Host } from "@expo/ui/swift-ui";
+import { X } from "lucide-react-native";
 
 import { DotProgressIndicator } from "@/components/explainer-macros/DotProgressIndicator";
 import { MacrosOverview } from "@/components/explainer-macros/MacrosOverview";
@@ -14,8 +15,9 @@ import { CaloriesExplainer } from "@/components/explainer-macros/CaloriesExplain
 import { ProteinExplainer } from "@/components/explainer-macros/ProteinExplainer";
 import { FatExplainer } from "@/components/explainer-macros/FatExplainer";
 import { CarbsExplainer } from "@/components/explainer-macros/CarbsExplainer";
-import { IOSButton } from "@/components/shared/IOSButton";
+import { DynamicRoundButton } from "@/components/shared/DynamicRoundButton";
 import { Colors, Theme, useTheme } from "@/theme";
+import { background } from "@expo/ui/swift-ui/modifiers";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -98,12 +100,11 @@ export const MacrosExplainerSheet: React.FC<MacrosExplainerSheetProps> = ({
               />
             </View>
             <View style={styles.closeButton}>
-              <IOSButton
-                variant="glass"
-                controlSize="regular"
+              <DynamicRoundButton
+                variant="secondary"
+                controlSize="small"
                 systemIcon="xmark"
-                iconColor={colors.primaryText}
-                iconPadding={{ vertical: theme.spacing.xs * 1.5 }}
+                legacyIcon={X}
                 onPress={onClose}
               />
             </View>

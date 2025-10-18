@@ -7,15 +7,15 @@ import {
   StyleSheet,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
+import { ChevronRight, X } from "lucide-react-native";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { Card, AppText, Button } from "src/components";
-import { ChevronRight } from "lucide-react-native";
 import { AppearanceCard } from "@/components/settings/AppearanceCard";
 import { seedFoodLogs } from "@/utils/seed";
-import { IOSButton } from "@/components/shared/IOSButton";
+import { DynamicRoundButton } from "@/components/shared/DynamicRoundButton";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 
 export default function SettingsTab() {
@@ -94,13 +94,14 @@ export default function SettingsTab() {
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <GradientWrapper style={styles.container}>
         <View style={styles.closeButton}>
-          <IOSButton
-            variant="glass"
+          <DynamicRoundButton
+            variant="secondary"
             systemIcon="xmark"
-            iconColor={colors.primaryText}
+            legacyIcon={X}
             onPress={handleClose}
             accessibilityLabel="Go back"
             accessibilityHint="Returns to previous screen"
+            controlSize="small"
           />
         </View>
         <ScrollView
