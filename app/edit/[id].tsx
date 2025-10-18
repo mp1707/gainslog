@@ -282,7 +282,8 @@ export default function Edit() {
         style={[styles.scrollView]}
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="handled"
-        bounces={false}
+        // add this again if this page should have crashes while scrolling 
+        // bounces={false}
         overScrollMode="never"
         scrollEnabled={!sheetOpen}
       >
