@@ -13,6 +13,8 @@ export const createStyles = (
       alignItems: "center",
       justifyContent: "center",
       borderRadius: 1000, // Ensures perfect circle regardless of size
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
     },
     primary: {
       backgroundColor: colors.accent,

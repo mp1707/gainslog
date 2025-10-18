@@ -4,6 +4,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { LucideIcon } from "lucide-react-native";
@@ -43,6 +44,7 @@ export const RoundButton = React.memo<RoundButtonProps>(
     const styles = createStyles(colors, theme, colorScheme);
 
     const scale = useSharedValue(1);
+    const brightness = useSharedValue(0);
     const fontScale = PixelRatio.getFontScale();
 
     const adjustedIconSize = iconSize * fontScale;
@@ -100,29 +102,33 @@ export const RoundButton = React.memo<RoundButtonProps>(
     const handlePressIn = useCallback(
       (event: any) => {
         if (!disabled) {
-          scale.value = withSpring(0.95, {
-            stiffness: 400,
-            damping: 30,
+          scale.value = withSpring(1.4, {
+            stiffness: 600,
+            damping: 22,
           });
+
+          brightness.value = withTiming(0.3);
 
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }
         onPressIn?.(event);
       },
-      [disabled, onPressIn, scale]
+      [disabled, onPressIn, scale, brightness]
     );
 
     const handlePressOut = useCallback(
       (event: any) => {
         if (!disabled) {
           scale.value = withSpring(1, {
-            stiffness: 400,
-            damping: 30,
+            stiffness: 600,
+            damping: 22,
           });
+
+           brightness.value = withTiming(0);
         }
         onPressOut?.(event);
       },
-      [disabled, onPressOut, scale]
+      [disabled, onPressOut, scale, brightness]
     );
 
     const handlePress = useCallback(
@@ -136,6 +142,10 @@ export const RoundButton = React.memo<RoundButtonProps>(
 
     const animatedStyle = useAnimatedStyle(() => ({
       transform: [{ scale: scale.value }],
+    }));
+
+    const brightnessStyle = useAnimatedStyle(() => ({
+      opacity: brightness.value,
     }));
 
     return (
@@ -169,6 +179,22 @@ export const RoundButton = React.memo<RoundButtonProps>(
               },
             ]}
           >
+            <Animated.View
+              style={[
+                {
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor:
+                    variant === "primary" ? "transparent" : "#fff",
+                  borderRadius: containerSize / 2,
+                },
+                brightnessStyle,
+              ]}
+              pointerEvents="none"
+            />
             <Icon
               size={adjustedIconSize}
               color={getIconColor()}
