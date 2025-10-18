@@ -1,7 +1,4 @@
-import {
-  StyleSheet,
-  View,
-} from "react-native";
+import { StyleSheet, View } from "react-native";
 import React, { useMemo } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
@@ -34,18 +31,21 @@ export default function TodayTab() {
   const insets = useSafeAreaInsets();
 
   // Dynamic header height calculation using 8pt grid system
-  const headerHeight = useMemo(() =>
-    theme.layout.calculateHeaderHeight(insets.top),
+  const headerHeight = useMemo(
+    () => theme.layout.calculateHeaderHeight(insets.top),
     [theme.layout, insets.top]
   );
 
   // Content offset calculation for glass effect positioning
-  const contentOffset = useMemo(() =>
-    theme.layout.calculateContentOffset(headerHeight),
+  const contentOffset = useMemo(
+    () => theme.layout.calculateContentOffset(headerHeight),
     [theme.layout, headerHeight]
   );
 
-  const styles = useMemo(() => createStyles(colors, headerHeight), [colors, headerHeight]);
+  const styles = useMemo(
+    () => createStyles(colors, headerHeight),
+    [colors, headerHeight]
+  );
   const transparentBackground = colors.primaryBackground + "00";
 
   // Get the entire state for selectors and individual functions
@@ -120,7 +120,7 @@ export default function TodayTab() {
       />
       <LinearGradient
         colors={[colors.primaryBackground, transparentBackground]}
-        locations={[0.65, 1]}
+        locations={[0.75, 1]}
         style={[styles.gradientOverlay, { height: headerHeight }]}
         pointerEvents="none"
       />
@@ -130,8 +130,8 @@ export default function TodayTab() {
         maskElement={
           <LinearGradient
             colors={[
-              colors.secondaryBackground,
-              colors.secondaryBackground,
+              colors.primaryBackground,
+              colors.primaryBackground,
               "transparent",
             ]}
             locations={[0, 0.7, 1]}
@@ -176,7 +176,7 @@ const createStyles = (colors: Colors, _headerHeight: number) => {
       left: 0,
       right: 0,
       // Height is set dynamically via headerHeight prop
-      opacity: 0.6,
+      opacity: 0.8,
       zIndex: 1,
     },
     blurContainer: {
