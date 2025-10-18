@@ -19,6 +19,8 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       shadowRadius: 16,
       shadowOffset: { width: 0, height: 12 },
       elevation: 8,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
     },
     backdrop: {
       backgroundColor: colors.secondaryBackground,

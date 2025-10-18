@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useMemo } from "react";
-import { View } from "react-native";
+import { View, StyleSheet } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
+  withTiming,
   interpolateColor,
+  Easing,
 } from "react-native-reanimated";
 import { Check, Lightbulb, X } from "lucide-react-native";
 import { AppText } from "@/components";
@@ -88,14 +89,13 @@ const RecommendationComponentRow: React.FC<{
   theme,
 }) => {
   const expandProgress = useSharedValue(0);
-  const { damping, stiffness } = theme.interactions.press.spring;
 
   useEffect(() => {
-    expandProgress.value = withSpring(isExpanded ? 1 : 0, {
-      damping,
-      stiffness,
+    expandProgress.value = withTiming(isExpanded ? 1 : 0, {
+      duration: 300,
+      easing: Easing.out(Easing.cubic),
     });
-  }, [expandProgress, isExpanded, damping, stiffness]);
+  }, [expandProgress, isExpanded]);
 
   const expandedStyle = useAnimatedStyle(() => ({
     maxHeight: expandProgress.value * 300,
@@ -174,6 +174,8 @@ const RecommendationComponentRow: React.FC<{
                         padding: theme.spacing.xs,
                         margin: -theme.spacing.xs,
                         borderRadius: 18,
+                        borderWidth: StyleSheet.hairlineWidth,
+                        borderColor: colors.border,
                       },
                       xIconStyle,
                     ]}

@@ -43,11 +43,6 @@ interface TriggerFrame {
 }
 
 const SCREEN_MARGIN = 12;
-const SPRING_CONFIG = {
-  damping: 18,
-  mass: 0.45,
-  stiffness: 190,
-};
 
 export const MenuPopover: React.FC<MenuPopoverProps> = ({
   visible,
@@ -68,8 +63,10 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
 
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
-  const scale = useSharedValue(0.92);
+  const scale = useSharedValue(0.3);
   const opacity = useSharedValue(0);
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
 
   useEffect(() => {
     return () => {
@@ -102,18 +99,102 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
   }, [visible, triggerRef]);
 
   useEffect(() => {
-    if (!shouldRender) {
+    if (!shouldRender || !triggerFrame || !contentSize) {
       return;
     }
 
     if (visible) {
-      scale.value = withSpring(1, SPRING_CONFIG);
-      opacity.value = withTiming(1, { duration: 160, easing: Easing.out(Easing.ease) });
+      // Calculate offset for transform origin effect
+      const buttonCenterX = triggerFrame.x + triggerFrame.width / 2;
+      const buttonCenterY = triggerFrame.y + triggerFrame.height / 2;
+
+      // Calculate menu position (we need to compute where the menu will be)
+      const menuHeight = contentSize.height;
+      const triggerBottom = triggerFrame.y + triggerFrame.height;
+      const triggerRight = triggerFrame.x + triggerFrame.width;
+
+      const spaceBelow = windowHeight - triggerBottom - SCREEN_MARGIN;
+      const shouldDisplayAbove = spaceBelow < menuHeight + SPACING;
+
+      let menuTop: number;
+      if (shouldDisplayAbove) {
+        menuTop = Math.max(SCREEN_MARGIN, triggerFrame.y - menuHeight - SPACING);
+      } else {
+        menuTop = Math.min(
+          windowHeight - menuHeight - SCREEN_MARGIN,
+          triggerBottom + SPACING
+        );
+      }
+
+      let menuRight = windowWidth - triggerRight;
+      if (menuRight + MENU_WIDTH > windowWidth - SCREEN_MARGIN) {
+        menuRight = SCREEN_MARGIN;
+      }
+
+      const menuLeft = windowWidth - menuRight - MENU_WIDTH;
+      const menuCenterX = menuLeft + MENU_WIDTH / 2;
+      const menuCenterY = menuTop + menuHeight / 2;
+
+      // Calculate offset from menu center to button center
+      const offsetX = buttonCenterX - menuCenterX;
+      const offsetY = buttonCenterY - menuCenterY;
+
+      // Set initial position offset
+      translateX.value = offsetX;
+      translateY.value = offsetY;
+
+      // Animate to final position with smooth easing (no overshoot)
+      const openDuration = 150;
+      const openEasing = Easing.out(Easing.cubic);
+
+      scale.value = withTiming(1, { duration: openDuration, easing: openEasing });
+      opacity.value = withTiming(1, { duration: openDuration, easing: openEasing });
+      translateX.value = withTiming(0, { duration: openDuration, easing: openEasing });
+      translateY.value = withTiming(0, { duration: openDuration, easing: openEasing });
     } else {
-      scale.value = withTiming(0.95, { duration: 120, easing: Easing.in(Easing.ease) });
-      opacity.value = withTiming(0, { duration: 120, easing: Easing.in(Easing.ease) });
+      // Calculate the same offset for closing animation
+      const buttonCenterX = triggerFrame.x + triggerFrame.width / 2;
+      const buttonCenterY = triggerFrame.y + triggerFrame.height / 2;
+
+      const menuHeight = contentSize.height;
+      const triggerBottom = triggerFrame.y + triggerFrame.height;
+      const triggerRight = triggerFrame.x + triggerFrame.width;
+
+      const spaceBelow = windowHeight - triggerBottom - SCREEN_MARGIN;
+      const shouldDisplayAbove = spaceBelow < menuHeight + SPACING;
+
+      let menuTop: number;
+      if (shouldDisplayAbove) {
+        menuTop = Math.max(SCREEN_MARGIN, triggerFrame.y - menuHeight - SPACING);
+      } else {
+        menuTop = Math.min(
+          windowHeight - menuHeight - SCREEN_MARGIN,
+          triggerBottom + SPACING
+        );
+      }
+
+      let menuRight = windowWidth - triggerRight;
+      if (menuRight + MENU_WIDTH > windowWidth - SCREEN_MARGIN) {
+        menuRight = SCREEN_MARGIN;
+      }
+
+      const menuLeft = windowWidth - menuRight - MENU_WIDTH;
+      const menuCenterX = menuLeft + MENU_WIDTH / 2;
+      const menuCenterY = menuTop + menuHeight / 2;
+
+      const offsetX = buttonCenterX - menuCenterX;
+      const offsetY = buttonCenterY - menuCenterY;
+
+      // Animate back to button position with smooth easing
+      const closeDuration = 100;
+      const closeEasing = Easing.in(Easing.cubic);
+
+      scale.value = withTiming(0.3, { duration: closeDuration, easing: closeEasing });
+      opacity.value = withTiming(0, { duration: closeDuration, easing: closeEasing });
+      translateX.value = withTiming(offsetX, { duration: closeDuration, easing: closeEasing });
+      translateY.value = withTiming(offsetY, { duration: closeDuration, easing: closeEasing });
     }
-  }, [visible, opacity, scale, shouldRender]);
+  }, [visible, opacity, scale, translateX, translateY, shouldRender, triggerFrame, contentSize, windowWidth, windowHeight, theme]);
 
   const handleContentLayout = useCallback((event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
@@ -162,7 +243,11 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
-    transform: [{ scale: scale.value }],
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+      { scale: scale.value },
+    ],
   }));
 
   const handleSettingsPress = useCallback(() => {
