@@ -1,7 +1,9 @@
 // Text-based nutrition estimation using OpenAI with component breakdown
 // deno-lint-ignore-file
 // @ts-nocheck
-import { OpenAI } from "https://deno.land/x/openai@v4.52.7/mod.ts";
+import OpenAI from "jsr:@openai/openai@6.5.0";
+import { z } from "npm:zod@3.25.1";
+import { zodTextFormat } from "jsr:@openai/openai@6.5.0/helpers/zod";
 import { Ratelimit } from "https://cdn.skypack.dev/@upstash/ratelimit@latest";
 import { Redis } from "https://deno.land/x/upstash_redis@v1.19.3/mod.ts";
 const ratelimit = new Ratelimit({
@@ -24,15 +26,14 @@ const ERROR_RESPONSE = {
   carbs: 0,
   fat: 0,
 };
-// UPDATED SYSTEM PROMPT:
-// - Restricts all component units to "g", "ml", or "piece".
-// - Removes any "needsRefinement" usage from the schema.
-// - Keeps OPTIONAL per-component "recommendedMeasurement" when unit is "piece".
+// ⚠️ SYSTEM PROMPT: kept intact (including examples), with ONLY minimal edits needed for Zod Structured Outputs:
+// - “no nulls” -> “no nulls EXCEPT where noted”
+// - recommendedMeasurement: REQUIRED but nullable (null unless unit === "piece")
 const SYSTEM_PROMPT = `You are a meticulous nutrition expert. Analyze a user's text description of a meal and return ONE valid JSON object with your nutritional estimation. Decompose the meal into components.
 
 STRICT OUTPUT RULES
 - Return ONLY one JSON object (no prose, no markdown, no trailing text).
-- Use EXACTLY the schema below (no extra keys, no nulls).
+- Use EXACTLY the schema below (no extra keys, no nulls EXCEPT where noted).
 - All numbers must be integers. Round half up.
 - Units must be lowercase and singular.
 - Totals (calories, protein, carbs, fat) must be the sum of components and roughly consistent with kcal ≈ 4p + 4c + 9f.
@@ -45,8 +46,8 @@ JSON OUTPUT SCHEMA
       "name": "string",
       "amount": number,
       "unit": "string",
-      // OPTIONAL — include ONLY when unit is "piece"
-      // "recommendedMeasurement": { "amount": number, "unit": "string" }
+      // REQUIRED but set to null unless unit is "piece":
+      // "recommendedMeasurement": { "amount": number, "unit": "string" } | null
     }
   ],
   "calories": integer,
@@ -65,7 +66,7 @@ UNIT & SYNONYM NORMALIZATION
   * "pcs", "pieces", "slice", "slices" → "piece"
 - Prefer exact measurable units ("g" or "ml").
 - Use the ambiguous unit "piece" only when it is the clearest description (e.g., whole apple, burger).
-- Whenever you output "piece", ALSO add "recommendedMeasurement" with a realistic exact alternative (prefer "g" or "ml").
+- REQUIRED NULLABILITY: If unit is NOT "piece", set "recommendedMeasurement": null. If unit IS "piece", include a realistic recommended measurement (prefer "g" or "ml").
 
 CORE LOGIC
 1) Deconstruct the description into distinct, specific components. Avoid vague catch-alls when detail is implied (e.g., choose "tomato sauce" over "sauce" if context suggests it).
@@ -88,9 +89,9 @@ Expected JSON:
 {
   "generatedTitle": "🥣 Oats with Milk",
   "foodComponents": [
-    { "name": "oats", "amount": 40, "unit": "g" },
-    { "name": "milk", "amount": 200, "unit": "ml" },
-    { "name": "almonds", "amount": 15, "unit": "g" }
+    { "name": "oats", "amount": 40, "unit": "g", "recommendedMeasurement": null },
+    { "name": "milk", "amount": 200, "unit": "ml", "recommendedMeasurement": null },
+    { "name": "almonds", "amount": 15, "unit": "g", "recommendedMeasurement": null }
   ],
   "calories": 310,
   "protein": 13,
@@ -104,8 +105,8 @@ Expected JSON:
 {
   "generatedTitle": "🍎 Muesli with Apple",
   "foodComponents": [
-    { "name": "muesli", "amount": 60, "unit": "g" },
-    { "name": "quark", "amount": 200, "unit": "g" },
+    { "name": "muesli", "amount": 60, "unit": "g", "recommendedMeasurement": null },
+    { "name": "quark", "amount": 200, "unit": "g", "recommendedMeasurement": null },
     { "name": "apple", "amount": 1, "unit": "piece", "recommendedMeasurement": { "amount": 180, "unit": "g" } }
   ],
   "calories": 460,
@@ -121,7 +122,7 @@ Expected JSON:
   "generatedTitle": "🍕 Pizza & Cola",
   "foodComponents": [
     { "name": "pepperoni pizza slice", "amount": 2, "unit": "piece", "recommendedMeasurement": { "amount": 300, "unit": "g" } },
-    { "name": "cola", "amount": 330, "unit": "ml" }
+    { "name": "cola", "amount": 330, "unit": "ml", "recommendedMeasurement": null }
   ],
   "calories": 880,
   "protein": 30,
@@ -135,10 +136,10 @@ Expected JSON:
 {
   "generatedTitle": "🍗 Chicken Plate",
   "foodComponents": [
-    { "name": "grilled chicken breast", "amount": 180, "unit": "g" },
-    { "name": "cooked white rice", "amount": 150, "unit": "g" },
-    { "name": "mixed vegetables", "amount": 100, "unit": "g" },
-    { "name": "fruit smoothie", "amount": 250, "unit": "ml" }
+    { "name": "grilled chicken breast", "amount": 180, "unit": "g", "recommendedMeasurement": null },
+    { "name": "cooked white rice", "amount": 150, "unit": "g", "recommendedMeasurement": null },
+    { "name": "mixed vegetables", "amount": 100, "unit": "g", "recommendedMeasurement": null },
+    { "name": "fruit smoothie", "amount": 250, "unit": "ml", "recommendedMeasurement": null }
   ],
   "calories": 730,
   "protein": 55,
@@ -152,6 +153,26 @@ function validateApiKey(request) {
   const apiKeyHeader = request.headers.get("apikey");
   return authHeader?.startsWith("Bearer ") || apiKeyHeader;
 }
+// ---------- Zod schema (all fields required; “optional” fields are nullable) ----------
+const RecommendedMeasurement = z.object({
+  amount: z.number().int().nonnegative(),
+  unit: z.enum(["g", "ml"]),
+});
+const FoodComponent = z.object({
+  name: z.string(),
+  amount: z.number().int().nonnegative(),
+  unit: z.enum(["g", "ml", "piece"]),
+  // REQUIRED but nullable for Structured Outputs
+  recommendedMeasurement: RecommendedMeasurement.nullable(),
+});
+const NutritionEstimation = z.object({
+  generatedTitle: z.string(),
+  foodComponents: z.array(FoodComponent),
+  calories: z.number().int().nonnegative(),
+  protein: z.number().int().nonnegative(),
+  carbs: z.number().int().nonnegative(),
+  fat: z.number().int().nonnegative(),
+});
 Deno.serve(async (req) => {
   const identifier = getClientIp(req);
   const { success } = await ratelimit.limit(identifier);
@@ -228,68 +249,71 @@ Deno.serve(async (req) => {
         }
       );
     }
-    const userPrompt = `Estimate the nutrition for the following meal. If you use the unit "piece" for any component, ALSO include "recommendedMeasurement" with a realistic exact amount and unit (prefer grams or milliliters): ${description}.`;
-    const chatCompletion = await openai.chat.completions.create({
-      model: "gpt-5-mini",
-      messages: [
-        {
-          role: "system",
-          content: SYSTEM_PROMPT,
-        },
+    const userPrompt = `Estimate the nutrition for the following meal. If you use "piece" for any component, ALSO include "recommendedMeasurement" with a realistic exact amount and unit (prefer grams or milliliters): ${description}`;
+    // ▶️ Responses API + Zod Structured Outputs
+    const response = await openai.responses.create({
+      model: "gpt-4.1-mini",
+      instructions: SYSTEM_PROMPT,
+      input: [
         {
           role: "user",
-          content: userPrompt,
+          content: [
+            {
+              type: "input_text",
+              text: userPrompt,
+            },
+          ],
         },
       ],
-      response_format: {
-        type: "json_object",
+      text: {
+        // Enforce schema; all fields required; “optional” ones are nullable
+        format: zodTextFormat(NutritionEstimation, "nutrition_estimate"),
       },
-      verbosity: "medium",
-      reasoning_effort: "low",
+      top_p: 1,
     });
-    const messageContent = chatCompletion.choices[0].message.content;
-    if (!messageContent) throw new Error("AI returned an empty message.");
-    const nutrition = JSON.parse(messageContent);
-    // Sanitize and structure the final result with the new foodComponents field
+    // Prefer SDK-parsed output; fallback to raw JSON if needed
+    const nutrition =
+      response.output_parsed ?? JSON.parse(response.output_text || "{}");
+    // Sanitize and structure the final result
     const ALLOWED_UNITS = ["g", "ml", "piece"];
     const EXACT_UNITS = ["g", "ml"];
+    const foodComponents = Array.isArray(nutrition.foodComponents)
+      ? nutrition.foodComponents
+          .map((comp) => {
+            const lowerCaseUnit = String(comp.unit || "").toLowerCase();
+            const base = {
+              name: String(comp.name || "Unknown Item"),
+              amount: Math.max(0, Number(comp.amount) || 0),
+              unit: ALLOWED_UNITS.includes(lowerCaseUnit)
+                ? lowerCaseUnit
+                : "piece",
+            };
+            if (
+              base.unit === "piece" &&
+              comp.recommendedMeasurement &&
+              typeof comp.recommendedMeasurement === "object"
+            ) {
+              const rmAmount = Math.max(
+                0,
+                Number(comp.recommendedMeasurement.amount) || 0
+              );
+              const rmUnit = String(
+                comp.recommendedMeasurement.unit || ""
+              ).toLowerCase();
+              if (rmAmount > 0 && EXACT_UNITS.includes(rmUnit)) {
+                base.recommendedMeasurement = {
+                  amount: rmAmount,
+                  unit: rmUnit,
+                };
+              }
+            }
+            return base;
+          })
+          .filter((c) => c.name && c.name !== "Unknown Item")
+      : [];
     const result = {
       generatedTitle: nutrition.generatedTitle || "AI Estimate",
-      foodComponents: Array.isArray(nutrition.foodComponents)
-        ? nutrition.foodComponents
-            .map((comp) => {
-              const lowerCaseUnit = String(comp.unit || "").toLowerCase();
-              const base = {
-                name: String(comp.name || "Unknown Item"),
-                amount: Math.max(0, Number(comp.amount) || 0),
-                unit: ALLOWED_UNITS.includes(lowerCaseUnit)
-                  ? lowerCaseUnit
-                  : "piece",
-              };
-              // Pass through recommendedMeasurement if present and sane
-              if (
-                base.unit === "piece" &&
-                comp.recommendedMeasurement &&
-                typeof comp.recommendedMeasurement === "object"
-              ) {
-                const rmAmount = Math.max(
-                  0,
-                  Number(comp.recommendedMeasurement.amount) || 0
-                );
-                const rmUnit = String(
-                  comp.recommendedMeasurement.unit || ""
-                ).toLowerCase();
-                if (rmAmount > 0 && EXACT_UNITS.includes(rmUnit)) {
-                  base.recommendedMeasurement = {
-                    amount: rmAmount,
-                    unit: rmUnit,
-                  };
-                }
-              }
-              return base;
-            })
-            .filter((comp) => comp.name && comp.name !== "Unknown Item")
-        : [],
+      foodComponents,
       calories: Math.max(0, Math.round(nutrition.calories || 0)),
       protein: Math.max(0, Math.round(nutrition.protein || 0)),
       carbs: Math.max(0, Math.round(nutrition.carbs || 0)),

@@ -1,7 +1,9 @@
 // functions/refine-nutrition/index.ts
 // deno-lint-ignore-file
 // @ts-nocheck
-import { OpenAI } from "https://deno.land/x/openai@v4.52.7/mod.ts";
+import OpenAI from "jsr:@openai/openai@6.5.0";
+import { z } from "npm:zod@3.25.1";
+import { zodTextFormat } from "jsr:@openai/openai@6.5.0/helpers/zod";
 import { Ratelimit } from "https://cdn.skypack.dev/@upstash/ratelimit@latest";
 import { Redis } from "https://deno.land/x/upstash_redis@v1.19.3/mod.ts";
 const ratelimit = new Ratelimit({
@@ -86,6 +88,13 @@ function validateApiKey(request) {
   const apiKeyHeader = request.headers.get("apikey");
   return authHeader?.startsWith("Bearer ") || apiKeyHeader;
 }
+// ---------- Zod schema for Structured Outputs (all fields required) ----------
+const NutritionTotals = z.object({
+  calories: z.number().int().nonnegative(),
+  protein: z.number().int().nonnegative(),
+  carbs: z.number().int().nonnegative(),
+  fat: z.number().int().nonnegative(),
+});
 Deno.serve(async (req) => {
   const identifier = getClientIp(req);
   const { success } = await ratelimit.limit(identifier);
@@ -182,32 +191,34 @@ Deno.serve(async (req) => {
         JSON.stringify(payload)
       : "Calculate the total nutrition using general nutrition knowledge for these components: " +
         JSON.stringify(payload);
-    const chatCompletion = await openai.chat.completions.create({
-      model: "gpt-5-mini",
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt,
-        },
+    // ▶️ Responses API + Zod Structured Outputs
+    const response = await openai.responses.create({
+      model: "gpt-4.1-mini",
+      instructions: systemPrompt,
+      input: [
         {
           role: "user",
-          content: userPrompt,
+          content: [
+            {
+              type: "input_text",
+              text: userPrompt,
+            },
+          ],
         },
       ],
-      response_format: {
-        type: "json_object",
+      text: {
+        format: zodTextFormat(NutritionTotals, "nutrition_totals"),
       },
-      verbosity: "medium",
-      reasoning_effort: "low",
+      top_p: 1,
     });
-    const messageContent = chatCompletion.choices[0].message.content;
-    if (!messageContent) throw new Error("AI returned an empty message.");
-    const nutrition = JSON.parse(messageContent);
+    // Prefer SDK-parsed output; fallback to raw JSON if needed
+    const totals =
+      response.output_parsed ?? JSON.parse(response.output_text || "{}");
     const result = {
-      calories: Math.max(0, Math.round(nutrition.calories || 0)),
-      protein: Math.max(0, Math.round(nutrition.protein || 0)),
-      carbs: Math.max(0, Math.round(nutrition.carbs || 0)),
-      fat: Math.max(0, Math.round(nutrition.fat || 0)),
+      calories: Math.max(0, Math.round(totals.calories || 0)),
+      protein: Math.max(0, Math.round(totals.protein || 0)),
+      carbs: Math.max(0, Math.round(totals.carbs || 0)),
+      fat: Math.max(0, Math.round(totals.fat || 0)),
     };
     return new Response(JSON.stringify(result), {
       status: 200,

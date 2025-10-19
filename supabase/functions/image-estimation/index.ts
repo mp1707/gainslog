@@ -1,7 +1,9 @@
 // deno-lint-ignore-file
 // @ts-nocheck
 // Image-based nutrition estimation using OpenAI Vision API (New API Key System)
-import { OpenAI } from "https://deno.land/x/openai@v4.52.7/mod.ts";
+import OpenAI from "jsr:@openai/openai@6.5.0";
+import { z } from "npm:zod@3.25.1";
+import { zodTextFormat } from "jsr:@openai/openai@6.5.0/helpers/zod";
 import { Ratelimit } from "https://cdn.skypack.dev/@upstash/ratelimit@latest";
 import { Redis } from "https://deno.land/x/upstash_redis@v1.19.3/mod.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.39.4";
@@ -35,173 +37,60 @@ function getClientIp(req) {
   if (ipHeader) return ipHeader.split(",")[0].trim();
   return "unknown";
 }
+const SYSTEM_PROMPT = `You are a meticulous nutrition expert for FOOD IMAGE analysis. Given one image (+ optional user text), return exactly ONE JSON object that matches the Zod schema "NutritionEstimation". No prose, no markdown.
 
-const SYSTEM_PROMPT = `You are a meticulous nutrition expert specializing in food IMAGE analysis. Analyze a single food image (plus any optional user text) and return ONE valid JSON object with your nutritional estimation. Decompose the meal into components.
+RULES
+- Follow the schema exactly (no extra keys). Integers only; round half up.
+- Units: "g", "ml", "piece" (lowercase, singular). Normalize synonyms: "pcs" → "piece".
+- Totals (calories, protein, carbs, fat) must be coherent: kcal ≈ 4*protein + 4*carbs + 9*fat.
+- Do NOT invent hidden ingredients (oil, butter, etc.) unless clearly visible.
+- Prefer specific names: "grilled chicken breast", "cooked white rice", etc.
+- If the image is NOT food: empty foodComponents and all totals 0 with a clear title "🚫 not food".
 
-STRICT OUTPUT RULES
-- Return ONLY one JSON object (no prose, no markdown, no trailing text).
-- Use EXACTLY the schema rules below (no extra keys, no nulls).
-- All numbers must be integers. Round half up.
-- Units must be lowercase and singular.
-- Totals (calories, protein, carbs, fat) must be the sum of components and roughly consistent with kcal ≈ 4p + 4c + 9f.
-- OPTIONAL FIELD POLICY (label basis): Include "macrosPerReferencePortion" ONLY if the image shows an exact printed nutrition label with numeric macro values tied to a clear basis (e.g., "per 100 g", "per 1 serving (40 g)"). If not exact, omit this field entirely.
-- OPTIONAL FIELD POLICY (recommendedMeasurement): If you output the ambiguous unit "piece" for a component, ALSO include a "recommendedMeasurement" with an exact measurable alternative (e.g., grams or milliliters) that best fits the item. This gives the user a precise option to accept later.
+NULLABLE FIELDS (must always be present but may be null)
+- For any component:
+  - If unit === "piece", set "recommendedMeasurement" to an exact measurable alternative (e.g., { "amount": 180, "unit": "g" }).
+  - Otherwise set "recommendedMeasurement": null.
+- "macrosPerReferencePortion": include ONLY if an exact nutrition label with numeric macros and a clear basis is visible; otherwise null.
+  - When present, "referencePortionAmount" must be just the numeric amount + unit (e.g., "40 g", "100 ml").
 
-JSON OUTPUT SCHEMA
-{
-  "generatedTitle": "string",
-  "foodComponents": [
-    {
-      "name": "string",
-      "amount": number,
-      "unit": "string",
-      // OPTIONAL — include ONLY when unit is "piece"
-      // "recommendedMeasurement": { "amount": number, "unit": "string" }
-    }
-  ],
-  "calories": integer,
-  "protein": integer,
-  "carbs": integer,
-  "fat": integer,
-  // OPTIONAL — include ONLY when an exact nutrition label is visible and unambiguous:
-  // "macrosPerReferencePortion": {
-  //   "referencePortionAmount": "string",          // EXACT amount string like "40 g" or "100 ml" (no extra words)
-  //   "caloriesForReferencePortion": integer,
-  //   "proteinForReferencePortion": integer,
-  //   "carbsForReferencePortion": integer,
-  //   "fatForReferencePortion": integer
-  // }
-}
+ESTIMATION GUIDANCE
+- Components: identify 1–10 visible key items. Estimate amounts via plate size, common utensil sizes, labels in frame, etc.
+- Title: one fitting emoji + 1–3 concise words (no punctuation).
+- Keep outputs concise and realistic.
 
-VALID UNITS (unit fields)
-"g", "ml", "piece"
-
-UNIT & SYNONYM NORMALIZATION
-- Normalize plurals and synonyms:
-  * "pcs" → "piece"
-- Prefer units that are exact ("g" or "ml")
-- Only use the ambiguous unit "piece" if it makes more sense than exact ones (for example an apple is usually described as 1 piece)
-- When using "piece", ALSO provide "recommendedMeasurement" with a realistic exact amount and unit (prefer "g" or "ml" when appropriate).
-
-CORE LOGIC
-1) Food check:
-   - If the image does NOT contain food, return a valid JSON with empty foodComponents and all totals 0, and a clear title (see "INVALID IMAGE TEMPLATE" below). Do NOT invent components.
-2) Deconstruct:
-   - Identify 1–10 key components visible in the image. Prefer specificity ("grilled chicken breast" over "chicken"; "cooked white rice" over "rice").
-   - Do not hallucinate hidden ingredients (e.g., butter/oil) unless clearly visible (oil sheen, sauce puddle).
-3) Amount handling (CRITICAL):
-   - From the image, estimate quantities using visual cues (plate size, standard utensil sizes, package labels, measuring cups/spoons, can volumes).
-   - If you choose "piece", ALSO add "recommendedMeasurement" with a best-fit exact alternative (e.g., a medium apple → {"amount": 180, "unit": "g"}).
-4) Nutrition label extraction (OPTIONAL "macrosPerReferencePortion"):
-   - Include ONLY if a clear nutrition facts/label with exact numeric macros is visible.
-   - Extract the basis as "referencePortionAmount": a concise string containing only the numeric value and unit (e.g., "40 g", "100 ml", "8 oz").
-   - If both a serving phrase and a gram/milliliter amount are shown (e.g., "per 1 serving (40 g)"), use the precise measurable basis: "40 g".
-   - Omit "macrosPerReferencePortion" if the basis or macro values are not fully visible and exact.
-5) Title:
-   - generatedTitle starts with ONE fitting emoji + 1–3 concise words (no punctuation). Examples: "🍛 Curry Plate", "🥗 Chicken Bowl".
-6) Macros:
-   - Provide realistic integers for calories, protein, carbs, fat as totals across components.
-   - Keep kcal consistent with macros (1g protein = 4 kcal, 1g carbs = 4 kcal, 1g fat = 9 kcal).
-
-EXAMPLES
-
-AMBIGUOUS UNIT WITH RECOMMENDED MEASUREMENT
-User/Image context: a medium apple.
-Expected JSON: {
-  "generatedTitle": "🍏 Medium Apple",
-  "foodComponents": [
-    {
-      "name": "medium apple",
-      "amount": 1,
-      "unit": "piece",
-      "recommendedMeasurement": { "amount": 180, "unit": "g" }
-    }
-  ],
-  "calories": 95,
-  "protein": 0,
-  "carbs": 25,
-  "fat": 0
-}
-
-HIGH CONFIDENCE (visible scale + labeled portions)
-User/Image context: A plate with grilled chicken on a digital scale reading “180 g”, rice in a bowl labeled “200 g”, and steamed broccoli on a small plate tagged “60 g”.
-Expected JSON:
-{
-  "generatedTitle": "🍗 Chicken & Rice",
-  "foodComponents": [
-    { "name": "grilled chicken breast", "amount": 180, "unit": "g" },
-    { "name": "cooked white rice", "amount": 200, "unit": "g" },
-    { "name": "steamed broccoli", "amount": 60, "unit": "g" }
-  ],
-  "calories": 620,
-  "protein": 50,
-  "carbs": 68,
-  "fat": 16
-}
-
-MEDIUM CONFIDENCE (clear but no exact measures)
-User/Image context: A burger on a dinner plate with a side of fries and a small ketchup cup.
-Expected JSON:
-{
-  "generatedTitle": "🍔 Burger & Fries",
-  "foodComponents": [
-    { "name": "cheeseburger", "amount": 1, "unit": "piece", "recommendedMeasurement": { "amount": 250, "unit": "g" } },
-    { "name": "french fries", "amount": 120, "unit": "g" },
-    { "name": "ketchup", "amount": 30, "unit": "ml" }
-  ],
-  "calories": 820,
-  "protein": 30,
-  "carbs": 82,
-  "fat": 40
-}
-
-LOW CONFIDENCE (ambiguous container; partial occlusion)
-User/Image context: A takeout soup cup with creamy soup; size unclear; spoon blocks view; bread may be present off-frame.
-Expected JSON:
-{
-  "generatedTitle": "🥣 Creamy Soup",
-  "foodComponents": [
-    { "name": "cream-based soup (estimate)", "amount": 300, "unit": "ml" }
-  ],
-  "calories": 270,
-  "protein": 6,
-  "carbs": 18,
-  "fat": 18
-}
-
-NUTRITION LABEL PRESENT (include macrosPerReferencePortion)
-User/Image context: A packaged granola bar with label: "Per 1 serving (40 g): 190 kcal • Protein 6 g • Carbs 24 g • Fat 7 g."
-Expected JSON:
-{
-  "generatedTitle": "🍫 Granola Bar",
-  "foodComponents": [
-    { "name": "granola bar", "amount": 1, "unit": "piece", "recommendedMeasurement": { "amount": 40, "unit": "g" } }
-  ],
-  "calories": 190,
-  "protein": 6,
-  "carbs": 24,
-  "fat": 7,
-  "macrosPerReferencePortion": {
-    "referencePortionAmount": "40 g",
-    "caloriesForReferencePortion": 190,
-    "proteinForReferencePortion": 6,
-    "carbsForReferencePortion": 24,
-    "fatForReferencePortion": 7
-  }
-}
-
-INVALID IMAGE TEMPLATE (no food)
-Return this shape if the image is not food:
-{
-  "generatedTitle": "🚫 Not Food",
-  "foodComponents": [],
-  "calories": 0,
-  "protein": 0,
-  "carbs": 0,
-  "fat": 0
-}
-`;
+OUTPUT
+- Return only the JSON object, no trailing text.`;
 const openai = new OpenAI();
+// ---------- Zod schema (all fields required; “optional” fields are nullable) ----------
+const RecommendedMeasurement = z.object({
+  amount: z.number().int().nonnegative(),
+  unit: z.enum(["g", "ml"]),
+});
+const FoodComponent = z.object({
+  name: z.string(),
+  amount: z.number().int().nonnegative(),
+  unit: z.enum(["g", "ml", "piece"]),
+  // REQUIRED but nullable for Structured Outputs
+  recommendedMeasurement: RecommendedMeasurement.nullable(),
+});
+const MacrosPerReferencePortion = z.object({
+  referencePortionAmount: z.string(),
+  caloriesForReferencePortion: z.number().int().nonnegative(),
+  proteinForReferencePortion: z.number().int().nonnegative(),
+  carbsForReferencePortion: z.number().int().nonnegative(),
+  fatForReferencePortion: z.number().int().nonnegative(),
+});
+const NutritionEstimation = z.object({
+  generatedTitle: z.string(),
+  foodComponents: z.array(FoodComponent),
+  calories: z.number().int().nonnegative(),
+  protein: z.number().int().nonnegative(),
+  carbs: z.number().int().nonnegative(),
+  fat: z.number().int().nonnegative(),
+  // REQUIRED but nullable for Structured Outputs
+  macrosPerReferencePortion: MacrosPerReferencePortion.nullable(),
+});
 // Simple API key validation
 function validateApiKey(request) {
   const authHeader = request.headers.get("authorization");
@@ -307,40 +196,34 @@ Deno.serve(async (req) => {
       if (description?.trim())
         userPrompt += ` Description: ${description.trim()}.`;
     }
-    const messages = [
-      {
-        role: "system",
-        content: SYSTEM_PROMPT,
-      },
-      {
-        role: "user",
-        content: [
-          {
-            type: "text",
-            text: userPrompt,
-          },
-          {
-            type: "image_url",
-            image_url: {
-              url: imageUrl,
-              detail: "high",
+    // Responses API + Zod Structured Outputs
+    const response = await openai.responses.create({
+      model: "gpt-4.1-mini",
+      instructions: SYSTEM_PROMPT,
+      input: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "input_text",
+              text: userPrompt,
             },
-          },
-        ],
+            {
+              type: "input_image",
+              image_url: imageUrl,
+              detail: "low",
+            },
+          ],
+        },
+      ],
+      text: {
+        format: zodTextFormat(NutritionEstimation, "nutrition_estimate"),
       },
-    ];
-    const chatCompletion = await openai.chat.completions.create({
-      model: "gpt-5-mini",
-      messages,
-      response_format: {
-        type: "json_object",
-      },
-      verbosity: "low",
-      reasoning_effort: "low",
+      top_p: 1,
     });
-    const messageContent = chatCompletion.choices?.[0]?.message?.content;
-    if (!messageContent) throw new Error("AI returned an empty message.");
-    const nutrition = JSON.parse(messageContent);
+    // SDK-parsed output when using zodTextFormat
+    const nutrition =
+      response.output_parsed ?? JSON.parse(response.output_text || "{}");
     const ALLOWED_UNITS = ["g", "ml", "piece"];
     const EXACT_UNITS = ["g", "ml"];
     // Sanitize components (no limit on number of components)
@@ -348,7 +231,6 @@ Deno.serve(async (req) => {
       ? nutrition.foodComponents
           .map((comp) => {
             const lowerCaseUnit = String(comp.unit || "").toLowerCase();
-            // Base component
             const base = {
               name: String(comp.name || "Unknown Item"),
               amount: Math.max(0, Number(comp.amount) || 0),
@@ -356,7 +238,7 @@ Deno.serve(async (req) => {
                 ? lowerCaseUnit
                 : "piece",
             };
-            // Optional recommendedMeasurement passthrough (normalize unit if present)
+            // recommendedMeasurement will be null unless unit === "piece"
             if (
               base.unit === "piece" &&
               comp.recommendedMeasurement &&
@@ -378,9 +260,9 @@ Deno.serve(async (req) => {
             }
             return base;
           })
-          .filter((comp) => comp.name && comp.name !== "Unknown Item")
+          .filter((c) => c.name && c.name !== "Unknown Item")
       : [];
-    // Optional macrosPerReferencePortion passthrough (no complex sanitization)
+    // Optional macrosPerReferencePortion passthrough (will be null when not present)
     let sanitizedReferenceMacros;
     if (
       nutrition.macrosPerReferencePortion &&
