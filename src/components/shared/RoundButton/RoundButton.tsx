@@ -120,8 +120,8 @@ export const RoundButton = React.memo<RoundButtonProps>(
       (event: any) => {
         if (!disabled) {
           scale.value = withSpring(1, {
-            stiffness: 600,
-            damping: 22,
+            stiffness: 800,
+            damping: 60,
           });
 
            brightness.value = withTiming(0);
