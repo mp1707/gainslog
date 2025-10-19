@@ -36,9 +36,11 @@ export const FoodLogItem: React.FC<FoodLogItemProps> = ({
       layout={LinearTransition}
     >
       <SwipeToFunctions
-        onDelete={() => onDelete(item)}
-        onLeftFunction={() => onToggleFavorite(item)}
-        leftIcon={<Star size={24} color="white" />}
+        onDelete={isItemLoading ? undefined : () => onDelete(item)}
+        onLeftFunction={
+          isItemLoading ? undefined : () => onToggleFavorite(item)
+        }
+        leftIcon={isItemLoading ? undefined : <Star size={24} color="white" />}
         onTap={isItemLoading ? undefined : () => onEdit(item)}
       >
         <LogCard
