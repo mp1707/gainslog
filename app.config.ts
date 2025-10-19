@@ -14,7 +14,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: "gainslog",
   version: "1.0.0",
   orientation: "portrait",
-  // userInterfaceStyle: "light",
   newArchEnabled: true,
   scheme: SCHEME,
   ios: {
@@ -28,11 +27,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       : IS_PREVIEW
       ? "com.mp17.mpapps.gainslog.preview"
       : "com.mp17.mpapps.gainslog",
-    icon: {
-      dark: "./assets/ios-dark.png",
-      light: "./assets/ios-light.png",
-      tinted: "./assets/ios-tinted.png",
-    },
+    icon: "./assets/app.icon",
   },
   android: {
     adaptiveIcon: {
