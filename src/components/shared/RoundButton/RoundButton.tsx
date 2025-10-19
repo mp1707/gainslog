@@ -188,7 +188,7 @@ export const RoundButton = React.memo<RoundButtonProps>(
                   right: 0,
                   bottom: 0,
                   backgroundColor:
-                    variant === "primary" ? "transparent" : "#fff",
+                    variant === "primary" ? "#fff" : "#fff",
                   borderRadius: containerSize / 2,
                 },
                 brightnessStyle,

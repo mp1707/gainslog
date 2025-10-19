@@ -26,15 +26,19 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       backgroundColor: colors.secondaryBackground,
       opacity: 0.5,
     },
-    content: {
-      paddingVertical: 4,
-    },
+    content: {},
     menuItem: {
       flexDirection: "row",
       alignItems: "center",
-      paddingVertical: 14,
+      paddingVertical: theme.spacing.md,
       paddingHorizontal: 16,
       gap: 14,
+    },
+    firstItem: {
+      paddingTop: theme.spacing.md + 4,
+    },
+    lastItem: {
+      paddingBottom: theme.spacing.md + 4,
     },
     separator: {
       height: 0.5,

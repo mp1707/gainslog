@@ -57,9 +57,10 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
 
   const [shouldRender, setShouldRender] = useState(false);
   const [triggerFrame, setTriggerFrame] = useState<TriggerFrame | null>(null);
-  const [contentSize, setContentSize] = useState<{ width: number; height: number } | null>(
-    null
-  );
+  const [contentSize, setContentSize] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
 
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
@@ -67,6 +68,15 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
   const opacity = useSharedValue(0);
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
+
+  // Menu item press animations
+  const settingsScale = useSharedValue(1);
+  const settingsBackgroundOpacity = useSharedValue(0);
+  const calendarScale = useSharedValue(1);
+  const calendarBackgroundOpacity = useSharedValue(0);
+
+  // Backdrop fade animation
+  const backdropOpacity = useSharedValue(0);
 
   useEffect(() => {
     return () => {
@@ -118,7 +128,10 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
 
       let menuTop: number;
       if (shouldDisplayAbove) {
-        menuTop = Math.max(SCREEN_MARGIN, triggerFrame.y - menuHeight - SPACING);
+        menuTop = Math.max(
+          SCREEN_MARGIN,
+          triggerFrame.y - menuHeight - SPACING
+        );
       } else {
         menuTop = Math.min(
           windowHeight - menuHeight - SCREEN_MARGIN,
@@ -147,10 +160,26 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
       const openDuration = 150;
       const openEasing = Easing.out(Easing.cubic);
 
-      scale.value = withTiming(1, { duration: openDuration, easing: openEasing });
-      opacity.value = withTiming(1, { duration: openDuration, easing: openEasing });
-      translateX.value = withTiming(0, { duration: openDuration, easing: openEasing });
-      translateY.value = withTiming(0, { duration: openDuration, easing: openEasing });
+      scale.value = withTiming(1, {
+        duration: openDuration,
+        easing: openEasing,
+      });
+      opacity.value = withTiming(1, {
+        duration: openDuration,
+        easing: openEasing,
+      });
+      translateX.value = withTiming(0, {
+        duration: openDuration,
+        easing: openEasing,
+      });
+      translateY.value = withTiming(0, {
+        duration: openDuration,
+        easing: openEasing,
+      });
+      backdropOpacity.value = withTiming(1, {
+        duration: openDuration,
+        easing: openEasing,
+      });
     } else {
       // Calculate the same offset for closing animation
       const buttonCenterX = triggerFrame.x + triggerFrame.width / 2;
@@ -165,7 +194,10 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
 
       let menuTop: number;
       if (shouldDisplayAbove) {
-        menuTop = Math.max(SCREEN_MARGIN, triggerFrame.y - menuHeight - SPACING);
+        menuTop = Math.max(
+          SCREEN_MARGIN,
+          triggerFrame.y - menuHeight - SPACING
+        );
       } else {
         menuTop = Math.min(
           windowHeight - menuHeight - SCREEN_MARGIN,
@@ -189,12 +221,41 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
       const closeDuration = 100;
       const closeEasing = Easing.in(Easing.cubic);
 
-      scale.value = withTiming(0.3, { duration: closeDuration, easing: closeEasing });
-      opacity.value = withTiming(0, { duration: closeDuration, easing: closeEasing });
-      translateX.value = withTiming(offsetX, { duration: closeDuration, easing: closeEasing });
-      translateY.value = withTiming(offsetY, { duration: closeDuration, easing: closeEasing });
+      scale.value = withTiming(0.3, {
+        duration: closeDuration,
+        easing: closeEasing,
+      });
+      opacity.value = withTiming(0, {
+        duration: closeDuration,
+        easing: closeEasing,
+      });
+      translateX.value = withTiming(offsetX, {
+        duration: closeDuration,
+        easing: closeEasing,
+      });
+      translateY.value = withTiming(offsetY, {
+        duration: closeDuration,
+        easing: closeEasing,
+      });
+      backdropOpacity.value = withTiming(0, {
+        duration: closeDuration,
+        easing: closeEasing,
+      });
     }
-  }, [visible, opacity, scale, translateX, translateY, shouldRender, triggerFrame, contentSize, windowWidth, windowHeight, theme]);
+  }, [
+    visible,
+    opacity,
+    scale,
+    translateX,
+    translateY,
+    backdropOpacity,
+    shouldRender,
+    triggerFrame,
+    contentSize,
+    windowWidth,
+    windowHeight,
+    theme,
+  ]);
 
   const handleContentLayout = useCallback((event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
@@ -250,6 +311,26 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
     ],
   }));
 
+  const settingsItemStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: settingsScale.value }],
+  }));
+
+  const settingsBackgroundStyle = useAnimatedStyle(() => ({
+    opacity: settingsBackgroundOpacity.value,
+  }));
+
+  const calendarItemStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: calendarScale.value }],
+  }));
+
+  const calendarBackgroundStyle = useAnimatedStyle(() => ({
+    opacity: calendarBackgroundOpacity.value,
+  }));
+
+  const backdropAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: backdropOpacity.value,
+  }));
+
   const handleSettingsPress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onClose();
@@ -267,6 +348,48 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
     onClose();
   }, [onClose]);
 
+  // Settings menu item press handlers
+  const handleSettingsPressIn = useCallback(() => {
+    Haptics.impactAsync(theme.interactions.haptics.light);
+    settingsScale.value = withTiming(
+      theme.interactions.press.scale,
+      theme.interactions.press.timing
+    );
+    settingsBackgroundOpacity.value = withTiming(
+      1,
+      theme.interactions.press.timing
+    );
+  }, [settingsScale, settingsBackgroundOpacity, theme]);
+
+  const handleSettingsPressOut = useCallback(() => {
+    settingsScale.value = withSpring(1, theme.interactions.press.spring);
+    settingsBackgroundOpacity.value = withTiming(
+      0,
+      theme.interactions.press.timing
+    );
+  }, [settingsScale, settingsBackgroundOpacity, theme]);
+
+  // Calendar menu item press handlers
+  const handleCalendarPressIn = useCallback(() => {
+    Haptics.impactAsync(theme.interactions.haptics.light);
+    calendarScale.value = withTiming(
+      theme.interactions.press.scale,
+      theme.interactions.press.timing
+    );
+    calendarBackgroundOpacity.value = withTiming(
+      1,
+      theme.interactions.press.timing
+    );
+  }, [calendarScale, calendarBackgroundOpacity, theme]);
+
+  const handleCalendarPressOut = useCallback(() => {
+    calendarScale.value = withSpring(1, theme.interactions.press.spring);
+    calendarBackgroundOpacity.value = withTiming(
+      0,
+      theme.interactions.press.timing
+    );
+  }, [calendarScale, calendarBackgroundOpacity, theme]);
+
   if (!shouldRender) {
     return null;
   }
@@ -279,11 +402,16 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
       visible
       onRequestClose={onClose}
     >
-      <Pressable
-        pointerEvents="box-only"
-        style={StyleSheet.absoluteFill}
-        onPress={handleOverlayPress}
-      />
+      <Animated.View
+        pointerEvents="box-none"
+        style={[StyleSheet.absoluteFill, backdropAnimatedStyle]}
+      >
+        <Pressable
+          pointerEvents="box-only"
+          style={StyleSheet.absoluteFill}
+          onPress={handleOverlayPress}
+        />
+      </Animated.View>
 
       {popoverGeometry ? (
         <Animated.View
@@ -303,25 +431,61 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
             <View style={[StyleSheet.absoluteFill, styles.backdrop]} />
             <View onLayout={handleContentLayout} style={styles.content}>
               <Pressable
-                style={styles.menuItem}
+                style={[styles.menuItem, styles.firstItem]}
                 onPress={handleSettingsPress}
+                onPressIn={handleSettingsPressIn}
+                onPressOut={handleSettingsPressOut}
                 accessibilityLabel="Open settings"
                 accessibilityRole="button"
               >
-                <Settings size={24} color={colors.primaryText} />
-                <AppText role="Subhead" color="primary">Settings</AppText>
+                <Animated.View
+                  style={[
+                    StyleSheet.absoluteFill,
+                    { backgroundColor: colors.subtleBackground },
+                    settingsBackgroundStyle,
+                  ]}
+                />
+                <Animated.View
+                  style={[
+                    { flexDirection: "row", alignItems: "center", gap: 12 },
+                    settingsItemStyle,
+                  ]}
+                >
+                  <Settings size={24} color={colors.primaryText} />
+                  <AppText role="Subhead" color="primary">
+                    Settings
+                  </AppText>
+                </Animated.View>
               </Pressable>
 
               <View style={styles.separator} />
 
               <Pressable
-                style={styles.menuItem}
+                style={[styles.menuItem, styles.lastItem]}
                 onPress={handleCalendarPress}
+                onPressIn={handleCalendarPressIn}
+                onPressOut={handleCalendarPressOut}
                 accessibilityLabel="Open calendar"
                 accessibilityRole="button"
               >
-                <CalendarDays size={24} color={colors.primaryText} />
-                <AppText role="Subhead" color="primary">Calendar</AppText>
+                <Animated.View
+                  style={[
+                    StyleSheet.absoluteFill,
+                    { backgroundColor: colors.subtleBackground },
+                    calendarBackgroundStyle,
+                  ]}
+                />
+                <Animated.View
+                  style={[
+                    { flexDirection: "row", alignItems: "center", gap: 12 },
+                    calendarItemStyle,
+                  ]}
+                >
+                  <CalendarDays size={24} color={colors.primaryText} />
+                  <AppText role="Subhead" color="primary">
+                    Calendar
+                  </AppText>
+                </Animated.View>
               </Pressable>
             </View>
           </View>
@@ -329,16 +493,20 @@ export const MenuPopover: React.FC<MenuPopoverProps> = ({
       ) : (
         <View style={styles.measureContainer} pointerEvents="none">
           <View onLayout={handleContentLayout} style={styles.content}>
-            <View style={styles.menuItem}>
+            <View style={[styles.menuItem, styles.firstItem]}>
               <Settings size={24} color={colors.primaryText} />
-              <AppText role="Subhead" color="primary">Settings</AppText>
+              <AppText role="Subhead" color="primary">
+                Settings
+              </AppText>
             </View>
 
             <View style={styles.separator} />
 
-            <View style={styles.menuItem}>
+            <View style={[styles.menuItem, styles.lastItem]}>
               <CalendarDays size={24} color={colors.primaryText} />
-              <AppText role="Subhead" color="primary">Calendar</AppText>
+              <AppText role="Subhead" color="primary">
+                Calendar
+              </AppText>
             </View>
           </View>
         </View>
