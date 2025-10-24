@@ -22,6 +22,7 @@ import {
 import Animated from "react-native-reanimated";
 
 import { AppText } from "@/components";
+import { AnimatedText } from "@/components/shared/AnimatedText";
 import { Theme, useTheme } from "@/theme";
 import { Flame } from "lucide-react-native";
 
@@ -311,6 +312,11 @@ const AnimatedRingLayer: React.FC<AnimatedRingLayerProps> = ({
     )
   );
 
+  // Throttle state updates to reduce JS thread load
+  // Track last update time on UI thread
+  const lastUpdateTime = useSharedValue(0);
+  const THROTTLE_MS = 50; // Update at most 20fps instead of 60fps
+
   const updateFromRatio = useCallback(
     (value: number) => {
       const nextState = calculateRingState(
@@ -338,8 +344,19 @@ const AnimatedRingLayer: React.FC<AnimatedRingLayerProps> = ({
 
   useAnimatedReaction(
     () => progress.value,
-    (value) => {
-      runOnJS(updateFromRatio)(value);
+    (value, previous) => {
+      const now = Date.now();
+      const timeSinceLastUpdate = now - lastUpdateTime.value;
+
+      // Only update if enough time has passed OR animation is complete
+      // This reduces JS callbacks from 60fps to ~20fps
+      if (
+        timeSinceLastUpdate >= THROTTLE_MS ||
+        Math.abs(value - (previous ?? 0)) < 0.001
+      ) {
+        lastUpdateTime.value = now;
+        runOnJS(updateFromRatio)(value);
+      }
     },
     [updateFromRatio]
   );
@@ -355,7 +372,7 @@ interface DashboardRingProps {
   trackColor?: string;
   textColor?: string;
   label?: string;
-  displayValue: string | number;
+  displayValue: string | number | SharedValue<number>;
   displayUnit?: string;
   detailValue?: string | number;
   detailUnit?: string;
@@ -417,10 +434,9 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
   const gapSize = 4;
   const radius = center - strokeWidth / 2 - gapSize;
   // Use neutral track fallback in light mode for cleaner appearance
-  const resolvedTrackColor = trackColor ?? (isDark
-    ? adjustColor(color, -0.55)
-    : "rgba(17, 24, 39, 0.06)" // neutral fallback for light
-  );
+  const resolvedTrackColor =
+    trackColor ??
+    (isDark ? adjustColor(color, -0.55) : "rgba(17, 24, 39, 0.06)"); // neutral fallback for light
   // Tip badge: solid color (lightened in light mode, darkened in dark mode)
   const tipBadgeBackground = isDark
     ? resolvedTrackColor
@@ -511,10 +527,18 @@ export const DashboardRing: React.FC<DashboardRingProps> = ({
         </Animated.View>
         <View style={styles.valueContainer} pointerEvents="none">
           <View style={styles.textLayer}>
-            <AppText
-              role="Title1"
-              style={textColor && { color: textColor }}
-            >{`${displayValue}`}</AppText>
+            {typeof displayValue === "object" && "value" in displayValue ? (
+              <AnimatedText
+                value={displayValue}
+                role="Title1"
+                style={textColor ? { color: textColor } : undefined}
+              />
+            ) : (
+              <AppText
+                role="Title1"
+                style={textColor && { color: textColor }}
+              >{`${displayValue}`}</AppText>
+            )}
 
             <AppText role="Caption" style={styles.remaining} color="secondary">
               {detailValue}

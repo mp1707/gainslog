@@ -87,3 +87,76 @@ export const selectDailyPercentages = (state: AppState, date: string) => {
     fat: calculatePercentage(totals.fat, targets?.fat),
   };
 };
+
+/**
+ * ## Optimized Combined Selector
+ * Single-pass computation for all daily data (logs, totals, percentages)
+ * Reduces 3 array iterations to 1 for better performance
+ */
+
+export interface DailyData {
+  logs: FoodLog[];
+  totals: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+  percentages: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
+}
+
+/**
+ * State slice required for selectDailyData computation
+ */
+export interface DailyDataState {
+  foodLogs: FoodLog[];
+  dailyTargets?: {
+    calories?: number;
+    protein?: number;
+    carbs?: number;
+    fat?: number;
+  };
+}
+
+/**
+ * Optimized selector that calculates logs, totals, and percentages in a single pass
+ * @param state - State slice containing foodLogs and dailyTargets
+ * @param date - The date string in "YYYY-MM-DD" format
+ * @returns Combined data object with logs, totals, and percentages
+ *
+ * Performance: Single pass through foodLogs array instead of 3 passes
+ */
+export const selectDailyData = (state: DailyDataState, date: string): DailyData => {
+  const logs: FoodLog[] = [];
+  const totals = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+
+  // Single pass: filter logs and calculate totals
+  for (const log of state.foodLogs) {
+    if (log.logDate === date) {
+      logs.push(log);
+      totals.calories += log.calories || 0;
+      totals.protein += log.protein || 0;
+      totals.carbs += log.carbs || 0;
+      totals.fat += log.fat || 0;
+    }
+  }
+
+  // Calculate percentages
+  const targets = state.dailyTargets;
+  const calculatePercentage = (total: number, target: number | undefined) =>
+    target ? (total / target) * 100 : 0;
+
+  const percentages = {
+    calories: calculatePercentage(totals.calories, targets?.calories),
+    protein: calculatePercentage(totals.protein, targets?.protein),
+    carbs: calculatePercentage(totals.carbs, targets?.carbs),
+    fat: calculatePercentage(totals.fat, targets?.fat),
+  };
+
+  return { logs, totals, percentages };
+};

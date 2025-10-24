@@ -10,6 +10,7 @@ import Animated, {
 import { Theme, useTheme } from "@/theme";
 import { SetGoalsCTA } from "./SetGoalsCTA";
 import { AppText } from "@/components";
+import { AnimatedText } from "@/components/shared/AnimatedText";
 import { DashboardRing } from "@/components/shared/ProgressRings";
 import { useNutrientCalculations } from "./hooks/useNutrientCalculations";
 import { useNutrientAnimations } from "./hooks/useNutrientAnimations";
@@ -108,12 +109,29 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
     protein: proteinPressAnimation,
   } as const;
 
-  const animatedTotals: Record<NutrientKey, number> = {
-    calories: animations.animatedCaloriesTotal,
-    protein: animations.animatedProteinTotal,
-    fat: animations.animatedFatTotal,
-    carbs: animations.animatedCarbsTotal,
-  };
+  const staticTotals = useMemo(
+    () => ({
+      calories: Math.round(totals.calories || 0),
+      protein: Math.round(totals.protein || 0),
+      fat: Math.round(totals.fat || 0),
+      carbs: Math.round(totals.carbs || 0),
+    }),
+    [totals.calories, totals.protein, totals.fat, totals.carbs]
+  );
+
+  const shouldAnimateTotals = !animations.dateChanged;
+
+  const displayTotals: Record<
+    NutrientKey,
+    number | SharedValue<number>
+  > = shouldAnimateTotals
+    ? {
+        calories: animations.animatedCaloriesTotal,
+        protein: animations.animatedProteinTotal,
+        fat: animations.animatedFatTotal,
+        carbs: animations.animatedCarbsTotal,
+      }
+    : staticTotals;
 
   const labelTargets: Partial<Record<NutrientKey, number>> = {
     calories: Math.round(targets.calories || 0),
@@ -132,9 +150,9 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
       // Skip animation: set value instantly on date changes
       fatProgressWidth.value = fatPercentage;
     } else {
-      // Animate with delay and spring (after both rings at 800ms)
+      // Animate with delay and spring (after both rings)
       fatProgressWidth.value = withDelay(
-        ANIMATION_DELAYS.FAT_STAT,
+        ANIMATION_DELAYS.BASE_DELAY + ANIMATION_DELAYS.FAT_STAT,
         withSpring(fatPercentage, {
           mass: 1.2,
           damping: 25,
@@ -193,9 +211,9 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                     color={semanticColors[ringKey]}
                     trackColor={surfaceColors[ringKey]}
                     textColor={colors.primaryText}
-                    displayValue={animatedTotals[ringKey]}
+                    displayValue={displayTotals[ringKey]}
                     detailValue={ringDetailValue}
-                    animationDelay={index * ANIMATION_DELAYS.RING_STAGGER}
+                    animationDelay={ANIMATION_DELAYS.BASE_DELAY + (index * ANIMATION_DELAYS.RING_STAGGER)}
                     strokeWidth={strokeWidth}
                     size={ringSize}
                     Icon={ringIcon}
@@ -214,7 +232,7 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
         <View style={styles.gridRow}>
           <MacroGridCell
             nutrientKey="fat"
-            total={animatedTotals.fat}
+            total={displayTotals.fat}
             target={labelTargets.fat}
             unit="g"
             percentage={percentages.fat}
@@ -225,7 +243,7 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
           />
           <MacroGridCell
             nutrientKey="carbs"
-            total={animatedTotals.carbs}
+            total={displayTotals.carbs}
             unit="g"
             semanticColor={semanticColors.carbs}
             onPress={() => handleOpenExplainer("carbs")}
@@ -238,7 +256,7 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
 
 interface MacroGridCellProps {
   nutrientKey: NutrientKey;
-  total: number | string;
+  total: number | string | SharedValue<number>;
   target?: number | string;
   unit: string;
   percentage?: number;
@@ -316,9 +334,13 @@ const MacroGridCell: React.FC<MacroGridCellProps> = ({
           />
         </Animated.View>
         <View style={styles.valueContainer}>
-          <AppText role="Headline" color="primary">
-            {total}
-          </AppText>
+          {typeof total === "object" && "value" in total ? (
+            <AnimatedText value={total} role="Headline" color="primary" />
+          ) : (
+            <AppText role="Headline" color="primary">
+              {total}
+            </AppText>
+          )}
           {target != null && (
             <>
               <AppText role="Body" color="secondary">

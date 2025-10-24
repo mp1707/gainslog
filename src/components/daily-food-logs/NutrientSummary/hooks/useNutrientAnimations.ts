@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useSharedValue, withSpring } from "react-native-reanimated";
-import { useNumberReveal } from "@/hooks/useAnimationConfig";
+import { useAnimatedNumber } from "@/hooks/useAnimationConfig";
 import { useAppStore } from "@/store/useAppStore";
 import { ANIMATION_DELAYS, ICON_SPRING_CONFIG } from "../utils/constants";
 
@@ -31,17 +31,20 @@ export const useNutrientAnimations = ({
 
   // Check if date changed for skipAnimation prop
   const dateChanged = prevSelectedDate.current !== selectedDate;
+  if (dateChanged) {
+    prevSelectedDate.current = selectedDate;
+  }
 
   // Animated scales for icon transitions
   const proteinIconScale = useSharedValue(1);
 
-  // Animated values for secondary stats totals
-  const animatedFatTotal = useNumberReveal(Math.round(totals.fat || 0));
-  const animatedCarbsTotal = useNumberReveal(Math.round(totals.carbs || 0));
+  // Animated values for secondary stats totals (UI thread only - zero JS bridging)
+  const animatedFatTotal = useAnimatedNumber(Math.round(totals.fat || 0));
+  const animatedCarbsTotal = useAnimatedNumber(Math.round(totals.carbs || 0));
 
-  // Animated values for ring label totals
-  const animatedCaloriesTotal = useNumberReveal(Math.round(totals.calories || 0));
-  const animatedProteinTotal = useNumberReveal(Math.round(totals.protein || 0));
+  // Animated values for ring label totals (UI thread only - zero JS bridging)
+  const animatedCaloriesTotal = useAnimatedNumber(Math.round(totals.calories || 0));
+  const animatedProteinTotal = useAnimatedNumber(Math.round(totals.protein || 0));
 
   // Trigger count-up animations when secondary stats totals change
   useEffect(() => {
@@ -49,8 +52,8 @@ export const useNutrientAnimations = ({
       animatedFatTotal.setValue(Math.round(totals.fat || 0));
       animatedCarbsTotal.setValue(Math.round(totals.carbs || 0));
     } else {
-      animatedFatTotal.animateTo(Math.round(totals.fat || 0), ANIMATION_DELAYS.FAT_STAT);
-      animatedCarbsTotal.animateTo(Math.round(totals.carbs || 0));
+      animatedFatTotal.animateTo(Math.round(totals.fat || 0), ANIMATION_DELAYS.BASE_DELAY + ANIMATION_DELAYS.FAT_STAT);
+      animatedCarbsTotal.animateTo(Math.round(totals.carbs || 0), ANIMATION_DELAYS.BASE_DELAY);
     }
   }, [totals.fat, totals.carbs, selectedDate, dateChanged]);
 
@@ -60,8 +63,8 @@ export const useNutrientAnimations = ({
       animatedCaloriesTotal.setValue(Math.round(totals.calories || 0));
       animatedProteinTotal.setValue(Math.round(totals.protein || 0));
     } else {
-      animatedCaloriesTotal.animateTo(Math.round(totals.calories || 0), 0);
-      animatedProteinTotal.animateTo(Math.round(totals.protein || 0), ANIMATION_DELAYS.RING_STAGGER);
+      animatedCaloriesTotal.animateTo(Math.round(totals.calories || 0), ANIMATION_DELAYS.BASE_DELAY);
+      animatedProteinTotal.animateTo(Math.round(totals.protein || 0), ANIMATION_DELAYS.BASE_DELAY + ANIMATION_DELAYS.RING_STAGGER);
     }
   }, [totals.calories, totals.protein, selectedDate, dateChanged]);
 
@@ -79,11 +82,6 @@ export const useNutrientAnimations = ({
     }
   }, [percentages.protein, proteinIconScale, selectedDate, dateChanged, isProteinComplete]);
 
-  // Update ref after all animation logic has run
-  useEffect(() => {
-    prevSelectedDate.current = selectedDate;
-  }, [selectedDate]);
-
   return {
     // Date change detection
     dateChanged,
@@ -91,10 +89,10 @@ export const useNutrientAnimations = ({
     // Icon scales
     proteinIconScale,
 
-    // Animated number displays
-    animatedFatTotal: animatedFatTotal.display,
-    animatedCarbsTotal: animatedCarbsTotal.display,
-    animatedCaloriesTotal: animatedCaloriesTotal.display,
-    animatedProteinTotal: animatedProteinTotal.display,
+    // Animated number SharedValues (for AnimatedText - zero JS bridging)
+    animatedFatTotal: animatedFatTotal.value,
+    animatedCarbsTotal: animatedCarbsTotal.value,
+    animatedCaloriesTotal: animatedCaloriesTotal.value,
+    animatedProteinTotal: animatedProteinTotal.value,
   };
 };

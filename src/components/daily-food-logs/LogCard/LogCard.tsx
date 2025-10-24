@@ -7,7 +7,7 @@ import React, {
   useCallback,
 } from "react";
 import { View, Pressable } from "react-native";
-import Animated, {
+import {
   useSharedValue,
   useAnimatedStyle,
   withDelay,
@@ -322,8 +322,8 @@ const LogCardInner: React.FC<LogCardProps> = ({
     }
 
     if (hasEverBeenLoadingRef.current) {
-      // Allow animations to complete then switch to static
-      const timeout = setTimeout(() => setUseAnimatedVariant(false), 1100);
+      // Allow animations to complete then switch to static (2000ms to avoid mid-animation switch)
+      const timeout = setTimeout(() => setUseAnimatedVariant(false), 2000);
       return () => clearTimeout(timeout);
     }
 

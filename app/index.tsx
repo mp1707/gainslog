@@ -3,11 +3,7 @@ import React, { useMemo } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
 import { useAppStore } from "@/store/useAppStore";
-import {
-  selectLogsForDate,
-  selectDailyTotals,
-  selectDailyPercentages,
-} from "@/store/selectors";
+import { selectDailyData } from "@/store/selectors";
 import { useTheme } from "@/theme/ThemeProvider";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { DateSlider } from "@/components/shared/DateSlider";
@@ -50,28 +46,31 @@ export default function TodayTab() {
   );
   const transparentBackground = colors.primaryBackground + "00";
 
-  // Get the entire state for selectors and individual functions
-  const state = useAppStore();
-  const {
-    deleteFoodLog,
-    addFavorite,
-    deleteFavorite,
-    favorites,
-    addFoodLog,
-    selectedDate,
-  } = state;
+  // Optimized store subscriptions: only subscribe to what we need
+  // This prevents re-renders when unrelated state changes (e.g., userSettings)
+  const foodLogs = useAppStore((state) => state.foodLogs);
+  const selectedDate = useAppStore((state) => state.selectedDate);
+  const dailyTargets = useAppStore((state) => state.dailyTargets);
+  const favorites = useAppStore((state) => state.favorites);
+  const deleteFoodLog = useAppStore((state) => state.deleteFoodLog);
+  const addFavorite = useAppStore((state) => state.addFavorite);
+  const deleteFavorite = useAppStore((state) => state.deleteFavorite);
+  const addFoodLog = useAppStore((state) => state.addFoodLog);
+
+  // Create a minimal state object for selectors
+  const state = { foodLogs, selectedDate, dailyTargets };
+
+  // Optimized: single selector call replaces 3 separate calls
+  const dailyData = useMemo(() => {
+    return selectDailyData(state, selectedDate);
+  }, [foodLogs, selectedDate, dailyTargets]);
 
   const todayFoodLogs = useMemo(() => {
-    return selectLogsForDate(state, state.selectedDate).reverse();
-  }, [state.foodLogs, state.selectedDate]);
+    return dailyData.logs.reverse();
+  }, [dailyData.logs]);
 
-  const dailyTotals = useMemo(() => {
-    return selectDailyTotals(state, state.selectedDate);
-  }, [state.foodLogs, state.selectedDate]);
-
-  const dailyPercentages = useMemo(() => {
-    return selectDailyPercentages(state, state.selectedDate);
-  }, [state.foodLogs, state.selectedDate, state.dailyTargets]);
+  const dailyTotals = dailyData.totals;
+  const dailyPercentages = dailyData.percentages;
 
   // Create handler functions using utilities
   const handleLogAgain = useMemo(

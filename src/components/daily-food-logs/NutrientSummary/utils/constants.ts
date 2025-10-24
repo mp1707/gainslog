@@ -4,6 +4,8 @@ import { Droplet, Flame, BicepsFlexed, Zap } from "lucide-react-native";
  * Animation delay constants for staggered animations
  */
 export const ANIMATION_DELAYS = {
+  /** Base delay before dashboard animations start (allows LogCard animations to complete) */
+  BASE_DELAY: 350,
   /** Delay between ring animations (400ms per ring) */
   RING_STAGGER: 400,
   /** Delay for fat total animation (after both rings) */

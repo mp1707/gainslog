@@ -1,4 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useSharedValue,
+  useDerivedValue,
+  withDelay,
+  withTiming,
+  runOnJS,
+  useAnimatedReaction,
+  Easing,
+} from "react-native-reanimated";
 
 /**
  * Centralized animation configuration matching the DashboardRing spring animation
@@ -19,136 +28,200 @@ export const easeOutCubic = (t: number): number => {
 };
 
 /**
- * Hook for animating number reveals with subtle flicker and smooth count-up
+ * Optimized hook for animating number reveals using reanimated (UI thread)
+ *
+ * Performance improvements:
+ * - Runs on UI thread instead of JS thread
+ * - Updates React state only when rounded value changes (not on every frame)
+ * - Eliminates setInterval/requestAnimationFrame overhead
+ *
  * Features:
  * - Instant updates for tiny changes (≤2 units)
- * - Optional flicker effect for significant changes (>15 units)
- * - Smooth ease-out cubic animation (2000ms)
- * - Constrained randomness in flicker phase
+ * - Smooth ease-out animation (1500ms, reduced from 2000ms for snappier feel)
+ * - Minimal JS thread impact via batched updates
  */
 export const useNumberReveal = (initial: number) => {
   const prevRef = useRef(initial);
   const [display, setDisplay] = useState(initial);
-  const flickerRef = useRef<NodeJS.Timeout | null>(null);
-  const animationRef = useRef<number | null>(null);
+
+  // Animated value that runs on UI thread
+  const animatedValue = useSharedValue(initial);
+  const targetValue = useSharedValue(initial);
+
+  // Track the last displayed integer to minimize state updates
+  const lastDisplayedValue = useSharedValue(initial);
+  // Track last update time for throttling
+  const lastUpdateTime = useSharedValue(0);
+  const THROTTLE_MS = 50; // Update at most every 50ms (~20fps)
+
+  // Aggressively throttled: Only update React state every 50ms
+  // This reduces 2000+ updates to ~30 updates during a 1500ms animation
+  useAnimatedReaction(
+    () => ({
+      rounded: Math.round(animatedValue.value),
+      now: Date.now(),
+    }),
+    ({ rounded, now }, previous) => {
+      const prevRounded = previous?.rounded ?? initial;
+      const timeSinceLastUpdate = now - lastUpdateTime.value;
+
+      // Update if: value changed AND (enough time passed OR animation complete)
+      const shouldUpdate =
+        rounded !== prevRounded &&
+        (timeSinceLastUpdate >= THROTTLE_MS || rounded === targetValue.value);
+
+      if (shouldUpdate && rounded !== lastDisplayedValue.value) {
+        lastDisplayedValue.value = rounded;
+        lastUpdateTime.value = now;
+        runOnJS(setDisplay)(rounded);
+      }
+    },
+    [animatedValue, lastDisplayedValue, targetValue, lastUpdateTime]
+  );
 
   const animateTo = useCallback((target: number, delay: number = 0) => {
-    const startPrev = prevRef.current;
+    const from = prevRef.current;
     prevRef.current = target;
+    targetValue.value = target;
 
-    // Clear any existing animations
-    if (flickerRef.current) {
-      clearInterval(flickerRef.current);
-      flickerRef.current = null;
-    }
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
-    }
-
-    const from = isNaN(startPrev) ? 0 : startPrev;
     const difference = Math.abs(target - from);
 
     // Skip animation entirely for very small changes (≤2 units)
     if (difference <= 2) {
       if (delay > 0) {
-        setTimeout(() => setDisplay(target), delay);
+        animatedValue.value = withDelay(delay, withTiming(target, { duration: 0 }));
       } else {
-        setDisplay(target);
+        animatedValue.value = target;
       }
       return;
     }
 
-    const shouldFlicker = difference > 15; // Only flicker for significant changes
-
-    const startCountAnimation = () => {
-      // Smooth count-up/down with gentle ease-out cubic (~2000ms)
-      const total = 2000;
-      const start = Date.now();
-
-      const tick = () => {
-        const t = Math.min(1, (Date.now() - start) / total);
-        const eased = easeOutCubic(t);
-        const val = Math.round(from + (target - from) * eased);
-        setDisplay(val);
-
-        if (t < 1) {
-          animationRef.current = requestAnimationFrame(tick);
-        } else {
-          animationRef.current = null;
-        }
-      };
-
-      animationRef.current = requestAnimationFrame(tick);
-    };
-
-    const startAnimation = () => {
-      if (shouldFlicker) {
-        // Phase 1: Gentler slot-machine effect (120ms with constrained randomness)
-        const flickerDuration = 120;
-        const flickerStep = 60;
-        let elapsed = 0;
-
-        const min = Math.min(from, target);
-        const max = Math.max(from, target);
-        const range = max - min;
-
-        flickerRef.current = setInterval(() => {
-          elapsed += flickerStep;
-
-          // Constrained randomness - flicker within 40% of the actual range
-          const jitter = Math.random() * range * 0.4;
-          const flickerValue = Math.max(0, Math.round(min + jitter));
-          setDisplay(flickerValue);
-
-          if (elapsed >= flickerDuration) {
-            if (flickerRef.current) {
-              clearInterval(flickerRef.current);
-              flickerRef.current = null;
-            }
-            startCountAnimation();
-          }
-        }, flickerStep);
+    // For small target values (< 20), skip animation - just set instantly after delay
+    // These small numbers don't benefit from count-up animation
+    if (target < 20) {
+      if (delay > 0) {
+        animatedValue.value = withDelay(delay, withTiming(target, { duration: 0 }));
       } else {
-        // Skip flicker for smaller changes, go straight to smooth count
-        startCountAnimation();
+        animatedValue.value = target;
       }
-    };
+      return;
+    }
+
+    // Smooth count-up/down on UI thread with ease-out (1500ms for snappier feel)
+    const duration = 1500;
 
     if (delay > 0) {
-      setTimeout(startAnimation, delay);
+      animatedValue.value = withDelay(
+        delay,
+        withTiming(target, {
+          duration,
+          easing: Easing.out(Easing.cubic),
+        })
+      );
     } else {
-      startAnimation();
+      animatedValue.value = withTiming(target, {
+        duration,
+        easing: Easing.out(Easing.cubic),
+      });
     }
-  }, []);
+  }, [animatedValue, targetValue]);
 
   const setValue = useCallback((value: number) => {
-    // Clear any existing animations
-    if (flickerRef.current) {
-      clearInterval(flickerRef.current);
-      flickerRef.current = null;
-    }
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
-    }
-
     // Set value instantly without animation
     prevRef.current = value;
+    targetValue.value = value;
+    animatedValue.value = value;
+    lastDisplayedValue.value = value;
     setDisplay(value);
-  }, []);
+  }, [animatedValue, targetValue, lastDisplayedValue]);
 
-  // Cleanup on unmount
+  // Initialize on mount
   useEffect(() => {
-    return () => {
-      if (flickerRef.current) {
-        clearInterval(flickerRef.current);
-      }
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
+    animatedValue.value = initial;
+    targetValue.value = initial;
+    lastDisplayedValue.value = initial;
   }, []);
 
   return { display, animateTo, setValue } as const;
+};
+
+/**
+ * Optimized hook for animating numbers using reanimated (UI thread only)
+ *
+ * Returns a SharedValue that can be consumed by AnimatedText component.
+ * ZERO JS thread impact - all animations happen on UI thread.
+ *
+ * Performance: Perfect for high-frequency updates (no JS bridging)
+ *
+ * Usage:
+ * ```tsx
+ * const animatedValue = useAnimatedNumber(0);
+ * animatedValue.animateTo(100, 350);
+ * return <AnimatedText value={animatedValue.value} role="Headline" />;
+ * ```
+ */
+export const useAnimatedNumber = (initial: number) => {
+  const animatedValue = useSharedValue(initial);
+  const targetValue = useSharedValue(initial);
+  const prevRef = useRef(initial);
+
+  const animateTo = useCallback((target: number, delay: number = 0) => {
+    const from = prevRef.current;
+    prevRef.current = target;
+    targetValue.value = target;
+
+    const difference = Math.abs(target - from);
+
+    // Skip animation entirely for very small changes (≤2 units)
+    if (difference <= 2) {
+      if (delay > 0) {
+        animatedValue.value = withDelay(delay, withTiming(target, { duration: 0 }));
+      } else {
+        animatedValue.value = target;
+      }
+      return;
+    }
+
+    // For small target values (< 20), skip animation - just set instantly after delay
+    if (target < 20) {
+      if (delay > 0) {
+        animatedValue.value = withDelay(delay, withTiming(target, { duration: 0 }));
+      } else {
+        animatedValue.value = target;
+      }
+      return;
+    }
+
+    // Smooth count-up/down on UI thread with ease-out (1500ms)
+    const duration = 1500;
+
+    if (delay > 0) {
+      animatedValue.value = withDelay(
+        delay,
+        withTiming(target, {
+          duration,
+          easing: Easing.out(Easing.cubic),
+        })
+      );
+    } else {
+      animatedValue.value = withTiming(target, {
+        duration,
+        easing: Easing.out(Easing.cubic),
+      });
+    }
+  }, [animatedValue, targetValue]);
+
+  const setValue = useCallback((value: number) => {
+    prevRef.current = value;
+    targetValue.value = value;
+    animatedValue.value = value;
+  }, [animatedValue, targetValue]);
+
+  // Initialize on mount
+  useEffect(() => {
+    animatedValue.value = initial;
+    targetValue.value = initial;
+  }, []);
+
+  return { value: animatedValue, animateTo, setValue } as const;
 };
