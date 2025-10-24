@@ -17,9 +17,10 @@ import { AppearanceCard } from "@/components/settings/AppearanceCard";
 import { seedFoodLogs } from "@/utils/seed";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
+// TODO: RevenueCat - Uncomment when configured at Apple & RevenueCat
+// import RevenueCatUI, { PAYWALL_RESULT } from "react-native-purchases-ui";
 
 export default function SettingsTab() {
-  const isLoadingTargets = false;
   const { colors, theme: themeObj } = useTheme();
   const keyboardOffset = useKeyboardOffset(true);
   const { safeNavigate, safeBack, isNavigating } = useNavigationGuard();
@@ -78,15 +79,23 @@ export default function SettingsTab() {
     );
   };
 
-  if (isLoadingTargets) {
-    return (
-      <View style={[styles.container, styles.centered]}>
-        <AppText role="Body" color="secondary">
-          Loading settings...
-        </AppText>
-      </View>
-    );
-  }
+  // TODO: RevenueCat - Uncomment when configured at Apple & RevenueCat
+  // async function presentPaywall(): Promise<boolean> {
+  //   // Present paywall for current offering:
+  //   const paywallResult: PAYWALL_RESULT = await RevenueCatUI.presentPaywall();
+  //
+  //   switch (paywallResult) {
+  //     case PAYWALL_RESULT.NOT_PRESENTED:
+  //     case PAYWALL_RESULT.ERROR:
+  //     case PAYWALL_RESULT.CANCELLED:
+  //       return false;
+  //     case PAYWALL_RESULT.PURCHASED:
+  //     case PAYWALL_RESULT.RESTORED:
+  //       return true;
+  //     default:
+  //       return false;
+  //   }
+  // }
 
   // No per-macro guidance here; entry point links to Goals flow
 
@@ -119,7 +128,8 @@ export default function SettingsTab() {
             </AppText> */}
           </View>
 
-          <Card style={styles.proCard}>
+          {/* TODO: RevenueCat - Uncomment when configured at Apple & RevenueCat */}
+          {/* <Card style={styles.proCard}>
             <AppText role="Caption" color="accent" style={styles.proBadge}>
               MacroLoop Pro
             </AppText>
@@ -134,8 +144,12 @@ export default function SettingsTab() {
               Detailed nutrient guidance, unlimited logs, and priority updates
               for your routine.
             </AppText>
-            <Button label="Get MacroLoop Pro" variant="primary" />
-          </Card>
+            <Button
+              label="Get MacroLoop Pro"
+              variant="primary"
+              onPress={() => presentPaywall()}
+            />
+          </Card> */}
 
           <View style={styles.section}>
             <AppText

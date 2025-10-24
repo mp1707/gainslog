@@ -23,10 +23,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       ITSAppUsesNonExemptEncryption: false,
     },
     bundleIdentifier: IS_DEV
-      ? "com.mp17.mpapps.gainslog.dev"
+      ? "com.mp17.mpapps.macroloop.dev"
       : IS_PREVIEW
-      ? "com.mp17.mpapps.gainslog.preview"
-      : "com.mp17.mpapps.gainslog",
+      ? "com.mp17.mpapps.macroloop.preview"
+      : "com.mp17.mpapps.macroloop",
     icon: "./assets/app.icon",
   },
   android: {
@@ -44,10 +44,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "android.permission.MODIFY_AUDIO_SETTINGS",
     ],
     package: IS_DEV
-      ? "com.mp17.gainslog.dev"
+      ? "com.mp17.mpapps.macroloop.dev"
       : IS_PREVIEW
-      ? "com.mp17.gainslog.preview"
-      : "com.mp17.gainslog",
+      ? "com.mp17.mpapps.macroloop.preview"
+      : "com.mp17.mpapps.macroloop",
   },
   web: {
     favicon: "./assets/favicon.png",

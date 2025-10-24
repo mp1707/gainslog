@@ -7,6 +7,8 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { HudNotification } from "@/components/shared/HudNotification";
 import * as SplashScreen from "expo-splash-screen";
+// TODO: RevenueCat - Uncomment when configured at Apple & RevenueCat
+// import Purchases, { LOG_LEVEL } from "react-native-purchases";
 import {
   NavigationTransitionProvider,
   useNavigationTransition,
@@ -146,11 +148,9 @@ export default function RootLayout() {
   // useEffect(() => {
   //   Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
 
-  //   if (Platform.OS === "ios") {
-  //     Purchases.configure({ apiKey: process.env.EXPO_PUBLIC_REVENUECAT_DEV_API_KEY });
-  //   } else if (Platform.OS === "android") {
-  //     // Purchases.configure({ apiKey: "<revenuecat_project_google_api_key>" });
-  //   }
+  //   Purchases.configure({
+  //     apiKey: process.env.EXPO_PUBLIC_REVENUECAT_DEV_API_KEY,
+  //   });
   // }, []);
 
   return (

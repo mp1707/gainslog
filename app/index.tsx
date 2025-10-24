@@ -23,6 +23,8 @@ import {
   createDeleteHandler,
   createToggleFavoriteHandler,
 } from "@/utils/foodLogHandlers";
+// TODO: RevenueCat - Uncomment when configured at Apple & RevenueCat
+// import Purchases from "react-native-purchases";
 
 export default function TodayTab() {
   const { safeNavigate } = useNavigationGuard();
@@ -101,6 +103,26 @@ export default function TodayTab() {
     () => createToggleFavoriteHandler(addFavorite, deleteFavorite, favorites),
     [addFavorite, deleteFavorite, favorites]
   );
+
+  // TODO: RevenueCat - Uncomment when configured at Apple & RevenueCat
+  // useEffect(() => {
+  //   const checkUser = async () => {
+  //     try {
+  //       const customerInfo = await Purchases.getCustomerInfo();
+  //       // access latest customerInfo
+  //
+  //       console.log("customerInfo", customerInfo);
+  //       if (typeof customerInfo.entitlements.active["pro"] !== "undefined") {
+  //         console.log("USER HAS PRO!!!!!!!!!!!!!!!");
+  //
+  //       }
+  //     } catch (e) {
+  //       // Error fetching customer info
+  //     }
+  //   };
+  //
+  //   checkUser();
+  // }, []);
 
   return (
     <View style={styles.container}>
