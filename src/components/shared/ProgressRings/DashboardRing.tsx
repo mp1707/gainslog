@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import {
   BlurMask,
@@ -303,7 +303,7 @@ const AnimatedRingLayer: React.FC<AnimatedRingLayerProps> = ({
 }) => {
   const [state, setState] = useState(() =>
     calculateRingState(
-      progress.value,
+      0,
       baseProps.center,
       baseProps.radius,
       baseProps.strokeWidth,
@@ -312,10 +312,13 @@ const AnimatedRingLayer: React.FC<AnimatedRingLayerProps> = ({
     )
   );
 
-  // Throttle state updates to reduce JS thread load
-  // Track last update time on UI thread
+  // Throttle state updates to reduce JS thread load without losing smoothness
   const lastUpdateTime = useSharedValue(0);
-  const THROTTLE_MS = 50; // Update at most 20fps instead of 60fps
+  const lastSyncedValue = useSharedValue(0);
+  const lastRatioRef = useRef(0);
+  const MIN_FRAME_MS = 16; // ~60fps when animation is moving quickly
+  const MAX_FRAME_MS = 48; // Fallback cap (~20fps) when changes are tiny
+  const MIN_VALUE_DELTA = 0.004; // Only burst updates when sweep changes by ~0.4%
 
   const updateFromRatio = useCallback(
     (value: number) => {
@@ -327,6 +330,7 @@ const AnimatedRingLayer: React.FC<AnimatedRingLayerProps> = ({
         baseProps.baseColor,
         baseProps.isDark
       );
+      lastRatioRef.current = value;
       setState((prev) => (ringStatesEqual(prev, nextState) ? prev : nextState));
     },
     [
@@ -339,22 +343,24 @@ const AnimatedRingLayer: React.FC<AnimatedRingLayerProps> = ({
   );
 
   useEffect(() => {
-    updateFromRatio(progress.value);
-  }, [progress, updateFromRatio]);
+    updateFromRatio(lastRatioRef.current);
+  }, [updateFromRatio]);
 
   useAnimatedReaction(
     () => progress.value,
     (value, previous) => {
       const now = Date.now();
-      const timeSinceLastUpdate = now - lastUpdateTime.value;
+      const elapsed = now - lastUpdateTime.value;
+      const deltaValue = Math.abs(value - lastSyncedValue.value);
 
-      // Only update if enough time has passed OR animation is complete
-      // This reduces JS callbacks from 60fps to ~20fps
-      if (
-        timeSinceLastUpdate >= THROTTLE_MS ||
-        Math.abs(value - (previous ?? 0)) < 0.001
-      ) {
+      const hasSettled = Math.abs(value - (previous ?? value)) < 0.001;
+      const shouldUpdateQuickly =
+        deltaValue >= MIN_VALUE_DELTA && elapsed >= MIN_FRAME_MS;
+      const shouldCatchUp = elapsed >= MAX_FRAME_MS;
+
+      if (hasSettled || shouldUpdateQuickly || shouldCatchUp) {
         lastUpdateTime.value = now;
+        lastSyncedValue.value = value;
         runOnJS(updateFromRatio)(value);
       }
     },
