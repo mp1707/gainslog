@@ -131,6 +131,18 @@ function ThemedStack() {
           gestureEnabled: true,
         }}
       />
+      <Stack.Screen
+        name="paywall"
+        options={{
+          presentation: "modal",
+          headerShown: false,
+          contentStyle: {
+            borderRadius: "10%",
+            overflow: "hidden",
+          },
+          gestureEnabled: true,
+        }}
+      />
     </Stack>
   );
 }

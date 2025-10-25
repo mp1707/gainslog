@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   View,
   KeyboardAvoidingView,
@@ -12,7 +12,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { Card, AppText, Button } from "src/components";
-import { ChevronRight, X } from "lucide-react-native";
+import { Check, ChevronRight, X } from "lucide-react-native";
 import { AppearanceCard } from "@/components/settings/AppearanceCard";
 import { seedFoodLogs } from "@/utils/seed";
 import { RoundButton } from "@/components/shared/RoundButton";
@@ -79,6 +79,10 @@ export default function SettingsTab() {
     );
   };
 
+  const handleShowPaywall = useCallback(() => {
+    safeNavigate("/paywall");
+  }, [safeNavigate]);
+
   // TODO: RevenueCat - Uncomment when configured at Apple & RevenueCat
   // async function presentPaywall(): Promise<boolean> {
   //   // Present paywall for current offering:
@@ -128,28 +132,49 @@ export default function SettingsTab() {
             </AppText> */}
           </View>
 
-          {/* TODO: RevenueCat - Uncomment when configured at Apple & RevenueCat */}
-          {/* <Card style={styles.proCard}>
+          <Card style={styles.proCard}>
             <AppText role="Caption" color="accent" style={styles.proBadge}>
               MacroLoop Pro
             </AppText>
             <AppText role="Headline" style={styles.cardTitle}>
               Unlock richer insights
             </AppText>
-            <AppText
-              role="Body"
-              color="secondary"
-              style={styles.cardDescription}
-            >
-              Detailed nutrient guidance, unlimited logs, and priority updates
-              for your routine.
+            <AppText role="Body" color="secondary" style={styles.cardDescription}>
+              Faster AI analysis, unlimited logging, and early access to new tools.
             </AppText>
+            <View style={styles.proFeatures}>
+              <View style={styles.proFeatureRow}>
+                <View style={styles.proFeatureIcon}>
+                  <Check size={16} color={colors.accent} />
+                </View>
+                <AppText role="Body" style={styles.proFeatureText}>
+                  Unlock MacroLoop AI experiments first.
+                </AppText>
+              </View>
+              <View style={styles.proFeatureRow}>
+                <View style={styles.proFeatureIcon}>
+                  <Check size={16} color={colors.accent} />
+                </View>
+                <AppText role="Body" style={styles.proFeatureText}>
+                  Unlimited macro logging with richer breakdowns.
+                </AppText>
+              </View>
+              <View style={styles.proFeatureRow}>
+                <View style={styles.proFeatureIcon}>
+                  <Check size={16} color={colors.accent} />
+                </View>
+                <AppText role="Body" style={styles.proFeatureText}>
+                  Support MacroLoop’s roadmap and upgrades.
+                </AppText>
+              </View>
+            </View>
             <Button
               label="Get MacroLoop Pro"
               variant="primary"
-              onPress={() => presentPaywall()}
+              onPress={handleShowPaywall}
+              style={styles.fullWidthButton}
             />
-          </Card> */}
+          </Card>
 
           <View style={styles.section}>
             <AppText
@@ -299,6 +324,20 @@ const createStyles = (
     },
     cardDescription: {
       marginBottom: spacing.lg,
+    },
+    proFeatures: {
+      marginBottom: spacing.lg,
+    },
+    proFeatureRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: spacing.xs,
+    },
+    proFeatureIcon: {
+      marginRight: spacing.sm,
+    },
+    proFeatureText: {
+      flex: 1,
     },
     settingRow: {
       flexDirection: "row",
