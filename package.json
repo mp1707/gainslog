@@ -11,11 +11,13 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "devdevicebuild": "APP_VARIANT=development npx expo run:ios --device",
+    "proddevicebuild": "APP_VARIANT=production npx expo run:ios --device",
     "previewdevicebuild": "APP_VARIANT=preview npx expo run:ios --device",
-    "eas:build": "EAS_SKIP_AUTO_FINGERPRINT=1 eas build --profile development --platform ios",
-    "eas:update:dev": "EAS_SKIP_AUTO_FINGERPRINT=1 eas update --branch development",
-    "eas:update:preview": "EAS_SKIP_AUTO_FINGERPRINT=1 eas update --branch preview",
-    "eas:update:prod": "EAS_SKIP_AUTO_FINGERPRINT=1 eas update --branch production"
+    "eas:build:dev": "eas build --profile development --platform ios",
+    "eas:build:prod": "eas build --profile production --platform ios",
+    "eas:update:dev": "eas update --branch development",
+    "eas:update:preview": "eas update --branch preview",
+    "eas:update:prod": "eas update --branch production"
   },
   "dependencies": {
     "@expo/ui": "~0.2.0-beta.7",

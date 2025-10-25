@@ -7,8 +7,7 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { HudNotification } from "@/components/shared/HudNotification";
 import * as SplashScreen from "expo-splash-screen";
-// TODO: RevenueCat - Uncomment when configured at Apple & RevenueCat
-// import Purchases, { LOG_LEVEL } from "react-native-purchases";
+import Purchases, { LOG_LEVEL } from "react-native-purchases";
 import {
   NavigationTransitionProvider,
   useNavigationTransition,
@@ -145,13 +144,31 @@ export default function RootLayout() {
     cleanupIncompleteEstimations();
   }, [cleanupIncompleteEstimations]);
 
-  // useEffect(() => {
-  //   Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
+  useEffect(() => {
+    Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
 
-  //   Purchases.configure({
-  //     apiKey: process.env.EXPO_PUBLIC_REVENUECAT_DEV_API_KEY,
-  //   });
-  // }, []);
+    Purchases.configure({
+      apiKey: process.env.EXPO_PUBLIC_REVENUECAT_APPLE_API_KEY,
+    });
+
+    getCustomerInfo();
+    getOfferings();
+  }, []);
+
+  async function getCustomerInfo() {
+    const customerInfo = await Purchases.getCustomerInfo();
+    console.log(customerInfo);
+  }
+
+  async function getOfferings() {
+    const offerings = await Purchases.getOfferings();
+    if (
+      offerings.current !== null &&
+      offerings.current.availablePackages.length !== 0
+    ) {
+      console.log("offerings ", JSON.stringify(offerings, null, 2));
+    }
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
