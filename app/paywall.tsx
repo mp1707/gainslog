@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Platform,
   ScrollView,
   StyleSheet,
   View,
@@ -44,6 +45,7 @@ export default function PaywallScreen() {
   const [purchaseStatus, setPurchaseStatus] = useState<PurchaseStatus>({
     type: "idle",
   });
+  const [isTrialEligible, setIsTrialEligible] = useState(false);
 
   const handleClose = useCallback(() => {
     if (router.canGoBack()) {
@@ -57,6 +59,7 @@ export default function PaywallScreen() {
     const loadOfferings = async () => {
       setIsLoadingOfferings(true);
       setOfferingsError(null);
+      setIsTrialEligible(false);
 
       try {
         const offerings: PurchasesOfferings = await Purchases.getOfferings();
@@ -94,6 +97,47 @@ export default function PaywallScreen() {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const evaluateEligibility = async () => {
+      if (!selectedPackage?.product.identifier || Platform.OS !== "ios") {
+        if (isMounted) {
+          setIsTrialEligible(false);
+        }
+        return;
+      }
+
+      try {
+        const eligibilityMap =
+          await Purchases.checkTrialOrIntroductoryPriceEligibility([
+            selectedPackage.product.identifier,
+          ]);
+
+        if (!isMounted) {
+          return;
+        }
+
+        const eligibility = eligibilityMap[selectedPackage.product.identifier];
+        const eligible =
+          eligibility?.status ===
+          Purchases.INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_ELIGIBLE;
+
+        setIsTrialEligible(eligible);
+      } catch (error) {
+        if (isMounted) {
+          setIsTrialEligible(false);
+        }
+      }
+    };
+
+    evaluateEligibility();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedPackage]);
 
   const handleSubscribe = useCallback(async () => {
     if (!selectedPackage) {
@@ -159,6 +203,7 @@ export default function PaywallScreen() {
               setPurchaseStatus({ type: "idle" });
               setOfferingsError(null);
               setIsLoadingOfferings(true);
+              setIsTrialEligible(false);
 
               // Retry loading offerings
               Purchases.getOfferings()
@@ -230,7 +275,11 @@ export default function PaywallScreen() {
 
         <Button
           variant="primary"
-          label={`Subscribe for ${selectedPackage.product.priceString}/month`}
+          label={
+            isTrialEligible
+              ? "Start free trial"
+              : `Subscribe for ${selectedPackage.product.priceString}/month`
+          }
           onPress={handleSubscribe}
           disabled={purchaseStatus.type === "loading"}
         />

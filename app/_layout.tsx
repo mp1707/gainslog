@@ -157,7 +157,7 @@ export default function RootLayout() {
   }, [cleanupIncompleteEstimations]);
 
   useEffect(() => {
-    Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
+    Purchases.setLogLevel(LOG_LEVEL.INFO);
 
     Purchases.configure({
       apiKey: process.env.EXPO_PUBLIC_REVENUECAT_APPLE_API_KEY,
