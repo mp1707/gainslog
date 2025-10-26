@@ -17,14 +17,21 @@ import { AppearanceCard } from "@/components/settings/AppearanceCard";
 import { seedFoodLogs } from "@/utils/seed";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
+import { RestorePurchasesButton } from "@/components/shared/RestorePurchasesButton";
 // TODO: RevenueCat - Uncomment when configured at Apple & RevenueCat
 // import RevenueCatUI, { PAYWALL_RESULT } from "react-native-purchases-ui";
+
+const PRO_FEATURES = [
+  "Unlock MacroLoop AI experiments first.",
+  "Unlimited macro logging with richer breakdowns.",
+  "Support MacroLoop's roadmap and upgrades.",
+] as const;
 
 export default function SettingsTab() {
   const { colors, theme: themeObj } = useTheme();
   const keyboardOffset = useKeyboardOffset(true);
   const { safeNavigate, safeBack, isNavigating } = useNavigationGuard();
-  const { clearAllLogs, clearNutritionGoals } = useAppStore();
+  const { clearAllLogs, clearNutritionGoals, isPro } = useAppStore();
 
   const styles = useMemo(
     () => createStyles(colors, themeObj, keyboardOffset),
@@ -103,6 +110,21 @@ export default function SettingsTab() {
 
   // No per-macro guidance here; entry point links to Goals flow
 
+  const proFeatureItems = (
+    <View style={styles.proFeatures}>
+      {PRO_FEATURES.map((feature) => (
+        <View key={feature} style={styles.proFeatureRow}>
+          <View style={styles.proFeatureIcon}>
+            <Check size={16} color={colors.accent} />
+          </View>
+          <AppText role="Body" style={styles.proFeatureText}>
+            {feature}
+          </AppText>
+        </View>
+      ))}
+    </View>
+  );
+
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <GradientWrapper style={styles.container}>
@@ -136,44 +158,55 @@ export default function SettingsTab() {
             <AppText role="Caption" color="accent" style={styles.proBadge}>
               MacroLoop Pro
             </AppText>
-            <AppText role="Headline" style={styles.cardTitle}>
-              Unlock richer insights
-            </AppText>
-            <AppText role="Body" color="secondary" style={styles.cardDescription}>
-              Faster AI analysis, unlimited logging, and early access to new tools.
-            </AppText>
-            <View style={styles.proFeatures}>
-              <View style={styles.proFeatureRow}>
-                <View style={styles.proFeatureIcon}>
-                  <Check size={16} color={colors.accent} />
-                </View>
-                <AppText role="Body" style={styles.proFeatureText}>
-                  Unlock MacroLoop AI experiments first.
+            {isPro ? (
+              <>
+                <AppText role="Headline" style={styles.cardTitle}>
+                  You're Pro now
                 </AppText>
-              </View>
-              <View style={styles.proFeatureRow}>
-                <View style={styles.proFeatureIcon}>
-                  <Check size={16} color={colors.accent} />
+                <View style={styles.statusPill}>
+                  <Check size={14} color={colors.primaryBackground} />
+                  <AppText role="Caption" style={styles.statusPillText}>
+                    Subscription active
+                  </AppText>
                 </View>
-                <AppText role="Body" style={styles.proFeatureText}>
-                  Unlimited macro logging with richer breakdowns.
+                <AppText
+                  role="Body"
+                  color="secondary"
+                  style={styles.cardDescription}
+                >
+                  MacroLoop Pro is active. Enjoy everything below.
                 </AppText>
-              </View>
-              <View style={styles.proFeatureRow}>
-                <View style={styles.proFeatureIcon}>
-                  <Check size={16} color={colors.accent} />
-                </View>
-                <AppText role="Body" style={styles.proFeatureText}>
-                  Support MacroLoop’s roadmap and upgrades.
+                {proFeatureItems}
+                <AppText
+                  role="Caption"
+                  color="secondary"
+                  style={styles.proFooterText}
+                >
+                  Purchases sync automatically when you sign in on other devices.
                 </AppText>
-              </View>
-            </View>
-            <Button
-              label="Get MacroLoop Pro"
-              variant="primary"
-              onPress={handleShowPaywall}
-              style={styles.fullWidthButton}
-            />
+              </>
+            ) : (
+              <>
+                <AppText role="Headline" style={styles.cardTitle}>
+                  Unlock richer insights
+                </AppText>
+                <AppText
+                  role="Body"
+                  color="secondary"
+                  style={styles.cardDescription}
+                >
+                  Faster AI analysis, unlimited logging, and early access to new tools.
+                </AppText>
+                {proFeatureItems}
+                <Button
+                  label="Get MacroLoop Pro"
+                  variant="primary"
+                  onPress={handleShowPaywall}
+                  style={styles.fullWidthButton}
+                />
+                <RestorePurchasesButton />
+              </>
+            )}
           </Card>
 
           <View style={styles.section}>
@@ -338,6 +371,23 @@ const createStyles = (
     },
     proFeatureText: {
       flex: 1,
+    },
+    statusPill: {
+      flexDirection: "row",
+      alignItems: "center",
+      alignSelf: "flex-start",
+      backgroundColor: colors.accent,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: spacing.lg,
+      marginBottom: spacing.sm,
+    },
+    statusPillText: {
+      marginLeft: spacing.xs,
+      color: colors.primaryBackground,
+    },
+    proFooterText: {
+      marginTop: spacing.sm,
     },
     settingRow: {
       flexDirection: "row",

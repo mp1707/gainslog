@@ -16,6 +16,7 @@ import { Check, X } from "lucide-react-native";
 import { AppText } from "@/components/shared/AppText";
 import { Button } from "@/components/shared/Button";
 import { RoundButton } from "@/components/shared/RoundButton";
+import { RestorePurchasesButton } from "@/components/shared/RestorePurchasesButton";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { Colors, Theme, useTheme } from "@/theme";
 
@@ -283,6 +284,8 @@ export default function PaywallScreen() {
           onPress={handleSubscribe}
           disabled={purchaseStatus.type === "loading"}
         />
+
+        <RestorePurchasesButton />
       </>
     );
   };
