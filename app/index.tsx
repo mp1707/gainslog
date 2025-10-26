@@ -103,26 +103,6 @@ export default function TodayTab() {
     [addFavorite, deleteFavorite, favorites]
   );
 
-  // TODO: RevenueCat - Uncomment when configured at Apple & RevenueCat
-  // useEffect(() => {
-  //   const checkUser = async () => {
-  //     try {
-  //       const customerInfo = await Purchases.getCustomerInfo();
-  //       // access latest customerInfo
-  //
-  //       console.log("customerInfo", customerInfo);
-  //       if (typeof customerInfo.entitlements.active["pro"] !== "undefined") {
-  //         console.log("USER HAS PRO!!!!!!!!!!!!!!!");
-  //
-  //       }
-  //     } catch (e) {
-  //       // Error fetching customer info
-  //     }
-  //   };
-  //
-  //   checkUser();
-  // }, []);
-
   return (
     <View style={styles.container}>
       <FoodLogsList

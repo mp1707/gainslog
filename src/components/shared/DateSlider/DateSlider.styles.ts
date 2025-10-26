@@ -4,7 +4,7 @@ import type { Colors, Theme } from "@/theme";
 export const createStyles = (colors: Colors, theme: Theme, itemWidth: number) =>
   StyleSheet.create({
     container: {
-      // Remove fixed height to accommodate header
+      gap: theme.spacing.sm,
     },
     sliderContainer: {
       height: 96, // 12×8pt - strict 8pt grid compliance
