@@ -7,11 +7,11 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { HudNotification } from "@/components/shared/HudNotification";
 import * as SplashScreen from "expo-splash-screen";
-import Purchases, { LOG_LEVEL } from "react-native-purchases";
 import {
   NavigationTransitionProvider,
   useNavigationTransition,
 } from "@/context/NavigationTransitionContext";
+import { useRevenueCatBindings } from "@/hooks/useRevenueCatBindings";
 
 function ThemedStack() {
   const { colors, isThemeLoaded } = useTheme();
@@ -152,35 +152,11 @@ export default function RootLayout() {
     (state) => state.cleanupIncompleteEstimations
   );
 
+  useRevenueCatBindings();
+
   useEffect(() => {
     cleanupIncompleteEstimations();
   }, [cleanupIncompleteEstimations]);
-
-  useEffect(() => {
-    Purchases.setLogLevel(LOG_LEVEL.INFO);
-
-    Purchases.configure({
-      apiKey: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY!,
-    });
-
-    getCustomerInfo();
-    getOfferings();
-  }, []);
-
-  async function getCustomerInfo() {
-    const customerInfo = await Purchases.getCustomerInfo();
-    console.log(customerInfo);
-  }
-
-  async function getOfferings() {
-    const offerings = await Purchases.getOfferings();
-    if (
-      offerings.current !== null &&
-      offerings.current.availablePackages.length !== 0
-    ) {
-      console.log("offerings ", JSON.stringify(offerings, null, 2));
-    }
-  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

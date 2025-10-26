@@ -12,6 +12,10 @@ export type AppState = {
   dailyTargets?: DailyTargets;
   userSettings?: UserSettings;
 
+  // Subscription state
+  isPro: boolean;
+  setPro: (value: boolean) => void;
+
   // UI state
   selectedDate: string; // YYYY-MM-DD (for day view)
   selectedMonth: string; // YYYY-MM (for month view)
@@ -45,6 +49,7 @@ export const useAppStore = create<AppState>()(
       favorites: [],
       dailyTargets: undefined,
       userSettings: undefined,
+      isPro: false,
 
       // default to today's date & current month (local timezone aware)
       selectedDate: getTodayKey(), // YYYY-MM-DD (local)
@@ -147,6 +152,11 @@ export const useAppStore = create<AppState>()(
       setUserSettings: (settings) =>
         set((state) => {
           state.userSettings = settings;
+        }),
+
+      setPro: (value) =>
+        set((state) => {
+          state.isPro = value;
         }),
 
       // UI
