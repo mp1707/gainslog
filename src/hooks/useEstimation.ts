@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useAppStore } from "@/store/useAppStore";
+import { useHudStore } from "@/store/useHudStore";
 import { EstimationInput, createEstimationLog } from "@/utils/estimation";
 import type { FoodLog } from "@/types/models";
 import {
@@ -43,12 +44,26 @@ const makeCompletedFromRefinement = (
   isEstimating: false,
 });
 
+const showProRequiredHud = (subtitle: string) => {
+  useHudStore.getState().show({
+    type: "info",
+    title: "MacroLoop Pro required",
+    subtitle,
+  });
+};
+
 export const useEstimation = () => {
   const { addFoodLog, updateFoodLog, deleteFoodLog } = useAppStore();
+  const isPro = useAppStore((state) => state.isPro);
 
   // Create page flow: add incomplete log, run initial estimation, update store
   const runCreateEstimation = useCallback(
     async (logData: EstimationInput) => {
+      if (!isPro) {
+        showProRequiredHud("Unlock MacroLoop Pro to use AI estimations.");
+        return;
+      }
+
       const incompleteLog = createEstimationLog(logData);
       addFoodLog(incompleteLog);
 
@@ -74,12 +89,17 @@ export const useEstimation = () => {
         deleteFoodLog(incompleteLog.id);
       }
     },
-    [addFoodLog, updateFoodLog, deleteFoodLog]
+    [addFoodLog, updateFoodLog, deleteFoodLog, isPro]
   );
 
   // Edit page flow: refinement based solely on provided components
   const runEditEstimation = useCallback(
     async (editedLog: FoodLog, onComplete: (log: FoodLog) => void) => {
+      if (!isPro) {
+        showProRequiredHud("MacroLoop Pro unlocks AI refinements.");
+        return;
+      }
+
       const hasComponents = (editedLog.foodComponents?.length || 0) > 0;
       if (!hasComponents) {
         // Caller should prevent this; no-op for safety
@@ -102,7 +122,7 @@ export const useEstimation = () => {
       const completedLog = makeCompletedFromRefinement(editedLog, refined);
       onComplete(completedLog);
     },
-    []
+    [isPro]
   );
 
   return { runCreateEstimation, runEditEstimation };

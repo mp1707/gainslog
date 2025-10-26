@@ -1,10 +1,10 @@
 import React from "react";
-import { View, ViewProps, ViewStyle } from "react-native";
+import { View, ViewProps, ViewStyle, StyleProp } from "react-native";
 import { useTheme } from "@/theme";
 
 interface CardProps extends ViewProps {
   children: React.ReactNode;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   padding?: number;
   elevated?: boolean; // disable expensive shadows when false
 }

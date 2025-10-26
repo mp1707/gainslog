@@ -14,7 +14,13 @@ export type AppState = {
 
   // Subscription state
   isPro: boolean;
+  isProCanceled: boolean;
+  proExpirationDate?: string | null;
   setPro: (value: boolean) => void;
+  setProMetadata: (payload: {
+    isCanceled: boolean;
+    expirationDate?: string | null;
+  }) => void;
 
   // UI state
   selectedDate: string; // YYYY-MM-DD (for day view)
@@ -50,6 +56,8 @@ export const useAppStore = create<AppState>()(
       dailyTargets: undefined,
       userSettings: undefined,
       isPro: false,
+      isProCanceled: false,
+      proExpirationDate: undefined,
 
       // default to today's date & current month (local timezone aware)
       selectedDate: getTodayKey(), // YYYY-MM-DD (local)
@@ -157,6 +165,12 @@ export const useAppStore = create<AppState>()(
       setPro: (value) =>
         set((state) => {
           state.isPro = value;
+        }),
+
+      setProMetadata: ({ isCanceled, expirationDate }) =>
+        set((state) => {
+          state.isProCanceled = isCanceled;
+          state.proExpirationDate = expirationDate ?? undefined;
         }),
 
       // UI

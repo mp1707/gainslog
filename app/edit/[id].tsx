@@ -9,7 +9,7 @@ import { RoundButton } from "@/components/shared/RoundButton";
 import { makeSelectLogById } from "@/store/selectors";
 import type { FoodLog, FoodComponent } from "@/types/models";
 import * as Haptics from "expo-haptics";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useEstimation } from "@/hooks/useEstimation";
 import { useNavigation } from "@react-navigation/native";
 import { MacrosCard } from "@/components/refine-page/MacrosCard/MacrosCard";
@@ -23,11 +23,13 @@ import {
 } from "@/components/shared/BottomSheet";
 import { TextInput } from "@/components/shared/TextInput";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
+import { ProFeatureGate } from "@/components/shared/ProFeatureGate";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const originalLog = useAppStore(makeSelectLogById(id));
   const updateFoodLog = useAppStore((s) => s.updateFoodLog);
+  const isPro = useAppStore((s) => s.isPro);
   const router = useSafeRouter();
 
   const { colors, theme } = useTheme();
@@ -171,8 +173,16 @@ export default function Edit() {
     setSheetOpen(false);
   };
 
+  const handleShowPaywall = useCallback(() => {
+    router.push("/paywall");
+  }, [router]);
+
   const handleReestimate = async () => {
     if (!editedLog) return;
+    if (!isPro) {
+      handleShowPaywall();
+      return;
+    }
     // Scroll to bottom when re-estimating to show macros section
     scrollRef.current?.scrollToEnd({ animated: true });
     setIsRefined(false);
@@ -328,11 +338,21 @@ export default function Edit() {
               fat={editedLog.fat}
               processing={isLoading}
               revealKey={revealKey}
-              hasUnsavedChanges={hasUnsavedChanges}
+              hasUnsavedChanges={isPro ? hasUnsavedChanges : false}
               changesCount={changesCount}
               foodComponentsCount={editedLog.foodComponents?.length || 0}
-              onRecalculate={handleReestimate}
+              onRecalculate={isPro ? handleReestimate : undefined}
             />
+            {!isPro && (
+              <ProFeatureGate
+                title="Refine macros with AI"
+                description="MacroLoop Pro recalculates your meal when you adjust ingredients. Subscribe to unlock instant AI refinements."
+                buttonLabel="Get MacroLoop Pro"
+                onPress={handleShowPaywall}
+                showRestore
+                style={styles.lockedCard}
+              />
+            )}
           </>
         )}
       </RNScrollView>
@@ -404,5 +424,8 @@ const createStyles = (colors: Colors, theme: Theme) =>
       alignItems: "center",
       justifyContent: "center",
       paddingVertical: theme.spacing.xl,
+    },
+    lockedCard: {
+      marginTop: theme.spacing.md,
     },
   });

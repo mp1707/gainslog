@@ -31,12 +31,47 @@ export default function SettingsTab() {
   const { colors, theme: themeObj } = useTheme();
   const keyboardOffset = useKeyboardOffset(true);
   const { safeNavigate, safeBack, isNavigating } = useNavigationGuard();
-  const { clearAllLogs, clearNutritionGoals, isPro } = useAppStore();
+  const {
+    clearAllLogs,
+    clearNutritionGoals,
+    isPro,
+    isProCanceled,
+    proExpirationDate,
+  } = useAppStore();
 
   const styles = useMemo(
     () => createStyles(colors, themeObj, keyboardOffset),
     [colors, themeObj, keyboardOffset]
   );
+
+  const formattedExpirationDate = useMemo(() => {
+    if (!proExpirationDate) {
+      return undefined;
+    }
+
+    const date = new Date(proExpirationDate);
+    if (Number.isNaN(date.getTime())) {
+      return undefined;
+    }
+
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  }, [proExpirationDate]);
+
+  const cancellationDescription = useMemo(() => {
+    if (!isProCanceled) {
+      return undefined;
+    }
+
+    if (formattedExpirationDate) {
+      return `Auto-renew has been canceled. You'll keep MacroLoop Pro through ${formattedExpirationDate}.`;
+    }
+
+    return 'Auto-renew has been canceled. You\'ll keep MacroLoop Pro until the end of this billing period.';
+  }, [formattedExpirationDate, isProCanceled]);
 
   // Nutrition calculators moved under /Goals; provide a single entry link
 
@@ -161,12 +196,33 @@ export default function SettingsTab() {
             {isPro ? (
               <>
                 <AppText role="Headline" style={styles.cardTitle}>
-                  You're Pro now
+                  {isProCanceled ? 'MacroLoop Pro ends soon' : "You're Pro now"}
                 </AppText>
-                <View style={styles.statusPill}>
-                  <Check size={14} color={colors.primaryBackground} />
-                  <AppText role="Caption" style={styles.statusPillText}>
-                    Subscription active
+                <View
+                  style={[
+                    styles.statusPill,
+                    isProCanceled && {
+                      backgroundColor: colors.warningBackground,
+                    },
+                  ]}
+                >
+                  {isProCanceled ? (
+                    <X size={14} color={colors.warning} />
+                  ) : (
+                    <Check size={14} color={colors.primaryBackground} />
+                  )}
+                  <AppText
+                    role="Caption"
+                    style={[
+                      styles.statusPillText,
+                      isProCanceled && { color: colors.warning },
+                    ]}
+                  >
+                    {isProCanceled
+                      ? formattedExpirationDate
+                        ? `Ends on ${formattedExpirationDate}`
+                        : 'Ends after this period'
+                      : 'Subscription active'}
                   </AppText>
                 </View>
                 <AppText
@@ -174,7 +230,9 @@ export default function SettingsTab() {
                   color="secondary"
                   style={styles.cardDescription}
                 >
-                  MacroLoop Pro is active. Enjoy everything below.
+                  {isProCanceled
+                    ? cancellationDescription
+                    : 'MacroLoop Pro is active. Enjoy everything below.'}
                 </AppText>
                 {proFeatureItems}
                 <AppText

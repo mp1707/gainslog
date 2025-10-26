@@ -26,6 +26,7 @@ import { useCreationStore } from "@/store/useCreationStore"; // keyed drafts sto
 import { useDraft } from "@/hooks/useDraft";
 import { generateFoodLogId } from "@/utils/idGenerator";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
+import { ProFeatureGate } from "@/components/shared/ProFeatureGate";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -37,6 +38,7 @@ export default function Create() {
   const [draftId, setDraftId] = useState<string | null>(null);
   const draft = useDraft(draftId);
   const { selectedDate, addFoodLog } = useAppStore();
+  const isPro = useAppStore((state) => state.isPro);
   const { runCreateEstimation } = useEstimation();
   const {
     isRecording,
@@ -127,11 +129,20 @@ export default function Create() {
     router.back();
   }, [router]);
 
+  const handleShowPaywall = useCallback(() => {
+    router.push("/paywall");
+  }, [router]);
+
   const handleEstimation = useCallback(() => {
-    if (!draft) return;
+    if (!draft || !isPro) {
+      if (!isPro) {
+        handleShowPaywall();
+      }
+      return;
+    }
     runCreateEstimation(draft);
     router.back();
-  }, [draft, runCreateEstimation, router]);
+  }, [draft, isPro, runCreateEstimation, router, handleShowPaywall]);
 
   const handleCreateLogFromFavorite = useCallback(
     (favorite: Favorite) => {
@@ -188,20 +199,32 @@ export default function Create() {
           onChange={setEstimationType}
         />
       </View>
-      {estimationType === "ai" && (
-        <EstimationTab
-          description={draft.description}
-          onDescriptionChange={handleDescriptionChange}
-          imageUrl={draft.localImagePath}
-          isUploadingImage={isProcessingImage}
-          textInputRef={textInputRef}
-          inputAccessoryViewID={inputAccessoryViewID}
-        />
-      )}
+      {estimationType === "ai" &&
+        (isPro ? (
+          <EstimationTab
+            description={draft.description}
+            onDescriptionChange={handleDescriptionChange}
+            imageUrl={draft.localImagePath}
+            isUploadingImage={isProcessingImage}
+            textInputRef={textInputRef}
+            inputAccessoryViewID={inputAccessoryViewID}
+          />
+        ) : (
+          <View style={styles.lockedContainer}>
+            <ProFeatureGate
+              title="AI estimation is a Pro feature"
+              description="Unlock MacroLoop Pro to turn your meal photos and notes into full macro breakdowns."
+              buttonLabel="Get MacroLoop Pro"
+              onPress={handleShowPaywall}
+              showRestore
+              style={styles.lockedCard}
+            />
+          </View>
+        ))}
       {estimationType === "favorites" && (
         <FavoritesTab onCreateFromFavorite={handleCreateLogFromFavorite} />
       )}
-      {estimationType === "ai" && (
+      {estimationType === "ai" && isPro && (
         <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
           <KeyboardAccessory
             onImageSelected={handleNewImageSelected}
@@ -230,5 +253,14 @@ const createStyles = (theme: Theme) =>
     toggleContainer: {
       marginHorizontal: theme.spacing.md,
       marginBottom: theme.spacing.md,
+    },
+    lockedContainer: {
+      flex: 1,
+      paddingHorizontal: theme.spacing.md,
+      paddingBottom: theme.spacing.xl,
+      justifyContent: "center",
+    },
+    lockedCard: {
+      alignSelf: "stretch",
     },
   });
