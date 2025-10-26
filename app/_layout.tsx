@@ -160,7 +160,7 @@ export default function RootLayout() {
     Purchases.setLogLevel(LOG_LEVEL.INFO);
 
     Purchases.configure({
-      apiKey: process.env.EXPO_PUBLIC_REVENUECAT_APPLE_API_KEY,
+      apiKey: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY!,
     });
 
     getCustomerInfo();

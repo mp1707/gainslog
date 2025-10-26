@@ -8,7 +8,10 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "APP_VARIANT": "development"
+        "APP_VARIANT": "development",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://cjsbuqvntoimmawozpko.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_EtcmJZPT1dgWNGfTdYv6sw_jAwrnKvv",
+        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_xpSetJxVlEDusGTiLZKDxsBuLUu"
       },
       "channel": "development"
     },
@@ -17,7 +20,8 @@
       "env": {
         "APP_VARIANT": "preview",
         "EXPO_PUBLIC_SUPABASE_URL": "https://cjsbuqvntoimmawozpko.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_EtcmJZPT1dgWNGfTdYv6sw_jAwrnKvv"
+        "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_EtcmJZPT1dgWNGfTdYv6sw_jAwrnKvv",
+        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_xpSetJxVlEDusGTiLZKDxsBuLUu"
       },
       "channel": "preview"
     },
@@ -26,7 +30,8 @@
       "env": {
         "APP_VARIANT": "production",
         "EXPO_PUBLIC_SUPABASE_URL": "https://cjsbuqvntoimmawozpko.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_EtcmJZPT1dgWNGfTdYv6sw_jAwrnKvv"
+        "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_EtcmJZPT1dgWNGfTdYv6sw_jAwrnKvv",
+        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_xpSetJxVlEDusGTiLZKDxsBuLUu"
       },
       "channel": "production"
     }
