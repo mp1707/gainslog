@@ -244,7 +244,7 @@ const spacing = {
 // Component specifications
 const components = {
   cards: {
-    cornerRadius: 26,
+    cornerRadius: 18,
     lightMode: {
       backgroundColor: lightColors.secondaryBackground,
       // Soft iOS shadow + hairline for crisp elevation

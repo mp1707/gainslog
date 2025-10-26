@@ -12,20 +12,13 @@ import { useAppStore } from "@/store/useAppStore";
 import { useKeyboardOffset } from "@/hooks/useKeyboardOffset";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { Card, AppText, Button } from "src/components";
-import { Check, ChevronRight, X } from "lucide-react-native";
+import { Check, ChevronRight, Gem, X } from "lucide-react-native";
 import { AppearanceCard } from "@/components/settings/AppearanceCard";
 import { seedFoodLogs } from "@/utils/seed";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RestorePurchasesButton } from "@/components/shared/RestorePurchasesButton";
-// TODO: RevenueCat - Uncomment when configured at Apple & RevenueCat
-// import RevenueCatUI, { PAYWALL_RESULT } from "react-native-purchases-ui";
-
-const PRO_FEATURES = [
-  "Unlock MacroLoop AI experiments first.",
-  "Unlimited macro logging with richer breakdowns.",
-  "Support MacroLoop's roadmap and upgrades.",
-] as const;
+import * as Haptics from "expo-haptics";
 
 export default function SettingsTab() {
   const { colors, theme: themeObj } = useTheme();
@@ -54,10 +47,10 @@ export default function SettingsTab() {
       return undefined;
     }
 
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   }, [proExpirationDate]);
 
@@ -67,10 +60,10 @@ export default function SettingsTab() {
     }
 
     if (formattedExpirationDate) {
-      return `Auto-renew has been canceled. You'll keep MacroLoop Pro through ${formattedExpirationDate}.`;
+      return `Auto-renew has been canceled. You'll keep Macroloop Pro through ${formattedExpirationDate}.`;
     }
 
-    return 'Auto-renew has been canceled. You\'ll keep MacroLoop Pro until the end of this billing period.';
+    return "Auto-renew has been canceled. You'll keep Macroloop Pro until the end of this billing period.";
   }, [formattedExpirationDate, isProCanceled]);
 
   // Nutrition calculators moved under /Goals; provide a single entry link
@@ -122,43 +115,11 @@ export default function SettingsTab() {
   };
 
   const handleShowPaywall = useCallback(() => {
+    Haptics.impactAsync(themeObj.interactions.haptics.light).catch(
+      () => undefined
+    );
     safeNavigate("/paywall");
-  }, [safeNavigate]);
-
-  // TODO: RevenueCat - Uncomment when configured at Apple & RevenueCat
-  // async function presentPaywall(): Promise<boolean> {
-  //   // Present paywall for current offering:
-  //   const paywallResult: PAYWALL_RESULT = await RevenueCatUI.presentPaywall();
-  //
-  //   switch (paywallResult) {
-  //     case PAYWALL_RESULT.NOT_PRESENTED:
-  //     case PAYWALL_RESULT.ERROR:
-  //     case PAYWALL_RESULT.CANCELLED:
-  //       return false;
-  //     case PAYWALL_RESULT.PURCHASED:
-  //     case PAYWALL_RESULT.RESTORED:
-  //       return true;
-  //     default:
-  //       return false;
-  //   }
-  // }
-
-  // No per-macro guidance here; entry point links to Goals flow
-
-  const proFeatureItems = (
-    <View style={styles.proFeatures}>
-      {PRO_FEATURES.map((feature) => (
-        <View key={feature} style={styles.proFeatureRow}>
-          <View style={styles.proFeatureIcon}>
-            <Check size={16} color={colors.accent} />
-          </View>
-          <AppText role="Body" style={styles.proFeatureText}>
-            {feature}
-          </AppText>
-        </View>
-      ))}
-    </View>
-  );
+  }, [safeNavigate, themeObj.interactions.haptics.light]);
 
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
@@ -189,83 +150,44 @@ export default function SettingsTab() {
             </AppText> */}
           </View>
 
-          <Card style={styles.proCard}>
-            <AppText role="Caption" color="accent" style={styles.proBadge}>
-              MacroLoop Pro
-            </AppText>
-            {isPro ? (
-              <>
-                <AppText role="Headline" style={styles.cardTitle}>
-                  {isProCanceled ? 'MacroLoop Pro ends soon' : "You're Pro now"}
-                </AppText>
-                <View
-                  style={[
-                    styles.statusPill,
-                    isProCanceled && {
-                      backgroundColor: colors.warningBackground,
-                    },
-                  ]}
-                >
-                  {isProCanceled ? (
-                    <X size={14} color={colors.warning} />
-                  ) : (
-                    <Check size={14} color={colors.primaryBackground} />
-                  )}
-                  <AppText
-                    role="Caption"
-                    style={[
-                      styles.statusPillText,
-                      isProCanceled && { color: colors.warning },
-                    ]}
-                  >
-                    {isProCanceled
-                      ? formattedExpirationDate
-                        ? `Ends on ${formattedExpirationDate}`
-                        : 'Ends after this period'
-                      : 'Subscription active'}
-                  </AppText>
-                </View>
-                <AppText
-                  role="Body"
-                  color="secondary"
-                  style={styles.cardDescription}
-                >
-                  {isProCanceled
-                    ? cancellationDescription
-                    : 'MacroLoop Pro is active. Enjoy everything below.'}
-                </AppText>
-                {proFeatureItems}
-                <AppText
-                  role="Caption"
-                  color="secondary"
-                  style={styles.proFooterText}
-                >
-                  Purchases sync automatically when you sign in on other devices.
-                </AppText>
-              </>
-            ) : (
-              <>
-                <AppText role="Headline" style={styles.cardTitle}>
-                  Unlock richer insights
-                </AppText>
-                <AppText
-                  role="Body"
-                  color="secondary"
-                  style={styles.cardDescription}
-                >
-                  Faster AI analysis, unlimited logging, and early access to new tools.
-                </AppText>
-                {proFeatureItems}
-                <Button
-                  label="Get MacroLoop Pro"
-                  variant="primary"
+          {!isPro && (
+            <View style={styles.section}>
+              <AppText
+                role="Caption"
+                color="secondary"
+                style={styles.sectionLabel}
+              >
+                Pro
+              </AppText>
+              <Card>
+                <TouchableOpacity
+                  style={styles.proInviteContent}
                   onPress={handleShowPaywall}
-                  style={styles.fullWidthButton}
-                />
-                <RestorePurchasesButton />
-              </>
-            )}
-          </Card>
+                  activeOpacity={0.85}
+                  accessibilityRole="button"
+                  accessibilityLabel="Unlock Macroloop Pro"
+                  accessibilityHint="Opens the paywall to start a free trial"
+                >
+                  <View style={styles.proInviteIconWrapper}>
+                    <Gem size={22} color={colors.black} />
+                  </View>
+                  <View style={styles.proInviteText}>
+                    <AppText role="Headline" style={styles.proInviteTitle}>
+                      Unlock Macroloop Pro
+                    </AppText>
+                    <AppText role="Caption" color="secondary">
+                      Access the AI engine for faster, smarter tracking.
+                    </AppText>
+                  </View>
+                  <ChevronRight
+                    size={18}
+                    color={colors.secondaryText}
+                    strokeWidth={1.5}
+                  />
+                </TouchableOpacity>
+              </Card>
+            </View>
+          )}
 
           <View style={styles.section}>
             <AppText
@@ -396,6 +318,27 @@ const createStyles = (
     headerTitle: {
       marginBottom: spacing.xs,
     },
+    proInviteContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.md,
+      width: "100%",
+    },
+    proInviteIconWrapper: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.accent,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    proInviteText: {
+      flex: 1,
+      gap: spacing.xs,
+    },
+    proInviteTitle: {
+      color: colors.primaryText,
+    },
     section: {
       marginBottom: spacing.xl,
     },
@@ -418,17 +361,24 @@ const createStyles = (
     },
     proFeatures: {
       marginBottom: spacing.lg,
+      gap: spacing.sm,
     },
     proFeatureRow: {
       flexDirection: "row",
-      alignItems: "center",
-      marginBottom: spacing.xs,
+      alignItems: "flex-start",
+      gap: spacing.sm,
     },
     proFeatureIcon: {
-      marginRight: spacing.sm,
+      width: 24,
+      marginTop: spacing.xs,
+      alignItems: "center",
     },
     proFeatureText: {
       flex: 1,
+      gap: spacing.xs,
+    },
+    proFeatureTitle: {
+      color: colors.primaryText,
     },
     statusPill: {
       flexDirection: "row",

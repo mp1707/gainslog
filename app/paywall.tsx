@@ -1,354 +1,257 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import {
   ActivityIndicator,
-  Platform,
+  Linking,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
-import Purchases, {
-  PurchasesError,
-  PurchasesOfferings,
-  PurchasesPackage,
-} from "react-native-purchases";
-import { Check, X } from "lucide-react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
+import { BrainCircuit, Calculator, X } from "lucide-react-native";
 
 import { AppText } from "@/components/shared/AppText";
 import { Button } from "@/components/shared/Button";
 import { RoundButton } from "@/components/shared/RoundButton";
-import { RestorePurchasesButton } from "@/components/shared/RestorePurchasesButton";
+import { usePaywall } from "@/hooks/usePaywall";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { Colors, Theme, useTheme } from "@/theme";
 
-type PurchaseStatus =
-  | { type: "idle" }
-  | { type: "loading" }
-  | { type: "success"; message: string }
-  | { type: "error"; message: string }
-  | { type: "cancelled"; message: string };
+const FEATURES = [
+  {
+    title: "AI-Powered Logging",
+    description:
+      "Log meals instantly from text, voice, or a photo. No more searching for ingredients.",
+    Icon: BrainCircuit,
+  },
+  {
+    title: "Instant Recalculation",
+    description:
+      "Adjust ingredients and get immediate macro updates to fine-tune your meals.",
+    Icon: Calculator,
+  },
+] as const;
 
-const FEATURE_BULLETS = [
-  "Unlimited macro logging and insights",
-  "AI-powered meal analysis with faster updates",
-  "Early access to premium experiments and tools",
-];
+const LEGAL_TEXT = "";
+// "Payment will be charged to your Apple ID account at confirmation of purchase. Subscription renews automatically unless cancelled at least 24 hours before the end of the billing period. ";
 
 export default function PaywallScreen() {
   const { theme, colors } = useTheme();
   const styles = useMemo(() => createStyles(theme, colors), [theme, colors]);
   const router = useSafeRouter();
 
-  const [isLoadingOfferings, setIsLoadingOfferings] = useState(true);
-  const [selectedPackage, setSelectedPackage] = useState<PurchasesPackage | null>(
-    null
-  );
-  const [offeringsError, setOfferingsError] = useState<string | null>(null);
-  const [purchaseStatus, setPurchaseStatus] = useState<PurchaseStatus>({
-    type: "idle",
-  });
-  const [isTrialEligible, setIsTrialEligible] = useState(false);
+  const {
+    packages,
+    selectedId,
+    isLoading,
+    isPurchasing,
+    isRestoring,
+    selectPackage,
+    purchase,
+    restore,
+  } = usePaywall();
 
-  const handleClose = useCallback(() => {
+  const handleClose = () => {
     if (router.canGoBack()) {
       router.back();
     }
-  }, [router]);
+  };
 
-  useEffect(() => {
-    let isMounted = true;
+  const handleSelectPackage = (id: string) => {
+    selectPackage(id);
+    Haptics.impactAsync(theme.interactions.haptics.light).catch(() => {});
+  };
 
-    const loadOfferings = async () => {
-      setIsLoadingOfferings(true);
-      setOfferingsError(null);
-      setIsTrialEligible(false);
+  const handlePurchase = () => {
+    Haptics.impactAsync(theme.interactions.haptics.light).catch(() => {});
+    purchase();
+  };
 
-      try {
-        const offerings: PurchasesOfferings = await Purchases.getOfferings();
+  const handleRestore = () => {
+    Haptics.impactAsync(theme.interactions.haptics.light).catch(() => {});
+    restore();
+  };
 
-        if (!isMounted) {
-          return;
-        }
+  const handleOpenLink = (url: string) => {
+    Linking.openURL(url).catch(() => {});
+  };
 
-        const pkg =
-          offerings.current?.monthly ??
-          offerings.current?.availablePackages[0] ??
-          null;
-
-        if (pkg) {
-          setSelectedPackage(pkg);
-        } else {
-          setOfferingsError("MacroLoop Pro is currently unavailable. Please try again later.");
-        }
-      } catch (error) {
-        if (!isMounted) {
-          return;
-        }
-
-        setOfferingsError("We couldn't load the subscription details. Please try again.");
-      } finally {
-        if (isMounted) {
-          setIsLoadingOfferings(false);
-        }
-      }
-    };
-
-    loadOfferings();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const evaluateEligibility = async () => {
-      if (!selectedPackage?.product.identifier || Platform.OS !== "ios") {
-        if (isMounted) {
-          setIsTrialEligible(false);
-        }
-        return;
-      }
-
-      try {
-        const eligibilityMap =
-          await Purchases.checkTrialOrIntroductoryPriceEligibility([
-            selectedPackage.product.identifier,
-          ]);
-
-        if (!isMounted) {
-          return;
-        }
-
-        const eligibility = eligibilityMap[selectedPackage.product.identifier];
-        const eligible =
-          eligibility?.status ===
-          Purchases.INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_ELIGIBLE;
-
-        setIsTrialEligible(eligible);
-      } catch (error) {
-        if (isMounted) {
-          setIsTrialEligible(false);
-        }
-      }
-    };
-
-    evaluateEligibility();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [selectedPackage]);
-
-  const handleSubscribe = useCallback(async () => {
-    if (!selectedPackage) {
-      return;
-    }
-
-    setPurchaseStatus({ type: "loading" });
-
-    try {
-      const { customerInfo } = await Purchases.purchasePackage(selectedPackage);
-
-      if (typeof customerInfo.entitlements.active["pro"] !== "undefined") {
-        setPurchaseStatus({
-          type: "success",
-          message: "You're all set! MacroLoop Pro is now active.",
-        });
-      } else {
-        setPurchaseStatus({
-          type: "success",
-          message: "Purchase completed. Your benefits will unlock shortly.",
-        });
-      }
-    } catch (error) {
-      const purchasesError = error as PurchasesError & { userCancelled?: boolean };
-
-      if (purchasesError?.userCancelled) {
-        setPurchaseStatus({
-          type: "cancelled",
-          message: "Purchase cancelled. No worries—come back anytime.",
-        });
-        return;
-      }
-
-      setPurchaseStatus({
-        type: "error",
-        message: "We couldn't complete the purchase. Please try again.",
-      });
-    }
-  }, [selectedPackage]);
-
-  const renderContent = () => {
-    if (isLoadingOfferings) {
-      return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color={colors.accent} />
-          <AppText role="Caption" color="secondary" style={styles.loadingLabel}>
-            Fetching MacroLoop Pro details…
-          </AppText>
-        </View>
-      );
-    }
-
-    if (offeringsError) {
-      return (
-        <View style={styles.messageContainer}>
-          <AppText role="Subhead" color="secondary" style={styles.centerText}>
-            {offeringsError}
-          </AppText>
-          <Button
-            variant="secondary"
-            label="Try again"
-            onPress={() => {
-              setPurchaseStatus({ type: "idle" });
-              setOfferingsError(null);
-              setIsLoadingOfferings(true);
-              setIsTrialEligible(false);
-
-              // Retry loading offerings
-              Purchases.getOfferings()
-                .then((offerings) => {
-                  const pkg =
-                    offerings.current?.monthly ??
-                    offerings.current?.availablePackages[0] ??
-                    null;
-
-                  if (pkg) {
-                    setSelectedPackage(pkg);
-                    setOfferingsError(null);
-                  } else {
-                    setOfferingsError(
-                      "MacroLoop Pro is currently unavailable. Please try again later."
-                    );
-                  }
-                })
-                .catch(() => {
-                  setOfferingsError(
-                    "We couldn't load the subscription details. Please try again."
-                  );
-                })
-                .finally(() => {
-                  setIsLoadingOfferings(false);
-                });
-            }}
-          />
-        </View>
-      );
-    }
-
-    if (!selectedPackage) {
-      return (
-        <View style={styles.messageContainer}>
-          <AppText role="Subhead" color="secondary" style={styles.centerText}>
-            No subscription options are available right now.
-          </AppText>
-        </View>
-      );
-    }
-
+  // Loading state
+  if (isLoading) {
     return (
-      <>
-        <View style={styles.pricePanel}>
-          <AppText role="Headline" color="secondary">
-            Monthly access
-          </AppText>
-          <AppText role="Title1" style={styles.priceText}>
-            {selectedPackage.product.priceString}
-          </AppText>
-          <AppText role="Caption" color="secondary" style={styles.centerText}>
-            Billed monthly. Cancel anytime from Settings.
-          </AppText>
-        </View>
-
-        <View style={styles.featuresContainer}>
-          {FEATURE_BULLETS.map((feature) => (
-            <View key={feature} style={styles.featureRow}>
-              <View style={styles.featureIcon}>
-                <Check size={18} color={colors.accent} />
-              </View>
-              <AppText role="Body" style={styles.featureText}>
-                {feature}
-              </AppText>
-            </View>
-          ))}
-        </View>
-
-        <Button
-          variant="primary"
-          label={
-            isTrialEligible
-              ? "Start free trial"
-              : `Subscribe for ${selectedPackage.product.priceString}/month`
-          }
-          onPress={handleSubscribe}
-          disabled={purchaseStatus.type === "loading"}
-        />
-
-        <RestorePurchasesButton />
-      </>
-    );
-  };
-
-  const renderStatusMessage = () => {
-    switch (purchaseStatus.type) {
-      case "success":
-        return (
-          <AppText role="Caption" style={[styles.statusMessage, styles.successMessage]}>
-            {purchaseStatus.message}
-          </AppText>
-        );
-      case "error":
-        return (
-          <AppText role="Caption" style={[styles.statusMessage, styles.errorMessage]}>
-            {purchaseStatus.message}
-          </AppText>
-        );
-      case "cancelled":
-        return (
-          <AppText role="Caption" style={[styles.statusMessage, styles.cancelledMessage]}>
-            {purchaseStatus.message}
-          </AppText>
-        );
-      case "loading":
-        return (
-          <AppText role="Caption" color="secondary" style={styles.statusMessage}>
-            Processing your purchase…
-          </AppText>
-        );
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <AppText role="Title2">MacroLoop Pro</AppText>
-        <AppText role="Subhead" color="secondary" style={styles.headerSubtitle}>
-          Unlock faster logging, AI insights, and premium experiments.
-        </AppText>
-      </View>
-
-      <View style={styles.closeButton}>
+      <View style={styles.container}>
         <RoundButton
           onPress={handleClose}
           Icon={X}
           variant="tertiary"
           accessibilityLabel="Close paywall"
+          style={styles.closeButton}
         />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="small" color={colors.accent} />
+          <AppText role="Caption" color="secondary">
+            Loading Pro details…
+          </AppText>
+        </View>
       </View>
+    );
+  }
+
+  // No packages available
+  if (packages.length === 0) {
+    return (
+      <View style={styles.container}>
+        <RoundButton
+          onPress={handleClose}
+          Icon={X}
+          variant="tertiary"
+          accessibilityLabel="Close paywall"
+          style={styles.closeButton}
+        />
+        <View style={styles.errorContainer}>
+          <AppText role="Subhead" color="secondary">
+            Macroloop Pro is currently unavailable. Please try again later.
+          </AppText>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <Animated.View entering={FadeIn.duration(300)} style={styles.container}>
+      <RoundButton
+        onPress={handleClose}
+        Icon={X}
+        variant="tertiary"
+        accessibilityLabel="Close paywall"
+        style={styles.closeButton}
+      />
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         bounces={false}
+        keyboardShouldPersistTaps="handled"
       >
-        {renderContent()}
-        {renderStatusMessage()}
+        {/* Header */}
+        <View style={styles.header}>
+          <AppText role="Title1" style={styles.title}>
+            Unlock the AI Engine
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.subtitle}>
+            Go beyond manual tracking. Save time and stay consistent with
+            powerful AI features.
+          </AppText>
+        </View>
+
+        {/* Features */}
+        <View style={styles.features}>
+          {FEATURES.map(({ Icon, title, description }) => (
+            <View key={title} style={styles.feature}>
+              <View style={styles.featureIcon}>
+                <Icon size={22} color={colors.accent} />
+              </View>
+              <View style={styles.featureText}>
+                <AppText role="Headline">{title}</AppText>
+                <AppText role="Caption" color="secondary">
+                  {description}
+                </AppText>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {/* Package options */}
+        <View style={styles.packages}>
+          {packages.map((pkg) => {
+            const isSelected = pkg.id === selectedId;
+            return (
+              <TouchableOpacity
+                key={pkg.id}
+                activeOpacity={0.7}
+                onPress={() => handleSelectPackage(pkg.id)}
+                style={[
+                  styles.package,
+                  isSelected && styles.packageSelected,
+                  pkg.badge && styles.packageHighlighted,
+                ]}
+              >
+                <View style={styles.packageHeader}>
+                  <AppText role="Headline">{pkg.title}</AppText>
+                  {pkg.badge && (
+                    <View style={styles.badge}>
+                      <AppText role="Caption" style={styles.badgeText}>
+                        {pkg.badge}
+                      </AppText>
+                    </View>
+                  )}
+                </View>
+                <AppText role="Title2">{pkg.price}</AppText>
+                <AppText role="Caption" color="secondary">
+                  {pkg.subText}
+                </AppText>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* CTA */}
+        <Button
+          variant="primary"
+          label={isPurchasing ? "Processing…" : "Unlock Pro"}
+          onPress={handlePurchase}
+          disabled={isPurchasing || !selectedId}
+          isLoading={isPurchasing}
+        />
+
+        {/* Legal */}
+        <View style={styles.legal}>
+          {LEGAL_TEXT.length > 0 && (
+            <AppText role="Caption" color="secondary" style={styles.legalText}>
+              {LEGAL_TEXT}
+            </AppText>
+          )}
+          <View style={styles.links}>
+            <TouchableOpacity
+              onPress={() =>
+                handleOpenLink(
+                  "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+                )
+              }
+              activeOpacity={0.6}
+            >
+              <AppText role="Caption" style={styles.link}>
+                Terms of Use
+              </AppText>
+            </TouchableOpacity>
+            <View style={styles.linkDivider} />
+            <TouchableOpacity
+              onPress={() => handleOpenLink("https://macroloop.app/privacy")}
+              activeOpacity={0.6}
+            >
+              <AppText role="Caption" style={styles.link}>
+                Privacy Policy
+              </AppText>
+            </TouchableOpacity>
+            <View style={styles.linkDivider} />
+            <TouchableOpacity
+              onPress={handleRestore}
+              disabled={isRestoring}
+              activeOpacity={0.6}
+            >
+              <AppText
+                role="Caption"
+                style={[styles.link, isRestoring && styles.linkDisabled]}
+              >
+                {isRestoring ? "Restoring…" : "Restore Purchases"}
+              </AppText>
+            </TouchableOpacity>
+          </View>
+        </View>
       </ScrollView>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -356,92 +259,121 @@ const createStyles = (theme: Theme, colors: Colors) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.primaryBackground,
-      paddingTop: theme.spacing.xl,
-    },
-    header: {
-      paddingHorizontal: theme.spacing.lg,
-      marginBottom: theme.spacing.md,
-    },
-    headerSubtitle: {
-      marginTop: theme.spacing.xs,
+      backgroundColor: colors.secondaryBackground,
+      paddingTop: theme.spacing.xxl + theme.spacing.lg,
     },
     closeButton: {
       position: "absolute",
-      top: theme.spacing.lg,
-      right: theme.spacing.lg,
+      top: theme.spacing.md,
+      right: theme.spacing.md,
       zIndex: 10,
     },
     scrollView: {
       flex: 1,
     },
-    scrollContent: {
+    content: {
       paddingHorizontal: theme.spacing.lg,
       paddingBottom: theme.spacing.xxl,
       gap: theme.spacing.lg,
     },
     loadingContainer: {
+      flex: 1,
       alignItems: "center",
       justifyContent: "center",
-      paddingVertical: theme.spacing.xxl,
       gap: theme.spacing.sm,
     },
-    loadingLabel: {
-      textAlign: "center",
-    },
-    messageContainer: {
+    errorContainer: {
+      flex: 1,
       alignItems: "center",
-      gap: theme.spacing.md,
-      paddingVertical: theme.spacing.xxl,
-    },
-    centerText: {
-      textAlign: "center",
-    },
-    pricePanel: {
-      backgroundColor: colors.tertiaryBackground,
-      borderRadius: theme.components.cards.cornerRadius,
-      paddingVertical: theme.spacing.xl,
+      justifyContent: "center",
       paddingHorizontal: theme.spacing.lg,
+    },
+    header: {
       alignItems: "center",
       gap: theme.spacing.sm,
-      borderWidth: 1,
-      borderColor: colors.subtleBorder,
     },
-    priceText: {
-      color: colors.primaryText,
+    title: {
+      textAlign: "center",
     },
-    featuresContainer: {
-      backgroundColor: colors.secondaryBackground,
-      borderRadius: theme.components.cards.cornerRadius,
-      padding: theme.spacing.lg,
-      borderWidth: 1,
-      borderColor: colors.subtleBorder,
-      gap: theme.spacing.md,
+    subtitle: {
+      textAlign: "center",
     },
-    featureRow: {
+    features: {
+      gap: theme.spacing.lg,
+    },
+    feature: {
       flexDirection: "row",
-      alignItems: "center",
+      gap: theme.spacing.md,
+      alignItems: "flex-start",
     },
     featureIcon: {
-      width: 24,
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: colors.tertiaryBackground,
       alignItems: "center",
       justifyContent: "center",
-      marginRight: theme.spacing.sm,
     },
     featureText: {
       flex: 1,
+      gap: theme.spacing.xs,
     },
-    statusMessage: {
+    packages: {
+      gap: theme.spacing.md,
+    },
+    package: {
+      borderWidth: 1,
+      borderColor: colors.subtleBorder,
+      borderRadius: theme.components.cards.cornerRadius,
+      padding: theme.spacing.lg,
+      backgroundColor: colors.tertiaryBackground,
+      gap: theme.spacing.sm,
+    },
+    packageSelected: {
+      borderColor: colors.accent,
+      backgroundColor: "rgba(68, 235, 212, 0.08)",
+    },
+    packageHighlighted: {
+      borderColor: colors.highlightBorder,
+    },
+    packageHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    badge: {
+      backgroundColor: colors.accent,
+      borderRadius: theme.components.buttons.cornerRadius,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 4,
+    },
+    badgeText: {
+      color: colors.black,
+    },
+    legal: {
+      gap: theme.spacing.sm,
+      alignItems: "center",
       marginTop: theme.spacing.md,
+    },
+    legalText: {
       textAlign: "center",
     },
-    successMessage: {
-      color: colors.success,
+    links: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      flexWrap: "wrap",
+      gap: theme.spacing.sm,
     },
-    errorMessage: {
-      color: colors.error,
+    linkDivider: {
+      width: 1,
+      height: 14,
+      backgroundColor: colors.subtleBorder,
     },
-    cancelledMessage: {
-      color: colors.secondaryText,
+    link: {
+      color: colors.accent,
+    },
+    linkDisabled: {
+      color: colors.disabledText,
     },
   });

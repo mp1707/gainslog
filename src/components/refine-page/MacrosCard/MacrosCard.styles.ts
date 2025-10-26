@@ -5,7 +5,6 @@ export const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     cardContainer: {
       position: "relative",
-      overflow: "hidden",
     },
     sectionHeader: {
       marginBottom: theme.spacing.sm,

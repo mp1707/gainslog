@@ -26,7 +26,8 @@ import { useCreationStore } from "@/store/useCreationStore"; // keyed drafts sto
 import { useDraft } from "@/hooks/useDraft";
 import { generateFoodLogId } from "@/utils/idGenerator";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
-import { ProFeatureGate } from "@/components/shared/ProFeatureGate";
+import { InlinePaywallCard } from "@/components/paywall/InlinePaywallCard";
+import { BrainCircuit } from "lucide-react-native";
 
 const inputAccessoryViewID = "create-input-accessory";
 
@@ -211,13 +212,13 @@ export default function Create() {
           />
         ) : (
           <View style={styles.lockedContainer}>
-            <ProFeatureGate
-              title="AI estimation is a Pro feature"
-              description="Unlock MacroLoop Pro to turn your meal photos and notes into full macro breakdowns."
-              buttonLabel="Get MacroLoop Pro"
+            <InlinePaywallCard
+              Icon={BrainCircuit}
+              title="AI Logging is a Pro Feature"
+              body="Log meals effortlessly with a photo, text, or your voice."
+              ctaLabel="Start Free Trial"
               onPress={handleShowPaywall}
-              showRestore
-              style={styles.lockedCard}
+              testID="create-inline-paywall"
             />
           </View>
         ))}
@@ -258,9 +259,7 @@ const createStyles = (theme: Theme) =>
       flex: 1,
       paddingHorizontal: theme.spacing.md,
       paddingBottom: theme.spacing.xl,
-      justifyContent: "center",
-    },
-    lockedCard: {
-      alignSelf: "stretch",
+      paddingTop: theme.spacing.lg,
+      gap: theme.spacing.md,
     },
   });

@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 import {
+  ActivityIndicator,
   Pressable,
   PressableProps,
   Text,
@@ -14,7 +15,7 @@ import Animated, {
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { LucideIcon } from "lucide-react-native";
-import { useTheme, theme } from "@/theme";
+import { useTheme } from "@/theme";
 import { createStyles } from "./Button.styles";
 
 export type ButtonVariant = "primary" | "secondary" | "tertiary";
@@ -29,6 +30,7 @@ export interface ButtonProps extends Omit<PressableProps, "children"> {
   iconPlacement?: IconPlacement; // default: left
   // Optional: customize press-in haptic intensity (default: Light)
   hapticImpact?: Haptics.ImpactFeedbackStyle;
+  isLoading?: boolean;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -40,6 +42,7 @@ export const Button = React.memo<ButtonProps>(
     Icon,
     iconSize = 18,
     disabled = false,
+    isLoading = false,
     iconPlacement = "left",
     hapticImpact,
     onPress,
@@ -48,16 +51,18 @@ export const Button = React.memo<ButtonProps>(
     style,
     ...pressableProps
   }) => {
-    const { colors, theme, colorScheme } = useTheme();
+    const { colors, theme } = useTheme();
     const fontScale = PixelRatio.getFontScale();
     const styles = createStyles(colors, theme, fontScale);
 
     const scale = useSharedValue(1);
     const adjustedIconSize = iconSize * fontScale;
 
+    const isDisabled = disabled || isLoading;
+
     // Get text color based on variant
     const getTextColor = () => {
-      if (disabled) return colors.disabledText;
+      if (isDisabled) return colors.disabledText;
 
       switch (variant) {
         case "primary":
@@ -73,7 +78,7 @@ export const Button = React.memo<ButtonProps>(
 
     // Get background color with press state
     const getBackgroundColor = (pressed: boolean) => {
-      if (disabled) return colors.disabledBackground;
+      if (isDisabled) return colors.disabledBackground;
 
       const baseColor = (() => {
         switch (variant) {
@@ -98,7 +103,7 @@ export const Button = React.memo<ButtonProps>(
 
     const handlePressIn = useCallback(
       (event: any) => {
-        if (!disabled) {
+        if (!isDisabled) {
           scale.value = withTiming(theme.interactions.press.scale, {
             duration: theme.interactions.press.timing.duration,
             easing: theme.interactions.press.timing.easing,
@@ -109,12 +114,12 @@ export const Button = React.memo<ButtonProps>(
         }
         onPressIn?.(event);
       },
-      [disabled, onPressIn, scale, hapticImpact]
+      [isDisabled, onPressIn, scale, hapticImpact]
     );
 
     const handlePressOut = useCallback(
       (event: any) => {
-        if (!disabled) {
+        if (!isDisabled) {
           scale.value = withSpring(1, {
             damping: theme.interactions.press.spring.damping,
             stiffness: theme.interactions.press.spring.stiffness,
@@ -122,16 +127,16 @@ export const Button = React.memo<ButtonProps>(
         }
         onPressOut?.(event);
       },
-      [disabled, onPressOut, scale]
+      [isDisabled, onPressOut, scale]
     );
 
     const handlePress = useCallback(
       (event: any) => {
-        if (!disabled) {
+        if (!isDisabled) {
           onPress?.(event);
         }
       },
-      [disabled, onPress]
+      [isDisabled, onPress]
     );
 
     const animatedStyle = useAnimatedStyle(() => ({
@@ -155,7 +160,7 @@ export const Button = React.memo<ButtonProps>(
           ellipsizeMode="tail"
           style={[
             styles.label,
-            disabled
+            isDisabled
               ? styles.labelDisabled
               : variant === "primary"
               ? styles.labelPrimary
@@ -167,6 +172,22 @@ export const Button = React.memo<ButtonProps>(
           {label}
         </Text>
       );
+
+      if (isLoading) {
+        return (
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+            }}
+          >
+            <ActivityIndicator size="small" color={getTextColor()} />
+            <View style={{ flexShrink: 1, minWidth: 0 }}>{textElement}</View>
+          </View>
+        );
+      }
 
       if (!Icon) return textElement;
 
@@ -202,11 +223,11 @@ export const Button = React.memo<ButtonProps>(
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         onPress={handlePress}
-        disabled={disabled}
+        disabled={isDisabled}
         accessible={true}
         accessibilityRole="button"
         accessibilityLabel={label}
-        accessibilityState={{ disabled }}
+        accessibilityState={{ disabled: isDisabled, busy: isLoading || undefined }}
         {...pressableProps}
       >
         {({ pressed }) => (

@@ -23,7 +23,8 @@ import {
 } from "@/components/shared/BottomSheet";
 import { TextInput } from "@/components/shared/TextInput";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
-import { ProFeatureGate } from "@/components/shared/ProFeatureGate";
+import { InlinePaywallCard } from "@/components/paywall/InlinePaywallCard";
+import { Calculator } from "lucide-react-native";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -344,13 +345,13 @@ export default function Edit() {
               onRecalculate={isPro ? handleReestimate : undefined}
             />
             {!isPro && (
-              <ProFeatureGate
-                title="Refine macros with AI"
-                description="MacroLoop Pro recalculates your meal when you adjust ingredients. Subscribe to unlock instant AI refinements."
-                buttonLabel="Get MacroLoop Pro"
+              <InlinePaywallCard
+                Icon={Calculator}
+                title="Recalculate with Pro"
+                body="Instantly get updated macros when you adjust ingredients."
+                ctaLabel="Unlock to Recalculate"
                 onPress={handleShowPaywall}
-                showRestore
-                style={styles.lockedCard}
+                testID="edit-inline-paywall"
               />
             )}
           </>
@@ -424,8 +425,5 @@ const createStyles = (colors: Colors, theme: Theme) =>
       alignItems: "center",
       justifyContent: "center",
       paddingVertical: theme.spacing.xl,
-    },
-    lockedCard: {
-      marginTop: theme.spacing.md,
     },
   });
