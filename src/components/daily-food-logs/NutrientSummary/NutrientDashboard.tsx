@@ -24,6 +24,7 @@ import {
 } from "./utils/constants";
 import { getNutrientIcon } from "./utils/nutrientFormatters";
 import { Flame, BicepsFlexed } from "lucide-react-native";
+import { hasNoDailyTargets } from "@/utils";
 
 const ICON_SIZE = 18;
 
@@ -163,13 +164,7 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   }, [percentages.fat, animations.dateChanged, fatProgressWidth]);
 
   // Check conditions AFTER all hooks are called
-  const hasNoGoals =
-    (targets.calories || 0) === 0 &&
-    (targets.protein || 0) === 0 &&
-    (targets.carbs || 0) === 0 &&
-    (targets.fat || 0) === 0;
-
-  if (hasNoGoals) {
+  if (hasNoDailyTargets(targets)) {
     return <SetGoalsCTA />;
   }
 

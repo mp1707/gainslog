@@ -36,6 +36,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
       paddingVertical: theme.spacing.xl,
       gap: theme.spacing.md,
       minHeight: 176,
+      marginTop: theme.spacing.xxl * 3,
     },
     title: {
       ...theme.typography.Headline,
@@ -48,4 +49,3 @@ const createStyles = (colors: Colors, theme: Theme) =>
       minWidth: 180,
     },
   });
-

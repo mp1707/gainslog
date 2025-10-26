@@ -10,14 +10,18 @@ import { useAppStore } from "@/store/useAppStore";
 import { createStyles } from "./Header.styles";
 import { formatDate } from "@/utils/formatDate";
 import { RoundButton } from "../../RoundButton";
+import { hasDailyTargetsSet } from "@/utils";
 
 export const Header: React.FC = () => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const { safePush, safeNavigate } = useNavigationGuard();
-  const { selectedDate } = useAppStore();
+  const selectedDate = useAppStore((state) => state.selectedDate);
+  const dailyTargets = useAppStore((state) => state.dailyTargets);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const menuButtonRef = useRef<View>(null);
+
+  const hasGoals = hasDailyTargetsSet(dailyTargets);
 
   const handleMenuPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -52,6 +56,7 @@ export const Header: React.FC = () => {
             variant="primary"
             onPress={() => safeNavigate("/create")}
             accessibilityLabel="Create new entry"
+            disabled={!hasGoals}
           />
         </View>
       </View>

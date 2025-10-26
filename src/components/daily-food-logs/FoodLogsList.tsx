@@ -5,6 +5,7 @@ import { FoodLogItem } from "./FoodLogItem";
 import { NutrientDashboard } from "./NutrientSummary/NutrientDashboard";
 import { EmptyFoodLogsState } from "./EmptyFoodLogsState";
 import { useTheme } from "@/theme/ThemeProvider";
+import { hasDailyTargetsSet } from "@/utils";
 
 const DEFAULT_TARGETS = { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
@@ -78,15 +79,27 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
     ]
   );
 
+  const normalizedTargets = useMemo(
+    () => dailyTargets || DEFAULT_TARGETS,
+    [dailyTargets]
+  );
+
+  const shouldShowEmptyState = hasDailyTargetsSet(dailyTargets);
+
   const ListHeaderComponent = useMemo(
     () => (
       <NutrientDashboard
         percentages={dailyPercentages}
-        targets={dailyTargets || DEFAULT_TARGETS}
+        targets={normalizedTargets}
         totals={dailyTotals}
       />
     ),
-    [dailyPercentages, dailyTargets, dailyTotals]
+    [dailyPercentages, normalizedTargets, dailyTotals]
+  );
+
+  const EmptyComponent = useMemo(
+    () => (shouldShowEmptyState ? <EmptyFoodLogsState /> : null),
+    [shouldShowEmptyState]
   );
 
   const contentContainerStyle = useMemo(
@@ -113,7 +126,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
       }}
       contentContainerStyle={contentContainerStyle}
       ListHeaderComponent={ListHeaderComponent}
-      ListEmptyComponent={<EmptyFoodLogsState />}
+      ListEmptyComponent={EmptyComponent}
       showsVerticalScrollIndicator={false}
       removeClippedSubviews
       initialNumToRender={6}

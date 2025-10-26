@@ -2,3 +2,4 @@
 export * from "./dateHelpers";
 export * from "./idGenerator";
 export * from "./processImage";
+export * from "./dailyTargets";
