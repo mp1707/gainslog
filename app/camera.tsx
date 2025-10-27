@@ -2,9 +2,9 @@ import { MediaLibraryPreview } from "@/components/camera/MediaLibraryPreview";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { Colors, Theme } from "@/theme/theme";
 import { useTheme } from "@/theme/ThemeProvider";
-import { CameraView } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import { CameraIcon, X } from "lucide-react-native";
-import { useMemo, useRef, useState, useCallback } from "react";
+import { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 
@@ -20,6 +20,16 @@ export default function Camera() {
 
   const updateDraft = useCreationStore((state) => state.updateDraft);
   const { logId } = useLocalSearchParams<{ logId?: string }>();
+
+  // Camera permissions
+  const [permission, requestPermission] = useCameraPermissions();
+
+  // Request camera permissions on mount if not granted
+  useEffect(() => {
+    if (permission && !permission.granted && permission.canAskAgain) {
+      requestPermission();
+    }
+  }, [permission, requestPermission]);
 
   // Handler for image URI - immediately closes camera and returns to create screen
   // Image processing will happen on the create screen to show loading skeleton
@@ -58,6 +68,7 @@ export default function Camera() {
   return (
     <View style={styles.container}>
       <CameraView
+        key={permission?.granted ? "camera-granted" : "camera-waiting"}
         style={styles.camera}
         ref={cameraRef}
         onCameraReady={() => setIsCameraReady(true)}
@@ -72,7 +83,7 @@ export default function Camera() {
         />
       </View>
       <MediaLibraryPreview
-        onImageSelected={handleImageUri} // ++ USE the new handler
+        onImageSelected={handleImageUri}
       />
 
       <RoundButton

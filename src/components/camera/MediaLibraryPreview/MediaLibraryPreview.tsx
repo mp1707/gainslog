@@ -24,7 +24,11 @@ export const MediaLibraryPreview: React.FC<MediaLibraryPreviewProps> = ({
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
 
-  const [recentImages, setRecentImages] = React.useState<MediaLibrary.Asset[]>([]);
+  interface AssetWithLocalUri extends MediaLibrary.Asset {
+    localUri?: string;
+  }
+
+  const [recentImages, setRecentImages] = React.useState<AssetWithLocalUri[]>([]);
   const [hasMediaPermission, setHasMediaPermission] = React.useState<boolean | null>(null);
 
   // Animation shared values
@@ -68,9 +72,18 @@ export const MediaLibraryPreview: React.FC<MediaLibraryPreviewProps> = ({
         sortBy: ["creationTime"],
         mediaType: MediaLibrary.MediaType.photo,
       });
-      setRecentImages(assets);
+
+      // Get localUri for each asset to enable rendering
+      const assetsWithLocalUri = await Promise.all(
+        assets.map(async (asset) => {
+          const assetInfo = await MediaLibrary.getAssetInfoAsync(asset.id);
+          return { ...asset, localUri: assetInfo.localUri };
+        })
+      );
+
+      setRecentImages(assetsWithLocalUri);
       // Trigger animation when images are loaded
-      if (assets.length > 0) {
+      if (assetsWithLocalUri.length > 0) {
         animationProgress.value = withDelay(300, withSpring(1, {
           stiffness: 120,
           damping: 20,
@@ -217,7 +230,7 @@ export const MediaLibraryPreview: React.FC<MediaLibraryPreviewProps> = ({
 
   useEffect(() => {
     fetchRecentImages();
-  }, [fetchRecentImages]);
+  }, [fetchRecentImages, hasMediaPermission]);
 
   return (
     <Pressable
@@ -233,7 +246,7 @@ export const MediaLibraryPreview: React.FC<MediaLibraryPreviewProps> = ({
         recentImages.map((asset, index) => (
           <Animated.Image
             key={asset.id}
-            source={{ uri: asset.uri }}
+            source={{ uri: asset.localUri || asset.uri }}
             style={[
               styles.stackedImage,
               animatedStyles[index],
