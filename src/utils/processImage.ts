@@ -21,8 +21,8 @@ export const processImage = async (
   // Resize the image to a max width of 1000px, maintaining aspect ratio.
   const resizedImage = await ImageManipulator.manipulateAsync(
     uri,
-    [{ resize: { width: 1000 } }],
-    { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+    [{ resize: { width: 768 } }],
+    { compress: 0.65, format: ImageManipulator.SaveFormat.JPEG }
   );
 
   const uniqueFilename = `${uuidv4()}.jpg`;

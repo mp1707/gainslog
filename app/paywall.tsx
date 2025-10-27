@@ -9,7 +9,14 @@ import {
 } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { BrainCircuit, Calculator, X } from "lucide-react-native";
+import {
+  BadgeCheck,
+  BrainCircuit,
+  BrushCleaning,
+  Calculator,
+  Heart,
+  X,
+} from "lucide-react-native";
 
 import { AppText } from "@/components/shared/AppText";
 import { Button } from "@/components/shared/Button";
@@ -30,6 +37,11 @@ const FEATURES = [
     description:
       "Adjust ingredients and get immediate macro updates to fine-tune your meals.",
     Icon: Calculator,
+  },
+  {
+    title: "No Ads. Period.",
+    description: "Support ad-free development",
+    Icon: Heart,
   },
 ] as const;
 
@@ -138,11 +150,10 @@ export default function PaywallScreen() {
         {/* Header */}
         <View style={styles.header}>
           <AppText role="Title1" style={styles.title}>
-            Unlock the AI Engine
+            MacroLoop Pro
           </AppText>
           <AppText role="Body" color="secondary" style={styles.subtitle}>
-            Go beyond manual tracking. Save time and stay consistent with
-            powerful AI features.
+            Save time and stay consistent with effortless AI powered tracking.
           </AppText>
         </View>
 
