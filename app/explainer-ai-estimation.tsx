@@ -4,14 +4,13 @@ import { ScrollView } from "react-native-gesture-handler";
 import { X, Sparkles, Pencil, Camera, Mic } from "lucide-react-native";
 
 import { AppText } from "@/components/shared/AppText";
-import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
-import { Theme, useTheme } from "@/theme";
+import { Colors, Theme, useTheme } from "@/theme";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
 
 export default function ExplainerAiEstimation() {
   const { colors, theme } = useTheme();
-  const styles = useMemo(() => createStyles(theme), [theme]);
+  const styles = useMemo(() => createStyles(theme, colors), [theme, colors]);
   const router = useSafeRouter();
 
   const handleClose = () => {
@@ -21,7 +20,7 @@ export default function ExplainerAiEstimation() {
   };
 
   return (
-    <GradientWrapper style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.closeButton}>
         <RoundButton
           onPress={handleClose}
@@ -146,14 +145,15 @@ export default function ExplainerAiEstimation() {
           </AppText>
         </View>
       </ScrollView>
-    </GradientWrapper>
+    </View>
   );
 }
 
-const createStyles = (theme: Theme) =>
+const createStyles = (theme: Theme, colors: Colors) =>
   StyleSheet.create({
     container: {
       flex: 1,
+      backgroundColor: colors.secondaryBackground,
     },
     closeButton: {
       position: "absolute",
