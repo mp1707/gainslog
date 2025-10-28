@@ -55,6 +55,7 @@ export default function Create() {
     "ai" | "favorites" | "manual"
   >("ai");
   const [isProcessingImage, setIsProcessingImage] = useState(false);
+  const [isEstimating, setIsEstimating] = useState(false);
   const textInputRef = useRef<RNTextInput>(null);
   useDelayedAutofocus(textInputRef);
 
@@ -136,15 +137,16 @@ export default function Create() {
   }, [router]);
 
   const handleEstimation = useCallback(() => {
-    if (!draft || !isPro) {
+    if (!draft || !isPro || isEstimating) {
       if (!isPro) {
         handleShowPaywall();
       }
       return;
     }
+    setIsEstimating(true);
     runCreateEstimation(draft);
     router.back();
-  }, [draft, isPro, runCreateEstimation, router, handleShowPaywall]);
+  }, [draft, isPro, isEstimating, runCreateEstimation, router, handleShowPaywall]);
 
   const handleCreateLogFromFavorite = useCallback(
     (favorite: Favorite) => {
@@ -185,7 +187,8 @@ export default function Create() {
 
   // This constant now safely depends on pendingLog
   const canContinue =
-    draft.description?.trim() !== "" || !!draft.localImagePath;
+    (draft.description?.trim() !== "" || !!draft.localImagePath) &&
+    !isEstimating;
 
   return (
     <GradientWrapper style={styles.container}>
@@ -248,6 +251,7 @@ export default function Create() {
             onEstimate={handleEstimation}
             estimateLabel={"Estimate"}
             canContinue={canContinue}
+            isEstimating={isEstimating}
             logId={draft.id}
           />
         </KeyboardStickyView>

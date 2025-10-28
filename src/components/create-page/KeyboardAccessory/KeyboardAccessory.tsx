@@ -40,6 +40,7 @@ interface KeyboardAccessoryProps {
   logId?: string;
   isRecording?: boolean;
   volumeLevel?: number;
+  isEstimating?: boolean;
 }
 
 // --- Smoother MiniWaveform Component ---
@@ -149,6 +150,7 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   logId,
   isRecording = false,
   volumeLevel = 0,
+  isEstimating = false,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme, colorScheme);
@@ -339,6 +341,7 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
             label={estimateLabel}
             onPress={onEstimate}
             disabled={!canContinue}
+            isLoading={isEstimating}
             Icon={Sparkles}
           />
         </View>
