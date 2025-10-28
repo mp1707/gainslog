@@ -13,7 +13,7 @@ import { Header } from "./components/Header";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { createStyles } from "./DateSlider.styles";
-import { formatDateToLocalString, parseDateKey } from "@/utils/dateHelpers";
+import { formatDateToLocalString, parseDateKey, getTodayKey } from "@/utils/dateHelpers";
 
 const WEEKDAY_LETTERS = ["M", "T", "W", "T", "F", "S", "S"];
 const WEEKS_TO_LOAD_AT_ONCE = 5;
@@ -35,7 +35,7 @@ export const DateSlider = () => {
     useAppStore();
 
   const [pastWeeksLoaded, setPastWeeksLoaded] = useState(WEEKS_TO_LOAD_AT_ONCE);
-  const [futureWeeksLoaded, setFutureWeeksLoaded] = useState(0);
+  const [futureWeeksLoaded, setFutureWeeksLoaded] = useState(2);
   const [isLoading, setIsLoading] = useState(false);
 
   const dailyTotalsByDate = useMemo(() => {
@@ -146,6 +146,10 @@ export const DateSlider = () => {
       if (isLoading) return;
 
       const contentOffset = event.nativeEvent.contentOffset.x;
+      const contentWidth = event.nativeEvent.contentSize.width;
+      const layoutWidth = event.nativeEvent.layoutMeasurement.width;
+
+      // Load more past weeks when scrolling backward
       if (contentOffset < ITEM_WIDTH * 7) {
         setIsLoading(true);
         const listRef = flatListRef.current;
@@ -163,9 +167,29 @@ export const DateSlider = () => {
           return newWeeks;
         });
       }
+
+      // Load more future weeks when scrolling forward
+      if (contentOffset + layoutWidth > contentWidth - ITEM_WIDTH * 7) {
+        setIsLoading(true);
+        setFutureWeeksLoaded((prev) => {
+          const newWeeks = prev + WEEKS_TO_LOAD_AT_ONCE;
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 100);
+          return newWeeks;
+        });
+      }
     },
     [isLoading]
   );
+
+  // Auto-update selectedDate to today if it's from a previous day
+  useEffect(() => {
+    const today = getTodayKey();
+    if (selectedDate < today) {
+      setSelectedDate(today);
+    }
+  }, []); // Run once on mount
 
   useEffect(() => {
     const selectedDateIndex = dateRange.findIndex(
@@ -236,7 +260,7 @@ export const DateSlider = () => {
           windowSize={5}
           removeClippedSubviews={true}
           onMomentumScrollEnd={handleScrollEnd}
-          contentContainerStyle={{}}
+          contentContainerStyle={{ paddingRight: SCREEN_WIDTH }}
         />
       </View>
     </View>
