@@ -55,10 +55,10 @@ export const CarbsExplainer: React.FC<CarbsExplainerProps> = ({ total = 218 }) =
         </View>
 
         <AppText role="Headline" color="primary" style={[styles.sectionHeading, { color: semanticColor }]}>
-          A Flexible Total
+          A flexible total
         </AppText>
         <AppText role="Body" color="secondary" style={styles.contentText}>
-          No fixed target—carbs fill remaining calories after protein and fat.
+          No fixed target—carbs fill remaining calories after protein and fat. Expect this to vary day-to-day.
         </AppText>
 
         <AppText
@@ -66,16 +66,53 @@ export const CarbsExplainer: React.FC<CarbsExplainerProps> = ({ total = 218 }) =
           color="primary"
           style={[styles.sectionHeading, { color: semanticColor, marginTop: theme.spacing.md }]}
         >
-          Your Fuel Source
+          Your fuel source
         </AppText>
-        <AppText role="Body" color="secondary" style={styles.contentText}>
-          Preferred fuel for training and activity. Adjust based on energy needs and activity level.
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            Increase on hard training days; scale down on rest days.
+          </AppText>
+        </View>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            Choose slower-digesting carbs most of the time; use faster carbs around workouts.
+          </AppText>
+        </View>
+
+        <AppText
+          role="Headline"
+          color="primary"
+          style={[styles.sectionHeading, { color: semanticColor, marginTop: theme.spacing.md }]}
+        >
+          Smart sources
         </AppText>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            Rice, potatoes, oats, beans, fruit, whole-grain breads/wraps.
+          </AppText>
+        </View>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            Limit sugary drinks and ultra-processed sweets.
+          </AppText>
+        </View>
       </View>
 
       <View style={styles.buttonContainer}>
         <Button
-          label="Change targets"
+          label="Adjust targets"
           variant="secondary"
           onPress={handleChangeTargets}
         />
@@ -132,6 +169,18 @@ const createStyles = (theme: Theme) =>
     },
     contentText: {
       lineHeight: 20,
+    },
+    bulletRow: {
+      flexDirection: "row",
+      marginBottom: theme.spacing.xs,
+      gap: theme.spacing.xs,
+    },
+    bulletChar: {
+      lineHeight: 22,
+    },
+    bulletText: {
+      flex: 1,
+      lineHeight: 22,
     },
     buttonContainer: {
       alignItems: "center",

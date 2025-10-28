@@ -87,10 +87,10 @@ export const FatExplainer: React.FC<FatExplainerProps> = ({
         </View>
 
         <AppText role="Headline" color="primary" style={[styles.sectionHeading, { color: semanticColor }]}>
-          Hit Your Daily Target
+          Hit your daily target
         </AppText>
         <AppText role="Body" color="secondary" style={styles.contentText}>
-          Aim for about {target}g of fat each day. You're currently at {progressPercentage}% of that goal with {total}g logged.
+          Aim for a steady baseline each day to keep energy and meals satisfying.
         </AppText>
 
         <AppText
@@ -98,10 +98,10 @@ export const FatExplainer: React.FC<FatExplainerProps> = ({
           color="primary"
           style={[styles.sectionHeading, { color: semanticColor, marginTop: theme.spacing.md }]}
         >
-          Why It Matters
+          Why it matters
         </AppText>
         <AppText role="Body" color="secondary" style={styles.contentText}>
-          Dietary fat keeps hormones balanced, aids vitamin absorption, and helps meals stay satisfying. Stay close to your target to keep energy steady.
+          Dietary fat supports hormones, helps absorb vitamins and keeps you full.
         </AppText>
 
         <AppText
@@ -109,22 +109,37 @@ export const FatExplainer: React.FC<FatExplainerProps> = ({
           color="primary"
           style={[styles.sectionHeading, { color: semanticColor, marginTop: theme.spacing.md }]}
         >
-          Smart Sources
+          Smart sources
         </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • Cook with olive oil, avocado oil, or grass-fed butter
-        </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • Add satiating fats like salmon, eggs, nuts, and seeds
-        </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • Pair fats with protein to slow digestion and feel fuller longer
-        </AppText>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            Cook with olive/avocado oil; include nuts, seeds, whole eggs, salmon.
+          </AppText>
+        </View>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            Favor mostly unsaturated fats.
+          </AppText>
+        </View>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            Saturated fat is fine in moderation—balance across the day.
+          </AppText>
+        </View>
       </View>
 
       <View style={styles.buttonContainer}>
         <Button
-          label="Change targets"
+          label="Adjust targets"
           variant="secondary"
           onPress={handleChangeTargets}
         />
@@ -190,9 +205,17 @@ const createStyles = (theme: Theme) =>
     sectionHeading: {
       marginBottom: theme.spacing.xs,
     },
-    bulletPoint: {
-      lineHeight: 20,
-      marginBottom: theme.spacing.xs / 2,
+    bulletRow: {
+      flexDirection: "row",
+      marginBottom: theme.spacing.xs,
+      gap: theme.spacing.xs,
+    },
+    bulletChar: {
+      lineHeight: 22,
+    },
+    bulletText: {
+      flex: 1,
+      lineHeight: 22,
     },
     contentText: {
       lineHeight: 20,

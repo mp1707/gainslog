@@ -9,7 +9,6 @@ import {
 import { useLocalSearchParams } from "expo-router";
 import { X } from "lucide-react-native";
 
-import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { DotProgressIndicator } from "@/components/explainer-macros/DotProgressIndicator";
 import { MacrosOverview } from "@/components/explainer-macros/MacrosOverview";
@@ -40,9 +39,20 @@ export default function ExplainerMacrosScreen() {
   const styles = useMemo(() => createStyles(theme, colors), [theme, colors]);
   const router = useSafeRouter();
   const params = useLocalSearchParams<{
-    total?: string;
-    target?: string;
-    percentage?: string;
+    // Calories params
+    calories_total?: string;
+    calories_target?: string;
+    calories_percentage?: string;
+    // Protein params
+    protein_total?: string;
+    protein_target?: string;
+    protein_percentage?: string;
+    // Fat params
+    fat_total?: string;
+    fat_target?: string;
+    fat_percentage?: string;
+    // Carbs params
+    carbs_total?: string;
   }>();
 
   const [currentPage, setCurrentPage] = useState(0);
@@ -67,23 +77,69 @@ export default function ExplainerMacrosScreen() {
     itemVisiblePercentThreshold: 50,
   }).current;
 
-  // Parse params for data
-  const total = params.total ? parseInt(params.total) : undefined;
-  const target = params.target ? parseInt(params.target) : undefined;
-  const percentage = params.percentage
-    ? parseInt(params.percentage)
-    : undefined;
+  // Parse params for each macro type
+  const caloriesData = {
+    total: params.calories_total ? parseInt(params.calories_total) : undefined,
+    target: params.calories_target
+      ? parseInt(params.calories_target)
+      : undefined,
+    percentage: params.calories_percentage
+      ? parseInt(params.calories_percentage)
+      : undefined,
+  };
+
+  const proteinData = {
+    total: params.protein_total ? parseInt(params.protein_total) : undefined,
+    target: params.protein_target ? parseInt(params.protein_target) : undefined,
+    percentage: params.protein_percentage
+      ? parseInt(params.protein_percentage)
+      : undefined,
+  };
+
+  const fatData = {
+    total: params.fat_total ? parseInt(params.fat_total) : undefined,
+    target: params.fat_target ? parseInt(params.fat_target) : undefined,
+    percentage: params.fat_percentage
+      ? parseInt(params.fat_percentage)
+      : undefined,
+  };
+
+  const carbsData = {
+    total: params.carbs_total ? parseInt(params.carbs_total) : undefined,
+  };
 
   const renderPage = useCallback(
     ({ item }: { item: ExplainerPage }) => {
       const Component = item.component;
+
+      // Pass the correct data to each component based on its type
+      let componentProps = {};
+      switch (item.id) {
+        case "calories":
+          componentProps = caloriesData;
+          break;
+        case "protein":
+          componentProps = proteinData;
+          break;
+        case "fat":
+          componentProps = fatData;
+          break;
+        case "carbs":
+          componentProps = carbsData;
+          break;
+        case "macros":
+        default:
+          componentProps = {};
+          break;
+      }
+
       return (
         <View style={styles.pageContainer}>
-          <Component total={total} target={target} percentage={percentage} />
+          <Component {...componentProps} />
         </View>
       );
     },
-    [styles.pageContainer, total, target, percentage]
+    [styles.pageContainer, caloriesData, proteinData, fatData, carbsData]
   );
 
   const keyExtractor = useCallback((item: ExplainerPage) => item.id, []);
@@ -135,10 +191,10 @@ const createStyles = (theme: Theme, colors: Colors) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.primaryBackground,
+      backgroundColor: colors.secondaryBackground,
     },
     header: {
-      paddingTop: theme.spacing.xl,
+      paddingTop: theme.spacing.xxl + theme.spacing.lg,
       paddingHorizontal: theme.spacing.md,
       paddingBottom: theme.spacing.lg,
       zIndex: 10,

@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
-import { BicepsFlexed, CircleCheckBig } from "lucide-react-native";
+import { BicepsFlexed } from "lucide-react-native";
 import { AppText } from "@/components/shared/AppText";
 import { Button } from "@/components/shared/Button/Button";
 import { Theme, useTheme } from "@/theme";
@@ -45,7 +45,7 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
               trackColor={colors.semanticSurfaces.protein}
               textColor={colors.primaryText}
               displayValue={total}
-              displayUnit="g"
+              displayUnit="grams"
               detailValue={`of ${target}`}
               animationDelay={0}
               strokeWidth={22}
@@ -61,22 +61,40 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
           color="primary"
           style={[styles.sectionHeading, { color: semanticColor }]}
         >
-          How to Read the Ring
+          How it works
         </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • The ring tracks your progress toward your daily protein target
-        </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • The{" "}
-          <BicepsFlexed
-            size={16}
-            color={semanticColor}
-            fill={semanticColor}
-            strokeWidth={0}
-            style={styles.inlineIcon}
-          />{" "}
-          icon marks your current position on the ring
-        </AppText>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            The ring fills as you log protein.
+          </AppText>
+        </View>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            The{" "}
+            <BicepsFlexed
+              size={16}
+              color={semanticColor}
+              fill={semanticColor}
+              strokeWidth={0}
+              style={styles.inlineIcon}
+            />{" "}
+            icon marks your current position.
+          </AppText>
+        </View>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            Close the ring to reach today's minimum protein target.
+          </AppText>
+        </View>
 
         <AppText
           role="Headline"
@@ -86,55 +104,37 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
             { color: semanticColor, marginTop: theme.spacing.md },
           ]}
         >
-          Nutrition Guidelines
+          Quick tips
         </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          •{" "}
-          <AppText role="Body" color="primary" style={styles.bold}>
-            0.8 g/kg:
-          </AppText>{" "}
-          Daily Maintenance
-        </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          •{" "}
-          <AppText role="Body" color="primary" style={styles.bold}>
-            1.2 g/kg:
-          </AppText>{" "}
-          Active Lifestyle
-        </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          •{" "}
-          <AppText role="Body" color="primary" style={styles.bold}>
-            1.6 g/kg:
-          </AppText>{" "}
-          Optimal Growth
-        </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          •{" "}
-          <AppText role="Body" color="primary" style={styles.bold}>
-            2.0 g/kg:
-          </AppText>{" "}
-          Dedicated Athlete
-        </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          •{" "}
-          <AppText role="Body" color="primary" style={styles.bold}>
-            2.2 g/kg:
-          </AppText>{" "}
-          Anabolic Insurance
-        </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          •{" "}
-          <AppText role="Body" color="primary" style={styles.bold}>
-            3.0 g/kg:
-          </AppText>{" "}
-          Max Preservation (Cutting)
-        </AppText>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            Include a protein source in every meal/snack.
+          </AppText>
+        </View>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            Spread intake across the day for better recovery.
+          </AppText>
+        </View>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            A little over is okay—aim to meet or slightly exceed your target.
+          </AppText>
+        </View>
       </View>
 
       <View style={styles.buttonContainer}>
         <Button
-          label="Change targets"
+          label="Adjust targets"
           variant="secondary"
           onPress={handleChangeTargets}
         />
@@ -171,9 +171,17 @@ const createStyles = (theme: Theme) =>
     sectionHeading: {
       marginBottom: theme.spacing.xs,
     },
-    bulletPoint: {
-      lineHeight: 20,
-      marginBottom: theme.spacing.xs / 2,
+    bulletRow: {
+      flexDirection: "row",
+      marginBottom: theme.spacing.xs,
+      gap: theme.spacing.xs,
+    },
+    bulletChar: {
+      lineHeight: 22,
+    },
+    bulletText: {
+      flex: 1,
+      lineHeight: 22,
     },
     bold: {
       fontWeight: "600",

@@ -34,7 +34,7 @@ export const CaloriesExplainer: React.FC<CaloriesExplainerProps> = ({
         Calories
       </AppText>
       <AppText role="Caption" style={styles.subTitle}>
-        Your Energy Budget
+        Today's energy budget
       </AppText>
       <View style={styles.content}>
         <View style={styles.ringSection}>
@@ -55,37 +55,77 @@ export const CaloriesExplainer: React.FC<CaloriesExplainerProps> = ({
           </View>
         </View>
 
-        <AppText role="Headline" color="primary" style={[styles.sectionHeading, { color: semanticColor }]}>
-          How to Read the Ring
+        <AppText
+          role="Headline"
+          color="primary"
+          style={[styles.sectionHeading, { color: semanticColor }]}
+        >
+          How it works
         </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • The ring tracks your progress toward 100% of your daily calorie target
-        </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • The <Flame size={16} color={semanticColor} fill={semanticColor} strokeWidth={0} style={styles.inlineIcon} /> icon marks your current position on the ring
-        </AppText>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            The ring fills as you log meals.
+          </AppText>
+        </View>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            The{" "}
+            <Flame
+              size={16}
+              color={semanticColor}
+              fill={semanticColor}
+              strokeWidth={0}
+              style={styles.inlineIcon}
+            />{" "}
+            icon shows your current position.
+          </AppText>
+        </View>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            Close the ring to hit today's budget.
+          </AppText>
+        </View>
 
         <AppText
           role="Headline"
           color="primary"
-          style={[styles.sectionHeading, { color: semanticColor, marginTop: theme.spacing.md }]}
+          style={[
+            styles.sectionHeading,
+            { color: semanticColor, marginTop: theme.spacing.md },
+          ]}
         >
-          Energy Targets
+          Quick tips
         </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • <AppText role="Body" color="primary" style={styles.bold}>Cut:</AppText> -500 kcal (gradual loss)
-        </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • <AppText role="Body" color="primary" style={styles.bold}>Maintain:</AppText> TDEE (stay current weight)
-        </AppText>
-        <AppText role="Body" color="secondary" style={styles.bulletPoint}>
-          • <AppText role="Body" color="primary" style={styles.bold}>Bulk:</AppText> +500 kcal (gradual gain)
-        </AppText>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            Log every bite—consistency beats precision.
+          </AppText>
+        </View>
+        <View style={styles.bulletRow}>
+          <AppText role="Body" color="secondary" style={styles.bulletChar}>
+            •
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.bulletText}>
+            Judge progress by your weekly average, not a single day.
+          </AppText>
+        </View>
       </View>
 
       <View style={styles.buttonContainer}>
         <Button
-          label="Change targets"
+          label="Adjust targets"
           variant="secondary"
           onPress={handleChangeTargets}
         />
@@ -122,15 +162,26 @@ const createStyles = (theme: Theme) =>
     sectionHeading: {
       marginBottom: theme.spacing.xs,
     },
-    bulletPoint: {
-      lineHeight: 20,
-      marginBottom: theme.spacing.xs / 2,
+    bulletRow: {
+      flexDirection: "row",
+      marginBottom: theme.spacing.xs,
+      gap: theme.spacing.xs,
+    },
+    bulletChar: {
+      lineHeight: 22,
+    },
+    bulletText: {
+      flex: 1,
+      lineHeight: 22,
     },
     bold: {
       fontWeight: "600",
     },
     inlineIcon: {
       marginBottom: -2,
+    },
+    footnote: {
+      marginTop: theme.spacing.xs,
     },
     buttonContainer: {
       alignItems: "center",

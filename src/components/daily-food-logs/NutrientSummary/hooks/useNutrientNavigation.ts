@@ -33,15 +33,27 @@ export const useNutrientNavigation = ({
     (nutrient: NutrientKey) => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-      const total = Math.round(totals[nutrient] || 0);
-      const target = Math.round(targets[nutrient] || 0);
-      const percentage = Math.round(percentages[nutrient] || 0);
+      // Pass all macro data to the explainer screen so each component gets correct values
+      const params = new URLSearchParams({
+        // Calories data
+        calories_total: Math.round(totals.calories || 0).toString(),
+        calories_target: Math.round(targets.calories || 0).toString(),
+        calories_percentage: Math.round(percentages.calories || 0).toString(),
+        // Protein data
+        protein_total: Math.round(totals.protein || 0).toString(),
+        protein_target: Math.round(targets.protein || 0).toString(),
+        protein_percentage: Math.round(percentages.protein || 0).toString(),
+        // Fat data
+        fat_total: Math.round(totals.fat || 0).toString(),
+        fat_target: Math.round(targets.fat || 0).toString(),
+        fat_percentage: Math.round(percentages.fat || 0).toString(),
+        // Carbs data (only total, no target)
+        carbs_total: Math.round(totals.carbs || 0).toString(),
+      });
 
       // Navigate to the macro explainer modal (opens at overview page)
       // The overview page allows navigation to individual nutrient pages
-      router.push(
-        `/explainer-macros?total=${total}&target=${target}&percentage=${percentage}` as any
-      );
+      router.push(`/explainer-macros?${params.toString()}` as any);
     },
     [totals, targets, percentages, router]
   );
