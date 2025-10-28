@@ -31,6 +31,7 @@ export default function SettingsTab() {
     isProCanceled,
     proExpirationDate,
     isVerifyingSubscription,
+    setPro,
   } = useAppStore();
 
   const styles = useMemo(
@@ -121,6 +122,10 @@ export default function SettingsTab() {
     );
     safeNavigate("/paywall");
   }, [safeNavigate, themeObj.interactions.haptics.light]);
+
+  const handleTogglePro = () => {
+    setPro(!isPro);
+  };
 
   return (
     <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
@@ -269,6 +274,12 @@ export default function SettingsTab() {
                   label="Clear nutrition goals"
                   variant="tertiary"
                   onPress={handleClearNutritionGoals}
+                  style={[styles.fullWidthButton, styles.buttonSpacing]}
+                />
+                <Button
+                  label={`Pro: ${isPro ? "ON" : "OFF"}`}
+                  variant="tertiary"
+                  onPress={handleTogglePro}
                   style={[styles.fullWidthButton, styles.buttonSpacing]}
                 />
               </View>
