@@ -16,11 +16,13 @@ export type AppState = {
   isPro: boolean;
   isProCanceled: boolean;
   proExpirationDate?: string | null;
+  isVerifyingSubscription: boolean;
   setPro: (value: boolean) => void;
   setProMetadata: (payload: {
     isCanceled: boolean;
     expirationDate?: string | null;
   }) => void;
+  setVerifyingSubscription: (value: boolean) => void;
 
   // UI state
   selectedDate: string; // YYYY-MM-DD (for day view)
@@ -58,6 +60,7 @@ export const useAppStore = create<AppState>()(
       isPro: false,
       isProCanceled: false,
       proExpirationDate: undefined,
+      isVerifyingSubscription: false,
 
       // default to today's date & current month (local timezone aware)
       selectedDate: getTodayKey(), // YYYY-MM-DD (local)
@@ -171,6 +174,11 @@ export const useAppStore = create<AppState>()(
         set((state) => {
           state.isProCanceled = isCanceled;
           state.proExpirationDate = expirationDate ?? undefined;
+        }),
+
+      setVerifyingSubscription: (value) =>
+        set((state) => {
+          state.isVerifyingSubscription = value;
         }),
 
       // UI

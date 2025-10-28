@@ -31,6 +31,7 @@ export default function Edit() {
   const originalLog = useAppStore(makeSelectLogById(id));
   const updateFoodLog = useAppStore((s) => s.updateFoodLog);
   const isPro = useAppStore((s) => s.isPro);
+  const isVerifyingSubscription = useAppStore((s) => s.isVerifyingSubscription);
   const router = useSafeRouter();
 
   const { colors, theme } = useTheme();
@@ -342,17 +343,23 @@ export default function Edit() {
               hasUnsavedChanges={isPro ? hasUnsavedChanges : false}
               changesCount={changesCount}
               foodComponentsCount={editedLog.foodComponents?.length || 0}
-              onRecalculate={isPro ? handleReestimate : undefined}
+              onRecalculate={isPro && !isVerifyingSubscription ? handleReestimate : undefined}
             />
-            {!isPro && (
-              <InlinePaywallCard
-                Icon={Calculator}
-                title="Recalculate with Pro"
-                body="Instantly get updated macros when you adjust ingredients."
-                ctaLabel="Unlock to Recalculate"
-                onPress={handleShowPaywall}
-                testID="edit-inline-paywall"
-              />
+            {isVerifyingSubscription ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator />
+              </View>
+            ) : (
+              !isPro && (
+                <InlinePaywallCard
+                  Icon={Calculator}
+                  title="Recalculate with Pro"
+                  body="Instantly get updated macros when you adjust ingredients."
+                  ctaLabel="Unlock to Recalculate"
+                  onPress={handleShowPaywall}
+                  testID="edit-inline-paywall"
+                />
+              )
             )}
           </>
         )}

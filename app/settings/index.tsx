@@ -30,6 +30,7 @@ export default function SettingsTab() {
     isPro,
     isProCanceled,
     proExpirationDate,
+    isVerifyingSubscription,
   } = useAppStore();
 
   const styles = useMemo(
@@ -150,7 +151,7 @@ export default function SettingsTab() {
             </AppText> */}
           </View>
 
-          {!isPro && (
+          {!isPro && !isVerifyingSubscription && (
             <View style={styles.section}>
               <AppText
                 role="Caption"

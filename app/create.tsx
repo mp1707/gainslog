@@ -40,6 +40,7 @@ export default function Create() {
   const draft = useDraft(draftId);
   const { selectedDate, addFoodLog } = useAppStore();
   const isPro = useAppStore((state) => state.isPro);
+  const isVerifyingSubscription = useAppStore((state) => state.isVerifyingSubscription);
   const { runCreateEstimation } = useEstimation();
   const {
     isRecording,
@@ -201,7 +202,17 @@ export default function Create() {
         />
       </View>
       {estimationType === "ai" &&
-        (isPro ? (
+        (isVerifyingSubscription ? (
+          <View
+            style={{
+              flex: 1,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <ActivityIndicator />
+          </View>
+        ) : isPro ? (
           <EstimationTab
             description={draft.description}
             onDescriptionChange={handleDescriptionChange}
@@ -225,7 +236,7 @@ export default function Create() {
       {estimationType === "favorites" && (
         <FavoritesTab onCreateFromFavorite={handleCreateLogFromFavorite} />
       )}
-      {estimationType === "ai" && isPro && (
+      {estimationType === "ai" && isPro && !isVerifyingSubscription && (
         <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
           <KeyboardAccessory
             onImageSelected={handleNewImageSelected}

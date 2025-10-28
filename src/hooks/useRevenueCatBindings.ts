@@ -102,6 +102,12 @@ export function useRevenueCatBindings() {
 
     isCheckingRef.current = true;
 
+    // Get store methods
+    const { setVerifyingSubscription } = useAppStore.getState();
+
+    // Set verifying state to true before starting
+    setVerifyingSubscription(true);
+
     try {
       console.log('[RC] Fetching customer info from RevenueCat...');
       const info = await Purchases.getCustomerInfo();
@@ -111,6 +117,8 @@ export function useRevenueCatBindings() {
       console.warn('[RC] refreshCustomerInfo failed', error);
     } finally {
       isCheckingRef.current = false;
+      // Set verifying state to false when done
+      setVerifyingSubscription(false);
     }
   }, [updateSubscriptionState]);
 
