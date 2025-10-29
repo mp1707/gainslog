@@ -5,9 +5,13 @@ import * as Haptics from "expo-haptics";
 import { AppText } from "@/components";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions/SwipeToFunctions";
 import { AnimatedPressable } from "@/components/shared/AnimatedPressable";
-import Animated, { Easing, FadeIn, FadeOut, Layout } from "react-native-reanimated";
+import Animated, {
+  Easing,
+  FadeIn,
+  FadeOut,
+  Layout,
+} from "react-native-reanimated";
 import { useTheme } from "@/theme";
-import type { Colors, Theme } from "@/theme";
 import { createStyles } from "./ComponentsList.styles";
 import type { FoodComponent } from "@/types/models";
 
@@ -23,94 +27,41 @@ interface ComponentRowProps {
 
 const easeLayout = Layout.duration(220).easing(Easing.inOut(Easing.quad));
 
-const StaticComponentRow: React.FC<{
-  component: FoodComponent;
-  onTap: () => void;
-  onDelete: () => void;
-  styles: ReturnType<typeof createStyles>;
-  theme: Theme;
-}> = ({
-  component,
-  onTap,
-  onDelete,
-  styles,
-  theme,
-}) => {
-
-  return (
-    <Animated.View layout={easeLayout}>
-      <SwipeToFunctions onDelete={onDelete}>
-        <View style={styles.solidBackgroundForSwipe}>
-          <View
-            style={{
-              margin: -theme.spacing.md,
-              borderRadius: theme.components.cards.cornerRadius,
-            }}
-          >
-            <AnimatedPressable
-              onPress={onTap}
-              accessibilityLabel={`Edit ${component.name}`}
-              accessibilityHint="Opens editor to modify amount and unit"
-            >
-              <View
-                style={[
-                  styles.componentRow,
-                  {
-                    borderRadius: theme.components.cards.cornerRadius,
-                    padding: theme.spacing.md,
-                    paddingRight: theme.spacing.sm,
-                  },
-                ]}
-              >
-                <View style={styles.leftColumn}>
-                  <AppText
-                    role="Headline"
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                    style={styles.componentName}
-                  >
-                    {component.name}
-                  </AppText>
-                </View>
-                <View style={styles.rightColumn}>
-                  <AppText role="Body" color="secondary">
-                    {component.amount} {component.unit ?? ""}
-                  </AppText>
-                </View>
-              </View>
-            </AnimatedPressable>
-          </View>
-        </View>
-      </SwipeToFunctions>
-    </Animated.View>
-  );
-};
-
-const RecommendationComponentRow: React.FC<{
-  component: FoodComponent;
-  isExpanded: boolean;
-  onTap: () => void;
-  onToggleExpansion: () => void;
-  onDelete: () => void;
-  onAcceptRecommendation: () => void;
-  styles: ReturnType<typeof createStyles>;
-  colors: Colors;
-  theme: Theme;
-}> = ({
+const ComponentRowComponent: React.FC<ComponentRowProps> = ({
   component,
   isExpanded,
+  index,
   onTap,
   onToggleExpansion,
   onDelete,
   onAcceptRecommendation,
-  styles,
-  colors,
-  theme,
 }) => {
+  const { colors, theme } = useTheme();
+  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const hasRecommendation = !!component.recommendedMeasurement;
+  const canExpand = hasRecommendation && !!onToggleExpansion;
+  const showExpansion = hasRecommendation && isExpanded;
+
+  const handleTap = useCallback(
+    () => onTap(index, component),
+    [onTap, index, component]
+  );
+
+  const handleToggleExpansion = useCallback(
+    () => onToggleExpansion?.(index),
+    [onToggleExpansion, index]
+  );
+
+  const handleDelete = useCallback(() => onDelete(index), [onDelete, index]);
+
+  const handleAccept = useCallback(
+    () => onAcceptRecommendation(index, component),
+    [onAcceptRecommendation, index, component]
+  );
 
   return (
     <Animated.View layout={easeLayout}>
-      <SwipeToFunctions onDelete={isExpanded ? undefined : onDelete}>
+      <SwipeToFunctions onDelete={showExpansion ? undefined : handleDelete}>
         <View style={styles.solidBackgroundForSwipe}>
           <View
             style={{
@@ -119,7 +70,6 @@ const RecommendationComponentRow: React.FC<{
             }}
           >
             <View>
-              {/* Title Row - name+amount pressable with lightbulb */}
               <View
                 style={[
                   styles.componentRow,
@@ -127,13 +77,13 @@ const RecommendationComponentRow: React.FC<{
                     borderRadius: theme.components.cards.cornerRadius,
                     padding: theme.spacing.md,
                     paddingRight: theme.spacing.sm,
+                    gap: canExpand ? 16 : 0,
                   },
                 ]}
               >
-                {/* Wrapper for name+amount pressable area - sits alongside lightbulb */}
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <AnimatedPressable
-                    onPress={onTap}
+                    onPress={handleTap}
                     accessibilityLabel={`Edit ${component.name}`}
                     accessibilityHint="Opens editor to modify amount and unit"
                   >
@@ -155,54 +105,62 @@ const RecommendationComponentRow: React.FC<{
                           {component.name}
                         </AppText>
                       </View>
-                      <View style={styles.rightColumn}>
+                      <Animated.View
+                        layout={easeLayout}
+                        style={styles.rightColumn}
+                      >
                         <AppText role="Body" color="secondary">
                           {component.amount} {component.unit ?? ""}
                         </AppText>
-                      </View>
+                      </Animated.View>
                     </View>
                   </AnimatedPressable>
                 </View>
 
-                {/* Lightbulb pressable */}
-                <View
+                <Animated.View
+                  layout={easeLayout}
                   style={{
-                    width: 18,
-                    height: 18,
-                    marginRight: theme.spacing.sm,
+                    width: canExpand ? 18 : 0,
+                    opacity: canExpand ? 1 : 0,
+                    marginRight: canExpand ? theme.spacing.sm : 0,
                     justifyContent: "center",
                     alignItems: "center",
                   }}
+                  pointerEvents={canExpand ? "auto" : "none"}
                 >
-                  <AnimatedPressable
-                    onPress={onToggleExpansion}
-                    hitSlop={44}
-                    style={{
-                      width: 18,
-                      height: 18,
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                    accessibilityLabel="View recommendation"
-                    accessibilityHint={
-                      isExpanded
-                        ? "Collapse recommendation details"
-                        : "Expand to see recommendation details"
-                    }
-                  >
-                    <Lightbulb
-                      size={18}
-                      color={colors.accent}
-                      fill={colors.accent}
-                    />
-                  </AnimatedPressable>
-                </View>
+                  {canExpand ? (
+                    <AnimatedPressable
+                      onPress={handleToggleExpansion}
+                      hitSlop={22}
+                      style={{
+                        width: 18,
+                        height: 18,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                      accessibilityLabel="View recommendation"
+                      accessibilityHint={
+                        isExpanded
+                          ? "Collapse recommendation details"
+                          : "Expand to see recommendation details"
+                      }
+                    >
+                      <Lightbulb
+                        size={18}
+                        color={colors.accent}
+                        fill={colors.accent}
+                      />
+                    </AnimatedPressable>
+                  ) : null}
+                </Animated.View>
               </View>
 
-              {/* Inline Expansion */}
-              {component.recommendedMeasurement ? (
-                <Animated.View layout={easeLayout} style={{ overflow: "hidden" }}>
-                  {isExpanded ? (
+              {hasRecommendation ? (
+                <Animated.View
+                  layout={easeLayout}
+                  style={{ overflow: "hidden" }}
+                >
+                  {showExpansion ? (
                     <Animated.View
                       entering={FadeIn.duration(200)}
                       exiting={FadeOut.duration(160)}
@@ -226,8 +184,8 @@ const RecommendationComponentRow: React.FC<{
                             role="Body"
                             style={{ color: colors.primaryText }}
                           >
-                            {component.recommendedMeasurement.amount}{" "}
-                            {component.recommendedMeasurement.unit}
+                            {component.recommendedMeasurement?.amount}{" "}
+                            {component.recommendedMeasurement?.unit}
                           </AppText>
                           .
                         </AppText>
@@ -238,12 +196,12 @@ const RecommendationComponentRow: React.FC<{
                             Haptics.impactAsync(
                               Haptics.ImpactFeedbackStyle.Light
                             );
-                            onAcceptRecommendation();
+                            handleAccept();
                           }}
                         >
                           <AppText style={styles.acceptPillText}>
-                            Set {component.recommendedMeasurement.amount}{" "}
-                            {component.recommendedMeasurement.unit}
+                            Set {component.recommendedMeasurement?.amount}{" "}
+                            {component.recommendedMeasurement?.unit}
                           </AppText>
                         </Pressable>
                       </View>
@@ -256,63 +214,6 @@ const RecommendationComponentRow: React.FC<{
         </View>
       </SwipeToFunctions>
     </Animated.View>
-  );
-};
-
-const ComponentRowComponent: React.FC<ComponentRowProps> = ({
-  component,
-  isExpanded,
-  index,
-  onTap,
-  onToggleExpansion,
-  onDelete,
-  onAcceptRecommendation,
-}) => {
-  const { colors, theme } = useTheme();
-  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
-  const hasRecommendation = !!component.recommendedMeasurement;
-
-  const handleTap = useCallback(
-    () => onTap(index, component),
-    [onTap, index, component]
-  );
-
-  const handleToggleExpansion = useCallback(
-    () => onToggleExpansion?.(index),
-    [onToggleExpansion, index]
-  );
-
-  const handleDelete = useCallback(() => onDelete(index), [onDelete, index]);
-
-  const handleAccept = useCallback(
-    () => onAcceptRecommendation(index, component),
-    [onAcceptRecommendation, index, component]
-  );
-
-  if (!hasRecommendation) {
-    return (
-      <StaticComponentRow
-        component={component}
-        onTap={handleTap}
-        onDelete={handleDelete}
-        styles={styles}
-        theme={theme}
-      />
-    );
-  }
-
-  return (
-    <RecommendationComponentRow
-      component={component}
-      isExpanded={isExpanded}
-      onTap={handleTap}
-      onToggleExpansion={handleToggleExpansion}
-      onDelete={handleDelete}
-      onAcceptRecommendation={handleAccept}
-      styles={styles}
-      colors={colors}
-      theme={theme}
-    />
   );
 };
 

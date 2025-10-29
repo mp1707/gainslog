@@ -25,7 +25,6 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      gap: theme.spacing.md,
       minHeight: 56, // 7 × 8pt for native feel
     },
     solidBackgroundForSwipe: {
@@ -64,9 +63,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       minHeight: 56,
       backgroundColor: colors.secondaryBackground,
     },
-    addLabel: {
-      marginLeft: theme.spacing.sm,
-    },
+    addLabel: {},
     componentName: {
       flex: 1,
       flexShrink: 1,
