@@ -37,12 +37,14 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     },
     leftColumn: {
       flex: 1,
+      minWidth: 0,
     },
     rightColumn: {
       flexDirection: "row",
       alignItems: "center",
       gap: theme.spacing.sm,
       marginRight: theme.spacing.sm,
+      flexShrink: 0,
     },
     deleteAction: {
       backgroundColor: colors.error,
@@ -67,9 +69,15 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     },
     componentName: {
       flex: 1,
+      flexShrink: 1,
+      minWidth: 0,
     },
     amountText: {
       marginRight: theme.spacing.sm,
+    },
+    namePressable: {
+      width: "100%",
+      minWidth: 0,
     },
     expansionContent: {
       padding: theme.spacing.md,

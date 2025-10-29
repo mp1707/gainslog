@@ -38,33 +38,23 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
   );
 
   // New: separate handler for toggling expansion
-  const handleToggleExpansion = useCallback(
-    (index: number) => {
-      setExpandedIndex((prev) => (prev === index ? null : index));
-    },
-    []
-  );
+  const handleToggleExpansion = useCallback((index: number) => {
+    setExpandedIndex((prev) => (prev === index ? null : index));
+  }, []);
 
   const handleAcceptRecommendation = useCallback(
     (index: number, comp: FoodComponent) => {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-      // Delay collapse and data update to allow smooth collapse animation
+      // First collapse the expansion to trigger animation
+      setExpandedIndex(null);
+
+      // Then update data after animation completes
       setTimeout(() => {
-        setExpandedIndex(null);
         onAcceptRecommendation(index, comp);
-      }, 300); // Allow smooth collapse animation
+      }, 300); // Allow smooth collapse animation (250ms + buffer)
     },
     [onAcceptRecommendation]
-  );
-
-  const handleEditManually = useCallback(
-    (index: number, comp: FoodComponent) => {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      setExpandedIndex(null);
-      onPressItem(index, comp);
-    },
-    [onPressItem]
   );
 
   return (
@@ -84,15 +74,11 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
               onToggleExpansion={handleToggleExpansion}
               onDelete={onDeleteItem}
               onAcceptRecommendation={handleAcceptRecommendation}
-              onEditManually={handleEditManually}
             />
-            {index < components.length - 1 && (
-              <View style={styles.separator} />
-            )}
+            {index < components.length - 1 && <View style={styles.separator} />}
           </React.Fragment>
         ))}
 
-        {/* No separator before Add Ingredient - it's an action row */}
         <TouchableOpacity
           onPress={onAddPress}
           style={styles.addRow}

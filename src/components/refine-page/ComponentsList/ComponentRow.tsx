@@ -24,7 +24,6 @@ interface ComponentRowProps {
   onToggleExpansion?: (index: number) => void;
   onDelete: (index: number) => void;
   onAcceptRecommendation: (index: number, comp: FoodComponent) => void;
-  onEditManually: (index: number, comp: FoodComponent) => void;
 }
 
 const StaticComponentRow: React.FC<{
@@ -69,6 +68,7 @@ const StaticComponentRow: React.FC<{
                 <AppText
                   role="Headline"
                   numberOfLines={1}
+                  ellipsizeMode="tail"
                   style={styles.componentName}
                 >
                   {component.name}
@@ -94,7 +94,6 @@ const RecommendationComponentRow: React.FC<{
   onToggleExpansion: () => void;
   onDelete: () => void;
   onAcceptRecommendation: () => void;
-  onEditManually: () => void;
   styles: ReturnType<typeof createStyles>;
   colors: Colors;
   theme: Theme;
@@ -105,7 +104,6 @@ const RecommendationComponentRow: React.FC<{
   onToggleExpansion,
   onDelete,
   onAcceptRecommendation,
-  onEditManually,
   styles,
   colors,
   theme,
@@ -152,21 +150,23 @@ const RecommendationComponentRow: React.FC<{
                 ]}
               >
                 {/* First Pressable: Name - opens edit modal */}
-                <AnimatedPressable
-                  onPress={onTap}
-                  accessibilityLabel={`Edit ${component.name}`}
-                  accessibilityHint="Opens editor to modify amount and unit"
-                >
-                  <View style={styles.leftColumn}>
+                <View style={styles.leftColumn}>
+                  <AnimatedPressable
+                    onPress={onTap}
+                    accessibilityLabel={`Edit ${component.name}`}
+                    accessibilityHint="Opens editor to modify amount and unit"
+                    style={styles.namePressable}
+                  >
                     <AppText
                       role="Headline"
                       numberOfLines={1}
+                      ellipsizeMode="tail"
                       style={styles.componentName}
                     >
                       {component.name}
                     </AppText>
-                  </View>
-                </AnimatedPressable>
+                  </AnimatedPressable>
+                </View>
 
                 {/* Right-aligned group: Amount + Lightbulb */}
                 <View style={styles.rightColumn}>
@@ -210,13 +210,8 @@ const RecommendationComponentRow: React.FC<{
               {component.recommendedMeasurement && (
                 <Animated.View style={expandedStyle}>
                   <View style={styles.expansionContent}>
-                    {/* Estimate Line */}
+                    {/* Single compact row with estimate text and Set button */}
                     <View style={styles.estimateLine}>
-                      <Lightbulb
-                        size={18}
-                        color={colors.accent}
-                        fill={colors.accent}
-                      />
                       <AppText
                         role="Body"
                         color="secondary"
@@ -239,23 +234,6 @@ const RecommendationComponentRow: React.FC<{
                         </AppText>
                         .
                       </AppText>
-                    </View>
-
-                    {/* Button Row: Edit manually on left, Accept on right */}
-                    <View style={styles.buttonRow}>
-                      <Pressable
-                        style={styles.editTextButton}
-                        onPress={() => {
-                          Haptics.impactAsync(
-                            Haptics.ImpactFeedbackStyle.Light
-                          );
-                          onEditManually();
-                        }}
-                      >
-                        <AppText style={styles.editTextButtonLabel}>
-                          Edit manually
-                        </AppText>
-                      </Pressable>
 
                       <Pressable
                         style={styles.acceptPill}
@@ -267,7 +245,7 @@ const RecommendationComponentRow: React.FC<{
                         }}
                       >
                         <AppText style={styles.acceptPillText}>
-                          Accept {component.recommendedMeasurement.amount}{" "}
+                          Set {component.recommendedMeasurement.amount}{" "}
                           {component.recommendedMeasurement.unit}
                         </AppText>
                       </Pressable>
@@ -291,7 +269,6 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
   onToggleExpansion,
   onDelete,
   onAcceptRecommendation,
-  onEditManually,
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
@@ -314,11 +291,6 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
     [onAcceptRecommendation, index, component]
   );
 
-  const handleEdit = useCallback(
-    () => onEditManually(index, component),
-    [onEditManually, index, component]
-  );
-
   if (!hasRecommendation) {
     return (
       <StaticComponentRow
@@ -339,7 +311,6 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
       onToggleExpansion={handleToggleExpansion}
       onDelete={handleDelete}
       onAcceptRecommendation={handleAccept}
-      onEditManually={handleEdit}
       styles={styles}
       colors={colors}
       theme={theme}
@@ -369,7 +340,6 @@ export const ComponentRow = React.memo(ComponentRowComponent, (prev, next) => {
     prev.onTap === next.onTap &&
     prev.onToggleExpansion === next.onToggleExpansion &&
     prev.onDelete === next.onDelete &&
-    prev.onAcceptRecommendation === next.onAcceptRecommendation &&
-    prev.onEditManually === next.onEditManually
+    prev.onAcceptRecommendation === next.onAcceptRecommendation
   );
 });
