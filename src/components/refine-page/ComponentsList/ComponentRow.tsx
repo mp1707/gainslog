@@ -1,11 +1,5 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { View, Pressable } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-  Easing,
-} from "react-native-reanimated";
 import { Lightbulb } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { AppText } from "@/components";
@@ -108,24 +102,6 @@ const RecommendationComponentRow: React.FC<{
   colors,
   theme,
 }) => {
-  const expandProgress = useSharedValue(0);
-
-  useEffect(() => {
-    expandProgress.value = withTiming(isExpanded ? 1 : 0, {
-      duration: 250,
-      easing: Easing.out(Easing.cubic),
-    });
-  }, [expandProgress, isExpanded]);
-
-  const expandedStyle = useAnimatedStyle(() => ({
-    maxHeight: expandProgress.value * 200, // Reduced from 300
-    opacity: expandProgress.value,
-  }));
-
-  // Lightbulb fades to 0.5 opacity when expanded (stays visible)
-  const lightbulbStyle = useAnimatedStyle(() => ({
-    opacity: 1 - expandProgress.value * 0.5, // Fades to 0.5, not 0
-  }));
 
   return (
     <View>
@@ -183,78 +159,84 @@ const RecommendationComponentRow: React.FC<{
                   </AnimatedPressable>
                 </View>
 
-                {/* Lightbulb pressable - at same level as name+amount wrapper */}
-                <AnimatedPressable
-                  onPress={onToggleExpansion}
-                  hitSlop={44}
+                {/* Lightbulb pressable */}
+                <View
                   style={{
                     width: 18,
                     height: 18,
                     marginRight: theme.spacing.sm,
+                    justifyContent: "center",
+                    alignItems: "center",
                   }}
-                  accessibilityLabel="View recommendation"
-                  accessibilityHint={
-                    isExpanded
-                      ? "Collapse recommendation details"
-                      : "Expand to see recommendation details"
-                  }
                 >
-                  <Animated.View style={lightbulbStyle}>
+                  <AnimatedPressable
+                    onPress={onToggleExpansion}
+                    hitSlop={44}
+                    style={{
+                      width: 18,
+                      height: 18,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                    accessibilityLabel="View recommendation"
+                    accessibilityHint={
+                      isExpanded
+                        ? "Collapse recommendation details"
+                        : "Expand to see recommendation details"
+                    }
+                  >
                     <Lightbulb
                       size={18}
                       color={colors.accent}
                       fill={colors.accent}
                     />
-                  </Animated.View>
-                </AnimatedPressable>
+                  </AnimatedPressable>
+                </View>
               </View>
 
               {/* Inline Expansion */}
-              {component.recommendedMeasurement && (
-                <Animated.View style={expandedStyle}>
-                  <View style={styles.expansionContent}>
-                    {/* Single compact row with estimate text and Set button */}
-                    <View style={styles.estimateLine}>
+              {component.recommendedMeasurement && isExpanded && (
+                <View style={styles.expansionContent}>
+                  <View style={styles.estimateLine}>
+                    <AppText
+                      role="Body"
+                      color="secondary"
+                      style={{ flex: 1 }}
+                    >
+                      We estimate{" "}
                       <AppText
                         role="Body"
-                        color="secondary"
-                        style={{ flex: 1 }}
+                        style={{ color: colors.primaryText }}
                       >
-                        We estimate{" "}
-                        <AppText
-                          role="Body"
-                          style={{ color: colors.primaryText }}
-                        >
-                          {component.amount} {component.unit}
-                        </AppText>{" "}
-                        ≈{" "}
-                        <AppText
-                          role="Body"
-                          style={{ color: colors.primaryText }}
-                        >
-                          {component.recommendedMeasurement.amount}{" "}
-                          {component.recommendedMeasurement.unit}
-                        </AppText>
-                        .
+                        {component.amount} {component.unit}
+                      </AppText>{" "}
+                      ≈{" "}
+                      <AppText
+                        role="Body"
+                        style={{ color: colors.primaryText }}
+                      >
+                        {component.recommendedMeasurement.amount}{" "}
+                        {component.recommendedMeasurement.unit}
                       </AppText>
+                      .
+                    </AppText>
 
-                      <Pressable
-                        style={styles.acceptPill}
-                        onPress={() => {
-                          Haptics.impactAsync(
-                            Haptics.ImpactFeedbackStyle.Light
-                          );
-                          onAcceptRecommendation();
-                        }}
-                      >
-                        <AppText style={styles.acceptPillText}>
-                          Set {component.recommendedMeasurement.amount}{" "}
-                          {component.recommendedMeasurement.unit}
-                        </AppText>
-                      </Pressable>
-                    </View>
+                    <Pressable
+                      style={styles.acceptPill}
+                      onPress={() => {
+                        Haptics.impactAsync(
+                          Haptics.ImpactFeedbackStyle.Light
+                        );
+                        onAcceptRecommendation();
+                      }}
+                    >
+                      <AppText style={styles.acceptPillText}>
+                        Set {component.recommendedMeasurement.amount}{" "}
+                        {component.recommendedMeasurement.unit}
+                      </AppText>
+                    </Pressable>
                   </View>
-                </Animated.View>
+                </View>
               )}
             </View>
           </View>
