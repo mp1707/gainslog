@@ -1,16 +1,16 @@
 import React, { useCallback, useEffect, useMemo } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, Pressable } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
-  interpolateColor,
   Easing,
 } from "react-native-reanimated";
-import { Check, Lightbulb, X } from "lucide-react-native";
+import { Lightbulb } from "lucide-react-native";
+import * as Haptics from "expo-haptics";
 import { AppText } from "@/components";
-import { Button } from "@/components/shared/Button/Button";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions/SwipeToFunctions";
+import { AnimatedPressable } from "@/components/shared/AnimatedPressable";
 import { useTheme } from "@/theme";
 import type { Colors, Theme } from "@/theme";
 import { createStyles } from "./ComponentsList.styles";
@@ -21,6 +21,7 @@ interface ComponentRowProps {
   index: number;
   isExpanded: boolean;
   onTap: (index: number, comp: FoodComponent) => void;
+  onToggleExpansion?: (index: number) => void;
   onDelete: (index: number) => void;
   onAcceptRecommendation: (index: number, comp: FoodComponent) => void;
   onEditManually: (index: number, comp: FoodComponent) => void;
@@ -32,45 +33,65 @@ const StaticComponentRow: React.FC<{
   onDelete: () => void;
   styles: ReturnType<typeof createStyles>;
   theme: Theme;
-}> = ({ component, onTap, onDelete, styles, theme }) => (
-  <SwipeToFunctions onDelete={onDelete} onTap={onTap}>
-    <View style={styles.solidBackgroundForSwipe}>
-      <View
-        style={{
-          margin: -theme.spacing.md,
-          borderRadius: theme.components.cards.cornerRadius,
-        }}
-      >
+}> = ({
+  component,
+  onTap,
+  onDelete,
+  styles,
+  theme,
+}) => {
+
+  return (
+    <SwipeToFunctions onDelete={onDelete}>
+      <View style={styles.solidBackgroundForSwipe}>
         <View
-          style={[
-            styles.componentRow,
-            {
-              borderRadius: theme.components.cards.cornerRadius,
-              padding: theme.spacing.md,
-              paddingRight: theme.spacing.sm,
-            },
-          ]}
+          style={{
+            margin: -theme.spacing.md,
+            borderRadius: theme.components.cards.cornerRadius,
+          }}
         >
-          <View style={styles.leftColumn}>
-            <AppText numberOfLines={1} style={styles.componentName}>
-              {component.name}
-            </AppText>
-          </View>
-          <View style={styles.rightColumn}>
-            <AppText color="secondary">
-              {component.amount} {component.unit ?? ""}
-            </AppText>
-          </View>
+          <AnimatedPressable
+            onPress={onTap}
+            accessibilityLabel={`Edit ${component.name}`}
+            accessibilityHint="Opens editor to modify amount and unit"
+          >
+            <View
+              style={[
+                styles.componentRow,
+                {
+                  borderRadius: theme.components.cards.cornerRadius,
+                  padding: theme.spacing.md,
+                  paddingRight: theme.spacing.sm,
+                },
+              ]}
+            >
+              <View style={styles.leftColumn}>
+                <AppText
+                  role="Headline"
+                  numberOfLines={1}
+                  style={styles.componentName}
+                >
+                  {component.name}
+                </AppText>
+              </View>
+              <View style={styles.rightColumn}>
+                <AppText role="Body" color="secondary">
+                  {component.amount} {component.unit ?? ""}
+                </AppText>
+              </View>
+            </View>
+          </AnimatedPressable>
         </View>
       </View>
-    </View>
-  </SwipeToFunctions>
-);
+    </SwipeToFunctions>
+  );
+};
 
 const RecommendationComponentRow: React.FC<{
   component: FoodComponent;
   isExpanded: boolean;
   onTap: () => void;
+  onToggleExpansion: () => void;
   onDelete: () => void;
   onAcceptRecommendation: () => void;
   onEditManually: () => void;
@@ -81,6 +102,7 @@ const RecommendationComponentRow: React.FC<{
   component,
   isExpanded,
   onTap,
+  onToggleExpansion,
   onDelete,
   onAcceptRecommendation,
   onEditManually,
@@ -92,163 +114,169 @@ const RecommendationComponentRow: React.FC<{
 
   useEffect(() => {
     expandProgress.value = withTiming(isExpanded ? 1 : 0, {
-      duration: 300,
+      duration: 250,
       easing: Easing.out(Easing.cubic),
     });
   }, [expandProgress, isExpanded]);
 
   const expandedStyle = useAnimatedStyle(() => ({
-    maxHeight: expandProgress.value * 300,
+    maxHeight: expandProgress.value * 200, // Reduced from 300
     opacity: expandProgress.value,
-    marginTop: expandProgress.value * theme.spacing.md,
   }));
 
-  const borderStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      expandProgress.value,
-      [0, 1],
-      ["transparent", colors.tertiaryBackground]
-    ),
-    borderRadius: theme.components.cards.cornerRadius,
-    margin: -theme.spacing.md,
-  }));
-
-  const paddingStyle = useAnimatedStyle(() => ({
-    padding: theme.spacing.md,
-    paddingRight: theme.spacing.sm,
-  }));
-
+  // Lightbulb fades to 0.5 opacity when expanded (stays visible)
   const lightbulbStyle = useAnimatedStyle(() => ({
-    opacity: 1 - expandProgress.value,
-    transform: [{ scale: 1 - expandProgress.value * 0.5 }],
-  }));
-
-  const xIconStyle = useAnimatedStyle(() => ({
-    opacity: expandProgress.value,
-    transform: [{ scale: 0.5 + expandProgress.value * 0.5 }],
+    opacity: 1 - expandProgress.value * 0.5, // Fades to 0.5, not 0
   }));
 
   return (
     <Animated.View>
-      <SwipeToFunctions
-        onDelete={isExpanded ? undefined : onDelete}
-        onTap={onTap}
-      >
+      <SwipeToFunctions onDelete={isExpanded ? undefined : onDelete}>
         <View style={styles.solidBackgroundForSwipe}>
-          <Animated.View style={borderStyle}>
-            <Animated.View
-              style={[
-                styles.componentRow,
-                { borderRadius: theme.components.cards.cornerRadius },
-                paddingStyle,
-              ]}
-            >
-              <View style={styles.leftColumn}>
-                <AppText numberOfLines={1} style={styles.componentName}>
-                  {component.name}
-                </AppText>
-              </View>
-              <View style={styles.rightColumn}>
-                <AppText color="secondary">
-                  {component.amount} {component.unit ?? ""}
-                </AppText>
-                <View
-                  style={{
-                    marginLeft: theme.spacing.sm,
-                    width: 18,
-                    height: 18,
-                  }}
-                >
-                  <Animated.View style={[{ position: "absolute" }, lightbulbStyle]}>
-                    <Lightbulb
-                      size={18}
-                      color={colors.semantic.fat}
-                      fill={colors.semantic.fat}
-                    />
-                  </Animated.View>
-                  <Animated.View
-                    style={[
-                      {
-                        position: "absolute",
-                        backgroundColor: colors.secondaryBackground,
-                        padding: theme.spacing.xs,
-                        margin: -theme.spacing.xs,
-                        borderRadius: 18,
-                        borderWidth: StyleSheet.hairlineWidth,
-                        borderColor: colors.border,
-                      },
-                      xIconStyle,
-                    ]}
-                  >
-                    <X
-                      size={18}
-                      color={colors.secondaryText}
-                      strokeWidth={2}
-                      fill={colors.secondaryText}
-                    />
-                  </Animated.View>
-                </View>
-              </View>
-            </Animated.View>
-
-            {component.recommendedMeasurement && (
-              <Animated.View style={expandedStyle}>
-                <View
-                  style={{
+          <View
+            style={{
+              margin: -theme.spacing.md,
+              borderRadius: theme.components.cards.cornerRadius,
+            }}
+          >
+            <View>
+              {/* Title Row with two separate pressables */}
+              <View
+                style={[
+                  styles.componentRow,
+                  {
+                    borderRadius: theme.components.cards.cornerRadius,
                     padding: theme.spacing.md,
-                    gap: theme.spacing.xl,
-                  }}
+                    paddingRight: theme.spacing.sm,
+                  },
+                ]}
+              >
+                {/* First Pressable: Name - opens edit modal */}
+                <AnimatedPressable
+                  onPress={onTap}
+                  accessibilityLabel={`Edit ${component.name}`}
+                  accessibilityHint="Opens editor to modify amount and unit"
                 >
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      gap: theme.spacing.sm,
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Lightbulb
-                      size={18}
-                      color={colors.semantic.fat}
-                      fill={colors.semantic.fat}
-                    />
-                    <AppText role="Body" color="secondary">
-                      We estimate{" "}
-                      <AppText
-                        role="Body"
-                        style={{ color: colors.primaryText }}
-                      >
-                        {component.amount} {component.unit}
-                      </AppText>{" "}
-                      is about{" "}
-                      <AppText
-                        role="Body"
-                        style={{ color: colors.primaryText }}
-                      >
-                        {component.recommendedMeasurement.amount}{" "}
-                        {component.recommendedMeasurement.unit}
-                      </AppText>
-                      .
+                  <View style={styles.leftColumn}>
+                    <AppText
+                      role="Headline"
+                      numberOfLines={1}
+                      style={styles.componentName}
+                    >
+                      {component.name}
                     </AppText>
                   </View>
+                </AnimatedPressable>
 
-                  <View style={{ gap: theme.spacing.sm }}>
-                    <Button
-                      label="Edit Manually"
-                      variant="tertiary"
-                      onPress={onEditManually}
-                    />
-                    <Button
-                      label={`Accept ${component.recommendedMeasurement.amount} ${component.recommendedMeasurement.unit}`}
-                      variant="primary"
-                      onPress={onAcceptRecommendation}
-                      Icon={Check}
-                    />
-                  </View>
+                {/* Right-aligned group: Amount + Lightbulb */}
+                <View style={styles.rightColumn}>
+                  <AnimatedPressable
+                    onPress={onTap}
+                    accessibilityLabel={`Edit ${component.name}`}
+                    accessibilityHint="Opens editor to modify amount and unit"
+                  >
+                    <AppText role="Body" color="secondary">
+                      {component.amount} {component.unit ?? ""}
+                    </AppText>
+                  </AnimatedPressable>
+
+                  {/* Second Pressable: Lightbulb - toggles expansion */}
+                  <AnimatedPressable
+                    onPress={onToggleExpansion}
+                    hitSlop={44}
+                    style={{
+                      width: 18,
+                      height: 18,
+                    }}
+                    accessibilityLabel="View recommendation"
+                    accessibilityHint={
+                      isExpanded
+                        ? "Collapse recommendation details"
+                        : "Expand to see recommendation details"
+                    }
+                  >
+                    <Animated.View style={lightbulbStyle}>
+                      <Lightbulb
+                        size={18}
+                        color={colors.accent}
+                        fill={colors.accent}
+                      />
+                    </Animated.View>
+                  </AnimatedPressable>
                 </View>
-              </Animated.View>
-            )}
-          </Animated.View>
+              </View>
+
+              {/* Inline Expansion */}
+              {component.recommendedMeasurement && (
+                <Animated.View style={expandedStyle}>
+                  <View style={styles.expansionContent}>
+                    {/* Estimate Line */}
+                    <View style={styles.estimateLine}>
+                      <Lightbulb
+                        size={18}
+                        color={colors.accent}
+                        fill={colors.accent}
+                      />
+                      <AppText
+                        role="Body"
+                        color="secondary"
+                        style={{ flex: 1 }}
+                      >
+                        We estimate{" "}
+                        <AppText
+                          role="Body"
+                          style={{ color: colors.primaryText }}
+                        >
+                          {component.amount} {component.unit}
+                        </AppText>{" "}
+                        ≈{" "}
+                        <AppText
+                          role="Body"
+                          style={{ color: colors.primaryText }}
+                        >
+                          {component.recommendedMeasurement.amount}{" "}
+                          {component.recommendedMeasurement.unit}
+                        </AppText>
+                        .
+                      </AppText>
+                    </View>
+
+                    {/* Button Row: Edit manually on left, Accept on right */}
+                    <View style={styles.buttonRow}>
+                      <Pressable
+                        style={styles.editTextButton}
+                        onPress={() => {
+                          Haptics.impactAsync(
+                            Haptics.ImpactFeedbackStyle.Light
+                          );
+                          onEditManually();
+                        }}
+                      >
+                        <AppText style={styles.editTextButtonLabel}>
+                          Edit manually
+                        </AppText>
+                      </Pressable>
+
+                      <Pressable
+                        style={styles.acceptPill}
+                        onPress={() => {
+                          Haptics.impactAsync(
+                            Haptics.ImpactFeedbackStyle.Light
+                          );
+                          onAcceptRecommendation();
+                        }}
+                      >
+                        <AppText style={styles.acceptPillText}>
+                          Accept {component.recommendedMeasurement.amount}{" "}
+                          {component.recommendedMeasurement.unit}
+                        </AppText>
+                      </Pressable>
+                    </View>
+                  </View>
+                </Animated.View>
+              )}
+            </View>
+          </View>
         </View>
       </SwipeToFunctions>
     </Animated.View>
@@ -260,6 +288,7 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
   isExpanded,
   index,
   onTap,
+  onToggleExpansion,
   onDelete,
   onAcceptRecommendation,
   onEditManually,
@@ -268,11 +297,15 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const hasRecommendation = !!component.recommendedMeasurement;
 
-  const handleTap = useCallback(() => onTap(index, component), [
-    onTap,
-    index,
-    component,
-  ]);
+  const handleTap = useCallback(
+    () => onTap(index, component),
+    [onTap, index, component]
+  );
+
+  const handleToggleExpansion = useCallback(
+    () => onToggleExpansion?.(index),
+    [onToggleExpansion, index]
+  );
 
   const handleDelete = useCallback(() => onDelete(index), [onDelete, index]);
 
@@ -303,6 +336,7 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
       component={component}
       isExpanded={isExpanded}
       onTap={handleTap}
+      onToggleExpansion={handleToggleExpansion}
       onDelete={handleDelete}
       onAcceptRecommendation={handleAccept}
       onEditManually={handleEdit}
@@ -321,10 +355,9 @@ export const ComponentRow = React.memo(ComponentRowComponent, (prev, next) => {
   const nextRec = nextComp.recommendedMeasurement;
 
   const recommendationsEqual =
-    (!!prevRec === !!nextRec) &&
+    !!prevRec === !!nextRec &&
     (!prevRec ||
-      (prevRec.amount === nextRec?.amount &&
-        prevRec.unit === nextRec?.unit));
+      (prevRec.amount === nextRec?.amount && prevRec.unit === nextRec?.unit));
 
   return (
     prev.index === next.index &&
@@ -334,6 +367,7 @@ export const ComponentRow = React.memo(ComponentRowComponent, (prev, next) => {
     prevComp.unit === nextComp.unit &&
     recommendationsEqual &&
     prev.onTap === next.onTap &&
+    prev.onToggleExpansion === next.onToggleExpansion &&
     prev.onDelete === next.onDelete &&
     prev.onAcceptRecommendation === next.onAcceptRecommendation &&
     prev.onEditManually === next.onEditManually

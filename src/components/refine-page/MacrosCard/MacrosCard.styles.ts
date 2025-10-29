@@ -3,13 +3,43 @@ import type { Colors, Theme } from "@/theme";
 
 export const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
-    cardContainer: {
-      position: "relative",
+    container: {
+      // Section container (no card wrapper)
     },
     sectionHeader: {
-      marginBottom: theme.spacing.sm,
       letterSpacing: 0.6,
       color: colors.secondaryText,
+    },
+    sectionFooter: {
+      marginTop: theme.spacing.sm,
+      letterSpacing: 0.4,
+      color: colors.secondaryText,
+    },
+    sectionHeaderRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.sm,
+      marginBottom: theme.spacing.md,
+    },
+    staleChip: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.xs,
+      height: 24,
+      paddingHorizontal: theme.spacing.sm,
+      borderRadius: 12,
+      backgroundColor:
+        colors.semanticBadges?.calories?.background || colors.subtleBackground,
+    },
+    staleChipText: {
+      fontSize: 11,
+      fontWeight: "600",
+      color: colors.semanticBadges?.calories?.text || colors.secondaryText,
+    },
+    listContainer: {
+      backgroundColor: colors.secondaryBackground,
+      borderRadius: theme.components.cards.cornerRadius,
+      overflow: "hidden",
     },
     macroRow: {
       flexDirection: "row",
@@ -17,11 +47,12 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       justifyContent: "space-between",
       paddingVertical: theme.spacing.sm,
       position: "relative",
+      minHeight: 56, // 7 × 8pt for native feel
     },
     macroLabelContainer: {
       flexDirection: "row",
       alignItems: "center",
-      gap: theme.spacing.xs,
+      gap: theme.spacing.sm,
       flexShrink: 1,
     },
     macroValueContainer: {
@@ -38,10 +69,9 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       textAlign: "right",
     },
     macroDot: {
-      width: theme.spacing.sm,
-      height: theme.spacing.sm,
-      borderRadius: theme.spacing.xs,
-      marginRight: theme.spacing.xs,
+      width: 10, // 10pt colored dot as per design feedback
+      height: 10,
+      borderRadius: 5,
     },
     macroLoaderPlaceholder: {
       width: "100%",
@@ -58,27 +88,10 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       justifyContent: "center",
       overflow: "hidden",
     },
-    divider: {
-      height: 1,
-      backgroundColor: colors.border,
-    },
-    blurOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      borderRadius: theme.components.cards.cornerRadius,
-      overflow: "hidden",
-    },
-    blurView: {
-      flex: 1,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    recalculateButtonContainer: {
-      paddingHorizontal: theme.spacing.md,
-      width: "100%",
+    separator: {
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: colors.subtleBorder,
+      // Full-bleed within content column - identical to ComponentsList
     },
     animatedNumberText: {
       fontSize: theme.typography.Body.fontSize,

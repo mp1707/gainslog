@@ -215,7 +215,8 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
       .failOffsetY([-30, 30]) // Fail if vertical movement is too large
       .onBegin(() => {
         // Begin press feedback immediately; cancel if gesture changes direction
-        if (!isDeleting.value) {
+        // Only apply press animation if onTap is provided
+        if (!isDeleting.value && onTap) {
           isPressing.value = true;
           tapStartMs.value = Date.now();
           // Subtle scale

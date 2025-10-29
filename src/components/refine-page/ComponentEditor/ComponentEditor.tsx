@@ -158,7 +158,6 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
             style={styles.textInput}
             keyboardAppearance={colorScheme}
             returnKeyType="next"
-            autoFocus={isAdding}
             onFocus={handleInputFocus}
           />
         </View>
@@ -178,6 +177,7 @@ export const ComponentEditor: React.FC<ComponentEditorProps> = ({
               style={styles.textInput}
               keyboardType="decimal-pad"
               keyboardAppearance={colorScheme}
+              autoFocus={true}
               onFocus={handleInputFocus}
             />
           </View>

@@ -4,7 +4,6 @@ import { useLocalSearchParams } from "expo-router";
 import { StyleSheet, View, ActivityIndicator, Pressable } from "react-native";
 import { ScrollView as RNScrollView } from "react-native-gesture-handler";
 import { Check, X } from "lucide-react-native";
-import { GradientWrapper } from "@/components/shared/GradientWrapper";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { makeSelectLogById } from "@/store/selectors";
 import type { FoodLog, FoodComponent } from "@/types/models";
@@ -15,8 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import { MacrosCard } from "@/components/refine-page/MacrosCard/MacrosCard";
 import { ComponentsList } from "@/components/refine-page/ComponentsList/ComponentsList";
 import { ComponentEditor } from "@/components/refine-page/ComponentEditor";
-import { ImageDisplay } from "@/components/shared/ImageDisplay";
-import { AppText, Card } from "@/components/index";
+import { AppText } from "@/components/index";
 import {
   BottomSheet,
   BottomSheetBackdrop,
@@ -25,6 +23,7 @@ import { TextInput } from "@/components/shared/TextInput";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { InlinePaywallCard } from "@/components/paywall/InlinePaywallCard";
 import { Calculator } from "lucide-react-native";
+import { StickyRecalculateBar } from "@/components/refine-page/StickyRecalculateBar";
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -271,7 +270,7 @@ export default function Edit() {
       changesCount === 0);
 
   return (
-    <GradientWrapper style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.closeButtonLeft}>
         <RoundButton
           Icon={X}
@@ -284,9 +283,9 @@ export default function Edit() {
         <RoundButton
           Icon={Check}
           onPress={handleDone}
-          variant={"primary"}
+          variant={doneDisabled ? "tertiary" : "primary"}
           disabled={doneDisabled}
-          accessibilityLabel="Close"
+          accessibilityLabel="Done"
         />
       </View>
       <RNScrollView
@@ -294,8 +293,6 @@ export default function Edit() {
         style={[styles.scrollView]}
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="handled"
-        // add this again if this page should have crashes while scrolling 
-        // bounces={false}
         overScrollMode="never"
         scrollEnabled={!sheetOpen}
       >
@@ -343,7 +340,6 @@ export default function Edit() {
               hasUnsavedChanges={isPro ? hasUnsavedChanges : false}
               changesCount={changesCount}
               foodComponentsCount={editedLog.foodComponents?.length || 0}
-              onRecalculate={isPro && !isVerifyingSubscription ? handleReestimate : undefined}
             />
             {isVerifyingSubscription ? (
               <View style={styles.loadingContainer}>
@@ -364,6 +360,24 @@ export default function Edit() {
           </>
         )}
       </RNScrollView>
+
+      {/* Persistent Stale Footnote - Always visible above CTA when stale */}
+      {isPro && hasUnsavedChanges && !isLoading && !isVerifyingSubscription && (
+        <View style={styles.staleFootnoteContainer}>
+          <AppText role="Caption" style={styles.staleFootnote}>
+            Values reflect previous amounts.
+          </AppText>
+        </View>
+      )}
+
+      {/* Sticky Recalculate Bar */}
+      <StickyRecalculateBar
+        visible={isPro && hasUnsavedChanges && !isLoading && !isVerifyingSubscription}
+        changesCount={changesCount}
+        onPress={handleReestimate}
+        disabled={isLoading || Boolean(originalLog?.isEstimating)}
+      />
+
       {/* Component Editor Bottom Sheet */}
       <BottomSheetBackdrop
         open={sheetOpen}
@@ -389,13 +403,16 @@ export default function Edit() {
           />
         )}
       </BottomSheet>
-    </GradientWrapper>
+    </View>
   );
 }
 
 const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
-    container: { flex: 1 },
+    container: {
+      flex: 1,
+      backgroundColor: colors.secondaryBackground,
+    },
     scrollView: { flex: 1 },
     closeButtonLeft: {
       position: "absolute",
@@ -410,10 +427,10 @@ const createStyles = (colors: Colors, theme: Theme) =>
       zIndex: 15,
     },
     contentContainer: {
-      paddingHorizontal: theme.spacing.md,
-      paddingTop: theme.spacing.xxl + theme.spacing.xl,
-      paddingBottom: theme.spacing.lg,
-      gap: theme.spacing.md,
+      paddingHorizontal: theme.spacing.pageMargins.horizontal,
+      paddingTop: theme.spacing.xxl + theme.spacing.lg, // Title spacing (72pt = 9×8)
+      paddingBottom: theme.spacing.xxl + theme.spacing.xxl, // Extra padding for sticky bar
+      gap: theme.spacing.lg, // 24pt between sections
     },
     header: {
       paddingLeft: theme.spacing.sm,
@@ -432,5 +449,16 @@ const createStyles = (colors: Colors, theme: Theme) =>
       alignItems: "center",
       justifyContent: "center",
       paddingVertical: theme.spacing.xl,
+    },
+    staleFootnoteContainer: {
+      position: "absolute",
+      bottom: theme.spacing.xxl + theme.spacing.lg + theme.spacing.md, // Above CTA (56 height + 16 spacing + 16)
+      left: theme.spacing.pageMargins.horizontal,
+      right: theme.spacing.pageMargins.horizontal,
+    },
+    staleFootnote: {
+      letterSpacing: 0.4,
+      color: colors.secondaryText,
+      textAlign: "center",
     },
   });

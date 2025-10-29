@@ -13,11 +13,10 @@ import Animated, {
   useDerivedValue,
   useSharedValue,
   withTiming,
+  SharedValue,
 } from "react-native-reanimated";
-import { BlurView } from "expo-blur";
-import * as Haptics from "expo-haptics";
-import { AppText, Card } from "@/components";
-import { Button } from "@/components/shared/Button/Button";
+import { Clock } from "lucide-react-native";
+import { AppText } from "@/components";
 import { useTheme } from "@/theme";
 import type { Colors, Theme } from "@/theme";
 import { createStyles } from "./MacrosCard.styles";
@@ -36,7 +35,7 @@ interface MacrosCardProps {
   onRecalculate?: () => void;
 }
 
-type MacroSharedValue = Animated.SharedValue<number>;
+type MacroSharedValue = SharedValue<number>;
 
 type StaticMacroItem = {
   key: string;
@@ -428,7 +427,7 @@ const AnimatedMacrosContent: React.FC<AnimatedMacrosContentProps> = React.memo(
               theme={theme}
             />
             {index < macroItemsRef.current.length - 1 && (
-              <View style={styles.divider} />
+              <View style={styles.separator} />
             )}
           </React.Fragment>
         ))}
@@ -440,22 +439,30 @@ const AnimatedMacrosContent: React.FC<AnimatedMacrosContentProps> = React.memo(
 const StaticMacrosContent: React.FC<{
   items: StaticMacroItem[];
   styles: ReturnType<typeof createStyles>;
-}> = React.memo(({ items, styles }) => (
+  isStale?: boolean;
+  colors: Colors;
+}> = React.memo(({ items, styles, isStale = false, colors }) => (
   <>
     {items.map((item, index) => (
       <React.Fragment key={item.key}>
         <View style={styles.macroRow}>
           <View style={styles.macroLabelContainer}>
             <View style={[styles.macroDot, { backgroundColor: item.color }]} />
-            <AppText>{item.label}</AppText>
+            <AppText role="Body">{item.label}</AppText>
           </View>
           <View style={styles.macroValueContainer}>
-            <AppText color="secondary" style={styles.staticValueText}>
+            <AppText
+              role="Body"
+              style={[
+                styles.staticValueText,
+                { color: isStale ? colors.disabledText : colors.secondaryText },
+              ]}
+            >
               {item.value} {item.suffix}
             </AppText>
           </View>
         </View>
-        {index < items.length - 1 && <View style={styles.divider} />}
+        {index < items.length - 1 && <View style={styles.separator} />}
       </React.Fragment>
     ))}
   </>
@@ -469,11 +476,8 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
   processing = false,
   revealKey,
   hasUnsavedChanges = false,
-  changesCount = 0,
-  foodComponentsCount = 0,
-  onRecalculate,
 }) => {
-  const { colors, theme, colorScheme } = useTheme();
+  const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
   const normalizedValues = useMemo(
@@ -571,58 +575,46 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
     ]
   );
 
-  const isEmpty = foodComponentsCount === 0;
-  const recalculateLabel = useMemo(() => {
-    if (isEmpty) {
-      return "Add items to calculate";
-    }
-    const changeWord = changesCount === 1 ? "change" : "changes";
-    return `Recalculate (${changesCount} ${changeWord})`;
-  }, [isEmpty, changesCount]);
-
   const useAnimatedVariant = processing || isRevealActive;
 
-  const handleRecalculate = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    onRecalculate?.();
-  };
-
   return (
-    <Card style={styles.cardContainer}>
-      <AppText role="Caption" style={styles.sectionHeader}>
-        MACROS
-      </AppText>
+    <View style={styles.container}>
+      <View style={styles.sectionHeaderRow}>
+        <AppText role="Caption" style={styles.sectionHeader}>
+          MACROS
+        </AppText>
+        {hasUnsavedChanges && !processing && (
+          <View style={styles.staleChip}>
+            <Clock size={14} color={colors.semanticBadges?.calories?.text || colors.secondaryText} />
+            <AppText style={styles.staleChipText}>Needs update</AppText>
+          </View>
+        )}
+      </View>
 
-      {useAnimatedVariant ? (
-        <AnimatedMacrosContent
-          calories={normalizedValues.calories}
-          protein={normalizedValues.protein}
-          carbs={normalizedValues.carbs}
-          fat={normalizedValues.fat}
-          processing={processing}
-          revealKey={revealKey}
-          styles={styles}
-          colors={colors}
-          theme={theme}
-        />
-      ) : (
-        <StaticMacrosContent items={staticItems} styles={styles} />
-      )}
+      <View style={styles.listContainer}>
+        {useAnimatedVariant ? (
+          <AnimatedMacrosContent
+            calories={normalizedValues.calories}
+            protein={normalizedValues.protein}
+            carbs={normalizedValues.carbs}
+            fat={normalizedValues.fat}
+            processing={processing}
+            revealKey={revealKey}
+            styles={styles}
+            colors={colors}
+            theme={theme}
+          />
+        ) : (
+          <StaticMacrosContent
+            items={staticItems}
+            styles={styles}
+            isStale={hasUnsavedChanges}
+            colors={colors}
+          />
+        )}
+      </View>
 
-      {hasUnsavedChanges && !processing && (
-        <View style={styles.blurOverlay}>
-          <BlurView intensity={8} tint={colorScheme} style={styles.blurView}>
-            <View style={styles.recalculateButtonContainer}>
-              <Button
-                label={recalculateLabel}
-                variant="primary"
-                onPress={handleRecalculate}
-                disabled={processing || isEmpty}
-              />
-            </View>
-          </BlurView>
-        </View>
-      )}
-    </Card>
+      {/* Footnote moved to main Edit screen above sticky CTA */}
+    </View>
   );
 };

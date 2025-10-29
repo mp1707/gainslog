@@ -66,7 +66,7 @@ export function calculateCalorieGoals(
   // 3. Calculate goals for weight loss and gain
   // A standard, safe deficit of 500 kcal for loss and a modest surplus of 300 kcal for lean gain.
   let lose = maintain - 500;
-  const gain = maintain + 300;
+  const gain = maintain + 500;
 
   // 4. Apply the safety floor to the weight loss goal to prevent unsafe targets
   const safetyFloor = calorieSafetyFloors[sex];
