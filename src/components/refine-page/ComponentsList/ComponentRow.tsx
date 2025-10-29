@@ -128,7 +128,7 @@ const RecommendationComponentRow: React.FC<{
   }));
 
   return (
-    <Animated.View>
+    <View>
       <SwipeToFunctions onDelete={isExpanded ? undefined : onDelete}>
         <View style={styles.solidBackgroundForSwipe}>
           <View
@@ -138,7 +138,7 @@ const RecommendationComponentRow: React.FC<{
             }}
           >
             <View>
-              {/* Title Row with two separate pressables */}
+              {/* Title Row - name+amount pressable with lightbulb */}
               <View
                 style={[
                   styles.componentRow,
@@ -149,61 +149,64 @@ const RecommendationComponentRow: React.FC<{
                   },
                 ]}
               >
-                {/* First Pressable: Name - opens edit modal */}
-                <View style={styles.leftColumn}>
+                {/* Wrapper for name+amount pressable area - sits alongside lightbulb */}
+                <View style={{ flex: 1, minWidth: 0 }}>
                   <AnimatedPressable
                     onPress={onTap}
                     accessibilityLabel={`Edit ${component.name}`}
                     accessibilityHint="Opens editor to modify amount and unit"
-                    style={styles.namePressable}
                   >
-                    <AppText
-                      role="Headline"
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
-                      style={styles.componentName}
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: theme.spacing.md,
+                      }}
                     >
-                      {component.name}
-                    </AppText>
+                      <View style={styles.leftColumn}>
+                        <AppText
+                          role="Headline"
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          style={styles.componentName}
+                        >
+                          {component.name}
+                        </AppText>
+                      </View>
+                      <View style={styles.rightColumn}>
+                        <AppText role="Body" color="secondary">
+                          {component.amount} {component.unit ?? ""}
+                        </AppText>
+                      </View>
+                    </View>
                   </AnimatedPressable>
                 </View>
 
-                {/* Right-aligned group: Amount + Lightbulb */}
-                <View style={styles.rightColumn}>
-                  <AnimatedPressable
-                    onPress={onTap}
-                    accessibilityLabel={`Edit ${component.name}`}
-                    accessibilityHint="Opens editor to modify amount and unit"
-                  >
-                    <AppText role="Body" color="secondary">
-                      {component.amount} {component.unit ?? ""}
-                    </AppText>
-                  </AnimatedPressable>
-
-                  {/* Second Pressable: Lightbulb - toggles expansion */}
-                  <AnimatedPressable
-                    onPress={onToggleExpansion}
-                    hitSlop={44}
-                    style={{
-                      width: 18,
-                      height: 18,
-                    }}
-                    accessibilityLabel="View recommendation"
-                    accessibilityHint={
-                      isExpanded
-                        ? "Collapse recommendation details"
-                        : "Expand to see recommendation details"
-                    }
-                  >
-                    <Animated.View style={lightbulbStyle}>
-                      <Lightbulb
-                        size={18}
-                        color={colors.accent}
-                        fill={colors.accent}
-                      />
-                    </Animated.View>
-                  </AnimatedPressable>
-                </View>
+                {/* Lightbulb pressable - at same level as name+amount wrapper */}
+                <AnimatedPressable
+                  onPress={onToggleExpansion}
+                  hitSlop={44}
+                  style={{
+                    width: 18,
+                    height: 18,
+                    marginRight: theme.spacing.sm,
+                  }}
+                  accessibilityLabel="View recommendation"
+                  accessibilityHint={
+                    isExpanded
+                      ? "Collapse recommendation details"
+                      : "Expand to see recommendation details"
+                  }
+                >
+                  <Animated.View style={lightbulbStyle}>
+                    <Lightbulb
+                      size={18}
+                      color={colors.accent}
+                      fill={colors.accent}
+                    />
+                  </Animated.View>
+                </AnimatedPressable>
               </View>
 
               {/* Inline Expansion */}
@@ -257,7 +260,7 @@ const RecommendationComponentRow: React.FC<{
           </View>
         </View>
       </SwipeToFunctions>
-    </Animated.View>
+    </View>
   );
 };
 
