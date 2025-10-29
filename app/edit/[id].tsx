@@ -24,6 +24,9 @@ import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { InlinePaywallCard } from "@/components/paywall/InlinePaywallCard";
 import { Calculator } from "lucide-react-native";
 import { StickyRecalculateBar } from "@/components/refine-page/StickyRecalculateBar";
+import Animated, { Easing, Layout } from "react-native-reanimated";
+
+const easeLayout = Layout.duration(220).easing(Easing.inOut(Easing.quad));
 
 export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -321,42 +324,48 @@ export default function Edit() {
         ) : (
           <>
             {/* Editable component list */}
-            <ComponentsList
-              components={editedLog.foodComponents || []}
-              onPressItem={handleOpenEditor}
-              onDeleteItem={handleDeleteComponent}
-              onAddPress={handleAddComponent}
-              onAcceptRecommendation={handleAcceptRecommendation}
-              disabled={isLoading || originalLog?.isEstimating}
-            />
+            <Animated.View layout={easeLayout}>
+              <ComponentsList
+                components={editedLog.foodComponents || []}
+                onPressItem={handleOpenEditor}
+                onDeleteItem={handleDeleteComponent}
+                onAddPress={handleAddComponent}
+                onAcceptRecommendation={handleAcceptRecommendation}
+                disabled={isLoading || originalLog?.isEstimating}
+              />
+            </Animated.View>
             {/* Macros display */}
-            <MacrosCard
-              calories={editedLog.calories}
-              protein={editedLog.protein}
-              carbs={editedLog.carbs}
-              fat={editedLog.fat}
-              processing={isLoading}
-              revealKey={revealKey}
-              hasUnsavedChanges={isPro ? hasUnsavedChanges : false}
-              changesCount={changesCount}
-              foodComponentsCount={editedLog.foodComponents?.length || 0}
-            />
-            {isVerifyingSubscription ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator />
-              </View>
-            ) : (
-              !isPro && (
-                <InlinePaywallCard
-                  Icon={Calculator}
-                  title="Recalculate with Pro"
-                  body="Instantly get updated macros when you adjust ingredients."
-                  ctaLabel="Unlock to Recalculate"
-                  onPress={handleShowPaywall}
-                  testID="edit-inline-paywall"
-                />
-              )
-            )}
+            <Animated.View layout={easeLayout}>
+              <MacrosCard
+                calories={editedLog.calories}
+                protein={editedLog.protein}
+                carbs={editedLog.carbs}
+                fat={editedLog.fat}
+                processing={isLoading}
+                revealKey={revealKey}
+                hasUnsavedChanges={isPro ? hasUnsavedChanges : false}
+                changesCount={changesCount}
+                foodComponentsCount={editedLog.foodComponents?.length || 0}
+              />
+            </Animated.View>
+            <Animated.View layout={easeLayout}>
+              {isVerifyingSubscription ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator />
+                </View>
+              ) : (
+                !isPro && (
+                  <InlinePaywallCard
+                    Icon={Calculator}
+                    title="Recalculate with Pro"
+                    body="Instantly get updated macros when you adjust ingredients."
+                    ctaLabel="Unlock to Recalculate"
+                    onPress={handleShowPaywall}
+                    testID="edit-inline-paywall"
+                  />
+                )
+              )}
+            </Animated.View>
           </>
         )}
       </RNScrollView>
@@ -372,7 +381,9 @@ export default function Edit() {
 
       {/* Sticky Recalculate Bar */}
       <StickyRecalculateBar
-        visible={isPro && hasUnsavedChanges && !isLoading && !isVerifyingSubscription}
+        visible={
+          isPro && hasUnsavedChanges && !isLoading && !isVerifyingSubscription
+        }
         changesCount={changesCount}
         onPress={handleReestimate}
         disabled={isLoading || Boolean(originalLog?.isEstimating)}
@@ -430,10 +441,11 @@ const createStyles = (colors: Colors, theme: Theme) =>
       paddingHorizontal: theme.spacing.pageMargins.horizontal,
       paddingTop: theme.spacing.xxl + theme.spacing.lg, // Title spacing (72pt = 9×8)
       paddingBottom: theme.spacing.xxl + theme.spacing.xxl, // Extra padding for sticky bar
-      gap: theme.spacing.lg, // 24pt between sections
+      gap: theme.spacing.xl, // 24pt between sections
     },
     header: {
-      paddingLeft: theme.spacing.sm,
+      // paddingLeft: theme.spacing.sm,
+      paddingTop: theme.spacing.md,
     },
     titleInput: {
       color: colors.primaryText,

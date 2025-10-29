@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { TouchableOpacity } from "react-native";
 import { Plus } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { AppText } from "@/components";
@@ -7,6 +7,9 @@ import { useTheme } from "@/theme";
 import { createStyles } from "./ComponentsList.styles";
 import type { FoodComponent } from "@/types/models";
 import { ComponentRow } from "./ComponentRow";
+import Animated, { Easing, Layout } from "react-native-reanimated";
+
+const easeLayout = Layout.duration(220).easing(Easing.inOut(Easing.quad));
 
 interface ComponentsListProps {
   components: FoodComponent[];
@@ -58,14 +61,17 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
   );
 
   return (
-    <View style={styles.container}>
+    <Animated.View layout={easeLayout} style={styles.container}>
       <AppText role="Caption" style={styles.sectionHeader}>
-        COMPONENTS
+        FOOD
       </AppText>
 
-      <View style={styles.listContainer}>
+      <Animated.View layout={easeLayout} style={styles.listContainer}>
         {components.map((comp, index) => (
-          <React.Fragment key={`${comp.name}-${index}`}>
+          <Animated.View
+            key={`${comp.name}-${index}`}
+            layout={easeLayout}
+          >
             <ComponentRow
               component={comp}
               index={index}
@@ -75,23 +81,27 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
               onDelete={onDeleteItem}
               onAcceptRecommendation={handleAcceptRecommendation}
             />
-            {index < components.length - 1 && <View style={styles.separator} />}
-          </React.Fragment>
+            {index < components.length - 1 && (
+              <Animated.View layout={easeLayout} style={styles.separator} />
+            )}
+          </Animated.View>
         ))}
-
-        <TouchableOpacity
-          onPress={onAddPress}
-          style={styles.addRow}
-          disabled={disabled}
-          accessibilityLabel="Add Ingredient"
-          accessibilityRole="button"
-        >
-          <Plus size={18} color={colors.accent} />
-          <AppText style={styles.addLabel} color="accent">
-            Add Ingredient
-          </AppText>
-        </TouchableOpacity>
-      </View>
-    </View>
+        <Animated.View layout={easeLayout} style={styles.separator} />
+        <Animated.View layout={easeLayout}>
+          <TouchableOpacity
+            onPress={onAddPress}
+            style={styles.addRow}
+            disabled={disabled}
+            accessibilityLabel="Add Ingredient"
+            accessibilityRole="button"
+          >
+            <Plus size={18} color={colors.accent} />
+            <AppText style={styles.addLabel} color="accent">
+              Add Food
+            </AppText>
+          </TouchableOpacity>
+        </Animated.View>
+      </Animated.View>
+    </Animated.View>
   );
 };

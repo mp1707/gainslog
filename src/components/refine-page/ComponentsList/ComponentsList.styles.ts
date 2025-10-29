@@ -58,9 +58,9 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     addRow: {
       flexDirection: "row",
       alignItems: "center",
-      paddingVertical: theme.spacing.md,
-      paddingHorizontal: theme.spacing.md,
-      paddingTop: theme.spacing.md + theme.spacing.md, // 16pt extra spacing above (32 total)
+      paddingVertical: theme.spacing.sm,
+      alignSelf: "flex-end",
+      paddingTop: theme.spacing.md,
       minHeight: 56,
       backgroundColor: colors.secondaryBackground,
     },

@@ -5,6 +5,7 @@ import * as Haptics from "expo-haptics";
 import { AppText } from "@/components";
 import { SwipeToFunctions } from "@/components/shared/SwipeToFunctions/SwipeToFunctions";
 import { AnimatedPressable } from "@/components/shared/AnimatedPressable";
+import Animated, { Easing, FadeIn, FadeOut, Layout } from "react-native-reanimated";
 import { useTheme } from "@/theme";
 import type { Colors, Theme } from "@/theme";
 import { createStyles } from "./ComponentsList.styles";
@@ -19,6 +20,8 @@ interface ComponentRowProps {
   onDelete: (index: number) => void;
   onAcceptRecommendation: (index: number, comp: FoodComponent) => void;
 }
+
+const easeLayout = Layout.duration(220).easing(Easing.inOut(Easing.quad));
 
 const StaticComponentRow: React.FC<{
   component: FoodComponent;
@@ -35,49 +38,51 @@ const StaticComponentRow: React.FC<{
 }) => {
 
   return (
-    <SwipeToFunctions onDelete={onDelete}>
-      <View style={styles.solidBackgroundForSwipe}>
-        <View
-          style={{
-            margin: -theme.spacing.md,
-            borderRadius: theme.components.cards.cornerRadius,
-          }}
-        >
-          <AnimatedPressable
-            onPress={onTap}
-            accessibilityLabel={`Edit ${component.name}`}
-            accessibilityHint="Opens editor to modify amount and unit"
+    <Animated.View layout={easeLayout}>
+      <SwipeToFunctions onDelete={onDelete}>
+        <View style={styles.solidBackgroundForSwipe}>
+          <View
+            style={{
+              margin: -theme.spacing.md,
+              borderRadius: theme.components.cards.cornerRadius,
+            }}
           >
-            <View
-              style={[
-                styles.componentRow,
-                {
-                  borderRadius: theme.components.cards.cornerRadius,
-                  padding: theme.spacing.md,
-                  paddingRight: theme.spacing.sm,
-                },
-              ]}
+            <AnimatedPressable
+              onPress={onTap}
+              accessibilityLabel={`Edit ${component.name}`}
+              accessibilityHint="Opens editor to modify amount and unit"
             >
-              <View style={styles.leftColumn}>
-                <AppText
-                  role="Headline"
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                  style={styles.componentName}
-                >
-                  {component.name}
-                </AppText>
+              <View
+                style={[
+                  styles.componentRow,
+                  {
+                    borderRadius: theme.components.cards.cornerRadius,
+                    padding: theme.spacing.md,
+                    paddingRight: theme.spacing.sm,
+                  },
+                ]}
+              >
+                <View style={styles.leftColumn}>
+                  <AppText
+                    role="Headline"
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    style={styles.componentName}
+                  >
+                    {component.name}
+                  </AppText>
+                </View>
+                <View style={styles.rightColumn}>
+                  <AppText role="Body" color="secondary">
+                    {component.amount} {component.unit ?? ""}
+                  </AppText>
+                </View>
               </View>
-              <View style={styles.rightColumn}>
-                <AppText role="Body" color="secondary">
-                  {component.amount} {component.unit ?? ""}
-                </AppText>
-              </View>
-            </View>
-          </AnimatedPressable>
+            </AnimatedPressable>
+          </View>
         </View>
-      </View>
-    </SwipeToFunctions>
+      </SwipeToFunctions>
+    </Animated.View>
   );
 };
 
@@ -104,7 +109,7 @@ const RecommendationComponentRow: React.FC<{
 }) => {
 
   return (
-    <View>
+    <Animated.View layout={easeLayout}>
       <SwipeToFunctions onDelete={isExpanded ? undefined : onDelete}>
         <View style={styles.solidBackgroundForSwipe}>
           <View
@@ -195,54 +200,62 @@ const RecommendationComponentRow: React.FC<{
               </View>
 
               {/* Inline Expansion */}
-              {component.recommendedMeasurement && isExpanded && (
-                <View style={styles.expansionContent}>
-                  <View style={styles.estimateLine}>
-                    <AppText
-                      role="Body"
-                      color="secondary"
-                      style={{ flex: 1 }}
+              {component.recommendedMeasurement ? (
+                <Animated.View layout={easeLayout} style={{ overflow: "hidden" }}>
+                  {isExpanded ? (
+                    <Animated.View
+                      entering={FadeIn.duration(200)}
+                      exiting={FadeOut.duration(160)}
+                      style={styles.expansionContent}
                     >
-                      We estimate{" "}
-                      <AppText
-                        role="Body"
-                        style={{ color: colors.primaryText }}
-                      >
-                        {component.amount} {component.unit}
-                      </AppText>{" "}
-                      ≈{" "}
-                      <AppText
-                        role="Body"
-                        style={{ color: colors.primaryText }}
-                      >
-                        {component.recommendedMeasurement.amount}{" "}
-                        {component.recommendedMeasurement.unit}
-                      </AppText>
-                      .
-                    </AppText>
+                      <View style={styles.estimateLine}>
+                        <AppText
+                          role="Body"
+                          color="secondary"
+                          style={{ flex: 1 }}
+                        >
+                          We estimate{" "}
+                          <AppText
+                            role="Body"
+                            style={{ color: colors.primaryText }}
+                          >
+                            {component.amount} {component.unit}
+                          </AppText>{" "}
+                          ≈{" "}
+                          <AppText
+                            role="Body"
+                            style={{ color: colors.primaryText }}
+                          >
+                            {component.recommendedMeasurement.amount}{" "}
+                            {component.recommendedMeasurement.unit}
+                          </AppText>
+                          .
+                        </AppText>
 
-                    <Pressable
-                      style={styles.acceptPill}
-                      onPress={() => {
-                        Haptics.impactAsync(
-                          Haptics.ImpactFeedbackStyle.Light
-                        );
-                        onAcceptRecommendation();
-                      }}
-                    >
-                      <AppText style={styles.acceptPillText}>
-                        Set {component.recommendedMeasurement.amount}{" "}
-                        {component.recommendedMeasurement.unit}
-                      </AppText>
-                    </Pressable>
-                  </View>
-                </View>
-              )}
+                        <Pressable
+                          style={styles.acceptPill}
+                          onPress={() => {
+                            Haptics.impactAsync(
+                              Haptics.ImpactFeedbackStyle.Light
+                            );
+                            onAcceptRecommendation();
+                          }}
+                        >
+                          <AppText style={styles.acceptPillText}>
+                            Set {component.recommendedMeasurement.amount}{" "}
+                            {component.recommendedMeasurement.unit}
+                          </AppText>
+                        </Pressable>
+                      </View>
+                    </Animated.View>
+                  ) : null}
+                </Animated.View>
+              ) : null}
             </View>
           </View>
         </View>
       </SwipeToFunctions>
-    </View>
+    </Animated.View>
   );
 };
 
