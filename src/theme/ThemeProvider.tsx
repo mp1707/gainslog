@@ -9,18 +9,20 @@ import React, {
   useCallback,
 } from "react";
 import { Appearance, StatusBar } from "react-native";
-import { theme, ColorScheme } from "./theme";
+import { theme, ColorScheme, AppearancePreference } from "./theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Colors = typeof theme.colors.light | typeof theme.colors.dark;
 
 interface ThemeContextType {
   colorScheme: ColorScheme;
+  appearancePreference: AppearancePreference;
   colors: Colors;
   theme: typeof theme;
   isThemeLoaded: boolean;
   setColorScheme: (scheme: ColorScheme) => void;
   toggleColorScheme: () => void;
+  setAppearancePreference: (preference: AppearancePreference) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -31,6 +33,8 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [colorScheme, setColorSchemeState] = useState<ColorScheme>("light");
+  const [appearancePreference, setAppearancePreferenceState] =
+    useState<AppearancePreference>("system");
   const [isThemeLoaded, setIsThemeLoaded] = useState(false);
   // Track whether user manually selected a theme
   const manualPreferenceRef = useRef(false);
@@ -38,18 +42,22 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   // Load saved preference or fallback to system on mount
   useEffect(() => {
     (async () => {
-      let saved: ColorScheme | null = null;
+      let saved: AppearancePreference | null = null;
       try {
         const raw = await AsyncStorage.getItem("colorSchemePreference");
-        saved = (raw as ColorScheme) || null;
+        saved = (raw as AppearancePreference) || null;
       } catch (e) {
         // ignore
       }
-      if (saved) {
+      if (saved === "light" || saved === "dark") {
         setColorSchemeState(saved);
+        setAppearancePreferenceState(saved);
         manualPreferenceRef.current = true;
       } else {
-        setColorSchemeState(Appearance.getColorScheme() || "light");
+        const systemScheme = Appearance.getColorScheme() || "light";
+        setColorSchemeState(systemScheme);
+        setAppearancePreferenceState("system");
+        manualPreferenceRef.current = false;
       }
       setIsThemeLoaded(true);
     })();
@@ -79,9 +87,27 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   const setColorScheme = useCallback((scheme: ColorScheme) => {
     manualPreferenceRef.current = true;
+    setAppearancePreferenceState(scheme);
     setColorSchemeState(scheme);
     AsyncStorage.setItem("colorSchemePreference", scheme).catch(() => {});
   }, []);
+
+  const setAppearancePreference = useCallback(
+    (preference: AppearancePreference) => {
+      if (preference === "system") {
+        manualPreferenceRef.current = false;
+        setAppearancePreferenceState("system");
+        const systemScheme = Appearance.getColorScheme() || "light";
+        setColorSchemeState(systemScheme);
+        AsyncStorage.setItem("colorSchemePreference", "system").catch(
+          () => {}
+        );
+      } else {
+        setColorScheme(preference);
+      }
+    },
+    [setColorScheme]
+  );
 
   const toggleColorScheme = useCallback(() => {
     setColorScheme(colorScheme === "light" ? "dark" : "light");
@@ -95,8 +121,18 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       isThemeLoaded,
       setColorScheme,
       toggleColorScheme,
+      appearancePreference,
+      setAppearancePreference,
     }),
-    [colorScheme, colors, isThemeLoaded, setColorScheme, toggleColorScheme]
+    [
+      appearancePreference,
+      colorScheme,
+      colors,
+      isThemeLoaded,
+      setAppearancePreference,
+      setColorScheme,
+      toggleColorScheme,
+    ]
   );
 
   return (

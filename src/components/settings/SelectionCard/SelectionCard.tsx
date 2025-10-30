@@ -66,22 +66,12 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
     transform: [{ scale: pressScale.value }],
   }));
 
-  // Icon container animation style
-  const iconContainerAnimatedStyle = useAnimatedStyle(() => {
-    const backgroundColor =
-      colorScheme === "dark"
-        ? `${colors.accent}${Math.round(selectedProgress.value * 26)
-            .toString(16)
-            .padStart(2, "0")}` // 0-26 (0x00-0x1A, ~10%)
-        : `${colors.accent}${Math.round(selectedProgress.value * 20)
-            .toString(16)
-            .padStart(2, "0")}`; // 0-20 (0x00-0x14, ~8%)
-
-    return {
-      backgroundColor:
-        selectedProgress.value > 0 ? backgroundColor : colors.primaryBackground,
-    };
-  });
+  // Icon container background color (static, updates with theme changes)
+  const iconBackgroundColor = isSelected
+    ? colorScheme === "dark"
+      ? `${colors.accent}1A` // ~10% opacity
+      : `${colors.accent}14` // ~8% opacity
+    : colors.primaryBackground;
 
   // Icon configuration
   const finalIconColor = isSelected ? colors.accent : iconColor;
@@ -127,7 +117,7 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
         <View style={styles.content}>
           <View style={styles.header}>
             <Animated.View
-              style={[styles.iconContainer, iconContainerAnimatedStyle]}
+              style={[styles.iconContainer, { backgroundColor: iconBackgroundColor }]}
             >
               <IconComponent size={24} color={finalIconColor} />
             </Animated.View>

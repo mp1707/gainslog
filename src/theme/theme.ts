@@ -574,6 +574,7 @@ export const theme = {
 
 export type Theme = typeof theme;
 export type ColorScheme = "light" | "dark";
+export type AppearancePreference = "system" | ColorScheme;
 export type Colors = typeof lightColors | typeof darkColors;
 export type Typography = typeof typography;
 export type Spacing = typeof spacing;
