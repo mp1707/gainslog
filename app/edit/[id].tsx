@@ -1,7 +1,13 @@
 import { useAppStore } from "@/store/useAppStore";
 import { Colors, Theme, useTheme } from "@/theme";
 import { useLocalSearchParams } from "expo-router";
-import { StyleSheet, View, ActivityIndicator, Pressable, Alert } from "react-native";
+import {
+  StyleSheet,
+  View,
+  ActivityIndicator,
+  Pressable,
+  Alert,
+} from "react-native";
 import { ScrollView as RNScrollView } from "react-native-gesture-handler";
 import { Check, X } from "lucide-react-native";
 import { RoundButton } from "@/components/shared/RoundButton";
@@ -106,8 +112,12 @@ export default function Edit() {
         "You've modified ingredients without recalculating macros. The nutrition values may be inaccurate.",
         [
           {
-            text: "Cancel",
-            style: "cancel",
+            text: "Recalculate Macros",
+            style: "default",
+            onPress: async () => {
+              await handleReestimate();
+              // Don't auto-save - let user review macros and manually press Done
+            },
           },
           {
             text: "Save Anyway",
@@ -117,13 +127,8 @@ export default function Edit() {
             },
           },
           {
-            text: "Recalculate Macros",
-            style: "default",
-            onPress: async () => {
-              await handleReestimate();
-              // After successful recalculation, save automatically
-              saveFoodLog();
-            },
+            text: "Cancel",
+            style: "cancel",
           },
         ]
       );
