@@ -209,7 +209,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
     rowInner: {
       flexDirection: "row",
       alignItems: "center",
-      gap: theme.spacing.md,
+      gap: theme.spacing.lg,
     },
     rowInnerTwoLine: {
       alignItems: "flex-start",
@@ -249,16 +249,13 @@ const createStyles = (colors: Colors, theme: Theme) =>
       marginTop: theme.spacing.sm,
     },
     valueColumn: {
-      minWidth: 96,
       alignItems: "flex-end",
       marginRight: theme.spacing.xs,
     },
     controlColumn: {
-      minWidth: 96,
       alignItems: "flex-start",
     },
     actionButtonColumn: {
-      minWidth: 96,
       alignItems: "flex-end",
     },
     actionButtonText: {
@@ -267,9 +264,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
     valueAlignLeft: {
       alignItems: "flex-start",
     },
-    valuePlaceholder: {
-      width: 96,
-    },
+    valuePlaceholder: {},
     valueText: {
       textAlign: "right",
     },

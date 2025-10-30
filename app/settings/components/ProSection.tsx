@@ -95,7 +95,7 @@ export const ProSection = () => {
           subtitle={
             isPro
               ? cancellationDescription
-              : "Smart suggestions, deeper insights, priority AI."
+              : "Ingredient detection, Nutrition estimation, effortless tracking."
           }
           accessory="chevron"
           onPress={isPro ? handleManageSubscription : handleShowPaywall}
