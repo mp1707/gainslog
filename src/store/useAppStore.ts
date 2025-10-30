@@ -28,6 +28,10 @@ export type AppState = {
   selectedDate: string; // YYYY-MM-DD (for day view)
   selectedMonth: string; // YYYY-MM (for month view)
 
+  // User preferences
+  lastUsedUnit?: "g" | "ml" | "piece";
+  setLastUsedUnit: (unit: "g" | "ml" | "piece") => void;
+
   // Logs
   addFoodLog: (log: FoodLog) => void;
   updateFoodLog: (id: string, update: Partial<FoodLog>) => void;
@@ -190,6 +194,12 @@ export const useAppStore = create<AppState>()(
       setSelectedMonth: (month) =>
         set((state) => {
           state.selectedMonth = month;
+        }),
+
+      // User preferences
+      setLastUsedUnit: (unit) =>
+        set((state) => {
+          state.lastUsedUnit = unit;
         }),
     })),
     {

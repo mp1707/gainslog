@@ -18,7 +18,7 @@ export interface ToggleOption<T> {
 
 export interface ToggleProps<T> {
   value: T;
-  options: [ToggleOption<T>, ToggleOption<T>, ToggleOption<T>]; // Exactly three options
+  options: ToggleOption<T>[]; // Flexible number of options
   onChange: (value: T) => void;
   accessibilityLabel?: string;
 }
@@ -53,13 +53,13 @@ export function Toggle<T>({
 
     const containerPadding = 2; // must match styles
     const innerWidth = containerWidth - containerPadding * 2;
-    const segmentWidth = innerWidth / 3;
+    const segmentWidth = innerWidth / options.length;
 
     return {
       left: containerPadding + slideAnimation.value * segmentWidth,
       width: segmentWidth,
     };
-  }, [containerWidth]);
+  }, [containerWidth, options.length]);
 
   const renderOption = (option: ToggleOption<T>, isSelected: boolean) => (
     <TouchableOpacity

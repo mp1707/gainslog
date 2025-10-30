@@ -12,7 +12,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       color: colors.secondaryText,
     },
     listContainer: {
-      backgroundColor: colors.secondaryBackground,
+      backgroundColor: colors.primaryBackground,
       borderRadius: theme.components.cards.cornerRadius,
       // overflow: "hidden",
     },
@@ -28,7 +28,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       minHeight: 56, // 7 × 8pt for native feel
     },
     solidBackgroundForSwipe: {
-      backgroundColor: colors.secondaryBackground,
+      backgroundColor: colors.primaryBackground,
       paddingVertical: theme.spacing.md,
     },
     componentExpandContainer: {
@@ -61,7 +61,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       alignSelf: "flex-end",
       paddingTop: theme.spacing.md,
       minHeight: 56,
-      backgroundColor: colors.secondaryBackground,
+      backgroundColor: colors.primaryBackground,
     },
     addLabel: {},
     componentName: {

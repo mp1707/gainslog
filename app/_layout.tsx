@@ -62,6 +62,12 @@ function ThemedStack() {
       <Stack.Screen
         name="edit/[id]"
         options={{
+          gestureEnabled: true,
+        }}
+      />
+      <Stack.Screen
+        name="editComponent"
+        options={{
           presentation: "modal",
           headerShown: false,
           contentStyle: {

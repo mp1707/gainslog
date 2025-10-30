@@ -37,7 +37,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       color: colors.semanticBadges?.calories?.text || colors.secondaryText,
     },
     listContainer: {
-      backgroundColor: colors.secondaryBackground,
+      backgroundColor: colors.primaryBackground,
       borderRadius: theme.components.cards.cornerRadius,
       overflow: "hidden",
     },

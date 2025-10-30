@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { ScrollView as RNScrollView } from "react-native-gesture-handler";
-import { Check, X } from "lucide-react-native";
+import { Check, ChevronLeft } from "lucide-react-native";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { makeSelectLogById } from "@/store/selectors";
 import type { FoodLog, FoodComponent } from "@/types/models";
@@ -19,18 +19,14 @@ import { useEstimation } from "@/hooks/useEstimation";
 import { useNavigation } from "@react-navigation/native";
 import { MacrosCard } from "@/components/refine-page/MacrosCard/MacrosCard";
 import { ComponentsList } from "@/components/refine-page/ComponentsList/ComponentsList";
-import { ComponentEditor } from "@/components/refine-page/ComponentEditor";
 import { AppText } from "@/components/index";
-import {
-  BottomSheet,
-  BottomSheetBackdrop,
-} from "@/components/shared/BottomSheet";
 import { TextInput } from "@/components/shared/TextInput";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { InlinePaywallCard } from "@/components/paywall/InlinePaywallCard";
 import { Calculator } from "lucide-react-native";
 import { StickyRecalculateBar } from "@/components/refine-page/StickyRecalculateBar";
 import Animated, { Easing, Layout } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const easeLayout = Layout.duration(220).easing(Easing.inOut(Easing.quad));
 
@@ -41,6 +37,7 @@ export default function Edit() {
   const isPro = useAppStore((s) => s.isPro);
   const isVerifyingSubscription = useAppStore((s) => s.isVerifyingSubscription);
   const router = useSafeRouter();
+  const insets = useSafeAreaInsets();
 
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
@@ -61,13 +58,6 @@ export default function Edit() {
   // Title editing state
   const [isTitleEditing, setIsTitleEditing] = useState(false);
   const [tempTitle, setTempTitle] = useState(editedLog?.title || "");
-
-  // Component editing state - simplified with two-state approach
-  const [editingComponent, setEditingComponent] = useState<{
-    index: number | "new";
-    component: FoodComponent;
-  } | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
 
   // Change tracking for recalculation
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -179,48 +169,15 @@ export default function Edit() {
   };
 
   const handleOpenEditor = (index: number, component: FoodComponent) => {
-    setEditingComponent({ index, component });
-    setSheetOpen(true);
+    router.push(
+      `/editComponent?mode=edit&index=${index}&name=${encodeURIComponent(
+        component.name
+      )}&amount=${component.amount}&unit=${component.unit}&logId=${id}`
+    );
   };
 
   const handleAddComponent = () => {
-    setEditingComponent({
-      index: "new",
-      component: { name: "", amount: 0, unit: "g" },
-    });
-    setSheetOpen(true);
-  };
-
-  const handleSaveComponent = (component: FoodComponent) => {
-    if (!editingComponent) return;
-
-    // Clear editing state immediately
-    setEditingComponent(null);
-    setSheetOpen(false);
-
-    setEditedLog((prev) => {
-      if (!prev) return prev;
-
-      const comps = [...(prev.foodComponents || [])];
-      if (editingComponent.index === "new") {
-        comps.push(component);
-      } else {
-        comps[editingComponent.index] = component;
-      }
-
-      return { ...prev, foodComponents: comps };
-    });
-
-    setIsDirty(true);
-    setHasUnsavedChanges(true);
-    setChangesCount((prev) => prev + 1);
-    setHasComponentChanges(true);
-  };
-
-  const handleCancelEdit = () => {
-    // Clear editing state immediately
-    setEditingComponent(null);
-    setSheetOpen(false);
+    router.push(`/editComponent?mode=create&logId=${id}`);
   };
 
   const handleShowPaywall = useCallback(() => {
@@ -304,12 +261,64 @@ export default function Edit() {
     setHasComponentChanges(true);
   };
 
-  // Dynamically disable modal swipe gesture when bottom sheet is open
+  // Handle component saved/deleted from editor modal
+  const routeParams = useLocalSearchParams<{
+    savedComponent?: string;
+    componentIndex?: string;
+    deleteComponent?: string;
+  }>();
+
   useEffect(() => {
-    navigation.setOptions({
-      gestureEnabled: !sheetOpen,
-    });
-  }, [sheetOpen, navigation]);
+    if (routeParams?.savedComponent) {
+      try {
+        const component: FoodComponent = JSON.parse(routeParams.savedComponent);
+        const index = routeParams.componentIndex;
+
+        setEditedLog((prev) => {
+          if (!prev) return prev;
+
+          const comps = [...(prev.foodComponents || [])];
+          if (index === "new") {
+            comps.push(component);
+          } else if (index) {
+            comps[parseInt(index, 10)] = component;
+          }
+
+          return { ...prev, foodComponents: comps };
+        });
+
+        setIsDirty(true);
+        setHasUnsavedChanges(true);
+        setChangesCount((prev) => prev + 1);
+        setHasComponentChanges(true);
+
+        // Clear the params
+        router.setParams({
+          savedComponent: undefined,
+          componentIndex: undefined,
+        } as any);
+      } catch (e) {
+        console.error("Failed to parse saved component:", e);
+      }
+    }
+
+    if (routeParams?.deleteComponent === "true") {
+      const index = parseInt(routeParams.componentIndex || "", 10);
+      if (!isNaN(index)) {
+        handleDeleteComponent(index);
+
+        // Clear the params
+        router.setParams({
+          deleteComponent: undefined,
+          componentIndex: undefined,
+        } as any);
+      }
+    }
+  }, [
+    routeParams.savedComponent,
+    routeParams.deleteComponent,
+    routeParams.componentIndex,
+  ]);
 
   const doneDisabled =
     isLoading ||
@@ -321,16 +330,16 @@ export default function Edit() {
       changesCount === 0);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.closeButtonLeft}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={[styles.closeButtonLeft, { top: insets.top }]}>
         <RoundButton
-          Icon={X}
+          Icon={ChevronLeft}
           onPress={() => router.back()}
           variant={"tertiary"}
           accessibilityLabel="Close"
         />
       </View>
-      <View style={styles.closeButton}>
+      <View style={[styles.closeButton, { top: insets.top }]}>
         <RoundButton
           Icon={Check}
           onPress={handleDone}
@@ -345,7 +354,6 @@ export default function Edit() {
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="handled"
         overScrollMode="never"
-        scrollEnabled={!sheetOpen}
       >
         {isTitleEditing ? (
           <TextInput
@@ -427,32 +435,6 @@ export default function Edit() {
         onPress={handleReestimate}
         disabled={isLoading || Boolean(originalLog?.isEstimating)}
       />
-
-      {/* Component Editor Bottom Sheet */}
-      <BottomSheetBackdrop
-        open={sheetOpen}
-        onPress={() => {
-          setSheetOpen(false);
-          setEditingComponent(null);
-        }}
-        opacity={0.35}
-      />
-      <BottomSheet
-        open={sheetOpen}
-        onClose={() => {
-          setSheetOpen(false);
-          setEditingComponent(null);
-        }}
-      >
-        {editingComponent && (
-          <ComponentEditor
-            component={editingComponent.component}
-            isAdding={editingComponent.index === "new"}
-            onSave={handleSaveComponent}
-            onCancel={handleCancelEdit}
-          />
-        )}
-      </BottomSheet>
     </View>
   );
 }
@@ -461,18 +443,16 @@ const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.secondaryBackground,
+      backgroundColor: colors.primaryBackground,
     },
     scrollView: { flex: 1 },
     closeButtonLeft: {
       position: "absolute",
-      top: theme.spacing.md,
       left: theme.spacing.md,
       zIndex: 15,
     },
     closeButton: {
       position: "absolute",
-      top: theme.spacing.md,
       right: theme.spacing.md,
       zIndex: 15,
     },
@@ -482,10 +462,7 @@ const createStyles = (colors: Colors, theme: Theme) =>
       paddingBottom: theme.spacing.xxl + theme.spacing.xxl, // Extra padding for sticky bar
       gap: theme.spacing.xl, // 24pt between sections
     },
-    header: {
-      // paddingLeft: theme.spacing.sm,
-      paddingTop: theme.spacing.md,
-    },
+    header: {},
     titleInput: {
       color: colors.primaryText,
       fontSize: theme.typography.Title2.fontSize,
