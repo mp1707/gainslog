@@ -40,8 +40,8 @@ export const RoundButton = React.memo<RoundButtonProps>(
     iconStrokeWidth,
     ...pressableProps
   }) => {
-    const { colors, colorScheme, theme } = useTheme();
-    const styles = createStyles(colors, theme, colorScheme);
+    const { colors, theme } = useTheme();
+    const styles = createStyles(colors);
 
     const scale = useSharedValue(1);
     const brightness = useSharedValue(0);

@@ -260,7 +260,6 @@ const createStyles = (colors: Colors, theme: Theme) =>
     actionButtonColumn: {
       minWidth: 96,
       alignItems: "flex-end",
-      marginRight: theme.spacing.xs,
     },
     actionButtonText: {
       fontWeight: "600",

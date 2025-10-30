@@ -59,5 +59,6 @@ const createStyles = (colors: Colors, theme: Theme) =>
       height: StyleSheet.hairlineWidth,
       backgroundColor: colors.subtleBorder,
       marginLeft: theme.spacing.lg + 24 + theme.spacing.md,
+      marginRight: theme.spacing.lg
     },
   });

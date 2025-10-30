@@ -74,8 +74,6 @@ export default function Edit() {
   // Track component-specific changes (not just title changes)
   const [hasComponentChanges, setHasComponentChanges] = useState(false);
 
-  const navigation = useNavigation();
-
   // Note: per-id modal, cleanup happens on unmount
 
   // Sync when originalLog loads or changes
