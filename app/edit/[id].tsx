@@ -1,7 +1,7 @@
 import { useAppStore } from "@/store/useAppStore";
 import { Colors, Theme, useTheme } from "@/theme";
 import { useLocalSearchParams } from "expo-router";
-import { StyleSheet, View, ActivityIndicator, Pressable } from "react-native";
+import { StyleSheet, View, ActivityIndicator, Pressable, Alert } from "react-native";
 import { ScrollView as RNScrollView } from "react-native-gesture-handler";
 import { Check, X } from "lucide-react-native";
 import { RoundButton } from "@/components/shared/RoundButton";
@@ -66,6 +66,8 @@ export default function Edit() {
   // Change tracking for recalculation
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [changesCount, setChangesCount] = useState(0);
+  // Track component-specific changes (not just title changes)
+  const [hasComponentChanges, setHasComponentChanges] = useState(false);
 
   const navigation = useNavigation();
 
@@ -96,6 +98,43 @@ export default function Edit() {
   const titleChanged = tempTitle.trim() !== (originalLog?.title || "").trim();
 
   const handleDone = () => {
+    // Check if component changes were made without recalculation
+    if (hasComponentChanges && !hasReestimated) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      Alert.alert(
+        "Unsaved Changes to Ingredients",
+        "You've modified ingredients without recalculating macros. The nutrition values may be inaccurate.",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Save Anyway",
+            style: "default",
+            onPress: () => {
+              saveFoodLog();
+            },
+          },
+          {
+            text: "Recalculate Macros",
+            style: "default",
+            onPress: async () => {
+              await handleReestimate();
+              // After successful recalculation, save automatically
+              saveFoodLog();
+            },
+          },
+        ]
+      );
+      return;
+    }
+
+    // No component changes or already recalculated - save directly
+    saveFoodLog();
+  };
+
+  const saveFoodLog = () => {
     if (id && editedLog) {
       // Persist all updated values to the store
       updateFoodLog(id, {
@@ -131,6 +170,7 @@ export default function Edit() {
     setIsDirty(true);
     setHasUnsavedChanges(true);
     setChangesCount((prev) => prev + 1);
+    setHasComponentChanges(true);
   };
 
   const handleOpenEditor = (index: number, component: FoodComponent) => {
@@ -169,6 +209,7 @@ export default function Edit() {
     setIsDirty(true);
     setHasUnsavedChanges(true);
     setChangesCount((prev) => prev + 1);
+    setHasComponentChanges(true);
   };
 
   const handleCancelEdit = () => {
@@ -203,6 +244,7 @@ export default function Edit() {
       // Reset change tracking after successful recalculation
       setHasUnsavedChanges(false);
       setChangesCount(0);
+      setHasComponentChanges(false); // Clear component changes flag
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setIsRefined(true);
@@ -254,6 +296,7 @@ export default function Edit() {
     setIsDirty(true);
     setHasUnsavedChanges(true);
     setChangesCount((prev) => prev + 1);
+    setHasComponentChanges(true);
   };
 
   // Dynamically disable modal swipe gesture when bottom sheet is open

@@ -25,6 +25,8 @@ interface SwipeToFunctionsProps {
   leftBackgroundColor?: string;
   onTap?: () => void; // Navigation handler for tap gestures
   borderRadius?: number;
+  onSwipeStart?: () => void;
+  onSwipeEnd?: () => void;
 }
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -46,6 +48,8 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
   leftBackgroundColor,
   onTap,
   borderRadius = theme.components.cards.cornerRadius,
+  onSwipeStart,
+  onSwipeEnd,
 }) => {
   // Screen focus awareness to prevent tap-through when regaining focus
   const isFocused = useIsFocused();
@@ -253,6 +257,9 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
             gestureDirection.value = "horizontal";
             runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
             releasePressFeedback();
+            if (onSwipeStart) {
+              runOnJS(onSwipeStart)();
+            }
           }
         }
 
@@ -447,13 +454,20 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
         // Reset press state if still active
         releasePressFeedback();
 
+        if (onSwipeEnd) {
+          runOnJS(onSwipeEnd)();
+        }
+
         gestureDirection.value = "unknown";
       })
       .onTouchesCancelled(() => {
         releasePressFeedback();
+        if (onSwipeEnd) {
+          runOnJS(onSwipeEnd)();
+        }
         gestureDirection.value = "unknown";
       });
-  }, [onDelete, onLeftFunction, onTap]);
+  }, [onDelete, onLeftFunction, onTap, onSwipeStart, onSwipeEnd]);
 
   const containerStyle = useAnimatedStyle(() => {
     return {

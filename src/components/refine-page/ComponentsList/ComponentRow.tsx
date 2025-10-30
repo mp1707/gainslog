@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { View, Pressable } from "react-native";
 import { Lightbulb } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
@@ -42,8 +42,32 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
   const canExpand = hasRecommendation && !!onToggleExpansion;
   const showExpansion = hasRecommendation && isExpanded;
 
+  const ignorePressRef = useRef(false);
+  const resetIgnoreTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+
+  useEffect(() => {
+    return () => {
+      if (resetIgnoreTimeoutRef.current) {
+        clearTimeout(resetIgnoreTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleTap = useCallback(
-    () => onTap(index, component),
+    () => {
+      if (ignorePressRef.current) {
+        ignorePressRef.current = false;
+        if (resetIgnoreTimeoutRef.current) {
+          clearTimeout(resetIgnoreTimeoutRef.current);
+          resetIgnoreTimeoutRef.current = null;
+        }
+        return;
+      }
+
+      onTap(index, component);
+    },
     [onTap, index, component]
   );
 
@@ -59,9 +83,32 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
     [onAcceptRecommendation, index, component]
   );
 
+  const handleSwipeStart = useCallback(() => {
+    ignorePressRef.current = true;
+    if (resetIgnoreTimeoutRef.current) {
+      clearTimeout(resetIgnoreTimeoutRef.current);
+      resetIgnoreTimeoutRef.current = null;
+    }
+  }, []);
+
+  const handleSwipeEnd = useCallback(() => {
+    if (resetIgnoreTimeoutRef.current) {
+      clearTimeout(resetIgnoreTimeoutRef.current);
+    }
+
+    resetIgnoreTimeoutRef.current = setTimeout(() => {
+      ignorePressRef.current = false;
+      resetIgnoreTimeoutRef.current = null;
+    }, 220);
+  }, []);
+
   return (
     <Animated.View layout={easeLayout}>
-      <SwipeToFunctions onDelete={showExpansion ? undefined : handleDelete}>
+      <SwipeToFunctions
+        onDelete={showExpansion ? undefined : handleDelete}
+        onSwipeStart={handleSwipeStart}
+        onSwipeEnd={handleSwipeEnd}
+      >
         <View style={styles.solidBackgroundForSwipe}>
           <View
             style={{
