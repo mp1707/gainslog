@@ -418,15 +418,6 @@ export default function Edit() {
         )}
       </RNScrollView>
 
-      {/* Persistent Stale Footnote - Always visible above CTA when stale */}
-      {isPro && hasUnsavedChanges && !isLoading && !isVerifyingSubscription && (
-        <View style={styles.staleFootnoteContainer}>
-          <AppText role="Caption" style={styles.staleFootnote}>
-            Values reflect previous amounts.
-          </AppText>
-        </View>
-      )}
-
       {/* Sticky Recalculate Bar */}
       <StickyRecalculateBar
         visible={
@@ -509,16 +500,5 @@ const createStyles = (colors: Colors, theme: Theme) =>
       alignItems: "center",
       justifyContent: "center",
       paddingVertical: theme.spacing.xl,
-    },
-    staleFootnoteContainer: {
-      position: "absolute",
-      bottom: theme.spacing.xxl + theme.spacing.lg + theme.spacing.md, // Above CTA (56 height + 16 spacing + 16)
-      left: theme.spacing.pageMargins.horizontal,
-      right: theme.spacing.pageMargins.horizontal,
-    },
-    staleFootnote: {
-      letterSpacing: 0.4,
-      color: colors.secondaryText,
-      textAlign: "center",
     },
   });

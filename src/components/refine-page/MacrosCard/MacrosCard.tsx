@@ -301,7 +301,11 @@ const MacroRowComponent = ({
         <AppText>{item.label}</AppText>
       </Animated.View>
       <Animated.View style={[styles.macroValueContainer, valueAnimatedStyle]}>
-        <AnimatedNumber value={item.value} suffix={item.suffix} styles={styles} />
+        <AnimatedNumber
+          value={item.value}
+          suffix={item.suffix}
+          styles={styles}
+        />
       </Animated.View>
     </View>
   );
@@ -355,15 +359,9 @@ const AnimatedMacrosContent: React.FC<AnimatedMacrosContentProps> = React.memo(
       const timers: Array<ReturnType<typeof setTimeout>> = [];
 
       cals.animateTo(calories);
-      timers.push(
-        setTimeout(() => prot.animateTo(protein), 50)
-      );
-      timers.push(
-        setTimeout(() => crb.animateTo(carbs), 100)
-      );
-      timers.push(
-        setTimeout(() => ft.animateTo(fat), 150)
-      );
+      timers.push(setTimeout(() => prot.animateTo(protein), 50));
+      timers.push(setTimeout(() => crb.animateTo(carbs), 100));
+      timers.push(setTimeout(() => ft.animateTo(fat), 150));
 
       return () => {
         timers.forEach((timer) => clearTimeout(timer));
@@ -585,11 +583,28 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
         </AppText>
         {hasUnsavedChanges && !processing && (
           <View style={styles.staleChip}>
-            <Clock size={14} color={colors.semanticBadges?.calories?.text || colors.secondaryText} />
+            <Clock
+              size={14}
+              color={
+                colors.semanticBadges?.calories?.text || colors.secondaryText
+              }
+            />
             <AppText style={styles.staleChipText}>Needs update</AppText>
           </View>
         )}
       </View>
+
+      {hasUnsavedChanges && (
+        <AppText
+          role="Caption"
+          style={[
+            styles.sectionHeader,
+            { color: colors.secondaryText, letterSpacing: 0.4, marginBottom: theme.spacing.md },
+          ]}
+        >
+          Values reflect previous amounts.
+        </AppText>
+      )}
 
       <View style={styles.listContainer}>
         {useAnimatedVariant ? (

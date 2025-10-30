@@ -87,7 +87,7 @@ export const StickyRecalculateBar: React.FC<StickyRecalculateBarProps> = ({
   };
 
   const changeWord = changesCount === 1 ? "change" : "changes";
-  const label = `Recalculate (${changesCount} ${changeWord})`;
+  const label = `Recalculate · ${changesCount} ${changeWord}`;
 
   if (!visible) return null;
 
