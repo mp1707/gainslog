@@ -36,6 +36,8 @@ export default function Edit() {
   const updateFoodLog = useAppStore((s) => s.updateFoodLog);
   const isPro = useAppStore((s) => s.isPro);
   const isVerifyingSubscription = useAppStore((s) => s.isVerifyingSubscription);
+  const pendingComponentEdit = useAppStore((s) => s.pendingComponentEdit);
+  const clearPendingComponentEdit = useAppStore((s) => s.clearPendingComponentEdit);
   const router = useSafeRouter();
   const insets = useSafeAreaInsets();
 
@@ -261,27 +263,18 @@ export default function Edit() {
     setHasComponentChanges(true);
   };
 
-  // Handle component saved/deleted from editor modal
-  const routeParams = useLocalSearchParams<{
-    savedComponent?: string;
-    componentIndex?: string;
-    deleteComponent?: string;
-  }>();
-
+  // Handle component saved/deleted from editor modal via store
   useEffect(() => {
-    if (routeParams?.savedComponent) {
-      try {
-        const component: FoodComponent = JSON.parse(routeParams.savedComponent);
-        const index = routeParams.componentIndex;
-
+    if (pendingComponentEdit && pendingComponentEdit.logId === id) {
+      if (pendingComponentEdit.action === "save") {
         setEditedLog((prev) => {
           if (!prev) return prev;
 
           const comps = [...(prev.foodComponents || [])];
-          if (index === "new") {
-            comps.push(component);
-          } else if (index) {
-            comps[parseInt(index, 10)] = component;
+          if (pendingComponentEdit.index === "new") {
+            comps.push(pendingComponentEdit.component);
+          } else {
+            comps[pendingComponentEdit.index] = pendingComponentEdit.component;
           }
 
           return { ...prev, foodComponents: comps };
@@ -291,34 +284,16 @@ export default function Edit() {
         setHasUnsavedChanges(true);
         setChangesCount((prev) => prev + 1);
         setHasComponentChanges(true);
-
-        // Clear the params
-        router.setParams({
-          savedComponent: undefined,
-          componentIndex: undefined,
-        } as any);
-      } catch (e) {
-        console.error("Failed to parse saved component:", e);
+      } else if (pendingComponentEdit.action === "delete") {
+        if (typeof pendingComponentEdit.index === "number") {
+          handleDeleteComponent(pendingComponentEdit.index);
+        }
       }
-    }
 
-    if (routeParams?.deleteComponent === "true") {
-      const index = parseInt(routeParams.componentIndex || "", 10);
-      if (!isNaN(index)) {
-        handleDeleteComponent(index);
-
-        // Clear the params
-        router.setParams({
-          deleteComponent: undefined,
-          componentIndex: undefined,
-        } as any);
-      }
+      // Clear immediately after processing
+      clearPendingComponentEdit();
     }
-  }, [
-    routeParams.savedComponent,
-    routeParams.deleteComponent,
-    routeParams.componentIndex,
-  ]);
+  }, [pendingComponentEdit, id, clearPendingComponentEdit]);
 
   const doneDisabled =
     isLoading ||

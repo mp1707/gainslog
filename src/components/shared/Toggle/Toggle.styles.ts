@@ -12,11 +12,13 @@ export const createStyles = (colors: Colors, theme: Theme, colorScheme: ColorSch
   return StyleSheet.create({
     toggleContainer: {
       flexDirection: "row",
-      borderRadius: theme.components.cards.cornerRadius,
+      borderRadius: theme.components.buttons.cornerRadius,
       overflow: "hidden",
       position: "relative",
       minHeight: scaledHeight,
-      backgroundColor: colorScheme === "light" ? colors.tertiaryBackground : colors.secondaryBackground,
+      backgroundColor: colors.subtleBackground,
+      borderWidth: 1,
+      borderColor: colors.subtleBorder,
       padding: containerPadding,
     },
 
@@ -25,8 +27,8 @@ export const createStyles = (colors: Colors, theme: Theme, colorScheme: ColorSch
         top: containerPadding,
         left: containerPadding,
         height: sliderHeight,
-        backgroundColor: colors.primaryBackground,
-        borderRadius: theme.components.cards.cornerRadius,
+        backgroundColor: colors.accent,
+        borderRadius: theme.components.buttons.cornerRadius - 2 ,
         zIndex: 1,
         shadowColor: "rgba(0, 0, 0, 0.12)",
         shadowOffset: { width: 0, height: 1 },
@@ -57,7 +59,8 @@ export const createStyles = (colors: Colors, theme: Theme, colorScheme: ColorSch
         fontSize: 14,
         fontFamily: theme.typography.Body.fontFamily,
         fontWeight: "600",
-        color: colors.primaryText,
+        // Use white on light theme, black on dark theme for contrast on bright accent
+        color: colorScheme === "light" ? "#FFFFFF" : "#000000",
       },
     });
 };

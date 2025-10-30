@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FoodLog, Favorite, DailyTargets, UserSettings } from "../types/models";
+import { FoodLog, Favorite, DailyTargets, UserSettings, FoodComponent } from "../types/models";
 import { getTodayKey } from "@/utils/dateHelpers";
 import * as FileSystem from "expo-file-system"; // --- 1. IMPORT EXPO-FILE-SYSTEM ---
 
@@ -31,6 +31,16 @@ export type AppState = {
   // User preferences
   lastUsedUnit?: "g" | "ml" | "piece";
   setLastUsedUnit: (unit: "g" | "ml" | "piece") => void;
+
+  // Temporary modal communication (not persisted)
+  pendingComponentEdit?: {
+    logId: string;
+    component: FoodComponent;
+    index: number | "new";
+    action: "save" | "delete";
+  };
+  setPendingComponentEdit: (data: AppState["pendingComponentEdit"]) => void;
+  clearPendingComponentEdit: () => void;
 
   // Logs
   addFoodLog: (log: FoodLog) => void;
@@ -201,10 +211,34 @@ export const useAppStore = create<AppState>()(
         set((state) => {
           state.lastUsedUnit = unit;
         }),
+
+      // Temporary modal communication (not persisted)
+      pendingComponentEdit: undefined,
+      setPendingComponentEdit: (data) =>
+        set((state) => {
+          state.pendingComponentEdit = data;
+        }),
+      clearPendingComponentEdit: () =>
+        set((state) => {
+          state.pendingComponentEdit = undefined;
+        }),
     })),
     {
       name: "food-app",
       storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({
+        foodLogs: state.foodLogs,
+        favorites: state.favorites,
+        dailyTargets: state.dailyTargets,
+        userSettings: state.userSettings,
+        isPro: state.isPro,
+        isProCanceled: state.isProCanceled,
+        proExpirationDate: state.proExpirationDate,
+        selectedDate: state.selectedDate,
+        selectedMonth: state.selectedMonth,
+        lastUsedUnit: state.lastUsedUnit,
+        // Exclude: pendingComponentEdit, isVerifyingSubscription
+      }),
     }
   )
 );

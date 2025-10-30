@@ -43,8 +43,8 @@ export function Toggle<T>({
   useEffect(() => {
     const newIndex = options.findIndex((o) => o.value === value);
     slideAnimation.value = withTiming(newIndex, {
-      duration: 300,
-      easing: Easing.out(Easing.quad),
+      duration: 150,
+      easing: Easing.inOut(Easing.quad),
     });
   }, [value, options]);
 
@@ -52,7 +52,7 @@ export function Toggle<T>({
     if (containerWidth === 0) return {};
 
     const containerPadding = 2; // must match styles
-    const innerWidth = containerWidth - containerPadding * 2;
+    const innerWidth = containerWidth - containerPadding * 3;
     const segmentWidth = innerWidth / options.length;
 
     return {
@@ -66,11 +66,12 @@ export function Toggle<T>({
       key={String(option.value)}
       onPress={() => {
         if (!isSelected) {
-          Haptics.selectionAsync();
+          Haptics.impactAsync(theme.interactions.haptics.light);
           onChange(option.value);
         }
       }}
       style={styles.toggleButton}
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       accessibilityRole="button"
       accessibilityLabel={`Select ${option.label}`}
       accessibilityState={{ selected: isSelected }}

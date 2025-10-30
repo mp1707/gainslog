@@ -124,7 +124,7 @@ export const RoundButton = React.memo<RoundButtonProps>(
             damping: 60,
           });
 
-           brightness.value = withTiming(0);
+          brightness.value = withTiming(0);
         }
         onPressOut?.(event);
       },
@@ -187,8 +187,7 @@ export const RoundButton = React.memo<RoundButtonProps>(
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  backgroundColor:
-                    variant === "primary" ? "#fff" : "#fff",
+                  backgroundColor: variant === "primary" ? "#fff" : "#fff",
                   borderRadius: containerSize / 2,
                 },
                 brightnessStyle,
@@ -199,7 +198,7 @@ export const RoundButton = React.memo<RoundButtonProps>(
               size={adjustedIconSize}
               color={getIconColor()}
               strokeWidth={iconStrokeWidth ?? (variant === "primary" ? 2 : 1.5)}
-              fill={variant === "red" ? "white" : "transparent"}
+              fill={"transparent"}
             />
           </Animated.View>
         )}

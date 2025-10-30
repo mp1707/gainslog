@@ -40,10 +40,6 @@ function ThemedStack() {
         options={{
           presentation: "modal",
           headerShown: false,
-          contentStyle: {
-            borderRadius: "10%",
-            overflow: "hidden",
-          },
           gestureEnabled: true,
         }}
       />
@@ -52,16 +48,13 @@ function ThemedStack() {
         options={{
           presentation: "modal",
           headerShown: false,
-          contentStyle: {
-            borderRadius: "10%",
-            overflow: "hidden",
-          },
           gestureEnabled: true,
         }}
       />
       <Stack.Screen
         name="edit/[id]"
         options={{
+          headerShown: false,
           gestureEnabled: true,
         }}
       />
@@ -70,10 +63,6 @@ function ThemedStack() {
         options={{
           presentation: "modal",
           headerShown: false,
-          contentStyle: {
-            borderRadius: "10%",
-            overflow: "hidden",
-          },
           gestureEnabled: true,
         }}
       />
@@ -82,10 +71,6 @@ function ThemedStack() {
         options={{
           presentation: "modal",
           headerShown: false,
-          contentStyle: {
-            borderRadius: "10%",
-            overflow: "hidden",
-          },
           gestureEnabled: true,
         }}
       />
@@ -94,10 +79,6 @@ function ThemedStack() {
         options={{
           presentation: "modal",
           headerShown: false,
-          contentStyle: {
-            borderRadius: "10%",
-            overflow: "hidden",
-          },
           gestureEnabled: true,
         }}
       />
@@ -106,10 +87,6 @@ function ThemedStack() {
         options={{
           presentation: "modal",
           headerShown: false,
-          contentStyle: {
-            borderRadius: "10%",
-            overflow: "hidden",
-          },
           gestureEnabled: true,
         }}
       />
@@ -118,10 +95,6 @@ function ThemedStack() {
         options={{
           presentation: "modal",
           headerShown: false,
-          contentStyle: {
-            borderRadius: "10%",
-            overflow: "hidden",
-          },
           gestureEnabled: true,
         }}
       />
@@ -130,10 +103,6 @@ function ThemedStack() {
         options={{
           presentation: "modal",
           headerShown: false,
-          contentStyle: {
-            borderRadius: "10%",
-            overflow: "hidden",
-          },
           gestureEnabled: true,
         }}
       />
@@ -142,10 +111,6 @@ function ThemedStack() {
         options={{
           presentation: "modal",
           headerShown: false,
-          contentStyle: {
-            borderRadius: "10%",
-            overflow: "hidden",
-          },
           gestureEnabled: true,
         }}
       />
@@ -153,7 +118,8 @@ function ThemedStack() {
   );
 }
 
-export default function RootLayout() {
+function RootLayoutContent() {
+  const { colors } = useTheme();
   const cleanupIncompleteEstimations = useAppStore(
     (state) => state.cleanupIncompleteEstimations
   );
@@ -165,15 +131,21 @@ export default function RootLayout() {
   }, [cleanupIncompleteEstimations]);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.primaryBackground }}>
       <KeyboardProvider>
-        <ThemeProvider>
-          <NavigationTransitionProvider>
-            <ThemedStack />
-          </NavigationTransitionProvider>
-          <HudNotification />
-        </ThemeProvider>
+        <NavigationTransitionProvider>
+          <ThemedStack />
+        </NavigationTransitionProvider>
+        <HudNotification />
       </KeyboardProvider>
     </GestureHandlerRootView>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <ThemeProvider>
+      <RootLayoutContent />
+    </ThemeProvider>
   );
 }

@@ -1,13 +1,8 @@
 import { useAppStore } from "@/store/useAppStore";
 import { Colors, Theme, useTheme } from "@/theme";
 import { useLocalSearchParams } from "expo-router";
-import {
-  StyleSheet,
-  View,
-  Alert,
-  ScrollView,
-} from "react-native";
-import { X, Check, Trash2 } from "lucide-react-native";
+import { StyleSheet, View, Alert } from "react-native";
+import { Trash2, X, Check } from "lucide-react-native";
 import { RoundButton } from "@/components/shared/RoundButton";
 import type { FoodComponent, FoodUnit } from "@/types/models";
 import * as Haptics from "expo-haptics";
@@ -16,6 +11,8 @@ import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { AppText } from "@/components/index";
 import { TextInput } from "@/components/shared/TextInput";
 import { Toggle, ToggleOption } from "@/components/shared/Toggle";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 export default function EditComponent() {
   const {
@@ -134,9 +131,12 @@ export default function EditComponent() {
 
   // Handle Save
   const handleSave = useCallback(() => {
-    if (!isValid) return;
+    if (!isValid) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      return;
+    }
 
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    Haptics.impactAsync(theme.interactions.haptics.light);
 
     const component: FoodComponent = {
       name: name.trim(),
@@ -149,17 +149,18 @@ export default function EditComponent() {
       useAppStore.getState().setLastUsedUnit(unit);
     }
 
-    // Pass data back via router params
-    router.back();
-    // In a real implementation, you'd use a callback or context to pass data back
-    // For now, we'll use router state (handled in the parent screen)
+    // Pass data back via store, then dismiss modal
     if (logId) {
-      router.setParams({
-        savedComponent: JSON.stringify(component),
-        componentIndex: mode === "edit" ? indexParam : "new",
-      } as any);
+      useAppStore.getState().setPendingComponentEdit({
+        logId,
+        component,
+        index: mode === "edit" && indexParam ? parseInt(indexParam, 10) : "new",
+        action: "save",
+      });
     }
-  }, [isValid, name, amount, unit, mode, router, logId, indexParam]);
+
+    router.back();
+  }, [isValid, name, amount, unit, mode, router, logId, indexParam, theme]);
 
   // Handle Cancel
   const handleCancel = useCallback(() => {
@@ -203,14 +204,16 @@ export default function EditComponent() {
           style: "destructive",
           onPress: () => {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            // Pass delete signal back
-            router.back();
+            // Pass delete signal back via store, then dismiss modal
             if (logId && indexParam) {
-              router.setParams({
-                deleteComponent: "true",
-                componentIndex: indexParam,
-              } as any);
+              useAppStore.getState().setPendingComponentEdit({
+                logId,
+                component: { name: "", amount: 0, unit: "g" }, // Dummy component for delete
+                index: parseInt(indexParam, 10),
+                action: "delete",
+              });
             }
+            router.back();
           },
         },
       ]
@@ -219,133 +222,99 @@ export default function EditComponent() {
 
   return (
     <View style={styles.container}>
+      {/* Header with title and buttons */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <RoundButton
-            Icon={X}
-            onPress={handleCancel}
-            variant="tertiary"
-            accessibilityLabel="Cancel"
-          />
-        </View>
-        <AppText role="Headline" style={styles.headerTitle}>
+        <RoundButton
+          Icon={mode === "edit" ? Trash2 : X}
+          onPress={mode === "edit" ? handleDelete : handleCancel}
+          variant={mode === "edit" ? "red" : "tertiary"}
+          accessibilityLabel={mode === "edit" ? "Delete ingredient" : "Cancel"}
+        />
+        <AppText role="Title2" style={styles.modalTitle}>
           {mode === "create" ? "New Ingredient" : "Ingredient"}
         </AppText>
-        <View style={styles.headerRight}>
-          <RoundButton
-            Icon={Check}
-            onPress={handleSave}
-            variant={isValid ? "primary" : "tertiary"}
-            disabled={!isValid}
-            accessibilityLabel="Save"
-          />
-        </View>
+        <RoundButton
+          Icon={Check}
+          onPress={handleSave}
+          variant={isValid ? "primary" : "tertiary"}
+          disabled={!isValid}
+          accessibilityLabel="Save"
+        />
       </View>
 
-      <ScrollView
+      <KeyboardAwareScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
         showsVerticalScrollIndicator={false}
+        bottomOffset={theme.spacing.lg}
       >
-        {/* Food Section */}
-        <View style={styles.section}>
-          <AppText role="Title2" style={styles.sectionTitle}>
-            Food
+
+        {/* Name Field */}
+        <View style={styles.fieldGroup}>
+          <AppText role="Headline" style={styles.fieldLabel}>
+            Name
           </AppText>
-          <View style={styles.fieldContainer}>
-            <AppText role="Headline" style={styles.fieldLabel}>
-              Name
-            </AppText>
-            <TextInput
-              ref={nameInputRef}
-              value={name}
-              onChangeText={(text) => {
-                setName(text);
-              }}
-              placeholder="Enter food name"
-              placeholderTextColor={colors.secondaryText}
-              style={styles.input}
-              autoCapitalize="words"
-              returnKeyType="next"
-              onSubmitEditing={() => amountInputRef.current?.focus()}
-              fontSize="Body"
-            />
-            {nameError && (
-              <AppText role="Caption" style={styles.errorText}>
-                {nameError}
-              </AppText>
-            )}
-          </View>
+          <TextInput
+            ref={nameInputRef}
+            value={name}
+            onChangeText={(text) => {
+              setName(text);
+            }}
+            placeholder="Enter food name"
+            placeholderTextColor={colors.secondaryText}
+            style={styles.input}
+            autoCapitalize="words"
+            returnKeyType="next"
+            onSubmitEditing={() => amountInputRef.current?.focus()}
+            fontSize="Body"
+          />
         </View>
 
-        {/* Amount Section */}
-        <View style={styles.section}>
-          <AppText role="Title2" style={styles.sectionTitle}>
-            Amount
+        {/* Quantity Field */}
+        <View style={styles.fieldGroup}>
+          <AppText role="Headline" style={styles.fieldLabel}>
+            Quantity
           </AppText>
-          <View style={styles.fieldContainer}>
-            <AppText role="Headline" style={styles.fieldLabel}>
-              Quantity
-            </AppText>
-            <TextInput
-              ref={amountInputRef}
-              value={amount}
-              onChangeText={(text) => {
-                // Allow numbers and single decimal point
-                const sanitized = text.replace(/[^0-9.]/g, "");
-                // Prevent multiple decimals
-                const parts = sanitized.split(".");
-                if (parts.length > 2) {
-                  setAmount(parts[0] + "." + parts.slice(1).join(""));
-                } else {
-                  setAmount(sanitized);
-                }
-              }}
-              placeholder="0"
-              placeholderTextColor={colors.secondaryText}
-              style={styles.input}
-              keyboardType="decimal-pad"
-              onSubmitEditing={() => {
-                if (isValid) {
-                  handleSave();
-                }
-              }}
-              fontSize="Body"
-              accessibilityLabel={`Amount, text field. In ${unit === "g" ? "grams" : unit === "ml" ? "milliliters" : "pieces"}`}
-            />
-            {amountError && (
-              <AppText role="Caption" style={styles.errorText}>
-                {amountError}
-              </AppText>
-            )}
-          </View>
-
-          <View style={styles.fieldContainer}>
-            <AppText role="Headline" style={styles.fieldLabel}>
-              Unit
-            </AppText>
-            <Toggle
-              value={unit}
-              options={unitOptions}
-              onChange={handleUnitChange}
-              accessibilityLabel="Select unit"
-            />
-          </View>
+          <TextInput
+            ref={amountInputRef}
+            value={amount}
+            onChangeText={(text) => {
+              // Allow numbers and single decimal point
+              const sanitized = text.replace(/[^0-9.]/g, "");
+              // Prevent multiple decimals
+              const parts = sanitized.split(".");
+              if (parts.length > 2) {
+                setAmount(parts[0] + "." + parts.slice(1).join(""));
+              } else {
+                setAmount(sanitized);
+              }
+            }}
+            placeholder="0"
+            placeholderTextColor={colors.secondaryText}
+            style={styles.input}
+            keyboardType="decimal-pad"
+            fontSize="Body"
+            accessibilityLabel={`Quantity, text field. In ${
+              unit === "g" ? "grams" : unit === "ml" ? "milliliters" : "pieces"
+            }`}
+          />
         </View>
 
-        {/* Delete Button (edit mode only) */}
-        {mode === "edit" && (
-          <View style={styles.section}>
-            <RoundButton
-              Icon={Trash2}
-              onPress={handleDelete}
-              variant="red"
-              accessibilityLabel="Delete ingredient"
-            />
-          </View>
-        )}
-      </ScrollView>
+        {/* Unit Field */}
+        <View style={styles.fieldGroup}>
+          <AppText role="Headline" style={styles.fieldLabel}>
+            Unit
+          </AppText>
+          <Toggle
+            value={unit}
+            options={unitOptions}
+            onChange={handleUnitChange}
+            accessibilityLabel="Select unit"
+          />
+        </View>
+      </KeyboardAwareScrollView>
     </View>
   );
 }
@@ -361,53 +330,37 @@ const createStyles = (colors: Colors, theme: Theme) =>
       alignItems: "center",
       justifyContent: "space-between",
       paddingHorizontal: theme.spacing.md,
-      paddingTop: theme.spacing.md,
-      paddingBottom: theme.spacing.sm,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: colors.border,
-    },
-    headerLeft: {
-      width: 44,
-    },
-    headerTitle: {
-      flex: 1,
-      textAlign: "center",
-    },
-    headerRight: {
-      width: 44,
+      paddingVertical: theme.spacing.md,
+      gap: theme.spacing.md,
     },
     scrollView: {
       flex: 1,
     },
     contentContainer: {
       paddingHorizontal: theme.spacing.pageMargins.horizontal,
-      paddingTop: theme.spacing.lg,
-      paddingBottom: theme.spacing.xxl,
-      gap: theme.spacing.xl,
+      paddingTop: theme.spacing.md,
+      paddingBottom: theme.spacing.lg + theme.spacing.xl, // 24 + 32 = 56pt safe area spacer
+      gap: theme.spacing.lg, // Tighter spacing: 24pt instead of 32pt
     },
-    section: {
-      gap: theme.spacing.md,
+    modalTitle: {
+      flex: 1,
+      textAlign: "center",
     },
-    sectionTitle: {
-      marginBottom: theme.spacing.xs,
-    },
-    fieldContainer: {
-      gap: theme.spacing.sm,
+    fieldGroup: {
+      gap: theme.spacing.sm, // 8pt between label and input
     },
     fieldLabel: {
       color: colors.secondaryText,
+      marginBottom: theme.spacing.xs, // 4pt below label
     },
     input: {
-      backgroundColor: colors.tertiaryBackground,
-      borderRadius: theme.components.cards.cornerRadius,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.md,
+      backgroundColor: colors.primaryBackground,
+      borderRadius: theme.components.cards.cornerRadius, // 18pt
+      paddingHorizontal: theme.spacing.lg, // 24pt horizontal padding
+      paddingVertical: theme.spacing.md + theme.spacing.xs, // ~20pt vertical (48-52pt total height)
       color: colors.primaryText,
       borderWidth: 1,
       borderColor: colors.border,
-    },
-    errorText: {
-      color: colors.error,
-      marginTop: -theme.spacing.xs,
+      minHeight: 50, // Ensure 48-52pt height
     },
   });

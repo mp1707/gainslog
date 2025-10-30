@@ -16,13 +16,6 @@ export default function SettingsLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: {
-          backgroundColor: colors.primaryBackground,
-        },
-        headerTintColor: colors.primaryText,
-        headerTitleStyle: {
-          color: colors.primaryText,
-        },
         headerShadowVisible: false,
         animation: "slide_from_right",
         headerRight: () => <CancelButton onPress={handleCancel} />,
