@@ -63,7 +63,7 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
   return (
     <Animated.View layout={easeLayout} style={styles.container}>
       <AppText role="Caption" style={styles.sectionHeader}>
-        FOOD
+         INGREDIENTS
       </AppText>
 
       <Animated.View layout={easeLayout} style={styles.listContainer}>
@@ -97,7 +97,7 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
           >
             <Plus size={18} color={colors.accent} />
             <AppText style={styles.addLabel} color="accent">
-              Add Food
+              Add Ingredient
             </AppText>
           </TouchableOpacity>
         </Animated.View>

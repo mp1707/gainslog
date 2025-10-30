@@ -12,6 +12,7 @@ import Animated, {
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
+  withDelay,
   withTiming,
   SharedValue,
 } from "react-native-reanimated";
@@ -28,6 +29,7 @@ interface MacrosCardProps {
   carbs?: number | null;
   fat?: number | null;
   processing?: boolean;
+  wasProcessing?: boolean;
   revealKey?: number;
   hasUnsavedChanges?: boolean;
   changesCount?: number;
@@ -150,6 +152,7 @@ interface MacroRowProps {
   };
   index: number;
   processing: boolean;
+  wasProcessing: boolean;
   styles: ReturnType<typeof createStyles>;
   colors: Colors;
   theme: Theme;
@@ -159,6 +162,7 @@ const MacroRowComponent = ({
   item,
   index,
   processing,
+  wasProcessing,
   styles,
   colors,
   theme,
@@ -168,7 +172,7 @@ const MacroRowComponent = ({
     theme.spacing.lg + theme.spacing.xs
   );
 
-  const transition = useSharedValue(processing ? 1 : 0);
+  const transition = useSharedValue(0); // Always start at 0 for proper animations
   const rowWidthValue = useSharedValue(0);
 
   const handleRowLayout = useCallback(
@@ -187,18 +191,33 @@ const MacroRowComponent = ({
   );
 
   useEffect(() => {
-    if (processing) {
-      transition.value = withTiming(1, {
-        duration: 320,
-        easing: ReanimatedEasing.inOut(ReanimatedEasing.cubic),
-      });
-    } else {
-      transition.value = withTiming(0, {
-        duration: 420,
-        easing: ReanimatedEasing.out(ReanimatedEasing.cubic),
-      });
+    if (processing && !wasProcessing) {
+      // Loading STARTED - animate loaders IN (0 → 1)
+      transition.value = withDelay(
+        index * 70, // Stagger each row by 70ms for cascading effect
+        withTiming(1, {
+          duration: 420,
+          easing: ReanimatedEasing.inOut(ReanimatedEasing.cubic),
+        })
+      );
+      return;
     }
-  }, [processing, transition]);
+
+    if (!processing && wasProcessing) {
+      // Loading ENDED - animate loaders OUT (1 → 0)
+      transition.value = withDelay(
+        index * 70, // Stagger each row by 70ms for cascading effect
+        withTiming(0, {
+          duration: 420,
+          easing: ReanimatedEasing.inOut(ReanimatedEasing.cubic),
+        })
+      );
+      return;
+    }
+
+    // Default: instant state without animation
+    transition.value = processing ? 1 : 0;
+  }, [index, processing, transition, wasProcessing]);
 
   const loaderHeight = Math.max(rowHeight, theme.spacing.lg + theme.spacing.xs);
 
@@ -228,41 +247,18 @@ const MacroRowComponent = ({
     const t = transition.value;
     const calculatedWidth = Math.max(rowWidthValue.value * t, 0);
 
-    const loaderOpacity = t > 0.5 ? 1 : t * 2;
-
     return {
-      opacity: loaderOpacity,
       width: calculatedWidth,
+      opacity: t, // Fade in/out with width for extra smoothness
     };
   });
 
-  const labelAnimatedStyle = useAnimatedStyle(() => {
+  const contentAnimatedStyle = useAnimatedStyle(() => {
     "worklet";
     const t = transition.value;
-    const slideDistance = Math.max(
-      theme.spacing.xl,
-      rowWidthValue.value * 0.18
-    );
 
     return {
-      opacity: 1 - t,
-      transform: [{ translateX: t * slideDistance }],
-    };
-  });
-
-  const valueAnimatedStyle = useAnimatedStyle(() => {
-    "worklet";
-    const t = transition.value;
-    const slideDistance = Math.max(
-      theme.spacing.xl,
-      rowWidthValue.value * 0.18
-    );
-
-    const valueOpacity = t < 0.4 ? 1 : Math.max(0, (1 - t) / 0.6);
-
-    return {
-      opacity: valueOpacity,
-      transform: [{ translateX: t * slideDistance * 0.35 }],
+      transform: [{ translateX: t * rowWidthValue.value }],
     };
   });
 
@@ -272,7 +268,7 @@ const MacroRowComponent = ({
         pointerEvents="none"
         style={[styles.macroLoaderLayer, loaderAnimatedStyle]}
       >
-        {processing && rowWidth > 0 ? (
+        {rowWidth > 0 ? (
           <MacroLineLoader
             width={rowWidth}
             height={loaderHeight}
@@ -288,24 +284,26 @@ const MacroRowComponent = ({
       </Animated.View>
       <Animated.View
         style={[
-          styles.macroLabelContainer,
-          labelAnimatedStyle,
           {
-            backgroundColor: colors.secondaryBackground,
-            paddingHorizontal: theme.spacing.xs,
-            borderRadius: theme.spacing.sm,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
           },
+          contentAnimatedStyle,
         ]}
       >
-        <View style={[styles.macroDot, { backgroundColor: item.color }]} />
-        <AppText>{item.label}</AppText>
-      </Animated.View>
-      <Animated.View style={[styles.macroValueContainer, valueAnimatedStyle]}>
-        <AnimatedNumber
-          value={item.value}
-          suffix={item.suffix}
-          styles={styles}
-        />
+        <View style={styles.macroLabelContainer}>
+          <View style={[styles.macroDot, { backgroundColor: item.color }]} />
+          <AppText>{item.label}</AppText>
+        </View>
+        <View style={styles.macroValueContainer}>
+          <AnimatedNumber
+            value={item.value}
+            suffix={item.suffix}
+            styles={styles}
+          />
+        </View>
       </Animated.View>
     </View>
   );
@@ -314,6 +312,7 @@ const MacroRowComponent = ({
 const MacroRow = React.memo(MacroRowComponent, (prev, next) => {
   return (
     prev.processing === next.processing &&
+    prev.wasProcessing === next.wasProcessing &&
     prev.index === next.index &&
     prev.item.key === next.item.key &&
     prev.item.label === next.item.label &&
@@ -332,6 +331,7 @@ interface AnimatedMacrosContentProps {
   carbs: number;
   fat: number;
   processing: boolean;
+  wasProcessing: boolean;
   revealKey?: number;
   styles: ReturnType<typeof createStyles>;
   colors: Colors;
@@ -345,6 +345,7 @@ const AnimatedMacrosContent: React.FC<AnimatedMacrosContentProps> = React.memo(
     carbs,
     fat,
     processing,
+    wasProcessing,
     revealKey,
     styles,
     colors,
@@ -420,6 +421,7 @@ const AnimatedMacrosContent: React.FC<AnimatedMacrosContentProps> = React.memo(
               item={item}
               index={index}
               processing={processing}
+              wasProcessing={wasProcessing}
               styles={styles}
               colors={colors}
               theme={theme}
@@ -472,6 +474,7 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
   carbs,
   fat,
   processing = false,
+  wasProcessing = false,
   revealKey,
   hasUnsavedChanges = false,
 }) => {
@@ -491,6 +494,34 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
   const [isRevealActive, setIsRevealActive] = useState(false);
   const revealKeyRef = useRef(revealKey);
   const revealTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Track when processing completes to prevent premature component switching
+  const [keepAnimatedMounted, setKeepAnimatedMounted] = useState(processing);
+  const processingCompleteTimeRef = useRef<number | null>(null);
+
+  // Animate stale UI (chip + text) slide-up
+  const staleUITransition = useSharedValue(
+    hasUnsavedChanges && !processing ? 1 : 0
+  );
+
+  useEffect(() => {
+    if (processing) {
+      // Reset when processing starts
+      setKeepAnimatedMounted(true);
+      processingCompleteTimeRef.current = null;
+    } else if (processingCompleteTimeRef.current === null && !processing) {
+      // Processing just completed - record the time
+      processingCompleteTimeRef.current = Date.now();
+
+      // Keep animated component mounted for 630ms (210ms last stagger + 420ms animation)
+      const timeout = setTimeout(() => {
+        setKeepAnimatedMounted(false);
+        processingCompleteTimeRef.current = null;
+      }, 630);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [processing]);
 
   useEffect(() => {
     if (revealKeyRef.current === revealKey) {
@@ -529,6 +560,15 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
       }
     };
   }, []);
+
+  // Animate stale UI visibility
+  useEffect(() => {
+    const shouldShow = hasUnsavedChanges && !processing;
+    staleUITransition.value = withTiming(shouldShow ? 1 : 0, {
+      duration: 300,
+      easing: ReanimatedEasing.inOut(ReanimatedEasing.cubic),
+    });
+  }, [hasUnsavedChanges, processing, staleUITransition]);
 
   const staticItems = useMemo<StaticMacroItem[]>(
     () => [
@@ -573,7 +613,17 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
     ]
   );
 
-  const useAnimatedVariant = processing || isRevealActive;
+  const useAnimatedVariant =
+    processing || isRevealActive || keepAnimatedMounted;
+
+  // Animated style for stale UI slide-up
+  const staleUIAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      maxHeight: staleUITransition.value * 80,
+      opacity: staleUITransition.value,
+      overflow: "hidden",
+    };
+  });
 
   return (
     <View style={styles.container}>
@@ -581,7 +631,7 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
         <AppText role="Caption" style={styles.sectionHeader}>
           MACROS
         </AppText>
-        {hasUnsavedChanges && !processing && (
+        <Animated.View style={staleUIAnimatedStyle}>
           <View style={styles.staleChip}>
             <Clock
               size={14}
@@ -591,20 +641,24 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
             />
             <AppText style={styles.staleChipText}>Needs update</AppText>
           </View>
-        )}
+        </Animated.View>
       </View>
 
-      {hasUnsavedChanges && (
+      <Animated.View style={staleUIAnimatedStyle}>
         <AppText
           role="Caption"
           style={[
             styles.sectionHeader,
-            { color: colors.secondaryText, letterSpacing: 0.4, marginBottom: theme.spacing.md },
+            {
+              color: colors.secondaryText,
+              letterSpacing: 0.4,
+              marginBottom: theme.spacing.md,
+            },
           ]}
         >
           Values reflect previous amounts.
         </AppText>
-      )}
+      </Animated.View>
 
       <View style={styles.listContainer}>
         {useAnimatedVariant ? (
@@ -614,6 +668,7 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
             carbs={normalizedValues.carbs}
             fat={normalizedValues.fat}
             processing={processing}
+            wasProcessing={wasProcessing}
             revealKey={revealKey}
             styles={styles}
             colors={colors}

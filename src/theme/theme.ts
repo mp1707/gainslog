@@ -106,7 +106,7 @@ const darkColors = {
 
   // Subtle UI elements
   subtleBackground: "rgba(255, 255, 255, 0.05)",
-  subtleBorder: "rgba(255, 255, 255, 0.12)",
+  subtleBorder: "rgba(255, 255, 255, 0.24)",
   highlightBorder: "hsla(172, 80.70%, 59.40%, 0.75)",
 
   // Main Accent & System Colors

@@ -48,6 +48,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       paddingVertical: theme.spacing.sm,
       position: "relative",
       minHeight: 56, // 7 × 8pt for native feel
+      overflow: "hidden", // Critical for clean clipping during animation
     },
     macroLabelContainer: {
       flexDirection: "row",

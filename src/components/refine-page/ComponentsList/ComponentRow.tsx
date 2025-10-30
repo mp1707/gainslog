@@ -10,6 +10,9 @@ import Animated, {
   FadeIn,
   FadeOut,
   Layout,
+  useSharedValue,
+  withSpring,
+  useAnimatedStyle,
 } from "react-native-reanimated";
 import { useTheme } from "@/theme";
 import { createStyles } from "./ComponentsList.styles";
@@ -54,6 +57,27 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
       }
     };
   }, []);
+
+  const lightbulbScale = useSharedValue(1);
+
+  const lightbulbAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: lightbulbScale.value }],
+  }));
+
+  const handleLightbulbPressIn = useCallback(() => {
+    lightbulbScale.value = withSpring(1.4, {
+      stiffness: 600,
+      damping: 22,
+    });
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }, [lightbulbScale]);
+
+  const handleLightbulbPressOut = useCallback(() => {
+    lightbulbScale.value = withSpring(1, {
+      stiffness: 800,
+      damping: 60,
+    });
+  }, [lightbulbScale]);
 
   const handleTap = useCallback(
     () => {
@@ -144,7 +168,7 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
                     >
                       <View style={styles.leftColumn}>
                         <AppText
-                          role="Headline"
+                          role="Body"
                           numberOfLines={1}
                           ellipsizeMode="tail"
                           style={styles.componentName}
@@ -178,13 +202,18 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
                   {canExpand ? (
                     <AnimatedPressable
                       onPress={handleToggleExpansion}
+                      onPressIn={handleLightbulbPressIn}
+                      onPressOut={handleLightbulbPressOut}
                       hitSlop={22}
-                      style={{
-                        width: 18,
-                        height: 18,
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
+                      style={[
+                        {
+                          width: 18,
+                          height: 18,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        },
+                        lightbulbAnimatedStyle,
+                      ]}
                       accessibilityLabel="View recommendation"
                       accessibilityHint={
                         isExpanded

@@ -52,6 +52,13 @@ export default function Edit() {
   const [isRefined, setIsRefined] = useState(false);
   const [revealKey, setRevealKey] = useState(0);
   const [isDirty, setIsDirty] = useState(false);
+
+  // Track previous loading state for MacrosCard animations
+  const previousLoadingRef = useRef<boolean>(isLoading);
+
+  useEffect(() => {
+    previousLoadingRef.current = isLoading;
+  }, [isLoading]);
   // Snapshot of components at last successful estimation
   const [lastEstimatedComponents, setLastEstimatedComponents] = useState<
     FoodComponent[] | undefined
@@ -373,6 +380,7 @@ export default function Edit() {
                 carbs={editedLog.carbs}
                 fat={editedLog.fat}
                 processing={isLoading}
+                wasProcessing={previousLoadingRef.current}
                 revealKey={revealKey}
                 hasUnsavedChanges={isPro ? hasUnsavedChanges : false}
                 changesCount={changesCount}
