@@ -35,6 +35,22 @@ export default function SettingsLayout() {
           headerLargeTitleShadowVisible: false,
         }}
       />
+      <Stack.Screen
+        name="dark-mode"
+        options={{
+          title: 'Dark mode',
+          headerLargeTitle: isIOS,
+          headerLargeTitleShadowVisible: false,
+        }}
+      />
+      <Stack.Screen
+        name="design"
+        options={{
+          title: 'Design',
+          headerLargeTitle: isIOS,
+          headerLargeTitleShadowVisible: false,
+        }}
+      />
     </Stack>
   );
 }

@@ -1,6 +1,11 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { NativeTabs, Label, Icon, VectorIcon } from 'expo-router/unstable-native-tabs';
-import { useTheme } from '@/theme';
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import {
+  NativeTabs,
+  Label,
+  Icon,
+  VectorIcon,
+} from "expo-router/unstable-native-tabs";
+import { useTheme } from "@/theme";
 
 export default function TabsLayout() {
   const { colors, theme } = useTheme();
@@ -16,7 +21,7 @@ export default function TabsLayout() {
         fontSize: theme.typography.Caption.fontSize,
         fontWeight: theme.typography.Caption.fontWeight,
       }}
-      disableTransparentOnScrollEdge
+      
     >
       <NativeTabs.Trigger name="index">
         <Icon
@@ -28,10 +33,7 @@ export default function TabsLayout() {
               />
             ),
             selected: (
-              <VectorIcon
-                family={MaterialCommunityIcons}
-                name="notebook"
-              />
+              <VectorIcon family={MaterialCommunityIcons} name="notebook" />
             ),
           }}
           selectedColor={colors.accent}
@@ -58,14 +60,9 @@ export default function TabsLayout() {
         <Icon
           src={{
             default: (
-              <VectorIcon
-                family={MaterialCommunityIcons}
-                name="cog-outline"
-              />
+              <VectorIcon family={MaterialCommunityIcons} name="cog-outline" />
             ),
-            selected: (
-              <VectorIcon family={MaterialCommunityIcons} name="cog" />
-            ),
+            selected: <VectorIcon family={MaterialCommunityIcons} name="cog" />,
           }}
           selectedColor={colors.accent}
         />

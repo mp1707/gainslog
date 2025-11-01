@@ -52,7 +52,7 @@ export const createSaveToFavoritesHandler = (
     useHudStore.getState().show({
       type: "success",
       title: "Favorited",
-      subtitle: log.title
+      subtitle: log.title,
     });
   };
 };
@@ -70,22 +70,18 @@ export const createRemoveFromFavoritesHandler = (
     useHudStore.getState().show({
       type: "info",
       title: "Removed",
-      subtitle: log.title
+      subtitle: log.title,
     });
   };
 };
 
-export const createEditHandler = (
-  safeNavigate: (path: string) => void
-) => {
+export const createEditHandler = (safeNavigate: (path: string) => void) => {
   return (log: FoodLog | Favorite) => {
-    safeNavigate(`/edit/${log.id}`);
+    safeNavigate(`edit/${log.id}`);
   };
 };
 
-export const createDeleteHandler = (
-  deleteFoodLog: (id: string) => void
-) => {
+export const createDeleteHandler = (deleteFoodLog: (id: string) => void) => {
   return (log: FoodLog | Favorite) => {
     deleteFoodLog(log.id);
   };
@@ -106,7 +102,7 @@ export const createToggleFavoriteHandler = (
       useHudStore.getState().show({
         type: "info",
         title: "Removed",
-        subtitle: foodLog.title
+        subtitle: foodLog.title,
       });
     } else {
       addFavorite({
@@ -120,7 +116,7 @@ export const createToggleFavoriteHandler = (
       useHudStore.getState().show({
         type: "success",
         title: "Favorited",
-        subtitle: foodLog.title
+        subtitle: foodLog.title,
       });
     }
   };

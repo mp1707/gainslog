@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView } from "react-native";
 import Constants from "expo-constants";
 
 import { AppText } from "@/components";
-import { useTheme, Colors, Theme } from "@/theme";
+import { useTheme, Colors, Theme, ColorScheme } from "@/theme";
 import { ProSection } from "./components/ProSection";
 import { AppearanceSection } from "./components/AppearanceSection";
 import { GoalsSection } from "./components/GoalsSection";
@@ -12,8 +12,11 @@ import { AboutSection } from "./components/AboutSection";
 import { useAppStore } from "@/store/useAppStore";
 
 export default function SettingsScreen() {
-  const { colors, theme } = useTheme();
-  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const { colors, theme, colorScheme } = useTheme();
+  const styles = useMemo(
+    () => createStyles(colors, theme, colorScheme),
+    [colors, theme, colorScheme]
+  );
   const { isPro } = useAppStore();
 
   const version = Constants.expoConfig?.version ?? "1.0.0";
@@ -50,11 +53,14 @@ export default function SettingsScreen() {
   );
 }
 
-const createStyles = (colors: Colors, theme: Theme) =>
+const createStyles = (colors: Colors, theme: Theme, colorScheme: ColorScheme) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.primaryBackground,
+      backgroundColor:
+        colorScheme === "dark"
+          ? colors.primaryBackground
+          : colors.tertiaryBackground,
     },
     scrollContent: {
       paddingTop: theme.spacing.md,

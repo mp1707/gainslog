@@ -50,13 +50,6 @@ function ThemedStack() {
         }}
       />
       <Stack.Screen
-        name="edit/[id]"
-        options={{
-          headerShown: false,
-          gestureEnabled: true,
-        }}
-      />
-      <Stack.Screen
         name="editComponent"
         options={{
           presentation: "modal",
@@ -129,7 +122,9 @@ function RootLayoutContent() {
   }, [cleanupIncompleteEstimations]);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.primaryBackground }}>
+    <GestureHandlerRootView
+      style={{ flex: 1, backgroundColor: colors.primaryBackground }}
+    >
       <KeyboardProvider>
         <NavigationTransitionProvider>
           <ThemedStack />
