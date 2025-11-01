@@ -36,16 +36,15 @@ function ThemedStack() {
       }}
     >
       <Stack.Screen
-        name="create"
+        name="(tabs)"
         options={{
-          presentation: "modal",
           headerShown: false,
-          gestureEnabled: true,
         }}
       />
       <Stack.Screen
-        name="settings"
+        name="create"
         options={{
+          presentation: "modal",
           headerShown: false,
           gestureEnabled: true,
         }}
