@@ -309,7 +309,7 @@ export default function Edit() {
   // Configure native header with Done button
   useEffect(() => {
     navigation.setOptions({
-      headerBackTitle: "back",
+      headerBackTitle: "Home",
       headerRight: () => (
         <Pressable
           onPress={handleDone}
