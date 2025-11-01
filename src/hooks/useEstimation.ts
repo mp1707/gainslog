@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useAppStore } from "@/store/useAppStore";
 import { useHudStore } from "@/store/useHudStore";
 import { EstimationInput, createEstimationLog } from "@/utils/estimation";
@@ -55,6 +55,7 @@ const showProRequiredHud = (subtitle: string) => {
 export const useEstimation = () => {
   const { addFoodLog, updateFoodLog, deleteFoodLog } = useAppStore();
   const isPro = useAppStore((state) => state.isPro);
+  const [isEditEstimating, setIsEditEstimating] = useState(false);
 
   // Create page flow: add incomplete log, run initial estimation, update store
   const runCreateEstimation = useCallback(
@@ -115,15 +116,21 @@ export const useEstimation = () => {
         )
         .join(", ");
 
-      const refined: RefinedFoodEstimateResponse = await refineEstimation({
-        foodComponents: foodComponentsString,
-        macrosPerReferencePortion: editedLog.macrosPerReferencePortion,
-      });
-      const completedLog = makeCompletedFromRefinement(editedLog, refined);
-      onComplete(completedLog);
+      setIsEditEstimating(true);
+      try {
+        const refined: RefinedFoodEstimateResponse = await refineEstimation({
+          foodComponents: foodComponentsString,
+          macrosPerReferencePortion: editedLog.macrosPerReferencePortion,
+        });
+        const completedLog = makeCompletedFromRefinement(editedLog, refined);
+        onComplete(completedLog);
+        return completedLog;
+      } finally {
+        setIsEditEstimating(false);
+      }
     },
     [isPro]
   );
 
-  return { runCreateEstimation, runEditEstimation };
+  return { runCreateEstimation, runEditEstimation, isEditEstimating };
 };
