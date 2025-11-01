@@ -8,9 +8,10 @@ import {
   Pressable,
   Alert,
 } from "react-native";
-import { ScrollView as RNScrollView } from "react-native-gesture-handler";
-import { Check, ChevronLeft } from "lucide-react-native";
-import { RoundButton } from "@/components/shared/RoundButton";
+import {
+  ScrollView as RNScrollView,
+  ScrollView,
+} from "react-native-gesture-handler";
 import { makeSelectLogById } from "@/store/selectors";
 import type { FoodLog, FoodComponent } from "@/types/models";
 import * as Haptics from "expo-haptics";
@@ -23,10 +24,9 @@ import { AppText } from "@/components/index";
 import { TextInput } from "@/components/shared/TextInput";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { InlinePaywallCard } from "@/components/paywall/InlinePaywallCard";
-import { Calculator } from "lucide-react-native";
-import { StickyRecalculateBar } from "@/components/refine-page/StickyRecalculateBar";
+import { Calculator, Check } from "lucide-react-native";
+import { RecalculateButton } from "@/components/refine-page/RecalculateButton";
 import Animated, { Easing, Layout } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const easeLayout = Layout.duration(220).easing(Easing.inOut(Easing.quad));
 
@@ -37,9 +37,11 @@ export default function Edit() {
   const isPro = useAppStore((s) => s.isPro);
   const isVerifyingSubscription = useAppStore((s) => s.isVerifyingSubscription);
   const pendingComponentEdit = useAppStore((s) => s.pendingComponentEdit);
-  const clearPendingComponentEdit = useAppStore((s) => s.clearPendingComponentEdit);
+  const clearPendingComponentEdit = useAppStore(
+    (s) => s.clearPendingComponentEdit
+  );
   const router = useSafeRouter();
-  const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
 
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
@@ -49,7 +51,6 @@ export default function Edit() {
   // Local state to hold edits (do not mutate store until confirmed)
   const [editedLog, setEditedLog] = useState<FoodLog | undefined>(originalLog);
   const [isLoading, setIsLoading] = useState(false);
-  const [isRefined, setIsRefined] = useState(false);
   const [revealKey, setRevealKey] = useState(0);
   const [isDirty, setIsDirty] = useState(false);
 
@@ -199,7 +200,6 @@ export default function Edit() {
     }
     // Scroll to bottom when re-estimating to show macros section
     scrollRef.current?.scrollToEnd({ animated: true });
-    setIsRefined(false);
     setIsLoading(true);
     try {
       await runEditEstimation(editedLog, (log) => {
@@ -216,10 +216,7 @@ export default function Edit() {
       setHasComponentChanges(false); // Clear component changes flag
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      setIsRefined(true);
       setRevealKey((k) => k + 1);
-      // Reset refined flag after brief celebration window
-      setTimeout(() => setIsRefined(false), 1200);
     } catch (e) {
       // Optional: show error toast
     } finally {
@@ -309,25 +306,38 @@ export default function Edit() {
       !hasUnsavedChanges &&
       changesCount === 0);
 
-  return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={[styles.closeButtonLeft, { top: insets.top }]}>
-        <RoundButton
-          Icon={ChevronLeft}
-          onPress={() => router.back()}
-          variant={"tertiary"}
-          accessibilityLabel="Close"
-        />
-      </View>
-      <View style={[styles.closeButton, { top: insets.top }]}>
-        <RoundButton
-          Icon={Check}
+  // Configure native header with Done button
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Pressable
           onPress={handleDone}
-          variant={doneDisabled ? "tertiary" : "primary"}
           disabled={doneDisabled}
+          style={({ pressed }) => ({
+            opacity: pressed && !doneDisabled ? 0.6 : 1,
+            paddingLeft: 5,
+          })}
           accessibilityLabel="Done"
-        />
-      </View>
+        >
+          <Check
+            size={24}
+            color={doneDisabled ? colors.secondaryText : colors.accent}
+            strokeWidth={2.5}
+          />
+        </Pressable>
+      ),
+    });
+  }, [
+    navigation,
+    doneDisabled,
+    handleDone,
+    theme.spacing.md,
+    colors.secondaryText,
+    colors.accent,
+  ]);
+
+  return (
+    <ScrollView style={styles.container}>
       <RNScrollView
         ref={scrollRef as any}
         style={[styles.scrollView]}
@@ -370,6 +380,16 @@ export default function Edit() {
                 disabled={isLoading || originalLog?.isEstimating}
               />
             </Animated.View>
+            {/* Recalculate Button */}
+            {isPro && hasUnsavedChanges && !isLoading && !isVerifyingSubscription && (
+              <Animated.View layout={easeLayout}>
+                <RecalculateButton
+                  changesCount={changesCount}
+                  onPress={handleReestimate}
+                  disabled={isLoading || Boolean(originalLog?.isEstimating)}
+                />
+              </Animated.View>
+            )}
             {/* Macros display */}
             <Animated.View layout={easeLayout}>
               <MacrosCard
@@ -406,17 +426,7 @@ export default function Edit() {
           </>
         )}
       </RNScrollView>
-
-      {/* Sticky Recalculate Bar */}
-      <StickyRecalculateBar
-        visible={
-          isPro && hasUnsavedChanges && !isLoading && !isVerifyingSubscription
-        }
-        changesCount={changesCount}
-        onPress={handleReestimate}
-        disabled={isLoading || Boolean(originalLog?.isEstimating)}
-      />
-    </View>
+    </ScrollView>
   );
 }
 
@@ -427,20 +437,10 @@ const createStyles = (colors: Colors, theme: Theme) =>
       backgroundColor: colors.primaryBackground,
     },
     scrollView: { flex: 1 },
-    closeButtonLeft: {
-      position: "absolute",
-      left: theme.spacing.md,
-      zIndex: 15,
-    },
-    closeButton: {
-      position: "absolute",
-      right: theme.spacing.md,
-      zIndex: 15,
-    },
     contentContainer: {
       paddingHorizontal: theme.spacing.pageMargins.horizontal,
-      paddingTop: theme.spacing.xxl + theme.spacing.lg, // Title spacing (72pt = 9×8)
-      paddingBottom: theme.spacing.xxl + theme.spacing.xxl, // Extra padding for sticky bar
+      paddingTop: theme.spacing.xl, // Title spacing (72pt = 9×8)
+      paddingBottom: theme.spacing.xl, // Bottom padding
       gap: theme.spacing.xl, // 24pt between sections
     },
     header: {},

@@ -3,14 +3,6 @@ import type { Colors, Theme } from "@/theme";
 
 export const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
-    container: {
-      position: "absolute",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      paddingHorizontal: theme.spacing.pageMargins.horizontal,
-      paddingBottom: theme.spacing.lg,
-    },
     button: {
       height: theme.components.aiActionTargets.height,
       borderRadius: theme.components.aiActionTargets.height / 2, // Pill shape
