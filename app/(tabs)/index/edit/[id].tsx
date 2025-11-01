@@ -309,6 +309,7 @@ export default function Edit() {
   // Configure native header with Done button
   useEffect(() => {
     navigation.setOptions({
+      headerBackTitle: "back",
       headerRight: () => (
         <Pressable
           onPress={handleDone}
@@ -381,15 +382,37 @@ export default function Edit() {
               />
             </Animated.View>
             {/* Recalculate Button */}
-            {isPro && hasUnsavedChanges && !isLoading && !isVerifyingSubscription && (
-              <Animated.View layout={easeLayout}>
-                <RecalculateButton
-                  changesCount={changesCount}
-                  onPress={handleReestimate}
-                  disabled={isLoading || Boolean(originalLog?.isEstimating)}
-                />
-              </Animated.View>
-            )}
+            {isPro &&
+              hasUnsavedChanges &&
+              !isLoading &&
+              !isVerifyingSubscription && (
+                <Animated.View layout={easeLayout}>
+                  <RecalculateButton
+                    changesCount={changesCount}
+                    onPress={handleReestimate}
+                    disabled={isLoading || Boolean(originalLog?.isEstimating)}
+                  />
+                </Animated.View>
+              )}
+            {/* Paywall */}
+            <Animated.View layout={easeLayout}>
+              {isVerifyingSubscription ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator />
+                </View>
+              ) : (
+                !isPro && (
+                  <InlinePaywallCard
+                    Icon={Calculator}
+                    title="Recalculate with Pro"
+                    body="Get updated macros when you adjust ingredients."
+                    ctaLabel="Unlock to Recalculate"
+                    onPress={handleShowPaywall}
+                    testID="edit-inline-paywall"
+                  />
+                )
+              )}
+            </Animated.View>
             {/* Macros display */}
             <Animated.View layout={easeLayout}>
               <MacrosCard
@@ -404,24 +427,6 @@ export default function Edit() {
                 changesCount={changesCount}
                 foodComponentsCount={editedLog.foodComponents?.length || 0}
               />
-            </Animated.View>
-            <Animated.View layout={easeLayout}>
-              {isVerifyingSubscription ? (
-                <View style={styles.loadingContainer}>
-                  <ActivityIndicator />
-                </View>
-              ) : (
-                !isPro && (
-                  <InlinePaywallCard
-                    Icon={Calculator}
-                    title="Recalculate with Pro"
-                    body="Instantly get updated macros when you adjust ingredients."
-                    ctaLabel="Unlock to Recalculate"
-                    onPress={handleShowPaywall}
-                    testID="edit-inline-paywall"
-                  />
-                )
-              )}
             </Animated.View>
           </>
         )}

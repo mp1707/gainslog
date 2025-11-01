@@ -1,6 +1,7 @@
 import React, {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -504,6 +505,9 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
     hasUnsavedChanges && !processing ? 1 : 0
   );
 
+  const staleUIContainerRef = useRef<View>(null);
+  const staleUIHeight = useSharedValue(100); // Default fallback height
+
   useEffect(() => {
     if (processing) {
       // Reset when processing starts
@@ -570,6 +574,19 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
     });
   }, [hasUnsavedChanges, processing, staleUITransition]);
 
+  // Measure stale UI container height to prevent clipping during animation
+  useLayoutEffect(() => {
+    if (staleUIContainerRef.current) {
+      staleUIContainerRef.current.measure(
+        (x: number, y: number, width: number, height: number) => {
+          if (height > 0) {
+            staleUIHeight.value = height;
+          }
+        }
+      );
+    }
+  }, [hasUnsavedChanges, staleUIHeight]);
+
   const staticItems = useMemo<StaticMacroItem[]>(
     () => [
       {
@@ -619,7 +636,7 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
   // Animated style for stale UI slide-up
   const staleUIAnimatedStyle = useAnimatedStyle(() => {
     return {
-      maxHeight: staleUITransition.value * 80,
+      maxHeight: staleUITransition.value * staleUIHeight.value,
       opacity: staleUITransition.value,
       overflow: "hidden",
     };
@@ -627,38 +644,40 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.sectionHeaderRow}>
-        <AppText role="Caption" style={styles.sectionHeader}>
-          MACROS
-        </AppText>
+      <View ref={staleUIContainerRef}>
+        <View style={styles.sectionHeaderRow}>
+          <AppText role="Caption" style={styles.sectionHeader}>
+            MACROS
+          </AppText>
+          <Animated.View style={staleUIAnimatedStyle}>
+            <View style={styles.staleChip}>
+              <Clock
+                size={14}
+                color={
+                  colors.semanticBadges?.calories?.text || colors.secondaryText
+                }
+              />
+              <AppText style={styles.staleChipText}>Needs update</AppText>
+            </View>
+          </Animated.View>
+        </View>
+
         <Animated.View style={staleUIAnimatedStyle}>
-          <View style={styles.staleChip}>
-            <Clock
-              size={14}
-              color={
-                colors.semanticBadges?.calories?.text || colors.secondaryText
-              }
-            />
-            <AppText style={styles.staleChipText}>Needs update</AppText>
-          </View>
+          <AppText
+            role="Caption"
+            style={[
+              styles.sectionHeader,
+              {
+                color: colors.secondaryText,
+                letterSpacing: 0.4,
+                marginBottom: theme.spacing.md,
+              },
+            ]}
+          >
+            Values reflect previous amounts.
+          </AppText>
         </Animated.View>
       </View>
-
-      <Animated.View style={staleUIAnimatedStyle}>
-        <AppText
-          role="Caption"
-          style={[
-            styles.sectionHeader,
-            {
-              color: colors.secondaryText,
-              letterSpacing: 0.4,
-              marginBottom: theme.spacing.md,
-            },
-          ]}
-        >
-          Values reflect previous amounts.
-        </AppText>
-      </Animated.View>
 
       <View style={styles.listContainer}>
         {useAnimatedVariant ? (

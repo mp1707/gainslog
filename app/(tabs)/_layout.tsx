@@ -21,7 +21,6 @@ export default function TabsLayout() {
         fontSize: theme.typography.Caption.fontSize,
         fontWeight: theme.typography.Caption.fontWeight,
       }}
-      
     >
       <NativeTabs.Trigger name="index">
         <Icon
