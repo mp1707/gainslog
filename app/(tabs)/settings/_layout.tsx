@@ -4,7 +4,7 @@ import { useTheme } from "@/theme";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 
 export default function SettingsLayout() {
-  const { colors, theme } = useTheme();
+  const { colors, theme, colorScheme } = useTheme();
   const isIOS = Platform.OS === "ios";
   const hasLiquidGlass = isLiquidGlassAvailable();
 
@@ -12,24 +12,20 @@ export default function SettingsLayout() {
     <Stack
       screenOptions={{
         headerTintColor: colors.accent,
-        headerTransparent: hasLiquidGlass && isIOS,
+        headerTransparent: isIOS,
+        headerBlurEffect: !hasLiquidGlass ? colorScheme : undefined,
         headerShadowVisible: true,
         headerTitleStyle: {
           color: colors.primaryText,
-          fontFamily: theme.typography.Headline.fontFamily,
-          fontSize: theme.typography.Headline.fontSize,
-          fontWeight: theme.typography.Headline.fontWeight,
+          fontFamily: theme.typography.Title1.fontFamily,
         },
         headerStyle: !hasLiquidGlass && {
-          backgroundColor: colors.primaryBackground,
+          backgroundColor: "transparent",
         },
         headerLargeTitleStyle: {
           color: colors.primaryText,
           fontFamily: theme.typography.Title1.fontFamily,
-          fontSize: theme.typography.Title1.fontSize,
-          fontWeight: theme.typography.Title1.fontWeight,
         },
-        contentStyle: { backgroundColor: colors.primaryBackground },
       }}
     >
       <Stack.Screen

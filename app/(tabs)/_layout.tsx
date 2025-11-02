@@ -6,21 +6,22 @@ import {
   VectorIcon,
 } from "expo-router/unstable-native-tabs";
 import { useTheme } from "@/theme";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
 
 export default function TabsLayout() {
-  const { colors, theme } = useTheme();
+  const { colors, theme, colorScheme } = useTheme();
+  const hasLiquidGlass = isLiquidGlassAvailable();
 
   return (
     <NativeTabs
-      backgroundColor={colors.secondaryBackground}
-      tintColor={colors.accent}
-      minimizeBehavior="onScrollDown"
-      labelStyle={{
-        color: colors.secondaryText,
-        fontFamily: theme.typography.Caption.fontFamily,
-        fontSize: theme.typography.Caption.fontSize,
-        fontWeight: theme.typography.Caption.fontWeight,
-      }}
+      blurEffect={colorScheme}
+      labelStyle={
+        !hasLiquidGlass
+          ? {
+              color: colors.secondaryText,
+            }
+          : undefined
+      }
     >
       <NativeTabs.Trigger name="index">
         <Icon
