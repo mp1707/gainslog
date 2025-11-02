@@ -5,6 +5,7 @@ import {
 } from "expo-speech-recognition";
 
 export interface UseTranscriptionReturn {
+  requestPermission: () => Promise<boolean>;
   startRecording: () => Promise<void>;
   stopRecording: () => Promise<void>;
   liveTranscription: string;
@@ -59,16 +60,19 @@ export const useTranscription = (): UseTranscriptionReturn => {
   useSpeechRecognitionEvent("error", handleError);
   useSpeechRecognitionEvent("volumechange", handleVolumeChange);
 
-  const startRecording = useCallback(async (): Promise<void> => {
+  const requestPermission = useCallback(async (): Promise<boolean> => {
     try {
-      // Request speech recognition permission
       const permission =
         await ExpoSpeechRecognitionModule.requestPermissionsAsync();
-      if (!permission.granted) {
-        console.warn("Speech recognition permission not granted");
-        return;
-      }
+      return permission.granted;
+    } catch (error) {
+      console.error("Error requesting speech recognition permission:", error);
+      return false;
+    }
+  }, []);
 
+  const startRecording = useCallback(async (): Promise<void> => {
+    try {
       // Clear previous state
       setLiveTranscription("");
       setVolumeLevel(0);
@@ -110,6 +114,7 @@ export const useTranscription = (): UseTranscriptionReturn => {
   }, [isRecording]);
 
   return {
+    requestPermission,
     startRecording,
     stopRecording,
     liveTranscription,

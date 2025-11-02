@@ -14,6 +14,7 @@ import {
   Square,
 } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
+import { useCameraPermissions } from "expo-camera";
 import Animated, {
   Easing,
   runOnJS,
@@ -27,10 +28,12 @@ import { useTheme } from "@/theme";
 import { Button } from "@/components";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
+import { showErrorToast } from "@/lib/toast";
 import { createStyles } from "./KeyboardAccessory.styles";
 
 interface KeyboardAccessoryProps {
   onImageSelected?: (uri: string) => void;
+  requestMicPermission?: () => Promise<boolean>;
   onRecording?: () => void;
   onStop?: () => void;
   onEstimate: () => void;
@@ -141,6 +144,7 @@ const MiniWaveform: React.FC<{ volumeLevel: number; isActive: boolean }> = ({
 
 export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   onImageSelected,
+  requestMicPermission,
   onRecording,
   onStop,
   onEstimate,
@@ -155,6 +159,7 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme, colorScheme);
   const router = useSafeRouter();
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
 
   const containerRef = useRef<View | null>(null);
   const micAnchorRef = useRef<View | null>(null);
@@ -208,8 +213,21 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
 
   const handleCameraPress = useCallback(async () => {
     textInputRef?.current?.blur();
+
+    // Check and request camera permission before navigation
+    if (!cameraPermission?.granted) {
+      const result = await requestCameraPermission();
+      if (!result.granted) {
+        showErrorToast(
+          "Camera permission denied",
+          "Please allow camera access in settings to take photos."
+        );
+        return;
+      }
+    }
+
     router.push(logId ? `/camera?logId=${logId}` : `/camera`);
-  }, [router, logId, textInputRef]);
+  }, [router, logId, textInputRef, cameraPermission, requestCameraPermission]);
 
   const handleMediaLibraryPress = useCallback(async () => {
     textInputRef?.current?.blur();
@@ -227,7 +245,23 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
     }
   }, [onImageSelected, textInputRef]);
 
-  const handleMicPress = useCallback(() => {
+  const handleMicPress = useCallback(async () => {
+    // Request microphone permission before showing UI
+    if (requestMicPermission) {
+      const granted = await requestMicPermission();
+      if (!granted) {
+        showErrorToast(
+          "Microphone permission denied",
+          "Please allow microphone access in settings to use voice input."
+        );
+        return;
+      }
+
+      // Wait for iOS to initialize audio session and speech recognition service
+      // This prevents race condition on first-time permission grant
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
+
     measureRelativeToContainer(micAnchorRef.current, (x) => {
       stopX.value = x;
       stopScale.value = 0.85;
@@ -238,6 +272,7 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
     });
   }, [
     measureRelativeToContainer,
+    requestMicPermission,
     onRecording,
     stopX,
     defaultOpacity,

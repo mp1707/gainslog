@@ -43,6 +43,7 @@ export default function Create() {
   const isVerifyingSubscription = useAppStore((state) => state.isVerifyingSubscription);
   const { runCreateEstimation } = useEstimation();
   const {
+    requestPermission,
     isRecording,
     liveTranscription,
     volumeLevel,
@@ -244,6 +245,7 @@ export default function Create() {
           <KeyboardAccessory
             onImageSelected={handleNewImageSelected}
             textInputRef={textInputRef}
+            requestMicPermission={requestPermission}
             onRecording={startRecording}
             onStop={handleTranscriptionStop}
             isRecording={isRecording}
