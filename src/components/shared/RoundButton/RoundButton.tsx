@@ -83,7 +83,7 @@ export const RoundButton = React.memo<RoundButtonProps>(
           case "secondary":
             return colors.secondaryBackground;
           case "tertiary":
-            return colors.subtleBackground;
+            return colors.tertiaryBackground;
           case "red":
             return colors.recording;
           default:

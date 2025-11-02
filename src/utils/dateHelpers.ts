@@ -135,8 +135,54 @@ export const isFutureMonth = (year: number, month: number): boolean => {
   const today = new Date();
   const currentYear = today.getFullYear();
   const currentMonth = today.getMonth() + 1;
-  
+
   if (year > currentYear) return true;
   if (year === currentYear && month > currentMonth) return true;
   return false;
+};
+
+/**
+ * Formats year and month into a display string (e.g., "January 2024")
+ */
+export const formatMonthYear = (year: number, month: number): string => {
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  return `${monthNames[month - 1]} ${year}`;
+};
+
+/**
+ * Formats year, month, and day into a display string (e.g., "January 15, 2024")
+ */
+export const formatMonthYearDay = (
+  year: number,
+  month: number,
+  day: number
+): string => {
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  return `${monthNames[month - 1]} ${day}, ${year}`;
 };

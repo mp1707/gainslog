@@ -5,14 +5,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     container: {
       paddingHorizontal: theme.spacing.md,
-    },
-    monthHeader: {
-      alignItems: "center",
-      paddingBottom: theme.spacing.lg,
-    },
-    monthTitle: {
-      color: colors.primaryText,
-      textAlign: "center",
+      paddingTop: theme.spacing.md,
     },
     weekdayRow: {
       flexDirection: "row",

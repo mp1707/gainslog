@@ -1,5 +1,5 @@
 import { useAppStore } from "@/store/useAppStore";
-import { Theme } from "@/theme/theme";
+import { Colors, Theme } from "@/theme/theme";
 import { useTheme } from "@/theme/ThemeProvider";
 import { Favorite } from "@/types/models";
 import { useCallback, useRef, useState, useEffect } from "react";
@@ -32,15 +32,17 @@ import { BrainCircuit } from "lucide-react-native";
 const inputAccessoryViewID = "create-input-accessory";
 
 export default function Create() {
-  const { theme } = useTheme();
-  const styles = createStyles(theme);
+  const { theme, colors } = useTheme();
+  const styles = createStyles(theme, colors);
   const router = useSafeRouter();
   const { startNewDraft, clearDraft, updateDraft } = useCreationStore();
   const [draftId, setDraftId] = useState<string | null>(null);
   const draft = useDraft(draftId);
   const { selectedDate, addFoodLog } = useAppStore();
   const isPro = useAppStore((state) => state.isPro);
-  const isVerifyingSubscription = useAppStore((state) => state.isVerifyingSubscription);
+  const isVerifyingSubscription = useAppStore(
+    (state) => state.isVerifyingSubscription
+  );
   const { runCreateEstimation } = useEstimation();
   const {
     requestPermission,
@@ -147,7 +149,14 @@ export default function Create() {
     setIsEstimating(true);
     runCreateEstimation(draft);
     router.back();
-  }, [draft, isPro, isEstimating, runCreateEstimation, router, handleShowPaywall]);
+  }, [
+    draft,
+    isPro,
+    isEstimating,
+    runCreateEstimation,
+    router,
+    handleShowPaywall,
+  ]);
 
   const handleCreateLogFromFavorite = useCallback(
     (favorite: Favorite) => {
@@ -192,7 +201,7 @@ export default function Create() {
     !isEstimating;
 
   return (
-    <GradientWrapper style={styles.container}>
+    <View style={styles.container}>
       <CreateHeader onCancel={handleCancel} />
       <View style={styles.toggleContainer}>
         <Toggle
@@ -258,15 +267,16 @@ export default function Create() {
           />
         </KeyboardStickyView>
       )}
-    </GradientWrapper>
+    </View>
   );
 }
 
-const createStyles = (theme: Theme) =>
+const createStyles = (theme: Theme, colors: Colors) =>
   StyleSheet.create({
     container: {
       flex: 1,
       paddingTop: theme.spacing.md,
+      backgroundColor: colors.secondaryBackground,
     },
     toggleContainer: {
       marginHorizontal: theme.spacing.md,

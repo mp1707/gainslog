@@ -1,16 +1,24 @@
-import { Platform, View } from "react-native";
+import { Platform, Pressable } from "react-native";
 import { Stack } from "expo-router";
 import { useTheme } from "@/theme";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { useAppStore } from "@/store/useAppStore";
 import { formatDate } from "@/utils/formatDate";
 import { Plus } from "lucide-react-native";
+import * as Haptics from "expo-haptics";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
 export default function IndexLayout() {
   const { colors, theme, colorScheme } = useTheme();
   const isIOS = Platform.OS === "ios";
+
   const hasLiquidGlass = isLiquidGlassAvailable();
   const selectedDate = useAppStore((state) => state.selectedDate);
+  const { safePush } = useNavigationGuard();
+  const handleCreateLogPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    safePush("/new");
+  };
 
   return (
     <Stack
@@ -27,7 +35,7 @@ export default function IndexLayout() {
           headerTransparent: isIOS,
           headerBlurEffect: !hasLiquidGlass ? colorScheme : undefined,
           headerShadowVisible: true,
-          headerLargeTitle: true,
+          headerLargeTitle: hasLiquidGlass,
           headerTitleStyle: {
             color: colors.primaryText,
             fontFamily: theme.typography.Title1.fontFamily,
@@ -36,6 +44,12 @@ export default function IndexLayout() {
             color: colors.primaryText,
             fontFamily: theme.typography.Title1.fontFamily,
           },
+          headerLargeTitleShadowVisible: true,
+          headerRight: () => (
+            <Pressable onPress={handleCreateLogPress}>
+              <Plus style={{ marginLeft: 6 }} color={colors.accent} />
+            </Pressable>
+          ),
         }}
       />
       <Stack.Screen

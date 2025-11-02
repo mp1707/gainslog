@@ -29,8 +29,9 @@ export default function TodayTab() {
 
   // render food logs only if main tab is focused
   const segment = useSegments();
-  const page = segment[segment.length - 1];
-  const isOnHomeTab = page === "index" || page === "[id]";
+  const screen = segment[segment.length - 1];
+  const homeTabScreens = ["index", "[id]", "new"];
+  const isOnHomeTab = homeTabScreens.includes(screen);
 
   // Create a minimal state object for selectors
   const state = { foodLogs, selectedDate, dailyTargets };

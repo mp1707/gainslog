@@ -42,7 +42,7 @@ function ThemedStack() {
         }}
       />
       <Stack.Screen
-        name="create"
+        name="new"
         options={{
           presentation: "modal",
           headerShown: false,
@@ -58,7 +58,7 @@ function ThemedStack() {
         }}
       />
       <Stack.Screen
-        name="calendar"
+        name="calendarOverview"
         options={{
           presentation: "modal",
           headerShown: false,

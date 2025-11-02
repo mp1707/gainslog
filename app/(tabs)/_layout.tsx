@@ -72,13 +72,13 @@ export default function TabsLayout() {
         />
         <Label selectedStyle={{ color: colors.accent }}>Settings</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger
+      {/* <NativeTabs.Trigger
         name="create"
         role={hasLiquidGlass ? "search" : undefined}
       >
         <Label>New</Label>
         <Icon sf="plus" selectedColor={colors.accent} />
-      </NativeTabs.Trigger>
+      </NativeTabs.Trigger> */}
     </NativeTabs>
   );
 }

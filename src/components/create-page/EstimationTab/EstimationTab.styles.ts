@@ -31,7 +31,7 @@ export const createStyles = (
     },
     textInputContainer: {
       // minHeight: 150,
-      backgroundColor: componentStyles.cards.backgroundColor,
+      backgroundColor: colors.primaryBackground,
       borderRadius: componentStyles.cards.cornerRadius,
     },
     image: {

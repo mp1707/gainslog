@@ -25,20 +25,6 @@ interface CalendarGridProps {
 }
 
 const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-const MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
 
 const CalendarGridComponent: React.FC<CalendarGridProps> = ({
   year,
@@ -119,17 +105,8 @@ const CalendarGridComponent: React.FC<CalendarGridProps> = ({
     return rowsArray;
   }, [calendarData]);
 
-  const monthName = MONTH_NAMES[month - 1];
-
   return (
     <View style={[styles.container, { width }]}>
-      {/* Month Header */}
-      <View style={styles.monthHeader}>
-        <AppText role="Title2" style={styles.monthTitle}>
-          {monthName} {year}
-        </AppText>
-      </View>
-
       {/* Weekday Headers */}
       <View style={styles.weekdayRow}>
         {WEEKDAYS.map((weekday) => (
