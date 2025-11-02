@@ -7,6 +7,7 @@ import { formatDate } from "@/utils/formatDate";
 import { Plus } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
+import { HeaderButton } from "@/components/shared/HeaderButton/HeaderButton.ios";
 
 export default function IndexLayout() {
   const { colors, theme, colorScheme } = useTheme();
@@ -46,8 +47,16 @@ export default function IndexLayout() {
           },
           headerLargeTitleShadowVisible: true,
           headerRight: () => (
-            <Pressable onPress={handleCreateLogPress}>
-              <Plus style={{ marginLeft: 6 }} color={colors.accent} />
+            <Pressable
+              onPress={handleCreateLogPress}
+              style={{
+                padding: 5.5,
+                paddingVertical: 5.5,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Plus color={colors.accent} />
             </Pressable>
           ),
         }}

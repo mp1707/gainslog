@@ -276,7 +276,7 @@ const createStyles = (theme: Theme, colors: Colors) =>
     container: {
       flex: 1,
       paddingTop: theme.spacing.md,
-      backgroundColor: colors.secondaryBackground,
+      backgroundColor: colors.primaryBackground,
     },
     toggleContainer: {
       marginHorizontal: theme.spacing.md,

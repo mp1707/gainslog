@@ -28,12 +28,8 @@ import { makeSelectLogById } from "@/store/selectors";
 import { useAppStore } from "@/store/useAppStore";
 import type { FoodComponent } from "@/types/models";
 import { Colors, Theme, useTheme } from "@/theme";
-import {
-  useEditableTitle,
-} from "@/components/refine-page/hooks/useEditableTitle";
-import {
-  useEditChangeTracker,
-} from "@/components/refine-page/hooks/useEditChangeTracker";
+import { useEditableTitle } from "@/components/refine-page/hooks/useEditableTitle";
+import { useEditChangeTracker } from "@/components/refine-page/hooks/useEditChangeTracker";
 import { useEditedLog } from "@/components/refine-page/hooks/useEditedLog";
 
 const easeLayout = Layout.duration(220).easing(Easing.inOut(Easing.quad));
@@ -46,7 +42,9 @@ export default function Edit() {
   const isVerifyingSubscription = useAppStore(
     (state) => state.isVerifyingSubscription
   );
-  const pendingComponentEdit = useAppStore((state) => state.pendingComponentEdit);
+  const pendingComponentEdit = useAppStore(
+    (state) => state.pendingComponentEdit
+  );
   const clearPendingComponentEdit = useAppStore(
     (state) => state.clearPendingComponentEdit
   );
@@ -64,10 +62,7 @@ export default function Edit() {
     markReestimated,
   } = useEditChangeTracker();
 
-  const {
-    runEditEstimation,
-    isEditEstimating,
-  } = useEstimation();
+  const { runEditEstimation, isEditEstimating } = useEstimation();
 
   const {
     editedLog,
@@ -233,7 +228,7 @@ export default function Edit() {
           disabled={doneDisabled}
           style={({ pressed }) => ({
             opacity: pressed && !doneDisabled ? 0.6 : 1,
-            paddingLeft: 5,
+            paddingLeft: 6,
           })}
           accessibilityLabel="Done"
         >
@@ -292,7 +287,9 @@ export default function Edit() {
                 onDeleteItem={deleteComponent}
                 onAddPress={handleAddComponent}
                 onAcceptRecommendation={acceptRecommendation}
-                disabled={isEditEstimating || Boolean(originalLog?.isEstimating)}
+                disabled={
+                  isEditEstimating || Boolean(originalLog?.isEstimating)
+                }
               />
             </Animated.View>
 

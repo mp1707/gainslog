@@ -6,6 +6,7 @@ import { useTheme } from "@/theme";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { createStyles } from "./CreateHeader.styles";
 import { useAppStore } from "@/store/useAppStore";
+import { HeaderButton } from "@/components/shared/HeaderButton/HeaderButton.ios";
 
 interface CreateHeaderProps {
   onCancel: () => void;
@@ -40,11 +41,9 @@ export const CreateHeader: React.FC<CreateHeaderProps> = ({ onCancel }) => {
             color={colors.accent}
           />
         </Host>
-        <RoundButton
-          onPress={onCancel}
-          Icon={X}
-          variant="tertiary"
-          accessibilityLabel="Close create screen"
+        <HeaderButton
+          buttonProps={{ onPress: onCancel }}
+          imageProps={{ systemName: "xmark" }}
         />
       </View>
     </View>
