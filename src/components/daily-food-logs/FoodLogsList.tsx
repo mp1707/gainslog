@@ -1,11 +1,13 @@
 import React, { useRef, useEffect, useMemo, useCallback } from "react";
-import { FlatList, ListRenderItem } from "react-native";
+import { FlatList, ListRenderItem, ScrollView, View } from "react-native";
 import { FoodLog, Favorite } from "@/types/models";
 import { FoodLogItem } from "./FoodLogItem";
 import { NutrientDashboard } from "./NutrientSummary/NutrientDashboard";
 import { EmptyFoodLogsState } from "./EmptyFoodLogsState";
 import { useTheme } from "@/theme/ThemeProvider";
 import { hasDailyTargetsSet } from "@/utils";
+import { DateSlider } from "../shared/DateSlider";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const DEFAULT_TARGETS = { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
@@ -15,7 +17,8 @@ interface FoodLogsListProps {
   dailyTargets: any;
   dailyTotals: any;
   dynamicBottomPadding: number;
-  headerOffset: number;
+  selectedDate: string;
+  shouldRenderFoodLogs: boolean;
   onDelete: (log: FoodLog | Favorite) => void;
   onToggleFavorite: (log: FoodLog) => void;
   onEdit: (log: FoodLog | Favorite) => void;
@@ -30,23 +33,38 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
   dailyTargets,
   dailyTotals,
   dynamicBottomPadding,
-  headerOffset,
+  selectedDate,
   onDelete,
   onToggleFavorite,
   onEdit,
   onLogAgain,
   onSaveToFavorites,
   onRemoveFromFavorites,
+  shouldRenderFoodLogs,
 }) => {
   const { colors, theme } = useTheme();
   const flatListRef = useRef<FlatList>(null);
+  const insets = useSafeAreaInsets();
+  const prevDataRef = useRef({ length: foodLogs.length, date: selectedDate });
 
   useEffect(() => {
-    flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
-  }, [foodLogs.length]);
+    const isSameDate = prevDataRef.current.date === selectedDate;
+    const lengthIncreased = foodLogs.length > prevDataRef.current.length;
+
+    // Only scroll when a log is created on the current date
+    // Don't scroll when deleting or changing dates
+    if (isSameDate && lengthIncreased) {
+      flatListRef.current?.scrollToOffset({
+        animated: true,
+        offset: -insets.top, // Account for transparent header
+      });
+    }
+
+    prevDataRef.current = { length: foodLogs.length, date: selectedDate };
+  }, [foodLogs.length, selectedDate, insets.top]);
 
   const keyExtractor = useCallback((item: FoodLog) => item.id, []);
-  
+
   const getItemLayout = useCallback(
     (_: any, index: number) => ({
       length: 120, // Estimated LogCard height including gap
@@ -88,11 +106,14 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
 
   const ListHeaderComponent = useMemo(
     () => (
-      <NutrientDashboard
-        percentages={dailyPercentages}
-        targets={normalizedTargets}
-        totals={dailyTotals}
-      />
+      <View>
+        <DateSlider />
+        <NutrientDashboard
+          percentages={dailyPercentages}
+          targets={normalizedTargets}
+          totals={dailyTotals}
+        />
+      </View>
     ),
     [dailyPercentages, normalizedTargets, dailyTotals]
   );
@@ -107,16 +128,15 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
       {
         gap: theme.spacing.md,
         paddingBottom: dynamicBottomPadding,
-        marginTop: headerOffset,
       },
     ],
-    [theme.spacing.md, dynamicBottomPadding, headerOffset]
+    [theme.spacing.md, dynamicBottomPadding]
   );
 
   return (
     <FlatList
       ref={flatListRef}
-      data={foodLogs}
+      data={shouldRenderFoodLogs ? foodLogs : undefined}
       keyExtractor={keyExtractor}
       renderItem={renderItem}
       getItemLayout={getItemLayout}
@@ -133,6 +153,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
       maxToRenderPerBatch={8}
       windowSize={7}
       updateCellsBatchingPeriod={50}
+      contentInsetAdjustmentBehavior="automatic"
     />
   );
 };

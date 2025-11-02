@@ -13,7 +13,11 @@ import { Header } from "./components/Header";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { createStyles } from "./DateSlider.styles";
-import { formatDateToLocalString, parseDateKey, getTodayKey } from "@/utils/dateHelpers";
+import {
+  formatDateToLocalString,
+  parseDateKey,
+  getTodayKey,
+} from "@/utils/dateHelpers";
 
 const WEEKDAY_LETTERS = ["M", "T", "W", "T", "F", "S", "S"];
 const WEEKS_TO_LOAD_AT_ONCE = 5;
@@ -70,7 +74,11 @@ export const DateSlider = () => {
     const dates: DayData[] = [];
 
     // Generate dates from past weeks to future weeks
-    for (let weekOffset = -pastWeeksLoaded; weekOffset <= futureWeeksLoaded; weekOffset++) {
+    for (
+      let weekOffset = -pastWeeksLoaded;
+      weekOffset <= futureWeeksLoaded;
+      weekOffset++
+    ) {
       const weekStartDate = new Date(currentWeekMonday);
       weekStartDate.setDate(currentWeekMonday.getDate() + weekOffset * 7);
 
@@ -108,7 +116,13 @@ export const DateSlider = () => {
       }
     }
     return dates;
-  }, [pastWeeksLoaded, futureWeeksLoaded, dailyTotalsByDate, dailyTargets, getMondayOfWeek]);
+  }, [
+    pastWeeksLoaded,
+    futureWeeksLoaded,
+    dailyTotalsByDate,
+    dailyTargets,
+    getMondayOfWeek,
+  ]);
 
   const handleDateSelect = useCallback(
     (date: string) => {
@@ -215,9 +229,10 @@ export const DateSlider = () => {
       const { year, month, day } = parseDateKey(selectedDate);
       const selectedDateObj = new Date(year, month - 1, day);
       const selectedWeekMonday = getMondayOfWeek(selectedDateObj);
-      
+
       const weeksDifference = Math.floor(
-        (selectedWeekMonday.getTime() - currentWeekMonday.getTime()) / (7 * 24 * 60 * 60 * 1000)
+        (selectedWeekMonday.getTime() - currentWeekMonday.getTime()) /
+          (7 * 24 * 60 * 60 * 1000)
       );
 
       if (weeksDifference < 0) {
@@ -234,11 +249,17 @@ export const DateSlider = () => {
         }
       }
     }
-  }, [selectedDate, dateRange, pastWeeksLoaded, futureWeeksLoaded, getMondayOfWeek]);
+  }, [
+    selectedDate,
+    dateRange,
+    pastWeeksLoaded,
+    futureWeeksLoaded,
+    getMondayOfWeek,
+  ]);
 
   return (
     <View style={styles.container}>
-      <Header />
+      {/* <Header /> */}
 
       <View
         style={[

@@ -1,12 +1,16 @@
-import { Platform } from "react-native";
+import { Platform, View } from "react-native";
 import { Stack } from "expo-router";
 import { useTheme } from "@/theme";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
+import { useAppStore } from "@/store/useAppStore";
+import { formatDate } from "@/utils/formatDate";
+import { Plus } from "lucide-react-native";
 
 export default function IndexLayout() {
-  const { colors, theme } = useTheme();
+  const { colors, theme, colorScheme } = useTheme();
   const isIOS = Platform.OS === "ios";
   const hasLiquidGlass = isLiquidGlassAvailable();
+  const selectedDate = useAppStore((state) => state.selectedDate);
 
   return (
     <Stack
@@ -18,7 +22,20 @@ export default function IndexLayout() {
       <Stack.Screen
         name="index"
         options={{
-          headerShown: false,
+          headerTintColor: colors.accent,
+          headerTitle: formatDate(selectedDate),
+          headerTransparent: isIOS,
+          headerBlurEffect: !hasLiquidGlass ? colorScheme : undefined,
+          headerShadowVisible: true,
+          headerLargeTitle: true,
+          headerTitleStyle: {
+            color: colors.primaryText,
+            fontFamily: theme.typography.Title1.fontFamily,
+          },
+          headerLargeTitleStyle: {
+            color: colors.primaryText,
+            fontFamily: theme.typography.Title1.fontFamily,
+          },
         }}
       />
       <Stack.Screen
