@@ -62,20 +62,24 @@ export const Header: React.FC = () => {
             accessibilityLabel="Create new entry"
             disabled={!hasGoals}
           /> */}
-          <HeaderButton
-            buttonProps={{
-              onPress: () => safeNavigate("/new"),
-              color: colors.accent,
-              controlSize: hasLiquidGlass ? "large" : "regular",
-              variant: hasLiquidGlass ? "glassProminent" : "borderedProminent",
-              modifiers: hasLiquidGlass ? [] : [clipShape("circle")],
-            }}
-            imageProps={{
-              systemName: "plus",
-              color: colors.black,
-              size: hasLiquidGlass ? undefined : 18,
-            }}
-          />
+          {hasGoals && (
+            <HeaderButton
+              buttonProps={{
+                onPress: () => safeNavigate("/new"),
+                color: colors.accent,
+                controlSize: hasLiquidGlass ? "large" : "regular",
+                variant: hasLiquidGlass
+                  ? "glassProminent"
+                  : "borderedProminent",
+                modifiers: hasLiquidGlass ? [] : [clipShape("circle")],
+              }}
+              imageProps={{
+                systemName: "plus",
+                color: colors.black,
+                size: hasLiquidGlass ? undefined : 18,
+              }}
+            />
+          )}
         </View>
       </View>
       <MenuPopover

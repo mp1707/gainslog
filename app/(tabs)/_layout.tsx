@@ -24,6 +24,7 @@ export default function TabsLayout() {
           : undefined
       }
       iconColor={!hasLiquidGlass ? colors.secondaryText : undefined}
+      disableTransparentOnScrollEdge
     >
       <NativeTabs.Trigger name="index">
         <Icon
