@@ -19,7 +19,7 @@ import { CreateHeader } from "@/components/create-page/CreateHeader/CreateHeader
 import { EstimationTab } from "@/components/create-page/EstimationTab/EstimationTab";
 import { FavoritesTab } from "@/components/create-page/FavoritesTab/FavoritesTab";
 import { KeyboardAccessory } from "@/components/create-page/KeyboardAccessory/KeyboardAccessory";
-import { Toggle } from "@/components/shared/Toggle";
+import { Host, Picker } from "@expo/ui/swift-ui";
 import { showErrorToast } from "@/lib/toast";
 import { processImage } from "@/utils/processImage";
 import { useCreationStore } from "@/store/useCreationStore"; // keyed drafts store
@@ -32,7 +32,7 @@ import { BrainCircuit } from "lucide-react-native";
 const inputAccessoryViewID = "create-input-accessory";
 
 export default function Create() {
-  const { theme, colors } = useTheme();
+  const { theme, colors, colorScheme } = useTheme();
   const styles = createStyles(theme, colors);
   const router = useSafeRouter();
   const { startNewDraft, clearDraft, updateDraft } = useCreationStore();
@@ -204,15 +204,16 @@ export default function Create() {
     <View style={styles.container}>
       <CreateHeader onCancel={handleCancel} />
       <View style={styles.toggleContainer}>
-        <Toggle
-          value={estimationType}
-          options={[
-            { label: "Estimation", value: "ai" },
-            { label: "Favorites", value: "favorites" },
-            { label: "Manual", value: "manual" },
-          ]}
-          onChange={setEstimationType}
-        />
+        <Host matchContents colorScheme={colorScheme}>
+          <Picker
+            options={["Estimation", "Favorites"]}
+            selectedIndex={estimationType === "ai" ? 0 : 1}
+            onOptionSelected={({ nativeEvent: { index } }) => {
+              setEstimationType(index === 0 ? "ai" : "favorites");
+            }}
+            variant="segmented"
+          />
+        </Host>
       </View>
       {estimationType === "ai" &&
         (isVerifyingSubscription ? (

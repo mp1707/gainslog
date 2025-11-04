@@ -9,7 +9,7 @@ import { View, FlatList, Dimensions } from "react-native";
 import * as Haptics from "expo-haptics";
 
 import { DayData, DayItem } from "./components/DayItem";
-import { Header } from "./components/Header";
+import { DateSliderHeader } from "./components/DateSliderHeader";
 import { useTheme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { createStyles } from "./DateSlider.styles";
@@ -259,7 +259,7 @@ export const DateSlider = () => {
 
   return (
     <View style={styles.container}>
-      <Header />
+      <DateSliderHeader />
 
       <View
         style={[

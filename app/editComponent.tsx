@@ -2,17 +2,17 @@ import { useAppStore } from "@/store/useAppStore";
 import { Colors, Theme, useTheme } from "@/theme";
 import { useLocalSearchParams } from "expo-router";
 import { StyleSheet, View, Alert } from "react-native";
-import { Trash2, X, Check } from "lucide-react-native";
-import { RoundButton } from "@/components/shared/RoundButton";
+import { HeaderButton } from "@/components/shared/HeaderButton";
 import type { FoodComponent, FoodUnit } from "@/types/models";
 import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { AppText } from "@/components/index";
 import { TextInput } from "@/components/shared/TextInput";
-import { Toggle, ToggleOption } from "@/components/shared/Toggle";
+import { Host, Picker } from "@expo/ui/swift-ui";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
+import { clipShape } from "@expo/ui/swift-ui/modifiers";
 
 export default function EditComponent() {
   const {
@@ -32,8 +32,9 @@ export default function EditComponent() {
   }>();
 
   const router = useSafeRouter();
-  const { colors, theme } = useTheme();
+  const { colors, theme, colorScheme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const hasLiquidGlass = isLiquidGlassAvailable();
 
   // Get last used unit from store for create mode
   const lastUsedUnit = useAppStore((s) => s.lastUsedUnit || "g");
@@ -54,14 +55,7 @@ export default function EditComponent() {
   const hasSetInitialFocus = useRef(false);
 
   // Unit options
-  const unitOptions: ToggleOption<FoodUnit>[] = useMemo(
-    () => [
-      { value: "g", label: "grams" },
-      { value: "ml", label: "milliliters" },
-      { value: "piece", label: "pieces" },
-    ],
-    []
-  );
+  const unitOptions = useMemo(() => ["grams", "milliliters", "pieces"], []);
 
   // Set initial focus after modal transition (300ms delay)
   useEffect(() => {
@@ -224,21 +218,37 @@ export default function EditComponent() {
     <View style={styles.container}>
       {/* Header with title and buttons */}
       <View style={styles.header}>
-        <RoundButton
-          Icon={mode === "edit" ? Trash2 : X}
-          onPress={mode === "edit" ? handleDelete : handleCancel}
-          variant={mode === "edit" ? "red" : "tertiary"}
-          accessibilityLabel={mode === "edit" ? "Delete ingredient" : "Cancel"}
+        <HeaderButton
+          imageProps={{
+            systemName: mode === "edit" ? "trash" : "xmark",
+            color: "primary",
+          }}
+          buttonProps={{
+            onPress: mode === "edit" ? handleDelete : handleCancel,
+            variant: hasLiquidGlass ? "glass" : "bordered",
+            controlSize: "large",
+            modifiers: hasLiquidGlass ? [] : [clipShape("circle")],
+            color: colors.tertiaryBackground,
+          }}
         />
         <AppText role="Title2" style={styles.modalTitle}>
           {mode === "create" ? "New Ingredient" : "Ingredient"}
         </AppText>
-        <RoundButton
-          Icon={Check}
-          onPress={handleSave}
-          variant={isValid ? "primary" : "tertiary"}
-          disabled={!isValid}
-          accessibilityLabel="Save"
+        <HeaderButton
+          variant="prominent"
+          buttonProps={{
+            onPress: handleSave,
+            disabled: !isValid,
+            variant: hasLiquidGlass ? "glassProminent" : "borderedProminent",
+            color: colors.accent,
+            controlSize: "large",
+            modifiers: hasLiquidGlass ? [] : [clipShape("circle")],
+          }}
+          imageProps={{
+            systemName: "checkmark",
+            color: colors.black,
+            size: hasLiquidGlass ? undefined : 18,
+          }}
         />
       </View>
 
@@ -250,7 +260,6 @@ export default function EditComponent() {
         showsVerticalScrollIndicator={false}
         bottomOffset={theme.spacing.lg}
       >
-
         {/* Name Field */}
         <View style={styles.fieldGroup}>
           <AppText role="Headline" style={styles.fieldLabel}>
@@ -281,17 +290,19 @@ export default function EditComponent() {
             ref={amountInputRef}
             value={amount}
             onChangeText={(text) => {
-              // Allow numbers and single decimal point
-              const sanitized = text.replace(/[^0-9.]/g, "");
+              // Allow numbers and single decimal separator (both comma and period)
+              const sanitized = text.replace(/[^0-9.,]/g, "");
+              // Normalize comma to period for internal use
+              const normalized = sanitized.replace(/,/g, ".");
               // Prevent multiple decimals
-              const parts = sanitized.split(".");
+              const parts = normalized.split(".");
               if (parts.length > 2) {
                 setAmount(parts[0] + "." + parts.slice(1).join(""));
               } else {
-                setAmount(sanitized);
+                setAmount(normalized);
               }
             }}
-            placeholder="0"
+            placeholder="Amount"
             placeholderTextColor={colors.secondaryText}
             style={styles.input}
             keyboardType="decimal-pad"
@@ -307,12 +318,18 @@ export default function EditComponent() {
           <AppText role="Headline" style={styles.fieldLabel}>
             Unit
           </AppText>
-          <Toggle
-            value={unit}
-            options={unitOptions}
-            onChange={handleUnitChange}
-            accessibilityLabel="Select unit"
-          />
+          <Host matchContents colorScheme={colorScheme}>
+            <Picker
+              options={unitOptions}
+              selectedIndex={unit === "g" ? 0 : unit === "ml" ? 1 : 2}
+              onOptionSelected={({ nativeEvent: { index } }) => {
+                const newUnit: FoodUnit =
+                  index === 0 ? "g" : index === 1 ? "ml" : "piece";
+                handleUnitChange(newUnit);
+              }}
+              variant="segmented"
+            />
+          </Host>
         </View>
       </KeyboardAwareScrollView>
     </View>

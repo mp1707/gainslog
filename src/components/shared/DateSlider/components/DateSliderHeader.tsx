@@ -7,7 +7,7 @@ import { MenuPopover } from "@/components/shared/MenuPopover";
 import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useAppStore } from "@/store/useAppStore";
-import { createStyles } from "./Header.styles";
+import { createStyles } from "./DateSliderHeader.styles";
 import { formatDate } from "@/utils/formatDate";
 import { RoundButton } from "../../RoundButton";
 import { hasDailyTargetsSet } from "@/utils";
@@ -15,7 +15,7 @@ import { HeaderButton } from "../../HeaderButton/HeaderButton.ios";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { clipShape } from "@expo/ui/swift-ui/modifiers";
 
-export const Header: React.FC = () => {
+export const DateSliderHeader: React.FC = () => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const { safePush, safeNavigate } = useNavigationGuard();
@@ -64,19 +64,14 @@ export const Header: React.FC = () => {
           /> */}
           {hasGoals && (
             <HeaderButton
+              variant="prominent"
               buttonProps={{
                 onPress: () => safeNavigate("/new"),
                 color: colors.accent,
-                controlSize: hasLiquidGlass ? "large" : "regular",
-                variant: hasLiquidGlass
-                  ? "glassProminent"
-                  : "borderedProminent",
-                modifiers: hasLiquidGlass ? [] : [clipShape("circle")],
               }}
               imageProps={{
                 systemName: "plus",
                 color: colors.black,
-                size: hasLiquidGlass ? undefined : 18,
               }}
             />
           )}

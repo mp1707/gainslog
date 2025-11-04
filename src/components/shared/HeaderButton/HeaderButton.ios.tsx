@@ -7,6 +7,7 @@ import {
   ImageProps,
 } from "@expo/ui/swift-ui";
 import { clipShape, frame } from "@expo/ui/swift-ui/modifiers";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { StyleProp, ViewStyle } from "react-native";
 
 const SIZE = 27;
@@ -15,14 +16,19 @@ export interface HeaderButtonProps {
   imageProps?: ImageProps;
   buttonProps?: ButtonProps;
   style?: StyleProp<ViewStyle>;
+  variant?: "regular" | "prominent";
 }
 
 export function HeaderButton({
   imageProps,
   buttonProps,
   style,
+  variant = "regular",
 }: HeaderButtonProps) {
   const { colorScheme } = useTheme();
+  const hasLiquidGlass = isLiquidGlassAvailable();
+  const { colors } = useTheme();
+
   return (
     <Host
       matchContents
@@ -31,14 +37,22 @@ export function HeaderButton({
     >
       <Button
         {...buttonProps}
-        variant={buttonProps?.variant || "glass"}
-        // modifiers={[clipShape("circle")]}
+        color={buttonProps?.color || colors.secondaryBackground}
+        variant={
+          hasLiquidGlass
+            ? variant === "prominent"
+              ? "glassProminent"
+              : "glass"
+            : "borderedProminent"
+        }
+        controlSize={hasLiquidGlass ? "large" : "regular"}
+        modifiers={hasLiquidGlass ? [] : [clipShape("circle")]}
       >
         <Image
           {...imageProps}
           systemName={imageProps?.systemName || "xmark"}
           color={imageProps?.color || "primary"}
-          size={imageProps?.size || 22}
+          size={hasLiquidGlass ? undefined : 18}
           modifiers={[
             clipShape("circle"),
             frame({ height: 22, width: 12 }),
