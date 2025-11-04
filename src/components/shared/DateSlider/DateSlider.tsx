@@ -259,7 +259,7 @@ export const DateSlider = () => {
 
   return (
     <View style={styles.container}>
-      {/* <Header /> */}
+      <Header />
 
       <View
         style={[

@@ -11,6 +11,9 @@ import { createStyles } from "./Header.styles";
 import { formatDate } from "@/utils/formatDate";
 import { RoundButton } from "../../RoundButton";
 import { hasDailyTargetsSet } from "@/utils";
+import { HeaderButton } from "../../HeaderButton/HeaderButton.ios";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
+import { clipShape } from "@expo/ui/swift-ui/modifiers";
 
 export const Header: React.FC = () => {
   const { colors, theme } = useTheme();
@@ -20,6 +23,7 @@ export const Header: React.FC = () => {
   const dailyTargets = useAppStore((state) => state.dailyTargets);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const menuButtonRef = useRef<View>(null);
+  const hasLiquidGlass = isLiquidGlassAvailable();
 
   const hasGoals = hasDailyTargetsSet(dailyTargets);
 
@@ -43,20 +47,34 @@ export const Header: React.FC = () => {
           {formatDate(selectedDate)}
         </AppText>
         <View style={styles.headerButtonContainer}>
-          <View ref={menuButtonRef} collapsable={false}>
+          {/* <View ref={menuButtonRef} collapsable={false}>
             <RoundButton
               onPress={handleMenuPress}
               Icon={MoreHorizontal}
               variant="tertiary"
               accessibilityLabel="Open menu"
             />
-          </View>
-          <RoundButton
+          </View> */}
+          {/* <RoundButton
             Icon={Plus}
             variant="primary"
-            onPress={() => safeNavigate("/create")}
+            onPress={() => safeNavigate("/new")}
             accessibilityLabel="Create new entry"
             disabled={!hasGoals}
+          /> */}
+          <HeaderButton
+            buttonProps={{
+              onPress: () => safeNavigate("/new"),
+              color: colors.accent,
+              controlSize: hasLiquidGlass ? "large" : "regular",
+              variant: hasLiquidGlass ? "glassProminent" : "borderedProminent",
+              modifiers: hasLiquidGlass ? [] : [clipShape("circle")],
+            }}
+            imageProps={{
+              systemName: "plus",
+              color: colors.black,
+              size: hasLiquidGlass ? undefined : 18,
+            }}
           />
         </View>
       </View>

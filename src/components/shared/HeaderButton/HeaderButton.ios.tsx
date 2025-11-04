@@ -1,3 +1,4 @@
+import { useTheme } from "@/theme/ThemeProvider";
 import {
   Host,
   Button,
@@ -5,8 +6,7 @@ import {
   ButtonProps,
   ImageProps,
 } from "@expo/ui/swift-ui";
-import { frame } from "@expo/ui/swift-ui/modifiers";
-import { theme } from "@/theme";
+import { clipShape, frame } from "@expo/ui/swift-ui/modifiers";
 import { StyleProp, ViewStyle } from "react-native";
 
 const SIZE = 27;
@@ -22,16 +22,26 @@ export function HeaderButton({
   buttonProps,
   style,
 }: HeaderButtonProps) {
+  const { colorScheme } = useTheme();
   return (
-    <Host matchContents style={[{ height: SIZE, width: SIZE }, style]}>
-      <Button {...buttonProps} variant={buttonProps?.variant || "glass"}>
+    <Host
+      matchContents
+      colorScheme={colorScheme}
+      style={[{ height: SIZE, width: SIZE }, style]}
+    >
+      <Button
+        {...buttonProps}
+        variant={buttonProps?.variant || "glass"}
+        // modifiers={[clipShape("circle")]}
+      >
         <Image
           {...imageProps}
           systemName={imageProps?.systemName || "xmark"}
           color={imageProps?.color || "primary"}
-          size={imageProps?.size || 18}
+          size={imageProps?.size || 22}
           modifiers={[
-            frame({ height: SIZE }),
+            clipShape("circle"),
+            frame({ height: 22, width: 12 }),
             ...(imageProps?.modifiers || []),
           ]}
         />

@@ -14,6 +14,7 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     headerButtonContainer: {
       flexDirection: "row",
       gap: theme.spacing.sm,
+      height: 44,
     },
     headerTitle: {
       color: colors.primaryText,

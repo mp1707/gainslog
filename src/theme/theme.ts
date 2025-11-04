@@ -476,31 +476,24 @@ const interactions = {
 const layout = {
   // Header component dimensions (all in 8pt multiples)
   header: {
-    titleHeight: 40, // 4×8pt - Title2 line height + padding
-    buttonHeight: 48, // 6×8pt - RoundButton size with proper padding
-    padding: 16, // 2×8pt - Standard padding
+    titleContainerHeight: 60, // 7.5×8pt - Header component with padding (16 + 44)
     dateSliderHeight: 96, // 12×8pt - DateSlider container height
-    spacing: 24, // 3×8pt - Space between header elements
+    gap: 8, // 1×8pt - Gap between header and slider
+    bottomPadding: 24, // 3*8pt - Bottom padding for spacing
   },
 
   // Calculate dynamic header height that aligns to 8pt grid
   calculateHeaderHeight: (safeAreaTop: number = 0): number => {
     const { header } = layout;
     const contentHeight =
-      header.titleHeight +
+      header.titleContainerHeight +
+      header.gap +
       header.dateSliderHeight +
-      header.padding * 2 +
-      header.spacing;
+      header.bottomPadding;
     const totalHeight = safeAreaTop + contentHeight;
 
     // Round up to nearest 8pt to maintain grid alignment
     return Math.ceil(totalHeight / SPACING_UNIT) * SPACING_UNIT;
-  },
-
-  // Content offset calculation (header height minus overlap for glass effect)
-  calculateContentOffset: (headerHeight: number): number => {
-    // Subtract 24px (2×8pt) to create proper glass effect overlay
-    return headerHeight - 16;
   },
 
   // 8pt grid validation helper

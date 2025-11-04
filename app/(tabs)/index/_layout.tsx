@@ -1,25 +1,13 @@
-import { Platform, Pressable } from "react-native";
+import { Platform } from "react-native";
 import { Stack } from "expo-router";
 import { useTheme } from "@/theme";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
-import { useAppStore } from "@/store/useAppStore";
-import { formatDate } from "@/utils/formatDate";
-import { Plus } from "lucide-react-native";
-import * as Haptics from "expo-haptics";
-import { useNavigationGuard } from "@/hooks/useNavigationGuard";
-import { HeaderButton } from "@/components/shared/HeaderButton/HeaderButton.ios";
 
 export default function IndexLayout() {
-  const { colors, theme, colorScheme } = useTheme();
+  const { colors, theme } = useTheme();
   const isIOS = Platform.OS === "ios";
 
   const hasLiquidGlass = isLiquidGlassAvailable();
-  const selectedDate = useAppStore((state) => state.selectedDate);
-  const { safePush } = useNavigationGuard();
-  const handleCreateLogPress = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    safePush("/new");
-  };
 
   return (
     <Stack
@@ -31,34 +19,7 @@ export default function IndexLayout() {
       <Stack.Screen
         name="index"
         options={{
-          headerTintColor: colors.accent,
-          headerTitle: formatDate(selectedDate),
-          headerTransparent: isIOS,
-          headerBlurEffect: !hasLiquidGlass ? colorScheme : undefined,
-          headerShadowVisible: true,
-          headerLargeTitle: hasLiquidGlass,
-          headerTitleStyle: {
-            color: colors.primaryText,
-            fontFamily: theme.typography.Title1.fontFamily,
-          },
-          headerLargeTitleStyle: {
-            color: colors.primaryText,
-            fontFamily: theme.typography.Title1.fontFamily,
-          },
-          headerLargeTitleShadowVisible: true,
-          headerRight: () => (
-            <Pressable
-              onPress={handleCreateLogPress}
-              style={{
-                padding: 5.5,
-                paddingVertical: 5.5,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Plus color={colors.accent} />
-            </Pressable>
-          ),
+          headerShown: false,
         }}
       />
       <Stack.Screen

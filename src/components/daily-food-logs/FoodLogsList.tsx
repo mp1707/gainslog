@@ -6,8 +6,6 @@ import { NutrientDashboard } from "./NutrientSummary/NutrientDashboard";
 import { EmptyFoodLogsState } from "./EmptyFoodLogsState";
 import { useTheme } from "@/theme/ThemeProvider";
 import { hasDailyTargetsSet } from "@/utils";
-import { DateSlider } from "../shared/DateSlider";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const DEFAULT_TARGETS = { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
@@ -17,7 +15,7 @@ interface FoodLogsListProps {
   dailyTargets: any;
   dailyTotals: any;
   dynamicBottomPadding: number;
-  selectedDate: string;
+  headerOffset: number;
   shouldRenderFoodLogs: boolean;
   onDelete: (log: FoodLog | Favorite) => void;
   onToggleFavorite: (log: FoodLog) => void;
@@ -33,7 +31,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
   dailyTargets,
   dailyTotals,
   dynamicBottomPadding,
-  selectedDate,
+  headerOffset,
   onDelete,
   onToggleFavorite,
   onEdit,
@@ -44,24 +42,21 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
 }) => {
   const { colors, theme } = useTheme();
   const flatListRef = useRef<FlatList>(null);
-  const insets = useSafeAreaInsets();
-  const prevDataRef = useRef({ length: foodLogs.length, date: selectedDate });
+  const prevDataRef = useRef({ length: foodLogs.length });
 
   useEffect(() => {
-    const isSameDate = prevDataRef.current.date === selectedDate;
     const lengthIncreased = foodLogs.length > prevDataRef.current.length;
 
-    // Only scroll when a log is created on the current date
-    // Don't scroll when deleting or changing dates
-    if (isSameDate && lengthIncreased) {
+    // Scroll to top when a new log is added
+    if (lengthIncreased) {
       flatListRef.current?.scrollToOffset({
         animated: true,
-        offset: -insets.top, // Account for transparent header
+        offset: 0,
       });
     }
 
-    prevDataRef.current = { length: foodLogs.length, date: selectedDate };
-  }, [foodLogs.length, selectedDate, insets.top]);
+    prevDataRef.current = { length: foodLogs.length };
+  }, [foodLogs.length]);
 
   const keyExtractor = useCallback((item: FoodLog) => item.id, []);
 
@@ -106,14 +101,11 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
 
   const ListHeaderComponent = useMemo(
     () => (
-      <View>
-        <DateSlider />
-        <NutrientDashboard
-          percentages={dailyPercentages}
-          targets={normalizedTargets}
-          totals={dailyTotals}
-        />
-      </View>
+      <NutrientDashboard
+        percentages={dailyPercentages}
+        targets={normalizedTargets}
+        totals={dailyTotals}
+      />
     ),
     [dailyPercentages, normalizedTargets, dailyTotals]
   );
@@ -128,9 +120,10 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
       {
         gap: theme.spacing.md,
         paddingBottom: dynamicBottomPadding,
+        paddingTop: headerOffset,
       },
     ],
-    [theme.spacing.md, dynamicBottomPadding]
+    [theme.spacing.md, dynamicBottomPadding, headerOffset]
   );
 
   return (
@@ -153,7 +146,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
       maxToRenderPerBatch={8}
       windowSize={7}
       updateCellsBatchingPeriod={50}
-      contentInsetAdjustmentBehavior="automatic"
+      // contentInsetAdjustmentBehavior="automatic"
     />
   );
 };
