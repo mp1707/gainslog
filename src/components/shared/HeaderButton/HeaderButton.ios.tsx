@@ -16,7 +16,7 @@ export interface HeaderButtonProps {
   imageProps?: ImageProps;
   buttonProps?: ButtonProps;
   style?: StyleProp<ViewStyle>;
-  variant?: "regular" | "prominent";
+  variant?: "regular" | "colored";
 }
 
 export function HeaderButton({
@@ -40,12 +40,12 @@ export function HeaderButton({
         color={buttonProps?.color || colors.secondaryBackground}
         variant={
           hasLiquidGlass
-            ? variant === "prominent"
+            ? variant === "colored"
               ? "glassProminent"
               : "glass"
             : "borderedProminent"
         }
-        controlSize={hasLiquidGlass ? "large" : "regular"}
+        // controlSize={hasLiquidGlass ? "large" : "regular"}
         modifiers={hasLiquidGlass ? [] : [clipShape("circle")]}
       >
         <Image
@@ -55,7 +55,7 @@ export function HeaderButton({
           size={hasLiquidGlass ? undefined : 18}
           modifiers={[
             clipShape("circle"),
-            frame({ height: 22, width: 12 }),
+            frame({ height: 28, width: 18 }),
             ...(imageProps?.modifiers || []),
           ]}
         />

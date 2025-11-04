@@ -220,34 +220,25 @@ export default function EditComponent() {
       <View style={styles.header}>
         <HeaderButton
           imageProps={{
-            systemName: mode === "edit" ? "trash" : "xmark",
-            color: "primary",
+            systemName: mode === "edit" ? "trash.fill" : "xmark",
           }}
           buttonProps={{
             onPress: mode === "edit" ? handleDelete : handleCancel,
-            variant: hasLiquidGlass ? "glass" : "bordered",
-            controlSize: "large",
-            modifiers: hasLiquidGlass ? [] : [clipShape("circle")],
-            color: colors.tertiaryBackground,
           }}
         />
         <AppText role="Title2" style={styles.modalTitle}>
           {mode === "create" ? "New Ingredient" : "Ingredient"}
         </AppText>
         <HeaderButton
-          variant="prominent"
+          variant="colored"
           buttonProps={{
             onPress: handleSave,
             disabled: !isValid,
-            variant: hasLiquidGlass ? "glassProminent" : "borderedProminent",
             color: colors.accent,
-            controlSize: "large",
-            modifiers: hasLiquidGlass ? [] : [clipShape("circle")],
           }}
           imageProps={{
             systemName: "checkmark",
             color: colors.black,
-            size: hasLiquidGlass ? undefined : 18,
           }}
         />
       </View>
