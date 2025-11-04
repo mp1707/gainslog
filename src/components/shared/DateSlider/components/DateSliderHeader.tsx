@@ -8,6 +8,7 @@ import { createStyles } from "./DateSliderHeader.styles";
 import { formatDate } from "@/utils/formatDate";
 import { hasDailyTargetsSet } from "@/utils";
 import { HeaderButton } from "../../HeaderButton/HeaderButton.ios";
+import * as Haptics from "expo-haptics";
 
 export const DateSliderHeader: React.FC = () => {
   const { colors, theme } = useTheme();
@@ -18,17 +19,23 @@ export const DateSliderHeader: React.FC = () => {
 
   const hasGoals = hasDailyTargetsSet(dailyTargets);
 
+  const handleNewPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    safeNavigate("/new");
+  };
+
   return (
     <View style={styles.header}>
-      <AppText role="Title2" style={styles.headerTitle}>
+      <AppText role="Title1" style={styles.headerTitle}>
         {formatDate(selectedDate)}
       </AppText>
       <View style={styles.headerButtonContainer}>
         {hasGoals && (
           <HeaderButton
             variant="colored"
+            size="large"
             buttonProps={{
-              onPress: () => safeNavigate("/new"),
+              onPress: handleNewPress,
               color: colors.accent,
             }}
             imageProps={{

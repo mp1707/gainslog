@@ -17,6 +17,7 @@ export interface HeaderButtonProps {
   buttonProps?: ButtonProps;
   style?: StyleProp<ViewStyle>;
   variant?: "regular" | "colored";
+  size?: "regular" | "large";
 }
 
 export function HeaderButton({
@@ -24,6 +25,7 @@ export function HeaderButton({
   buttonProps,
   style,
   variant = "regular",
+  size = "regular",
 }: HeaderButtonProps) {
   const { colorScheme } = useTheme();
   const hasLiquidGlass = isLiquidGlassAvailable();
@@ -45,17 +47,17 @@ export function HeaderButton({
               : "glass"
             : "borderedProminent"
         }
-        // controlSize={hasLiquidGlass ? "large" : "regular"}
+        controlSize={hasLiquidGlass ? size : "regular"}
         modifiers={hasLiquidGlass ? [] : [clipShape("circle")]}
       >
         <Image
           {...imageProps}
           systemName={imageProps?.systemName || "xmark"}
           color={imageProps?.color || "primary"}
-          size={hasLiquidGlass ? undefined : 18}
+          size={size === "large" ? 24 : 18}
           modifiers={[
             clipShape("circle"),
-            frame({ height: 28, width: 18 }),
+            frame({ height: 24, width: 14 }),
             ...(imageProps?.modifiers || []),
           ]}
         />

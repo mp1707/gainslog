@@ -224,6 +224,7 @@ export default function EditComponent() {
           }}
           buttonProps={{
             onPress: mode === "edit" ? handleDelete : handleCancel,
+            color: hasLiquidGlass ? undefined : colors.tertiaryBackground,
           }}
         />
         <AppText role="Title2" style={styles.modalTitle}>

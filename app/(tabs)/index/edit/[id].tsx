@@ -31,6 +31,7 @@ import { Colors, Theme, useTheme } from "@/theme";
 import { useEditableTitle } from "@/components/refine-page/hooks/useEditableTitle";
 import { useEditChangeTracker } from "@/components/refine-page/hooks/useEditChangeTracker";
 import { useEditedLog } from "@/components/refine-page/hooks/useEditedLog";
+import { Host, Image } from "@expo/ui/swift-ui";
 
 const easeLayout = Layout.duration(220).easing(Easing.inOut(Easing.quad));
 
@@ -228,15 +229,17 @@ export default function Edit() {
           disabled={doneDisabled}
           style={({ pressed }) => ({
             opacity: pressed && !doneDisabled ? 0.6 : 1,
-            paddingLeft: 6,
+            paddingLeft: 7,
           })}
           accessibilityLabel="Done"
         >
-          <Check
-            size={24}
-            color={doneDisabled ? colors.secondaryText : colors.accent}
-            strokeWidth={2.5}
-          />
+          <Host matchContents>
+            <Image
+              systemName={"checkmark"}
+              color={doneDisabled ? "primary" : colors.accent}
+              size={18}
+            />
+          </Host>
         </Pressable>
       ),
     });
