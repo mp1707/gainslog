@@ -14,7 +14,7 @@ import Animated, { Easing, Layout } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { useNavigation } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
-import { Calculator, Check } from "lucide-react-native";
+import { Calculator } from "lucide-react-native";
 
 import { AppText } from "@/components/index";
 import { ComponentsList } from "@/components/refine-page/ComponentsList/ComponentsList";
@@ -32,6 +32,7 @@ import { useEditableTitle } from "@/components/refine-page/hooks/useEditableTitl
 import { useEditChangeTracker } from "@/components/refine-page/hooks/useEditChangeTracker";
 import { useEditedLog } from "@/components/refine-page/hooks/useEditedLog";
 import { Host, Image } from "@expo/ui/swift-ui";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
 
 const easeLayout = Layout.duration(220).easing(Easing.inOut(Easing.quad));
 
@@ -40,6 +41,7 @@ export default function Edit() {
   const originalLog = useAppStore(makeSelectLogById(id));
   const updateFoodLog = useAppStore((state) => state.updateFoodLog);
   const isPro = useAppStore((state) => state.isPro);
+  const hasLiquidGlass = isLiquidGlassAvailable();
   const isVerifyingSubscription = useAppStore(
     (state) => state.isVerifyingSubscription
   );
@@ -167,6 +169,7 @@ export default function Edit() {
       macrosPerReferencePortion: editedLog.macrosPerReferencePortion,
       needsUserReview: editedLog.needsUserReview,
     });
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     router.back();
   }, [draftTitle, editedLog, id, router, updateFoodLog]);
 
@@ -201,7 +204,6 @@ export default function Edit() {
       );
       return;
     }
-
     saveFoodLog();
   }, [
     commitTitleBeforeSave,
@@ -229,14 +231,23 @@ export default function Edit() {
           disabled={doneDisabled}
           style={({ pressed }) => ({
             opacity: pressed && !doneDisabled ? 0.6 : 1,
-            paddingLeft: 7,
+            paddingLeft: hasLiquidGlass ? 7 : 8,
+            backgroundColor: colors.secondaryBackground,
+            borderRadius: 99,
+            padding: 8,
           })}
           accessibilityLabel="Done"
         >
           <Host matchContents>
             <Image
               systemName={"checkmark"}
-              color={doneDisabled ? "primary" : colors.accent}
+              color={
+                doneDisabled
+                  ? hasLiquidGlass
+                    ? "primary"
+                    : colors.disabledText
+                  : colors.accent
+              }
               size={18}
             />
           </Host>
