@@ -51,15 +51,19 @@ export function HeaderButton({
         {...buttonProps}
       >
         <Image
-          {...imageProps}
           systemName={imageProps?.systemName || "xmark"}
           color={imageProps?.color || "primary"}
           size={size === "large" && hasLiquidGlass ? 24 : 18}
           modifiers={[
             padding({ all: 30 }),
-            frame({ height: 30, width: 20 }),
+            frame(
+              size === "large"
+                ? { height: 30, width: 20 }
+                : { height: 34, width: 24 }
+            ),
             ...(imageProps?.modifiers || []),
           ]}
+          {...imageProps}
         />
       </Button>
     </Host>

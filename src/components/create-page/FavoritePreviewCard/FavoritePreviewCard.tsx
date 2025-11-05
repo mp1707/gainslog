@@ -82,13 +82,12 @@ const createStyles = (
     },
     card: {
       width,
-      height: theme.spacing.xxl + theme.spacing.xl + theme.spacing.lg,
+      height: theme.spacing.xxl + theme.spacing.xxl + theme.spacing.md,
       gap: theme.spacing.md,
       justifyContent: "space-between",
     },
     title: {
       color: colors.primaryText,
-      flex: 1,
     },
     caloriesRow: {
       flexDirection: "row",

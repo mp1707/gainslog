@@ -338,25 +338,29 @@ export default function Create() {
               focusBorder={false}
               accessibilityLabel="Describe your meal"
             />
-            {!draft.localImagePath && filteredFavorites.length > 0 && (
+            {!(draft.localImagePath || isProcessingImage) && (
               <View style={styles.favoritesSection}>
                 <AppText role="Caption" style={styles.heading}>
-                  Favorites
+                  {filteredFavorites.length > 0
+                    ? " Favorites"
+                    : "No favorites found"}
                 </AppText>
-                <View style={styles.favoritesListOffsetFix}>
-                  <FlatList
-                    horizontal
-                    data={filteredFavorites}
-                    renderItem={renderFavoriteCard}
-                    keyExtractor={(item) => item.id}
-                    ItemSeparatorComponent={() => (
-                      <View style={styles.favoriteSeparator} />
-                    )}
-                    showsHorizontalScrollIndicator={false}
-                    contentInset={{ left: theme.spacing.sm }}
-                    contentContainerStyle={styles.favoritesListContent}
-                  />
-                </View>
+                {filteredFavorites.length > 0 && (
+                  <View style={styles.favoritesListOffsetFix}>
+                    <FlatList
+                      horizontal
+                      data={filteredFavorites}
+                      renderItem={renderFavoriteCard}
+                      keyExtractor={(item) => item.id}
+                      ItemSeparatorComponent={() => (
+                        <View style={styles.favoriteSeparator} />
+                      )}
+                      showsHorizontalScrollIndicator={false}
+                      contentInset={{ left: theme.spacing.sm }}
+                      contentContainerStyle={styles.favoritesListContent}
+                    />
+                  </View>
+                )}
               </View>
             )}
             {(draft.localImagePath || isProcessingImage) && (

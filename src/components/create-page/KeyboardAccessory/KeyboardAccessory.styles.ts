@@ -15,7 +15,7 @@ export const createStyles = (
     },
     layer: {
       ...StyleSheet.absoluteFillObject,
-      paddingHorizontal: theme.spacing.md,
+      paddingHorizontal: theme.spacing.sm,
       paddingVertical: theme.spacing.sm,
       justifyContent: "center",
     },
