@@ -33,9 +33,6 @@ interface KeyboardAccessoryProps {
   isRecording?: boolean;
   volumeLevel?: number;
   isEstimating?: boolean;
-  isFavoritesActive: boolean;
-  onToggleFavorites: () => void;
-  onEnsureEstimationMode: () => void;
 }
 
 const MiniWaveform: React.FC<{
@@ -131,9 +128,6 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   isRecording = false,
   volumeLevel = 0,
   isEstimating = false,
-  isFavoritesActive,
-  onToggleFavorites,
-  onEnsureEstimationMode,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme, colorScheme);
@@ -147,7 +141,7 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
     }
   }, [isRecording]);
 
-  const confirmDisabled = isFavoritesActive || !canContinue || isEstimating;
+  const confirmDisabled = !canContinue || isEstimating;
   const iconColor = colorScheme === "dark" ? colors.white : colors.primaryText;
 
   const showWaveform = useMemo(
@@ -221,7 +215,6 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   }));
 
   const handleCameraPress = useCallback(async () => {
-    onEnsureEstimationMode();
     textInputRef?.current?.blur();
 
     if (!cameraPermission?.granted) {
@@ -236,21 +229,13 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
     }
 
     router.push(logId ? `/camera?logId=${logId}` : `/camera`);
-  }, [
-    onEnsureEstimationMode,
-    textInputRef,
-    cameraPermission,
-    requestCameraPermission,
-    router,
-    logId,
-  ]);
+  }, [textInputRef, cameraPermission, requestCameraPermission, router, logId]);
 
   const handleMicPress = useCallback(async () => {
     if (showWaveform) {
       return;
     }
 
-    onEnsureEstimationMode();
     textInputRef?.current?.blur();
 
     if (requestMicPermission) {
@@ -272,13 +257,7 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
     } catch (_error) {
       setIsTranscriptionVisible(false);
     }
-  }, [
-    showWaveform,
-    onEnsureEstimationMode,
-    textInputRef,
-    requestMicPermission,
-    onRecording,
-  ]);
+  }, [showWaveform, textInputRef, requestMicPermission, onRecording]);
 
   const handleStopPress = useCallback(async () => {
     try {
@@ -329,19 +308,6 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
             }}
           />
           <HeaderButton
-            variant={isFavoritesActive ? "colored" : "regular"}
-            buttonProps={{
-              onPress: onToggleFavorites,
-              color: isFavoritesActive
-                ? colors.semantic.fat
-                : colors.secondaryBackground,
-            }}
-            imageProps={{
-              systemName: isFavoritesActive ? "star.fill" : "star",
-              color: isFavoritesActive ? colors.black : iconColor,
-            }}
-          />
-          <HeaderButton
             variant="regular"
             buttonProps={{
               onPress: handleCameraPress,
@@ -357,7 +323,7 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
             buttonProps={{
               onPress: handleConfirmPress,
               disabled: confirmDisabled,
-              color: colors.accent,
+              color: confirmDisabled ? "transparent" : colors.accent,
             }}
             imageProps={{
               systemName: "checkmark",

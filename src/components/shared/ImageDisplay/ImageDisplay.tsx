@@ -5,9 +5,9 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
   withRepeat,
-  withSpring,
   interpolate,
   cancelAnimation,
+  Easing,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
@@ -27,32 +27,37 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
   onExpand,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
-  const styles = useMemo(() => createStyles(colors, theme, colorScheme), [colors, theme, colorScheme]);
-  
+  const styles = useMemo(
+    () => createStyles(colors, theme, colorScheme),
+    [colors, theme, colorScheme]
+  );
+
   // Toggle state for height expansion
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
   // Shared values for animations
   const skeletonOpacity = useSharedValue(0.3);
   const imageOpacity = useSharedValue(0);
   const imageScale = useSharedValue(0.95);
   const pressScale = useSharedValue(1);
-  const containerHeight = useSharedValue(200);
-  
+  const collapsedHeight = 80;
+  const expandedHeight = 260;
+  const containerHeight = useSharedValue(collapsedHeight);
+
   // Skeleton pulsing animation
   useEffect(() => {
     if (isUploading) {
       skeletonOpacity.value = withRepeat(
         withTiming(0.7, { duration: 1000 }),
         -1,
-        true,
+        true
       );
     } else {
       cancelAnimation(skeletonOpacity);
       skeletonOpacity.value = 0.3;
     }
   }, [isUploading, skeletonOpacity]);
-  
+
   // Image entrance animation
   useEffect(() => {
     if (imageUrl && !isUploading) {
@@ -66,24 +71,29 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
 
   // Height toggle animation
   useEffect(() => {
-    containerHeight.value = withSpring(isExpanded ? 300 : 150, {
-      damping: 20,
-      stiffness: 300,
-    });
-  }, [isExpanded, containerHeight]);
+    if (isExpanded) {
+      containerHeight.value = withTiming(expandedHeight, {
+        duration: 250,
+        easing: Easing.out(Easing.ease),
+      });
+      return;
+    }
+
+    containerHeight.value = collapsedHeight;
+  }, [collapsedHeight, expandedHeight, isExpanded, containerHeight]);
 
   // Press handlers
   const handlePressIn = () => {
-    pressScale.value = withSpring(0.98, {
-      damping: 15,
-      stiffness: 400,
+    pressScale.value = withTiming(0.98, {
+      duration: 120,
+      easing: Easing.out(Easing.ease),
     });
   };
 
   const handlePressOut = () => {
-    pressScale.value = withSpring(1, {
-      damping: 15,
-      stiffness: 400,
+    pressScale.value = withTiming(1, {
+      duration: 120,
+      easing: Easing.out(Easing.ease),
     });
   };
 
@@ -121,7 +131,7 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
       {isUploading && (
         <Animated.View style={[styles.skeleton, skeletonAnimatedStyle]} />
       )}
-      
+
       {imageUrl && !isUploading && (
         <Animated.View style={[styles.imageContainer, imageAnimatedStyle]}>
           <Image
@@ -142,7 +152,7 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
         onPressOut={handlePressOut}
         activeOpacity={1}
         accessibilityRole="button"
-        accessibilityLabel={`${isExpanded ? 'Collapse' : 'Expand'} image view`}
+        accessibilityLabel={`${isExpanded ? "Collapse" : "Expand"} image view`}
         accessibilityHint="Double tap to toggle image size"
       >
         {content}

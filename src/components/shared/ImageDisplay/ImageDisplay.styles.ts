@@ -7,7 +7,6 @@ export const createStyles = (
   themeObj: Theme,
   colorScheme: ColorScheme
 ) => {
-  const { spacing } = themeObj;
   const componentStyles = themeObj.getComponentStyles(colorScheme);
 
   return StyleSheet.create({

@@ -44,7 +44,7 @@ function ThemedStack() {
       <Stack.Screen
         name="new"
         options={{
-          presentation: "modal",
+          presentation: "fullScreenModal",
           headerShown: false,
           gestureEnabled: true,
         }}

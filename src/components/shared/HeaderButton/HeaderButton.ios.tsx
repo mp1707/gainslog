@@ -38,7 +38,6 @@ export function HeaderButton({
       style={[{ height: SIZE, width: SIZE }, style]}
     >
       <Button
-        {...buttonProps}
         color={buttonProps?.color || colors.secondaryBackground}
         variant={
           hasLiquidGlass
@@ -49,6 +48,7 @@ export function HeaderButton({
         }
         controlSize={hasLiquidGlass ? size : "regular"}
         modifiers={hasLiquidGlass ? [] : [clipShape("circle")]}
+        {...buttonProps}
       >
         <Image
           {...imageProps}
