@@ -22,17 +22,18 @@ export const createStyles = (
       gap: theme.spacing.md,
       marginHorizontal: theme.spacing.md,
       paddingTop: theme.spacing.md,
-      // alignItems: "center",
     },
     header: {
       flexDirection: "row",
       alignItems: "center",
       gap: theme.spacing.xs,
     },
-    textInputContainer: {
-      // minHeight: 150,
+    textInputField: {
       backgroundColor: colors.primaryBackground,
       borderRadius: componentStyles.cards.cornerRadius,
+    },
+    textInputContainer: {
+      paddingBottom: 200,
     },
     image: {
       alignSelf: "center",

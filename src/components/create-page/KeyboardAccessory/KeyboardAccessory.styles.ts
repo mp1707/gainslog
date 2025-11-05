@@ -9,36 +9,57 @@ export const createStyles = (
   StyleSheet.create({
     container: {
       marginHorizontal: theme.spacing.sm,
-      // backgroundColor:
-      //   colorScheme === "light"
-      //     ? colors.tertiaryBackground
-      //     : colors.secondaryBackground,
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      gap: theme.spacing.sm,
-      borderRadius: 9999,
-      paddingHorizontal: theme.spacing.sm,
-      overflow: "hidden",
-      zIndex: 99,
+      minHeight: theme.spacing.xl + theme.spacing.lg,
+      borderRadius: theme.spacing.xl,
       position: "relative",
     },
-    mediaActionContainer: {
+    layer: {
+      ...StyleSheet.absoluteFillObject,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      justifyContent: "center",
+    },
+    actionsLayer: {
       flexDirection: "row",
-      gap: theme.spacing.sm,
+      alignItems: "center",
       justifyContent: "flex-end",
     },
+    actionsRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "flex-end",
+      gap: theme.spacing.sm,
+      flex: 1,
+    },
+    waveformLayer: {
+      justifyContent: "center",
+    },
+    waveformPanel: {
+      alignSelf: "stretch",
+      gap: theme.spacing.xs,
+      alignItems: "flex-end",
+    },
+    waveformRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "flex-end",
+      gap: theme.spacing.sm,
+    },
     waveformContainer: {
-      height: 32,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      overflow: "hidden",
+      height: 42,
+      flex: 1,
     },
     waveformBar: {
       width: 4,
       borderRadius: 2,
       marginHorizontal: 1.5,
       backgroundColor: colors.secondaryText,
+    },
+    waveformSubtitle: {
+      color: colors.secondaryText,
+      textAlign: "right",
     },
   });

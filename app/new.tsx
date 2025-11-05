@@ -19,7 +19,6 @@ import { CreateHeader } from "@/components/create-page/CreateHeader/CreateHeader
 import { EstimationTab } from "@/components/create-page/EstimationTab/EstimationTab";
 import { FavoritesTab } from "@/components/create-page/FavoritesTab/FavoritesTab";
 import { KeyboardAccessory } from "@/components/create-page/KeyboardAccessory/KeyboardAccessory";
-import { Host, Picker } from "@expo/ui/swift-ui";
 import { showErrorToast } from "@/lib/toast";
 import { processImage } from "@/utils/processImage";
 import { useCreationStore } from "@/store/useCreationStore"; // keyed drafts store
@@ -32,7 +31,7 @@ import { BrainCircuit } from "lucide-react-native";
 const inputAccessoryViewID = "create-input-accessory";
 
 export default function Create() {
-  const { theme, colors, colorScheme } = useTheme();
+  const { theme, colors } = useTheme();
   const styles = createStyles(theme, colors);
   const router = useSafeRouter();
   const { startNewDraft, clearDraft, updateDraft } = useCreationStore();
@@ -54,9 +53,7 @@ export default function Create() {
   } = useTranscription();
   const baseDescriptionRef = useRef<string | null>(null);
 
-  const [estimationType, setEstimationType] = useState<
-    "ai" | "favorites" | "manual"
-  >("ai");
+  const [isFavoritesActive, setIsFavoritesActive] = useState(false);
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [isEstimating, setIsEstimating] = useState(false);
   const textInputRef = useRef<RNTextInput>(null);
@@ -86,13 +83,15 @@ export default function Create() {
           carbs: 0,
           fat: 0,
         });
+        setIsFavoritesActive(false);
+        textInputRef.current?.focus();
       } catch (error) {
         showErrorToast("Error processing image", "Please try again.");
       } finally {
         setIsProcessingImage(false);
       }
     },
-    [draftId, updateDraft]
+    [draftId, updateDraft, textInputRef]
   );
 
   // Watch for pending image URI from camera and process it
@@ -126,10 +125,6 @@ export default function Create() {
     liveTranscription,
     updateDraft,
   ]);
-
-  const handleTranscriptionStop = useCallback(async () => {
-    await stopRecording();
-  }, [stopRecording]);
 
   const handleCancel = useCallback(() => {
     router.back();
@@ -181,6 +176,30 @@ export default function Create() {
     [draftId, updateDraft]
   );
 
+  const handleToggleFavorites = useCallback(() => {
+    setIsFavoritesActive((prev) => {
+      const next = !prev;
+      if (next) {
+        textInputRef.current?.blur();
+      } else {
+        textInputRef.current?.focus();
+      }
+      return next;
+    });
+  }, []);
+
+  const ensureEstimationMode = useCallback(() => {
+    setIsFavoritesActive((prev) => {
+      if (!prev) return prev;
+      textInputRef.current?.focus();
+      return false;
+    });
+  }, []);
+
+  const handleTranscriptionStop = useCallback(async () => {
+    await stopRecording();
+  }, [stopRecording]);
+
   // Render a lightweight loading state instead of returning null to avoid white flash
   if (!draft) {
     return (
@@ -203,71 +222,56 @@ export default function Create() {
   return (
     <View style={styles.container}>
       <CreateHeader onCancel={handleCancel} />
-      <View style={styles.toggleContainer}>
-        <Host matchContents colorScheme={colorScheme}>
-          <Picker
-            options={["Estimation", "Favorites"]}
-            selectedIndex={estimationType === "ai" ? 0 : 1}
-            onOptionSelected={({ nativeEvent: { index } }) => {
-              setEstimationType(index === 0 ? "ai" : "favorites");
-            }}
-            variant="segmented"
-          />
-        </Host>
-      </View>
-      {estimationType === "ai" &&
-        (isVerifyingSubscription ? (
-          <View
-            style={{
-              flex: 1,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <ActivityIndicator />
-          </View>
-        ) : isPro ? (
-          <EstimationTab
-            description={draft.description}
-            onDescriptionChange={handleDescriptionChange}
-            imageUrl={draft.localImagePath}
-            isUploadingImage={isProcessingImage}
-            textInputRef={textInputRef}
-            inputAccessoryViewID={inputAccessoryViewID}
-          />
-        ) : (
-          <View style={styles.lockedContainer}>
-            <InlinePaywallCard
-              Icon={BrainCircuit}
-              title="AI Logging is a Pro Feature"
-              body="Log meals effortlessly with a photo, text, or your voice."
-              ctaLabel="Start Free Trial"
-              onPress={handleShowPaywall}
-              testID="create-inline-paywall"
-            />
-          </View>
-        ))}
-      {estimationType === "favorites" && (
+      {isFavoritesActive ? (
         <FavoritesTab onCreateFromFavorite={handleCreateLogFromFavorite} />
-      )}
-      {estimationType === "ai" && isPro && !isVerifyingSubscription && (
-        <KeyboardStickyView offset={{ closed: -30, opened: -10 }}>
-          <KeyboardAccessory
-            onImageSelected={handleNewImageSelected}
-            textInputRef={textInputRef}
-            requestMicPermission={requestPermission}
-            onRecording={startRecording}
-            onStop={handleTranscriptionStop}
-            isRecording={isRecording}
-            volumeLevel={volumeLevel}
-            onEstimate={handleEstimation}
-            estimateLabel={"Estimate"}
-            canContinue={canContinue}
-            isEstimating={isEstimating}
-            logId={draft.id}
+      ) : isVerifyingSubscription ? (
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <ActivityIndicator />
+        </View>
+      ) : isPro ? (
+        <EstimationTab
+          description={draft.description}
+          onDescriptionChange={handleDescriptionChange}
+          imageUrl={draft.localImagePath}
+          isUploadingImage={isProcessingImage}
+          textInputRef={textInputRef}
+          inputAccessoryViewID={inputAccessoryViewID}
+        />
+      ) : (
+        <View style={styles.lockedContainer}>
+          <InlinePaywallCard
+            Icon={BrainCircuit}
+            title="AI Logging is a Pro Feature"
+            body="Log meals effortlessly with a photo, text, or your voice."
+            ctaLabel="Start Free Trial"
+            onPress={handleShowPaywall}
+            testID="create-inline-paywall"
           />
-        </KeyboardStickyView>
+        </View>
       )}
+      <KeyboardStickyView offset={{ closed: -30, opened: 12 }}>
+        <KeyboardAccessory
+          textInputRef={textInputRef}
+          requestMicPermission={requestPermission}
+          onRecording={startRecording}
+          onStop={handleTranscriptionStop}
+          isRecording={isRecording}
+          volumeLevel={volumeLevel}
+          onEstimate={handleEstimation}
+          canContinue={canContinue}
+          isEstimating={isEstimating}
+          logId={draft.id}
+          isFavoritesActive={isFavoritesActive}
+          onToggleFavorites={handleToggleFavorites}
+          onEnsureEstimationMode={ensureEstimationMode}
+        />
+      </KeyboardStickyView>
     </View>
   );
 }
@@ -278,10 +282,6 @@ const createStyles = (theme: Theme, colors: Colors) =>
       flex: 1,
       paddingTop: theme.spacing.md,
       backgroundColor: colors.primaryBackground,
-    },
-    toggleContainer: {
-      marginHorizontal: theme.spacing.md,
-      marginBottom: theme.spacing.md,
     },
     lockedContainer: {
       flex: 1,

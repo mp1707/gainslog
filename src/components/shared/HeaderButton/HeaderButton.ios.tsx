@@ -6,7 +6,7 @@ import {
   ButtonProps,
   ImageProps,
 } from "@expo/ui/swift-ui";
-import { clipShape, frame } from "@expo/ui/swift-ui/modifiers";
+import { clipShape, frame, padding } from "@expo/ui/swift-ui/modifiers";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { StyleProp, ViewStyle } from "react-native";
 
@@ -54,10 +54,10 @@ export function HeaderButton({
           {...imageProps}
           systemName={imageProps?.systemName || "xmark"}
           color={imageProps?.color || "primary"}
-          size={size === "large" ? 24 : 18}
+          size={size === "large" && hasLiquidGlass ? 24 : 18}
           modifiers={[
-            clipShape("circle"),
-            frame({ height: 24, width: 14 }),
+            padding({ all: 30 }),
+            frame({ height: 30, width: 20 }),
             ...(imageProps?.modifiers || []),
           ]}
         />

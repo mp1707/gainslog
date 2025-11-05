@@ -220,7 +220,7 @@ export default function EditComponent() {
       <View style={styles.header}>
         <HeaderButton
           imageProps={{
-            systemName: mode === "edit" ? "trash.fill" : "xmark",
+            systemName: mode === "edit" ? "trash" : "xmark",
           }}
           buttonProps={{
             onPress: mode === "edit" ? handleDelete : handleCancel,

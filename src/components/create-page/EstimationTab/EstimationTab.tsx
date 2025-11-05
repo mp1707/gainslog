@@ -32,7 +32,8 @@ export const EstimationTab: React.FC<EstimationTabProps> = ({
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme, !!imageUrl, colorScheme);
   const router = useSafeRouter();
-  const { handlePressIn, handlePressOut, pressAnimatedStyle } = usePressAnimation();
+  const { handlePressIn, handlePressOut, pressAnimatedStyle } =
+    usePressAnimation();
 
   const handleOpenExplainer = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -72,7 +73,9 @@ export const EstimationTab: React.FC<EstimationTabProps> = ({
           multiline={true}
           inputAccessoryViewID={inputAccessoryViewID}
           fontSize="Headline"
-          style={styles.textInputContainer}
+          style={styles.textInputField}
+          containerStyle={styles.textInputContainer}
+          focusBorder={false}
         />
       </View>
     </KeyboardAwareScrollView>

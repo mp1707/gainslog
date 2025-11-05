@@ -4,19 +4,14 @@ import type { Colors, Theme, ColorScheme } from "@/theme";
 export const createStyles = (
   colors: Colors,
   theme: Theme,
-  colorScheme: ColorScheme,
   isFocused: boolean,
   fontSize: string
 ) =>
   StyleSheet.create({
-    outerContainer: {
-      backgroundColor: "transparent",
-    },
     focusBorder: {
       borderWidth: 2,
       borderColor: isFocused ? colors.accent : "transparent",
       borderRadius: theme.components.cards.cornerRadius,
-      backgroundColor: colorScheme === "light" ? colors.tertiaryBackground : colors.secondaryBackground,
     },
     textInput: {
       flex: 1,
