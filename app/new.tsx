@@ -15,12 +15,6 @@ import * as Haptics from "expo-haptics";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { BrainCircuit, Info } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-  Easing,
-} from "react-native-reanimated";
 
 import { useAppStore } from "@/store/useAppStore";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -42,7 +36,6 @@ import { AppText } from "@/components/shared/AppText";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { FavoritePreviewCard } from "@/components/create-page/FavoritePreviewCard/FavoritePreviewCard";
 import { KeyboardAccessory } from "@/components/create-page/KeyboardAccessory/KeyboardAccessory";
-import { Waveform } from "@/components/create-page/Waveform";
 
 const inputAccessoryViewID = "create-input-accessory";
 const CARD_WIDTH = Dimensions.get("window").width * 0.4;
@@ -70,7 +63,7 @@ export default function Create() {
   const {
     requestPermission,
     isRecording,
-    isPreparing,
+    isTransitioning,
     liveTranscription,
     volumeLevel,
     stopRecording,
@@ -85,9 +78,6 @@ export default function Create() {
   const textInputRef = useRef<RNTextInput>(null);
   useDelayedAutofocus(textInputRef);
 
-  // Simple fade-in animation for waveform section
-  const sectionOpacity = useSharedValue(0);
-
   useEffect(() => {
     const id = startNewDraft(selectedDate);
     setDraftId(id);
@@ -96,27 +86,11 @@ export default function Create() {
     };
   }, [startNewDraft, clearDraft, selectedDate]);
 
-  // Simple fade-in animation when preparing/recording
-  useEffect(() => {
-    if (isPreparing || isRecording) {
-      // Fade in entire section
-      sectionOpacity.value = withTiming(1, {
-        duration: 400,
-        easing: Easing.out(Easing.cubic),
-      });
-    } else {
-      // Fade out when done
-      sectionOpacity.value = withTiming(0, {
-        duration: 200,
-        easing: Easing.in(Easing.cubic),
-      });
-    }
-  }, [isPreparing, isRecording, sectionOpacity]);
-
   // Trigger haptic when recording actually starts
   useEffect(() => {
     if (isRecording) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      textInputRef.current?.focus();
     }
   }, [isRecording]);
 
@@ -290,10 +264,6 @@ export default function Create() {
     (draft?.description?.trim() !== "" || !!draft?.localImagePath) &&
     !isEstimating;
 
-  const sectionAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: sectionOpacity.value,
-  }));
-
   if (!draft) {
     return (
       <View style={styles.loadingContainer}>
@@ -438,53 +408,21 @@ export default function Create() {
           </View>
         )}
       </ScrollView>
-      {(isPreparing || isRecording) && (
-        <Animated.View
-          style={[
-            styles.waveformSection,
-            { paddingBottom: insets.bottom + theme.spacing.lg },
-            sectionAnimatedStyle,
-          ]}
-        >
-          <AppText role="Caption" style={styles.heading}>
-            Describe your meal by speaking
-          </AppText>
-          <View style={styles.waveformRow}>
-            <Waveform
-              volumeLevel={volumeLevel}
-              isActive={isRecording}
-              containerStyle={styles.waveformContainer}
-              barStyle={styles.waveformBar}
-            />
-            <HeaderButton
-              variant="colored"
-              size="large"
-              buttonProps={{
-                onPress: handleTranscriptionStop,
-                color: colors.recording,
-              }}
-              imageProps={{
-                systemName: "stop.fill",
-                color: colors.white,
-              }}
-            />
-          </View>
-        </Animated.View>
-      )}
-      {!isRecording && !isPreparing && (
-        <KeyboardStickyView offset={{ closed: -30, opened: 12 }}>
-          <KeyboardAccessory
-            textInputRef={textInputRef}
-            requestMicPermission={requestPermission}
-            onRecording={startRecording}
-            onEstimate={handleEstimation}
-            canContinue={canContinue}
-            isEstimating={isEstimating}
-            isPreparing={isPreparing}
-            logId={draft.id}
-          />
-        </KeyboardStickyView>
-      )}
+      <KeyboardStickyView offset={{ closed: -54, opened: 0 }}>
+        <KeyboardAccessory
+          textInputRef={textInputRef}
+          requestMicPermission={requestPermission}
+          onRecording={startRecording}
+          onStopRecording={handleTranscriptionStop}
+          onEstimate={handleEstimation}
+          canContinue={canContinue}
+          isEstimating={isEstimating}
+          isRecording={isRecording}
+          isTransitioning={isTransitioning}
+          volumeLevel={volumeLevel}
+          logId={draft.id}
+        />
+      </KeyboardStickyView>
     </View>
   );
 }
@@ -594,35 +532,5 @@ const createStyles = (theme: Theme, colors: Colors, colorScheme: ColorScheme) =>
       justifyContent: "center",
       alignItems: "center",
       backgroundColor: colors.primaryBackground,
-    },
-    waveformSection: {
-      position: "absolute",
-      bottom: 150,
-      left: 0,
-      right: 0,
-      paddingTop: theme.spacing.xl,
-      gap: theme.spacing.lg,
-      alignItems: "flex-start",
-      justifyContent: "center",
-    },
-    waveformRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      width: "100%",
-      gap: theme.spacing.md,
-      paddingHorizontal: theme.spacing.lg,
-    },
-    waveformContainer: {
-      flex: 1,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: theme.spacing.xs,
-      height: 100,
-    },
-    waveformBar: {
-      width: 4,
-      backgroundColor: colors.accent,
-      borderRadius: theme.spacing.xs / 2,
     },
   });

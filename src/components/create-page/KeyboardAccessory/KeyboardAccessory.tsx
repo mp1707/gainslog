@@ -1,39 +1,50 @@
 import React, { useCallback } from "react";
-import { View, TextInput, ActivityIndicator } from "react-native";
+import { View, TextInput } from "react-native";
 import { useCameraPermissions } from "expo-camera";
 import { useTheme } from "@/theme";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { showErrorToast } from "@/lib/toast";
 import { createStyles } from "./KeyboardAccessory.styles";
 import { HeaderButton } from "@/components/shared/HeaderButton/HeaderButton.ios";
+import { Waveform } from "@/components/create-page/Waveform";
 
 interface KeyboardAccessoryProps {
   requestMicPermission?: () => Promise<boolean>;
   onRecording?: () => Promise<void> | void;
+  onStopRecording?: () => Promise<void> | void;
   onEstimate: () => void;
   canContinue: boolean;
   textInputRef?: React.RefObject<TextInput | null>;
   logId?: string;
   isEstimating?: boolean;
-  isPreparing?: boolean;
+  isRecording?: boolean;
+  isTransitioning?: boolean;
+  volumeLevel?: number;
 }
 
 export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   requestMicPermission,
   onRecording,
+  onStopRecording,
   onEstimate,
   canContinue,
   textInputRef,
   logId,
   isEstimating = false,
-  isPreparing = false,
+  isRecording = false,
+  isTransitioning = false,
+  volumeLevel = 0,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme, colorScheme);
   const router = useSafeRouter();
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const isFocused = textInputRef?.current?.isFocused() || false;
 
-  const confirmDisabled = !canContinue || isEstimating;
+  const confirmDisabled =
+    !canContinue || isEstimating || isRecording || isTransitioning;
+  const cameraDisabled = isRecording || isTransitioning;
+  const micDisabled = isTransitioning;
   const iconColor = colorScheme === "dark" ? colors.white : colors.primaryText;
 
   const handleCameraPress = useCallback(async () => {
@@ -54,8 +65,6 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   }, [textInputRef, cameraPermission, requestCameraPermission, router, logId]);
 
   const handleMicPress = useCallback(async () => {
-    textInputRef?.current?.blur();
-
     if (requestMicPermission) {
       const granted = await requestMicPermission();
       if (!granted) {
@@ -67,7 +76,9 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
       }
     }
 
-    await onRecording?.();
+    // Call recording without awaiting for instant UI response
+    onRecording?.();
+    textInputRef?.current?.focus();
   }, [textInputRef, requestMicPermission, onRecording]);
 
   const handleConfirmPress = useCallback(() => {
@@ -76,32 +87,48 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
     }
   }, [confirmDisabled, onEstimate]);
 
+  const handleStopPress = useCallback(() => {
+    // Call without awaiting for instant UI response
+    onStopRecording?.();
+  }, [onStopRecording]);
+
   return (
     <View style={styles.container}>
+      {isRecording ? (
+        <Waveform
+          volumeLevel={volumeLevel}
+          isActive
+          containerStyle={[
+            styles.waveformContainer,
+            { transform: [{ translateY: isFocused ? 0 : 24 }] },
+          ]}
+          barStyle={styles.waveformBar}
+        />
+      ) : null}
       <View style={styles.actionsRow}>
-        {isPreparing ? (
-          <View
-            style={{
-              width: 44,
-              height: 44,
-              backgroundColor: colors.secondaryBackground,
-              borderRadius: 22,
-              justifyContent: "center",
-              alignItems: "center",
+        {isRecording ? (
+          <HeaderButton
+            variant="regular"
+            buttonProps={{
+              onPress: handleStopPress,
+              color: colors.secondaryBackground,
             }}
-          >
-            <ActivityIndicator size="small" color={iconColor} />
-          </View>
+            imageProps={{
+              systemName: "stop.fill",
+              color: colors.white,
+            }}
+          />
         ) : (
           <HeaderButton
             variant="regular"
             buttonProps={{
               onPress: handleMicPress,
+              disabled: micDisabled,
               color: colors.secondaryBackground,
             }}
             imageProps={{
               systemName: "mic.fill",
-              color: iconColor,
+              color: micDisabled ? colors.disabledText : iconColor,
             }}
           />
         )}
@@ -109,11 +136,12 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
           variant="regular"
           buttonProps={{
             onPress: handleCameraPress,
+            disabled: cameraDisabled,
             color: colors.secondaryBackground,
           }}
           imageProps={{
             systemName: "camera",
-            color: iconColor,
+            color: cameraDisabled ? colors.disabledText : iconColor,
           }}
         />
         <HeaderButton

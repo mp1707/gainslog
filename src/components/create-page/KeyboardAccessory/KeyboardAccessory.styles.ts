@@ -9,57 +9,35 @@ export const createStyles = (
   StyleSheet.create({
     container: {
       marginHorizontal: theme.spacing.sm,
-      minHeight: theme.spacing.xl + theme.spacing.lg,
-      borderRadius: theme.spacing.xl,
-      position: "relative",
-    },
-    layer: {
-      ...StyleSheet.absoluteFillObject,
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: theme.spacing.sm,
-      justifyContent: "center",
-    },
-    actionsLayer: {
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "flex-end",
+      gap: theme.spacing.md,
+      borderRadius: theme.spacing.xl,
     },
     actionsRow: {
+      transform: [{ translateY: 24 }],
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "flex-end",
       gap: theme.spacing.sm,
-      flex: 1,
-    },
-    waveformLayer: {
-      justifyContent: "center",
-    },
-    waveformPanel: {
-      alignSelf: "stretch",
-      gap: theme.spacing.xs,
-      alignItems: "flex-end",
-    },
-    waveformRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "flex-end",
-      gap: theme.spacing.sm,
+      marginLeft: "auto",
     },
     waveformContainer: {
+      flex: 1,
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "center",
-      height: 42,
-      flex: 1,
+      justifyContent: "flex-start",
+      height: 28,
+      overflow: "hidden",
+      borderRadius: theme.spacing.sm,
+      paddingVertical: theme.spacing.xs,
     },
     waveformBar: {
-      width: 4,
-      borderRadius: 2,
-      marginHorizontal: 1.5,
-      backgroundColor: colors.secondaryText,
-    },
-    waveformSubtitle: {
-      color: colors.secondaryText,
-      textAlign: "right",
+      width: 3,
+      borderRadius: theme.spacing.xs,
+      marginHorizontal: 2,
+      backgroundColor:
+        colorScheme === "dark" ? colors.accent : colors.primaryText,
     },
   });

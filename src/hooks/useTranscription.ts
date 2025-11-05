@@ -12,17 +12,20 @@ export interface UseTranscriptionReturn {
   volumeLevel: number;
   isRecording: boolean;
   isPreparing: boolean;
+  isTransitioning: boolean;
 }
 
 export const useTranscription = (): UseTranscriptionReturn => {
   const [isRecording, setIsRecording] = useState(false);
   const [isPreparing, setIsPreparing] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [liveTranscription, setLiveTranscription] = useState("");
   const [volumeLevel, setVolumeLevel] = useState(0);
 
   // Event handlers
   const handleStart = useCallback(() => {
     setIsPreparing(false);
+    setIsTransitioning(false);
     setIsRecording(true);
   }, []);
 
@@ -30,6 +33,7 @@ export const useTranscription = (): UseTranscriptionReturn => {
     setLiveTranscription("");
     setIsRecording(false);
     setIsPreparing(false);
+    setIsTransitioning(false);
   }, []);
 
   const handleResult = useCallback((event: any) => {
@@ -77,8 +81,10 @@ export const useTranscription = (): UseTranscriptionReturn => {
 
   const startRecording = useCallback(async (): Promise<void> => {
     try {
-      // Set preparing state immediately for instant UI feedback
+      // Set recording state optimistically for instant UI feedback
+      setIsTransitioning(true);
       setIsPreparing(true);
+      setIsRecording(true);
 
       // Clear previous state
       setLiveTranscription("");
@@ -95,21 +101,31 @@ export const useTranscription = (): UseTranscriptionReturn => {
           intervalMillis: 100, // Update volume every 100ms for smoother updates
         },
       });
+
+      // The 'start' event listener will clear isTransitioning and isPreparing
     } catch (error) {
       console.error("Error starting speech recognition:", error);
       setIsRecording(false);
       setIsPreparing(false);
+      setIsTransitioning(false);
     }
   }, []);
 
   const stopRecording = useCallback(async (): Promise<void> => {
     try {
-      ExpoSpeechRecognitionModule.stop();
+      // Set stopping state optimistically for instant UI feedback
+      setIsTransitioning(true);
+      setIsRecording(false);
       setVolumeLevel(0);
+
+      ExpoSpeechRecognitionModule.stop();
+
+      // The 'end' event listener will clear isTransitioning
     } catch (error) {
       console.error("Error stopping speech recognition:", error);
       setIsRecording(false);
       setIsPreparing(false);
+      setIsTransitioning(false);
     }
   }, []);
 
@@ -130,5 +146,6 @@ export const useTranscription = (): UseTranscriptionReturn => {
     volumeLevel,
     isRecording,
     isPreparing,
+    isTransitioning,
   };
 };
