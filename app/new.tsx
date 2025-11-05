@@ -377,32 +377,11 @@ export default function Create() {
                 <AppText role="Caption" style={styles.heading}>
                   Your image
                 </AppText>
-                <View style={styles.imageRow}>
-                  <View style={styles.imageWrapper}>
-                    <ImageDisplay
-                      imageUrl={draft.localImagePath}
-                      isUploading={isProcessingImage}
-                    />
-                  </View>
-                  <View style={styles.imageActions}>
-                    {draft.localImagePath ? (
-                      <HeaderButton
-                        variant="colored"
-                        buttonProps={{
-                          onPress: handleRemoveImage,
-                          color: colors.errorBackground,
-                          disabled: isProcessingImage,
-                          variant: "glassProminent",
-                        }}
-                        imageProps={{
-                          systemName: "trash",
-                          color: colors.error,
-                        }}
-                        style={styles.imageDeleteButton}
-                      />
-                    ) : null}
-                  </View>
-                </View>
+                <ImageDisplay
+                  imageUrl={draft.localImagePath}
+                  isUploading={isProcessingImage}
+                  deleteImage={handleRemoveImage}
+                />
               </View>
             )}
           </View>
@@ -496,25 +475,8 @@ const createStyles = (theme: Theme, colors: Colors, colorScheme: ColorScheme) =>
     },
     imageSection: {
       gap: theme.spacing.sm,
-    },
-    imageRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      width: "100%",
-      gap: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
-    },
-    imageWrapper: {
-      width: "40%",
-      alignSelf: "flex-start",
-    },
-    imageActions: {
       flex: 1,
-      justifyContent: "center",
-      alignItems: "flex-start",
-    },
-    imageDeleteButton: {
-      alignSelf: "flex-start",
     },
     paywallContainer: {
       flex: 1,

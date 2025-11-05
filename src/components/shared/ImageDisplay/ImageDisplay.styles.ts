@@ -12,7 +12,13 @@ export const createStyles = (
   return StyleSheet.create({
     container: {
       borderRadius: componentStyles.cards.cornerRadius,
-      overflow: "hidden",
+      flex: 1,
+    },
+    rowContainer: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: themeObj.spacing.md,
     },
     skeleton: {
       flex: 1,
@@ -29,6 +35,10 @@ export const createStyles = (
       width: "100%",
       height: "100%",
       borderRadius: componentStyles.cards.cornerRadius,
+    },
+    deleteButtonContainer: {
+      justifyContent: "center",
+      alignItems: "center",
     },
   });
 };

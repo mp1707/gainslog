@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Image, TouchableOpacity } from "react-native";
+import { AccessibilityInfo, Image, TouchableOpacity } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -11,6 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
+import { HeaderButton } from "@/components/shared/HeaderButton";
 import { createStyles } from "./ImageDisplay.styles";
 
 interface ImageDisplayProps {
@@ -35,18 +36,43 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
   // Toggle state for height expansion
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Reduced motion preference
+  const [isReducedMotionEnabled, setIsReducedMotionEnabled] = useState(false);
+
+  // Check for reduced motion preference
+  useEffect(() => {
+    const checkReducedMotion = async () => {
+      const reduceMotionEnabled =
+        await AccessibilityInfo.isReduceMotionEnabled();
+      setIsReducedMotionEnabled(reduceMotionEnabled);
+    };
+
+    checkReducedMotion();
+
+    // Listen for changes to reduced motion preference
+    const subscription = AccessibilityInfo.addEventListener(
+      "reduceMotionChanged",
+      setIsReducedMotionEnabled
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
   // Shared values for animations
   const skeletonOpacity = useSharedValue(0.3);
   const imageOpacity = useSharedValue(0);
   const imageScale = useSharedValue(0.95);
   const pressScale = useSharedValue(1);
-  const collapsedHeight = 80;
+  const collapsedHeight = 100;
   const expandedHeight = 260;
   const containerHeight = useSharedValue(collapsedHeight);
+  const imageWrapperWidth = useSharedValue(50);
 
   // Skeleton pulsing animation
   useEffect(() => {
-    if (isUploading) {
+    if (isUploading && !isReducedMotionEnabled) {
       skeletonOpacity.value = withRepeat(
         withTiming(0.7, { duration: 1000 }),
         -1,
@@ -54,36 +80,54 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
       );
     } else {
       cancelAnimation(skeletonOpacity);
-      skeletonOpacity.value = 0.3;
+      skeletonOpacity.value = isReducedMotionEnabled ? 0.5 : 0.3;
     }
-  }, [isUploading, skeletonOpacity]);
+  }, [isUploading, isReducedMotionEnabled, skeletonOpacity]);
 
   // Image entrance animation
   useEffect(() => {
+    const duration = isReducedMotionEnabled ? 0 : 400;
+    const exitDuration = isReducedMotionEnabled ? 0 : 200;
+
     if (imageUrl && !isUploading) {
-      imageOpacity.value = withTiming(1, { duration: 400 });
-      imageScale.value = withTiming(1, { duration: 400 });
+      imageOpacity.value = withTiming(1, { duration });
+      imageScale.value = withTiming(1, { duration });
     } else {
-      imageOpacity.value = withTiming(0, { duration: 200 });
-      imageScale.value = withTiming(0.95, { duration: 200 });
+      imageOpacity.value = withTiming(0, { duration: exitDuration });
+      imageScale.value = withTiming(0.95, { duration: exitDuration });
     }
-  }, [imageUrl, isUploading, imageOpacity, imageScale]);
+  }, [imageUrl, isUploading, isReducedMotionEnabled, imageOpacity, imageScale]);
 
-  // Height toggle animation
+  // Height and width toggle animation
   useEffect(() => {
-    if (isExpanded) {
-      containerHeight.value = withTiming(expandedHeight, {
-        duration: 250,
-        easing: Easing.out(Easing.ease),
-      });
-      return;
-    }
+    const animationConfig = {
+      duration: isReducedMotionEnabled ? 0 : 180,
+      easing: Easing.inOut(Easing.cubic),
+    };
 
-    containerHeight.value = collapsedHeight;
-  }, [collapsedHeight, expandedHeight, isExpanded, containerHeight]);
+    if (isExpanded) {
+      containerHeight.value = withTiming(expandedHeight, animationConfig);
+      imageWrapperWidth.value = withTiming(100, animationConfig);
+    } else {
+      containerHeight.value = withTiming(collapsedHeight, animationConfig);
+      imageWrapperWidth.value = withTiming(50, animationConfig);
+    }
+  }, [
+    collapsedHeight,
+    expandedHeight,
+    isExpanded,
+    isReducedMotionEnabled,
+    containerHeight,
+    imageWrapperWidth,
+  ]);
 
   // Press handlers
   const handlePressIn = () => {
+    if (isReducedMotionEnabled) {
+      pressScale.value = 1;
+      return;
+    }
+
     pressScale.value = withTiming(0.98, {
       duration: 120,
       easing: Easing.out(Easing.ease),
@@ -91,6 +135,11 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
   };
 
   const handlePressOut = () => {
+    if (isReducedMotionEnabled) {
+      pressScale.value = 1;
+      return;
+    }
+
     pressScale.value = withTiming(1, {
       duration: 120,
       easing: Easing.out(Easing.ease),
@@ -119,6 +168,10 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
     transform: [{ scale: imageScale.value }],
   }));
 
+  const imageWrapperAnimatedStyle = useAnimatedStyle(() => ({
+    width: `${imageWrapperWidth.value}%`,
+  }));
+
   // Don't render anything if no image and not uploading
   if (!imageUrl && !isUploading) {
     return null;
@@ -128,37 +181,62 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
 
   const content = (
     <Animated.View style={[styles.container, containerAnimatedStyle]}>
-      {isUploading && (
-        <Animated.View style={[styles.skeleton, skeletonAnimatedStyle]} />
-      )}
+      <Animated.View style={styles.rowContainer}>
+        {isUploading && (
+          <Animated.View style={[styles.skeleton, skeletonAnimatedStyle]} />
+        )}
 
-      {imageUrl && !isUploading && (
-        <Animated.View style={[styles.imageContainer, imageAnimatedStyle]}>
-          <Image
-            source={{ uri: imageUrl }}
-            style={styles.image}
-            resizeMode="cover"
-          />
-        </Animated.View>
-      )}
+        {imageUrl && !isUploading && (
+          <Animated.View style={[styles.imageContainer, imageAnimatedStyle]}>
+            <Image
+              source={{ uri: imageUrl }}
+              style={styles.image}
+              resizeMode="cover"
+            />
+          </Animated.View>
+        )}
+
+        {deleteImage && imageUrl && !isUploading && !isExpanded && (
+          <Animated.View style={styles.deleteButtonContainer}>
+            <HeaderButton
+              variant="colored"
+              buttonProps={{
+                onPress: deleteImage,
+                color: colors.errorBackground,
+                variant: "glassProminent",
+              }}
+              imageProps={{
+                systemName: "trash",
+                color: colors.error,
+              }}
+            />
+          </Animated.View>
+        )}
+      </Animated.View>
     </Animated.View>
   );
 
   if (canInteract) {
     return (
-      <TouchableOpacity
-        onPress={handlePress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        activeOpacity={1}
-        accessibilityRole="button"
-        accessibilityLabel={`${isExpanded ? "Collapse" : "Expand"} image view`}
-        accessibilityHint="Double tap to toggle image size"
-      >
-        {content}
-      </TouchableOpacity>
+      <Animated.View style={imageWrapperAnimatedStyle}>
+        <TouchableOpacity
+          onPress={handlePress}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          activeOpacity={1}
+          accessibilityRole="button"
+          accessibilityLabel={`${
+            isExpanded ? "Collapse" : "Expand"
+          } image view`}
+          accessibilityHint="Double tap to toggle image size"
+        >
+          {content}
+        </TouchableOpacity>
+      </Animated.View>
     );
   }
 
-  return content;
+  return (
+    <Animated.View style={imageWrapperAnimatedStyle}>{content}</Animated.View>
+  );
 };
