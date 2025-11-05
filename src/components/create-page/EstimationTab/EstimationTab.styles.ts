@@ -33,7 +33,7 @@ export const createStyles = (
       borderRadius: componentStyles.cards.cornerRadius,
     },
     textInputContainer: {
-      paddingBottom: 200,
+      paddingBottom: 100,
     },
     image: {
       alignSelf: "center",

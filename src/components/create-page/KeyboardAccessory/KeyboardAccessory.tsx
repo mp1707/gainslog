@@ -361,7 +361,7 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
             }}
             imageProps={{
               systemName: "checkmark",
-              color: colors.black,
+              color: confirmDisabled ? colors.disabledText : colors.black,
             }}
           />
         </View>
