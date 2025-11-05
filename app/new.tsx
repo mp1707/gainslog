@@ -15,6 +15,12 @@ import * as Haptics from "expo-haptics";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { BrainCircuit, Info } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
 
 import { useAppStore } from "@/store/useAppStore";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -64,6 +70,7 @@ export default function Create() {
   const {
     requestPermission,
     isRecording,
+    isPreparing,
     liveTranscription,
     volumeLevel,
     stopRecording,
@@ -78,6 +85,9 @@ export default function Create() {
   const textInputRef = useRef<RNTextInput>(null);
   useDelayedAutofocus(textInputRef);
 
+  // Simple fade-in animation for waveform section
+  const sectionOpacity = useSharedValue(0);
+
   useEffect(() => {
     const id = startNewDraft(selectedDate);
     setDraftId(id);
@@ -85,6 +95,30 @@ export default function Create() {
       clearDraft(id);
     };
   }, [startNewDraft, clearDraft, selectedDate]);
+
+  // Simple fade-in animation when preparing/recording
+  useEffect(() => {
+    if (isPreparing || isRecording) {
+      // Fade in entire section
+      sectionOpacity.value = withTiming(1, {
+        duration: 400,
+        easing: Easing.out(Easing.cubic),
+      });
+    } else {
+      // Fade out when done
+      sectionOpacity.value = withTiming(0, {
+        duration: 200,
+        easing: Easing.in(Easing.cubic),
+      });
+    }
+  }, [isPreparing, isRecording, sectionOpacity]);
+
+  // Trigger haptic when recording actually starts
+  useEffect(() => {
+    if (isRecording) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+  }, [isRecording]);
 
   const handleCancel = useCallback(() => {
     router.back();
@@ -256,6 +290,10 @@ export default function Create() {
     (draft?.description?.trim() !== "" || !!draft?.localImagePath) &&
     !isEstimating;
 
+  const sectionAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: sectionOpacity.value,
+  }));
+
   if (!draft) {
     return (
       <View style={styles.loadingContainer}>
@@ -400,11 +438,12 @@ export default function Create() {
           </View>
         )}
       </ScrollView>
-      {isRecording && (
-        <View
+      {(isPreparing || isRecording) && (
+        <Animated.View
           style={[
             styles.waveformSection,
             { paddingBottom: insets.bottom + theme.spacing.lg },
+            sectionAnimatedStyle,
           ]}
         >
           <AppText role="Caption" style={styles.heading}>
@@ -430,9 +469,9 @@ export default function Create() {
               }}
             />
           </View>
-        </View>
+        </Animated.View>
       )}
-      {!isRecording && (
+      {!isRecording && !isPreparing && (
         <KeyboardStickyView offset={{ closed: -30, opened: 12 }}>
           <KeyboardAccessory
             textInputRef={textInputRef}
@@ -441,6 +480,7 @@ export default function Create() {
             onEstimate={handleEstimation}
             canContinue={canContinue}
             isEstimating={isEstimating}
+            isPreparing={isPreparing}
             logId={draft.id}
           />
         </KeyboardStickyView>

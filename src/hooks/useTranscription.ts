@@ -11,21 +11,25 @@ export interface UseTranscriptionReturn {
   liveTranscription: string;
   volumeLevel: number;
   isRecording: boolean;
+  isPreparing: boolean;
 }
 
 export const useTranscription = (): UseTranscriptionReturn => {
   const [isRecording, setIsRecording] = useState(false);
+  const [isPreparing, setIsPreparing] = useState(false);
   const [liveTranscription, setLiveTranscription] = useState("");
   const [volumeLevel, setVolumeLevel] = useState(0);
 
   // Event handlers
   const handleStart = useCallback(() => {
+    setIsPreparing(false);
     setIsRecording(true);
   }, []);
 
   const handleEnd = useCallback(() => {
     setLiveTranscription("");
     setIsRecording(false);
+    setIsPreparing(false);
   }, []);
 
   const handleResult = useCallback((event: any) => {
@@ -73,6 +77,9 @@ export const useTranscription = (): UseTranscriptionReturn => {
 
   const startRecording = useCallback(async (): Promise<void> => {
     try {
+      // Set preparing state immediately for instant UI feedback
+      setIsPreparing(true);
+
       // Clear previous state
       setLiveTranscription("");
       setVolumeLevel(0);
@@ -91,6 +98,7 @@ export const useTranscription = (): UseTranscriptionReturn => {
     } catch (error) {
       console.error("Error starting speech recognition:", error);
       setIsRecording(false);
+      setIsPreparing(false);
     }
   }, []);
 
@@ -101,6 +109,7 @@ export const useTranscription = (): UseTranscriptionReturn => {
     } catch (error) {
       console.error("Error stopping speech recognition:", error);
       setIsRecording(false);
+      setIsPreparing(false);
     }
   }, []);
 
@@ -120,5 +129,6 @@ export const useTranscription = (): UseTranscriptionReturn => {
     liveTranscription,
     volumeLevel,
     isRecording,
+    isPreparing,
   };
 };

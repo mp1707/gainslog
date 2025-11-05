@@ -53,16 +53,29 @@ export const FavoritePreviewCard: React.FC<FavoritePreviewCardProps> = ({
           >
             {favorite.title}
           </AppText>
-          <View style={styles.caloriesRow}>
-            <View
-              style={[
-                styles.calorieDot,
-                { backgroundColor: colors.semantic.calories },
-              ]}
-            />
-            <AppText role="Caption" style={styles.calorieText}>
-              {Math.round(favorite.calories)} kcal
-            </AppText>
+          <View style={styles.nutrientRow}>
+            <View style={styles.nutrientItem}>
+              <View
+                style={[
+                  styles.nutrientDot,
+                  { backgroundColor: colors.semantic.calories },
+                ]}
+              />
+              <AppText role="Caption" style={styles.nutrientText}>
+                {Math.round(favorite.calories)} kcal
+              </AppText>
+            </View>
+            <View style={styles.nutrientItem}>
+              <View
+                style={[
+                  styles.nutrientDot,
+                  { backgroundColor: colors.semantic.protein },
+                ]}
+              />
+              <AppText role="Caption" style={styles.nutrientText}>
+                {Math.round(favorite.protein)} g
+              </AppText>
+            </View>
           </View>
         </Card>
       </Animated.View>
@@ -89,17 +102,22 @@ const createStyles = (
     title: {
       color: colors.primaryText,
     },
-    caloriesRow: {
+    nutrientRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.md,
+    },
+    nutrientItem: {
       flexDirection: "row",
       alignItems: "center",
       gap: theme.spacing.xs,
     },
-    calorieDot: {
+    nutrientDot: {
       width: theme.spacing.sm,
       height: theme.spacing.sm,
       borderRadius: theme.spacing.xs,
     },
-    calorieText: {
+    nutrientText: {
       color: colors.primaryText,
       fontWeight: "600",
     },

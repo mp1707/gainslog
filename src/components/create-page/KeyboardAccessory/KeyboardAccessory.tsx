@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { View, TextInput } from "react-native";
+import { View, TextInput, ActivityIndicator } from "react-native";
 import { useCameraPermissions } from "expo-camera";
 import { useTheme } from "@/theme";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
@@ -15,6 +15,7 @@ interface KeyboardAccessoryProps {
   textInputRef?: React.RefObject<TextInput | null>;
   logId?: string;
   isEstimating?: boolean;
+  isPreparing?: boolean;
 }
 
 export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
@@ -25,6 +26,7 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   textInputRef,
   logId,
   isEstimating = false,
+  isPreparing = false,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme, colorScheme);
@@ -63,8 +65,6 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
         );
         return;
       }
-
-      await new Promise((resolve) => setTimeout(resolve, 200));
     }
 
     await onRecording?.();
@@ -79,17 +79,32 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.actionsRow}>
-        <HeaderButton
-          variant="regular"
-          buttonProps={{
-            onPress: handleMicPress,
-            color: colors.secondaryBackground,
-          }}
-          imageProps={{
-            systemName: "mic.fill",
-            color: iconColor,
-          }}
-        />
+        {isPreparing ? (
+          <View
+            style={{
+              width: 44,
+              height: 44,
+              backgroundColor: colors.secondaryBackground,
+              borderRadius: 22,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <ActivityIndicator size="small" color={iconColor} />
+          </View>
+        ) : (
+          <HeaderButton
+            variant="regular"
+            buttonProps={{
+              onPress: handleMicPress,
+              color: colors.secondaryBackground,
+            }}
+            imageProps={{
+              systemName: "mic.fill",
+              color: iconColor,
+            }}
+          />
+        )}
         <HeaderButton
           variant="regular"
           buttonProps={{
