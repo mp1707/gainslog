@@ -4,6 +4,7 @@ import Purchases, {
   PurchasesError,
   PurchasesPackage,
 } from "react-native-purchases";
+import { useSafeRouter } from "./useSafeRouter";
 
 type PaywallPackage = {
   id: string;
@@ -35,6 +36,7 @@ const formatCurrency = (value: number, currencyCode: string): string => {
 };
 
 export function usePaywall() {
+  const router = useSafeRouter();
   const [state, setState] = useState<PaywallState>({
     packages: [],
     selectedId: null,
@@ -42,6 +44,12 @@ export function usePaywall() {
     isPurchasing: false,
     isRestoring: false,
   });
+
+  const handleClose = () => {
+    if (router.canGoBack()) {
+      router.back();
+    }
+  };
 
   // Load offerings once on mount
   useEffect(() => {
@@ -147,11 +155,8 @@ export function usePaywall() {
       );
 
       if (customerInfo.entitlements.active["pro"]) {
-        Alert.alert(
-          "Welcome to Pro!",
-          "You're all set. Macroloop Pro is now active.",
-          [{ text: "OK", style: "default" }]
-        );
+        setState((prev) => ({ ...prev, isPurchasing: false }));
+        handleClose();
       }
     } catch (error) {
       const purchasesError = error as PurchasesError & {
@@ -165,9 +170,8 @@ export function usePaywall() {
           [{ text: "OK", style: "default" }]
         );
       }
-    } finally {
-      setState((prev) => ({ ...prev, isPurchasing: false }));
     }
+    setState((prev) => ({ ...prev, isPurchasing: false }));
   }, [state.packages, state.selectedId, state.isPurchasing]);
 
   const restore = useCallback(async () => {
@@ -182,11 +186,9 @@ export function usePaywall() {
       const hasPro = Boolean(info.entitlements.active?.pro);
 
       if (hasPro) {
-        Alert.alert(
-          "Restored",
-          "Your subscription has been restored.",
-          [{ text: "OK", style: "default" }]
-        );
+        Alert.alert("Restored", "Your subscription has been restored.", [
+          { text: "OK", style: "default" },
+        ]);
       } else {
         Alert.alert(
           "Nothing to Restore",
@@ -195,14 +197,11 @@ export function usePaywall() {
         );
       }
     } catch (error: any) {
-      Alert.alert(
-        "Restore Failed",
-        error?.message ?? "Please try again.",
-        [{ text: "OK", style: "default" }]
-      );
-    } finally {
-      setState((prev) => ({ ...prev, isRestoring: false }));
+      Alert.alert("Restore Failed", error?.message ?? "Please try again.", [
+        { text: "OK", style: "default" },
+      ]);
     }
+    setState((prev) => ({ ...prev, isRestoring: false }));
   }, [state.isRestoring]);
 
   return {
