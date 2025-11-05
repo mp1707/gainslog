@@ -36,6 +36,7 @@ import { AppText } from "@/components/shared/AppText";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { FavoritePreviewCard } from "@/components/create-page/FavoritePreviewCard/FavoritePreviewCard";
 import { KeyboardAccessory } from "@/components/create-page/KeyboardAccessory/KeyboardAccessory";
+import { Waveform } from "@/components/create-page/Waveform";
 
 const inputAccessoryViewID = "create-input-accessory";
 const CARD_WIDTH = Dimensions.get("window").width * 0.4;
@@ -399,20 +400,51 @@ export default function Create() {
           </View>
         )}
       </ScrollView>
-      <KeyboardStickyView offset={{ closed: -30, opened: 12 }}>
-        <KeyboardAccessory
-          textInputRef={textInputRef}
-          requestMicPermission={requestPermission}
-          onRecording={startRecording}
-          onStop={handleTranscriptionStop}
-          isRecording={isRecording}
-          volumeLevel={volumeLevel}
-          onEstimate={handleEstimation}
-          canContinue={canContinue}
-          isEstimating={isEstimating}
-          logId={draft.id}
-        />
-      </KeyboardStickyView>
+      {isRecording && (
+        <View
+          style={[
+            styles.waveformSection,
+            { paddingBottom: insets.bottom + theme.spacing.lg },
+          ]}
+        >
+          <AppText role="Caption" style={styles.heading}>
+            Describe your meal by speaking
+          </AppText>
+          <View style={styles.waveformRow}>
+            <Waveform
+              volumeLevel={volumeLevel}
+              isActive={isRecording}
+              containerStyle={styles.waveformContainer}
+              barStyle={styles.waveformBar}
+            />
+            <HeaderButton
+              variant="colored"
+              size="large"
+              buttonProps={{
+                onPress: handleTranscriptionStop,
+                color: colors.recording,
+              }}
+              imageProps={{
+                systemName: "stop.fill",
+                color: colors.white,
+              }}
+            />
+          </View>
+        </View>
+      )}
+      {!isRecording && (
+        <KeyboardStickyView offset={{ closed: -30, opened: 12 }}>
+          <KeyboardAccessory
+            textInputRef={textInputRef}
+            requestMicPermission={requestPermission}
+            onRecording={startRecording}
+            onEstimate={handleEstimation}
+            canContinue={canContinue}
+            isEstimating={isEstimating}
+            logId={draft.id}
+          />
+        </KeyboardStickyView>
+      )}
     </View>
   );
 }
@@ -522,5 +554,35 @@ const createStyles = (theme: Theme, colors: Colors, colorScheme: ColorScheme) =>
       justifyContent: "center",
       alignItems: "center",
       backgroundColor: colors.primaryBackground,
+    },
+    waveformSection: {
+      position: "absolute",
+      bottom: 150,
+      left: 0,
+      right: 0,
+      paddingTop: theme.spacing.xl,
+      gap: theme.spacing.lg,
+      alignItems: "flex-start",
+      justifyContent: "center",
+    },
+    waveformRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      width: "100%",
+      gap: theme.spacing.md,
+      paddingHorizontal: theme.spacing.lg,
+    },
+    waveformContainer: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: theme.spacing.xs,
+      height: 100,
+    },
+    waveformBar: {
+      width: 4,
+      backgroundColor: colors.accent,
+      borderRadius: theme.spacing.xs / 2,
     },
   });
