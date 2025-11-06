@@ -48,7 +48,7 @@ export default function SettingsScreen() {
             {versionLabel}
           </AppText>
           <AppText role="Caption" color="secondary" style={styles.footerText}>
-            Comment: paywall fix
+            Comment: paywall fix #2
           </AppText>
         </View>
       </ScrollView>

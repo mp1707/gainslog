@@ -11,7 +11,7 @@ import {
   NavigationTransitionProvider,
   useNavigationTransition,
 } from "@/context/NavigationTransitionContext";
-import { useRevenueCatBindings } from "@/hooks/useRevenueCatBindings";
+import { useRevenueCat } from "@/hooks/useRevenueCat";
 
 function ThemedStack() {
   const { colors, isThemeLoaded } = useTheme();
@@ -115,7 +115,7 @@ function RootLayoutContent() {
     (state) => state.cleanupIncompleteEstimations
   );
 
-  useRevenueCatBindings();
+  useRevenueCat();
 
   useEffect(() => {
     cleanupIncompleteEstimations();

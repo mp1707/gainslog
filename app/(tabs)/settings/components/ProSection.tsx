@@ -1,12 +1,13 @@
 import React, { useMemo, useCallback, useState } from "react";
 import { View, StyleSheet, Alert } from "react-native";
 import { Crown, BadgeCheck, RotateCcw } from "lucide-react-native";
-import Purchases from "react-native-purchases";
+import { restorePurchases } from "@/lib/revenuecat/client";
 
 import { AppText } from "@/components";
 import { SettingRow } from "../SettingRow";
 import { useTheme, Colors, Theme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
+import { applyCustomerInfoToStore } from "@/lib/revenuecat/subscription";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
 const PROMO_LINK = "/paywall";
@@ -59,7 +60,8 @@ export const ProSection = () => {
   const handleRestorePurchases = useCallback(async () => {
     setRestoringPurchases(true);
     try {
-      const info = await Purchases.restorePurchases();
+      const info = await restorePurchases();
+      applyCustomerInfoToStore(info);
       const hasPro = Boolean(info.entitlements.active?.pro);
 
       if (hasPro) {

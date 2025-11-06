@@ -1,52 +1,58 @@
-import React, { useMemo } from "react";
+import React, { useMemo } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Linking,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
-} from "react-native";
-import Animated, { FadeIn } from "react-native-reanimated";
-import * as Haptics from "expo-haptics";
-import {
-  BadgeCheck,
-  BrainCircuit,
-  BrushCleaning,
-  Calculator,
-  Heart,
-  X,
-} from "lucide-react-native";
+} from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
+import { BadgeCheck, BrainCircuit, Calculator, Heart, X } from 'lucide-react-native';
 
-import { AppText } from "@/components/shared/AppText";
-import { Button } from "@/components/shared/Button";
-import { RoundButton } from "@/components/shared/RoundButton";
-import { usePaywall } from "@/hooks/usePaywall";
-import { useSafeRouter } from "@/hooks/useSafeRouter";
-import { Colors, Theme, useTheme } from "@/theme";
+import { AppText } from '@/components/shared/AppText';
+import { Button } from '@/components/shared/Button';
+import { RoundButton } from '@/components/shared/RoundButton';
+import { usePaywall } from '@/hooks/usePaywall';
+import { useSafeRouter } from '@/hooks/useSafeRouter';
+import { Colors, Theme, useTheme } from '@/theme';
 
 const FEATURES = [
   {
-    title: "AI-Powered Logging",
+    title: 'AI-Powered Logging',
     description:
-      "Log meals instantly from text, voice, or a photo. No more searching for ingredients.",
+      'Log meals instantly from text, voice, or a photo. No more searching for ingredients.',
     Icon: BrainCircuit,
   },
   {
-    title: "Instant Recalculation",
+    title: 'Instant Recalculation',
     description:
-      "Adjust ingredients and get immediate macro updates to fine-tune your meals.",
+      'Adjust ingredients and get immediate macro updates to fine-tune your meals.',
     Icon: Calculator,
   },
   {
-    title: "No Ads. Period.",
-    description: "Support ad-free development",
+    title: 'No Ads. Period.',
+    description: 'Support ad-free development',
     Icon: Heart,
   },
 ] as const;
 
-const LEGAL_TEXT = "";
+const LEGAL_TEXT = '';
 // "Payment will be charged to your Apple ID account at confirmation of purchase. Subscription renews automatically unless cancelled at least 24 hours before the end of the billing period. ";
+
+const describePeriod = (periodLabel: string) => {
+  if (!periodLabel) {
+    return 'Cancel anytime.';
+  }
+
+  if (periodLabel === 'one-time') {
+    return 'One-time purchase';
+  }
+
+  return `Billed ${periodLabel}`;
+};
 
 export default function PaywallScreen() {
   const { theme, colors } = useTheme();
@@ -54,12 +60,14 @@ export default function PaywallScreen() {
   const router = useSafeRouter();
 
   const {
-    packages,
+    options,
     selectedId,
     isLoading,
+    loadError,
     isPurchasing,
     isRestoring,
-    selectPackage,
+    selectOption,
+    reload,
     purchase,
     restore,
   } = usePaywall();
@@ -70,26 +78,49 @@ export default function PaywallScreen() {
     }
   };
 
-  const handleSelectPackage = (id: string) => {
-    selectPackage(id);
+  const handleSelectOption = (id: string) => {
+    selectOption(id);
     Haptics.impactAsync(theme.interactions.haptics.light).catch(() => {});
   };
 
-  const handlePurchase = () => {
+  const handlePurchase = async () => {
     Haptics.impactAsync(theme.interactions.haptics.light).catch(() => {});
-    purchase();
+    const result = await purchase();
+
+    if (result.status === 'ok') {
+      handleClose();
+      return;
+    }
+
+    if (result.status === 'error') {
+      Alert.alert('Purchase failed', result.message);
+    }
   };
 
-  const handleRestore = () => {
+  const handleRestore = async () => {
     Haptics.impactAsync(theme.interactions.haptics.light).catch(() => {});
-    restore();
+    const result = await restore();
+
+    if (result.status === 'ok') {
+      Alert.alert('Restored', 'Your subscription is active. Enjoy!');
+      handleClose();
+      return;
+    }
+
+    if (result.status === 'error') {
+      Alert.alert('Restore failed', result.message);
+    }
   };
 
   const handleOpenLink = (url: string) => {
     Linking.openURL(url).catch(() => {});
   };
 
-  // Loading state
+  const handleRetry = () => {
+    Haptics.impactAsync(theme.interactions.haptics.light).catch(() => {});
+    void reload();
+  };
+
   if (isLoading) {
     return (
       <View style={styles.container}>
@@ -110,8 +141,35 @@ export default function PaywallScreen() {
     );
   }
 
-  // No packages available
-  if (packages.length === 0) {
+  if (loadError) {
+    return (
+      <View style={styles.container}>
+        <RoundButton
+          onPress={handleClose}
+          Icon={X}
+          variant="tertiary"
+          accessibilityLabel="Close paywall"
+          style={styles.closeButton}
+        />
+        <View style={styles.errorContainer}>
+          <AppText role="Headline" style={styles.errorTitle}>
+            Something went wrong
+          </AppText>
+          <AppText role="Body" color="secondary" style={styles.errorMessage}>
+            {loadError}
+          </AppText>
+          <Button
+            variant="primary"
+            label="Try again"
+            onPress={handleRetry}
+            style={styles.retryButton}
+          />
+        </View>
+      </View>
+    );
+  }
+
+  if (options.length === 0) {
     return (
       <View style={styles.container}>
         <RoundButton
@@ -123,12 +181,14 @@ export default function PaywallScreen() {
         />
         <View style={styles.errorContainer}>
           <AppText role="Subhead" color="secondary">
-            Macroloop Pro is currently unavailable. Please try again later.
+            Gainslog Pro is currently unavailable. Please try again later.
           </AppText>
         </View>
       </View>
     );
   }
+
+  const highlightedId = options.length > 1 ? options[0].id : null;
 
   return (
     <Animated.View entering={FadeIn.duration(300)} style={styles.container}>
@@ -147,17 +207,15 @@ export default function PaywallScreen() {
         bounces={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Header */}
         <View style={styles.header}>
           <AppText role="Title1" style={styles.title}>
-            MacroLoop Pro
+            Gainslog Pro
           </AppText>
           <AppText role="Body" color="secondary" style={styles.subtitle}>
             Save time and stay consistent with effortless AI powered tracking.
           </AppText>
         </View>
 
-        {/* Features */}
         <View style={styles.features}>
           {FEATURES.map(({ Icon, title, description }) => (
             <View key={title} style={styles.feature}>
@@ -174,50 +232,48 @@ export default function PaywallScreen() {
           ))}
         </View>
 
-        {/* Package options */}
         <View style={styles.packages}>
-          {packages.map((pkg) => {
-            const isSelected = pkg.id === selectedId;
+          {options.map((option) => {
+            const isSelected = option.id === selectedId;
+            const badge = option.id === highlightedId ? 'Best Value' : undefined;
             return (
               <TouchableOpacity
-                key={pkg.id}
+                key={option.id}
                 activeOpacity={0.7}
-                onPress={() => handleSelectPackage(pkg.id)}
+                onPress={() => handleSelectOption(option.id)}
                 style={[
                   styles.package,
                   isSelected && styles.packageSelected,
-                  pkg.badge && styles.packageHighlighted,
+                  badge && styles.packageHighlighted,
                 ]}
               >
                 <View style={styles.packageHeader}>
-                  <AppText role="Headline">{pkg.title}</AppText>
-                  {pkg.badge && (
+                  <AppText role="Headline">{option.title}</AppText>
+                  {badge && (
                     <View style={styles.badge}>
                       <AppText role="Caption" style={styles.badgeText}>
-                        {pkg.badge}
+                        {badge}
                       </AppText>
                     </View>
                   )}
                 </View>
-                <AppText role="Title2">{pkg.price}</AppText>
+                <AppText role="Title2">{option.price}</AppText>
                 <AppText role="Caption" color="secondary">
-                  {pkg.subText}
+                  {describePeriod(option.periodLabel)}
                 </AppText>
               </TouchableOpacity>
             );
           })}
         </View>
 
-        {/* CTA */}
         <Button
           variant="primary"
-          label={isPurchasing ? "Processing…" : "Unlock Pro"}
+          label={isPurchasing ? 'Processing…' : 'Unlock Pro'}
           onPress={handlePurchase}
           disabled={isPurchasing || !selectedId}
           isLoading={isPurchasing}
         />
 
-        {/* Legal */}
         <View style={styles.legal}>
           {LEGAL_TEXT.length > 0 && (
             <AppText role="Caption" color="secondary" style={styles.legalText}>
@@ -228,7 +284,7 @@ export default function PaywallScreen() {
             <TouchableOpacity
               onPress={() =>
                 handleOpenLink(
-                  "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+                  'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
                 )
               }
               activeOpacity={0.6}
@@ -239,7 +295,7 @@ export default function PaywallScreen() {
             </TouchableOpacity>
             <View style={styles.linkDivider} />
             <TouchableOpacity
-              onPress={() => handleOpenLink("https://macroloop.app/privacy")}
+              onPress={() => handleOpenLink('https://macroloop.app/privacy')}
               activeOpacity={0.6}
             >
               <AppText role="Caption" style={styles.link}>
@@ -256,7 +312,7 @@ export default function PaywallScreen() {
                 role="Caption"
                 style={[styles.link, isRestoring && styles.linkDisabled]}
               >
-                {isRestoring ? "Restoring…" : "Restore Purchases"}
+                {isRestoring ? 'Restoring…' : 'Restore Purchases'}
               </AppText>
             </TouchableOpacity>
           </View>
@@ -274,7 +330,7 @@ const createStyles = (theme: Theme, colors: Colors) =>
       paddingTop: theme.spacing.xxl + theme.spacing.lg,
     },
     closeButton: {
-      position: "absolute",
+      position: 'absolute',
       top: theme.spacing.md,
       right: theme.spacing.md,
       zIndex: 10,
@@ -289,41 +345,51 @@ const createStyles = (theme: Theme, colors: Colors) =>
     },
     loadingContainer: {
       flex: 1,
-      alignItems: "center",
-      justifyContent: "center",
+      alignItems: 'center',
+      justifyContent: 'center',
       gap: theme.spacing.sm,
     },
     errorContainer: {
       flex: 1,
-      alignItems: "center",
-      justifyContent: "center",
+      alignItems: 'center',
+      justifyContent: 'center',
       paddingHorizontal: theme.spacing.lg,
+      gap: theme.spacing.md,
+    },
+    errorTitle: {
+      textAlign: 'center',
+    },
+    errorMessage: {
+      textAlign: 'center',
+    },
+    retryButton: {
+      alignSelf: 'center',
     },
     header: {
-      alignItems: "center",
+      alignItems: 'center',
       gap: theme.spacing.sm,
     },
     title: {
-      textAlign: "center",
+      textAlign: 'center',
     },
     subtitle: {
-      textAlign: "center",
+      textAlign: 'center',
     },
     features: {
       gap: theme.spacing.lg,
     },
     feature: {
-      flexDirection: "row",
+      flexDirection: 'row',
       gap: theme.spacing.md,
-      alignItems: "flex-start",
+      alignItems: 'flex-start',
     },
     featureIcon: {
       width: 36,
       height: 36,
       borderRadius: 18,
       backgroundColor: colors.tertiaryBackground,
-      alignItems: "center",
-      justifyContent: "center",
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     featureText: {
       flex: 1,
@@ -342,15 +408,15 @@ const createStyles = (theme: Theme, colors: Colors) =>
     },
     packageSelected: {
       borderColor: colors.accent,
-      backgroundColor: "rgba(68, 235, 212, 0.08)",
+      backgroundColor: 'rgba(68, 235, 212, 0.08)',
     },
     packageHighlighted: {
       borderColor: colors.highlightBorder,
     },
     packageHeader: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
     },
     badge: {
       backgroundColor: colors.accent,
@@ -363,17 +429,17 @@ const createStyles = (theme: Theme, colors: Colors) =>
     },
     legal: {
       gap: theme.spacing.sm,
-      alignItems: "center",
+      alignItems: 'center',
       marginTop: theme.spacing.md,
     },
     legalText: {
-      textAlign: "center",
+      textAlign: 'center',
     },
     links: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      flexWrap: "wrap",
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexWrap: 'wrap',
       gap: theme.spacing.sm,
     },
     linkDivider: {

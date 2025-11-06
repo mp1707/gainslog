@@ -1,217 +1,190 @@
-import { useCallback, useEffect, useState } from "react";
-import { Alert } from "react-native";
-import Purchases, {
+import { useCallback, useEffect, useState } from 'react';
+import {
   PurchasesError,
+  PURCHASES_ERROR_CODE,
   PurchasesPackage,
-} from "react-native-purchases";
-import { useSafeRouter } from "./useSafeRouter";
+} from 'react-native-purchases';
 
-type PaywallPackage = {
+import {
+  fetchCurrentPackages,
+  purchasePackage,
+  restorePurchases,
+} from '@/lib/revenuecat/client';
+import { applyCustomerInfoToStore } from '@/lib/revenuecat/subscription';
+
+export type PaywallOption = {
   id: string;
   title: string;
   price: string;
-  subText: string;
-  badge?: string;
-  pkg: PurchasesPackage;
+  periodLabel: string;
+  package: PurchasesPackage;
 };
 
-type PaywallState = {
-  packages: PaywallPackage[];
-  selectedId: string | null;
-  isLoading: boolean;
-  isPurchasing: boolean;
-  isRestoring: boolean;
+type ActionResult =
+  | { status: 'ok' }
+  | { status: 'cancelled' }
+  | { status: 'error'; message: string };
+
+const PACKAGE_LABEL_MAP: Record<string, string> = {
+  ANNUAL: 'Annual',
+  MONTHLY: 'Monthly',
+  LIFETIME: 'Lifetime',
+  SIX_MONTH: '6 Months',
+  THREE_MONTH: '3 Months',
+  TWO_MONTH: '2 Months',
+  WEEKLY: 'Weekly',
 };
 
-const formatCurrency = (value: number, currencyCode: string): string => {
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency: currencyCode,
-      minimumFractionDigits: 2,
-    }).format(value);
-  } catch {
-    return `$${value.toFixed(2)}`;
-  }
+const PERIOD_LABEL_MAP: Record<string, string> = {
+  ANNUAL: 'per year',
+  MONTHLY: 'per month',
+  LIFETIME: 'one-time',
+  SIX_MONTH: 'per 6 months',
+  THREE_MONTH: 'per 3 months',
+  TWO_MONTH: 'per 2 months',
+  WEEKLY: 'per week',
 };
 
-export function usePaywall() {
-  const router = useSafeRouter();
-  const [state, setState] = useState<PaywallState>({
-    packages: [],
-    selectedId: null,
-    isLoading: true,
-    isPurchasing: false,
-    isRestoring: false,
-  });
-
-  const handleClose = () => {
-    if (router.canGoBack()) {
-      router.back();
-    }
-  };
-
-  // Load offerings once on mount
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadOfferings = async () => {
-      try {
-        const offerings = await Purchases.getOfferings();
-        if (!isMounted) return;
-
-        const packages: PaywallPackage[] = [];
-
-        // Annual package
-        const annual = offerings.current?.annual;
-        if (annual) {
-          const monthlyEquivalent = annual.product.price / 12;
-          packages.push({
-            id: annual.identifier,
-            title: "Annual",
-            price: `${annual.product.priceString} / year`,
-            subText: `Just ${formatCurrency(
-              monthlyEquivalent,
-              annual.product.currencyCode
-            )} per month`,
-            badge: "Best Value",
-            pkg: annual,
-          });
-        }
-
-        // Monthly package
-        const monthly = offerings.current?.monthly;
-        if (monthly) {
-          packages.push({
-            id: monthly.identifier,
-            title: "Monthly",
-            price: `${monthly.product.priceString} / month`,
-            subText: "Cancel anytime from Settings",
-            pkg: monthly,
-          });
-        }
-
-        // Fallback to available packages if no annual/monthly
-        if (
-          packages.length === 0 &&
-          offerings.current?.availablePackages?.length
-        ) {
-          offerings.current.availablePackages.forEach((pkg) => {
-            packages.push({
-              id: pkg.identifier,
-              title: pkg.packageType,
-              price: pkg.product.priceString,
-              subText: "Cancel anytime",
-              pkg,
-            });
-          });
-        }
-
-        if (isMounted) {
-          setState((prev) => ({
-            ...prev,
-            packages,
-            selectedId: packages[0]?.id ?? null,
-            isLoading: false,
-          }));
-        }
-      } catch (error) {
-        console.error("[Paywall] Failed to load offerings:", error);
-        if (isMounted) {
-          setState((prev) => ({ ...prev, isLoading: false }));
-          Alert.alert(
-            "Unable to Load",
-            "We couldn't load subscription options. Please try again later."
-          );
-        }
-      }
-    };
-
-    loadOfferings();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const selectPackage = useCallback((packageId: string) => {
-    setState((prev) => ({ ...prev, selectedId: packageId }));
-  }, []);
-
-  const purchase = useCallback(async () => {
-    const selectedPackage = state.packages.find(
-      (p) => p.id === state.selectedId
-    );
-
-    if (!selectedPackage || state.isPurchasing) {
-      return;
-    }
-
-    setState((prev) => ({ ...prev, isPurchasing: true }));
-
-    try {
-      const { customerInfo } = await Purchases.purchasePackage(
-        selectedPackage.pkg
-      );
-
-      if (customerInfo.entitlements.active["pro"]) {
-        setState((prev) => ({ ...prev, isPurchasing: false }));
-        handleClose();
-      }
-    } catch (error) {
-      const purchasesError = error as PurchasesError & {
-        userCancelled?: boolean;
-      };
-
-      if (!purchasesError?.userCancelled) {
-        Alert.alert(
-          "Purchase Failed",
-          "We couldn't complete the purchase. Please try again.",
-          [{ text: "OK", style: "default" }]
-        );
-      }
-    }
-    setState((prev) => ({ ...prev, isPurchasing: false }));
-  }, [state.packages, state.selectedId, state.isPurchasing]);
-
-  const restore = useCallback(async () => {
-    if (state.isRestoring) {
-      return;
-    }
-
-    setState((prev) => ({ ...prev, isRestoring: true }));
-
-    try {
-      const info = await Purchases.restorePurchases();
-      const hasPro = Boolean(info.entitlements.active?.pro);
-
-      if (hasPro) {
-        Alert.alert("Restored", "Your subscription has been restored.", [
-          { text: "OK", style: "default" },
-        ]);
-      } else {
-        Alert.alert(
-          "Nothing to Restore",
-          "We couldn't find any past purchases for this Apple ID.",
-          [{ text: "OK", style: "default" }]
-        );
-      }
-    } catch (error: any) {
-      Alert.alert("Restore Failed", error?.message ?? "Please try again.", [
-        { text: "OK", style: "default" },
-      ]);
-    }
-    setState((prev) => ({ ...prev, isRestoring: false }));
-  }, [state.isRestoring]);
+const toOption = (pkg: PurchasesPackage): PaywallOption => {
+  const title =
+    PACKAGE_LABEL_MAP[pkg.packageType] ?? pkg.product.title ?? pkg.identifier;
+  const periodLabel = PERIOD_LABEL_MAP[pkg.packageType] ?? '';
 
   return {
-    packages: state.packages,
-    selectedId: state.selectedId,
-    isLoading: state.isLoading,
-    isPurchasing: state.isPurchasing,
-    isRestoring: state.isRestoring,
-    selectPackage,
+    id: pkg.identifier,
+    title,
+    price: pkg.product.priceString,
+    periodLabel,
+    package: pkg,
+  };
+};
+
+const isPurchasesError = (error: unknown): error is PurchasesError => {
+  return Boolean(error) && typeof error === 'object' && 'code' in (error as any);
+};
+
+const toErrorMessage = (error: unknown): string => {
+  if (isPurchasesError(error) && error.message) {
+    return error.message;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return 'Something went wrong. Please try again.';
+};
+
+export const usePaywall = () => {
+  const [options, setOptions] = useState<PaywallOption[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isPurchasing, setIsPurchasing] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
+
+  const loadOptions = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError(null);
+
+    try {
+      const packages = await fetchCurrentPackages();
+      const mapped = packages.map(toOption);
+
+      setOptions(mapped);
+      setSelectedId((current) => (
+        current && mapped.some((option) => option.id === current)
+          ? current
+          : mapped[0]?.id ?? null
+      ));
+    } catch (error) {
+      setLoadError(toErrorMessage(error));
+      setOptions([]);
+      setSelectedId(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadOptions();
+  }, [loadOptions]);
+
+  const selectOption = useCallback((id: string) => {
+    setSelectedId(id);
+  }, []);
+
+  const purchase = useCallback(async (): Promise<ActionResult> => {
+    if (!selectedId) {
+      return { status: 'error', message: 'Please choose a plan.' };
+    }
+
+    const option = options.find((item) => item.id === selectedId);
+    if (!option) {
+      return { status: 'error', message: 'Selected plan is no longer available.' };
+    }
+
+    if (isPurchasing) {
+      return { status: 'cancelled' };
+    }
+
+    setIsPurchasing(true);
+    try {
+      const info = await purchasePackage(option.package);
+      applyCustomerInfoToStore(info);
+      return { status: 'ok' };
+    } catch (error) {
+      if (isPurchasesError(error)) {
+        if (
+          error.code === PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR ||
+          error.code === PURCHASES_ERROR_CODE.OPERATION_ALREADY_IN_PROGRESS_ERROR
+        ) {
+          return { status: 'cancelled' };
+        }
+      }
+
+      return { status: 'error', message: toErrorMessage(error) };
+    } finally {
+      setIsPurchasing(false);
+    }
+  }, [isPurchasing, options, selectedId]);
+
+  const restore = useCallback(async (): Promise<ActionResult> => {
+    if (isRestoring) {
+      return { status: 'cancelled' };
+    }
+
+    setIsRestoring(true);
+    try {
+      const info = await restorePurchases();
+      applyCustomerInfoToStore(info);
+
+      const hasPro = Boolean(info.entitlements.active?.pro);
+      if (!hasPro) {
+        return {
+          status: 'error',
+          message: "We couldn't find a subscription for this Apple ID.",
+        };
+      }
+
+      return { status: 'ok' };
+    } catch (error) {
+      return { status: 'error', message: toErrorMessage(error) };
+    } finally {
+      setIsRestoring(false);
+    }
+  }, [isRestoring]);
+
+  return {
+    options,
+    selectedId,
+    isLoading,
+    loadError,
+    isPurchasing,
+    isRestoring,
+    selectOption,
+    reload: loadOptions,
     purchase,
     restore,
   };
-}
+};
