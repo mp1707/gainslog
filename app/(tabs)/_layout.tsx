@@ -44,6 +44,21 @@ export default function TabsLayout() {
         <Label selectedStyle={{ color: colors.accent }}>Logging</Label>
       </NativeTabs.Trigger>
 
+      {/* <NativeTabs.Trigger name="favorites">
+        <Icon
+          src={{
+            default: (
+              <VectorIcon family={MaterialCommunityIcons} name="star-outline" />
+            ),
+            selected: (
+              <VectorIcon family={MaterialCommunityIcons} name="star" />
+            ),
+          }}
+          selectedColor={colors.accent}
+        />
+        <Label selectedStyle={{ color: colors.accent }}>Favorites</Label>
+      </NativeTabs.Trigger> */}
+
       <NativeTabs.Trigger name="calendar">
         <Icon
           src={{
@@ -74,7 +89,7 @@ export default function TabsLayout() {
         <Label selectedStyle={{ color: colors.accent }}>Settings</Label>
       </NativeTabs.Trigger>
       {/* <NativeTabs.Trigger
-        name="create"
+        name="favorites"
         role={hasLiquidGlass ? "search" : undefined}
       >
         <Label>New</Label>

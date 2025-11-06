@@ -2,7 +2,13 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FoodLog, Favorite, DailyTargets, UserSettings, FoodComponent } from "../types/models";
+import {
+  FoodLog,
+  Favorite,
+  DailyTargets,
+  UserSettings,
+  FoodComponent,
+} from "../types/models";
 import { getTodayKey } from "@/utils/dateHelpers";
 import * as FileSystem from "expo-file-system"; // --- 1. IMPORT EXPO-FILE-SYSTEM ---
 
@@ -52,6 +58,7 @@ export type AppState = {
 
   // Favorites
   addFavorite: (fav: Favorite) => void;
+  updateFavorite: (id: string, update: Partial<Favorite>) => void;
   deleteFavorite: (id: string) => void;
 
   // Settings
@@ -156,6 +163,13 @@ export const useAppStore = create<AppState>()(
       addFavorite: (fav) =>
         set((state) => {
           state.favorites.push(fav);
+        }),
+
+      updateFavorite: (id, update) =>
+        set((state) => {
+          state.favorites = state.favorites.map((favorite) =>
+            favorite.id === id ? { ...favorite, ...update } : favorite
+          );
         }),
 
       deleteFavorite: (id) =>

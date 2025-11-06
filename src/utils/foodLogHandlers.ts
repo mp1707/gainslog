@@ -46,6 +46,10 @@ export const createSaveToFavoritesHandler = (
       foodComponents: log.foodComponents.map((component) => ({
         ...component,
       })),
+      macrosPerReferencePortion:
+        "macrosPerReferencePortion" in log
+          ? log.macrosPerReferencePortion
+          : undefined,
     });
 
     // Use HUD instead of toast

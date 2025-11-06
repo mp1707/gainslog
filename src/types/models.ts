@@ -42,6 +42,7 @@ export type Favorite = {
   carbs: number;
   fat: number;
   foodComponents: FoodComponent[];
+  macrosPerReferencePortion?: MacrosPerReferencePortion;
 };
 
 export type DailyTargets = {

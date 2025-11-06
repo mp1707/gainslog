@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { useAppStore } from "@/store/useAppStore";
 import { useHudStore } from "@/store/useHudStore";
 import { EstimationInput, createEstimationLog } from "@/utils/estimation";
-import type { FoodLog } from "@/types/models";
+import type { FoodComponent, FoodLog } from "@/types/models";
 import {
   estimateNutritionImageBased,
   estimateTextBased,
@@ -31,18 +31,28 @@ const makeCompletedFromInitial = (
   needsUserReview: true,
 });
 
-const makeCompletedFromRefinement = (
-  base: FoodLog,
+type EditableEntry = {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  foodComponents: FoodComponent[];
+  macrosPerReferencePortion?: FoodLog["macrosPerReferencePortion"];
+};
+
+const makeCompletedFromRefinement = <T extends EditableEntry>(
+  base: T,
   results: RefinedFoodEstimateResponse
-): FoodLog => ({
-  ...base,
-  // Title remains unchanged, even if empty
-  calories: results.calories,
-  protein: results.protein,
-  carbs: results.carbs,
-  fat: results.fat,
-  isEstimating: false,
-});
+): T =>
+  ({
+    ...base,
+    // Title remains unchanged, even if empty
+    calories: results.calories,
+    protein: results.protein,
+    carbs: results.carbs,
+    fat: results.fat,
+    ...("isEstimating" in base ? { isEstimating: false } : {}),
+  } as T);
 
 const showProRequiredHud = (subtitle: string) => {
   useHudStore.getState().show({
@@ -95,13 +105,16 @@ export const useEstimation = () => {
 
   // Edit page flow: refinement based solely on provided components
   const runEditEstimation = useCallback(
-    async (editedLog: FoodLog, onComplete: (log: FoodLog) => void) => {
+    async <T extends EditableEntry>(
+      editedEntry: T,
+      onComplete: (entry: T) => void
+    ) => {
       if (!isPro) {
         showProRequiredHud("MacroLoop Pro unlocks AI refinements.");
         return;
       }
 
-      const hasComponents = (editedLog.foodComponents?.length || 0) > 0;
+      const hasComponents = (editedEntry.foodComponents?.length || 0) > 0;
       if (!hasComponents) {
         // Caller should prevent this; no-op for safety
         return;
@@ -109,7 +122,7 @@ export const useEstimation = () => {
       console.log("🛠️ Components refinement");
 
       // Convert food components to string format: "Name Amount Unit, Name Amount Unit, ..."
-      const foodComponentsString = (editedLog.foodComponents || [])
+      const foodComponentsString = (editedEntry.foodComponents || [])
         .map(
           (component) =>
             `${component.name} ${component.amount} ${component.unit}`
@@ -120,11 +133,11 @@ export const useEstimation = () => {
       try {
         const refined: RefinedFoodEstimateResponse = await refineEstimation({
           foodComponents: foodComponentsString,
-          macrosPerReferencePortion: editedLog.macrosPerReferencePortion,
+          macrosPerReferencePortion: editedEntry.macrosPerReferencePortion,
         });
-        const completedLog = makeCompletedFromRefinement(editedLog, refined);
-        onComplete(completedLog);
-        return completedLog;
+        const completedEntry = makeCompletedFromRefinement(editedEntry, refined);
+        onComplete(completedEntry);
+        return completedEntry;
       } finally {
         setIsEditEstimating(false);
       }

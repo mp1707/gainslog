@@ -1,7 +1,7 @@
 // store/selectors.ts
 
 import { AppState } from "@/store/useAppStore";
-import type { FoodLog } from "../types/models"; // Adjust path if needed
+import type { Favorite, FoodLog } from "../types/models"; // Adjust path if needed
 
 /**
  * ## Basic Selectors
@@ -31,6 +31,13 @@ export const selectLogById = (state: AppState, id: string): FoodLog | undefined 
  */
 export const makeSelectLogById = (id: string) => (state: AppState): FoodLog | undefined =>
   state.foodLogs.find((log) => log.id === id);
+
+/**
+ * Factory that returns a selector for a specific favorite by id.
+ */
+export const makeSelectFavoriteById = (id: string) =>
+  (state: AppState): Favorite | undefined =>
+    state.favorites.find((favorite) => favorite.id === id);
 
 /**
  * ## Computed Selectors
