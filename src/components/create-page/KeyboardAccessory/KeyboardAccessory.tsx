@@ -100,7 +100,8 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
           isActive
           containerStyle={[
             styles.waveformContainer,
-            { transform: [{ translateY: isFocused ? 0 : 24 }] },
+            { transform: [{ translateY: isFocused ? 0 : 44 }] },
+            { position: "absolute", top: isFocused ? -4 : -24 },
           ]}
           barStyle={styles.waveformBar}
         />

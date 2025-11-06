@@ -387,7 +387,7 @@ export default function Create() {
           </View>
         )}
       </ScrollView>
-      <KeyboardStickyView offset={{ closed: -54, opened: 0 }}>
+      <KeyboardStickyView offset={{ closed: -30, opened: 20 }}>
         <KeyboardAccessory
           textInputRef={textInputRef}
           requestMicPermission={requestPermission}
