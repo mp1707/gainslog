@@ -53,12 +53,10 @@ export type DailyTargets = {
 };
 
 export type ProteinGoalType =
-  | "daily_maintenance"
-  | "active_lifestyle"
-  | "optimal_growth"
-  | "dedicated_athlete"
-  | "anabolic_insurance"
-  | "max_preservation";
+  | "baseline"
+  | "exerciser"
+  | "athlete"
+  | "diet_phase";
 
 export type UserSettings = {
   sex: "male" | "female";

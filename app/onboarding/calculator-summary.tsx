@@ -14,12 +14,10 @@ import { DailyTargets, ProteinGoalType } from "@/types/models";
 
 // Protein calculation factors mapping
 const PROTEIN_FACTORS: Record<ProteinGoalType, number> = {
-  daily_maintenance: 0.8,
-  active_lifestyle: 1.2,
-  optimal_growth: 1.6,
-  dedicated_athlete: 2.0,
-  anabolic_insurance: 2.2,
-  max_preservation: 3.0,
+  baseline: 1.2,
+  exerciser: 1.6,
+  athlete: 2.0,
+  diet_phase: 2.2,
 };
 
 const CalculatorSummaryScreen = () => {

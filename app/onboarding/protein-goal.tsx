@@ -7,11 +7,9 @@ import {
   TrendingUp,
   Dumbbell,
   ShieldCheck,
-  Trophy,
   Heart,
   Activity,
 } from "lucide-react-native";
-
 import { useTheme } from "@/theme";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { SelectionCard } from "@/components/settings/SelectionCard";
@@ -28,65 +26,47 @@ const METHODS: Record<
     factor: number;
   }
 > = {
-  daily_maintenance: {
-    id: "daily_maintenance",
-    title: "0.8 g/kg - Daily Maintenance",
+  baseline: {
+    id: "baseline",
+    title: "1.2 g/kg - The Baseline",
     description:
-      "The official recommendation for general health and basic bodily functions. Perfect for a casual, healthy lifestyle.",
-    factor: 0.8,
-  },
-  active_lifestyle: {
-    id: "active_lifestyle",
-    title: "1.2 g/kg - Active Lifestyle",
-    description:
-      "Ideal for those who exercise regularly and want to support muscle maintenance and a healthy metabolism.",
+      "Balanced & Healthy. Ideal for an active lifestyle and maintaining your general fitness.",
     factor: 1.2,
   },
-  optimal_growth: {
-    id: "optimal_growth",
-    title: "1.6 g/kg - Optimal Growth",
+  exerciser: {
+    id: "exerciser",
+    title: "1.6 g/kg - The Exerciser",
     description:
-      "The evidence-based point of diminishing returns for maximizing muscle growth in a caloric surplus or maintenance.",
+      "Fit & Toned. Perfect for supporting your training results and maintaining muscle.",
     factor: 1.6,
   },
-  dedicated_athlete: {
-    id: "dedicated_athlete",
-    title: "2.0 g/kg - Dedicated Athlete",
+  athlete: {
+    id: "athlete",
+    title: "2.0 g/kg - The Athlete",
     description:
-      "A robust target for dedicated athletes to optimize all training adaptations and ensure consistent muscle growth.",
+      "Maximum Muscle Gain. Optimal for effectively maximizing muscle growth after intense strength training.",
     factor: 2.0,
   },
-  anabolic_insurance: {
-    id: "anabolic_insurance",
-    title: "2.2 g/kg - Anabolic Insurance",
+  diet_phase: {
+    id: "diet_phase",
+    title: "2.2 g/kg - The Diet Phase",
     description:
-      "The upper-end target to ensure protein is never a limiting factor. Ideal for advanced athletes.",
+      "Protection & Satiety. Maximizes muscle retention and provides fullness during a calorie reduction (diet).",
     factor: 2.2,
-  },
-  max_preservation: {
-    id: "max_preservation",
-    title: "3.0 g/kg - Max Preservation",
-    description:
-      "A very high intake to maximize muscle retention during a significant or prolonged caloric deficit (cutting).",
-    factor: 3.0,
   },
 };
 
 // Icon mapping for protein calculation methods
 const getIconForMethod = (methodId: string) => {
   switch (methodId) {
-    case "daily_maintenance":
+    case "baseline":
       return Heart;
-    case "active_lifestyle":
+    case "exerciser":
       return Activity;
-    case "optimal_growth":
-      return TrendingUp;
-    case "dedicated_athlete":
+    case "athlete":
       return Dumbbell;
-    case "anabolic_insurance":
+    case "diet_phase":
       return ShieldCheck;
-    case "max_preservation":
-      return Trophy;
     default:
       return TrendingUp;
   }
@@ -102,22 +82,10 @@ export default function ProteinGoalsScreen() {
 
   const proteinGoals = useMemo(() => {
     return {
-      daily_maintenance: Math.round(
-        currentWeight * METHODS.daily_maintenance.factor
-      ),
-      active_lifestyle: Math.round(
-        currentWeight * METHODS.active_lifestyle.factor
-      ),
-      optimal_growth: Math.round(currentWeight * METHODS.optimal_growth.factor),
-      dedicated_athlete: Math.round(
-        currentWeight * METHODS.dedicated_athlete.factor
-      ),
-      anabolic_insurance: Math.round(
-        currentWeight * METHODS.anabolic_insurance.factor
-      ),
-      max_preservation: Math.round(
-        currentWeight * METHODS.max_preservation.factor
-      ),
+      baseline: Math.round(currentWeight * METHODS.baseline.factor),
+      exerciser: Math.round(currentWeight * METHODS.exerciser.factor),
+      athlete: Math.round(currentWeight * METHODS.athlete.factor),
+      diet_phase: Math.round(currentWeight * METHODS.diet_phase.factor),
     };
   }, [currentWeight]);
 
@@ -132,19 +100,13 @@ export default function ProteinGoalsScreen() {
   };
 
   const methods = Object.values(METHODS);
-
   return (
     <OnboardingScreen
       title={<AppText role="Title2">Set Your Protein Target</AppText>}
       subtitle={
-        <>
-          <AppText role="Body" color="secondary" style={styles.secondaryText}>
-            Choose a target based on your training intensity.
-          </AppText>
-          <AppText role="Body" color="secondary" style={styles.secondaryText}>
-            Based on your weight of {weight}kg
-          </AppText>
-        </>
+        <AppText role="Body" color="secondary" style={styles.secondaryText}>
+          Based on your weight of {weight}kg
+        </AppText>
       }
     >
       <View style={styles.contentWrapper}>
