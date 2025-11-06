@@ -19,12 +19,26 @@ const toSnapshot = (info: CustomerInfo): Snapshot => {
     };
   }
 
+  const expiration = entitlement.expirationDate ?? null;
+  const expirationTime = expiration ? new Date(expiration).getTime() : null;
+  const now = Date.now();
+
+  const hasExpired = Boolean(expirationTime && expirationTime <= now);
+
+  if (hasExpired) {
+    return {
+      isPro: false,
+      isCanceled: false,
+      expirationDate: expiration,
+    };
+  }
+
   const willRenew = entitlement.willRenew ?? true;
 
   return {
     isPro: true,
     isCanceled: !willRenew,
-    expirationDate: entitlement.expirationDate ?? null,
+    expirationDate: expiration,
   };
 };
 

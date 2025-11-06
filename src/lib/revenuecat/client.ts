@@ -68,6 +68,11 @@ export const getCustomerInfo = async (): Promise<CustomerInfo> => {
   return Purchases.getCustomerInfo();
 };
 
+export const invalidateCustomerInfoCache = async () => {
+  requireConfiguration();
+  await Purchases.invalidateCustomerInfoCache();
+};
+
 export const addCustomerInfoListener = (listener: Listener): (() => void) => {
   requireConfiguration();
   Purchases.addCustomerInfoUpdateListener(listener);
