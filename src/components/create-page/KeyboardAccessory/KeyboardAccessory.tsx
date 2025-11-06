@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import { View, TextInput } from "react-native";
 import { useCameraPermissions } from "expo-camera";
+import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { showErrorToast } from "@/lib/toast";
@@ -82,10 +83,9 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   }, [textInputRef, requestMicPermission, onRecording]);
 
   const handleConfirmPress = useCallback(() => {
-    if (!confirmDisabled) {
-      onEstimate();
-    }
-  }, [confirmDisabled, onEstimate]);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onEstimate();
+  }, [onEstimate]);
 
   const handleStopPress = useCallback(() => {
     // Call without awaiting for instant UI response

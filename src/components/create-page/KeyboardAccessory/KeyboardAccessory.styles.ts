@@ -17,7 +17,7 @@ export const createStyles = (
       borderRadius: theme.spacing.xl,
     },
     actionsRow: {
-      transform: [{ translateY: 24 }],
+      marginTop: 24,
       flexDirection: "row",
       alignItems: "center",
       gap: theme.spacing.sm,

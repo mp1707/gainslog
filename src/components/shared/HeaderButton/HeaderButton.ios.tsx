@@ -10,7 +10,7 @@ import { clipShape, frame, padding } from "@expo/ui/swift-ui/modifiers";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { StyleProp, ViewStyle } from "react-native";
 
-const SIZE = 27;
+const SIZE = 44;
 
 export interface HeaderButtonProps {
   imageProps?: ImageProps;
