@@ -33,6 +33,7 @@ export type AppState = {
   // UI state
   selectedDate: string; // YYYY-MM-DD (for day view)
   selectedMonth: string; // YYYY-MM (for month view)
+  favoritesSearchQuery: string;
 
   // User preferences
   lastUsedUnit?: "g" | "ml" | "piece";
@@ -69,6 +70,7 @@ export type AppState = {
   // UI
   setSelectedDate: (date: string) => void;
   setSelectedMonth: (month: string) => void;
+  setFavoritesSearchQuery: (query: string) => void;
 };
 
 export const useAppStore = create<AppState>()(
@@ -86,6 +88,7 @@ export const useAppStore = create<AppState>()(
       // default to today's date & current month (local timezone aware)
       selectedDate: getTodayKey(), // YYYY-MM-DD (local)
       selectedMonth: getTodayKey().slice(0, 7), // YYYY-MM (local)
+      favoritesSearchQuery: "",
 
       // Logs
       addFoodLog: (log) =>
@@ -218,6 +221,11 @@ export const useAppStore = create<AppState>()(
       setSelectedMonth: (month) =>
         set((state) => {
           state.selectedMonth = month;
+        }),
+
+      setFavoritesSearchQuery: (query) =>
+        set((state) => {
+          state.favoritesSearchQuery = query;
         }),
 
       // User preferences

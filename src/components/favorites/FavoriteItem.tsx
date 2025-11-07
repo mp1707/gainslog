@@ -10,6 +10,7 @@ interface FavoriteItemProps {
   onEdit: (favorite: Favorite) => void;
   onLogAgain: (favorite: Favorite) => void;
   onRemoveFromFavorites: (favorite: Favorite) => void;
+  onDelete: (favorite: Favorite) => void;
 }
 
 export const FavoriteItem: React.FC<FavoriteItemProps> = ({
@@ -17,6 +18,7 @@ export const FavoriteItem: React.FC<FavoriteItemProps> = ({
   onEdit,
   onLogAgain,
   onRemoveFromFavorites,
+  onDelete,
 }) => {
   const { theme } = useTheme();
 
@@ -25,13 +27,17 @@ export const FavoriteItem: React.FC<FavoriteItemProps> = ({
       layout={LinearTransition}
       style={{ paddingHorizontal: theme.spacing.md }}
     >
-      <SwipeToFunctions onTap={() => onEdit(item)}>
+      <SwipeToFunctions
+        onDelete={() => onDelete(item)}
+        onTap={() => onEdit(item)}
+      >
         <LogCard
           foodLog={item}
           contextMenuPreset="favorites"
           onLogAgain={onLogAgain}
           onRemoveFromFavorites={onRemoveFromFavorites}
           onEdit={onEdit}
+          onDelete={onDelete}
         />
       </SwipeToFunctions>
     </Animated.View>

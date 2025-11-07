@@ -7,6 +7,7 @@ import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
 import {
   createLogAgainHandler,
   createRemoveFromFavoritesHandler,
+  createDeleteHandler,
 } from "@/utils/foodLogHandlers";
 import { FavoriteItem } from "@/components/favorites/FavoriteItem";
 import { AppText } from "@/components/index";
@@ -17,12 +18,40 @@ export default function FavoritesScreen() {
   const selectedDate = useAppStore((state) => state.selectedDate);
   const addFoodLog = useAppStore((state) => state.addFoodLog);
   const deleteFavorite = useAppStore((state) => state.deleteFavorite);
+  const favoritesSearchQuery = useAppStore(
+    (state) => state.favoritesSearchQuery
+  );
 
   const { safeNavigate } = useNavigationGuard();
   const { dynamicBottomPadding } = useTabBarSpacing();
   const { colors, theme } = useTheme();
 
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+
+  const filteredFavorites = useMemo(() => {
+    const trimmedQuery = favoritesSearchQuery.trim().toLowerCase();
+
+    if (!trimmedQuery) {
+      return favorites;
+    }
+
+    const queryWords = trimmedQuery.split(/\s+/).filter(Boolean);
+
+    if (queryWords.length === 0) {
+      return favorites;
+    }
+
+    return favorites.filter((favorite) => {
+      const haystack = `${favorite.title} ${favorite.foodComponents
+        .map((component) => component.name)
+        .join(" ")}`.toLowerCase();
+
+      return queryWords.every((word) => haystack.includes(word));
+    });
+  }, [favorites, favoritesSearchQuery]);
+
+  const isSearching = favoritesSearchQuery.trim().length > 0;
+  const hasFavorites = favorites.length > 0;
 
   const handleLogAgain = useMemo(
     () => createLogAgainHandler(addFoodLog, selectedDate),
@@ -32,6 +61,11 @@ export default function FavoritesScreen() {
   const handleRemoveFromFavorites = useMemo(
     () => createRemoveFromFavoritesHandler(deleteFavorite, favorites),
     [deleteFavorite, favorites]
+  );
+
+  const handleDelete = useMemo(
+    () => createDeleteHandler(deleteFavorite),
+    [deleteFavorite]
   );
 
   const handleEdit = useCallback(
@@ -48,31 +82,36 @@ export default function FavoritesScreen() {
         onEdit={handleEdit}
         onLogAgain={handleLogAgain}
         onRemoveFromFavorites={handleRemoveFromFavorites}
+        onDelete={handleDelete}
       />
     ),
-    [handleEdit, handleLogAgain, handleRemoveFromFavorites]
+    [handleEdit, handleLogAgain, handleRemoveFromFavorites, handleDelete]
   );
 
   const keyExtractor = useCallback((item: Favorite) => item.id, []);
 
   return (
     <FlatList
-      data={favorites}
+      data={filteredFavorites}
       keyExtractor={keyExtractor}
       renderItem={renderItem}
       style={styles.list}
       contentContainerStyle={[
         styles.listContent,
-        favorites.length === 0 && styles.emptyContent,
+        filteredFavorites.length === 0 && styles.emptyContent,
         { paddingBottom: dynamicBottomPadding },
       ]}
       ListEmptyComponent={() => (
         <View style={styles.emptyState}>
           <AppText role="Body" style={styles.emptyTitle}>
-            No favorites yet
+            {isSearching && hasFavorites
+              ? "No matches found"
+              : "No favorites yet"}
           </AppText>
           <AppText role="Caption" style={styles.emptySubtitle}>
-            Save meals while logging to keep them handy here.
+            {isSearching && hasFavorites
+              ? "Try another search term."
+              : "Save meals while logging to keep them handy here."}
           </AppText>
         </View>
       )}

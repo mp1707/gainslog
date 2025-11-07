@@ -15,7 +15,7 @@ import Animated, { Easing, Layout } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { useNavigation } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
-import { Calculator, Heart } from "lucide-react-native";
+import { Calculator, Star } from "lucide-react-native";
 
 import { AppText } from "@/components/index";
 import { ComponentsList } from "@/components/refine-page/ComponentsList/ComponentsList";
@@ -324,7 +324,7 @@ export default function Edit() {
                     accessibilityState={{ selected: isFavorite }}
                     accessibilityLabel={favoriteButtonLabel}
                   >
-                    <Heart
+                    <Star
                       size={18}
                       color={colors.semantic.fat}
                       fill={isFavorite ? colors.semantic.fat : "none"}
