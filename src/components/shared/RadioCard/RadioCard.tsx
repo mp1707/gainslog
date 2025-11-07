@@ -1,14 +1,15 @@
-import React, { useEffect } from "react";
-import { Pressable, View } from "react-native";
+import React, { useCallback, useEffect } from "react";
+import { LayoutChangeEvent, Pressable, View } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
   withTiming,
   interpolate,
+  runOnJS,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { Circle, CircleCheck, CircleDot } from "lucide-react-native";
+import { Circle, CircleCheck, LucideIcon } from "lucide-react-native";
 import { Card } from "@/components/Card";
 import { AppText } from "@/components/shared/AppText";
 import { useTheme } from "@/theme";
@@ -19,6 +20,8 @@ interface RadioCardProps {
   description: string;
   factor?: number;
   badge?: { label: string };
+  titleIcon?: LucideIcon;
+  titleIconColor?: string;
   isSelected: boolean;
   onSelect: () => void;
   accessibilityLabel?: string;
@@ -30,6 +33,8 @@ export const RadioCard: React.FC<RadioCardProps> = ({
   description,
   factor,
   badge,
+  titleIcon,
+  titleIconColor,
   isSelected,
   onSelect,
   accessibilityLabel,
@@ -41,6 +46,10 @@ export const RadioCard: React.FC<RadioCardProps> = ({
   // Animation values
   const pressScale = useSharedValue(1);
   const selectedProgress = useSharedValue(isSelected ? 1 : 0);
+  const cardLayout = useSharedValue<{ width: number; height: number }>({
+    width: 0,
+    height: 0,
+  });
 
   // Update selection animation when isSelected changes
   useEffect(() => {
@@ -59,9 +68,32 @@ export const RadioCard: React.FC<RadioCardProps> = ({
 
   // Animated styles for radio indicator
   const animatedRadioStyle = useAnimatedStyle(() => {
-    const scale = interpolate(selectedProgress.value, [0, 1], [1, 1.1]);
+    const selectionScale = interpolate(selectedProgress.value, [0, 1], [1, 1.1]);
+    const currentPressScale = pressScale.value || 1;
+
+    // Counter the card press scale so the SVG icon stays crisp during the press animation.
+    const pressCompensation = 1 / currentPressScale;
+
     return {
-      transform: [{ scale }],
+      transform: [{ scale: selectionScale * pressCompensation }],
+    };
+  });
+
+  const animatedIndicatorOverlayStyle = useAnimatedStyle(() => {
+    const scale = pressScale.value;
+    const { width, height } = cardLayout.value;
+
+    if (!width || !height) {
+      return {
+        transform: [{ translateX: 0 }, { translateY: 0 }],
+      };
+    }
+
+    const translateX = ((1 - scale) * width) / 2;
+    const translateY = ((1 - scale) * height) / 2;
+
+    return {
+      transform: [{ translateX }, { translateY }],
     };
   });
 
@@ -80,73 +112,115 @@ export const RadioCard: React.FC<RadioCardProps> = ({
     });
   };
 
-  const handlePress = () => {
+  const triggerSelection = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     onSelect();
+  }, [onSelect]);
+
+  const handlePress = () => {
+    pressScale.value = withTiming(
+      1.0,
+      {
+        duration: theme.interactions.press.timing.duration,
+        easing: theme.interactions.press.timing.easing,
+      },
+      () => {
+        runOnJS(triggerSelection)();
+      }
+    );
   };
 
   const RadioIndicator = isSelected ? CircleCheck : Circle;
+  const TitleIcon = titleIcon;
+
+  const handleCardLayout = useCallback(
+    (event: LayoutChangeEvent) => {
+      const { width, height } = event.nativeEvent.layout;
+      cardLayout.value = { width, height };
+    },
+    [cardLayout]
+  );
 
   return (
-    <Animated.View style={animatedCardStyle}>
-      <Pressable
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        onPress={handlePress}
-        accessibilityRole="radio"
-        accessibilityState={{ checked: isSelected }}
-        accessibilityLabel={accessibilityLabel || `${title} option`}
-        accessibilityHint={
-          accessibilityHint ||
-          (factor
-            ? `Select ${factor} grams per kilogram protein goal. ${description}`
-            : `Select ${title}. ${description}`)
-        }
-      >
-        <Card elevated={false} padding={theme.spacing.md} style={styles.card}>
-          <View style={styles.container}>
-            {/* Radio Indicator */}
-            <Animated.View style={[styles.radioContainer, animatedRadioStyle]}>
-              <RadioIndicator
-                size={24}
-                color={isSelected ? colors.accent : colors.secondaryText}
-                strokeWidth={2}
-              />
-            </Animated.View>
+    <View style={styles.wrapper}>
+      <Animated.View style={animatedCardStyle} onLayout={handleCardLayout}>
+        <Pressable
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          onPress={handlePress}
+          accessibilityRole="radio"
+          accessibilityState={{ checked: isSelected }}
+          accessibilityLabel={accessibilityLabel || `${title} option`}
+          accessibilityHint={
+            accessibilityHint ||
+            (factor
+              ? `Select ${factor} grams per kilogram protein goal. ${description}`
+              : `Select ${title}. ${description}`)
+          }
+        >
+          <Card elevated={false} padding={theme.spacing.md} style={styles.card}>
+            <View style={styles.container}>
+              <View style={styles.radioGutter} />
 
-            {/* Content */}
-            <View style={styles.content}>
-              <View style={styles.titleRow}>
-                <AppText
-                  role="Body"
-                  color={isSelected ? "accent" : "primary"}
-                  numberOfLines={1}
-                >
-                  {title}
-                </AppText>
-                {(badge || factor !== undefined) && (
-                  <View style={styles.factorBadge}>
+              {/* Content */}
+              <View style={styles.content}>
+                <View style={styles.titleRow}>
+                  <View style={styles.titleWithIcon}>
                     <AppText
-                      role="Caption"
+                      role="Body"
                       color={isSelected ? "accent" : "primary"}
+                      numberOfLines={1}
                     >
-                      {badge?.label || `${factor} g Protein /kg`}
+                      {title}
                     </AppText>
+                    {TitleIcon && (
+                      <TitleIcon
+                        size={18}
+                        color={
+                          titleIconColor ||
+                          (isSelected ? colors.accent : colors.primaryText)
+                        }
+                        strokeWidth={2}
+                      />
+                    )}
                   </View>
-                )}
+                  {(badge || factor !== undefined) && (
+                    <View style={styles.factorBadge}>
+                      <AppText
+                        role="Caption"
+                        color={isSelected ? "accent" : "primary"}
+                      >
+                        {badge?.label || `${factor} g Protein /kg`}
+                      </AppText>
+                    </View>
+                  )}
+                </View>
+                <AppText
+                  role="Caption"
+                  color="secondary"
+                  numberOfLines={2}
+                  style={styles.description}
+                >
+                  {description}
+                </AppText>
               </View>
-              <AppText
-                role="Caption"
-                color="secondary"
-                numberOfLines={2}
-                style={styles.description}
-              >
-                {description}
-              </AppText>
             </View>
-          </View>
-        </Card>
-      </Pressable>
-    </Animated.View>
+          </Card>
+        </Pressable>
+      </Animated.View>
+
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.radioOverlay, animatedIndicatorOverlayStyle]}
+      >
+        <Animated.View style={[styles.radioContainer, animatedRadioStyle]}>
+          <RadioIndicator
+            size={24}
+            color={isSelected ? colors.accent : colors.secondaryText}
+            strokeWidth={2}
+          />
+        </Animated.View>
+      </Animated.View>
+    </View>
   );
 };

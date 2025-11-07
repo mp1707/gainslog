@@ -1,13 +1,12 @@
-import React, { useEffect } from "react";
-import { View } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import { View, ScrollView, StyleSheet } from "react-native";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
 import { TrendingDown, Equal, TrendingUp } from "lucide-react-native";
 import { useTheme } from "@/theme/ThemeProvider";
-import { SelectionCard } from "@/components/settings/SelectionCard";
+import { RadioCard } from "@/components/shared/RadioCard";
 import { Button } from "@/components/shared/Button";
 import type { UserSettings } from "@/types/models";
-import { StyleSheet } from "react-native";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
@@ -28,6 +27,11 @@ export default function Step3GoalsScreen() {
     setInputMethod,
   } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
+  const scrollRef = useRef<ScrollView>(null);
+
+  const [selectedGoal, setSelectedGoal] = useState<
+    UserSettings["calorieGoalType"] | null
+  >(calorieGoalType || null);
 
   // Ensure we're in calculate mode when entering questionnaire
   useEffect(() => {
@@ -50,14 +54,19 @@ export default function Step3GoalsScreen() {
           activityLevel as any
         );
 
-  const handleGoalSelect = async (
-    goalType: UserSettings["calorieGoalType"]
-  ) => {
+  const handleGoalSelect = (goalType: UserSettings["calorieGoalType"]) => {
     if (!calorieGoals) return;
     if (!goalType) return;
+    setSelectedGoal(goalType);
     setCalorieGoalType(goalType);
     setCalorieGoal(calorieGoals[goalType]);
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    scrollRef.current?.scrollToEnd({ animated: true });
+  };
+
+  const handleContinue = () => {
+    if (!selectedGoal) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     safePush("/onboarding/protein-goal");
   };
 
@@ -84,75 +93,60 @@ export default function Step3GoalsScreen() {
 
   return (
     <OnboardingScreen
+      ref={scrollRef}
       title={<AppText role="Title2">What's the objective?</AppText>}
       subtitle={
         <AppText role="Body" color="secondary" style={styles.secondaryText}>
-          Based on your data, here are three starting points.
+          Based on your data, here are three starting points with daily calorie
+          targets.
         </AppText>
+      }
+      actionButton={
+        <Button
+          variant="primary"
+          label="Continue"
+          disabled={!selectedGoal}
+          onPress={handleContinue}
+        />
       }
     >
       <View style={styles.contentWrapper}>
         <View style={styles.goalsSection}>
-          <SelectionCard
+          <RadioCard
             title="Cut"
             description="Create a calorie deficit to lose weight gradually"
-            icon={TrendingDown}
-            iconColor={colors.error}
-            isSelected={calorieGoalType === "lose"}
+            titleIcon={TrendingDown}
+            titleIconColor={colors.error}
+            badge={{ label: `${calorieGoals.lose} kcal` }}
+            isSelected={selectedGoal === "lose"}
             onSelect={() => handleGoalSelect("lose")}
-            dailyTarget={{
-              value: calorieGoals.lose,
-              unit: "kcal",
-              label: "Daily Target",
-            }}
-            accessibilityLabel="Lose Weight goal"
-            accessibilityHint={`Set ${calorieGoals.lose} calories as your daily goal to create a calorie deficit to lose weight gradually`}
+            accessibilityLabel="Cut goal"
+            accessibilityHint={`Set ${calorieGoals.lose} calories per day to lose weight gradually`}
           />
 
-          <SelectionCard
+          <RadioCard
             title="Maintain"
             description="Eat at maintenance calories to stay at current weight"
-            icon={Equal}
-            iconColor={colors.success}
-            isSelected={calorieGoalType === "maintain"}
+            titleIcon={Equal}
+            titleIconColor={colors.success}
+            badge={{ label: `${calorieGoals.maintain} kcal` }}
+            isSelected={selectedGoal === "maintain"}
             onSelect={() => handleGoalSelect("maintain")}
-            dailyTarget={{
-              value: calorieGoals.maintain,
-              unit: "kcal",
-              label: "Daily Target",
-            }}
-            accessibilityLabel="Maintain Weight goal"
-            accessibilityHint={`Set ${calorieGoals.maintain} calories as your daily goal to eat at maintenance calories to stay at current weight`}
+            accessibilityLabel="Maintain goal"
+            accessibilityHint={`Set ${calorieGoals.maintain} calories per day to stay at current weight`}
           />
 
-          <SelectionCard
+          <RadioCard
             title="Bulk"
             description="Create a calorie surplus to gain weight gradually"
-            icon={TrendingUp}
-            iconColor={colors.semantic.protein}
-            isSelected={calorieGoalType === "gain"}
+            titleIcon={TrendingUp}
+            titleIconColor={colors.semantic.protein}
+            badge={{ label: `${calorieGoals.gain} kcal` }}
+            isSelected={selectedGoal === "gain"}
             onSelect={() => handleGoalSelect("gain")}
-            dailyTarget={{
-              value: calorieGoals.gain,
-              unit: "kcal",
-              label: "Daily Target",
-            }}
-            accessibilityLabel="Gain Weight goal"
-            accessibilityHint={`Set ${calorieGoals.gain} calories as your daily goal to create a calorie surplus to gain weight gradually`}
+            accessibilityLabel="Bulk goal"
+            accessibilityHint={`Set ${calorieGoals.gain} calories per day to gain weight gradually`}
           />
-        </View>
-
-        {/* Footer Note */}
-        <View style={styles.footer}>
-          <AppText
-            role="Caption"
-            color="secondary"
-            style={styles.secondaryText}
-          >
-            These recommendations are general guidelines based on the Mifflin-St
-            Jeor equation. Consult with a nutritionist or healthcare provider
-            for personalized advice.
-          </AppText>
         </View>
       </View>
     </OnboardingScreen>
@@ -176,13 +170,6 @@ const createStyles = (colors: Colors, themeObj: Theme) => {
     },
     goalsSection: {
       gap: spacing.md,
-      marginBottom: spacing.lg,
-    },
-    footer: {
-      marginTop: spacing.xl,
-      paddingTop: spacing.lg,
-      borderTopWidth: 1,
-      borderTopColor: colors.border,
     },
   });
 };
