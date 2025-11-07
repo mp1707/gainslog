@@ -1,18 +1,12 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { View } from "react-native";
 import { AppText } from "@/components/shared/AppText";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
-import {
-  TrendingUp,
-  Dumbbell,
-  ShieldCheck,
-  Heart,
-  Activity,
-} from "lucide-react-native";
 import { useTheme } from "@/theme";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
-import { SelectionCard } from "@/components/settings/SelectionCard";
+import { RadioCard } from "@/components/shared/RadioCard";
+import { Button } from "@/components/shared/Button";
 import { StyleSheet } from "react-native";
 import { ProteinGoalType, UserSettings } from "@/types/models";
 import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
@@ -28,55 +22,44 @@ const METHODS: Record<
 > = {
   baseline: {
     id: "baseline",
-    title: "1.2 g/kg - The Baseline",
+    title: "The Baseline",
     description:
       "Balanced & Healthy. Ideal for an active lifestyle and maintaining your general fitness.",
     factor: 1.2,
   },
   exerciser: {
     id: "exerciser",
-    title: "1.6 g/kg - The Exerciser",
+    title: "The Exerciser",
     description:
-      "Fit & Toned. Perfect for supporting your training results and maintaining muscle.",
+      "Fit & Toned. Perfect for supporting your training results and gaining muscle.",
     factor: 1.6,
   },
   athlete: {
     id: "athlete",
-    title: "2.0 g/kg - The Athlete",
+    title: "The Athlete",
     description:
-      "Maximum Muscle Gain. Optimal for effectively maximizing muscle growth after intense strength training.",
+      "Maximum Muscle Gain. Optimal in combination with intense strength training.",
     factor: 2.0,
   },
   diet_phase: {
     id: "diet_phase",
-    title: "2.2 g/kg - The Diet Phase",
+    title: "The Diet Phase",
     description:
-      "Protection & Satiety. Maximizes muscle retention and provides fullness during a calorie reduction (diet).",
+      "Protection & Satiety. Maximizes muscle retention and provides fullness during a calorie reduction.",
     factor: 2.2,
   },
-};
-
-// Icon mapping for protein calculation methods
-const getIconForMethod = (methodId: string) => {
-  switch (methodId) {
-    case "baseline":
-      return Heart;
-    case "exerciser":
-      return Activity;
-    case "athlete":
-      return Dumbbell;
-    case "diet_phase":
-      return ShieldCheck;
-    default:
-      return TrendingUp;
-  }
 };
 
 export default function ProteinGoalsScreen() {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
-  const { weight, setProteinGoal, setProteinGoalType } = useOnboardingStore();
+  const { weight, proteinGoalType, setProteinGoal, setProteinGoalType } =
+    useOnboardingStore();
   const { safePush } = useNavigationGuard();
+
+  const [selectedMethod, setSelectedMethod] = useState<ProteinGoalType | null>(
+    proteinGoalType || null
+  );
 
   const currentWeight = weight || 0;
 
@@ -89,12 +72,18 @@ export default function ProteinGoalsScreen() {
     };
   }, [currentWeight]);
 
-  const handleMethodSelect = async (
-    method: UserSettings["proteinGoalType"]
-  ) => {
-    const proteinValue = proteinGoals[method as keyof typeof proteinGoals];
+  const handleCardSelect = async (method: ProteinGoalType) => {
+    setSelectedMethod(method);
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  const handleContinue = async () => {
+    if (!selectedMethod) return;
+
+    const proteinValue =
+      proteinGoals[selectedMethod as keyof typeof proteinGoals];
     setProteinGoal(proteinValue);
-    setProteinGoalType(method as ProteinGoalType);
+    setProteinGoalType(selectedMethod);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     safePush("/onboarding/calculator-summary");
   };
@@ -108,45 +97,31 @@ export default function ProteinGoalsScreen() {
           Based on your weight of {weight}kg
         </AppText>
       }
+      actionButton={
+        <Button
+          variant="primary"
+          label="Continue"
+          disabled={!selectedMethod}
+          onPress={handleContinue}
+        />
+      }
     >
       <View style={styles.contentWrapper}>
         <View style={styles.methodsSection}>
           {methods.map((method) => {
-            const proteinGoal =
-              proteinGoals[method.id as keyof typeof proteinGoals];
-            const IconComponent = getIconForMethod(method.id as string);
-
             return (
-              <SelectionCard
+              <RadioCard
                 key={method.id}
                 title={method.title}
                 description={method.description}
-                icon={IconComponent}
-                iconColor={colors.accent}
-                isSelected={false}
-                onSelect={() => handleMethodSelect(method.id)}
-                dailyTarget={{
-                  value: proteinGoal,
-                  unit: "g",
-                  label: "Daily Target",
-                }}
+                factor={method.factor}
+                isSelected={selectedMethod === method.id}
+                onSelect={() => handleCardSelect(method.id)}
                 accessibilityLabel={`${method.title} protein calculation method`}
-                accessibilityHint={`Calculate ${proteinGoal}g protein per day based on ${method.description.toLowerCase()}`}
+                accessibilityHint={`Select ${method.factor} grams per kilogram protein goal. ${method.description}`}
               />
             );
           })}
-        </View>
-
-        {/* Footer Note */}
-        <View style={styles.footer}>
-          <AppText
-            role="Caption"
-            color="secondary"
-            style={styles.secondaryText}
-          >
-            These recommendations are general guidelines. Consult with a
-            nutritionist or healthcare provider for personalized advice.
-          </AppText>
         </View>
       </View>
     </OnboardingScreen>
