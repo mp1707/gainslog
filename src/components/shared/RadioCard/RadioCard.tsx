@@ -17,7 +17,8 @@ import { createStyles } from "./RadioCard.styles";
 interface RadioCardProps {
   title: string;
   description: string;
-  factor: number;
+  factor?: number;
+  badge?: { label: string };
   isSelected: boolean;
   onSelect: () => void;
   accessibilityLabel?: string;
@@ -28,6 +29,7 @@ export const RadioCard: React.FC<RadioCardProps> = ({
   title,
   description,
   factor,
+  badge,
   isSelected,
   onSelect,
   accessibilityLabel,
@@ -93,12 +95,12 @@ export const RadioCard: React.FC<RadioCardProps> = ({
         onPress={handlePress}
         accessibilityRole="radio"
         accessibilityState={{ checked: isSelected }}
-        accessibilityLabel={
-          accessibilityLabel || `${title} protein goal option`
-        }
+        accessibilityLabel={accessibilityLabel || `${title} option`}
         accessibilityHint={
           accessibilityHint ||
-          `Select ${factor} grams per kilogram protein goal. ${description}`
+          (factor
+            ? `Select ${factor} grams per kilogram protein goal. ${description}`
+            : `Select ${title}. ${description}`)
         }
       >
         <Card elevated={false} padding={theme.spacing.md} style={styles.card}>
@@ -122,14 +124,16 @@ export const RadioCard: React.FC<RadioCardProps> = ({
                 >
                   {title}
                 </AppText>
-                <View style={styles.factorBadge}>
-                  <AppText
-                    role="Caption"
-                    color={isSelected ? "accent" : "primary"}
-                  >
-                    {factor} g Protein /kg
-                  </AppText>
-                </View>
+                {(badge || factor !== undefined) && (
+                  <View style={styles.factorBadge}>
+                    <AppText
+                      role="Caption"
+                      color={isSelected ? "accent" : "primary"}
+                    >
+                      {badge?.label || `${factor} g Protein /kg`}
+                    </AppText>
+                  </View>
+                )}
               </View>
               <AppText
                 role="Caption"

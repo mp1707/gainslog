@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import { useTheme } from "@/theme";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
@@ -9,6 +9,7 @@ interface OnboardingScreenProps {
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
   scrollEnabled?: boolean;
+  ref?: React.Ref<ScrollView>;
 }
 
 export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
@@ -17,6 +18,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
   title,
   subtitle,
   scrollEnabled = true,
+  ref,
 }) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
@@ -25,6 +27,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
     <View style={styles.container}>
       <View style={styles.content}>
         <KeyboardAwareScrollView
+          ref={ref}
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}

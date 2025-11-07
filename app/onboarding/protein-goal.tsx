@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react";
-import { View } from "react-native";
+import React, { useMemo, useState, useRef } from "react";
+import { View, ScrollView, StyleSheet } from "react-native";
 import { AppText } from "@/components/shared/AppText";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import * as Haptics from "expo-haptics";
@@ -7,7 +7,6 @@ import { useTheme } from "@/theme";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { RadioCard } from "@/components/shared/RadioCard";
 import { Button } from "@/components/shared/Button";
-import { StyleSheet } from "react-native";
 import { ProteinGoalType, UserSettings } from "@/types/models";
 import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 
@@ -56,6 +55,7 @@ export default function ProteinGoalsScreen() {
   const { weight, proteinGoalType, setProteinGoal, setProteinGoalType } =
     useOnboardingStore();
   const { safePush } = useNavigationGuard();
+  const scrollRef = useRef<ScrollView>(null);
 
   const [selectedMethod, setSelectedMethod] = useState<ProteinGoalType | null>(
     proteinGoalType || null
@@ -75,6 +75,7 @@ export default function ProteinGoalsScreen() {
   const handleCardSelect = async (method: ProteinGoalType) => {
     setSelectedMethod(method);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    scrollRef.current?.scrollToEnd({ animated: true });
   };
 
   const handleContinue = async () => {
@@ -91,6 +92,7 @@ export default function ProteinGoalsScreen() {
   const methods = Object.values(METHODS);
   return (
     <OnboardingScreen
+      ref={scrollRef}
       title={<AppText role="Title2">Set Your Protein Target</AppText>}
       subtitle={
         <AppText role="Body" color="secondary" style={styles.secondaryText}>

@@ -1,32 +1,39 @@
-import React from "react";
-import { View } from "react-native";
+import React, { useState, useRef } from "react";
+import { View, ScrollView, StyleSheet } from "react-native";
 import * as Haptics from "expo-haptics";
-import { Home, User, Bike, Flame, Zap, Info } from "lucide-react-native";
 
 import { useTheme } from "@/theme";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
-import { SelectionCard } from "@/components/settings/SelectionCard";
+import { RadioCard } from "@/components/shared/RadioCard";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { ACTIVITY_LEVELS } from "@/components/settings/calculationMethods";
-import { StyleSheet } from "react-native";
 import { UserSettings } from "@/types/models";
 import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
-import { Tooltip } from "@/components/shared/Tooltip";
+import { Button } from "@/components/shared/Button";
 
 export default function Step2ActivityLevelScreen() {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(themeObj);
   const { activityLevel, setActivityLevel } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
+  const scrollRef = useRef<ScrollView>(null);
 
-  const handleActivityLevelSelect = async (
-    level: UserSettings["activityLevel"]
-  ) => {
-    setActivityLevel(level);
+  const [selectedLevel, setSelectedLevel] = useState<
+    UserSettings["activityLevel"] | null
+  >(activityLevel || null);
 
+  const handleCardSelect = async (level: UserSettings["activityLevel"]) => {
+    setSelectedLevel(level);
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    scrollRef.current?.scrollToEnd({ animated: true });
+  };
+
+  const handleContinue = async () => {
+    if (!selectedLevel) return;
+
+    setActivityLevel(selectedLevel);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-
     safePush("/onboarding/calorie-goal");
   };
 
@@ -34,49 +41,33 @@ export default function Step2ActivityLevelScreen() {
 
   return (
     <OnboardingScreen
+      ref={scrollRef}
       title={<AppText role="Title2">How active are you?</AppText>}
       subtitle={
-        <View style={styles.infoRow}>
-          <AppText role="Body" color="secondary" style={styles.infoText}>
-            Select your baseline. This is used to calibrate your TDEE.
-          </AppText>
-          <Tooltip text="TDEE stands for Total Daily Energy Expenditure—the estimated calories you burn each day based on your stats and activity level.">
-            <Info size={18} color={colors.secondaryText} />
-          </Tooltip>
-        </View>
+        <AppText role="Body" color="secondary" style={styles.secondaryText}>
+          Select your baseline. This is used to calibrate your TDEE.
+        </AppText>
+      }
+      actionButton={
+        <Button
+          variant="primary"
+          label="Continue"
+          disabled={!selectedLevel}
+          onPress={handleContinue}
+        />
       }
     >
       <View style={styles.methodsSection}>
         {activityLevels.map((level) => {
-          // Map activity level to appropriate icon
-          const getIcon = (id: string) => {
-            switch (id) {
-              case "sedentary":
-                return Home;
-              case "light":
-                return User;
-              case "moderate":
-                return Bike;
-              case "active":
-                return Flame;
-              case "veryactive":
-                return Zap;
-              default:
-                return User;
-            }
-          };
-
           return (
-            <SelectionCard
+            <RadioCard
               key={level.id}
               title={level.title}
               description={level.description}
-              icon={getIcon(level.id)}
-              iconColor={colors.secondaryText}
-              isSelected={activityLevel === level.id}
-              onSelect={() => handleActivityLevelSelect(level.id)}
+              isSelected={selectedLevel === level.id}
+              onSelect={() => handleCardSelect(level.id)}
               accessibilityLabel={`${level.title} activity level`}
-              accessibilityHint={`Calculate calories for ${level.description.toLowerCase()}`}
+              accessibilityHint={`Select ${level.title}. ${level.description}`}
             />
           );
         })}
@@ -91,17 +82,10 @@ const createStyles = (themeObj: Theme) => {
   const { spacing } = themeObj;
 
   return StyleSheet.create({
-    infoRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      alignSelf: "center",
-      gap: spacing.xs,
-      maxWidth: "75%",
-    },
-    infoText: {
+    secondaryText: {
       textAlign: "center",
-      flex: 1,
+      maxWidth: "75%",
+      alignSelf: "center",
     },
     methodsSection: {
       gap: spacing.md,
