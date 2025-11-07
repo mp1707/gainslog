@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { Plus } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { AppText } from "@/components";
@@ -18,6 +18,7 @@ interface ComponentsListProps {
   onAddPress: () => void;
   onAcceptRecommendation: (index: number, comp: FoodComponent) => void;
   disabled?: boolean;
+  headerAction?: React.ReactNode;
 }
 
 export const ComponentsList: React.FC<ComponentsListProps> = ({
@@ -27,6 +28,7 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
   onAddPress,
   onAcceptRecommendation,
   disabled,
+  headerAction,
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
@@ -62,9 +64,14 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
 
   return (
     <Animated.View layout={easeLayout} style={styles.container}>
-      <AppText role="Caption" style={styles.sectionHeader}>
-         INGREDIENTS
-      </AppText>
+      <View style={styles.sectionHeaderRow}>
+        <AppText role="Caption" style={styles.sectionHeader}>
+          INGREDIENTS
+        </AppText>
+        {headerAction ? (
+          <View style={styles.sectionHeaderAction}>{headerAction}</View>
+        ) : null}
+      </View>
 
       <Animated.View layout={easeLayout} style={styles.listContainer}>
         {components.map((comp, index) => (

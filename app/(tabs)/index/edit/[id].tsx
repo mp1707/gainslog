@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Pressable,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import {
@@ -14,7 +15,7 @@ import Animated, { Easing, Layout } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { useNavigation } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
-import { Calculator } from "lucide-react-native";
+import { Calculator, Heart } from "lucide-react-native";
 
 import { AppText } from "@/components/index";
 import { ComponentsList } from "@/components/refine-page/ComponentsList/ComponentsList";
@@ -33,6 +34,7 @@ import { useEditChangeTracker } from "@/components/refine-page/hooks/useEditChan
 import { useEditedLog } from "@/components/refine-page/hooks/useEditedLog";
 import { Host, Image } from "@expo/ui/swift-ui";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
+import { createToggleFavoriteHandler } from "@/utils/foodLogHandlers";
 
 const easeLayout = Layout.duration(220).easing(Easing.inOut(Easing.quad));
 
@@ -41,6 +43,9 @@ export default function Edit() {
   const originalLog = useAppStore(makeSelectLogById(id));
   const updateFoodLog = useAppStore((state) => state.updateFoodLog);
   const isPro = useAppStore((state) => state.isPro);
+  const favorites = useAppStore((state) => state.favorites);
+  const addFavorite = useAppStore((state) => state.addFavorite);
+  const deleteFavorite = useAppStore((state) => state.deleteFavorite);
   const hasLiquidGlass = isLiquidGlassAvailable();
   const isVerifyingSubscription = useAppStore(
     (state) => state.isVerifyingSubscription
@@ -118,6 +123,16 @@ export default function Edit() {
   const handleAddComponent = useCallback(() => {
     router.push(`/editComponent?mode=create&logId=${id}`);
   }, [router, id]);
+
+  const toggleFavorite = useMemo(
+    () => createToggleFavoriteHandler(addFavorite, deleteFavorite, favorites),
+    [addFavorite, deleteFavorite, favorites]
+  );
+
+  const isFavorite = useMemo(() => {
+    if (!id) return false;
+    return favorites.some((favorite) => favorite.id === id);
+  }, [favorites, id]);
 
   const handleShowPaywall = useCallback(() => {
     router.push("/paywall");
@@ -229,25 +244,13 @@ export default function Edit() {
         <Pressable
           onPress={handleDone}
           disabled={doneDisabled}
-          style={({ pressed }) => ({
-            opacity: pressed && !doneDisabled ? 0.6 : 1,
-            paddingLeft: hasLiquidGlass ? 7 : 8,
-            backgroundColor: colors.secondaryBackground,
-            borderRadius: 99,
-            padding: 8,
-          })}
+          style={{ padding: 8 }}
           accessibilityLabel="Done"
         >
           <Host matchContents>
             <Image
               systemName={"checkmark"}
-              color={
-                doneDisabled
-                  ? hasLiquidGlass
-                    ? "primary"
-                    : colors.disabledText
-                  : colors.accent
-              }
+              color={doneDisabled ? colors.disabledText : colors.accent}
               size={18}
             />
           </Host>
@@ -261,6 +264,13 @@ export default function Edit() {
     colors.secondaryText,
     colors.accent,
   ]);
+
+  const favoriteButtonLabel = isFavorite ? "Favorited" : "Add Favorite";
+
+  const handleFavoriteToggle = useCallback(() => {
+    if (!editedLog) return;
+    toggleFavorite(editedLog);
+  }, [editedLog, toggleFavorite]);
 
   return (
     <ScrollView style={styles.container}>
@@ -303,6 +313,31 @@ export default function Edit() {
                 onAcceptRecommendation={acceptRecommendation}
                 disabled={
                   isEditEstimating || Boolean(originalLog?.isEstimating)
+                }
+                headerAction={
+                  <TouchableOpacity
+                    onPress={handleFavoriteToggle}
+                    style={styles.favoriteToggleButton}
+                    activeOpacity={0.7}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: isFavorite }}
+                    accessibilityLabel={favoriteButtonLabel}
+                  >
+                    <Heart
+                      size={18}
+                      color={colors.semantic.fat}
+                      fill={isFavorite ? colors.semantic.fat : "none"}
+                    />
+                    <AppText
+                      style={[
+                        styles.favoriteToggleLabel,
+                        { color: colors.semantic.fat },
+                      ]}
+                    >
+                      {favoriteButtonLabel}
+                    </AppText>
+                  </TouchableOpacity>
                 }
               />
             </Animated.View>
@@ -390,5 +425,15 @@ const createStyles = (colors: Colors, theme: Theme) =>
       alignItems: "center",
       justifyContent: "center",
       paddingVertical: theme.spacing.xl,
+    },
+    favoriteToggleButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.xs,
+      paddingVertical: theme.spacing.xs,
+    },
+    favoriteToggleLabel: {
+      fontSize: theme.typography.Body.fontSize,
+      fontWeight: "600",
     },
   });

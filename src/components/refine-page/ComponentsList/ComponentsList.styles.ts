@@ -6,10 +6,24 @@ export const createStyles = (colors: Colors, theme: Theme) =>
     container: {
       // Section container (no card wrapper)
     },
-    sectionHeader: {
+    sectionHeaderRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: theme.spacing.sm,
       marginBottom: theme.spacing.md,
+    },
+    sectionHeader: {
+      flex: 1,
       letterSpacing: 0.6,
       color: colors.secondaryText,
+    },
+    sectionHeaderAction: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "flex-end",
+      flexShrink: 0,
+      gap: theme.spacing.xs,
     },
     listContainer: {
       backgroundColor: colors.primaryBackground,

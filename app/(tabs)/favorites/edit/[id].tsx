@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Pressable,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import {
@@ -14,7 +15,7 @@ import Animated, { Easing, Layout } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { useNavigation } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
-import { Calculator } from "lucide-react-native";
+import { Calculator, Trash2 } from "lucide-react-native";
 
 import { AppText } from "@/components/index";
 import { ComponentsList } from "@/components/refine-page/ComponentsList/ComponentsList";
@@ -40,6 +41,7 @@ export default function EditFavorite() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const originalFavorite = useAppStore(makeSelectFavoriteById(id));
   const updateFavorite = useAppStore((state) => state.updateFavorite);
+  const deleteFavorite = useAppStore((state) => state.deleteFavorite);
   const isPro = useAppStore((state) => state.isPro);
   const hasLiquidGlass = isLiquidGlassAvailable();
   const isVerifyingSubscription = useAppStore(
@@ -119,6 +121,27 @@ export default function EditFavorite() {
   const handleAddComponent = useCallback(() => {
     router.push(`/editComponent?mode=create&logId=${id}`);
   }, [router, id]);
+
+  const handleDeleteFavorite = useCallback(() => {
+    if (!id) return;
+
+    Alert.alert(
+      "Delete Favorite",
+      "This will remove the favorite permanently.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            deleteFavorite(id);
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+            router.back();
+          },
+        },
+      ]
+    );
+  }, [deleteFavorite, id, router]);
 
   const handleShowPaywall = useCallback(() => {
     router.push("/paywall");
@@ -228,25 +251,13 @@ export default function EditFavorite() {
         <Pressable
           onPress={handleDone}
           disabled={doneDisabled}
-          style={({ pressed }) => ({
-            opacity: pressed && !doneDisabled ? 0.6 : 1,
-            paddingLeft: hasLiquidGlass ? 7 : 8,
-            backgroundColor: colors.secondaryBackground,
-            borderRadius: 99,
-            padding: 8,
-          })}
+          style={{ padding: 8 }}
           accessibilityLabel="Done"
         >
           <Host matchContents>
             <Image
               systemName={"checkmark"}
-              color={
-                doneDisabled
-                  ? hasLiquidGlass
-                    ? "primary"
-                    : colors.disabledText
-                  : colors.accent
-              }
+              color={doneDisabled ? colors.disabledText : colors.accent}
               size={18}
             />
           </Host>
@@ -302,6 +313,26 @@ export default function EditFavorite() {
                 onAddPress={handleAddComponent}
                 onAcceptRecommendation={acceptRecommendation}
                 disabled={isEditEstimating}
+                headerAction={
+                  <TouchableOpacity
+                    onPress={handleDeleteFavorite}
+                    style={styles.deleteFavoriteButton}
+                    activeOpacity={0.7}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    accessibilityRole="button"
+                    accessibilityLabel="Delete Favorite"
+                  >
+                    <Trash2 size={18} color={colors.error} />
+                    <AppText
+                      style={[
+                        styles.deleteFavoriteLabel,
+                        { color: colors.error },
+                      ]}
+                    >
+                      Delete Favorite
+                    </AppText>
+                  </TouchableOpacity>
+                }
               />
             </Animated.View>
 
@@ -348,9 +379,7 @@ export default function EditFavorite() {
                 revealKey={revealKey}
                 hasUnsavedChanges={isPro ? hasUnsavedChanges : false}
                 changesCount={changesCount}
-                foodComponentsCount={
-                  editedFavorite.foodComponents?.length || 0
-                }
+                foodComponentsCount={editedFavorite.foodComponents?.length || 0}
               />
             </Animated.View>
           </>
@@ -388,5 +417,15 @@ const createStyles = (colors: Colors, theme: Theme) =>
       alignItems: "center",
       justifyContent: "center",
       paddingVertical: theme.spacing.xl,
+    },
+    deleteFavoriteButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.xs,
+      paddingVertical: theme.spacing.xs,
+    },
+    deleteFavoriteLabel: {
+      fontSize: theme.typography.Body.fontSize,
+      fontWeight: "600",
     },
   });
