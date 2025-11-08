@@ -42,25 +42,6 @@ export const DateSlider = () => {
   const [futureWeeksLoaded, setFutureWeeksLoaded] = useState(2);
   const [isLoading, setIsLoading] = useState(false);
 
-  const dailyTotalsByDate = useMemo(() => {
-    const totals = new Map<
-      string,
-      { calories: number; protein: number; carbs: number }
-    >();
-    foodLogs.forEach((log) => {
-      const currentTotals = totals.get(log.logDate) || {
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-      };
-      currentTotals.calories += log.calories;
-      currentTotals.protein += log.protein;
-      currentTotals.carbs += log.carbs;
-      totals.set(log.logDate, currentTotals);
-    });
-    return totals;
-  }, [foodLogs]);
-
   const getMondayOfWeek = useCallback((date: Date): Date => {
     const dayOfWeek = (date.getDay() + 6) % 7;
     const monday = new Date(date);
@@ -73,7 +54,46 @@ export const DateSlider = () => {
     const currentWeekMonday = getMondayOfWeek(today);
     const dates: DayData[] = [];
 
-    // Generate dates from past weeks to future weeks
+    // First pass: generate all date strings we need for the visible range
+    const neededDates = new Set<string>();
+    for (
+      let weekOffset = -pastWeeksLoaded;
+      weekOffset <= futureWeeksLoaded;
+      weekOffset++
+    ) {
+      const weekStartDate = new Date(currentWeekMonday);
+      weekStartDate.setDate(currentWeekMonday.getDate() + weekOffset * 7);
+
+      for (let i = 0; i < 7; i++) {
+        const currentDate = new Date(weekStartDate);
+        currentDate.setDate(weekStartDate.getDate() + i);
+        const dateString = formatDateToLocalString(currentDate);
+        neededDates.add(dateString);
+      }
+    }
+
+    // Second pass: compute totals ONLY for dates in visible range
+    const dailyTotalsByDate = new Map<
+      string,
+      { calories: number; protein: number; carbs: number }
+    >();
+
+    foodLogs.forEach((log) => {
+      // Skip logs that aren't in the visible range
+      if (!neededDates.has(log.logDate)) return;
+
+      const currentTotals = dailyTotalsByDate.get(log.logDate) || {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+      };
+      currentTotals.calories += log.calories;
+      currentTotals.protein += log.protein;
+      currentTotals.carbs += log.carbs;
+      dailyTotalsByDate.set(log.logDate, currentTotals);
+    });
+
+    // Third pass: generate DayData with computed totals
     for (
       let weekOffset = -pastWeeksLoaded;
       weekOffset <= futureWeeksLoaded;
@@ -119,7 +139,7 @@ export const DateSlider = () => {
   }, [
     pastWeeksLoaded,
     futureWeeksLoaded,
-    dailyTotalsByDate,
+    foodLogs,
     dailyTargets,
     getMondayOfWeek,
   ]);

@@ -13,7 +13,7 @@ export const seedFoodLogs = (): void => {
   const today = new Date();
 
   // Generate data for the last 120 days
-  for (let dayOffset = 0; dayOffset < 700; dayOffset++) {
+  for (let dayOffset = 0; dayOffset < 120; dayOffset++) {
     const currentDate = new Date(today);
     currentDate.setDate(today.getDate() - dayOffset);
 

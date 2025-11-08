@@ -64,7 +64,7 @@ export default function TodayTab() {
   }, [foodLogs, selectedDate, dailyTargets]);
 
   const todayFoodLogs = useMemo(() => {
-    return dailyData.logs.reverse();
+    return [...dailyData.logs].reverse();
   }, [dailyData.logs]);
 
   const dailyTotals = dailyData.totals;
