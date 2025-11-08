@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { TextInput as RNTextInput } from "react-native";
 import * as Haptics from "expo-haptics";
+import { useTranslation } from "react-i18next";
 import { processImage } from "@/utils/processImage";
 import { showErrorToast } from "@/lib/toast";
 import type { FoodLog } from "@/types/models";
@@ -19,6 +20,7 @@ export const useImageProcessor = ({
   textInputRef,
 }: UseImageProcessorParams) => {
   const [isProcessingImage, setIsProcessingImage] = useState(false);
+  const { t } = useTranslation();
 
   const handleNewImageSelected = useCallback(
     async (uri: string) => {
@@ -34,7 +36,10 @@ export const useImageProcessor = ({
         result = await processImage(uri);
         success = true;
       } catch (error) {
-        showErrorToast("Error processing image", "Please try again.");
+        showErrorToast(
+          t("createLog.toasts.imageProcessing.title"),
+          t("createLog.toasts.imageProcessing.message")
+        );
       }
 
       setIsProcessingImage(false);
@@ -53,7 +58,7 @@ export const useImageProcessor = ({
         textInputRef.current?.focus();
       }
     },
-    [draftId, updateDraft, textInputRef]
+    [draftId, updateDraft, textInputRef, t]
   );
 
   const handleRemoveImage = useCallback(() => {

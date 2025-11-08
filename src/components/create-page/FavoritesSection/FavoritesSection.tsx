@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import type { ListRenderItem } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme/ThemeProvider";
 import type { Theme } from "@/theme";
 import type { Favorite } from "@/types/models";
@@ -20,6 +21,7 @@ export const FavoritesSection = ({
   isVisible,
 }: FavoritesSectionProps) => {
   const { theme, colors } = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   const renderFavoriteCard = useCallback<ListRenderItem<Favorite>>(
@@ -35,10 +37,15 @@ export const FavoritesSection = ({
 
   if (!isVisible) return null;
 
+  const headingText =
+    favorites.length > 0
+      ? t("createLog.favorites.title")
+      : t("createLog.favorites.empty");
+
   return (
     <View style={styles.favoritesSection}>
       <AppText role="Caption" style={[styles.heading, { color: colors.secondaryText }]}>
-        {favorites.length > 0 ? " Favorites" : "No favorites found"}
+        {headingText}
       </AppText>
       {favorites.length > 0 && (
         <View style={styles.favoritesListOffsetFix}>

@@ -69,6 +69,45 @@
       "cta": "Unlock to Recalculate"
     }
   },
+  "createLog": {
+    "header": {
+      "title": "New Log",
+      "explainer": "Learn how to get the best AI estimates"
+    },
+    "input": {
+      "placeholder": "e.g. 100g of chicken breast",
+      "accessibilityLabel": "Describe your meal"
+    },
+    "favorites": {
+      "title": "Favorites",
+      "empty": "No favorites found",
+      "accessibilityLabel": "Log favorite meal {{title}}"
+    },
+    "image": {
+      "title": "Your image"
+    },
+    "paywall": {
+      "title": "AI Logging is a Pro Feature",
+      "body": "Log meals effortlessly with a photo, text, or your voice.",
+      "cta": "Start Free Trial"
+    },
+    "permissions": {
+      "cameraDenied": {
+        "title": "Camera permission denied",
+        "message": "Please allow camera access in settings to take photos."
+      },
+      "microphoneDenied": {
+        "title": "Microphone permission denied",
+        "message": "Please allow microphone access in settings to use voice input."
+      }
+    },
+    "toasts": {
+      "imageProcessing": {
+        "title": "Error processing image",
+        "message": "Please try again."
+      }
+    }
+  },
   "macrosCard": {
     "sectionTitle": "MACROS",
     "staleChip": "Needs update",

@@ -69,6 +69,45 @@
       "cta": "Zum Neuberechnen freischalten"
     }
   },
+  "createLog": {
+    "header": {
+      "title": "Neuer Eintrag",
+      "explainer": "Erfahre, wie du die besten KI-Schätzungen erhältst"
+    },
+    "input": {
+      "placeholder": "z. B. 100 g Hähnchenbrust",
+      "accessibilityLabel": "Beschreibe deine Mahlzeit"
+    },
+    "favorites": {
+      "title": "Favoriten",
+      "empty": "Keine Favoriten gefunden",
+      "accessibilityLabel": "Favoriten-Mahlzeit {{title}} protokollieren"
+    },
+    "image": {
+      "title": "Dein Bild"
+    },
+    "paywall": {
+      "title": "KI-Logging ist eine Pro-Funktion",
+      "body": "Logge Mahlzeiten mühelos per Foto, Text oder Stimme.",
+      "cta": "Kostenlos testen"
+    },
+    "permissions": {
+      "cameraDenied": {
+        "title": "Kamerazugriff verweigert",
+        "message": "Erlaube den Kamerazugriff in den Einstellungen, um Fotos zu machen."
+      },
+      "microphoneDenied": {
+        "title": "Mikrofonzugriff verweigert",
+        "message": "Erlaube den Mikrofonzugriff in den Einstellungen, um die Spracheingabe zu nutzen."
+      }
+    },
+    "toasts": {
+      "imageProcessing": {
+        "title": "Fehler bei der Bildverarbeitung",
+        "message": "Versuch es bitte erneut."
+      }
+    }
+  },
   "macrosCard": {
     "sectionTitle": "MAKRONÄHRSTOFFE",
     "staleChip": "Aktualisierung nötig",

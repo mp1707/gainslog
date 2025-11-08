@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import Animated from "react-native-reanimated";
+import { useTranslation } from "react-i18next";
 
 import { Card } from "@/components/Card";
 import { AppText } from "@/components/shared/AppText";
@@ -21,10 +22,13 @@ export const FavoritePreviewCard: React.FC<FavoritePreviewCardProps> = ({
   width = 180,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(
     () => createStyles(theme, colors, colorScheme, width),
     [theme, colors, colorScheme, width]
   );
+  const caloriesUnit = t("nutrients.calories.unitShort");
+  const proteinUnit = t("nutrients.protein.unitShort");
 
   const { handlePressIn, handlePressOut, pressAnimatedStyle } =
     usePressAnimation({
@@ -38,7 +42,9 @@ export const FavoritePreviewCard: React.FC<FavoritePreviewCardProps> = ({
       onPressOut={handlePressOut}
       style={styles.pressable}
       accessibilityRole="button"
-      accessibilityLabel={`Log favorite meal ${favorite.title}`}
+      accessibilityLabel={t("createLog.favorites.accessibilityLabel", {
+        title: favorite.title,
+      })}
     >
       <Animated.View style={pressAnimatedStyle}>
         <Card
@@ -62,7 +68,7 @@ export const FavoritePreviewCard: React.FC<FavoritePreviewCardProps> = ({
                 ]}
               />
               <AppText role="Caption" style={styles.nutrientText}>
-                {Math.round(favorite.calories)} kcal
+                {Math.round(favorite.calories)} {caloriesUnit}
               </AppText>
             </View>
             <View style={styles.nutrientItem}>
@@ -73,7 +79,7 @@ export const FavoritePreviewCard: React.FC<FavoritePreviewCardProps> = ({
                 ]}
               />
               <AppText role="Caption" style={styles.nutrientText}>
-                {Math.round(favorite.protein)} g
+                {Math.round(favorite.protein)} {proteinUnit}
               </AppText>
             </View>
           </View>

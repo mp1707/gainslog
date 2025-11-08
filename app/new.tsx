@@ -7,6 +7,7 @@ import {
   View,
 } from "react-native";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
+import { useTranslation } from "react-i18next";
 
 import { useAppStore } from "@/store/useAppStore";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -30,6 +31,7 @@ import { INPUT_ACCESSORY_VIEW_ID } from "@/constants/create";
 import { createStyles } from "./new.styles";
 
 export default function Create() {
+  const { t } = useTranslation();
   const router = useSafeRouter();
   const { theme, colors, colorScheme } = useTheme();
   const styles = useMemo(
@@ -149,14 +151,14 @@ export default function Create() {
               ref={textInputRef}
               value={draft.description || ""}
               onChangeText={handleDescriptionChange}
-              placeholder="e.g. 100g of chicken breast"
+              placeholder={t("createLog.input.placeholder")}
               multiline
               inputAccessoryViewID={INPUT_ACCESSORY_VIEW_ID}
               fontSize="Headline"
               style={styles.textInputField}
               containerStyle={styles.textInputContainer}
               focusBorder={false}
-              accessibilityLabel="Describe your meal"
+              accessibilityLabel={t("createLog.input.accessibilityLabel")}
             />
             <FavoritesSection
               favorites={filteredFavorites}

@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import { View, TextInput } from "react-native";
 import { useCameraPermissions } from "expo-camera";
 import * as Haptics from "expo-haptics";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { showErrorToast } from "@/lib/toast";
@@ -38,6 +39,7 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme, colorScheme);
+  const { t } = useTranslation();
   const router = useSafeRouter();
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const isFocused = textInputRef?.current?.isFocused() || false;
@@ -55,23 +57,30 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
       const result = await requestCameraPermission();
       if (!result.granted) {
         showErrorToast(
-          "Camera permission denied",
-          "Please allow camera access in settings to take photos."
+          t("createLog.permissions.cameraDenied.title"),
+          t("createLog.permissions.cameraDenied.message")
         );
         return;
       }
     }
 
     router.push(logId ? `/camera?logId=${logId}` : `/camera`);
-  }, [textInputRef, cameraPermission, requestCameraPermission, router, logId]);
+  }, [
+    textInputRef,
+    cameraPermission,
+    requestCameraPermission,
+    router,
+    logId,
+    t,
+  ]);
 
   const handleMicPress = useCallback(async () => {
     if (requestMicPermission) {
       const granted = await requestMicPermission();
       if (!granted) {
         showErrorToast(
-          "Microphone permission denied",
-          "Please allow microphone access in settings to use voice input."
+          t("createLog.permissions.microphoneDenied.title"),
+          t("createLog.permissions.microphoneDenied.message")
         );
         return;
       }
@@ -80,7 +89,7 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
     // Call recording without awaiting for instant UI response
     onRecording?.();
     textInputRef?.current?.focus();
-  }, [textInputRef, requestMicPermission, onRecording]);
+  }, [textInputRef, requestMicPermission, onRecording, t]);
 
   const handleConfirmPress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { Info } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme/ThemeProvider";
 import type { Colors, Theme } from "@/theme";
 import { AppText } from "@/components/shared/AppText";
@@ -17,6 +18,7 @@ export const CreateHeader = ({
   onOpenExplainer,
 }: CreateHeaderProps) => {
   const { theme, colors } = useTheme();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => createStyles(theme, colors), [theme, colors]);
 
@@ -34,7 +36,7 @@ export const CreateHeader = ({
           pressed && styles.headerInfoButtonPressed,
         ]}
         accessibilityRole="button"
-        accessibilityLabel="Learn how to get the best AI estimates"
+        accessibilityLabel={t("createLog.header.explainer")}
       >
         <AppText
           role="Title1"
@@ -42,7 +44,7 @@ export const CreateHeader = ({
           ellipsizeMode="tail"
           style={styles.headerTitle}
         >
-          Describe your meal
+          {t("createLog.header.title")}
         </AppText>
         <Info size={20} color={colors.accent} />
       </Pressable>

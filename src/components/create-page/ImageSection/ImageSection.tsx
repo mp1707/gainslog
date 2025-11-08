@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme/ThemeProvider";
 import type { Theme } from "@/theme";
 import { AppText } from "@/components/shared/AppText";
@@ -19,6 +20,7 @@ export const ImageSection = ({
   isVisible,
 }: ImageSectionProps) => {
   const { theme, colors } = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   if (!isVisible) return null;
@@ -26,7 +28,7 @@ export const ImageSection = ({
   return (
     <View style={styles.imageSection}>
       <AppText role="Caption" style={[styles.heading, { color: colors.secondaryText }]}>
-        Your image
+        {t("createLog.image.title")}
       </AppText>
       <ImageDisplay
         imageUrl={imageUrl}
