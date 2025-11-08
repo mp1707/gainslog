@@ -1,44 +1,33 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Dimensions,
-  FlatList,
   Platform,
-  Pressable,
   ScrollView,
-  StyleSheet,
   TextInput as RNTextInput,
   View,
 } from "react-native";
-import type { ListRenderItem } from "react-native";
-import * as Haptics from "expo-haptics";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
-import { BrainCircuit, Info } from "lucide-react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAppStore } from "@/store/useAppStore";
 import { useTheme } from "@/theme/ThemeProvider";
-import type { ColorScheme, Colors, Theme } from "@/theme";
-import type { Favorite } from "@/types/models";
 import { useTranscription } from "@/hooks/useTranscription";
 import { useEstimation } from "@/hooks/useEstimation";
 import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
-import { HeaderButton } from "@/components/shared/HeaderButton";
-import { showErrorToast } from "@/lib/toast";
-import { processImage } from "@/utils/processImage";
 import { useCreationStore } from "@/store/useCreationStore";
 import { useDraft } from "@/hooks/useDraft";
-import { generateFoodLogId } from "@/utils/idGenerator";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
-import { InlinePaywallCard } from "@/components/paywall/InlinePaywallCard";
+import { useTranscriptionSync } from "@/hooks/create-page/useTranscriptionSync";
+import { useFavoritesFilter } from "@/hooks/create-page/useFavoritesFilter";
+import { useImageProcessor } from "@/hooks/create-page/useImageProcessor";
+import { useCreateHandlers } from "@/hooks/create-page/useCreateHandlers";
 import { TextInput } from "@/components/shared/TextInput";
-import { AppText } from "@/components/shared/AppText";
-import { ImageDisplay } from "@/components/shared/ImageDisplay";
-import { FavoritePreviewCard } from "@/components/create-page/FavoritePreviewCard/FavoritePreviewCard";
 import { KeyboardAccessory } from "@/components/create-page/KeyboardAccessory/KeyboardAccessory";
-
-const inputAccessoryViewID = "create-input-accessory";
-const CARD_WIDTH = Dimensions.get("window").width * 0.4;
+import { CreateHeader } from "@/components/create-page/CreateHeader";
+import { CreatePaywallView } from "@/components/create-page/CreatePaywallView";
+import { FavoritesSection } from "@/components/create-page/FavoritesSection";
+import { ImageSection } from "@/components/create-page/ImageSection";
+import { INPUT_ACCESSORY_VIEW_ID } from "@/constants/create";
+import { createStyles } from "./new.styles";
 
 export default function Create() {
   const router = useSafeRouter();
@@ -48,10 +37,11 @@ export default function Create() {
     [theme, colors, colorScheme]
   );
   const isIOS = Platform.OS === "ios";
-  const insets = useSafeAreaInsets();
 
   const { startNewDraft, clearDraft, updateDraft } = useCreationStore();
   const [draftId, setDraftId] = useState<string | null>(null);
+  const [isEstimating, setIsEstimating] = useState(false);
+
   const draft = useDraft(draftId);
   const favorites = useAppStore((state) => state.favorites);
   const { selectedDate, addFoodLog } = useAppStore();
@@ -59,6 +49,7 @@ export default function Create() {
   const isVerifyingSubscription = useAppStore(
     (state) => state.isVerifyingSubscription
   );
+
   const { runCreateEstimation } = useEstimation();
   const {
     requestPermission,
@@ -70,13 +61,46 @@ export default function Create() {
     startRecording,
   } = useTranscription();
 
-  const baseDescriptionRef = useRef<string | null>(null);
-  const lastAppliedTranscriptionRef = useRef<string | null>(null);
-  const wasRecordingRef = useRef(false);
-  const [isProcessingImage, setIsProcessingImage] = useState(false);
-  const [isEstimating, setIsEstimating] = useState(false);
   const textInputRef = useRef<RNTextInput>(null);
   useDelayedAutofocus(textInputRef);
+
+  const {
+    handleCancel,
+    handleOpenExplainer,
+    handleShowPaywall,
+    handleEstimation: handleEstimationBase,
+    handleDescriptionChange,
+    handleCreateLogFromFavorite,
+  } = useCreateHandlers({
+    router,
+    draft,
+    isPro,
+    isEstimating,
+    selectedDate,
+    draftId,
+    updateDraft,
+    addFoodLog,
+    runCreateEstimation,
+  });
+
+  const { handleRemoveImage, isProcessingImage } = useImageProcessor({
+    draftId,
+    pendingImageUri: draft?.pendingImageUri,
+    updateDraft,
+    textInputRef,
+  });
+
+  const filteredFavorites = useFavoritesFilter(
+    favorites,
+    draft?.description ?? ""
+  );
+
+  useTranscriptionSync({
+    draft,
+    isRecording,
+    liveTranscription,
+    updateDraft,
+  });
 
   useEffect(() => {
     const id = startNewDraft(selectedDate);
@@ -86,179 +110,10 @@ export default function Create() {
     };
   }, [startNewDraft, clearDraft, selectedDate]);
 
-  // Trigger haptic when recording actually starts
-  useEffect(() => {
-    if (isRecording) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      textInputRef.current?.focus();
-    }
-  }, [isRecording]);
-
-  const handleCancel = useCallback(() => {
-    router.back();
-  }, [router]);
-
-  const handleOpenExplainer = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push("/explainer-ai-estimation");
-  }, [router]);
-
-  const handleShowPaywall = useCallback(() => {
-    router.push("/paywall");
-  }, [router]);
-
-  const handleEstimation = useCallback(() => {
-    if (!draft || !isPro || isEstimating) {
-      if (!isPro) {
-        handleShowPaywall();
-      }
-      return;
-    }
+  const handleEstimation = () => {
     setIsEstimating(true);
-    runCreateEstimation(draft);
-    router.back();
-  }, [
-    draft,
-    isPro,
-    isEstimating,
-    runCreateEstimation,
-    router,
-    handleShowPaywall,
-  ]);
-
-  const handleCreateLogFromFavorite = useCallback(
-    (favorite: Favorite) => {
-      addFoodLog({
-        ...favorite,
-        logDate: selectedDate,
-        createdAt: new Date().toISOString(),
-        isEstimating: false,
-        needsUserReview: false,
-        id: generateFoodLogId(),
-      });
-      router.back();
-    },
-    [addFoodLog, selectedDate, router]
-  );
-
-  const handleDescriptionChange = useCallback(
-    (description: string) => {
-      if (!draftId) return;
-      lastAppliedTranscriptionRef.current = null;
-      updateDraft(draftId, { description });
-    },
-    [draftId, updateDraft]
-  );
-
-  const handleNewImageSelected = useCallback(
-    async (uri: string) => {
-      if (!draftId) return;
-      setIsProcessingImage(true);
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      try {
-        const { localImagePath, supabaseImagePath } = await processImage(uri);
-        updateDraft(draftId, {
-          localImagePath,
-          supabaseImagePath,
-          pendingImageUri: undefined,
-          calories: 0,
-          protein: 0,
-          carbs: 0,
-          fat: 0,
-        });
-        textInputRef.current?.focus();
-      } catch (error) {
-        showErrorToast("Error processing image", "Please try again.");
-      } finally {
-        setIsProcessingImage(false);
-      }
-    },
-    [draftId, updateDraft]
-  );
-
-  const handleRemoveImage = useCallback(() => {
-    if (!draftId) return;
-    updateDraft(draftId, {
-      localImagePath: undefined,
-      supabaseImagePath: undefined,
-      pendingImageUri: undefined,
-    });
-    textInputRef.current?.focus();
-  }, [draftId, updateDraft]);
-
-  useEffect(() => {
-    if (draft?.pendingImageUri) {
-      handleNewImageSelected(draft.pendingImageUri);
-    }
-  }, [draft?.pendingImageUri, handleNewImageSelected]);
-
-  useEffect(() => {
-    if (!draft) return;
-
-    if (isRecording && !wasRecordingRef.current) {
-      const currentDescription = draft.description ?? "";
-      baseDescriptionRef.current = currentDescription;
-      lastAppliedTranscriptionRef.current = currentDescription;
-    }
-
-    if (!isRecording && wasRecordingRef.current) {
-      baseDescriptionRef.current = null;
-      lastAppliedTranscriptionRef.current = null;
-    }
-
-    wasRecordingRef.current = isRecording;
-  }, [isRecording, draft]);
-
-  useEffect(() => {
-    if (!draft || !isRecording) return;
-    const base = baseDescriptionRef.current
-      ? baseDescriptionRef.current.trim()
-      : "";
-    const interim = liveTranscription.trim();
-    const merged = [base, interim].filter(Boolean).join(" ");
-
-    if (merged === lastAppliedTranscriptionRef.current) {
-      return;
-    }
-
-    if ((draft.description ?? "") === merged) {
-      lastAppliedTranscriptionRef.current = merged;
-      return;
-    }
-
-    lastAppliedTranscriptionRef.current = merged;
-    updateDraft(draft.id, { description: merged });
-  }, [draft, isRecording, liveTranscription, updateDraft]);
-
-  const handleTranscriptionStop = useCallback(async () => {
-    await stopRecording();
-    baseDescriptionRef.current = null;
-    lastAppliedTranscriptionRef.current = null;
-  }, [stopRecording]);
-
-  const filteredFavorites = useMemo(() => {
-    if (!favorites.length) return [] as Favorite[];
-    const query = (draft?.description ?? "").trim().toLowerCase();
-    if (!query) return favorites;
-
-    return favorites.filter((favorite) => {
-      const haystack = `${favorite.title} ${
-        favorite.description ?? ""
-      }`.toLowerCase();
-      return haystack.includes(query);
-    });
-  }, [favorites, draft?.description]);
-
-  const renderFavoriteCard = useCallback<ListRenderItem<Favorite>>(
-    ({ item }) => (
-      <FavoritePreviewCard
-        favorite={item}
-        onPress={() => handleCreateLogFromFavorite(item)}
-        width={CARD_WIDTH}
-      />
-    ),
-    [handleCreateLogFromFavorite]
-  );
+    handleEstimationBase();
+  };
 
   const canContinue =
     (draft?.description?.trim() !== "" || !!draft?.localImagePath) &&
@@ -274,42 +129,7 @@ export default function Create() {
 
   return (
     <View style={styles.container}>
-      <View
-        style={[
-          styles.headerContainer,
-          { paddingTop: insets.top + theme.spacing.sm },
-        ]}
-      >
-        <Pressable
-          onPress={handleOpenExplainer}
-          style={({ pressed }) => [
-            styles.headerInfoButton,
-            pressed && styles.headerInfoButtonPressed,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="Learn how to get the best AI estimates"
-        >
-          <AppText
-            role="Title1"
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            style={styles.headerTitle}
-          >
-            Describe your meal
-          </AppText>
-          <Info size={20} color={colors.accent} />
-        </Pressable>
-        <HeaderButton
-          buttonProps={{
-            onPress: handleCancel,
-            color: colors.secondaryBackground,
-          }}
-          imageProps={{
-            systemName: "xmark",
-            color: colors.primaryText,
-          }}
-        />
-      </View>
+      <CreateHeader onCancel={handleCancel} onOpenExplainer={handleOpenExplainer} />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -322,16 +142,7 @@ export default function Create() {
             <ActivityIndicator />
           </View>
         ) : !isPro ? (
-          <View style={styles.paywallContainer}>
-            <InlinePaywallCard
-              Icon={BrainCircuit}
-              title="AI Logging is a Pro Feature"
-              body="Log meals effortlessly with a photo, text, or your voice."
-              ctaLabel="Start Free Trial"
-              onPress={handleShowPaywall}
-              testID="create-inline-paywall"
-            />
-          </View>
+          <CreatePaywallView onShowPaywall={handleShowPaywall} />
         ) : (
           <View style={styles.content}>
             <TextInput
@@ -340,50 +151,24 @@ export default function Create() {
               onChangeText={handleDescriptionChange}
               placeholder="e.g. 100g of chicken breast"
               multiline
-              inputAccessoryViewID={inputAccessoryViewID}
+              inputAccessoryViewID={INPUT_ACCESSORY_VIEW_ID}
               fontSize="Headline"
               style={styles.textInputField}
               containerStyle={styles.textInputContainer}
               focusBorder={false}
               accessibilityLabel="Describe your meal"
             />
-            {!(draft.localImagePath || isProcessingImage) && (
-              <View style={styles.favoritesSection}>
-                <AppText role="Caption" style={styles.heading}>
-                  {filteredFavorites.length > 0
-                    ? " Favorites"
-                    : "No favorites found"}
-                </AppText>
-                {filteredFavorites.length > 0 && (
-                  <View style={styles.favoritesListOffsetFix}>
-                    <FlatList
-                      horizontal
-                      data={filteredFavorites}
-                      renderItem={renderFavoriteCard}
-                      keyExtractor={(item) => item.id}
-                      ItemSeparatorComponent={() => (
-                        <View style={styles.favoriteSeparator} />
-                      )}
-                      showsHorizontalScrollIndicator={false}
-                      contentInset={{ left: theme.spacing.sm }}
-                      contentContainerStyle={styles.favoritesListContent}
-                    />
-                  </View>
-                )}
-              </View>
-            )}
-            {(draft.localImagePath || isProcessingImage) && (
-              <View style={styles.imageSection}>
-                <AppText role="Caption" style={styles.heading}>
-                  Your image
-                </AppText>
-                <ImageDisplay
-                  imageUrl={draft.localImagePath}
-                  isUploading={isProcessingImage}
-                  deleteImage={handleRemoveImage}
-                />
-              </View>
-            )}
+            <FavoritesSection
+              favorites={filteredFavorites}
+              onSelectFavorite={handleCreateLogFromFavorite}
+              isVisible={!(draft.localImagePath || isProcessingImage)}
+            />
+            <ImageSection
+              imageUrl={draft.localImagePath}
+              isProcessing={isProcessingImage}
+              onRemoveImage={handleRemoveImage}
+              isVisible={!!(draft.localImagePath || isProcessingImage)}
+            />
           </View>
         )}
       </ScrollView>
@@ -392,7 +177,7 @@ export default function Create() {
           textInputRef={textInputRef}
           requestMicPermission={requestPermission}
           onRecording={startRecording}
-          onStopRecording={handleTranscriptionStop}
+          onStopRecording={stopRecording}
           onEstimate={handleEstimation}
           canContinue={canContinue}
           isEstimating={isEstimating}
@@ -405,94 +190,3 @@ export default function Create() {
     </View>
   );
 }
-
-const createStyles = (theme: Theme, colors: Colors, colorScheme: ColorScheme) =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor:
-        colorScheme === "dark"
-          ? colors.primaryBackground
-          : colors.tertiaryBackground,
-    },
-    headerContainer: {
-      paddingHorizontal: theme.spacing.lg,
-      paddingBottom: theme.spacing.md,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-    },
-    headerInfoButton: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: theme.spacing.xs,
-      flexShrink: 1,
-      paddingVertical: theme.spacing.xs,
-      paddingHorizontal: theme.spacing.xs,
-    },
-    headerInfoButtonPressed: {
-      opacity: 0.6,
-    },
-    headerTitle: {
-      color: colors.primaryText,
-      flexShrink: 1,
-    },
-    scrollView: {
-      flex: 1,
-    },
-    scrollContent: {
-      paddingBottom: theme.spacing.xxl,
-      paddingTop: theme.spacing.lg,
-      flexGrow: 1,
-    },
-    content: {
-      gap: theme.spacing.lg,
-      flexGrow: 1,
-    },
-    textInputContainer: {
-      paddingHorizontal: theme.spacing.lg,
-    },
-    textInputField: {},
-    favoritesSection: {
-      gap: theme.spacing.sm,
-    },
-    favoritesListOffsetFix: {
-      marginTop: -theme.spacing.xl,
-    },
-    heading: {
-      color: colors.secondaryText,
-      textTransform: "uppercase",
-      letterSpacing: 0.6,
-      paddingHorizontal: theme.spacing.lg,
-    },
-    favoritesListContent: {
-      paddingVertical: theme.spacing.xl,
-      paddingRight: theme.spacing.xl,
-      paddingLeft: theme.spacing.sm,
-    },
-    favoriteSeparator: {
-      width: theme.spacing.sm,
-    },
-    imageSection: {
-      gap: theme.spacing.sm,
-      paddingHorizontal: theme.spacing.lg,
-      flex: 1,
-    },
-    paywallContainer: {
-      flex: 1,
-      justifyContent: "center",
-      paddingBottom: theme.spacing.xl,
-      paddingHorizontal: theme.spacing.lg,
-    },
-    centerContent: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: colors.primaryBackground,
-    },
-  });

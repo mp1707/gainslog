@@ -33,7 +33,6 @@ import { useEditableTitle } from "@/components/refine-page/hooks/useEditableTitl
 import { useEditChangeTracker } from "@/components/refine-page/hooks/useEditChangeTracker";
 import { useEditedLog } from "@/components/refine-page/hooks/useEditedLog";
 import { Host, Image } from "@expo/ui/swift-ui";
-import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { createToggleFavoriteHandler } from "@/utils/foodLogHandlers";
 
 const easeLayout = Layout.duration(220).easing(Easing.inOut(Easing.quad));
@@ -46,7 +45,6 @@ export default function Edit() {
   const favorites = useAppStore((state) => state.favorites);
   const addFavorite = useAppStore((state) => state.addFavorite);
   const deleteFavorite = useAppStore((state) => state.deleteFavorite);
-  const hasLiquidGlass = isLiquidGlassAvailable();
   const isVerifyingSubscription = useAppStore(
     (state) => state.isVerifyingSubscription
   );
