@@ -44,5 +44,99 @@
       "future_one": "In {{count}} Tag",
       "future_other": "In {{count}} Tagen"
     }
+  },
+  "editLog": {
+    "navigation": {
+      "backTitle": "Startseite"
+    },
+    "title": {
+      "placeholder": "Titel eingeben...",
+      "emptyState": "Tippen, um einen Titel hinzuzufügen"
+    },
+    "favorites": {
+      "add": "Zu Favoriten",
+      "added": "Favorit"
+    },
+    "alert": {
+      "title": "Ungespeicherte Änderungen an Zutaten",
+      "message": "Du hast Zutaten geändert, ohne die Makros neu zu berechnen. Die Nährwerte können ungenau sein.",
+      "recalculate": "Makros neu berechnen",
+      "saveAnyway": "Trotzdem speichern"
+    },
+    "paywall": {
+      "title": "Mit Pro neu berechnen",
+      "body": "Erhalte aktualisierte Makros, wenn du Zutaten anpasst.",
+      "cta": "Zum Neuberechnen freischalten"
+    }
+  },
+  "macrosCard": {
+    "sectionTitle": "MAKRONÄHRSTOFFE",
+    "staleChip": "Aktualisierung nötig",
+    "staleMessage": "Werte basieren auf vorherigen Zutaten und Mengen."
+  },
+  "componentsList": {
+    "sectionTitle": "ZUTATEN",
+    "addButton": "Zutat hinzufügen"
+  },
+  "editComponent": {
+    "title": {
+      "create": "Neue Zutat",
+      "edit": "Zutat"
+    },
+    "fields": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Lebensmittel eingeben"
+      },
+      "quantity": {
+        "label": "Menge",
+        "placeholder": "Menge"
+      },
+      "unit": {
+        "label": "Einheit"
+      }
+    },
+    "units": {
+      "grams": "Gramm",
+      "milliliters": "Milliliter",
+      "pieces": "Stück"
+    },
+    "validation": {
+      "nameRequired": "Gib einen Lebensmittelnamen ein.",
+      "nameShort": "Der Name muss mindestens {{count}} Zeichen lang sein.",
+      "nameLong": "Der Name darf höchstens {{count}} Zeichen lang sein.",
+      "amountInvalid": "Gib eine gültige Menge größer als 0 ein.",
+      "amountPrecision": "Die Menge kann höchstens 1 Nachkommastelle haben."
+    },
+    "alerts": {
+      "discard": {
+        "title": "Änderungen verwerfen?",
+        "message": "Du hast ungespeicherte Änderungen. Möchtest du sie wirklich verwerfen?",
+        "keep": "Weiter bearbeiten",
+        "discard": "Verwerfen"
+      },
+      "delete": {
+        "title": "Zutat löschen",
+        "message": "Möchtest du diese Zutat wirklich löschen?"
+      }
+    },
+    "accessibility": {
+      "quantityField": "Menge, Textfeld. In {{unit}}"
+    }
+  },
+  "componentRow": {
+    "accessibility": {
+      "editLabel": "{{name}} bearbeiten",
+      "editHint": "Öffnet den Editor zum Anpassen von Menge und Einheit",
+      "toggleLabel": "Empfehlung anzeigen",
+      "toggleHintExpand": "Empfehlungsdetails anzeigen",
+      "toggleHintCollapse": "Empfehlungsdetails ausblenden"
+    },
+    "recommendation": {
+      "estimatePrefix": "Wir schätzen",
+      "approx": "≈",
+      "estimateSuffix": ".",
+      "setButton": "{{amount}} {{unit}} übernehmen"
+    }
   }
 }

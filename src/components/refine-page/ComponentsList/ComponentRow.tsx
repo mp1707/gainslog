@@ -17,6 +17,7 @@ import Animated, {
 import { useTheme } from "@/theme";
 import { createStyles } from "./ComponentsList.styles";
 import type { FoodComponent } from "@/types/models";
+import { useTranslation } from "react-i18next";
 
 interface ComponentRowProps {
   component: FoodComponent;
@@ -40,6 +41,7 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
   onAcceptRecommendation,
 }) => {
   const { colors, theme } = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const hasRecommendation = !!component.recommendedMeasurement;
   const canExpand = hasRecommendation && !!onToggleExpansion;
@@ -155,8 +157,12 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <AnimatedPressable
                     onPress={handleTap}
-                    accessibilityLabel={`Edit ${component.name}`}
-                    accessibilityHint="Opens editor to modify amount and unit"
+                    accessibilityLabel={t("componentRow.accessibility.editLabel", {
+                      name: component.name,
+                    })}
+                    accessibilityHint={t(
+                      "componentRow.accessibility.editHint"
+                    )}
                   >
                     <View
                       style={{
@@ -214,11 +220,13 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
                         },
                         lightbulbAnimatedStyle,
                       ]}
-                      accessibilityLabel="View recommendation"
+                      accessibilityLabel={t(
+                        "componentRow.accessibility.toggleLabel"
+                      )}
                       accessibilityHint={
                         isExpanded
-                          ? "Collapse recommendation details"
-                          : "Expand to see recommendation details"
+                          ? t("componentRow.accessibility.toggleHintCollapse")
+                          : t("componentRow.accessibility.toggleHintExpand")
                       }
                     >
                       <Lightbulb
@@ -248,14 +256,14 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
                           color="secondary"
                           style={{ flex: 1 }}
                         >
-                          We estimate{" "}
+                          {t("componentRow.recommendation.estimatePrefix")} {" "}
                           <AppText
                             role="Body"
                             style={{ color: colors.primaryText }}
                           >
                             {component.amount} {component.unit}
                           </AppText>{" "}
-                          ≈{" "}
+                          {t("componentRow.recommendation.approx")} {" "}
                           <AppText
                             role="Body"
                             style={{ color: colors.primaryText }}
@@ -263,7 +271,7 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
                             {component.recommendedMeasurement?.amount}{" "}
                             {component.recommendedMeasurement?.unit}
                           </AppText>
-                          .
+                          {t("componentRow.recommendation.estimateSuffix")}
                         </AppText>
 
                         <Pressable
@@ -276,8 +284,10 @@ const ComponentRowComponent: React.FC<ComponentRowProps> = ({
                           }}
                         >
                           <AppText style={styles.acceptPillText}>
-                            Set {component.recommendedMeasurement?.amount}{" "}
-                            {component.recommendedMeasurement?.unit}
+                            {t("componentRow.recommendation.setButton", {
+                              amount: component.recommendedMeasurement?.amount,
+                              unit: component.recommendedMeasurement?.unit,
+                            })}
                           </AppText>
                         </Pressable>
                       </View>

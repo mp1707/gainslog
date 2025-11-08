@@ -44,5 +44,99 @@
       "future_one": "In {{count}} day",
       "future_other": "In {{count}} days"
     }
+  },
+  "editLog": {
+    "navigation": {
+      "backTitle": "Home"
+    },
+    "title": {
+      "placeholder": "Enter title...",
+      "emptyState": "Tap to add title"
+    },
+    "favorites": {
+      "add": "Add Favorite",
+      "added": "Favorited"
+    },
+    "alert": {
+      "title": "Unsaved Changes to Ingredients",
+      "message": "You've modified ingredients without recalculating macros. The nutrition values may be inaccurate.",
+      "recalculate": "Recalculate Macros",
+      "saveAnyway": "Save Anyway"
+    },
+    "paywall": {
+      "title": "Recalculate with Pro",
+      "body": "Get updated macros when you adjust ingredients.",
+      "cta": "Unlock to Recalculate"
+    }
+  },
+  "macrosCard": {
+    "sectionTitle": "MACROS",
+    "staleChip": "Needs update",
+    "staleMessage": "Values reflect previous ingredients and amounts."
+  },
+  "componentsList": {
+    "sectionTitle": "INGREDIENTS",
+    "addButton": "Add Ingredient"
+  },
+  "editComponent": {
+    "title": {
+      "create": "New Ingredient",
+      "edit": "Ingredient"
+    },
+    "fields": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter food name"
+      },
+      "quantity": {
+        "label": "Quantity",
+        "placeholder": "Amount"
+      },
+      "unit": {
+        "label": "Unit"
+      }
+    },
+    "units": {
+      "grams": "grams",
+      "milliliters": "milliliters",
+      "pieces": "pieces"
+    },
+    "validation": {
+      "nameRequired": "Enter a food name.",
+      "nameShort": "Name must be at least {{count}} characters.",
+      "nameLong": "Name must be less than {{count}} characters.",
+      "amountInvalid": "Enter a valid amount greater than 0.",
+      "amountPrecision": "Amount can have at most 1 decimal place."
+    },
+    "alerts": {
+      "discard": {
+        "title": "Discard changes?",
+        "message": "You have unsaved changes. Are you sure you want to discard them?",
+        "keep": "Keep Editing",
+        "discard": "Discard"
+      },
+      "delete": {
+        "title": "Delete Ingredient",
+        "message": "Are you sure you want to delete this ingredient?"
+      }
+    },
+    "accessibility": {
+      "quantityField": "Quantity, text field. In {{unit}}"
+    }
+  },
+  "componentRow": {
+    "accessibility": {
+      "editLabel": "Edit {{name}}",
+      "editHint": "Opens editor to modify amount and unit",
+      "toggleLabel": "View recommendation",
+      "toggleHintExpand": "Expand to see recommendation details",
+      "toggleHintCollapse": "Collapse recommendation details"
+    },
+    "recommendation": {
+      "estimatePrefix": "We estimate",
+      "approx": "≈",
+      "estimateSuffix": ".",
+      "setButton": "Set {{amount}} {{unit}}"
+    }
   }
 }

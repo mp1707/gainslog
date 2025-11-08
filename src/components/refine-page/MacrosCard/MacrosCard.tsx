@@ -21,6 +21,7 @@ import { Clock } from "lucide-react-native";
 import { AppText } from "@/components";
 import { useTheme } from "@/theme";
 import type { Colors, Theme } from "@/theme";
+import { useTranslation } from "react-i18next";
 import { createStyles } from "./MacrosCard.styles";
 import { MacroLineLoader } from "./MacroLineLoader";
 
@@ -47,6 +48,10 @@ type StaticMacroItem = {
   value: number;
   suffix: string;
 };
+
+type MacroKey = "calories" | "protein" | "carbs" | "fat";
+
+type MacroLabels = Record<MacroKey, { label: string; suffix: string }>;
 
 const normalizeMacro = (value?: number | null) =>
   typeof value === "number" && Number.isFinite(value) ? value : 0;
@@ -337,6 +342,7 @@ interface AnimatedMacrosContentProps {
   styles: ReturnType<typeof createStyles>;
   colors: Colors;
   theme: Theme;
+  labels: MacroLabels;
 }
 
 const AnimatedMacrosContent: React.FC<AnimatedMacrosContentProps> = React.memo(
@@ -351,6 +357,7 @@ const AnimatedMacrosContent: React.FC<AnimatedMacrosContentProps> = React.memo(
     styles,
     colors,
     theme,
+    labels,
   }) => {
     const cals = useNumberReveal(calories);
     const prot = useNumberReveal(protein);
@@ -374,45 +381,50 @@ const AnimatedMacrosContent: React.FC<AnimatedMacrosContentProps> = React.memo(
     const macroItemsRef = useRef([
       {
         key: "calories",
-        label: "Calories",
+        label: labels.calories.label,
         color: colors.semantic.calories,
         value: cals.displayValue,
-        suffix: "kcal",
+        suffix: labels.calories.suffix,
       },
       {
         key: "protein",
-        label: "Protein",
+        label: labels.protein.label,
         color: colors.semantic.protein,
         value: prot.displayValue,
-        suffix: "g",
+        suffix: labels.protein.suffix,
       },
       {
         key: "carbs",
-        label: "Carbs",
+        label: labels.carbs.label,
         color: colors.semantic.carbs,
         value: crb.displayValue,
-        suffix: "g",
+        suffix: labels.carbs.suffix,
       },
       {
         key: "fat",
-        label: "Fat",
+        label: labels.fat.label,
         color: colors.semantic.fat,
         value: ft.displayValue,
-        suffix: "g",
+        suffix: labels.fat.suffix,
       },
     ]);
 
-    useEffect(() => {
-      macroItemsRef.current[0].color = colors.semantic.calories;
-      macroItemsRef.current[1].color = colors.semantic.protein;
-      macroItemsRef.current[2].color = colors.semantic.carbs;
-      macroItemsRef.current[3].color = colors.semantic.fat;
-    }, [
-      colors.semantic.calories,
-      colors.semantic.protein,
-      colors.semantic.carbs,
-      colors.semantic.fat,
-    ]);
+    macroItemsRef.current[0].label = labels.calories.label;
+    macroItemsRef.current[0].suffix = labels.calories.suffix;
+    macroItemsRef.current[0].color = colors.semantic.calories;
+    macroItemsRef.current[0].value = cals.displayValue;
+    macroItemsRef.current[1].label = labels.protein.label;
+    macroItemsRef.current[1].suffix = labels.protein.suffix;
+    macroItemsRef.current[1].color = colors.semantic.protein;
+    macroItemsRef.current[1].value = prot.displayValue;
+    macroItemsRef.current[2].label = labels.carbs.label;
+    macroItemsRef.current[2].suffix = labels.carbs.suffix;
+    macroItemsRef.current[2].color = colors.semantic.carbs;
+    macroItemsRef.current[2].value = crb.displayValue;
+    macroItemsRef.current[3].label = labels.fat.label;
+    macroItemsRef.current[3].suffix = labels.fat.suffix;
+    macroItemsRef.current[3].color = colors.semantic.fat;
+    macroItemsRef.current[3].value = ft.displayValue;
 
     return (
       <>
@@ -480,7 +492,30 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
   hasUnsavedChanges = false,
 }) => {
   const { colors, theme } = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+
+  const macroLabels = useMemo<MacroLabels>(
+    () => ({
+      calories: {
+        label: t("nutrients.calories.label"),
+        suffix: t("nutrients.calories.unitShort"),
+      },
+      protein: {
+        label: t("nutrients.protein.label"),
+        suffix: t("nutrients.protein.unitShort"),
+      },
+      carbs: {
+        label: t("nutrients.carbs.label"),
+        suffix: t("nutrients.carbs.unitShort"),
+      },
+      fat: {
+        label: t("nutrients.fat.label"),
+        suffix: t("nutrients.fat.unitShort"),
+      },
+    }),
+    [t]
+  );
 
   const normalizedValues = useMemo(
     () => ({
@@ -591,31 +626,31 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
     () => [
       {
         key: "calories",
-        label: "Calories",
+        label: macroLabels.calories.label,
         color: colors.semantic.calories,
         value: Math.round(normalizedValues.calories),
-        suffix: "kcal",
+        suffix: macroLabels.calories.suffix,
       },
       {
         key: "protein",
-        label: "Protein",
+        label: macroLabels.protein.label,
         color: colors.semantic.protein,
         value: Math.round(normalizedValues.protein),
-        suffix: "g",
+        suffix: macroLabels.protein.suffix,
       },
       {
         key: "carbs",
-        label: "Carbs",
+        label: macroLabels.carbs.label,
         color: colors.semantic.carbs,
         value: Math.round(normalizedValues.carbs),
-        suffix: "g",
+        suffix: macroLabels.carbs.suffix,
       },
       {
         key: "fat",
-        label: "Fat",
+        label: macroLabels.fat.label,
         color: colors.semantic.fat,
         value: Math.round(normalizedValues.fat),
-        suffix: "g",
+        suffix: macroLabels.fat.suffix,
       },
     ],
     [
@@ -627,6 +662,7 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
       normalizedValues.protein,
       normalizedValues.carbs,
       normalizedValues.fat,
+      macroLabels,
     ]
   );
 
@@ -647,7 +683,7 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
       <View ref={staleUIContainerRef}>
         <View style={styles.sectionHeaderRow}>
           <AppText role="Caption" style={styles.sectionHeader}>
-            MACROS
+            {t("macrosCard.sectionTitle")}
           </AppText>
           <Animated.View style={staleUIAnimatedStyle}>
             <View style={styles.staleChip}>
@@ -657,7 +693,9 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
                   colors.semanticBadges?.calories?.text || colors.secondaryText
                 }
               />
-              <AppText style={styles.staleChipText}>Needs update</AppText>
+              <AppText style={styles.staleChipText}>
+                {t("macrosCard.staleChip")}
+              </AppText>
             </View>
           </Animated.View>
         </View>
@@ -674,7 +712,7 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
               },
             ]}
           >
-            Values reflect previous amounts.
+            {t("macrosCard.staleMessage")}
           </AppText>
         </Animated.View>
       </View>
@@ -692,6 +730,7 @@ export const MacrosCard: React.FC<MacrosCardProps> = ({
             styles={styles}
             colors={colors}
             theme={theme}
+            labels={macroLabels}
           />
         ) : (
           <StaticMacrosContent

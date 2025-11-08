@@ -34,6 +34,7 @@ import { useEditChangeTracker } from "@/components/refine-page/hooks/useEditChan
 import { useEditedLog } from "@/components/refine-page/hooks/useEditedLog";
 import { Host, Image } from "@expo/ui/swift-ui";
 import { createToggleFavoriteHandler } from "@/utils/foodLogHandlers";
+import { useTranslation } from "react-i18next";
 
 const easeLayout = Layout.duration(220).easing(Easing.inOut(Easing.quad));
 
@@ -58,6 +59,7 @@ export default function Edit() {
   const router = useSafeRouter();
   const navigation = useNavigation();
   const { colors, theme } = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
   const {
@@ -192,25 +194,25 @@ export default function Edit() {
     if (hasUnsavedChanges && !hasReestimated) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       Alert.alert(
-        "Unsaved Changes to Ingredients",
-        "You've modified ingredients without recalculating macros. The nutrition values may be inaccurate.",
+        t("editLog.alert.title"),
+        t("editLog.alert.message"),
         [
           {
-            text: "Recalculate Macros",
+            text: t("editLog.alert.recalculate"),
             style: "default",
             onPress: async () => {
               await handleReestimate();
             },
           },
           {
-            text: "Save Anyway",
+            text: t("editLog.alert.saveAnyway"),
             style: "default",
             onPress: () => {
               saveFoodLog();
             },
           },
           {
-            text: "Cancel",
+            text: t("common.cancel"),
             style: "cancel",
           },
         ]
@@ -224,6 +226,7 @@ export default function Edit() {
     hasReestimated,
     handleReestimate,
     saveFoodLog,
+    t,
   ]);
 
   const doneDisabled =
@@ -237,13 +240,13 @@ export default function Edit() {
 
   useEffect(() => {
     navigation.setOptions({
-      headerBackTitle: "Home",
+      headerBackTitle: t("editLog.navigation.backTitle"),
       headerRight: () => (
         <Pressable
           onPress={handleDone}
           disabled={doneDisabled}
           style={{ padding: 8 }}
-          accessibilityLabel="Done"
+          accessibilityLabel={t("common.done")}
         >
           <Host matchContents>
             <Image
@@ -261,9 +264,13 @@ export default function Edit() {
     doneDisabled,
     colors.secondaryText,
     colors.accent,
+    colors.disabledText,
+    t,
   ]);
 
-  const favoriteButtonLabel = isFavorite ? "Favorited" : "Add Favorite";
+  const favoriteButtonLabel = isFavorite
+    ? t("editLog.favorites.added")
+    : t("editLog.favorites.add");
 
   const handleFavoriteToggle = useCallback(() => {
     if (!editedLog) return;
@@ -286,13 +293,13 @@ export default function Edit() {
             onBlur={handleBlur}
             autoFocus
             style={[styles.header, styles.titleInput]}
-            placeholder="Enter title..."
+            placeholder={t("editLog.title.placeholder")}
             placeholderTextColor={colors.secondaryText}
           />
         ) : (
           <Pressable onPress={startEditing}>
             <AppText role="Title2" style={styles.header}>
-              {draftTitle || "Tap to add title"}
+              {draftTitle || t("editLog.title.emptyState")}
             </AppText>
           </Pressable>
         )}
@@ -364,9 +371,9 @@ export default function Edit() {
                 !isPro && (
                   <InlinePaywallCard
                     Icon={Calculator}
-                    title="Recalculate with Pro"
-                    body="Get updated macros when you adjust ingredients."
-                    ctaLabel="Unlock to Recalculate"
+                    title={t("editLog.paywall.title")}
+                    body={t("editLog.paywall.body")}
+                    ctaLabel={t("editLog.paywall.cta")}
                     onPress={handleShowPaywall}
                     testID="edit-inline-paywall"
                   />

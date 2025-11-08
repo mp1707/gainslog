@@ -13,6 +13,7 @@ import { Host, Picker } from "@expo/ui/swift-ui";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { clipShape } from "@expo/ui/swift-ui/modifiers";
+import { useTranslation } from "react-i18next";
 
 export default function EditComponent() {
   const {
@@ -33,6 +34,7 @@ export default function EditComponent() {
 
   const router = useSafeRouter();
   const { colors, theme, colorScheme } = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const hasLiquidGlass = isLiquidGlassAvailable();
 
@@ -54,8 +56,19 @@ export default function EditComponent() {
   // Track if we've set initial focus
   const hasSetInitialFocus = useRef(false);
 
+  const unitLabels = useMemo(
+    () => ({
+      g: t("editComponent.units.grams"),
+      ml: t("editComponent.units.milliliters"),
+      piece: t("editComponent.units.pieces"),
+    }),
+    [t]
+  );
   // Unit options
-  const unitOptions = useMemo(() => ["grams", "milliliters", "pieces"], []);
+  const unitOptions = useMemo(
+    () => [unitLabels.g, unitLabels.ml, unitLabels.piece],
+    [unitLabels]
+  );
 
   // Set initial focus after modal transition (300ms delay)
   useEffect(() => {
@@ -91,29 +104,29 @@ export default function EditComponent() {
   const nameError = useMemo(() => {
     const trimmed = name.trim();
     if (mode === "create" && trimmed.length === 0) {
-      return "Enter a food name.";
+      return t("editComponent.validation.nameRequired");
     }
     if (trimmed.length > 0 && trimmed.length < 2) {
-      return "Name must be at least 2 characters.";
+      return t("editComponent.validation.nameShort", { count: 2 });
     }
     if (trimmed.length > 60) {
-      return "Name must be less than 60 characters.";
+      return t("editComponent.validation.nameLong", { count: 60 });
     }
     return null;
-  }, [name, mode]);
+  }, [name, mode, t]);
 
   const amountError = useMemo(() => {
     const num = parseFloat(amount);
     if (isNaN(num) || num <= 0) {
-      return "Enter a valid amount greater than 0.";
+      return t("editComponent.validation.amountInvalid");
     }
     // Check for max 1 decimal place
     const decimalPart = amount.split(".")[1];
     if (decimalPart && decimalPart.length > 1) {
-      return "Amount can have at most 1 decimal place.";
+      return t("editComponent.validation.amountPrecision");
     }
     return null;
-  }, [amount]);
+  }, [amount, t]);
 
   const isValid = !nameError && !amountError && name.trim().length > 0;
 
@@ -161,15 +174,15 @@ export default function EditComponent() {
     if (isDirty) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       Alert.alert(
-        "Discard changes?",
-        "You have unsaved changes. Are you sure you want to discard them?",
+        t("editComponent.alerts.discard.title"),
+        t("editComponent.alerts.discard.message"),
         [
           {
-            text: "Keep Editing",
+            text: t("editComponent.alerts.discard.keep"),
             style: "cancel",
           },
           {
-            text: "Discard",
+            text: t("editComponent.alerts.discard.discard"),
             style: "destructive",
             onPress: () => {
               router.back();
@@ -180,21 +193,21 @@ export default function EditComponent() {
     } else {
       router.back();
     }
-  }, [isDirty, router]);
+  }, [isDirty, router, t]);
 
   // Handle Delete (edit mode only)
   const handleDelete = useCallback(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     Alert.alert(
-      "Delete Ingredient",
-      "Are you sure you want to delete this ingredient?",
+      t("editComponent.alerts.delete.title"),
+      t("editComponent.alerts.delete.message"),
       [
         {
-          text: "Cancel",
+          text: t("common.cancel"),
           style: "cancel",
         },
         {
-          text: "Delete",
+          text: t("common.delete"),
           style: "destructive",
           onPress: () => {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -212,7 +225,12 @@ export default function EditComponent() {
         },
       ]
     );
-  }, [router, logId, indexParam]);
+  }, [router, logId, indexParam, t]);
+
+  const screenTitle =
+    mode === "create"
+      ? t("editComponent.title.create")
+      : t("editComponent.title.edit");
 
   return (
     <View style={styles.container}>
@@ -228,7 +246,7 @@ export default function EditComponent() {
           }}
         />
         <AppText role="Title2" style={styles.modalTitle}>
-          {mode === "create" ? "New Ingredient" : "Ingredient"}
+          {screenTitle}
         </AppText>
         <HeaderButton
           variant="colored"
@@ -255,7 +273,7 @@ export default function EditComponent() {
         {/* Name Field */}
         <View style={styles.fieldGroup}>
           <AppText role="Headline" style={styles.fieldLabel}>
-            Name
+            {t("editComponent.fields.name.label")}
           </AppText>
           <TextInput
             ref={nameInputRef}
@@ -263,7 +281,7 @@ export default function EditComponent() {
             onChangeText={(text) => {
               setName(text);
             }}
-            placeholder="Enter food name"
+            placeholder={t("editComponent.fields.name.placeholder")}
             placeholderTextColor={colors.secondaryText}
             style={styles.input}
             autoCapitalize="words"
@@ -276,7 +294,7 @@ export default function EditComponent() {
         {/* Quantity Field */}
         <View style={styles.fieldGroup}>
           <AppText role="Headline" style={styles.fieldLabel}>
-            Quantity
+            {t("editComponent.fields.quantity.label")}
           </AppText>
           <TextInput
             ref={amountInputRef}
@@ -294,21 +312,22 @@ export default function EditComponent() {
                 setAmount(normalized);
               }
             }}
-            placeholder="Amount"
+            placeholder={t("editComponent.fields.quantity.placeholder")}
             placeholderTextColor={colors.secondaryText}
             style={styles.input}
             keyboardType="decimal-pad"
             fontSize="Body"
-            accessibilityLabel={`Quantity, text field. In ${
-              unit === "g" ? "grams" : unit === "ml" ? "milliliters" : "pieces"
-            }`}
+            accessibilityLabel={t(
+              "editComponent.accessibility.quantityField",
+              { unit: unitLabels[unit] }
+            )}
           />
         </View>
 
         {/* Unit Field */}
         <View style={styles.fieldGroup}>
           <AppText role="Headline" style={styles.fieldLabel}>
-            Unit
+            {t("editComponent.fields.unit.label")}
           </AppText>
           <Host matchContents colorScheme={colorScheme}>
             <Picker

@@ -8,6 +8,7 @@ import { createStyles } from "./ComponentsList.styles";
 import type { FoodComponent } from "@/types/models";
 import { ComponentRow } from "./ComponentRow";
 import Animated, { Easing, Layout } from "react-native-reanimated";
+import { useTranslation } from "react-i18next";
 
 const easeLayout = Layout.duration(220).easing(Easing.inOut(Easing.quad));
 
@@ -31,6 +32,7 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
   headerAction,
 }) => {
   const { colors, theme } = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
@@ -66,7 +68,7 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
     <Animated.View layout={easeLayout} style={styles.container}>
       <View style={styles.sectionHeaderRow}>
         <AppText role="Caption" style={styles.sectionHeader}>
-          INGREDIENTS
+          {t("componentsList.sectionTitle")}
         </AppText>
         {headerAction ? (
           <View style={styles.sectionHeaderAction}>{headerAction}</View>
@@ -99,12 +101,12 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
             onPress={onAddPress}
             style={styles.addRow}
             disabled={disabled}
-            accessibilityLabel="Add Ingredient"
+            accessibilityLabel={t("componentsList.addButton")}
             accessibilityRole="button"
           >
             <Plus size={18} color={colors.accent} />
             <AppText style={styles.addLabel} color="accent">
-              Add Ingredient
+              {t("componentsList.addButton")}
             </AppText>
           </TouchableOpacity>
         </Animated.View>

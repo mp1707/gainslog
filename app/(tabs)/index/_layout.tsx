@@ -2,10 +2,12 @@ import { Platform } from "react-native";
 import { Stack } from "expo-router";
 import { useTheme } from "@/theme";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
+import { useTranslation } from "react-i18next";
 
 export default function IndexLayout() {
   const { colors, theme } = useTheme();
   const isIOS = Platform.OS === "ios";
+  const { t } = useTranslation();
 
   const hasLiquidGlass = isLiquidGlassAvailable();
 
@@ -38,7 +40,7 @@ export default function IndexLayout() {
           headerStyle: !hasLiquidGlass && {
             backgroundColor: colors.primaryBackground,
           },
-          headerTitle: "Edit",
+          headerTitle: t("common.edit"),
           gestureEnabled: true,
           navigationBarHidden: true,
         }}
