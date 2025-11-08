@@ -79,15 +79,17 @@ export const useEstimation = () => {
       addFoodLog(incompleteLog);
 
       const isImageEstimation = hasImage(logData);
-      const estimationFunction = async () =>
-        isImageEstimation
-          ? (console.log("🖼️ Image initial estimation"),
-            estimateNutritionImageBased({
+      const estimationFunction = async () => {
+        if (__DEV__) {
+          console.log(isImageEstimation ? "🖼️ Image initial estimation" : "📝 Text initial estimation");
+        }
+        return isImageEstimation
+          ? estimateNutritionImageBased({
               imagePath: logData.supabaseImagePath || "",
               description: logData.description || "",
-            }))
-          : (console.log("📝 Text initial estimation"),
-            estimateTextBased({ description: logData.description || "" }));
+            })
+          : estimateTextBased({ description: logData.description || "" });
+      };
 
       try {
         const estimationResults = await estimationFunction();
@@ -119,7 +121,9 @@ export const useEstimation = () => {
         // Caller should prevent this; no-op for safety
         return;
       }
-      console.log("🛠️ Components refinement");
+      if (__DEV__) {
+        console.log("🛠️ Components refinement");
+      }
 
       // Convert food components to string format: "Name Amount Unit, Name Amount Unit, ..."
       const foodComponentsString = (editedEntry.foodComponents || [])

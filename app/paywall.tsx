@@ -39,9 +39,6 @@ const FEATURES = [
   },
 ] as const;
 
-const LEGAL_TEXT = '';
-// "Payment will be charged to your Apple ID account at confirmation of purchase. Subscription renews automatically unless cancelled at least 24 hours before the end of the billing period. ";
-
 const describePeriod = (periodLabel: string) => {
   if (!periodLabel) {
     return 'Cancel anytime.';
@@ -275,11 +272,6 @@ export default function PaywallScreen() {
         />
 
         <View style={styles.legal}>
-          {LEGAL_TEXT.length > 0 && (
-            <AppText role="Caption" color="secondary" style={styles.legalText}>
-              {LEGAL_TEXT}
-            </AppText>
-          )}
           <View style={styles.links}>
             <TouchableOpacity
               onPress={() =>

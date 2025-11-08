@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { View, StyleSheet, Pressable } from "react-native";
+import { View, StyleSheet, Pressable, Alert } from "react-native";
 import { AppText } from "@/components/shared/AppText";
 import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
@@ -27,19 +27,14 @@ const CalculatorSummaryScreen = () => {
   const [isConfirming, setIsConfirming] = useState(false);
 
   // Onboarding store state
-  const {
-    calorieGoal,
-    proteinGoal,
-    proteinGoalType,
-    fatPercentage,
-    weight,
-  } = useOnboardingStore();
+  const { calorieGoal, proteinGoal, proteinGoalType, fatPercentage, weight } =
+    useOnboardingStore();
 
   // Main app store
   const { setDailyTargets } = useAppStore();
 
   // Get stored values with defaults
-  const   effectiveFatPercentage = fatPercentage ?? 20;
+  const effectiveFatPercentage = fatPercentage ?? 20;
   const currentCalories = calorieGoal || 0;
   const currentProtein = proteinGoal || 0;
 
@@ -76,7 +71,13 @@ const CalculatorSummaryScreen = () => {
   const handleConfirmAndStartTracking = async () => {
     // Validate we have all required data
     if (currentCalories <= 0 || currentProtein <= 0) {
-      console.error("Missing required data for daily targets");
+      if (__DEV__) {
+        console.error("Missing required data for daily targets");
+      }
+      Alert.alert(
+        "Error",
+        "Missing required data. Please go back and complete all fields."
+      );
       return;
     }
 
@@ -153,11 +154,7 @@ const CalculatorSummaryScreen = () => {
         <View style={styles.actionButtonsContainer}>
           <View style={styles.secondaryActions}>
             <Pressable onPress={handleAdjustTargets}>
-              <AppText
-                role="Button"
-                color="accent"
-                style={styles.centeredText}
-              >
+              <AppText role="Button" color="accent" style={styles.centeredText}>
                 Adjust Targets
               </AppText>
             </Pressable>

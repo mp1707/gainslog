@@ -74,7 +74,9 @@ export const ProSection = () => {
       }
     } catch (error: any) {
       Alert.alert("Restore failed", error?.message ?? "Please try again.");
-      console.warn("[RC] restore failed:", error);
+      if (__DEV__) {
+        console.warn("[RC] restore failed:", error);
+      }
     } finally {
       setRestoringPurchases(false);
     }

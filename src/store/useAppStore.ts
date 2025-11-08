@@ -136,9 +136,13 @@ export const useAppStore = create<AppState>()(
                 FileSystem.deleteAsync(uri, { idempotent: true })
               )
             );
-            console.log(`Deleted ${imagePathsToDelete.length} images.`);
+            if (__DEV__) {
+              console.log(`Deleted ${imagePathsToDelete.length} images.`);
+            }
           } catch (error) {
-            console.error("Error batch deleting images:", error);
+            if (__DEV__) {
+              console.error("Error batch deleting images:", error);
+            }
           }
         }
 

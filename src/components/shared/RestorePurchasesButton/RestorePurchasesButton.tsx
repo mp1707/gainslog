@@ -61,7 +61,9 @@ export const RestorePurchasesButton: React.FC<RestorePurchasesButtonProps> = ({
         [{ text: "OK", style: "default" }],
         { cancelable: true }
       );
-      console.warn("[RC] restore failed:", error);
+      if (__DEV__) {
+        console.warn("[RC] restore failed:", error);
+      }
     } finally {
       setIsRestoring(false);
     }

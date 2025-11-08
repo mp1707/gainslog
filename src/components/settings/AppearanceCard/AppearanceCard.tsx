@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Switch, StyleSheet } from "react-native";
 import { useTheme } from "@/theme";
-import { AppText, Card } from "src/components";
+import { AppText, Card } from "@/components";
 
 export const AppearanceCard: React.FC = () => {
   const { theme, colorScheme, toggleColorScheme } = useTheme();

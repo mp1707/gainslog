@@ -1,17 +1,17 @@
-import { useEffect } from 'react';
-import { AppState } from 'react-native';
+import { useEffect } from "react";
+import { AppState } from "react-native";
 
 import {
   addCustomerInfoListener,
   ensureRevenueCatConfigured,
   getCustomerInfo,
-} from '@/lib/revenuecat/client';
-import { applyCustomerInfoToStore } from '@/lib/revenuecat/subscription';
-import { useAppStore } from '@/store/useAppStore';
+} from "@/lib/revenuecat/client";
+import { applyCustomerInfoToStore } from "@/lib/revenuecat/subscription";
+import { useAppStore } from "@/store/useAppStore";
 
 export const useRevenueCat = () => {
   const setVerifyingSubscription = useAppStore(
-    (state) => state.setVerifyingSubscription,
+    (state) => state.setVerifyingSubscription
   );
 
   useEffect(() => {
@@ -30,7 +30,9 @@ export const useRevenueCat = () => {
           applyCustomerInfoToStore(info);
         }
       } catch (error) {
-        console.warn('[RevenueCat] Failed to fetch customer info', error);
+        if (__DEV__) {
+          console.warn("[RevenueCat] Failed to fetch customer info", error);
+        }
       } finally {
         if (isMounted) {
           setVerifyingSubscription(false);
@@ -42,11 +44,14 @@ export const useRevenueCat = () => {
 
     const removeListener = addCustomerInfoListener(applyCustomerInfoToStore);
 
-    const appStateSubscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') {
-        void loadCustomer();
+    const appStateSubscription = AppState.addEventListener(
+      "change",
+      (state) => {
+        if (state === "active") {
+          void loadCustomer();
+        }
       }
-    });
+    );
 
     return () => {
       isMounted = false;

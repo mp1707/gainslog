@@ -1,6 +1,5 @@
 // Export all design system components
 export { AppText } from "./AppText";
-export { StatusIcon } from "./StatusIcon";
 export { SkeletonPill } from "./SkeletonPill";
 export { BlurredBackground } from "./BlurredBackground";
 export { ContextMenu } from "./ContextMenu";

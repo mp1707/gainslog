@@ -1,4 +1,3 @@
-import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import type { UserSettings } from "@/types/models";
 import { Alert } from "react-native";
 

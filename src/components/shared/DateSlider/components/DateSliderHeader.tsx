@@ -5,7 +5,7 @@ import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useAppStore } from "@/store/useAppStore";
 import { createStyles } from "./DateSliderHeader.styles";
-import { formatDate } from "@/utils/formatDate";
+import { formatDate } from "@/utils/dateHelpers";
 import { hasDailyTargetsSet } from "@/utils";
 import { HeaderButton } from "../../HeaderButton/HeaderButton.ios";
 import * as Haptics from "expo-haptics";

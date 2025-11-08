@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Pressable } from "react-native";
+import { View, StyleSheet, Pressable, Alert } from "react-native";
 import { AppText } from "@/components/shared/AppText";
 import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
@@ -40,7 +40,10 @@ const ManualSummaryScreen = () => {
   const handleConfirmAndStartTracking = async () => {
     // Validate we have all required data
     if (!calorieGoal || !proteinGoal || !fatGoal) {
-      console.error("Missing required data for daily targets");
+      if (__DEV__) {
+        console.error("Missing required data for daily targets");
+      }
+      Alert.alert("Error", "Missing required data. Please go back and complete all fields.");
       return;
     }
 

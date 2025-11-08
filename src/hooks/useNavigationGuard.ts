@@ -77,7 +77,9 @@ export function useNavigationGuard() {
     (navigationFn: () => void) => {
       if (lockedRef.current) {
         pendingNavigationRef.current = navigationFn;
-        console.warn("[NavigationGuard] Navigation already in progress");
+        if (__DEV__) {
+          console.warn("[NavigationGuard] Navigation already in progress");
+        }
         return;
       }
 
@@ -89,14 +91,18 @@ export function useNavigationGuard() {
       setIsNavigating(true);
 
       timeoutRef.current = setTimeout(() => {
-        console.warn("[NavigationGuard] Timeout reached, unlocking");
+        if (__DEV__) {
+          console.warn("[NavigationGuard] Timeout reached, unlocking");
+        }
         unlockNavigation();
       }, NAVIGATION_LOCK_TIMEOUT);
 
       try {
         navigationFn();
       } catch (err) {
-        console.error("[NavigationGuard] Navigation failed:", err);
+        if (__DEV__) {
+          console.error("[NavigationGuard] Navigation failed:", err);
+        }
         unlockNavigation();
       }
     },

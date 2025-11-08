@@ -19,7 +19,9 @@ export const ensureRevenueCatConfigured = (): boolean => {
   const apiKey = getApiKey();
 
   if (!apiKey) {
-    console.warn('[RevenueCat] Missing EXPO_PUBLIC_REVENUECAT_IOS_KEY.');
+    if (__DEV__) {
+      console.warn('[RevenueCat] Missing EXPO_PUBLIC_REVENUECAT_IOS_KEY.');
+    }
     return false;
   }
 
