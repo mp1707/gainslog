@@ -1,4 +1,5 @@
 import { Droplet, Flame, BicepsFlexed, Zap } from "lucide-react-native";
+import type { TFunction } from "i18next";
 
 /**
  * Animation delay constants for staggered animations
@@ -23,51 +24,56 @@ export const ICON_SPRING_CONFIG = {
 } as const;
 
 /**
- * Display configuration shared across all nutrient labels
+ * Get display configuration for all nutrient labels with translations
+ * Returns a new object each time to ensure fresh translations
  */
-export const NUTRIENT_LABELS = {
-  calories: {
-    label: "Calories",
-    unit: "kcal",
-    Icon: Flame,
-    hasTarget: true,
-  },
-  protein: {
-    label: "Protein",
-    unit: "grams",
-    Icon: BicepsFlexed,
-    hasTarget: true,
-  },
-  fat: {
-    label: "Fat",
-    unit: "g",
-    Icon: Droplet,
-    hasTarget: true,
-  },
-  carbs: {
-    label: "Carbs",
-    unit: "g",
-    Icon: Zap,
-    hasTarget: false,
-  },
-} as const;
+export const getNutrientLabels = (t: TFunction) =>
+  ({
+    calories: {
+      label: t("nutrients.calories.label"),
+      unit: t("nutrients.calories.unitShort"),
+      Icon: Flame,
+      hasTarget: true,
+    },
+    protein: {
+      label: t("nutrients.protein.label"),
+      unit: t("nutrients.protein.unit"),
+      Icon: BicepsFlexed,
+      hasTarget: true,
+    },
+    fat: {
+      label: t("nutrients.fat.label"),
+      unit: t("nutrients.fat.unitShort"),
+      Icon: Droplet,
+      hasTarget: true,
+    },
+    carbs: {
+      label: t("nutrients.carbs.label"),
+      unit: t("nutrients.carbs.unitShort"),
+      Icon: Zap,
+      hasTarget: false,
+    },
+  } as const);
 
 /**
- * Configuration for ring nutrients (calories and protein)
+ * Get configuration for ring nutrients (calories and protein)
  * These are displayed as circular progress rings
  */
-export const RING_CONFIG = [
-  {
-    key: "calories" as const,
-    ...NUTRIENT_LABELS.calories,
-  },
-  {
-    key: "protein" as const,
-    ...NUTRIENT_LABELS.protein,
-  },
-] as const;
+export const getRingConfig = (t: TFunction) => {
+  const labels = getNutrientLabels(t);
+  return [
+    {
+      key: "calories" as const,
+      ...labels.calories,
+    },
+    {
+      key: "protein" as const,
+      ...labels.protein,
+    },
+  ] as const;
+};
 
 /**
  * Type for nutrient keys
  */
-export type NutrientKey = keyof typeof NUTRIENT_LABELS;
+export type NutrientKey = keyof ReturnType<typeof getNutrientLabels>;

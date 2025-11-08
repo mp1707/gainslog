@@ -7,6 +7,7 @@ import Animated, {
   withSpring,
   type SharedValue,
 } from "react-native-reanimated";
+import { useTranslation } from "react-i18next";
 import { Theme, useTheme } from "@/theme";
 import { SetGoalsCTA } from "./SetGoalsCTA";
 import { AppText } from "@/components";
@@ -17,8 +18,8 @@ import { useNutrientAnimations } from "./hooks/useNutrientAnimations";
 import { useNutrientNavigation } from "./hooks/useNutrientNavigation";
 import { usePressAnimation } from "@/hooks/usePressAnimation";
 import {
-  RING_CONFIG,
-  NUTRIENT_LABELS,
+  getRingConfig,
+  getNutrientLabels,
   ANIMATION_DELAYS,
   type NutrientKey,
 } from "./utils/constants";
@@ -52,9 +53,14 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
   totals,
 }) => {
   // Call ALL hooks FIRST (before any early returns)
+  const { t } = useTranslation();
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const { width: screenWidth } = useWindowDimensions();
+
+  // Get translated nutrient labels
+  const NUTRIENT_LABELS = getNutrientLabels(t);
+  const RING_CONFIG = getRingConfig(t);
 
   // Calculate responsive ring size: 40% of screen width
   const ringSize = useMemo(() => screenWidth * 0.45, [screenWidth]);
@@ -122,17 +128,15 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
 
   const shouldAnimateTotals = !animations.dateChanged;
 
-  const displayTotals: Record<
-    NutrientKey,
-    number | SharedValue<number>
-  > = shouldAnimateTotals
-    ? {
-        calories: animations.animatedCaloriesTotal,
-        protein: animations.animatedProteinTotal,
-        fat: animations.animatedFatTotal,
-        carbs: animations.animatedCarbsTotal,
-      }
-    : staticTotals;
+  const displayTotals: Record<NutrientKey, number | SharedValue<number>> =
+    shouldAnimateTotals
+      ? {
+          calories: animations.animatedCaloriesTotal,
+          protein: animations.animatedProteinTotal,
+          fat: animations.animatedFatTotal,
+          carbs: animations.animatedCarbsTotal,
+        }
+      : staticTotals;
 
   const labelTargets: Partial<Record<NutrientKey, number>> = {
     calories: Math.round(targets.calories || 0),
@@ -178,7 +182,9 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
             ringPressAnimations[ringKey];
           const ringTarget = labelTargets[ringKey];
           const ringDetailValue =
-            typeof ringTarget === "number" ? `of ${ringTarget}` : undefined;
+            typeof ringTarget === "number"
+              ? `${t("nutrients.of")} ${ringTarget}`
+              : undefined;
           const ringIcon = ringKey === "calories" ? Flame : BicepsFlexed;
 
           return (
@@ -208,7 +214,10 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
                     textColor={colors.primaryText}
                     displayValue={displayTotals[ringKey]}
                     detailValue={ringDetailValue}
-                    animationDelay={ANIMATION_DELAYS.BASE_DELAY + (index * ANIMATION_DELAYS.RING_STAGGER)}
+                    animationDelay={
+                      ANIMATION_DELAYS.BASE_DELAY +
+                      index * ANIMATION_DELAYS.RING_STAGGER
+                    }
                     strokeWidth={strokeWidth}
                     size={ringSize}
                     Icon={ringIcon}
@@ -276,6 +285,7 @@ const MacroGridCell: React.FC<MacroGridCellProps> = ({
   isComplete = false,
   onPress,
 }) => {
+  const { t } = useTranslation();
   const { theme, colors } = useTheme();
   const styles = useMemo(() => createGridCellStyles(theme), [theme]);
   const { handlePressIn, handlePressOut, pressAnimatedStyle } =
@@ -283,6 +293,7 @@ const MacroGridCell: React.FC<MacroGridCellProps> = ({
       disabled: !onPress,
     });
 
+  const NUTRIENT_LABELS = getNutrientLabels(t);
   const config = NUTRIENT_LABELS[nutrientKey];
 
   // Only use getNutrientIcon for calories and protein (rings)

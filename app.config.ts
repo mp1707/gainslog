@@ -53,6 +53,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     favicon: "./assets/favicon.png",
   },
   plugins: [
+    "expo-localization",
     "expo-router",
     // Add Expo Dev Client to ensure URL schemes and local network permissions
     // are injected into the native iOS project for development builds.

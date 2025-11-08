@@ -1,0 +1,35 @@
+{
+  "nutrients": {
+    "calories": {
+      "label": "Kalorien",
+      "unit": "kcal",
+      "unitShort": "kcal"
+    },
+    "protein": {
+      "label": "Protein",
+      "unit": "Gramm",
+      "unitShort": "g"
+    },
+    "fat": {
+      "label": "Fett",
+      "unit": "Gramm",
+      "unitShort": "g"
+    },
+    "carbs": {
+      "label": "Kohlenhydrate",
+      "unit": "Gramm",
+      "unitShort": "g"
+    },
+    "of": "von"
+  },
+  "common": {
+    "loading": "Lädt...",
+    "error": "Etwas ist schiefgelaufen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "done": "Fertig",
+    "close": "Schließen"
+  }
+}
