@@ -31,5 +31,18 @@
     "edit": "Bearbeiten",
     "done": "Fertig",
     "close": "Schließen"
+  },
+  "dates": {
+    "labels": {
+      "today": "Heute",
+      "yesterday": "Gestern",
+      "tomorrow": "Morgen"
+    },
+    "relative": {
+      "past_one": "vor {{count}} Tag",
+      "past_other": "vor {{count}} Tagen",
+      "future_one": "In {{count}} Tag",
+      "future_other": "In {{count}} Tagen"
+    }
   }
 }

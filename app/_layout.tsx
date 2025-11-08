@@ -12,6 +12,7 @@ import {
   useNavigationTransition,
 } from "@/context/NavigationTransitionContext";
 import { useRevenueCat } from "@/hooks/useRevenueCat";
+import "@/lib/i18n";
 
 function ThemedStack() {
   const { colors, isThemeLoaded } = useTheme();

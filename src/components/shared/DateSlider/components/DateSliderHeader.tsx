@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { AppText } from "@/components";
 import { useTheme } from "@/theme";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
@@ -13,6 +14,7 @@ import * as Haptics from "expo-haptics";
 export const DateSliderHeader: React.FC = () => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const { t, i18n } = useTranslation();
   const { safeNavigate } = useNavigationGuard();
   const selectedDate = useAppStore((state) => state.selectedDate);
   const dailyTargets = useAppStore((state) => state.dailyTargets);
@@ -27,7 +29,7 @@ export const DateSliderHeader: React.FC = () => {
   return (
     <View style={styles.header}>
       <AppText role="Title1" style={styles.headerTitle}>
-        {formatDate(selectedDate)}
+        {formatDate(selectedDate, { t, locale: i18n.language })}
       </AppText>
       <View style={styles.headerButtonContainer}>
         {hasGoals && (

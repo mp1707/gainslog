@@ -2,6 +2,23 @@
  * Date utility functions for the app
  */
 
+import type { TFunction } from "i18next";
+
+const DEFAULT_LOCALE = "en-US";
+
+type DateLocalizationOptions = {
+  locale?: string;
+  t?: TFunction;
+};
+
+const getLocale = (locale?: string) => locale ?? DEFAULT_LOCALE;
+
+const formatRelativePastFallback = (days: number) =>
+  `${days} day${days === 1 ? "" : "s"} ago`;
+
+const formatRelativeFutureFallback = (days: number) =>
+  `In ${days} day${days === 1 ? "" : "s"}`;
+
 /**
  * Formats a date into ISO date string (YYYY-MM-DD)
  */
@@ -34,9 +51,12 @@ export const getDaysInMonth = (year: number, month: number): number => {
 /**
  * Formats a date for display (e.g., "Jan 15, 2024")
  */
-export const formatDisplayDate = (dateKey: string): string => {
+export const formatDisplayDate = (
+  dateKey: string,
+  locale: string = DEFAULT_LOCALE
+): string => {
   const date = new Date(dateKey + "T00:00:00");
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString(getLocale(locale), {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -88,36 +108,67 @@ export const navigateDate = (
 /**
  * Gets the day of week name (e.g., "Monday")
  */
-export const getDayOfWeek = (dateKey: string): string => {
+export const getDayOfWeek = (
+  dateKey: string,
+  locale: string = DEFAULT_LOCALE
+): string => {
   const date = new Date(dateKey + "T00:00:00");
-  return date.toLocaleDateString("en-US", { weekday: "long" });
+  return date.toLocaleDateString(getLocale(locale), { weekday: "long" });
 };
 
 /**
  * Gets a relative date string (e.g., "Today", "Yesterday", "2 days ago")
  */
-export const getRelativeDate = (dateKey: string): string => {
+export const getRelativeDate = (
+  dateKey: string,
+  options?: DateLocalizationOptions
+): string => {
   const today = new Date(getTodayKey() + "T00:00:00");
   const date = new Date(dateKey + "T00:00:00");
   const diffTime = today.getTime() - date.getTime();
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  const { t } = options ?? {};
 
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  if (diffDays === -1) return "Tomorrow";
-  if (diffDays > 0) return `${diffDays} days ago`;
-  return `In ${Math.abs(diffDays)} days`;
+  if (diffDays === 0) {
+    return t?.("dates.labels.today") ?? "Today";
+  }
+
+  if (diffDays === 1) {
+    return t?.("dates.labels.yesterday") ?? "Yesterday";
+  }
+
+  if (diffDays === -1) {
+    return t?.("dates.labels.tomorrow") ?? "Tomorrow";
+  }
+
+  if (diffDays > 0) {
+    return (
+      t?.("dates.relative.past", { count: diffDays }) ??
+      formatRelativePastFallback(diffDays)
+    );
+  }
+
+  const daysAhead = Math.abs(diffDays);
+  return (
+    t?.("dates.relative.future", { count: daysAhead }) ??
+    formatRelativeFutureFallback(daysAhead)
+  );
 };
 
 /**
  * Smart date formatting function for headers
  * Returns "Today", "Yesterday", or a long format with weekday (e.g., "Monday, Jan 15")
  */
-export const formatDate = (dateString: string): string => {
+export const formatDate = (
+  dateString: string,
+  options?: DateLocalizationOptions
+): string => {
   const date = new Date(dateString + "T00:00:00");
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
+  const { t } = options ?? {};
+  const locale = getLocale(options?.locale);
 
   // Reset time components for comparison
   const todayDateOnly = new Date(
@@ -137,11 +188,11 @@ export const formatDate = (dateString: string): string => {
   );
 
   if (inputDateOnly.getTime() === todayDateOnly.getTime()) {
-    return "Today";
+    return t?.("dates.labels.today") ?? "Today";
   } else if (inputDateOnly.getTime() === yesterdayDateOnly.getTime()) {
-    return "Yesterday";
+    return t?.("dates.labels.yesterday") ?? "Yesterday";
   } else {
-    return date.toLocaleDateString("en-US", {
+    return date.toLocaleDateString(locale, {
       weekday: "long",
       month: "short",
       day: "numeric",
@@ -184,22 +235,16 @@ export const isFutureMonth = (year: number, month: number): boolean => {
 /**
  * Formats year and month into a display string (e.g., "January 2024")
  */
-export const formatMonthYear = (year: number, month: number): string => {
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  return `${monthNames[month - 1]} ${year}`;
+export const formatMonthYear = (
+  year: number,
+  month: number,
+  locale: string = DEFAULT_LOCALE
+): string => {
+  const date = new Date(year, month - 1, 1);
+  return date.toLocaleDateString(getLocale(locale), {
+    month: "long",
+    year: "numeric",
+  });
 };
 
 /**
@@ -208,21 +253,13 @@ export const formatMonthYear = (year: number, month: number): string => {
 export const formatMonthYearDay = (
   year: number,
   month: number,
-  day: number
+  day: number,
+  locale: string = DEFAULT_LOCALE
 ): string => {
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  return `${monthNames[month - 1]} ${day}, ${year}`;
+  const date = new Date(year, month - 1, day);
+  return date.toLocaleDateString(getLocale(locale), {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 };

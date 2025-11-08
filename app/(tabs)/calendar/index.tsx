@@ -19,11 +19,11 @@ import {
   generateMonthKeys,
 } from "@/hooks/useOptimizedNutritionData";
 import {
-  formatMonthYear,
   formatMonthYearDay,
   getTodayKey,
   parseDateKey,
 } from "@/utils/dateHelpers";
+import { useTranslation } from "react-i18next";
 
 interface MonthData {
   year: number;
@@ -43,6 +43,7 @@ const getMonthKeyFromDateKey = (dateKey: string) => {
 export default function CalendarTabScreen() {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const { i18n } = useTranslation();
   const { selectedDate, setSelectedDate, foodLogs, dailyTargets } =
     useAppStore();
   const navigation = useNavigation();
@@ -193,9 +194,9 @@ export default function CalendarTabScreen() {
   useEffect(() => {
     const { year, month, day } = parseDateKey(selectedDate);
     navigation.setOptions({
-      title: formatMonthYearDay(year, month, day),
+      title: formatMonthYearDay(year, month, day, i18n.language),
     });
-  }, [selectedDate, navigation]);
+  }, [selectedDate, navigation, i18n.language]);
 
   // Generate relevant month keys for optimized nutrition data calculation
   const relevantMonths = useMemo(() => {
