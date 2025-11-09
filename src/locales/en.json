@@ -201,6 +201,85 @@
       }
     }
   },
+  "paywall": {
+    "a11y": {
+      "close": "Close paywall"
+    },
+    "header": {
+      "title": "MacroLoop Pro",
+      "subtitle": "Save time and stay consistent with effortless AI powered tracking."
+    },
+    "states": {
+      "loading": "Loading Pro details…",
+      "unavailable": "MacroLoop Pro is currently unavailable. Please try again later."
+    },
+    "features": {
+      "aiLogging": {
+        "title": "AI-Powered Logging",
+        "description": "Log meals instantly from text, voice, or a photo. No more searching for ingredients."
+      },
+      "instantRecalculation": {
+        "title": "Instant Recalculation",
+        "description": "Adjust ingredients and get immediate macro updates to fine-tune your meals."
+      },
+      "noAds": {
+        "title": "No Ads. Period.",
+        "description": "Support ad-free development"
+      }
+    },
+    "options": {
+      "badge": "Best Value",
+      "period": {
+        "cancelAnytime": "Cancel anytime.",
+        "oneTime": "One-time purchase",
+        "recurring": "Billed {{period}}",
+        "annual": "per year",
+        "monthly": "per month",
+        "sixMonths": "per 6 months",
+        "threeMonths": "per 3 months",
+        "twoMonths": "per 2 months",
+        "weekly": "per week"
+      },
+      "labels": {
+        "annual": "Annual",
+        "monthly": "Monthly",
+        "lifetime": "Lifetime",
+        "sixMonths": "6 Months",
+        "threeMonths": "3 Months",
+        "twoMonths": "2 Months",
+        "weekly": "Weekly"
+      }
+    },
+    "buttons": {
+      "primary": "Unlock Pro",
+      "processing": "Processing…",
+      "retry": "Try again"
+    },
+    "links": {
+      "terms": "Terms of Use",
+      "privacy": "Privacy Policy",
+      "restore": "Restore Purchases",
+      "restoring": "Restoring…"
+    },
+    "alerts": {
+      "purchaseFailed": {
+        "title": "Purchase failed"
+      },
+      "restoreSuccess": {
+        "title": "Restored",
+        "message": "Your subscription is active. Enjoy!"
+      },
+      "restoreFailed": {
+        "title": "Restore failed"
+      }
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "noSelection": "Please choose a plan.",
+      "planUnavailable": "Selected plan is no longer available.",
+      "noSubscription": "We couldn't find a subscription for this Apple ID."
+    }
+  },
   "explainer": {
     "common": {
       "close": "Close explainer",

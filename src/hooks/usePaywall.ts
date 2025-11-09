@@ -4,6 +4,8 @@ import {
   PURCHASES_ERROR_CODE,
   PurchasesPackage,
 } from 'react-native-purchases';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 import {
   fetchCurrentPackages,
@@ -16,7 +18,7 @@ export type PaywallOption = {
   id: string;
   title: string;
   price: string;
-  periodLabel: string;
+  periodDescription: string;
   package: PurchasesPackage;
 };
 
@@ -25,36 +27,73 @@ type ActionResult =
   | { status: 'cancelled' }
   | { status: 'error'; message: string };
 
-const PACKAGE_LABEL_MAP: Record<string, string> = {
-  ANNUAL: 'Annual',
-  MONTHLY: 'Monthly',
-  LIFETIME: 'Lifetime',
-  SIX_MONTH: '6 Months',
-  THREE_MONTH: '3 Months',
-  TWO_MONTH: '2 Months',
-  WEEKLY: 'Weekly',
+type PackageLabelKey =
+  | 'annual'
+  | 'monthly'
+  | 'lifetime'
+  | 'sixMonths'
+  | 'threeMonths'
+  | 'twoMonths'
+  | 'weekly';
+
+type PeriodLabelKey =
+  | 'annual'
+  | 'monthly'
+  | 'sixMonths'
+  | 'threeMonths'
+  | 'twoMonths'
+  | 'weekly'
+  | 'oneTime';
+
+const PACKAGE_LABEL_KEY_MAP: Record<string, PackageLabelKey | undefined> = {
+  ANNUAL: 'annual',
+  MONTHLY: 'monthly',
+  LIFETIME: 'lifetime',
+  SIX_MONTH: 'sixMonths',
+  THREE_MONTH: 'threeMonths',
+  TWO_MONTH: 'twoMonths',
+  WEEKLY: 'weekly',
 };
 
-const PERIOD_LABEL_MAP: Record<string, string> = {
-  ANNUAL: 'per year',
-  MONTHLY: 'per month',
-  LIFETIME: 'one-time',
-  SIX_MONTH: 'per 6 months',
-  THREE_MONTH: 'per 3 months',
-  TWO_MONTH: 'per 2 months',
-  WEEKLY: 'per week',
+const PERIOD_LABEL_KEY_MAP: Record<string, PeriodLabelKey | undefined> = {
+  ANNUAL: 'annual',
+  MONTHLY: 'monthly',
+  LIFETIME: 'oneTime',
+  SIX_MONTH: 'sixMonths',
+  THREE_MONTH: 'threeMonths',
+  TWO_MONTH: 'twoMonths',
+  WEEKLY: 'weekly',
 };
 
-const toOption = (pkg: PurchasesPackage): PaywallOption => {
-  const title =
-    PACKAGE_LABEL_MAP[pkg.packageType] ?? pkg.product.title ?? pkg.identifier;
-  const periodLabel = PERIOD_LABEL_MAP[pkg.packageType] ?? '';
+const getPackageTitle = (pkg: PurchasesPackage, t: TFunction) => {
+  const labelKey = PACKAGE_LABEL_KEY_MAP[pkg.packageType];
+  if (labelKey) {
+    return t(`paywall.options.labels.${labelKey}`);
+  }
 
+  return pkg.product.title ?? pkg.identifier;
+};
+
+const getPeriodDescription = (pkg: PurchasesPackage, t: TFunction) => {
+  const periodKey = PERIOD_LABEL_KEY_MAP[pkg.packageType];
+  if (!periodKey) {
+    return t('paywall.options.period.cancelAnytime');
+  }
+
+  if (periodKey === 'oneTime') {
+    return t('paywall.options.period.oneTime');
+  }
+
+  const periodLabel = t(`paywall.options.period.${periodKey}`);
+  return t('paywall.options.period.recurring', { period: periodLabel });
+};
+
+const toOption = (pkg: PurchasesPackage, t: TFunction): PaywallOption => {
   return {
     id: pkg.identifier,
-    title,
+    title: getPackageTitle(pkg, t),
     price: pkg.product.priceString,
-    periodLabel,
+    periodDescription: getPeriodDescription(pkg, t),
     package: pkg,
   };
 };
@@ -63,7 +102,7 @@ const isPurchasesError = (error: unknown): error is PurchasesError => {
   return Boolean(error) && typeof error === 'object' && 'code' in (error as any);
 };
 
-const toErrorMessage = (error: unknown): string => {
+const toErrorMessage = (error: unknown, t: TFunction): string => {
   if (isPurchasesError(error) && error.message) {
     return error.message;
   }
@@ -72,10 +111,11 @@ const toErrorMessage = (error: unknown): string => {
     return error.message;
   }
 
-  return 'Something went wrong. Please try again.';
+  return t('paywall.errors.generic');
 };
 
 export const usePaywall = () => {
+  const { t } = useTranslation();
   const [options, setOptions] = useState<PaywallOption[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,7 +129,7 @@ export const usePaywall = () => {
 
     try {
       const packages = await fetchCurrentPackages();
-      const mapped = packages.map(toOption);
+      const mapped = packages.map((pkg) => toOption(pkg, t));
 
       setOptions(mapped);
       setSelectedId((current) => (
@@ -98,13 +138,13 @@ export const usePaywall = () => {
           : mapped[0]?.id ?? null
       ));
     } catch (error) {
-      setLoadError(toErrorMessage(error));
+      setLoadError(toErrorMessage(error, t));
       setOptions([]);
       setSelectedId(null);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     void loadOptions();
@@ -116,12 +156,15 @@ export const usePaywall = () => {
 
   const purchase = useCallback(async (): Promise<ActionResult> => {
     if (!selectedId) {
-      return { status: 'error', message: 'Please choose a plan.' };
+      return { status: 'error', message: t('paywall.errors.noSelection') };
     }
 
     const option = options.find((item) => item.id === selectedId);
     if (!option) {
-      return { status: 'error', message: 'Selected plan is no longer available.' };
+      return {
+        status: 'error',
+        message: t('paywall.errors.planUnavailable'),
+      };
     }
 
     if (isPurchasing) {
@@ -143,11 +186,11 @@ export const usePaywall = () => {
         }
       }
 
-      return { status: 'error', message: toErrorMessage(error) };
+      return { status: 'error', message: toErrorMessage(error, t) };
     } finally {
       setIsPurchasing(false);
     }
-  }, [isPurchasing, options, selectedId]);
+  }, [isPurchasing, options, selectedId, t]);
 
   const restore = useCallback(async (): Promise<ActionResult> => {
     if (isRestoring) {
@@ -163,17 +206,17 @@ export const usePaywall = () => {
       if (!hasPro) {
         return {
           status: 'error',
-          message: "We couldn't find a subscription for this Apple ID.",
+          message: t('paywall.errors.noSubscription'),
         };
       }
 
       return { status: 'ok' };
     } catch (error) {
-      return { status: 'error', message: toErrorMessage(error) };
+      return { status: 'error', message: toErrorMessage(error, t) };
     } finally {
       setIsRestoring(false);
     }
-  }, [isRestoring]);
+  }, [isRestoring, t]);
 
   return {
     options,

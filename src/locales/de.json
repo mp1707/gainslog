@@ -201,6 +201,85 @@
       }
     }
   },
+  "paywall": {
+    "a11y": {
+      "close": "Paywall schließen"
+    },
+    "header": {
+      "title": "MacroLoop Pro",
+      "subtitle": "Spare Zeit und bleib konsequent mit mühelosem KI-Tracking."
+    },
+    "states": {
+      "loading": "Pro-Details werden geladen…",
+      "unavailable": "MacroLoop Pro ist derzeit nicht verfügbar. Bitte versuche es später erneut."
+    },
+    "features": {
+      "aiLogging": {
+        "title": "KI-gestütztes Logging",
+        "description": "Protokolliere Mahlzeiten sofort per Text, Stimme oder Foto. Kein Suchen nach Zutaten mehr."
+      },
+      "instantRecalculation": {
+        "title": "Sofortige Neuberechnung",
+        "description": "Passe Zutaten an und erhalte sofort aktualisierte Makros, um deine Mahlzeiten zu verfeinern."
+      },
+      "noAds": {
+        "title": "Keine Werbung. Punkt.",
+        "description": "Unterstütze eine werbefreie Entwicklung"
+      }
+    },
+    "options": {
+      "badge": "Bestes Angebot",
+      "period": {
+        "cancelAnytime": "Jederzeit kündbar.",
+        "oneTime": "Einmalkauf",
+        "recurring": "Abgerechnet {{period}}",
+        "annual": "pro Jahr",
+        "monthly": "pro Monat",
+        "sixMonths": "alle 6 Monate",
+        "threeMonths": "alle 3 Monate",
+        "twoMonths": "alle 2 Monate",
+        "weekly": "pro Woche"
+      },
+      "labels": {
+        "annual": "Jahresplan",
+        "monthly": "Monatsplan",
+        "lifetime": "Lebenslang",
+        "sixMonths": "6 Monate",
+        "threeMonths": "3 Monate",
+        "twoMonths": "2 Monate",
+        "weekly": "Wöchentlich"
+      }
+    },
+    "buttons": {
+      "primary": "Pro freischalten",
+      "processing": "Wird verarbeitet…",
+      "retry": "Erneut versuchen"
+    },
+    "links": {
+      "terms": "Nutzungsbedingungen",
+      "privacy": "Datenschutzerklärung",
+      "restore": "Käufe wiederherstellen",
+      "restoring": "Wird wiederhergestellt…"
+    },
+    "alerts": {
+      "purchaseFailed": {
+        "title": "Kauf fehlgeschlagen"
+      },
+      "restoreSuccess": {
+        "title": "Wiederhergestellt",
+        "message": "Dein Abonnement ist aktiv. Viel Spaß!"
+      },
+      "restoreFailed": {
+        "title": "Wiederherstellung fehlgeschlagen"
+      }
+    },
+    "errors": {
+      "generic": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+      "noSelection": "Bitte wähle einen Plan.",
+      "planUnavailable": "Der ausgewählte Plan ist nicht mehr verfügbar.",
+      "noSubscription": "Für diese Apple-ID wurde kein Abonnement gefunden."
+    }
+  },
   "explainer": {
     "common": {
       "close": "Erklärfenster schließen",

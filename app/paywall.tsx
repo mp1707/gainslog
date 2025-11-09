@@ -10,7 +10,9 @@ import {
 } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { BadgeCheck, BrainCircuit, Calculator, Heart, X } from 'lucide-react-native';
+import { BrainCircuit, Calculator, Heart, X } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 import { AppText } from '@/components/shared/AppText';
 import { Button } from '@/components/shared/Button';
@@ -19,42 +21,29 @@ import { usePaywall } from '@/hooks/usePaywall';
 import { useSafeRouter } from '@/hooks/useSafeRouter';
 import { Colors, Theme, useTheme } from '@/theme';
 
-const FEATURES = [
+const getPaywallFeatures = (t: TFunction) => [
   {
-    title: 'AI-Powered Logging',
-    description:
-      'Log meals instantly from text, voice, or a photo. No more searching for ingredients.',
+    title: t('paywall.features.aiLogging.title'),
+    description: t('paywall.features.aiLogging.description'),
     Icon: BrainCircuit,
   },
   {
-    title: 'Instant Recalculation',
-    description:
-      'Adjust ingredients and get immediate macro updates to fine-tune your meals.',
+    title: t('paywall.features.instantRecalculation.title'),
+    description: t('paywall.features.instantRecalculation.description'),
     Icon: Calculator,
   },
   {
-    title: 'No Ads. Period.',
-    description: 'Support ad-free development',
+    title: t('paywall.features.noAds.title'),
+    description: t('paywall.features.noAds.description'),
     Icon: Heart,
   },
-] as const;
-
-const describePeriod = (periodLabel: string) => {
-  if (!periodLabel) {
-    return 'Cancel anytime.';
-  }
-
-  if (periodLabel === 'one-time') {
-    return 'One-time purchase';
-  }
-
-  return `Billed ${periodLabel}`;
-};
+];
 
 export default function PaywallScreen() {
   const { theme, colors } = useTheme();
   const styles = useMemo(() => createStyles(theme, colors), [theme, colors]);
   const router = useSafeRouter();
+  const { t } = useTranslation();
 
   const {
     options,
@@ -90,7 +79,7 @@ export default function PaywallScreen() {
     }
 
     if (result.status === 'error') {
-      Alert.alert('Purchase failed', result.message);
+      Alert.alert(t('paywall.alerts.purchaseFailed.title'), result.message);
     }
   };
 
@@ -99,13 +88,16 @@ export default function PaywallScreen() {
     const result = await restore();
 
     if (result.status === 'ok') {
-      Alert.alert('Restored', 'Your subscription is active. Enjoy!');
+      Alert.alert(
+        t('paywall.alerts.restoreSuccess.title'),
+        t('paywall.alerts.restoreSuccess.message'),
+      );
       handleClose();
       return;
     }
 
     if (result.status === 'error') {
-      Alert.alert('Restore failed', result.message);
+      Alert.alert(t('paywall.alerts.restoreFailed.title'), result.message);
     }
   };
 
@@ -125,13 +117,13 @@ export default function PaywallScreen() {
           onPress={handleClose}
           Icon={X}
           variant="tertiary"
-          accessibilityLabel="Close paywall"
+          accessibilityLabel={t('paywall.a11y.close')}
           style={styles.closeButton}
         />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color={colors.accent} />
           <AppText role="Caption" color="secondary">
-            Loading Pro details…
+            {t('paywall.states.loading')}
           </AppText>
         </View>
       </View>
@@ -145,19 +137,19 @@ export default function PaywallScreen() {
           onPress={handleClose}
           Icon={X}
           variant="tertiary"
-          accessibilityLabel="Close paywall"
+          accessibilityLabel={t('paywall.a11y.close')}
           style={styles.closeButton}
         />
         <View style={styles.errorContainer}>
           <AppText role="Headline" style={styles.errorTitle}>
-            Something went wrong
+            {t('common.error')}
           </AppText>
           <AppText role="Body" color="secondary" style={styles.errorMessage}>
             {loadError}
           </AppText>
           <Button
             variant="primary"
-            label="Try again"
+            label={t('paywall.buttons.retry')}
             onPress={handleRetry}
             style={styles.retryButton}
           />
@@ -173,12 +165,12 @@ export default function PaywallScreen() {
           onPress={handleClose}
           Icon={X}
           variant="tertiary"
-          accessibilityLabel="Close paywall"
+          accessibilityLabel={t('paywall.a11y.close')}
           style={styles.closeButton}
         />
         <View style={styles.errorContainer}>
           <AppText role="Subhead" color="secondary">
-            Gainslog Pro is currently unavailable. Please try again later.
+            {t('paywall.states.unavailable')}
           </AppText>
         </View>
       </View>
@@ -193,7 +185,7 @@ export default function PaywallScreen() {
         onPress={handleClose}
         Icon={X}
         variant="tertiary"
-        accessibilityLabel="Close paywall"
+        accessibilityLabel={t('paywall.a11y.close')}
         style={styles.closeButton}
       />
 
@@ -206,15 +198,15 @@ export default function PaywallScreen() {
       >
         <View style={styles.header}>
           <AppText role="Title1" style={styles.title}>
-            Gainslog Pro
+            {t('paywall.header.title')}
           </AppText>
           <AppText role="Body" color="secondary" style={styles.subtitle}>
-            Save time and stay consistent with effortless AI powered tracking.
+            {t('paywall.header.subtitle')}
           </AppText>
         </View>
 
         <View style={styles.features}>
-          {FEATURES.map(({ Icon, title, description }) => (
+          {getPaywallFeatures(t).map(({ Icon, title, description }) => (
             <View key={title} style={styles.feature}>
               <View style={styles.featureIcon}>
                 <Icon size={22} color={colors.accent} />
@@ -232,7 +224,7 @@ export default function PaywallScreen() {
         <View style={styles.packages}>
           {options.map((option) => {
             const isSelected = option.id === selectedId;
-            const badge = option.id === highlightedId ? 'Best Value' : undefined;
+            const badge = option.id === highlightedId ? t('paywall.options.badge') : undefined;
             return (
               <TouchableOpacity
                 key={option.id}
@@ -256,7 +248,7 @@ export default function PaywallScreen() {
                 </View>
                 <AppText role="Title2">{option.price}</AppText>
                 <AppText role="Caption" color="secondary">
-                  {describePeriod(option.periodLabel)}
+                  {option.periodDescription}
                 </AppText>
               </TouchableOpacity>
             );
@@ -265,7 +257,7 @@ export default function PaywallScreen() {
 
         <Button
           variant="primary"
-          label={isPurchasing ? 'Processing…' : 'Unlock Pro'}
+          label={isPurchasing ? t('paywall.buttons.processing') : t('paywall.buttons.primary')}
           onPress={handlePurchase}
           disabled={isPurchasing || !selectedId}
           isLoading={isPurchasing}
@@ -282,7 +274,7 @@ export default function PaywallScreen() {
               activeOpacity={0.6}
             >
               <AppText role="Caption" style={styles.link}>
-                Terms of Use
+                {t('paywall.links.terms')}
               </AppText>
             </TouchableOpacity>
             <View style={styles.linkDivider} />
@@ -291,7 +283,7 @@ export default function PaywallScreen() {
               activeOpacity={0.6}
             >
               <AppText role="Caption" style={styles.link}>
-                Privacy Policy
+                {t('paywall.links.privacy')}
               </AppText>
             </TouchableOpacity>
             <View style={styles.linkDivider} />
@@ -304,7 +296,9 @@ export default function PaywallScreen() {
                 role="Caption"
                 style={[styles.link, isRestoring && styles.linkDisabled]}
               >
-                {isRestoring ? 'Restoring…' : 'Restore Purchases'}
+                {isRestoring
+                  ? t('paywall.links.restoring')
+                  : t('paywall.links.restore')}
               </AppText>
             </TouchableOpacity>
           </View>
