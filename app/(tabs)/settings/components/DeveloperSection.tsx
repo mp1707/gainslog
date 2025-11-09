@@ -1,6 +1,7 @@
 import React, { useMemo, useCallback } from "react";
 import { View, StyleSheet, Alert } from "react-native";
 import { Wrench, AlertTriangle, BadgeCheck } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 
 import { AppText } from "@/components";
 import { useTheme, Colors, Theme } from "@/theme";
@@ -9,6 +10,7 @@ import { seedFoodLogs } from "@/utils/seed";
 import { SettingRow } from "../SettingRow";
 
 export const DeveloperSection = () => {
+  const { t } = useTranslation();
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const { clearAllLogs, clearNutritionGoals, isPro, setPro } = useAppStore();
@@ -19,33 +21,33 @@ export const DeveloperSection = () => {
 
   const handleClearAllLogs = useCallback(() => {
     Alert.alert(
-      "Delete All Logs",
-      "This deletes all logs and any saved photos. This cannot be undone.",
+      t("settings.sections.developer.rows.deleteLogs.alert.title"),
+      t("settings.sections.developer.rows.deleteLogs.alert.message"),
       [
-        { text: "Cancel", style: "cancel" },
+        { text: t("common.cancel"), style: "cancel" },
         {
-          text: "Delete All",
+          text: t("settings.sections.developer.rows.deleteLogs.alert.confirm"),
           style: "destructive",
           onPress: () => clearAllLogs(),
         },
       ]
     );
-  }, [clearAllLogs]);
+  }, [clearAllLogs, t]);
 
   const handleClearNutritionGoals = useCallback(() => {
     Alert.alert(
-      "Clear Nutrition Goals",
-      "Remove all saved macro targets? This cannot be undone.",
+      t("settings.sections.developer.rows.clearGoals.alert.title"),
+      t("settings.sections.developer.rows.clearGoals.alert.message"),
       [
-        { text: "Cancel", style: "cancel" },
+        { text: t("common.cancel"), style: "cancel" },
         {
-          text: "Clear Goals",
+          text: t("settings.sections.developer.rows.clearGoals.alert.confirm"),
           style: "destructive",
           onPress: () => clearNutritionGoals(),
         },
       ]
     );
-  }, [clearNutritionGoals]);
+  }, [clearNutritionGoals, t]);
 
   const handleTogglePro = useCallback(() => {
     setPro(!isPro);
@@ -59,15 +61,15 @@ export const DeveloperSection = () => {
   return (
     <View style={styles.section}>
       <AppText role="Caption" color="secondary" style={styles.sectionHeader}>
-        DEVELOPER
+        {t("settings.sections.developer.label")}
       </AppText>
       <View style={styles.sectionGroup}>
         <SettingRow
           icon={Wrench}
-          title="Seed Sample Logs"
-          subtitle="Add demo logs for QA flows."
+          title={t("settings.sections.developer.rows.seed.title")}
+          subtitle={t("settings.sections.developer.rows.seed.subtitle")}
           actionButton={{
-            label: "Run",
+            label: t("settings.sections.developer.rows.seed.action"),
             onPress: handleSeedData,
           }}
           accessory="none"
@@ -76,9 +78,9 @@ export const DeveloperSection = () => {
         <View style={styles.separator} />
         <SettingRow
           icon={AlertTriangle}
-          title="Delete All Logs..."
+          title={t("settings.sections.developer.rows.deleteLogs.title")}
           actionButton={{
-            label: "Delete",
+            label: t("settings.sections.developer.rows.deleteLogs.action"),
             onPress: handleClearAllLogs,
             tone: "error",
           }}
@@ -88,10 +90,10 @@ export const DeveloperSection = () => {
         <View style={styles.separator} />
         <SettingRow
           icon={AlertTriangle}
-          title="Clear Nutrition Goals"
-          subtitle="Removes saved macro targets."
+          title={t("settings.sections.developer.rows.clearGoals.title")}
+          subtitle={t("settings.sections.developer.rows.clearGoals.subtitle")}
           actionButton={{
-            label: "Reset",
+            label: t("settings.sections.developer.rows.clearGoals.action"),
             onPress: handleClearNutritionGoals,
             tone: "error",
           }}
@@ -101,10 +103,16 @@ export const DeveloperSection = () => {
         <View style={styles.separator} />
         <SettingRow
           icon={BadgeCheck}
-          title={`Toggle Pro (${isPro ? "ON" : "OFF"})`}
-          subtitle="Helpful when testing paywall states."
+          title={`${t("settings.sections.developer.rows.togglePro.title")} (${
+            isPro
+              ? t("settings.sections.developer.rows.togglePro.states.on")
+              : t("settings.sections.developer.rows.togglePro.states.off")
+          })`}
+          subtitle={t("settings.sections.developer.rows.togglePro.subtitle")}
           actionButton={{
-            label: isPro ? "Disable" : "Enable",
+            label: isPro
+              ? t("settings.sections.developer.rows.togglePro.actions.disable")
+              : t("settings.sections.developer.rows.togglePro.actions.enable"),
             onPress: handleTogglePro,
           }}
           accessory="none"

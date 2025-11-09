@@ -1,9 +1,11 @@
 import { Platform } from "react-native";
 import { Stack } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 
 export default function SettingsLayout() {
+  const { t } = useTranslation();
   const { colors, theme, colorScheme } = useTheme();
   const isIOS = Platform.OS === "ios";
   const hasLiquidGlass = isLiquidGlassAvailable();
@@ -27,7 +29,7 @@ export default function SettingsLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Settings",
+          title: t("settings.title"),
           headerLargeTitle: isIOS,
           headerLargeTitleShadowVisible: false,
         }}
@@ -35,7 +37,7 @@ export default function SettingsLayout() {
       <Stack.Screen
         name="dark-mode"
         options={{
-          title: "Dark mode",
+          title: t("settings.darkMode.header"),
           headerLargeTitle: isIOS,
           headerLargeTitleShadowVisible: false,
         }}
@@ -43,7 +45,7 @@ export default function SettingsLayout() {
       <Stack.Screen
         name="design"
         options={{
-          title: "Design",
+          title: t("settings.design.header"),
           headerLargeTitle: isIOS,
           headerLargeTitleShadowVisible: false,
         }}

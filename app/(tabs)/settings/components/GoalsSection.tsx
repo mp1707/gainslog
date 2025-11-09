@@ -1,6 +1,7 @@
 import React, { useMemo, useCallback } from "react";
 import { View, StyleSheet } from "react-native";
 import { Target } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 
 import { AppText } from "@/components";
 import { useTheme, Colors, Theme } from "@/theme";
@@ -8,6 +9,7 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { SettingRow } from "../SettingRow";
 
 export const GoalsSection = () => {
+  const { t } = useTranslation();
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const { safeNavigate } = useNavigationGuard();
@@ -19,13 +21,13 @@ export const GoalsSection = () => {
   return (
     <View style={styles.section}>
       <AppText role="Caption" color="secondary" style={styles.sectionHeader}>
-        TRACKING
+        {t("settings.sections.tracking.label")}
       </AppText>
       <View style={styles.sectionGroup}>
         <SettingRow
           icon={Target}
-          title="Nutrition Targets"
-          subtitle="Set daily calories and macros."
+          title={t("settings.sections.tracking.rows.nutritionTargets.title")}
+          subtitle={t("settings.sections.tracking.rows.nutritionTargets.subtitle")}
           onPress={handleNutritionTargets}
           accessory="chevron"
           backgroundColor={colors.secondaryBackground}

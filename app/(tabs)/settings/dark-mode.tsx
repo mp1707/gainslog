@@ -1,12 +1,14 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { Smartphone, Sun, Moon } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 
 import { SelectionCard } from "@/components/settings/SelectionCard/SelectionCard";
 import { useTheme, AppearancePreference, Colors, Theme } from "@/theme";
 import { ScrollView } from "react-native-gesture-handler";
 
 export default function DarkModeScreen() {
+  const { t } = useTranslation();
   const { colors, theme, appearancePreference, setAppearancePreference } =
     useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
@@ -16,26 +18,29 @@ export default function DarkModeScreen() {
     setAppearancePreference(value);
   };
 
-  const themeOptions = [
-    {
-      value: "system" as AppearancePreference,
-      label: "System",
-      subtitle: "Follow system appearance",
-      icon: Smartphone,
-    },
-    {
-      value: "light" as AppearancePreference,
-      label: "Light",
-      subtitle: "Always use light mode",
-      icon: Sun,
-    },
-    {
-      value: "dark" as AppearancePreference,
-      label: "Dark",
-      subtitle: "Always use dark mode",
-      icon: Moon,
-    },
-  ];
+  const themeOptions = useMemo(
+    () => [
+      {
+        value: "system" as AppearancePreference,
+        label: t("settings.darkMode.options.system.label"),
+        subtitle: t("settings.darkMode.options.system.subtitle"),
+        icon: Smartphone,
+      },
+      {
+        value: "light" as AppearancePreference,
+        label: t("settings.darkMode.options.light.label"),
+        subtitle: t("settings.darkMode.options.light.subtitle"),
+        icon: Sun,
+      },
+      {
+        value: "dark" as AppearancePreference,
+        label: t("settings.darkMode.options.dark.label"),
+        subtitle: t("settings.darkMode.options.dark.subtitle"),
+        icon: Moon,
+      },
+    ],
+    [t]
+  );
 
   return (
     <ScrollView style={styles.container}>
@@ -49,7 +54,12 @@ export default function DarkModeScreen() {
               iconColor={colors.secondaryText}
               isSelected={appearancePreference === option.value}
               onSelect={() => handleSelectTheme(option.value)}
-              accessibilityLabel={`${option.label} theme`}
+              accessibilityLabel={t(
+                "settings.darkMode.accessibility.optionLabel",
+                {
+                  option: option.label,
+                }
+              )}
               accessibilityHint={option.subtitle}
             />
           </View>

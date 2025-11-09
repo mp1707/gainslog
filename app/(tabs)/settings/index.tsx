@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import Constants from "expo-constants";
+import { useTranslation } from "react-i18next";
 
 import { AppText } from "@/components";
 import { useTheme, Colors, Theme, ColorScheme } from "@/theme";
@@ -12,6 +13,7 @@ import { AboutSection } from "./components/AboutSection";
 import { useAppStore } from "@/store/useAppStore";
 
 export default function SettingsScreen() {
+  const { t } = useTranslation();
   const { colors, theme, colorScheme } = useTheme();
   const styles = useMemo(
     () => createStyles(colors, theme, colorScheme),
@@ -26,8 +28,8 @@ export default function SettingsScreen() {
     Constants.nativeBuildVersion ??
     "";
   const versionLabel = build
-    ? `Version ${version} · Build ${build}`
-    : `Version ${version}`;
+    ? t("settings.footer.versionWithBuild", { version, build })
+    : t("settings.footer.version", { version });
 
   return (
     <View style={{ flex: 1 }}>

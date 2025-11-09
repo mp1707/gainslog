@@ -177,5 +177,138 @@
       "estimateSuffix": ".",
       "setButton": "{{amount}} {{unit}} übernehmen"
     }
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "footer": {
+      "version": "Version {{version}}",
+      "versionWithBuild": "Version {{version}} · Build {{build}}"
+    },
+    "sections": {
+      "subscription": {
+        "label": "ABO",
+        "manageTitle": "Abo verwalten",
+        "upgradeTitle": "Auf Pro upgraden",
+        "manageDescription": "Abrechnung & Plan.",
+        "canceledWithDate": "Automatische Verlängerung beendet. Zugriff bis {{date}}.",
+        "canceledWithoutDate": "Automatische Verlängerung beendet. Zugriff bis zum Ende des aktuellen Zeitraums.",
+        "upgradeDescription": "Zutatenerkennung, Nährwert-Schätzung, müheloses Tracking.",
+        "restore": {
+          "title": "Bereits abonniert?",
+          "subtitle": "Käufe nach Neuinstallation oder Gerätewechsel wiederherstellen.",
+          "button": "Wiederherstellen",
+          "buttonLoading": "Wiederherstellen...",
+          "alerts": {
+            "restored": {
+              "title": "Wiederhergestellt",
+              "message": "Dein Abo wurde wiederhergestellt."
+            },
+            "notFound": {
+              "title": "Nichts zum Wiederherstellen",
+              "message": "Wir konnten keine vergangenen Käufe für diese Apple-ID finden."
+            },
+            "error": {
+              "title": "Wiederherstellung fehlgeschlagen",
+              "message": "Bitte versuche es erneut."
+            }
+          }
+        }
+      },
+      "appearance": {
+        "label": "DARSTELLUNG",
+        "rows": {
+          "darkMode": {
+            "title": "Dunkelmodus",
+            "subtitle": "Wähle deine Theme-Vorliebe."
+          },
+          "design": {
+            "title": "Design",
+            "subtitle": "Passe das Erscheinungsbild der App an."
+          }
+        }
+      },
+      "tracking": {
+        "label": "TRACKING",
+        "rows": {
+          "nutritionTargets": {
+            "title": "Nährstoffziele",
+            "subtitle": "Setze tägliche Kalorien und Makros."
+          }
+        }
+      },
+      "legal": {
+        "label": "RECHTLICHES",
+        "rows": {
+          "privacy": "Datenschutzerklärung",
+          "terms": "Nutzungsbedingungen"
+        },
+        "linkError": "Link konnte nicht geöffnet werden"
+      },
+      "developer": {
+        "label": "ENTWICKLER",
+        "rows": {
+          "seed": {
+            "title": "Beispiel-Logs befüllen",
+            "subtitle": "Fügt Demo-Logs für QA-Flows hinzu.",
+            "action": "Ausführen"
+          },
+          "deleteLogs": {
+            "title": "Alle Logs löschen...",
+            "action": "Löschen",
+            "alert": {
+              "title": "Alle Logs löschen",
+              "message": "Dies löscht alle Logs und gespeicherten Fotos. Dieser Vorgang kann nicht rückgängig gemacht werden.",
+              "confirm": "Alles löschen"
+            }
+          },
+          "clearGoals": {
+            "title": "Nährstoffziele zurücksetzen",
+            "subtitle": "Entfernt gespeicherte Makroziele.",
+            "action": "Zurücksetzen",
+            "alert": {
+              "title": "Nährstoffziele zurücksetzen",
+              "message": "Gespeicherte Makroziele entfernen? Dieser Vorgang kann nicht rückgängig gemacht werden.",
+              "confirm": "Ziele löschen"
+            }
+          },
+          "togglePro": {
+            "title": "Pro umschalten",
+            "subtitle": "Praktisch zum Testen von Paywall-Zuständen.",
+            "states": {
+              "on": "AN",
+              "off": "AUS"
+            },
+            "actions": {
+              "enable": "Aktivieren",
+              "disable": "Deaktivieren"
+            }
+          }
+        }
+      }
+    },
+    "darkMode": {
+      "header": "Dunkelmodus",
+      "options": {
+        "system": {
+          "label": "System",
+          "subtitle": "Systemdarstellung folgen"
+        },
+        "light": {
+          "label": "Hell",
+          "subtitle": "Immer den hellen Modus verwenden"
+        },
+        "dark": {
+          "label": "Dunkel",
+          "subtitle": "Immer den dunklen Modus verwenden"
+        }
+      },
+      "accessibility": {
+        "optionLabel": "{{option}}-Theme"
+      }
+    },
+    "design": {
+      "header": "Design",
+      "placeholder": "Kommt bald"
+    }
   }
 }

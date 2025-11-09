@@ -1,6 +1,7 @@
 import React, { useMemo, useCallback, useState } from "react";
 import { View, StyleSheet, Alert } from "react-native";
 import { Crown, BadgeCheck, RotateCcw } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { restorePurchases } from "@/lib/revenuecat/client";
 
 import { AppText } from "@/components";
@@ -13,12 +14,15 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 const PROMO_LINK = "/paywall";
 
 export const ProSection = () => {
+  const { t, i18n } = useTranslation();
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const { safeNavigate } = useNavigationGuard();
   const { isPro, isProCanceled, proExpirationDate, isVerifyingSubscription } =
     useAppStore();
   const [isRestoringPurchases, setRestoringPurchases] = useState(false);
+
+  const language = i18n.language ?? undefined;
 
   const formattedExpirationDate = useMemo(() => {
     if (!proExpirationDate) {
@@ -30,24 +34,26 @@ export const ProSection = () => {
       return undefined;
     }
 
-    return date.toLocaleDateString("en-US", {
+    return date.toLocaleDateString(language, {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
-  }, [proExpirationDate]);
+  }, [language, proExpirationDate]);
 
   const cancellationDescription = useMemo(() => {
     if (!isProCanceled) {
-      return "Billing & plan.";
+      return t("settings.sections.subscription.manageDescription");
     }
 
     if (formattedExpirationDate) {
-      return `Auto-renew canceled. Access through ${formattedExpirationDate}.`;
+      return t("settings.sections.subscription.canceledWithDate", {
+        date: formattedExpirationDate,
+      });
     }
 
-    return "Auto-renew canceled. Access until current period ends.";
-  }, [formattedExpirationDate, isProCanceled]);
+    return t("settings.sections.subscription.canceledWithoutDate");
+  }, [formattedExpirationDate, isProCanceled, t]);
 
   const handleShowPaywall = useCallback(() => {
     safeNavigate(PROMO_LINK);
@@ -65,22 +71,29 @@ export const ProSection = () => {
       const hasPro = Boolean(info.entitlements.active?.pro);
 
       if (hasPro) {
-        Alert.alert("Restored", "Your subscription has been restored.");
+        Alert.alert(
+          t("settings.sections.subscription.restore.alerts.restored.title"),
+          t("settings.sections.subscription.restore.alerts.restored.message")
+        );
       } else {
         Alert.alert(
-          "Nothing to restore",
-          "We couldn't find past purchases for this Apple ID."
+          t("settings.sections.subscription.restore.alerts.notFound.title"),
+          t("settings.sections.subscription.restore.alerts.notFound.message")
         );
       }
     } catch (error: any) {
-      Alert.alert("Restore failed", error?.message ?? "Please try again.");
+      Alert.alert(
+        t("settings.sections.subscription.restore.alerts.error.title"),
+        error?.message ??
+          t("settings.sections.subscription.restore.alerts.error.message")
+      );
       if (__DEV__) {
         console.warn("[RC] restore failed:", error);
       }
     } finally {
       setRestoringPurchases(false);
     }
-  }, []);
+  }, [t]);
 
   // Don't render section if verifying subscription
   if (isVerifyingSubscription) {
@@ -90,16 +103,20 @@ export const ProSection = () => {
   return (
     <View style={styles.section}>
       <AppText role="Caption" color="secondary" style={styles.sectionHeader}>
-        SUBSCRIPTION
+        {t("settings.sections.subscription.label")}
       </AppText>
       <View style={styles.sectionGroup}>
         <SettingRow
           icon={isPro ? BadgeCheck : Crown}
-          title={isPro ? "Manage Subscription" : "Upgrade to Pro"}
+          title={
+            isPro
+              ? t("settings.sections.subscription.manageTitle")
+              : t("settings.sections.subscription.upgradeTitle")
+          }
           subtitle={
             isPro
               ? cancellationDescription
-              : "Ingredient detection, Nutrition estimation, effortless tracking."
+              : t("settings.sections.subscription.upgradeDescription")
           }
           accessory="chevron"
           onPress={isPro ? handleManageSubscription : handleShowPaywall}
@@ -111,10 +128,12 @@ export const ProSection = () => {
             <View style={styles.separator} />
             <SettingRow
               icon={RotateCcw}
-              title="Already subscribed?"
-              subtitle="Restore purchases after reinstalling the app or switching devices."
+              title={t("settings.sections.subscription.restore.title")}
+              subtitle={t("settings.sections.subscription.restore.subtitle")}
               actionButton={{
-                label: isRestoringPurchases ? "Restoring..." : "Restore",
+                label: isRestoringPurchases
+                  ? t("settings.sections.subscription.restore.buttonLoading")
+                  : t("settings.sections.subscription.restore.button"),
                 onPress: handleRestorePurchases,
                 loading: isRestoringPurchases,
               }}

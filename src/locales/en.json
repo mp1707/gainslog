@@ -177,5 +177,138 @@
       "estimateSuffix": ".",
       "setButton": "Set {{amount}} {{unit}}"
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "footer": {
+      "version": "Version {{version}}",
+      "versionWithBuild": "Version {{version}} · Build {{build}}"
+    },
+    "sections": {
+      "subscription": {
+        "label": "SUBSCRIPTION",
+        "manageTitle": "Manage Subscription",
+        "upgradeTitle": "Upgrade to Pro",
+        "manageDescription": "Billing & plan.",
+        "canceledWithDate": "Auto-renew canceled. Access through {{date}}.",
+        "canceledWithoutDate": "Auto-renew canceled. Access until current period ends.",
+        "upgradeDescription": "Ingredient detection, Nutrition estimation, effortless tracking.",
+        "restore": {
+          "title": "Already subscribed?",
+          "subtitle": "Restore purchases after reinstalling the app or switching devices.",
+          "button": "Restore",
+          "buttonLoading": "Restoring...",
+          "alerts": {
+            "restored": {
+              "title": "Restored",
+              "message": "Your subscription has been restored."
+            },
+            "notFound": {
+              "title": "Nothing to restore",
+              "message": "We couldn't find past purchases for this Apple ID."
+            },
+            "error": {
+              "title": "Restore failed",
+              "message": "Please try again."
+            }
+          }
+        }
+      },
+      "appearance": {
+        "label": "APPEARANCE",
+        "rows": {
+          "darkMode": {
+            "title": "Dark mode",
+            "subtitle": "Choose your theme preference."
+          },
+          "design": {
+            "title": "Design",
+            "subtitle": "Customize the app appearance."
+          }
+        }
+      },
+      "tracking": {
+        "label": "TRACKING",
+        "rows": {
+          "nutritionTargets": {
+            "title": "Nutrition Targets",
+            "subtitle": "Set daily calories and macros."
+          }
+        }
+      },
+      "legal": {
+        "label": "LEGAL",
+        "rows": {
+          "privacy": "Privacy Policy",
+          "terms": "Terms of Service"
+        },
+        "linkError": "Unable to open link"
+      },
+      "developer": {
+        "label": "DEVELOPER",
+        "rows": {
+          "seed": {
+            "title": "Seed Sample Logs",
+            "subtitle": "Add demo logs for QA flows.",
+            "action": "Run"
+          },
+          "deleteLogs": {
+            "title": "Delete All Logs...",
+            "action": "Delete",
+            "alert": {
+              "title": "Delete All Logs",
+              "message": "This deletes all logs and any saved photos. This cannot be undone.",
+              "confirm": "Delete All"
+            }
+          },
+          "clearGoals": {
+            "title": "Clear Nutrition Goals",
+            "subtitle": "Removes saved macro targets.",
+            "action": "Reset",
+            "alert": {
+              "title": "Clear Nutrition Goals",
+              "message": "Remove all saved macro targets? This cannot be undone.",
+              "confirm": "Clear Goals"
+            }
+          },
+          "togglePro": {
+            "title": "Toggle Pro",
+            "subtitle": "Helpful when testing paywall states.",
+            "states": {
+              "on": "ON",
+              "off": "OFF"
+            },
+            "actions": {
+              "enable": "Enable",
+              "disable": "Disable"
+            }
+          }
+        }
+      }
+    },
+    "darkMode": {
+      "header": "Dark mode",
+      "options": {
+        "system": {
+          "label": "System",
+          "subtitle": "Follow system appearance"
+        },
+        "light": {
+          "label": "Light",
+          "subtitle": "Always use light mode"
+        },
+        "dark": {
+          "label": "Dark",
+          "subtitle": "Always use dark mode"
+        }
+      },
+      "accessibility": {
+        "optionLabel": "{{option}} theme"
+      }
+    },
+    "design": {
+      "header": "Design",
+      "placeholder": "Coming soon"
+    }
   }
 }

@@ -1,6 +1,7 @@
 import React, { useMemo, useCallback } from "react";
 import { View, StyleSheet, Alert, Linking } from "react-native";
 import { Shield, FileText } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 
 import { AppText } from "@/components";
 import { useTheme, Colors, Theme } from "@/theme";
@@ -10,24 +11,25 @@ const PRIVACY_URL = "https://macroloop.app/privacy";
 const TERMS_URL = "https://macroloop.app/terms";
 
 export const AboutSection = () => {
+  const { t } = useTranslation();
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
   const handleOpenLink = useCallback((url: string) => {
     Linking.openURL(url).catch(() => {
-      Alert.alert("Unable to open link");
+      Alert.alert(t("settings.sections.legal.linkError"));
     });
-  }, []);
+  }, [t]);
 
   return (
     <View style={styles.section}>
       <AppText role="Caption" color="secondary" style={styles.sectionHeader}>
-        LEGAL
+        {t("settings.sections.legal.label")}
       </AppText>
       <View style={styles.sectionGroup}>
         <SettingRow
           icon={Shield}
-          title="Privacy Policy"
+          title={t("settings.sections.legal.rows.privacy")}
           onPress={() => handleOpenLink(PRIVACY_URL)}
           accessory="none"
           backgroundColor={colors.secondaryBackground}
@@ -35,7 +37,7 @@ export const AboutSection = () => {
         <View style={styles.separator} />
         <SettingRow
           icon={FileText}
-          title="Terms of Service"
+          title={t("settings.sections.legal.rows.terms")}
           onPress={() => handleOpenLink(TERMS_URL)}
           accessory="none"
           backgroundColor={colors.secondaryBackground}
