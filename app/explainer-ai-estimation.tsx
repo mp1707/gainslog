@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { X, Sparkles, Pencil, Camera, Mic } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 
 import { AppText } from "@/components/shared/AppText";
 import { RoundButton } from "@/components/shared/RoundButton";
@@ -12,12 +13,44 @@ export default function ExplainerAiEstimation() {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme, colors), [theme, colors]);
   const router = useSafeRouter();
+  const { t } = useTranslation();
 
   const handleClose = () => {
     if (router.canGoBack()) {
       router.back();
     }
   };
+
+  const sections = [
+    {
+      key: "text",
+      Icon: Pencil,
+      title: t("explainer.aiEstimation.sections.textInput.title"),
+      bullets: [
+        t("explainer.aiEstimation.sections.textInput.bullets.weights"),
+        t("explainer.aiEstimation.sections.textInput.bullets.details"),
+      ],
+    },
+    {
+      key: "photo",
+      Icon: Camera,
+      title: t("explainer.aiEstimation.sections.photoScans.title"),
+      bullets: [
+        t("explainer.aiEstimation.sections.photoScans.bullets.light"),
+        t("explainer.aiEstimation.sections.photoScans.bullets.angle"),
+        t("explainer.aiEstimation.sections.photoScans.bullets.frame"),
+      ],
+    },
+    {
+      key: "audio",
+      Icon: Mic,
+      title: t("explainer.aiEstimation.sections.audioLogging.title"),
+      bullets: [
+        t("explainer.aiEstimation.sections.audioLogging.bullets.tone"),
+        t("explainer.aiEstimation.sections.audioLogging.bullets.details"),
+      ],
+    },
+  ];
 
   return (
     <View style={styles.container}>
@@ -26,7 +59,7 @@ export default function ExplainerAiEstimation() {
           onPress={handleClose}
           Icon={X}
           variant="tertiary"
-          accessibilityLabel="Close explainer"
+          accessibilityLabel={t("explainer.common.close")}
         />
       </View>
 
@@ -47,101 +80,43 @@ export default function ExplainerAiEstimation() {
         </View>
 
         <AppText role="Title1" style={styles.title}>
-          Pro-Tips for Best Results
+          {t("explainer.aiEstimation.title")}
         </AppText>
 
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Pencil size={20} color={colors.accent} strokeWidth={1.5} />
-            <AppText role="Title2" color="primary">
-              Text Input
-            </AppText>
-          </View>
-          <View>
-            <View style={styles.bulletRow}>
-              <AppText role="Body" color="secondary" style={styles.bulletChar}>
-                •
-              </AppText>
-              <AppText role="Body" color="secondary" style={styles.bulletText}>
-                Add weights or volumes for precision. (e.g., "150g chicken breast" vs. "chicken breast")
+        {sections.map(({ key, Icon, title, bullets }) => (
+          <View style={styles.section} key={key}>
+            <View style={styles.sectionHeader}>
+              <Icon size={20} color={colors.accent} strokeWidth={1.5} />
+              <AppText role="Title2" color="primary">
+                {title}
               </AppText>
             </View>
-            <View style={styles.bulletRow}>
-              <AppText role="Body" color="secondary" style={styles.bulletChar}>
-                •
-              </AppText>
-              <AppText role="Body" color="secondary" style={styles.bulletText}>
-                Include cooking methods and key ingredients. (e.g., "grilled with olive oil")
-              </AppText>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Camera size={20} color={colors.accent} strokeWidth={1.5} />
-            <AppText role="Title2" color="primary">
-              Photo Scans
-            </AppText>
-          </View>
-          <View>
-            <View style={styles.bulletRow}>
-              <AppText role="Body" color="secondary" style={styles.bulletChar}>
-                •
-              </AppText>
-              <AppText role="Body" color="secondary" style={styles.bulletText}>
-                Use bright, natural light.
-              </AppText>
-            </View>
-            <View style={styles.bulletRow}>
-              <AppText role="Body" color="secondary" style={styles.bulletChar}>
-                •
-              </AppText>
-              <AppText role="Body" color="secondary" style={styles.bulletText}>
-                Shoot from a top-down angle.
-              </AppText>
-            </View>
-            <View style={styles.bulletRow}>
-              <AppText role="Body" color="secondary" style={styles.bulletChar}>
-                •
-              </AppText>
-              <AppText role="Body" color="secondary" style={styles.bulletText}>
-                Keep all food in frame and uncovered.
-              </AppText>
+            <View>
+              {bullets.map((bullet, index) => (
+                <View style={styles.bulletRow} key={`${key}-${index}`}>
+                  <AppText
+                    role="Body"
+                    color="secondary"
+                    style={styles.bulletChar}
+                  >
+                    •
+                  </AppText>
+                  <AppText
+                    role="Body"
+                    color="secondary"
+                    style={styles.bulletText}
+                  >
+                    {bullet}
+                  </AppText>
+                </View>
+              ))}
             </View>
           </View>
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Mic size={20} color={colors.accent} strokeWidth={1.5} />
-            <AppText role="Title2" color="primary">
-              Audio Logging
-            </AppText>
-          </View>
-          <View>
-            <View style={styles.bulletRow}>
-              <AppText role="Body" color="secondary" style={styles.bulletChar}>
-                •
-              </AppText>
-              <AppText role="Body" color="secondary" style={styles.bulletText}>
-                Speak naturally, as if you were typing.
-              </AppText>
-            </View>
-            <View style={styles.bulletRow}>
-              <AppText role="Body" color="secondary" style={styles.bulletChar}>
-                •
-              </AppText>
-              <AppText role="Body" color="secondary" style={styles.bulletText}>
-                Mention details like weights, ingredients, and cooking methods.
-              </AppText>
-            </View>
-          </View>
-        </View>
+        ))}
 
         <View style={styles.footer}>
           <AppText role="Caption" color="secondary" style={styles.footerText}>
-            For best accuracy, use measured quantities when possible.
+            {t("explainer.aiEstimation.footer")}
           </AppText>
         </View>
       </ScrollView>

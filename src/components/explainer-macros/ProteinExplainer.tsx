@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { BicepsFlexed } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { AppText } from "@/components/shared/AppText";
 import { Button } from "@/components/shared/Button/Button";
 import { Theme, useTheme } from "@/theme";
@@ -21,8 +22,13 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const router = useSafeRouter();
+  const { t } = useTranslation();
 
   const semanticColor = colors.semantic.protein;
+  const detailValue =
+    target !== undefined
+      ? t("explainer.common.ofTarget", { target })
+      : undefined;
 
   const handleChangeTargets = () => {
     router.push("/onboarding/target-method");
@@ -31,10 +37,10 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
   return (
     <View style={styles.container}>
       <AppText role="Title1" style={styles.title}>
-        Protein
+        {t("nutrients.protein.label")}
       </AppText>
       <AppText role="Caption" style={styles.subTitle}>
-        Build & Recover
+        {t("explainer.macros.protein.subtitle")}
       </AppText>
       <View style={styles.content}>
         <View style={styles.ringSection}>
@@ -45,8 +51,8 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
               trackColor={colors.semanticSurfaces.protein}
               textColor={colors.primaryText}
               displayValue={total}
-              displayUnit="grams"
-              detailValue={`of ${target}`}
+              displayUnit={t("nutrients.protein.unit")}
+              detailValue={detailValue}
               animationDelay={0}
               strokeWidth={22}
               Icon={BicepsFlexed}
@@ -61,14 +67,14 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
           color="primary"
           style={[styles.sectionHeading, { color: semanticColor }]}
         >
-          How it works
+          {t("explainer.macros.protein.howItWorks.title")}
         </AppText>
         <View style={styles.bulletRow}>
           <AppText role="Body" color="secondary" style={styles.bulletChar}>
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            The ring fills as you log protein.
+            {t("explainer.macros.protein.howItWorks.bullets.ring")}
           </AppText>
         </View>
         <View style={styles.bulletRow}>
@@ -76,15 +82,15 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            The{" "}
+            {t("explainer.macros.protein.howItWorks.bullets.iconPrefix")}
             <BicepsFlexed
               size={16}
               color={semanticColor}
               fill={semanticColor}
               strokeWidth={0}
               style={styles.inlineIcon}
-            />{" "}
-            icon marks your current position.
+            />
+            {t("explainer.macros.protein.howItWorks.bullets.iconSuffix")}
           </AppText>
         </View>
         <View style={styles.bulletRow}>
@@ -92,7 +98,7 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            Close the ring to reach today's minimum protein target.
+            {t("explainer.macros.protein.howItWorks.bullets.close")}
           </AppText>
         </View>
 
@@ -104,14 +110,14 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
             { color: semanticColor, marginTop: theme.spacing.md },
           ]}
         >
-          Quick tips
+          {t("explainer.macros.protein.quickTips.title")}
         </AppText>
         <View style={styles.bulletRow}>
           <AppText role="Body" color="secondary" style={styles.bulletChar}>
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            Include a protein source in every meal/snack.
+            {t("explainer.macros.protein.quickTips.bullets.eachMeal")}
           </AppText>
         </View>
         <View style={styles.bulletRow}>
@@ -119,7 +125,7 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            Spread intake across the day for better recovery.
+            {t("explainer.macros.protein.quickTips.bullets.spread")}
           </AppText>
         </View>
         <View style={styles.bulletRow}>
@@ -127,14 +133,14 @@ export const ProteinExplainer: React.FC<ProteinExplainerProps> = ({
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            A little over is okay—aim to meet or slightly exceed your target.
+            {t("explainer.macros.protein.quickTips.bullets.over")}
           </AppText>
         </View>
       </View>
 
       <View style={styles.buttonContainer}>
         <Button
-          label="Adjust targets"
+          label={t("explainer.common.adjustTargets")}
           variant="secondary"
           onPress={handleChangeTargets}
         />

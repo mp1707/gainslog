@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { Droplet } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 
 import { AppText } from "@/components/shared/AppText";
 import { Button } from "@/components/shared/Button/Button";
@@ -21,6 +22,7 @@ export const FatExplainer: React.FC<FatExplainerProps> = ({
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const router = useSafeRouter();
+  const { t } = useTranslation();
 
   const semanticColor = colors.semantic.fat;
   const computedPercentage = target > 0 ? Math.round((total / target) * 100) : 0;
@@ -33,10 +35,10 @@ export const FatExplainer: React.FC<FatExplainerProps> = ({
   return (
     <View style={styles.container}>
       <AppText role="Title1" style={styles.title}>
-        Fat
+        {t("nutrients.fat.label")}
       </AppText>
       <AppText role="Caption" style={styles.subTitle}>
-        Essential Baseline
+        {t("explainer.macros.fat.subtitle")}
       </AppText>
       <View style={styles.content}>
         {/* MacroGridCell-style display */}
@@ -87,10 +89,10 @@ export const FatExplainer: React.FC<FatExplainerProps> = ({
         </View>
 
         <AppText role="Headline" color="primary" style={[styles.sectionHeading, { color: semanticColor }]}>
-          Hit your daily target
+          {t("explainer.macros.fat.sections.hitTarget.title")}
         </AppText>
         <AppText role="Body" color="secondary" style={styles.contentText}>
-          Aim for a steady baseline each day to keep energy and meals satisfying.
+          {t("explainer.macros.fat.sections.hitTarget.body")}
         </AppText>
 
         <AppText
@@ -98,10 +100,10 @@ export const FatExplainer: React.FC<FatExplainerProps> = ({
           color="primary"
           style={[styles.sectionHeading, { color: semanticColor, marginTop: theme.spacing.md }]}
         >
-          Why it matters
+          {t("explainer.macros.fat.sections.why.title")}
         </AppText>
         <AppText role="Body" color="secondary" style={styles.contentText}>
-          Dietary fat supports hormones, helps absorb vitamins and keeps you full.
+          {t("explainer.macros.fat.sections.why.body")}
         </AppText>
 
         <AppText
@@ -109,14 +111,14 @@ export const FatExplainer: React.FC<FatExplainerProps> = ({
           color="primary"
           style={[styles.sectionHeading, { color: semanticColor, marginTop: theme.spacing.md }]}
         >
-          Smart sources
+          {t("explainer.macros.fat.sections.sources.title")}
         </AppText>
         <View style={styles.bulletRow}>
           <AppText role="Body" color="secondary" style={styles.bulletChar}>
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            Cook with olive/avocado oil; include nuts, seeds, whole eggs, salmon.
+            {t("explainer.macros.fat.sections.sources.bullets.cook")}
           </AppText>
         </View>
         <View style={styles.bulletRow}>
@@ -124,7 +126,7 @@ export const FatExplainer: React.FC<FatExplainerProps> = ({
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            Favor mostly unsaturated fats.
+            {t("explainer.macros.fat.sections.sources.bullets.unsaturated")}
           </AppText>
         </View>
         <View style={styles.bulletRow}>
@@ -132,14 +134,14 @@ export const FatExplainer: React.FC<FatExplainerProps> = ({
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            Saturated fat is fine in moderation—balance across the day.
+            {t("explainer.macros.fat.sections.sources.bullets.balance")}
           </AppText>
         </View>
       </View>
 
       <View style={styles.buttonContainer}>
         <Button
-          label="Adjust targets"
+          label={t("explainer.common.adjustTargets")}
           variant="secondary"
           onPress={handleChangeTargets}
         />

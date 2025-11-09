@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { Flame, BicepsFlexed, Droplet, Zap } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 
 import { AppText } from "@/components/shared/AppText";
 import { Theme, useTheme } from "@/theme";
@@ -8,11 +9,12 @@ import { Theme, useTheme } from "@/theme";
 export const MacrosOverview: React.FC = () => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
       <AppText role="Title1" style={styles.title}>
-        Your Macro Strategy
+        {t("explainer.macros.overview.title")}
       </AppText>
 
       <View style={styles.sectionsContainer}>
@@ -35,15 +37,15 @@ export const MacrosOverview: React.FC = () => {
               />
             </View>
             <AppText role="Caption" color="secondary" style={styles.label}>
-              Calories & Protein
+              {t("explainer.macros.overview.primary.label")}
             </AppText>
           </View>
           <View style={styles.rightColumn}>
             <AppText role="Title2" color="primary" style={styles.sectionTitle}>
-              Primary
+              {t("explainer.macros.overview.primary.title")}
             </AppText>
             <AppText role="Body" color="secondary" style={styles.description}>
-              Hit these to work towards your loss/gain target and build muscle
+              {t("explainer.macros.overview.primary.description")}
             </AppText>
           </View>
         </View>
@@ -60,16 +62,15 @@ export const MacrosOverview: React.FC = () => {
               />
             </View>
             <AppText role="Caption" color="secondary" style={styles.label}>
-              Fat
+              {t("explainer.macros.overview.secondary.label")}
             </AppText>
           </View>
           <View style={styles.rightColumn}>
             <AppText role="Title2" color="primary" style={styles.sectionTitle}>
-              Secondary
+              {t("explainer.macros.overview.secondary.title")}
             </AppText>
             <AppText role="Body" color="secondary" style={styles.description}>
-              Meet this baseline for optimal hormone balance and nutrient
-              absorption
+              {t("explainer.macros.overview.secondary.description")}
             </AppText>
           </View>
         </View>
@@ -86,16 +87,15 @@ export const MacrosOverview: React.FC = () => {
               />
             </View>
             <AppText role="Caption" color="secondary" style={styles.label}>
-              Carbs
+              {t("explainer.macros.overview.filler.label")}
             </AppText>
           </View>
           <View style={styles.rightColumn}>
             <AppText role="Title2" color="primary" style={styles.sectionTitle}>
-              Filler
+              {t("explainer.macros.overview.filler.title")}
             </AppText>
             <AppText role="Body" color="secondary" style={styles.description}>
-              Your body's workout fuel. Consume carbs freely as long as you are
-              hitting your calorie and protein goals and fat baseline
+              {t("explainer.macros.overview.filler.description")}
             </AppText>
           </View>
         </View>

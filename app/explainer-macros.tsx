@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { X } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 
 import { RoundButton } from "@/components/shared/RoundButton";
 import { DotProgressIndicator } from "@/components/explainer-macros/DotProgressIndicator";
@@ -38,6 +39,7 @@ export default function ExplainerMacrosScreen() {
   const { theme, colors } = useTheme();
   const styles = useMemo(() => createStyles(theme, colors), [theme, colors]);
   const router = useSafeRouter();
+  const { t } = useTranslation();
   const params = useLocalSearchParams<{
     // Calories params
     calories_total?: string;
@@ -158,7 +160,7 @@ export default function ExplainerMacrosScreen() {
             onPress={handleClose}
             Icon={X}
             variant="tertiary"
-            accessibilityLabel="Close explainer"
+            accessibilityLabel={t("explainer.common.close")}
           />
         </View>
       </View>

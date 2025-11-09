@@ -179,6 +179,144 @@
       }
     }
   },
+  "explainer": {
+    "common": {
+      "close": "Erklärfenster schließen",
+      "adjustTargets": "Ziele anpassen",
+      "ofTarget": "von {{target}}"
+    },
+    "aiEstimation": {
+      "title": "Profi-Tipps für die besten Ergebnisse",
+      "sections": {
+        "textInput": {
+          "title": "Texteingabe",
+          "bullets": {
+            "weights": "Gib Gewichte oder Volumina an, um präzise zu bleiben (z. B. \"150 g Hähnchenbrust\" statt \"Hähnchenbrust\").",
+            "details": "Beschreibe Zubereitung oder wichtige Zutaten (z. B. \"gegrillt mit Olivenöl\")."
+          }
+        },
+        "photoScans": {
+          "title": "Fotoscans",
+          "bullets": {
+            "light": "Nutze helles, gleichmäßiges Tageslicht.",
+            "angle": "Fotografiere von oben.",
+            "frame": "Halte alle Lebensmittel frei und vollständig im Bild."
+          }
+        },
+        "audioLogging": {
+          "title": "Audio-Logging",
+          "bullets": {
+            "tone": "Sprich natürlich, als würdest du tippen.",
+            "details": "Nenne Details wie Mengen, Zutaten und Zubereitung."
+          }
+        }
+      },
+      "footer": "Für die höchste Genauigkeit solltest du wann immer möglich abgemessene Mengen verwenden."
+    },
+    "macros": {
+      "overview": {
+        "title": "Deine Makro-Strategie",
+        "primary": {
+          "label": "Kalorien & Protein",
+          "title": "Priorität",
+          "description": "Triff diese Werte, um beim Zu- oder Abnehmziel zu bleiben und Muskulatur aufzubauen."
+        },
+        "secondary": {
+          "label": "Fett",
+          "title": "Basis",
+          "description": "Halte diese Basis für ein gesundes Hormonsystem und eine gute Nährstoffaufnahme."
+        },
+        "filler": {
+          "label": "Kohlenhydrate",
+          "title": "Flexibel",
+          "description": "Deine Energie für Training. Iss Kohlenhydrate frei, sobald Kalorien, Protein und Fett passen."
+        }
+      },
+      "calories": {
+        "subtitle": "Dein Energiebudget für heute",
+        "howItWorks": {
+          "title": "So funktioniert es",
+          "bullets": {
+            "ring": "Der Ring füllt sich, sobald du Mahlzeiten protokollierst.",
+            "iconPrefix": "Das ",
+            "iconSuffix": "-Symbol markiert deine aktuelle Position.",
+            "close": "Schließe den Ring, um im Tagesbudget zu bleiben."
+          }
+        },
+        "quickTips": {
+          "title": "Schnelle Tipps",
+          "bullets": {
+            "consistency": "Protokolliere jeden Bissen – Konsequenz schlägt Perfektion.",
+            "weekly": "Bewerte deinen Fortschritt über den Wochenschnitt, nicht über einen einzelnen Tag."
+          }
+        }
+      },
+      "protein": {
+        "subtitle": "Aufbauen & regenerieren",
+        "howItWorks": {
+          "title": "So funktioniert es",
+          "bullets": {
+            "ring": "Der Ring füllt sich, sobald du Protein protokollierst.",
+            "iconPrefix": "Das ",
+            "iconSuffix": "-Symbol zeigt deine aktuelle Position.",
+            "close": "Schließe den Ring, um dein tägliches Minimum zu erreichen."
+          }
+        },
+        "quickTips": {
+          "title": "Schnelle Tipps",
+          "bullets": {
+            "eachMeal": "Plane bei jeder Mahlzeit oder jedem Snack eine Proteinquelle ein.",
+            "spread": "Verteile die Menge über den Tag für bessere Regeneration.",
+            "over": "Etwas mehr ist in Ordnung – peile dein Ziel an oder überschreite es leicht."
+          }
+        }
+      },
+      "fat": {
+        "subtitle": "Essenzielle Basis",
+        "sections": {
+          "hitTarget": {
+            "title": "Triff dein Tagesziel",
+            "body": "Halte jeden Tag eine konstante Basis, damit Energie und Mahlzeiten sättigend bleiben."
+          },
+          "why": {
+            "title": "Darum ist es wichtig",
+            "body": "Nahrungsfett unterstützt Hormone, hilft bei der Vitaminaufnahme und hält dich satt."
+          },
+          "sources": {
+            "title": "Gute Quellen",
+            "bullets": {
+              "cook": "Koche mit Oliven- oder Avocadoöl und bau Nüsse, Samen, ganze Eier sowie Lachs ein.",
+              "unsaturated": "Bevorzuge überwiegend ungesättigte Fette.",
+              "balance": "Gesättigte Fette sind in Maßen okay – verteile sie über den Tag."
+            }
+          }
+        }
+      },
+      "carbs": {
+        "subtitle": "Flexible Energiequelle",
+        "sections": {
+          "total": {
+            "title": "Variable Gesamtmenge",
+            "body": "Kein fixes Ziel – Kohlenhydrate füllen die restlichen Kalorien nach Protein und Fett. Rechne mit täglichen Schwankungen."
+          },
+          "fuel": {
+            "title": "Deine Energiequelle",
+            "bullets": {
+              "adjust": "Erhöhe an harten Trainingstagen, reduziere an Ruhetagen.",
+              "timing": "Wähle meist langsam verdauliche Quellen und nutze schnelle Kohlenhydrate rund um das Workout."
+            }
+          },
+          "sources": {
+            "title": "Gute Quellen",
+            "bullets": {
+              "whole": "Reis, Kartoffeln, Hafer, Bohnen, Obst, Vollkornbrote oder -wraps.",
+              "limit": "Begrenze zuckerhaltige Getränke und stark verarbeitete Süßigkeiten."
+            }
+          }
+        }
+      }
+    }
+  },
   "logCard": {
     "fallbackTitle": "Neuer Eintrag",
     "refinement": {

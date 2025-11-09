@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { Flame } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { AppText } from "@/components/shared/AppText";
 import { Button } from "@/components/shared/Button/Button";
 import { Theme, useTheme } from "@/theme";
@@ -21,8 +22,13 @@ export const CaloriesExplainer: React.FC<CaloriesExplainerProps> = ({
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const router = useSafeRouter();
+  const { t } = useTranslation();
 
   const semanticColor = colors.semantic.calories;
+  const detailValue =
+    target !== undefined
+      ? t("explainer.common.ofTarget", { target })
+      : undefined;
 
   const handleChangeTargets = () => {
     router.push("/onboarding/target-method");
@@ -31,10 +37,10 @@ export const CaloriesExplainer: React.FC<CaloriesExplainerProps> = ({
   return (
     <View style={styles.container}>
       <AppText role="Title1" style={styles.title}>
-        Calories
+        {t("nutrients.calories.label")}
       </AppText>
       <AppText role="Caption" style={styles.subTitle}>
-        Today's energy budget
+        {t("explainer.macros.calories.subtitle")}
       </AppText>
       <View style={styles.content}>
         <View style={styles.ringSection}>
@@ -46,7 +52,7 @@ export const CaloriesExplainer: React.FC<CaloriesExplainerProps> = ({
               textColor={colors.primaryText}
               displayValue={total}
               displayUnit="kcal"
-              detailValue={`of ${target}`}
+              detailValue={detailValue}
               animationDelay={0}
               strokeWidth={22}
               Icon={Flame}
@@ -60,14 +66,14 @@ export const CaloriesExplainer: React.FC<CaloriesExplainerProps> = ({
           color="primary"
           style={[styles.sectionHeading, { color: semanticColor }]}
         >
-          How it works
+          {t("explainer.macros.calories.howItWorks.title")}
         </AppText>
         <View style={styles.bulletRow}>
           <AppText role="Body" color="secondary" style={styles.bulletChar}>
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            The ring fills as you log meals.
+            {t("explainer.macros.calories.howItWorks.bullets.ring")}
           </AppText>
         </View>
         <View style={styles.bulletRow}>
@@ -75,15 +81,15 @@ export const CaloriesExplainer: React.FC<CaloriesExplainerProps> = ({
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            The{" "}
+            {t("explainer.macros.calories.howItWorks.bullets.iconPrefix")}
             <Flame
               size={16}
               color={semanticColor}
               fill={semanticColor}
               strokeWidth={0}
               style={styles.inlineIcon}
-            />{" "}
-            icon shows your current position.
+            />
+            {t("explainer.macros.calories.howItWorks.bullets.iconSuffix")}
           </AppText>
         </View>
         <View style={styles.bulletRow}>
@@ -91,7 +97,7 @@ export const CaloriesExplainer: React.FC<CaloriesExplainerProps> = ({
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            Close the ring to hit today's budget.
+            {t("explainer.macros.calories.howItWorks.bullets.close")}
           </AppText>
         </View>
 
@@ -103,14 +109,14 @@ export const CaloriesExplainer: React.FC<CaloriesExplainerProps> = ({
             { color: semanticColor, marginTop: theme.spacing.md },
           ]}
         >
-          Quick tips
+          {t("explainer.macros.calories.quickTips.title")}
         </AppText>
         <View style={styles.bulletRow}>
           <AppText role="Body" color="secondary" style={styles.bulletChar}>
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            Log every bite—consistency beats precision.
+            {t("explainer.macros.calories.quickTips.bullets.consistency")}
           </AppText>
         </View>
         <View style={styles.bulletRow}>
@@ -118,14 +124,14 @@ export const CaloriesExplainer: React.FC<CaloriesExplainerProps> = ({
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            Judge progress by your weekly average, not a single day.
+            {t("explainer.macros.calories.quickTips.bullets.weekly")}
           </AppText>
         </View>
       </View>
 
       <View style={styles.buttonContainer}>
         <Button
-          label="Adjust targets"
+          label={t("explainer.common.adjustTargets")}
           variant="secondary"
           onPress={handleChangeTargets}
         />

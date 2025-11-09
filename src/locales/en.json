@@ -179,6 +179,144 @@
       }
     }
   },
+  "explainer": {
+    "common": {
+      "close": "Close explainer",
+      "adjustTargets": "Adjust targets",
+      "ofTarget": "of {{target}}"
+    },
+    "aiEstimation": {
+      "title": "Pro tips for best results",
+      "sections": {
+        "textInput": {
+          "title": "Text input",
+          "bullets": {
+            "weights": "Add weights or volumes for precision (e.g., \"150g chicken breast\" vs. \"chicken breast\").",
+            "details": "Mention cooking methods or standout ingredients (e.g., \"grilled with olive oil\")."
+          }
+        },
+        "photoScans": {
+          "title": "Photo scans",
+          "bullets": {
+            "light": "Use bright, even natural light.",
+            "angle": "Shoot from a top-down angle.",
+            "frame": "Keep every item in frame and uncovered."
+          }
+        },
+        "audioLogging": {
+          "title": "Audio logging",
+          "bullets": {
+            "tone": "Speak naturally—as if you were typing.",
+            "details": "Mention weights, ingredients, and cooking methods."
+          }
+        }
+      },
+      "footer": "For the most accurate results, use measured quantities whenever you can."
+    },
+    "macros": {
+      "overview": {
+        "title": "Your macro strategy",
+        "primary": {
+          "label": "Calories & Protein",
+          "title": "Primary",
+          "description": "Hit these to stay on track with your gain/loss target and build muscle."
+        },
+        "secondary": {
+          "label": "Fat",
+          "title": "Secondary",
+          "description": "Meet this baseline to support hormones and nutrient absorption."
+        },
+        "filler": {
+          "label": "Carbs",
+          "title": "Filler",
+          "description": "Your go-to workout fuel. Enjoy carbs freely once calories, protein, and fat are covered."
+        }
+      },
+      "calories": {
+        "subtitle": "Today's energy budget",
+        "howItWorks": {
+          "title": "How it works",
+          "bullets": {
+            "ring": "The ring fills as you log meals.",
+            "iconPrefix": "The ",
+            "iconSuffix": " icon shows your current position.",
+            "close": "Close the ring to hit today's budget."
+          }
+        },
+        "quickTips": {
+          "title": "Quick tips",
+          "bullets": {
+            "consistency": "Log every bite—consistency beats precision.",
+            "weekly": "Judge progress by your weekly average, not a single day."
+          }
+        }
+      },
+      "protein": {
+        "subtitle": "Build & recover",
+        "howItWorks": {
+          "title": "How it works",
+          "bullets": {
+            "ring": "The ring fills as you log protein.",
+            "iconPrefix": "The ",
+            "iconSuffix": " icon marks your current position.",
+            "close": "Close the ring to reach today's minimum protein target."
+          }
+        },
+        "quickTips": {
+          "title": "Quick tips",
+          "bullets": {
+            "eachMeal": "Include a protein source in every meal or snack.",
+            "spread": "Spread intake throughout the day for better recovery.",
+            "over": "Going slightly over is fine—aim to meet or gently exceed the target."
+          }
+        }
+      },
+      "fat": {
+        "subtitle": "Essential baseline",
+        "sections": {
+          "hitTarget": {
+            "title": "Hit your daily target",
+            "body": "Aim for a steady baseline each day to keep energy and meals satisfying."
+          },
+          "why": {
+            "title": "Why it matters",
+            "body": "Dietary fat supports hormones, helps absorb vitamins, and keeps you full."
+          },
+          "sources": {
+            "title": "Smart sources",
+            "bullets": {
+              "cook": "Cook with olive or avocado oil; include nuts, seeds, whole eggs, and salmon.",
+              "unsaturated": "Favor mostly unsaturated fats.",
+              "balance": "Saturated fat is fine in moderation—balance it across the day."
+            }
+          }
+        }
+      },
+      "carbs": {
+        "subtitle": "Flexible fuel",
+        "sections": {
+          "total": {
+            "title": "A flexible total",
+            "body": "No fixed target—carbs fill remaining calories after protein and fat. Expect the number to vary day to day."
+          },
+          "fuel": {
+            "title": "Your fuel source",
+            "bullets": {
+              "adjust": "Increase on hard training days; scale down on rest days.",
+              "timing": "Choose slower-digesting carbs most of the time; use faster carbs around workouts."
+            }
+          },
+          "sources": {
+            "title": "Smart sources",
+            "bullets": {
+              "whole": "Rice, potatoes, oats, beans, fruit, whole-grain breads or wraps.",
+              "limit": "Limit sugary drinks and ultra-processed sweets."
+            }
+          }
+        }
+      }
+    }
+  },
   "logCard": {
     "fallbackTitle": "New Log",
     "refinement": {

@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
 import { Zap } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 
 import { AppText } from "@/components/shared/AppText";
 import { Button } from "@/components/shared/Button/Button";
@@ -15,6 +16,7 @@ export const CarbsExplainer: React.FC<CarbsExplainerProps> = ({ total = 218 }) =
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
   const router = useSafeRouter();
+  const { t } = useTranslation();
 
   const semanticColor = colors.semantic.carbs;
 
@@ -25,10 +27,10 @@ export const CarbsExplainer: React.FC<CarbsExplainerProps> = ({ total = 218 }) =
   return (
     <View style={styles.container}>
       <AppText role="Title1" style={styles.title}>
-        Carbs
+        {t("nutrients.carbs.label")}
       </AppText>
       <AppText role="Caption" style={styles.subTitle}>
-        Flexible Fuel
+        {t("explainer.macros.carbs.subtitle")}
       </AppText>
       <View style={styles.content}>
         {/* MacroGridCell-style display */}
@@ -55,10 +57,10 @@ export const CarbsExplainer: React.FC<CarbsExplainerProps> = ({ total = 218 }) =
         </View>
 
         <AppText role="Headline" color="primary" style={[styles.sectionHeading, { color: semanticColor }]}>
-          A flexible total
+          {t("explainer.macros.carbs.sections.total.title")}
         </AppText>
         <AppText role="Body" color="secondary" style={styles.contentText}>
-          No fixed target—carbs fill remaining calories after protein and fat. Expect this to vary day-to-day.
+          {t("explainer.macros.carbs.sections.total.body")}
         </AppText>
 
         <AppText
@@ -66,14 +68,14 @@ export const CarbsExplainer: React.FC<CarbsExplainerProps> = ({ total = 218 }) =
           color="primary"
           style={[styles.sectionHeading, { color: semanticColor, marginTop: theme.spacing.md }]}
         >
-          Your fuel source
+          {t("explainer.macros.carbs.sections.fuel.title")}
         </AppText>
         <View style={styles.bulletRow}>
           <AppText role="Body" color="secondary" style={styles.bulletChar}>
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            Increase on hard training days; scale down on rest days.
+            {t("explainer.macros.carbs.sections.fuel.bullets.adjust")}
           </AppText>
         </View>
         <View style={styles.bulletRow}>
@@ -81,7 +83,7 @@ export const CarbsExplainer: React.FC<CarbsExplainerProps> = ({ total = 218 }) =
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            Choose slower-digesting carbs most of the time; use faster carbs around workouts.
+            {t("explainer.macros.carbs.sections.fuel.bullets.timing")}
           </AppText>
         </View>
 
@@ -90,14 +92,14 @@ export const CarbsExplainer: React.FC<CarbsExplainerProps> = ({ total = 218 }) =
           color="primary"
           style={[styles.sectionHeading, { color: semanticColor, marginTop: theme.spacing.md }]}
         >
-          Smart sources
+          {t("explainer.macros.carbs.sections.sources.title")}
         </AppText>
         <View style={styles.bulletRow}>
           <AppText role="Body" color="secondary" style={styles.bulletChar}>
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            Rice, potatoes, oats, beans, fruit, whole-grain breads/wraps.
+            {t("explainer.macros.carbs.sections.sources.bullets.whole")}
           </AppText>
         </View>
         <View style={styles.bulletRow}>
@@ -105,14 +107,14 @@ export const CarbsExplainer: React.FC<CarbsExplainerProps> = ({ total = 218 }) =
             •
           </AppText>
           <AppText role="Body" color="secondary" style={styles.bulletText}>
-            Limit sugary drinks and ultra-processed sweets.
+            {t("explainer.macros.carbs.sections.sources.bullets.limit")}
           </AppText>
         </View>
       </View>
 
       <View style={styles.buttonContainer}>
         <Button
-          label="Adjust targets"
+          label={t("explainer.common.adjustTargets")}
           variant="secondary"
           onPress={handleChangeTargets}
         />
