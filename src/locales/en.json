@@ -774,9 +774,13 @@
       "tracking": {
         "label": "TRACKING",
         "rows": {
-          "nutritionTargets": {
-            "title": "Nutrition targets",
-            "subtitle": "Set daily calories and macros."
+          "calculateTargets": {
+            "title": "Calculate for me",
+            "subtitle": "Answer a few questions to get personalized targets."
+          },
+          "manualTargets": {
+            "title": "I know my targets",
+            "subtitle": "Enter your calorie and macro goals manually."
           }
         }
       },

@@ -734,8 +734,8 @@
         "restore": {
           "title": "Bereits abonniert?",
           "subtitle": "Käufe nach Neuinstallation oder Gerätewechsel wiederherstellen.",
-          "button": "Wiederherstellen",
-          "buttonLoading": "Wiederherstellen …",
+          "button": "Prüfen",
+          "buttonLoading": "Prüfen …",
           "alerts": {
             "restored": {
               "title": "Wiederhergestellt",
@@ -772,9 +772,13 @@
       "tracking": {
         "label": "TRACKING",
         "rows": {
-          "nutritionTargets": {
-            "title": "Nährstoffziele",
-            "subtitle": "Lege tägliche Kalorien und Makros fest."
+          "calculateTargets": {
+            "title": "Für mich berechnen",
+            "subtitle": "Beantworte ein paar Fragen für persönliche Zielwerte."
+          },
+          "manualTargets": {
+            "title": "Ich kenne meine Ziele",
+            "subtitle": "Gib deine Kalorien- und Makroziele manuell ein."
           }
         }
       },
