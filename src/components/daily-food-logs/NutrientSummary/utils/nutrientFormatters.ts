@@ -1,19 +1,6 @@
 import { ChevronDown, ChevronsDown, CircleCheckBig } from "lucide-react-native";
 import type { LucideIcon } from "lucide-react-native";
-
-/**
- * Returns the appropriate label for delta display based on whether target is exceeded.
- *
- * @param isOver - Whether the current value exceeds the target
- * @returns "over" if exceeded, "remaining" if under target
- *
- * @example
- * formatDeltaLabel(true) // returns "over"
- * formatDeltaLabel(false) // returns "remaining"
- */
-export const formatDeltaLabel = (isOver: boolean): string => {
-  return isOver ? "over" : "remaining";
-};
+import type { TFunction } from "i18next";
 
 /**
  * Returns the appropriate chevron icon based on completion percentage.
@@ -48,21 +35,4 @@ export const getNutrientIcon = (
   nutrientKey: "calories" | "protein"
 ): LucideIcon => {
   return isComplete && nutrientKey === "protein" ? CircleCheckBig : defaultIcon;
-};
-
-/**
- * Calculates the percentage of target achieved.
- *
- * @param current - Current value
- * @param target - Target value
- * @returns Percentage (0-100), capped at 100
- *
- * @example
- * calculatePercentage(50, 100) // returns 50
- * calculatePercentage(150, 100) // returns 100
- * calculatePercentage(50, 0) // returns 0
- */
-export const calculatePercentage = (current: number, target: number): number => {
-  if (target === 0) return 0;
-  return Math.min((current / target) * 100, 100);
 };

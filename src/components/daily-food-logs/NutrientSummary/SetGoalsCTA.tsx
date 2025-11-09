@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
+import { useTranslation } from "react-i18next";
 
 import { AppText, Button } from "@/components";
 import { Colors, Theme, useTheme } from "@/theme";
@@ -7,6 +8,7 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
 export const SetGoalsCTA: React.FC = () => {
   const { colors, theme } = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const { safeNavigate } = useNavigationGuard();
 
@@ -16,10 +18,12 @@ export const SetGoalsCTA: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <AppText style={styles.title}>Set your goals to start tracking</AppText>
+      <AppText style={styles.title}>
+        {t("dailyFoodLogs.setGoalsCTA.title")}
+      </AppText>
       <Button
         variant="primary"
-        label="Start 🚀"
+        label={t("dailyFoodLogs.setGoalsCTA.ctaLabel")}
         onPress={handleCTAPress}
         style={styles.button}
       />

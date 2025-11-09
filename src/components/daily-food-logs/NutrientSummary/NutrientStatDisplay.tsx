@@ -1,5 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Flame, BicepsFlexed, Droplet, Zap, ChevronDown, ChevronsDown } from "lucide-react-native";
 
 import { NutrientLabel } from "./components/NutrientLabel";
@@ -20,9 +21,20 @@ export const CaloriesRingDisplay: React.FC<CaloriesRingDisplayProps> = ({
   percentage,
 }) => {
   const { colors, theme } = useTheme();
+  const { t } = useTranslation();
   const styles = createStyles(theme);
 
   const ChevronIcon = percentage >= 100 ? ChevronsDown : ChevronDown;
+  const caloriesLabel = t("nutrients.calories.label");
+  const caloriesUnit = t("nutrients.calories.unitShort");
+  const detailValue = t("dailyFoodLogs.nutrientStatDisplay.detailValue", {
+    target,
+    unit: caloriesUnit,
+  });
+  const footerLabel = t("dailyFoodLogs.nutrientStatDisplay.labelWithUnit", {
+    label: caloriesLabel,
+    unit: caloriesUnit,
+  });
 
   return (
     <View style={styles.block}>
@@ -31,10 +43,10 @@ export const CaloriesRingDisplay: React.FC<CaloriesRingDisplayProps> = ({
         color={colors.semantic.calories}
         trackColor={colors.semanticSurfaces.calories}
         textColor={colors.primaryText}
-        label="Calories"
+        label={caloriesLabel}
         displayValue={total}
         displayUnit=""
-        detailValue={`of ${target}kcal target`}
+        detailValue={detailValue}
         detailUnit=""
         showDetail={false}
         animationDelay={0}
@@ -44,7 +56,7 @@ export const CaloriesRingDisplay: React.FC<CaloriesRingDisplayProps> = ({
       <View style={styles.ringFooter}>
         <Flame size={22} color={colors.semantic.calories} fill={colors.semantic.calories} />
         <AppText role="Subhead" color="secondary">
-          Calories (kcal)
+          {footerLabel}
         </AppText>
       </View>
     </View>
@@ -63,6 +75,7 @@ export const ProteinRingDisplay: React.FC<ProteinRingDisplayProps> = ({
   percentage,
 }) => {
   const { colors, theme } = useTheme();
+  const { t } = useTranslation();
   const styles = createStyles(theme);
 
   const ChevronIcon = percentage >= 100 ? ChevronsDown : ChevronDown;
@@ -71,6 +84,16 @@ export const ProteinRingDisplay: React.FC<ProteinRingDisplayProps> = ({
     ? colors.semanticSurfaces.protein
     : colors.semantic.protein;
   const iconStrokeWidth = percentage >= 100 ? 2 : 0;
+  const proteinLabel = t("nutrients.protein.label");
+  const proteinUnit = t("nutrients.protein.unitShort");
+  const detailValue = t("dailyFoodLogs.nutrientStatDisplay.detailValue", {
+    target,
+    unit: proteinUnit,
+  });
+  const footerLabel = t("dailyFoodLogs.nutrientStatDisplay.labelWithUnit", {
+    label: proteinLabel,
+    unit: proteinUnit,
+  });
 
   return (
     <View style={styles.block}>
@@ -79,10 +102,10 @@ export const ProteinRingDisplay: React.FC<ProteinRingDisplayProps> = ({
         color={colors.semantic.protein}
         trackColor={colors.semanticSurfaces.protein}
         textColor={colors.primaryText}
-        label="Protein"
+        label={proteinLabel}
         displayValue={total}
         displayUnit=""
-        detailValue={`of ${target}g target`}
+        detailValue={detailValue}
         detailUnit=""
         showDetail={false}
         animationDelay={0}
@@ -97,7 +120,7 @@ export const ProteinRingDisplay: React.FC<ProteinRingDisplayProps> = ({
           strokeWidth={iconStrokeWidth}
         />
         <AppText role="Subhead" color="secondary">
-          Protein (g)
+          {footerLabel}
         </AppText>
       </View>
     </View>
@@ -114,7 +137,9 @@ export const FatProgressDisplay: React.FC<FatProgressDisplayProps> = ({
   target,
 }) => {
   const { colors, theme } = useTheme();
+  const { t } = useTranslation();
   const styles = createStyles(theme);
+  const fatUnit = t("nutrients.fat.unitShort");
 
   return (
     <View style={styles.statWrapper}>
@@ -122,10 +147,10 @@ export const FatProgressDisplay: React.FC<FatProgressDisplayProps> = ({
         Icon={Droplet}
         iconColor={colors.semantic.fat}
         iconFill={colors.semantic.fat}
-        label="Fat"
+        label={t("nutrients.fat.label")}
         currentValue={total}
         targetValue={target}
-        unit="g"
+        unit={fatUnit}
         style={styles.inlineLabel}
       />
     </View>
@@ -138,7 +163,9 @@ interface CarbsStatDisplayProps {
 
 export const CarbsStatDisplay: React.FC<CarbsStatDisplayProps> = ({ total }) => {
   const { colors, theme } = useTheme();
+  const { t } = useTranslation();
   const styles = createStyles(theme);
+  const carbsUnit = t("nutrients.carbs.unitShort");
 
   return (
     <View style={styles.statWrapper}>
@@ -146,9 +173,9 @@ export const CarbsStatDisplay: React.FC<CarbsStatDisplayProps> = ({ total }) => 
         Icon={Zap}
         iconColor={colors.semantic.carbs}
         iconFill={colors.semantic.carbs}
-        label="Carbs"
+        label={t("nutrients.carbs.label")}
         currentValue={total}
-        unit="g"
+        unit={carbsUnit}
         style={styles.inlineLabel}
       />
     </View>

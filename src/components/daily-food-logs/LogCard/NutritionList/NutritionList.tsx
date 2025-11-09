@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type { LayoutChangeEvent } from "react-native";
 import { View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated, {
   Easing as ReanimatedEasing,
   useAnimatedStyle,
@@ -42,6 +43,8 @@ interface AnimatedNutritionRowProps {
   styles: ReturnType<typeof createStyles>;
   theme: Theme;
 }
+
+type MacroNutrientKey = "protein" | "carbs" | "fat";
 
 const AnimatedNutritionRow: React.FC<AnimatedNutritionRowProps> = ({
   item,
@@ -145,37 +148,46 @@ export const NutritionList: React.FC<NutritionListProps> = ({
   wasLoading = false,
 }) => {
   const { colors, theme } = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const { calories, protein, carbs, fat } = nutrition;
 
   const nutritionItems: NutritionItemConfig[] = useMemo(
-    () => [
-      {
-        key: "calories",
-        value: calories,
-        label: "kcal",
-        color: colors.semantic.calories,
-      },
-      {
-        key: "protein",
-        value: protein,
-        label: "g Protein",
-        color: colors.semantic.protein,
-      },
-      {
-        key: "carbs",
-        value: carbs,
-        label: "g Carbs",
-        color: colors.semantic.carbs,
-      },
-      {
-        key: "fat",
-        value: fat,
-        label: "g Fat",
-        color: colors.semantic.fat,
-      },
-    ],
+    () => {
+      const macroLabel = (nutrientKey: MacroNutrientKey) =>
+        t("dailyFoodLogs.nutritionList.macroLabel", {
+          unit: t(`nutrients.${nutrientKey}.unitShort`),
+          nutrient: t(`nutrients.${nutrientKey}.label`),
+        });
+
+      return [
+        {
+          key: "calories",
+          value: calories,
+          label: t("nutrients.calories.unitShort"),
+          color: colors.semantic.calories,
+        },
+        {
+          key: "protein",
+          value: protein,
+          label: macroLabel("protein"),
+          color: colors.semantic.protein,
+        },
+        {
+          key: "carbs",
+          value: carbs,
+          label: macroLabel("carbs"),
+          color: colors.semantic.carbs,
+        },
+        {
+          key: "fat",
+          value: fat,
+          label: macroLabel("fat"),
+          color: colors.semantic.fat,
+        },
+      ];
+    },
     [
       calories,
       protein,
@@ -185,6 +197,7 @@ export const NutritionList: React.FC<NutritionListProps> = ({
       colors.semantic.protein,
       colors.semantic.carbs,
       colors.semantic.fat,
+      t,
     ],
   );
 

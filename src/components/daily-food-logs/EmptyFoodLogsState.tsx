@@ -1,17 +1,21 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme/ThemeProvider";
 import { AppText } from "@/components";
 import type { Colors, Theme } from "@/theme";
 
 export const EmptyFoodLogsState: React.FC = () => {
   const { colors, theme } = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        <AppText style={styles.motivationalText}>Let's log some food :)</AppText>
+        <AppText style={styles.motivationalText}>
+          {t("dailyFoodLogs.emptyState.encouragement")}
+        </AppText>
       </View>
     </View>
   );

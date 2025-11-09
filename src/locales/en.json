@@ -72,6 +72,28 @@
       }
     }
   },
+  "dailyFoodLogs": {
+    "emptyState": {
+      "encouragement": "Let's log some food :)"
+    },
+    "setGoalsCTA": {
+      "title": "Set your goals to start tracking",
+      "ctaLabel": "Start 🚀"
+    },
+    "modalHeader": {
+      "back": {
+        "accessibilityLabel": "Go back",
+        "accessibilityHint": "Returns to previous screen"
+      },
+      "close": {
+        "accessibilityLabel": "Close setup",
+        "accessibilityHint": "Exits the setup and returns to the home screen"
+      }
+    },
+    "nutritionList": {
+      "macroLabel": "{{unit}} {{nutrient}}"
+    }
+  },
   "favorites": {
     "navigation": {
       "title": "Favorites",

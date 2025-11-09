@@ -238,7 +238,7 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
             nutrientKey="fat"
             total={displayTotals.fat}
             target={labelTargets.fat}
-            unit="g"
+            unit={NUTRIENT_LABELS.fat.unit}
             percentage={percentages.fat}
             semanticColor={semanticColors.fat}
             showProgressBar
@@ -248,7 +248,7 @@ export const NutrientDashboard: React.FC<NutrientDashboardProps> = ({
           <MacroGridCell
             nutrientKey="carbs"
             total={displayTotals.carbs}
-            unit="g"
+            unit={NUTRIENT_LABELS.carbs.unit}
             semanticColor={semanticColors.carbs}
             onPress={() => handleOpenExplainer("carbs")}
           />
