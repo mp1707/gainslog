@@ -1,9 +1,11 @@
 import { Platform } from "react-native";
 import { Stack } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 
 export default function FavoritesLayout() {
+  const { t } = useTranslation();
   const { colors, theme } = useTheme();
   const isIOS = Platform.OS === "ios";
   const hasLiquidGlass = isLiquidGlassAvailable();
@@ -35,7 +37,7 @@ export default function FavoritesLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Calendar",
+          title: t("calendar.title"),
           headerLargeTitle: isIOS,
           headerLargeTitleShadowVisible: false,
           presentation: "modal",

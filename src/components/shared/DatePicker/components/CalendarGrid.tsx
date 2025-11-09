@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { AppText } from "@/components";
 import { useTheme } from "@/theme";
 import { createStyles } from "./CalendarGrid.styles";
@@ -24,7 +25,8 @@ interface CalendarGridProps {
   useSimplifiedRings?: boolean;
 }
 
-const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
+type WeekdayKey = (typeof WEEKDAY_KEYS)[number];
 
 const CalendarGridComponent: React.FC<CalendarGridProps> = ({
   year,
@@ -35,8 +37,13 @@ const CalendarGridComponent: React.FC<CalendarGridProps> = ({
   width,
   useSimplifiedRings = false,
 }) => {
+  const { t } = useTranslation();
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const weekdayLabels = WEEKDAY_KEYS.map((key) => ({
+    key,
+    label: t(`calendar.weekdays.short.${key as WeekdayKey}`),
+  }));
 
   // Calculate calendar data
   const calendarData = useMemo(() => {
@@ -109,10 +116,10 @@ const CalendarGridComponent: React.FC<CalendarGridProps> = ({
     <View style={[styles.container, { width }]}>
       {/* Weekday Headers */}
       <View style={styles.weekdayRow}>
-        {WEEKDAYS.map((weekday) => (
-          <View key={weekday} style={styles.weekdayCell}>
+        {weekdayLabels.map(({ key, label }) => (
+          <View key={key} style={styles.weekdayCell}>
             <AppText role="Caption" style={styles.weekdayText}>
-              {weekday}
+              {label}
             </AppText>
           </View>
         ))}

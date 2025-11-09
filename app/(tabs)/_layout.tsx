@@ -5,10 +5,12 @@ import {
   Icon,
   VectorIcon,
 } from "expo-router/unstable-native-tabs";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 
 export default function TabsLayout() {
+  const { t } = useTranslation();
   const { colors, colorScheme } = useTheme();
   const hasLiquidGlass = isLiquidGlassAvailable();
 
@@ -41,7 +43,9 @@ export default function TabsLayout() {
           }}
           selectedColor={colors.accent}
         />
-        <Label selectedStyle={{ color: colors.accent }}>Logging</Label>
+        <Label selectedStyle={{ color: colors.accent }}>
+          {t("tabs.logging")}
+        </Label>
       </NativeTabs.Trigger>
 
       {/* <NativeTabs.Trigger name="favorites">
@@ -74,7 +78,9 @@ export default function TabsLayout() {
           }}
           selectedColor={colors.accent}
         />
-        <Label selectedStyle={{ color: colors.accent }}>Calendar</Label>
+        <Label selectedStyle={{ color: colors.accent }}>
+          {t("tabs.calendar")}
+        </Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="settings">
         <Icon
@@ -86,13 +92,15 @@ export default function TabsLayout() {
           }}
           selectedColor={colors.accent}
         />
-        <Label selectedStyle={{ color: colors.accent }}>Settings</Label>
+        <Label selectedStyle={{ color: colors.accent }}>
+          {t("tabs.settings")}
+        </Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
         name="favorites"
         role={hasLiquidGlass ? "search" : undefined}
       >
-        <Label>New</Label>
+        <Label>{t("tabs.new")}</Label>
         <Icon sf="star" selectedColor={colors.accent} />
       </NativeTabs.Trigger>
     </NativeTabs>

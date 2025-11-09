@@ -45,6 +45,32 @@
       "future_other": "In {{count}} days"
     }
   },
+  "tabs": {
+    "logging": "Logging",
+    "calendar": "Calendar",
+    "settings": "Settings",
+    "new": "New"
+  },
+  "calendar": {
+    "title": "Calendar",
+    "actions": {
+      "jumpToToday": "Jump to today"
+    },
+    "a11y": {
+      "jumpToToday": "Jump to today"
+    },
+    "weekdays": {
+      "short": {
+        "sun": "Su",
+        "mon": "Mo",
+        "tue": "Tu",
+        "wed": "We",
+        "thu": "Th",
+        "fri": "Fr",
+        "sat": "Sa"
+      }
+    }
+  },
   "editLog": {
     "navigation": {
       "backTitle": "Home"

@@ -43,7 +43,7 @@ const getMonthKeyFromDateKey = (dateKey: string) => {
 export default function CalendarTabScreen() {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { selectedDate, setSelectedDate, foodLogs, dailyTargets } =
     useAppStore();
   const navigation = useNavigation();
@@ -354,10 +354,10 @@ export default function CalendarTabScreen() {
           <AnimatedPressable
             onPress={handleJumpToToday}
             hapticIntensity="light"
-            accessibilityLabel="Jump to today"
+            accessibilityLabel={t("calendar.a11y.jumpToToday")}
           >
             <AppText role="Body" color="accent">
-              Jump to today
+              {t("calendar.actions.jumpToToday")}
             </AppText>
           </AnimatedPressable>
         </View>
