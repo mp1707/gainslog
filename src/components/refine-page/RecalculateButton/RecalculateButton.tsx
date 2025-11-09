@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { Pressable } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -10,6 +10,7 @@ import * as Haptics from "expo-haptics";
 import { AppText } from "@/components";
 import { useTheme } from "@/theme";
 import { createStyles } from "./RecalculateButton.styles";
+import { useTranslation } from "react-i18next";
 
 interface RecalculateButtonProps {
   changesCount: number;
@@ -26,6 +27,7 @@ export const RecalculateButton: React.FC<RecalculateButtonProps> = ({
 }) => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const { t } = useTranslation();
 
   const scale = useSharedValue(1);
 
@@ -52,8 +54,10 @@ export const RecalculateButton: React.FC<RecalculateButtonProps> = ({
     onPress();
   };
 
-  const changeWord = changesCount === 1 ? "change" : "changes";
-  const label = `Recalculate · ${changesCount} ${changeWord}`;
+  const label = t("recalculateButton.label", { count: changesCount });
+  const accessibilityLabel = t("recalculateButton.accessibility", {
+    count: changesCount,
+  });
 
   return (
     <AnimatedPressable
@@ -63,7 +67,7 @@ export const RecalculateButton: React.FC<RecalculateButtonProps> = ({
       disabled={disabled}
       style={[styles.button, animatedButtonStyle]}
       accessibilityRole="button"
-      accessibilityLabel={`Recalculate macros. ${changesCount} ${changeWord} pending.`}
+      accessibilityLabel={accessibilityLabel}
     >
       <AppText style={styles.buttonText}>{label}</AppText>
     </AnimatedPressable>

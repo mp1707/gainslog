@@ -125,8 +125,9 @@ export default function Edit() {
   }, [router, id]);
 
   const toggleFavorite = useMemo(
-    () => createToggleFavoriteHandler(addFavorite, deleteFavorite, favorites),
-    [addFavorite, deleteFavorite, favorites]
+    () =>
+      createToggleFavoriteHandler(addFavorite, deleteFavorite, favorites, t),
+    [addFavorite, deleteFavorite, favorites, t]
   );
 
   const isFavorite = useMemo(() => {

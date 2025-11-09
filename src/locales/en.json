@@ -87,6 +87,33 @@
     "hud": {
       "added": "Favorited",
       "removed": "Removed"
+    },
+    "edit": {
+      "title": {
+        "placeholder": "Enter title...",
+        "emptyState": "Tap to add title"
+      },
+      "delete": {
+        "label": "Delete Favorite",
+        "accessibilityLabel": "Delete favorite"
+      },
+      "alerts": {
+        "delete": {
+          "title": "Delete Favorite",
+          "message": "This will remove the favorite permanently."
+        },
+        "unsaved": {
+          "title": "Unsaved Changes to Ingredients",
+          "message": "You've modified ingredients without recalculating macros. The nutrition values may be inaccurate.",
+          "recalculate": "Recalculate Macros",
+          "saveAnyway": "Save Anyway"
+        }
+      },
+      "paywall": {
+        "title": "Recalculate with Pro",
+        "body": "Get updated macros when you adjust ingredients.",
+        "cta": "Unlock to Recalculate"
+      }
     }
   },
   "editLog": {
@@ -179,6 +206,12 @@
   "componentsList": {
     "sectionTitle": "INGREDIENTS",
     "addButton": "Add Ingredient"
+  },
+  "recalculateButton": {
+    "label_one": "Recalculate · {{count}} change",
+    "label_other": "Recalculate · {{count}} changes",
+    "accessibility_one": "Recalculate macros. {{count}} change pending.",
+    "accessibility_other": "Recalculate macros. {{count}} changes pending."
   },
   "editComponent": {
     "title": {

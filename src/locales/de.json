@@ -87,6 +87,33 @@
     "hud": {
       "added": "Favorisiert",
       "removed": "Entfernt"
+    },
+    "edit": {
+      "title": {
+        "placeholder": "Titel eingeben...",
+        "emptyState": "Tippen, um einen Titel hinzuzufügen"
+      },
+      "delete": {
+        "label": "Favorit löschen",
+        "accessibilityLabel": "Favorit löschen"
+      },
+      "alerts": {
+        "delete": {
+          "title": "Favorit löschen",
+          "message": "Dieser Favorit wird dauerhaft entfernt."
+        },
+        "unsaved": {
+          "title": "Ungespeicherte Änderungen an Zutaten",
+          "message": "Du hast Zutaten geändert, ohne die Makros neu zu berechnen. Die Nährwerte können ungenau sein.",
+          "recalculate": "Makros neu berechnen",
+          "saveAnyway": "Trotzdem speichern"
+        }
+      },
+      "paywall": {
+        "title": "Mit Pro neu berechnen",
+        "body": "Erhalte aktualisierte Makros, wenn du Zutaten anpasst.",
+        "cta": "Zum Neuberechnen freischalten"
+      }
     }
   },
   "editLog": {
@@ -179,6 +206,12 @@
   "componentsList": {
     "sectionTitle": "ZUTATEN",
     "addButton": "Zutat hinzufügen"
+  },
+  "recalculateButton": {
+    "label_one": "Neu berechnen · {{count}} Änderung",
+    "label_other": "Neu berechnen · {{count}} Änderungen",
+    "accessibility_one": "Makros neu berechnen. {{count}} Änderung ausstehend.",
+    "accessibility_other": "Makros neu berechnen. {{count}} Änderungen ausstehend."
   },
   "editComponent": {
     "title": {

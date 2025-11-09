@@ -16,6 +16,7 @@ import * as Haptics from "expo-haptics";
 import { useNavigation } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
 import { Calculator, Trash2 } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 
 import { AppText } from "@/components/index";
 import { ComponentsList } from "@/components/refine-page/ComponentsList/ComponentsList";
@@ -57,6 +58,7 @@ export default function EditFavorite() {
   const router = useSafeRouter();
   const navigation = useNavigation();
   const { colors, theme } = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
   const {
@@ -126,12 +128,12 @@ export default function EditFavorite() {
     if (!id) return;
 
     Alert.alert(
-      "Delete Favorite",
-      "This will remove the favorite permanently.",
+      t("favorites.edit.alerts.delete.title"),
+      t("favorites.edit.alerts.delete.message"),
       [
-        { text: "Cancel", style: "cancel" },
+        { text: t("common.cancel"), style: "cancel" },
         {
-          text: "Delete",
+          text: t("common.delete"),
           style: "destructive",
           onPress: () => {
             deleteFavorite(id);
@@ -141,7 +143,7 @@ export default function EditFavorite() {
         },
       ]
     );
-  }, [deleteFavorite, id, router]);
+  }, [deleteFavorite, id, router, t]);
 
   const handleShowPaywall = useCallback(() => {
     router.push("/paywall");
@@ -202,25 +204,25 @@ export default function EditFavorite() {
     if (hasUnsavedChanges && !hasReestimated) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       Alert.alert(
-        "Unsaved Changes to Ingredients",
-        "You've modified ingredients without recalculating macros. The nutrition values may be inaccurate.",
+        t("favorites.edit.alerts.unsaved.title"),
+        t("favorites.edit.alerts.unsaved.message"),
         [
           {
-            text: "Recalculate Macros",
+            text: t("favorites.edit.alerts.unsaved.recalculate"),
             style: "default",
             onPress: async () => {
               await handleReestimate();
             },
           },
           {
-            text: "Save Anyway",
+            text: t("favorites.edit.alerts.unsaved.saveAnyway"),
             style: "default",
             onPress: () => {
               saveFavorite();
             },
           },
           {
-            text: "Cancel",
+            text: t("common.cancel"),
             style: "cancel",
           },
         ]
@@ -234,6 +236,7 @@ export default function EditFavorite() {
     hasReestimated,
     handleReestimate,
     saveFavorite,
+    t,
   ]);
 
   const doneDisabled =
@@ -246,13 +249,19 @@ export default function EditFavorite() {
 
   useEffect(() => {
     navigation.setOptions({
-      headerBackTitle: "Favorites",
+      headerBackTitle: t("favorites.navigation.title"),
       headerRight: () => (
         <Pressable
           onPress={handleDone}
           disabled={doneDisabled}
-          style={{ padding: 8 }}
-          accessibilityLabel="Done"
+          style={{
+            height: 32,
+            width: 32,
+            marginLeft: 2,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          accessibilityLabel={t("common.done")}
         >
           <Host matchContents>
             <Image
@@ -271,6 +280,7 @@ export default function EditFavorite() {
     colors.secondaryBackground,
     colors.disabledText,
     colors.accent,
+    t,
   ]);
 
   return (
@@ -289,13 +299,13 @@ export default function EditFavorite() {
             onBlur={handleBlur}
             autoFocus
             style={[styles.header, styles.titleInput]}
-            placeholder="Enter title..."
+            placeholder={t("favorites.edit.title.placeholder")}
             placeholderTextColor={colors.secondaryText}
           />
         ) : (
           <Pressable onPress={startEditing}>
             <AppText role="Title2" style={styles.header}>
-              {draftTitle || "Tap to add title"}
+              {draftTitle || t("favorites.edit.title.emptyState")}
             </AppText>
           </Pressable>
         )}
@@ -320,7 +330,9 @@ export default function EditFavorite() {
                     activeOpacity={0.7}
                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                     accessibilityRole="button"
-                    accessibilityLabel="Delete Favorite"
+                    accessibilityLabel={t(
+                      "favorites.edit.delete.accessibilityLabel"
+                    )}
                   >
                     <Trash2 size={18} color={colors.error} />
                     <AppText
@@ -329,7 +341,7 @@ export default function EditFavorite() {
                         { color: colors.error },
                       ]}
                     >
-                      Delete Favorite
+                      {t("favorites.edit.delete.label")}
                     </AppText>
                   </TouchableOpacity>
                 }
@@ -358,9 +370,9 @@ export default function EditFavorite() {
                 !isPro && (
                   <InlinePaywallCard
                     Icon={Calculator}
-                    title="Recalculate with Pro"
-                    body="Get updated macros when you adjust ingredients."
-                    ctaLabel="Unlock to Recalculate"
+                    title={t("favorites.edit.paywall.title")}
+                    body={t("favorites.edit.paywall.body")}
+                    ctaLabel={t("favorites.edit.paywall.cta")}
                     onPress={handleShowPaywall}
                     testID="edit-inline-paywall"
                   />
