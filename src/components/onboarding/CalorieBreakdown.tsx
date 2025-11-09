@@ -4,6 +4,7 @@ import { AppText } from "@/components/shared/AppText";
 import { useTheme } from "@/theme";
 import { BicepsFlexed, Wheat, Droplet } from "lucide-react-native";
 import type { LucideIcon } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 
 interface CalorieBreakdownProps {
   totalCalories: number;
@@ -38,6 +39,7 @@ const MacroRow = ({
   const { colors, theme: themeObj } = useTheme();
   const styles = createMacroRowStyles(colors, themeObj, isHighlighted);
   const Icon = icon;
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
@@ -54,7 +56,7 @@ const MacroRow = ({
       <View style={styles.infoRow}>
         <AppText role="Caption" color="secondary">
           {isRemainder
-            ? "Not yet allocated"
+            ? t("onboarding.calorieBreakdown.notAllocated")
             : `${calories} kcal (${percentage}%)`}
         </AppText>
       </View>
@@ -86,6 +88,7 @@ export const CalorieBreakdown = ({
 }: CalorieBreakdownProps) => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
+  const { t } = useTranslation();
 
   // Calculations
   const proteinCals = proteinGrams * 4;
@@ -103,7 +106,9 @@ export const CalorieBreakdown = ({
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <AppText role="Caption" color="secondary">Total Daily Calories</AppText>
+        <AppText role="Caption" color="secondary">
+          {t("onboarding.calorieBreakdown.title")}
+        </AppText>
         <AppText role="Headline">{totalCalories} kcal</AppText>
       </View>
 
@@ -111,7 +116,7 @@ export const CalorieBreakdown = ({
       <MacroRow
         icon={BicepsFlexed}
         color={colors.semantic.protein}
-        label="Protein"
+        label={t("nutrients.protein.label")}
         grams={proteinGrams}
         calories={proteinCals}
         percentage={proteinPct}
@@ -124,7 +129,7 @@ export const CalorieBreakdown = ({
       <MacroRow
         icon={Droplet}
         color={colors.semantic.fat}
-        label="Fat"
+        label={t("nutrients.fat.label")}
         grams={fatGrams}
         calories={fatCals}
         percentage={fatPct}
@@ -137,7 +142,7 @@ export const CalorieBreakdown = ({
       <MacroRow
         icon={Wheat}
         color={colors.semantic.carbs}
-        label="Carbs"
+        label={t("nutrients.carbs.label")}
         grams={carbGrams}
         calories={carbCals}
         percentage={carbPct}
@@ -150,7 +155,7 @@ export const CalorieBreakdown = ({
       {remaining > 0 && (
         <View style={styles.remainingSection}>
           <AppText role="Caption" color="accent">
-            {remaining} kcal remaining
+            {t("onboarding.calorieBreakdown.remaining", { value: remaining })}
           </AppText>
         </View>
       )}

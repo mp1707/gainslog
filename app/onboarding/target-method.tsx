@@ -8,12 +8,14 @@ import { Calculator, Edit2 } from "lucide-react-native";
 import { SelectionCard } from "@/components/settings/SelectionCard";
 import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
+import { useTranslation } from "react-i18next";
 
 const TargetMethodScreen = () => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { safePush } = useNavigationGuard();
   const { setInputMethod } = useOnboardingStore();
+  const { t } = useTranslation();
 
   const handleMethodSelect = async (method: "calculate" | "manual") => {
     setInputMethod(method);
@@ -28,35 +30,43 @@ const TargetMethodScreen = () => {
 
   return (
     <OnboardingScreen
-      title={<AppText role="Title2">How would you like to set your nutrition targets?</AppText>}
+      title={<AppText role="Title2">{t("onboarding.targetMethod.title")}</AppText>}
       subtitle={
         <AppText role="Body" color="secondary" style={styles.secondaryText}>
-          Choose the approach that works best for you.
+          {t("onboarding.targetMethod.subtitle")}
         </AppText>
       }
     >
       <View style={styles.contentWrapper}>
         <View style={styles.methodsSection}>
           <SelectionCard
-            title="Calculate for Me"
-            description="Answer a few questions about your body and goals to get personalized targets"
+            title={t("onboarding.targetMethod.options.calculate.title")}
+            description={t("onboarding.targetMethod.options.calculate.description")}
             icon={Calculator}
             iconColor={colors.accent}
             isSelected={false}
             onSelect={() => handleMethodSelect("calculate")}
-            accessibilityLabel="Calculate nutrition targets automatically"
-            accessibilityHint="Answer questions about age, weight, height, activity level, and goals to calculate personalized daily targets"
+            accessibilityLabel={t(
+              "onboarding.targetMethod.options.calculate.accessibilityLabel"
+            )}
+            accessibilityHint={t(
+              "onboarding.targetMethod.options.calculate.accessibilityHint"
+            )}
           />
 
           <SelectionCard
-            title="I Know My Targets"
-            description="Set custom macro goals manually if you already have your targets"
+            title={t("onboarding.targetMethod.options.manual.title")}
+            description={t("onboarding.targetMethod.options.manual.description")}
             icon={Edit2}
             iconColor={colors.accent}
             isSelected={false}
             onSelect={() => handleMethodSelect("manual")}
-            accessibilityLabel="Set custom nutrition targets manually"
-            accessibilityHint="Manually enter your daily calorie, protein, fat, and carb targets"
+            accessibilityLabel={t(
+              "onboarding.targetMethod.options.manual.accessibilityLabel"
+            )}
+            accessibilityHint={t(
+              "onboarding.targetMethod.options.manual.accessibilityHint"
+            )}
           />
         </View>
       </View>

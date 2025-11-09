@@ -9,11 +9,13 @@ import { StyleSheet } from "react-native";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
+import { useTranslation } from "react-i18next";
 
 const SexSelectionScreen = () => {
   const { theme: themeObj } = useTheme();
   const { sex, setSex } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
+  const { t } = useTranslation();
 
   const styles = useMemo(() => createStyles(themeObj), [themeObj]);
 
@@ -30,36 +32,30 @@ const SexSelectionScreen = () => {
 
   return (
     <OnboardingScreen
-      title={<AppText role="Title2">Biological Sex</AppText>}
+      title={<AppText role="Title2">{t("onboarding.sex.title")}</AppText>}
       subtitle={
         <AppText role="Body" color="secondary" style={styles.secondaryText}>
-          To refine your metabolic calculation.
+          {t("onboarding.sex.subtitle")}
         </AppText>
       }
     >
       <View style={styles.contentWrapper}>
         <View style={styles.selectionSection}>
-          <SelectionCard
-            title="Male"
-            description=""
-            icon={User}
-            iconColor="#4A90E2"
-            isSelected={sex === "male"}
-            onSelect={() => handleSexSelect("male")}
-            accessibilityLabel="Select male as biological sex"
-            accessibilityHint="This will help calculate your calorie needs and advance to the next step"
-          />
-
-          <SelectionCard
-            title="Female"
-            description=""
-            icon={User}
-            iconColor="#E24A90"
-            isSelected={sex === "female"}
-            onSelect={() => handleSexSelect("female")}
-            accessibilityLabel="Select female as biological sex"
-            accessibilityHint="This will help calculate your calorie needs and advance to the next step"
-          />
+          {(["male", "female"] as const).map((option) => (
+            <SelectionCard
+              key={option}
+              title={t(`onboarding.sex.options.${option}`)}
+              description=""
+              icon={User}
+              iconColor={option === "male" ? "#4A90E2" : "#E24A90"}
+              isSelected={sex === option}
+              onSelect={() => handleSexSelect(option)}
+              accessibilityLabel={t("onboarding.sex.accessibility.label", {
+                option: t(`onboarding.sex.options.${option}`),
+              })}
+              accessibilityHint={t("onboarding.sex.accessibility.hint")}
+            />
+          ))}
         </View>
       </View>
     </OnboardingScreen>

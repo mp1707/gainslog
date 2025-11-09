@@ -6,6 +6,7 @@ import { useTheme } from "@/theme";
 import { Plus, Minus } from "lucide-react-native";
 import type { LucideIcon } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
+import { useTranslation } from "react-i18next";
 
 interface MacroSliderProps {
   label: string;
@@ -36,6 +37,7 @@ export const MacroSlider = ({
 }: MacroSliderProps) => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
+  const { t } = useTranslation();
 
   const maxGrams = Math.floor(maxCalories / caloriesPerGram);
   const calories = grams * caloriesPerGram;
@@ -114,7 +116,9 @@ export const MacroSlider = ({
             onPress={handleDecrement}
             style={styles.stepperButton}
             disabled={grams <= 0}
-            accessibilityLabel={`Decrease ${label}`}
+            accessibilityLabel={t("onboarding.macroSlider.decrease", {
+              label,
+            })}
           >
             <Minus
               size={18}
@@ -126,7 +130,9 @@ export const MacroSlider = ({
             onPress={handleIncrement}
             style={styles.stepperButton}
             disabled={grams >= maxGrams}
-            accessibilityLabel={`Increase ${label}`}
+            accessibilityLabel={t("onboarding.macroSlider.increase", {
+              label,
+            })}
           >
             <Plus
               size={18}

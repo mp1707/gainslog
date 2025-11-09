@@ -11,6 +11,7 @@ import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { calculateCalorieGoals } from "@/utils/calculateCalories";
 import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
+import { useTranslation } from "react-i18next";
 
 export default function Step3GoalsScreen() {
   const { colors, theme: themeObj } = useTheme();
@@ -28,6 +29,7 @@ export default function Step3GoalsScreen() {
   } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
   const scrollRef = useRef<ScrollView>(null);
+  const { t } = useTranslation();
 
   const [selectedGoal, setSelectedGoal] = useState<
     UserSettings["calorieGoalType"] | null
@@ -76,7 +78,7 @@ export default function Step3GoalsScreen() {
         actionButton={
           <Button
             variant="primary"
-            label="Go Back"
+            label={t("onboarding.common.goBack")}
             onPress={() => safePush("/onboarding/activity-level")}
             disabled={false}
           />
@@ -84,27 +86,44 @@ export default function Step3GoalsScreen() {
       >
         <View style={{ alignItems: "center", gap: 16 }}>
           <AppText role="Body" color="secondary" style={styles.secondaryText}>
-            Missing calculation data. Please start over.
+            {t("onboarding.calorieGoal.missingData")}
           </AppText>
         </View>
       </OnboardingScreen>
     );
   }
 
+  const GOAL_OPTIONS = [
+    {
+      id: "lose" as const,
+      Icon: TrendingDown,
+      color: colors.error,
+    },
+    {
+      id: "maintain" as const,
+      Icon: Equal,
+      color: colors.success,
+    },
+    {
+      id: "gain" as const,
+      Icon: TrendingUp,
+      color: colors.semantic.protein,
+    },
+  ];
+
   return (
     <OnboardingScreen
       ref={scrollRef}
-      title={<AppText role="Title2">What's the objective?</AppText>}
+      title={<AppText role="Title2">{t("onboarding.calorieGoal.title")}</AppText>}
       subtitle={
         <AppText role="Body" color="secondary" style={styles.secondaryText}>
-          Based on your data, here are three starting points with daily calorie
-          targets.
+          {t("onboarding.calorieGoal.subtitle")}
         </AppText>
       }
       actionButton={
         <Button
           variant="primary"
-          label="Continue"
+          label={t("onboarding.common.continue")}
           disabled={!selectedGoal}
           onPress={handleContinue}
         />
@@ -112,41 +131,30 @@ export default function Step3GoalsScreen() {
     >
       <View style={styles.contentWrapper}>
         <View style={styles.goalsSection}>
-          <RadioCard
-            title="Cut"
-            description="Create a calorie deficit to lose weight gradually"
-            titleIcon={TrendingDown}
-            titleIconColor={colors.error}
-            badge={{ label: `${calorieGoals.lose} kcal` }}
-            isSelected={selectedGoal === "lose"}
-            onSelect={() => handleGoalSelect("lose")}
-            accessibilityLabel="Cut goal"
-            accessibilityHint={`Set ${calorieGoals.lose} calories per day to lose weight gradually`}
-          />
-
-          <RadioCard
-            title="Maintain"
-            description="Eat at maintenance calories to stay at current weight"
-            titleIcon={Equal}
-            titleIconColor={colors.success}
-            badge={{ label: `${calorieGoals.maintain} kcal` }}
-            isSelected={selectedGoal === "maintain"}
-            onSelect={() => handleGoalSelect("maintain")}
-            accessibilityLabel="Maintain goal"
-            accessibilityHint={`Set ${calorieGoals.maintain} calories per day to stay at current weight`}
-          />
-
-          <RadioCard
-            title="Bulk"
-            description="Create a calorie surplus to gain weight gradually"
-            titleIcon={TrendingUp}
-            titleIconColor={colors.semantic.protein}
-            badge={{ label: `${calorieGoals.gain} kcal` }}
-            isSelected={selectedGoal === "gain"}
-            onSelect={() => handleGoalSelect("gain")}
-            accessibilityLabel="Bulk goal"
-            accessibilityHint={`Set ${calorieGoals.gain} calories per day to gain weight gradually`}
-          />
+          {GOAL_OPTIONS.map(({ id, Icon, color }) => {
+            const caloriesValue = calorieGoals[id];
+            return (
+              <RadioCard
+                key={id}
+                title={t(`onboarding.calorieGoal.options.${id}.title`)}
+                description={t(
+                  `onboarding.calorieGoal.options.${id}.description`
+                )}
+                titleIcon={Icon}
+                titleIconColor={color}
+                badge={{ label: `${caloriesValue} kcal` }}
+                isSelected={selectedGoal === id}
+                onSelect={() => handleGoalSelect(id)}
+                accessibilityLabel={t(
+                  `onboarding.calorieGoal.options.${id}.accessibilityLabel`
+                )}
+                accessibilityHint={t(
+                  `onboarding.calorieGoal.options.${id}.accessibilityHint`,
+                  { calories: caloriesValue }
+                )}
+              />
+            );
+          })}
         </View>
       </View>
     </OnboardingScreen>

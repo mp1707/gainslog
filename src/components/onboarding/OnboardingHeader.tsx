@@ -4,6 +4,7 @@ import { ChevronLeft, X } from "lucide-react-native";
 import { RoundButton } from "@/components/shared/RoundButton";
 import { useTheme } from "@/theme";
 import { ProgressBar } from "./ProgressBar";
+import { useTranslation } from "react-i18next";
 
 interface OnboardingHeaderProps {
   onBack: () => void;
@@ -22,6 +23,7 @@ export const OnboardingHeader: React.FC<OnboardingHeaderProps> = ({
 }) => {
   const { colors, theme } = useTheme();
   const styles = createStyles(colors, theme);
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
@@ -32,8 +34,8 @@ export const OnboardingHeader: React.FC<OnboardingHeaderProps> = ({
             onPress={onBack}
             Icon={ChevronLeft}
             variant="tertiary"
-            accessibilityLabel="Go back"
-            accessibilityHint="Navigate to previous step"
+            accessibilityLabel={t("onboarding.header.backLabel")}
+            accessibilityHint={t("onboarding.header.backHint")}
           />
         </View>
         <View style={styles.skipButton}>
@@ -41,8 +43,8 @@ export const OnboardingHeader: React.FC<OnboardingHeaderProps> = ({
             onPress={onSkip}
             Icon={X}
             variant="tertiary"
-            accessibilityLabel="Skip onboarding"
-            accessibilityHint="Skip the onboarding process"
+            accessibilityLabel={t("onboarding.header.skipLabel")}
+            accessibilityHint={t("onboarding.header.skipHint")}
           />
         </View>
       </View>

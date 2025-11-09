@@ -7,44 +7,41 @@ import { useTheme } from "@/theme";
 import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { RadioCard } from "@/components/shared/RadioCard";
 import { Button } from "@/components/shared/Button";
-import { ProteinGoalType, UserSettings } from "@/types/models";
+import { ProteinGoalType } from "@/types/models";
 import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
+import { useTranslation } from "react-i18next";
 
 const METHODS: Record<
   ProteinGoalType,
   {
     id: ProteinGoalType;
-    title: string;
-    description: string;
+    titleKey: string;
+    descriptionKey: string;
     factor: number;
   }
 > = {
   baseline: {
     id: "baseline",
-    title: "The Baseline",
-    description:
-      "Balanced & Healthy. Ideal for an active lifestyle and maintaining your general fitness.",
+    titleKey: "onboarding.proteinGoal.methods.baseline.title",
+    descriptionKey: "onboarding.proteinGoal.methods.baseline.description",
     factor: 1.2,
   },
   exerciser: {
     id: "exerciser",
-    title: "The Exerciser",
-    description:
-      "Fit & Toned. Perfect for supporting your training results and gaining muscle.",
+    titleKey: "onboarding.proteinGoal.methods.exerciser.title",
+    descriptionKey: "onboarding.proteinGoal.methods.exerciser.description",
     factor: 1.6,
   },
   athlete: {
     id: "athlete",
-    title: "The Athlete",
-    description:
-      "Maximum Muscle Gain. Optimal in combination with intense strength training.",
+    titleKey: "onboarding.proteinGoal.methods.athlete.title",
+    descriptionKey: "onboarding.proteinGoal.methods.athlete.description",
     factor: 2.0,
   },
   diet_phase: {
     id: "diet_phase",
-    title: "The Diet Phase",
-    description:
-      "Protection & Satiety. Maximizes muscle retention and provides fullness during a calorie reduction.",
+    titleKey: "onboarding.proteinGoal.methods.diet_phase.title",
+    descriptionKey: "onboarding.proteinGoal.methods.diet_phase.description",
     factor: 2.2,
   },
 };
@@ -56,6 +53,7 @@ export default function ProteinGoalsScreen() {
     useOnboardingStore();
   const { safePush } = useNavigationGuard();
   const scrollRef = useRef<ScrollView>(null);
+  const { t } = useTranslation();
 
   const [selectedMethod, setSelectedMethod] = useState<ProteinGoalType | null>(
     proteinGoalType || null
@@ -93,16 +91,18 @@ export default function ProteinGoalsScreen() {
   return (
     <OnboardingScreen
       ref={scrollRef}
-      title={<AppText role="Title2">Set Your Protein Target</AppText>}
+      title={<AppText role="Title2">{t("onboarding.proteinGoal.title")}</AppText>}
       subtitle={
         <AppText role="Body" color="secondary" style={styles.secondaryText}>
-          Based on your weight of {weight}kg
+          {weight
+            ? t("onboarding.proteinGoal.subtitle", { weight })
+            : t("onboarding.proteinGoal.subtitleFallback")}
         </AppText>
       }
       actionButton={
         <Button
           variant="primary"
-          label="Continue"
+          label={t("onboarding.common.continue")}
           disabled={!selectedMethod}
           onPress={handleContinue}
         />
@@ -111,16 +111,21 @@ export default function ProteinGoalsScreen() {
       <View style={styles.contentWrapper}>
         <View style={styles.methodsSection}>
           {methods.map((method) => {
+            const title = t(method.titleKey);
+            const description = t(method.descriptionKey);
             return (
               <RadioCard
                 key={method.id}
-                title={method.title}
-                description={method.description}
+                title={title}
+                description={description}
                 factor={method.factor}
                 isSelected={selectedMethod === method.id}
                 onSelect={() => handleCardSelect(method.id)}
-                accessibilityLabel={`${method.title} protein calculation method`}
-                accessibilityHint={`Select ${method.factor} grams per kilogram protein goal. ${method.description}`}
+                accessibilityLabel={title}
+                accessibilityHint={t(
+                  "onboarding.proteinGoal.accessibilityHint",
+                  { factor: method.factor, description }
+                )}
               />
             );
           })}

@@ -12,6 +12,7 @@ import { CalorieControl } from "@/components/onboarding/CalorieControl";
 import { BudgetBar } from "@/components/onboarding/BudgetBar";
 import { MacroSlider } from "@/components/onboarding/MacroSlider";
 import Animated, { FadeIn } from "react-native-reanimated";
+import { useTranslation } from "react-i18next";
 
 const ManualInputScreen = () => {
   const { colors, theme: themeObj } = useTheme();
@@ -27,6 +28,7 @@ const ManualInputScreen = () => {
     setCarbGoal,
     setInputMethod,
   } = useOnboardingStore();
+  const { t } = useTranslation();
 
   // Initialize state from store values if available
   const [calories, setCalories] = useState(calorieGoal || 2500);
@@ -90,7 +92,7 @@ const ManualInputScreen = () => {
       actionButton={
         <Button
           variant="primary"
-          label="Continue"
+          label={t("onboarding.common.continue")}
           onPress={handleContinue}
           disabled={!isValid}
         />
@@ -104,9 +106,9 @@ const ManualInputScreen = () => {
         <View style={styles.contentWrapper}>
           {/* Header */}
           <View style={styles.headerSection}>
-            <AppText role="Title2">Set Your Nutrition Targets</AppText>
+            <AppText role="Title2">{t("onboarding.manualInput.title")}</AppText>
             <AppText role="Body" color="secondary" style={styles.subtitle}>
-              Allocate your daily calories across macronutrients.
+              {t("onboarding.manualInput.subtitle")}
             </AppText>
           </View>
 
@@ -124,7 +126,7 @@ const ManualInputScreen = () => {
           {calories > 0 && (
             <Animated.View entering={FadeIn} style={styles.macrosSection}>
               <AppText role="Headline" style={styles.sectionTitle}>
-                Macro Distribution
+                {t("onboarding.manualInput.macroDistribution")}
               </AppText>
 
               <BudgetBar
@@ -138,7 +140,7 @@ const ManualInputScreen = () => {
 
               {/* Protein Slider */}
               <MacroSlider
-                label="Protein"
+                label={t("nutrients.protein.label")}
                 icon={BicepsFlexed}
                 iconColor={colors.semantic.protein}
                 grams={protein}
@@ -152,7 +154,7 @@ const ManualInputScreen = () => {
 
               {/* Fat Slider */}
               <MacroSlider
-                label="Fat"
+                label={t("nutrients.fat.label")}
                 icon={Droplet}
                 iconColor={colors.semantic.fat}
                 grams={fat}
@@ -174,10 +176,12 @@ const ManualInputScreen = () => {
                       fill={colors.semantic.carbs}
                       strokeWidth={0}
                     />
-                    <AppText role="Body">Carbohydrates</AppText>
+                    <AppText role="Body">
+                      {t("onboarding.manualInput.carbsLabel")}
+                    </AppText>
                     <View style={styles.autoLabel}>
                       <AppText role="Caption" color="secondary">
-                        Auto
+                        {t("onboarding.manualInput.auto")}
                       </AppText>
                     </View>
                   </View>
@@ -190,11 +194,11 @@ const ManualInputScreen = () => {
                   </AppText>
                 </View>
 
-                <AppText role="Caption" color="secondary" style={styles.carbsHelper}>
-                  Calculated from remaining calories. Carbs provide 4 kcal per gram.
-                </AppText>
-              </View>
-            </Animated.View>
+                  <AppText role="Caption" color="secondary" style={styles.carbsHelper}>
+                    {t("onboarding.manualInput.carbsHelper")}
+                  </AppText>
+                </View>
+              </Animated.View>
           )}
         </View>
       </ScrollView>

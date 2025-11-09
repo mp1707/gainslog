@@ -10,12 +10,14 @@ import { useOnboardingStore } from "@/store/useOnboardingStore";
 import { useAppStore } from "@/store/useAppStore";
 import { CalorieBreakdown } from "@/components/onboarding/CalorieBreakdown";
 import { DailyTargets } from "@/types/models";
+import { useTranslation } from "react-i18next";
 
 const ManualSummaryScreen = () => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
   const { safeDismissTo, safeNavigate } = useNavigationGuard();
   const [isConfirming, setIsConfirming] = useState(false);
+  const { t } = useTranslation();
 
   const {
     calorieGoal,
@@ -43,7 +45,10 @@ const ManualSummaryScreen = () => {
       if (__DEV__) {
         console.error("Missing required data for daily targets");
       }
-      Alert.alert("Error", "Missing required data. Please go back and complete all fields.");
+      Alert.alert(
+        t("onboarding.common.errorTitle"),
+        t("onboarding.common.missingData")
+      );
       return;
     }
 
@@ -79,13 +84,17 @@ const ManualSummaryScreen = () => {
           <View style={styles.secondaryActions}>
             <Pressable onPress={handleEditTargets}>
               <AppText role="Button" color="accent" style={styles.centeredText}>
-                Edit Targets
+                {t("onboarding.common.edit")}
               </AppText>
             </Pressable>
           </View>
           <Button
             variant="primary"
-            label={isConfirming ? "Starting..." : "Confirm & Start Tracking"}
+            label={
+              isConfirming
+                ? t("onboarding.common.starting")
+                : t("onboarding.common.confirm")
+            }
             onPress={handleConfirmAndStartTracking}
             disabled={isConfirming}
           />
@@ -95,9 +104,9 @@ const ManualSummaryScreen = () => {
       <View style={styles.contentWrapper}>
         {/* Header */}
         <View style={styles.headerSection}>
-          <AppText role="Title2">Your Daily Blueprint</AppText>
+          <AppText role="Title2">{t("onboarding.manualSummary.title")}</AppText>
           <AppText role="Body" color="secondary" style={styles.subtitle}>
-            Review your custom targets and start tracking.
+            {t("onboarding.manualSummary.subtitle")}
           </AppText>
         </View>
 
@@ -117,9 +126,10 @@ const ManualSummaryScreen = () => {
         {/* Helper Info */}
         <View style={styles.helperSection}>
           <AppText role="Caption" color="secondary" style={styles.helperText}>
-            Carbs are calculated from your remaining calories. Since carbs
-            provide 4 kcal per gram, the remaining {remainingCalories} kcal are
-            filled with {calculatedCarbs}g of carbs.
+            {t("onboarding.manualSummary.helper", {
+              calories: remainingCalories,
+              carbs: calculatedCarbs,
+            })}
           </AppText>
         </View>
       </View>

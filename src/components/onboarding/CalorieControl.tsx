@@ -5,6 +5,7 @@ import { AppText } from "@/components/shared/AppText";
 import { useTheme } from "@/theme";
 import { Flame, Plus, Minus } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
+import { useTranslation } from "react-i18next";
 
 interface CalorieControlProps {
   value: number;
@@ -27,6 +28,7 @@ export const CalorieControl = ({
 }: CalorieControlProps) => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
+  const { t } = useTranslation();
 
   // Force remount on initial render to fix React Native Slider position bug
   const [sliderKey, setSliderKey] = useState(0);
@@ -69,7 +71,7 @@ export const CalorieControl = ({
           onPress={handleDecrement}
           style={styles.stepperButton}
           disabled={value <= min}
-          accessibilityLabel="Decrease calories"
+          accessibilityLabel={t("onboarding.calorieControl.decrease")}
         >
           <Minus
             size={24}
@@ -95,7 +97,7 @@ export const CalorieControl = ({
           onPress={handleIncrement}
           style={styles.stepperButton}
           disabled={value >= max}
-          accessibilityLabel="Increase calories"
+          accessibilityLabel={t("onboarding.calorieControl.increase")}
         >
           <Plus
             size={24}
@@ -134,8 +136,7 @@ export const CalorieControl = ({
       {/* Helper Text */}
       <View style={styles.helperContainer}>
         <AppText role="Caption" color="secondary" style={styles.helperText}>
-          Most athletes consume 2000-3500 kcal/day depending on their goals and
-          activity level.
+          {t("onboarding.calorieControl.helper")}
         </AppText>
       </View>
     </View>

@@ -4,44 +4,39 @@ export const ACTIVITY_LEVELS: Record<
   UserSettings["activityLevel"],
   {
     id: UserSettings["activityLevel"];
-    title: string;
-    description: string;
-    label: string;
+    titleKey: string;
+    descriptionKey: string;
+    labelKey: string;
   }
 > = {
   sedentary: {
     id: "sedentary",
-    title: "Sedentary",
-    description:
-      "Little to no exercise. Desk job with minimal physical activity throughout the day.",
-    label: "Sedentary Lifestyle",
+    titleKey: "onboarding.activityLevel.levels.sedentary.title",
+    descriptionKey: "onboarding.activityLevel.levels.sedentary.description",
+    labelKey: "onboarding.activityLevel.levels.sedentary.label",
   },
   light: {
     id: "light",
-    title: "Light Activity",
-    description:
-      "Light exercise 1-3 days per week. Some walking or light recreational activities.",
-    label: "Lightly Active",
+    titleKey: "onboarding.activityLevel.levels.light.title",
+    descriptionKey: "onboarding.activityLevel.levels.light.description",
+    labelKey: "onboarding.activityLevel.levels.light.label",
   },
   moderate: {
     id: "moderate",
-    title: "Moderate Activity",
-    description:
-      "Moderate exercise 3-5 days per week. Regular gym sessions or sports activities.",
-    label: "Moderately Active",
+    titleKey: "onboarding.activityLevel.levels.moderate.title",
+    descriptionKey: "onboarding.activityLevel.levels.moderate.description",
+    labelKey: "onboarding.activityLevel.levels.moderate.label",
   },
   active: {
     id: "active",
-    title: "Active",
-    description:
-      "Moderate exercise 6-7 days per week. Or intense training 3 to 4 times/week.",
-    label: "Active",
+    titleKey: "onboarding.activityLevel.levels.active.title",
+    descriptionKey: "onboarding.activityLevel.levels.active.description",
+    labelKey: "onboarding.activityLevel.levels.active.label",
   },
   veryactive: {
     id: "veryactive",
-    title: "Very Active",
-    description:
-      "Very heavy physical work or 6 to 7 times/week intense exercise. Professional athlete level activity.",
-    label: "Very Active",
+    titleKey: "onboarding.activityLevel.levels.veryactive.title",
+    descriptionKey: "onboarding.activityLevel.levels.veryactive.description",
+    labelKey: "onboarding.activityLevel.levels.veryactive.label",
   },
 };

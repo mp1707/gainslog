@@ -11,6 +11,7 @@ import * as Haptics from "expo-haptics";
 import { Flame, BicepsFlexed, Wheat, Droplet } from "lucide-react-native";
 import { calculateFatGramsFromPercentage } from "@/utils/nutritionCalculations";
 import { DailyTargets, ProteinGoalType } from "@/types/models";
+import { useTranslation } from "react-i18next";
 
 // Protein calculation factors mapping
 const PROTEIN_FACTORS: Record<ProteinGoalType, number> = {
@@ -25,6 +26,7 @@ const CalculatorSummaryScreen = () => {
   const styles = createStyles(colors, themeObj);
   const { safeDismissTo, safeNavigate } = useNavigationGuard();
   const [isConfirming, setIsConfirming] = useState(false);
+  const { t } = useTranslation();
 
   // Onboarding store state
   const { calorieGoal, proteinGoal, proteinGoalType, fatPercentage, weight } =
@@ -55,13 +57,15 @@ const CalculatorSummaryScreen = () => {
   const proteinSubtitle = useMemo(() => {
     if (proteinGoalType && weight) {
       const factor = PROTEIN_FACTORS[proteinGoalType];
-      return `${factor}g per kg bodyweight`;
+      return t("onboarding.calculatorSummary.proteinSubtitle", { factor });
     }
-    return "Daily target";
-  }, [proteinGoalType, weight]);
+    return t("onboarding.common.dailyTarget");
+  }, [proteinGoalType, weight, t]);
 
   // Generate subtitle for fat
-  const fatSubtitle = `${effectiveFatPercentage}% of total calories`;
+  const fatSubtitle = t("onboarding.calculatorSummary.fatSubtitle", {
+    percentage: effectiveFatPercentage,
+  });
 
   const handleAdjustTargets = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -75,8 +79,8 @@ const CalculatorSummaryScreen = () => {
         console.error("Missing required data for daily targets");
       }
       Alert.alert(
-        "Error",
-        "Missing required data. Please go back and complete all fields."
+        t("onboarding.common.errorTitle"),
+        t("onboarding.common.missingData")
       );
       return;
     }
@@ -110,8 +114,8 @@ const CalculatorSummaryScreen = () => {
       key: "calories" as const,
       icon: Flame,
       color: colors.semantic.calories,
-      label: "Calories",
-      subtitle: "Daily target",
+      label: t("onboarding.calculatorSummary.rows.calories"),
+      subtitle: t("onboarding.common.dailyTarget"),
       value: currentCalories,
       unit: "kcal",
       kcal: undefined,
@@ -120,7 +124,7 @@ const CalculatorSummaryScreen = () => {
       key: "protein" as const,
       icon: BicepsFlexed,
       color: colors.semantic.protein,
-      label: "Protein - 4 kcal /g",
+      label: t("onboarding.calculatorSummary.rows.protein"),
       subtitle: proteinSubtitle,
       value: currentProtein,
       unit: "g",
@@ -130,18 +134,18 @@ const CalculatorSummaryScreen = () => {
       key: "fat" as const,
       icon: Droplet,
       color: colors.semantic.fat,
-      label: "Fat - 9 kcal /g",
+      label: t("onboarding.calculatorSummary.rows.fat"),
       subtitle: fatSubtitle,
       value: currentFat,
       unit: "g",
       kcal: currentFat * 9,
     },
     {
-      key: "carbs",
+      key: "carbs" as const,
       icon: Wheat,
       color: colors.semantic.carbs,
-      label: "Carbs - 4 kcal /g",
-      subtitle: "Remainder",
+      label: t("onboarding.calculatorSummary.rows.carbs"),
+      subtitle: t("onboarding.common.remainder"),
       value: currentCarbs,
       unit: "g",
       kcal: currentCarbs * 4,
@@ -155,13 +159,17 @@ const CalculatorSummaryScreen = () => {
           <View style={styles.secondaryActions}>
             <Pressable onPress={handleAdjustTargets}>
               <AppText role="Button" color="accent" style={styles.centeredText}>
-                Adjust Targets
+                {t("onboarding.common.adjust")}
               </AppText>
             </Pressable>
           </View>
           <Button
             variant="primary"
-            label={isConfirming ? "Starting..." : "Confirm & Start Tracking"}
+            label={
+              isConfirming
+                ? t("onboarding.common.starting")
+                : t("onboarding.common.confirm")
+            }
             onPress={handleConfirmAndStartTracking}
             disabled={
               currentCalories <= 0 || currentProtein <= 0 || isConfirming
@@ -172,9 +180,9 @@ const CalculatorSummaryScreen = () => {
     >
       {/* Title */}
       <View style={styles.titleSection}>
-        <AppText role="Title2">Your Daily Blueprint</AppText>
+        <AppText role="Title2">{t("onboarding.calculatorSummary.title")}</AppText>
         <AppText role="Body" color="secondary" style={styles.secondaryText}>
-          Here are your starting targets. You can adjust these anytime.
+          {t("onboarding.calculatorSummary.subtitle")}
         </AppText>
       </View>
       {/* Targets List */}
@@ -217,7 +225,7 @@ const CalculatorSummaryScreen = () => {
       {/* Helper Info */}
       <View style={styles.helperSection}>
         <AppText role="Caption" color="secondary" style={styles.helperText}>
-          Note: Small variations may occur due to rounding.
+          {t("onboarding.calculatorSummary.helper")}
         </AppText>
       </View>
     </OnboardingScreen>

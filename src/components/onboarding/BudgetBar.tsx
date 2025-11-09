@@ -6,6 +6,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { AppText } from "@/components/shared/AppText";
 import { useTheme } from "@/theme";
+import { useTranslation } from "react-i18next";
 
 interface BudgetBarProps {
   totalCalories: number;
@@ -22,6 +23,7 @@ export const BudgetBar = ({
 }: BudgetBarProps) => {
   const { colors, theme: themeObj } = useTheme();
   const styles = createStyles(colors, themeObj);
+  const { t } = useTranslation();
 
   const proteinPct = totalCalories > 0 ? (proteinCalories / totalCalories) * 100 : 0;
   const fatPct = totalCalories > 0 ? (fatCalories / totalCalories) * 100 : 0;
@@ -106,7 +108,10 @@ export const BudgetBar = ({
       {remainingCalories >= 4 && (
         <View style={styles.remainingContainer}>
           <AppText role="Body" color="accent">
-            {Math.round(remainingCalories)} kcal remaining for Carbs
+            {t("onboarding.budgetBar.remaining", {
+              value: Math.round(remainingCalories),
+              macro: t("onboarding.manualInput.carbsLabel"),
+            })}
           </AppText>
         </View>
       )}

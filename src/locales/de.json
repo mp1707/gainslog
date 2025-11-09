@@ -317,6 +317,203 @@
       }
     }
   },
+  "onboarding": {
+    "header": {
+      "backLabel": "Zurück",
+      "backHint": "Zum vorherigen Schritt",
+      "skipLabel": "Onboarding überspringen",
+      "skipHint": "Überspringt das Onboarding"
+    },
+    "common": {
+      "continue": "Weiter",
+      "goBack": "Zurück",
+      "confirm": "Bestätigen & Tracking starten",
+      "starting": "Starte...",
+      "edit": "Ziele bearbeiten",
+      "adjust": "Ziele anpassen",
+      "dailyTarget": "Tagesziel",
+      "remainder": "Rest",
+      "errorTitle": "Fehler",
+      "missingData": "Es fehlen Angaben. Bitte gehe zurück und fülle alle Felder aus."
+    },
+    "targetMethod": {
+      "title": "Wie möchtest du deine Ernährungsziele festlegen?",
+      "subtitle": "Wähle den Ansatz, der am besten zu dir passt.",
+      "options": {
+        "calculate": {
+          "title": "Für mich berechnen",
+          "description": "Beantworte ein paar Fragen zu Körper und Zielen, um persönliche Zielwerte zu erhalten",
+          "accessibilityLabel": "Ernährungsziele automatisch berechnen lassen",
+          "accessibilityHint": "Beantworte Fragen zu deinen Daten und Zielen, um tägliche Zielwerte zu erhalten"
+        },
+        "manual": {
+          "title": "Ich kenne meine Ziele",
+          "description": "Lege deine Makros manuell fest, wenn du deine Zielwerte bereits hast",
+          "accessibilityLabel": "Ernährungsziele manuell festlegen",
+          "accessibilityHint": "Gib deine täglichen Kalorien-, Protein-, Fett- und Kohlenhydratziele manuell ein"
+        }
+      }
+    },
+    "age": {
+      "title": "Wie alt bist du?",
+      "subtitle": "Damit wir deine Stoffwechselbasis bestimmen können.",
+      "unit": "Jahre"
+    },
+    "sex": {
+      "title": "Biologisches Geschlecht",
+      "subtitle": "Für eine genauere Berechnung.",
+      "options": {
+        "male": "Männlich",
+        "female": "Weiblich"
+      },
+      "accessibility": {
+        "label": "Wähle {{option}} als biologisches Geschlecht",
+        "hint": "Hilft bei der Kalorienberechnung und führt zum nächsten Schritt"
+      }
+    },
+    "height": {
+      "title": "Und deine Körpergröße?",
+      "subtitle": "Für eine präzise TDEE-Berechnung.",
+      "tooltip": "TDEE steht für Total Daily Energy Expenditure – also die Kalorien, die du pro Tag basierend auf deinen Werten und deiner Aktivität verbrennst.",
+      "unit": "cm"
+    },
+    "weight": {
+      "title": "Wie viel wiegst du aktuell?",
+      "subtitle": "Das ist der Ausgangspunkt für deine Ziele.",
+      "unit": "kg"
+    },
+    "activityLevel": {
+      "title": "Wie aktiv bist du?",
+      "subtitle": "Wähle deinen Ausgangswert. Er kalibriert deine TDEE.",
+      "accessibility": {
+        "label": "Aktivitätslevel {{title}}",
+        "hint": "Wähle {{title}}. {{description}}"
+      },
+      "levels": {
+        "sedentary": {
+          "title": "Überwiegend sitzend",
+          "description": "Kaum Bewegung. Bürojob mit minimaler Aktivität.",
+          "label": "Sitzender Lebensstil"
+        },
+        "light": {
+          "title": "Leicht aktiv",
+          "description": "Leichte Aktivität an 1–3 Tagen pro Woche. Spaziergänge oder lockere Freizeitaktivitäten.",
+          "label": "Leicht aktiv"
+        },
+        "moderate": {
+          "title": "Mäßig aktiv",
+          "description": "Regelmäßiges Training an 3–5 Tagen pro Woche.",
+          "label": "Mäßig aktiv"
+        },
+        "active": {
+          "title": "Aktiv",
+          "description": "Training an 6–7 Tagen pro Woche oder mehrmals intensives Training.",
+          "label": "Aktiv"
+        },
+        "veryactive": {
+          "title": "Sehr aktiv",
+          "description": "Schwere körperliche Arbeit oder 6–7 sehr intensive Einheiten pro Woche.",
+          "label": "Sehr aktiv"
+        }
+      }
+    },
+    "calorieGoal": {
+      "title": "Welches Ziel verfolgst du?",
+      "subtitle": "Basierend auf deinen Angaben schlagen wir dir drei Kalorienziele vor.",
+      "missingData": "Berechnungsdaten fehlen. Bitte starte erneut.",
+      "options": {
+        "lose": {
+          "title": "Defizit",
+          "description": "Schaffe ein Kaloriendefizit, um langsam abzunehmen",
+          "accessibilityLabel": "Defizit-Ziel",
+          "accessibilityHint": "Setze {{calories}} Kalorien pro Tag, um langsam abzunehmen"
+        },
+        "maintain": {
+          "title": "Gewicht halten",
+          "description": "Iss auf Erhalt, um dein Gewicht zu stabilisieren",
+          "accessibilityLabel": "Erhaltungs-Ziel",
+          "accessibilityHint": "Setze {{calories}} Kalorien pro Tag, um dein aktuelles Gewicht zu halten"
+        },
+        "gain": {
+          "title": "Überschuss",
+          "description": "Schaffe einen Kalorienüberschuss, um langsam zuzunehmen",
+          "accessibilityLabel": "Überschuss-Ziel",
+          "accessibilityHint": "Setze {{calories}} Kalorien pro Tag, um langsam zuzunehmen"
+        }
+      }
+    },
+    "proteinGoal": {
+      "title": "Lege dein Proteinziel fest",
+      "subtitle": "Basierend auf deinem Gewicht von {{weight}} kg",
+      "subtitleFallback": "Wähle den Proteinansatz, der zu deinem Training passt.",
+      "methods": {
+        "baseline": {
+          "title": "Die Basis",
+          "description": "Ausgewogen und gesund. Ideal für einen aktiven Alltag und allgemeine Fitness.",
+          "factor": 1.2
+        },
+        "exerciser": {
+          "title": "Der Trainierende",
+          "description": "Fit & definiert. Unterstützt deine Trainingsresultate und den Muskelaufbau.",
+          "factor": 1.6
+        },
+        "athlete": {
+          "title": "Der Athlet",
+          "description": "Maximaler Muskelaufbau. Optimal mit intensivem Krafttraining.",
+          "factor": 2
+        },
+        "diet_phase": {
+          "title": "Die Diätphase",
+          "description": "Schutz & Sättigung. Erhält Muskulatur und hält dich während eines Defizits satt.",
+          "factor": 2.2
+        }
+      },
+      "accessibilityHint": "Wähle {{factor}} Gramm pro Kilogramm Körpergewicht. {{description}}"
+    },
+    "manualInput": {
+      "title": "Lege deine Ernährungsziele fest",
+      "subtitle": "Verteile deine täglichen Kalorien auf die Makronährstoffe.",
+      "macroDistribution": "Makroverteilung",
+      "carbsLabel": "Kohlenhydrate",
+      "auto": "Auto",
+      "carbsHelper": "Aus den verbleibenden Kalorien berechnet. Kohlenhydrate liefern 4 kcal pro Gramm."
+    },
+    "manualSummary": {
+      "title": "Dein täglicher Plan",
+      "subtitle": "Prüfe deine individuellen Ziele und starte mit dem Tracking.",
+      "helper": "Kohlenhydrate werden aus den verbleibenden Kalorien berechnet. Da Kohlenhydrate 4 kcal pro Gramm liefern, füllen die übrigen {{calories}} kcal {{carbs}} g Kohlenhydrate."
+    },
+    "calculatorSummary": {
+      "title": "Dein täglicher Plan",
+      "subtitle": "Hier sind deine Startwerte. Du kannst sie jederzeit anpassen.",
+      "helper": "Hinweis: Durch Rundungen kann es zu kleinen Abweichungen kommen.",
+      "proteinSubtitle": "{{factor}} g pro kg Körpergewicht",
+      "fatSubtitle": "{{percentage}} % der Gesamtkalorien",
+      "rows": {
+        "calories": "Kalorien",
+        "protein": "Protein - 4 kcal/g",
+        "fat": "Fett - 9 kcal/g",
+        "carbs": "Kohlenhydrate - 4 kcal/g"
+      }
+    },
+    "calorieControl": {
+      "decrease": "Kalorien verringern",
+      "increase": "Kalorien erhöhen",
+      "helper": "Die meisten Athleten konsumieren je nach Ziel 2.000–3.500 kcal pro Tag."
+    },
+    "budgetBar": {
+      "remaining": "Noch {{value}} kcal für {{macro}}"
+    },
+    "macroSlider": {
+      "decrease": "{{label}} reduzieren",
+      "increase": "{{label}} erhöhen"
+    },
+    "calorieBreakdown": {
+      "title": "Kalorien am Tag gesamt",
+      "notAllocated": "Noch nicht verteilt",
+      "remaining": "{{value}} kcal übrig"
+    }
+  },
   "logCard": {
     "fallbackTitle": "Neuer Eintrag",
     "refinement": {

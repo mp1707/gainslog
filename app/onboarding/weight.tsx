@@ -8,6 +8,7 @@ import { Button } from "@/components/index";
 import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
 import { RulerPicker } from "@/components/shared/RulerPicker";
+import { useTranslation } from "react-i18next";
 
 const WeightSelectionScreen = () => {
   const { colors, theme: themeObj } = useTheme();
@@ -15,6 +16,7 @@ const WeightSelectionScreen = () => {
   const { weight, setWeight } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
   const [currentWeight, setCurrentWeight] = useState(weight || 70);
+  const { t } = useTranslation();
 
   const handleContinue = async () => {
     setWeight(currentWeight);
@@ -29,14 +31,18 @@ const WeightSelectionScreen = () => {
   return (
     <OnboardingScreen
       scrollEnabled={false}
-      title={<AppText role="Title2">What's your current weight?</AppText>}
+      title={<AppText role="Title2">{t("onboarding.weight.title")}</AppText>}
       subtitle={
         <AppText role="Body" color="secondary" style={styles.secondaryText}>
-          This sets the starting point for your goals.
+          {t("onboarding.weight.subtitle")}
         </AppText>
       }
       actionButton={
-        <Button variant="primary" label="Continue" onPress={handleContinue} />
+        <Button
+          variant="primary"
+          label={t("onboarding.common.continue")}
+          onPress={handleContinue}
+        />
       }
     >
       <View style={styles.pickerSection}>
@@ -45,7 +51,7 @@ const WeightSelectionScreen = () => {
           max={300}
           value={currentWeight}
           onChange={handleWeightChange}
-          unit="kg"
+          unit={t("onboarding.weight.unit")}
         />
       </View>
     </OnboardingScreen>

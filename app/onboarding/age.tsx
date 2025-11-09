@@ -8,6 +8,7 @@ import { Button } from "@/components/index";
 import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
 import { Picker } from "@react-native-picker/picker";
+import { useTranslation } from "react-i18next";
 
 const AgeSelectionScreen = () => {
   const { colors, theme: themeObj } = useTheme();
@@ -15,6 +16,7 @@ const AgeSelectionScreen = () => {
   const { age, setAge } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
   const [selectedAge, setSelectedAge] = useState<number>(age || 30);
+  const { t } = useTranslation();
 
   // Create age options array
   const ageOptions = useMemo(() => {
@@ -38,14 +40,18 @@ const AgeSelectionScreen = () => {
   return (
     <OnboardingScreen
       scrollEnabled={false}
-      title={<AppText role="Title2">What's your age?</AppText>}
+      title={<AppText role="Title2">{t("onboarding.age.title")}</AppText>}
       subtitle={
         <AppText role="Body" color="secondary" style={styles.secondaryText}>
-          To establish your metabolic baseline.
+          {t("onboarding.age.subtitle")}
         </AppText>
       }
       actionButton={
-        <Button variant="primary" label="Continue" onPress={handleContinue} />
+        <Button
+          variant="primary"
+          label={t("onboarding.common.continue")}
+          onPress={handleContinue}
+        />
       }
     >
       <View style={styles.pickerSection}>
@@ -62,7 +68,7 @@ const AgeSelectionScreen = () => {
             </Picker>
           </View>
           <AppText role="Headline" style={styles.unitText}>
-            years
+            {t("onboarding.age.unit")}
           </AppText>
         </View>
       </View>

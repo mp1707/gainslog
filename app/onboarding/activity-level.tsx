@@ -11,6 +11,7 @@ import { UserSettings } from "@/types/models";
 import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScreen";
 import { AppText } from "@/components/shared/AppText";
 import { Button } from "@/components/shared/Button";
+import { useTranslation } from "react-i18next";
 
 export default function Step2ActivityLevelScreen() {
   const { colors, theme: themeObj } = useTheme();
@@ -18,6 +19,7 @@ export default function Step2ActivityLevelScreen() {
   const { activityLevel, setActivityLevel } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
   const scrollRef = useRef<ScrollView>(null);
+  const { t } = useTranslation();
 
   const [selectedLevel, setSelectedLevel] = useState<
     UserSettings["activityLevel"] | null
@@ -42,16 +44,16 @@ export default function Step2ActivityLevelScreen() {
   return (
     <OnboardingScreen
       ref={scrollRef}
-      title={<AppText role="Title2">How active are you?</AppText>}
+      title={<AppText role="Title2">{t("onboarding.activityLevel.title")}</AppText>}
       subtitle={
         <AppText role="Body" color="secondary" style={styles.secondaryText}>
-          Select your baseline. This is used to calibrate your TDEE.
+          {t("onboarding.activityLevel.subtitle")}
         </AppText>
       }
       actionButton={
         <Button
           variant="primary"
-          label="Continue"
+          label={t("onboarding.common.continue")}
           disabled={!selectedLevel}
           onPress={handleContinue}
         />
@@ -59,15 +61,23 @@ export default function Step2ActivityLevelScreen() {
     >
       <View style={styles.methodsSection}>
         {activityLevels.map((level) => {
+          const title = t(level.titleKey);
+          const description = t(level.descriptionKey);
           return (
             <RadioCard
               key={level.id}
-              title={level.title}
-              description={level.description}
+              title={title}
+              description={description}
               isSelected={selectedLevel === level.id}
               onSelect={() => handleCardSelect(level.id)}
-              accessibilityLabel={`${level.title} activity level`}
-              accessibilityHint={`Select ${level.title}. ${level.description}`}
+              accessibilityLabel={t(
+                "onboarding.activityLevel.accessibility.label",
+                { title }
+              )}
+              accessibilityHint={t(
+                "onboarding.activityLevel.accessibility.hint",
+                { title, description }
+              )}
             />
           );
         })}

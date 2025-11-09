@@ -10,6 +10,7 @@ import { OnboardingScreen } from "../../src/components/onboarding/OnboardingScre
 import { AppText } from "@/components/shared/AppText";
 import { Tooltip } from "@/components/shared/Tooltip";
 import { RulerPicker } from "@/components/shared/RulerPicker";
+import { useTranslation } from "react-i18next";
 
 const HeightSelectionScreen = () => {
   const { colors, theme: themeObj } = useTheme();
@@ -17,6 +18,7 @@ const HeightSelectionScreen = () => {
   const { height, setHeight } = useOnboardingStore();
   const { safePush } = useNavigationGuard();
   const [currentHeight, setCurrentHeight] = useState(height || 175);
+  const { t } = useTranslation();
 
   const handleContinue = async () => {
     setHeight(currentHeight);
@@ -31,19 +33,23 @@ const HeightSelectionScreen = () => {
   return (
     <OnboardingScreen
       scrollEnabled={false}
-      title={<AppText role="Title2">And your height?</AppText>}
+      title={<AppText role="Title2">{t("onboarding.height.title")}</AppText>}
       subtitle={
         <View style={styles.infoRow}>
           <AppText role="Body" color="secondary" style={styles.infoText}>
-            For an accurate TDEE calculation.
+            {t("onboarding.height.subtitle")}
           </AppText>
-          <Tooltip text="TDEE stands for Total Daily Energy Expenditure—the estimated calories you burn each day based on your stats and activity level.">
+          <Tooltip text={t("onboarding.height.tooltip")}>
             <Info size={18} color={colors.secondaryText} />
           </Tooltip>
         </View>
       }
       actionButton={
-        <Button variant="primary" label="Continue" onPress={handleContinue} />
+        <Button
+          variant="primary"
+          label={t("onboarding.common.continue")}
+          onPress={handleContinue}
+        />
       }
     >
       <View style={styles.pickerSection}>
@@ -52,7 +58,7 @@ const HeightSelectionScreen = () => {
           max={250}
           value={currentHeight}
           onChange={handleHeightChange}
-          unit="cm"
+          unit={t("onboarding.height.unit")}
         />
       </View>
     </OnboardingScreen>

@@ -317,6 +317,203 @@
       }
     }
   },
+  "onboarding": {
+    "header": {
+      "backLabel": "Go back",
+      "backHint": "Navigate to previous step",
+      "skipLabel": "Skip onboarding",
+      "skipHint": "Skip the onboarding process"
+    },
+    "common": {
+      "continue": "Continue",
+      "goBack": "Go Back",
+      "confirm": "Confirm & Start Tracking",
+      "starting": "Starting...",
+      "edit": "Edit Targets",
+      "adjust": "Adjust Targets",
+      "dailyTarget": "Daily target",
+      "remainder": "Remainder",
+      "errorTitle": "Error",
+      "missingData": "Missing required data. Please go back and complete all fields."
+    },
+    "targetMethod": {
+      "title": "How would you like to set your nutrition targets?",
+      "subtitle": "Choose the approach that works best for you.",
+      "options": {
+        "calculate": {
+          "title": "Calculate for Me",
+          "description": "Answer a few questions about your body and goals to get personalized targets",
+          "accessibilityLabel": "Calculate nutrition targets automatically",
+          "accessibilityHint": "Answer questions about your stats and goals to calculate personalized daily targets"
+        },
+        "manual": {
+          "title": "I Know My Targets",
+          "description": "Set custom macro goals manually if you already have your targets",
+          "accessibilityLabel": "Set custom nutrition targets manually",
+          "accessibilityHint": "Manually enter your daily calorie, protein, fat, and carb targets"
+        }
+      }
+    },
+    "age": {
+      "title": "What's your age?",
+      "subtitle": "To establish your metabolic baseline.",
+      "unit": "years"
+    },
+    "sex": {
+      "title": "Biological Sex",
+      "subtitle": "To refine your metabolic calculation.",
+      "options": {
+        "male": "Male",
+        "female": "Female"
+      },
+      "accessibility": {
+        "label": "Select {{option}} as biological sex",
+        "hint": "Helps calculate your calorie needs and moves to the next step"
+      }
+    },
+    "height": {
+      "title": "And your height?",
+      "subtitle": "For an accurate TDEE calculation.",
+      "tooltip": "TDEE stands for Total Daily Energy Expenditure—the estimated calories you burn each day based on your stats and activity level.",
+      "unit": "cm"
+    },
+    "weight": {
+      "title": "What's your current weight?",
+      "subtitle": "This sets the starting point for your goals.",
+      "unit": "kg"
+    },
+    "activityLevel": {
+      "title": "How active are you?",
+      "subtitle": "Select your baseline. This is used to calibrate your TDEE.",
+      "accessibility": {
+        "label": "{{title}} activity level",
+        "hint": "Select {{title}}. {{description}}"
+      },
+      "levels": {
+        "sedentary": {
+          "title": "Sedentary",
+          "description": "Little to no exercise. Desk job with minimal physical activity throughout the day.",
+          "label": "Sedentary Lifestyle"
+        },
+        "light": {
+          "title": "Light Activity",
+          "description": "Light exercise 1-3 days per week. Some walking or light recreational activities.",
+          "label": "Lightly Active"
+        },
+        "moderate": {
+          "title": "Moderate Activity",
+          "description": "Moderate exercise 3-5 days per week. Regular gym sessions or sports activities.",
+          "label": "Moderately Active"
+        },
+        "active": {
+          "title": "Active",
+          "description": "Moderate exercise 6-7 days per week, or intense training 3-4 times weekly.",
+          "label": "Active"
+        },
+        "veryactive": {
+          "title": "Very Active",
+          "description": "Very heavy physical work or 6-7 intense training sessions per week. Professional athlete level activity.",
+          "label": "Very Active"
+        }
+      }
+    },
+    "calorieGoal": {
+      "title": "What's the objective?",
+      "subtitle": "Based on your data, here are three starting points with daily calorie targets.",
+      "missingData": "Missing calculation data. Please start over.",
+      "options": {
+        "lose": {
+          "title": "Cut",
+          "description": "Create a calorie deficit to lose weight gradually",
+          "accessibilityLabel": "Cut goal",
+          "accessibilityHint": "Set {{calories}} calories per day to lose weight gradually"
+        },
+        "maintain": {
+          "title": "Maintain",
+          "description": "Eat at maintenance calories to stay at current weight",
+          "accessibilityLabel": "Maintain goal",
+          "accessibilityHint": "Set {{calories}} calories per day to stay at current weight"
+        },
+        "gain": {
+          "title": "Bulk",
+          "description": "Create a calorie surplus to gain weight gradually",
+          "accessibilityLabel": "Bulk goal",
+          "accessibilityHint": "Set {{calories}} calories per day to gain weight gradually"
+        }
+      }
+    },
+    "proteinGoal": {
+      "title": "Set Your Protein Target",
+      "subtitle": "Based on your weight of {{weight}}kg",
+      "subtitleFallback": "Choose the protein strategy that fits your training.",
+      "methods": {
+        "baseline": {
+          "title": "The Baseline",
+          "description": "Balanced & healthy. Ideal for an active lifestyle and maintaining general fitness.",
+          "factor": 1.2
+        },
+        "exerciser": {
+          "title": "The Exerciser",
+          "description": "Fit & toned. Supports training results and building muscle.",
+          "factor": 1.6
+        },
+        "athlete": {
+          "title": "The Athlete",
+          "description": "Maximum muscle gain. Optimal with intense strength training.",
+          "factor": 2
+        },
+        "diet_phase": {
+          "title": "The Diet Phase",
+          "description": "Protection & satiety. Maximizes muscle retention during a calorie deficit.",
+          "factor": 2.2
+        }
+      },
+      "accessibilityHint": "Select {{factor}} grams per kilogram protein goal. {{description}}"
+    },
+    "manualInput": {
+      "title": "Set Your Nutrition Targets",
+      "subtitle": "Allocate your daily calories across macronutrients.",
+      "macroDistribution": "Macro Distribution",
+      "carbsLabel": "Carbohydrates",
+      "auto": "Auto",
+      "carbsHelper": "Calculated from remaining calories. Carbs provide 4 kcal per gram."
+    },
+    "manualSummary": {
+      "title": "Your Daily Blueprint",
+      "subtitle": "Review your custom targets and start tracking.",
+      "helper": "Carbs are calculated from your remaining calories. Since carbs provide 4 kcal per gram, the remaining {{calories}} kcal are filled with {{carbs}}g of carbs."
+    },
+    "calculatorSummary": {
+      "title": "Your Daily Blueprint",
+      "subtitle": "Here are your starting targets. You can adjust these anytime.",
+      "helper": "Note: Small variations may occur due to rounding.",
+      "proteinSubtitle": "{{factor}}g per kg bodyweight",
+      "fatSubtitle": "{{percentage}}% of total calories",
+      "rows": {
+        "calories": "Calories",
+        "protein": "Protein - 4 kcal/g",
+        "fat": "Fat - 9 kcal/g",
+        "carbs": "Carbs - 4 kcal/g"
+      }
+    },
+    "calorieControl": {
+      "decrease": "Decrease calories",
+      "increase": "Increase calories",
+      "helper": "Most athletes consume 2000-3500 kcal/day depending on their goals and activity level."
+    },
+    "budgetBar": {
+      "remaining": "{{value}} kcal remaining for {{macro}}"
+    },
+    "macroSlider": {
+      "decrease": "Decrease {{label}}",
+      "increase": "Increase {{label}}"
+    },
+    "calorieBreakdown": {
+      "title": "Total Daily Calories",
+      "notAllocated": "Not yet allocated",
+      "remaining": "{{value}} kcal remaining"
+    }
+  },
   "logCard": {
     "fallbackTitle": "New Log",
     "refinement": {
