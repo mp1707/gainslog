@@ -73,6 +73,42 @@
       }
     }
   },
+  "welcome": {
+    "screen": {
+      "title": "Dial in your macros",
+      "subtitle": "Then you're ready to go!",
+      "cta": {
+        "primary": "Get started now",
+        "secondary": "Less than 30 seconds"
+      }
+    },
+    "card1": {
+      "title": "Log meals in 5 seconds 🚀",
+      "subtitle": "Automatically split into ingredients.",
+      "mockLog": {
+        "title": "Chicken curry",
+        "components": {
+          "chicken": "grilled chicken breast",
+          "rice": "steamed white rice",
+          "sauce": "curry sauce"
+        }
+      },
+      "nutrients": {
+        "calories": "{{value}} kcal",
+        "protein": "{{value}} g protein",
+        "carbs": "{{value}} g carbs",
+        "fat": "{{value}} g fat"
+      }
+    },
+    "card2": {
+      "title": "🎯 Precision targets",
+      "subtitle": "Macros perfectly tailored to you"
+    },
+    "card3": {
+      "title": "Track however you like 🤳",
+      "subtitle": "Photo, voice, or text - anything works"
+    }
+  },
   "dailyFoodLogs": {
     "emptyState": {
       "encouragement": "Let’s log some food 🙂"
@@ -838,8 +874,8 @@
       "header": "Language",
       "options": {
         "device": {
-          "label": "Device language",
-          "subtitle": "Follows your phone’s language."
+          "label": "Device",
+          "subtitle": "Follows your iPhone’s language."
         },
         "en": {
           "label": "English",

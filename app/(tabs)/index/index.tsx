@@ -21,6 +21,8 @@ import {
 } from "@/utils/foodLogHandlers";
 import { useSegments } from "expo-router";
 import { useTranslation } from "react-i18next";
+import { WelcomeScreen } from "@/components/welcome";
+import { hasNoDailyTargets } from "@/utils/dailyTargets";
 
 export default function TodayTab() {
   const { safeNavigate } = useNavigationGuard();
@@ -103,6 +105,11 @@ export default function TodayTab() {
       createToggleFavoriteHandler(addFavorite, deleteFavorite, favorites, t),
     [addFavorite, deleteFavorite, favorites, t]
   );
+
+  // Show welcome screen for first-time users without daily targets
+  if (hasNoDailyTargets(dailyTargets)) {
+    return <WelcomeScreen />;
+  }
 
   return (
     <View style={styles.container}>

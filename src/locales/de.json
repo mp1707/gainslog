@@ -73,6 +73,42 @@
       }
     }
   },
+  "welcome": {
+    "screen": {
+      "title": "Leg deine Makros fest",
+      "subtitle": "Dann kann's losgehen!",
+      "cta": {
+        "primary": "Jetzt loslegen",
+        "secondary": "Weniger als 30 Sekunden"
+      }
+    },
+    "card1": {
+      "title": "Einträge in 5 Sekunden 🚀",
+      "subtitle": "Automatisch in Zutaten aufgeteilt.",
+      "mockLog": {
+        "title": "Hähnchencurry",
+        "components": {
+          "chicken": "gegrillte hähnchenbrust",
+          "rice": "gedämpfter weißer reis",
+          "sauce": "curry-sauce"
+        }
+      },
+      "nutrients": {
+        "calories": "{{value}} kcal",
+        "protein": "{{value}} g Protein",
+        "carbs": "{{value}} g Kohlenhydrate",
+        "fat": "{{value}} g Fett"
+      }
+    },
+    "card2": {
+      "title": "🎯 Präzise Ziele",
+      "subtitle": "Makros perfekt auf dich abgestimmt"
+    },
+    "card3": {
+      "title": "Tracken, wie es dir passt 🤳",
+      "subtitle": "Foto, Sprache oder Text - alles möglich"
+    }
+  },
   "dailyFoodLogs": {
     "emptyState": {
       "encouragement": "Lass uns Essen protokollieren 🙂"
@@ -836,8 +872,8 @@
       "header": "Sprache",
       "options": {
         "device": {
-          "label": "Gerätesprache",
-          "subtitle": "Folgt der Sprache deines Telefons."
+          "label": "Gerät",
+          "subtitle": "Folgt der Sprache deines iPhones."
         },
         "en": {
           "label": "Englisch",
