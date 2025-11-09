@@ -32,11 +32,6 @@ const WeightSelectionScreen = () => {
     <OnboardingScreen
       scrollEnabled={false}
       title={<AppText role="Title2">{t("onboarding.weight.title")}</AppText>}
-      subtitle={
-        <AppText role="Body" color="secondary" style={styles.secondaryText}>
-          {t("onboarding.weight.subtitle")}
-        </AppText>
-      }
       actionButton={
         <Button
           variant="primary"

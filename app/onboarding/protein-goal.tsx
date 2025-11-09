@@ -18,6 +18,7 @@ const METHODS: Record<
     titleKey: string;
     descriptionKey: string;
     factor: number;
+    recommended?: boolean;
   }
 > = {
   baseline: {
@@ -31,6 +32,7 @@ const METHODS: Record<
     titleKey: "onboarding.proteinGoal.methods.exerciser.title",
     descriptionKey: "onboarding.proteinGoal.methods.exerciser.description",
     factor: 1.6,
+    recommended: true,
   },
   athlete: {
     id: "athlete",
@@ -119,6 +121,7 @@ export default function ProteinGoalsScreen() {
                 title={title}
                 description={description}
                 factor={method.factor}
+                recommended={method.recommended}
                 isSelected={selectedMethod === method.id}
                 onSelect={() => handleCardSelect(method.id)}
                 accessibilityLabel={title}

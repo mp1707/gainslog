@@ -44,11 +44,8 @@ export default function Step2ActivityLevelScreen() {
   return (
     <OnboardingScreen
       ref={scrollRef}
-      title={<AppText role="Title2">{t("onboarding.activityLevel.title")}</AppText>}
-      subtitle={
-        <AppText role="Body" color="secondary" style={styles.secondaryText}>
-          {t("onboarding.activityLevel.subtitle")}
-        </AppText>
+      title={
+        <AppText role="Title2">{t("onboarding.activityLevel.title")}</AppText>
       }
       actionButton={
         <Button

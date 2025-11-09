@@ -23,7 +23,7 @@
     "of": "von"
   },
   "common": {
-    "loading": "Lädt...",
+    "loading": "Wird geladen …",
     "error": "Etwas ist schiefgelaufen",
     "save": "Speichern",
     "cancel": "Abbrechen",
@@ -31,7 +31,8 @@
     "edit": "Bearbeiten",
     "done": "Fertig",
     "close": "Schließen",
-    "confirm": "Bestätigen"
+    "confirm": "Bestätigen",
+    "recommended": "Empfohlen"
   },
   "dates": {
     "labels": {
@@ -55,7 +56,7 @@
   "calendar": {
     "title": "Kalender",
     "actions": {
-      "jumpToToday": "Zurück zu heute"
+      "jumpToToday": "Zu Heute springen"
     },
     "a11y": {
       "jumpToToday": "Zum heutigen Tag springen"
@@ -74,10 +75,10 @@
   },
   "dailyFoodLogs": {
     "emptyState": {
-      "encouragement": "Lass uns etwas Essen protokollieren :)"
+      "encouragement": "Lass uns Essen protokollieren 🙂"
     },
     "setGoalsCTA": {
-      "title": "Lege deine Ziele fest, um mit dem Tracking zu starten",
+      "title": "Lege deine Ziele fest, um loszulegen",
       "ctaLabel": "Los geht's 🚀"
     },
     "modalHeader": {
@@ -107,12 +108,12 @@
       "noFavoritesSubtitle": "Speichere Mahlzeiten beim Protokollieren, um sie hier griffbereit zu haben."
     },
     "hud": {
-      "added": "Favorisiert",
-      "removed": "Entfernt"
+      "added": "Zu Favoriten hinzugefügt",
+      "removed": "Aus Favoriten entfernt"
     },
     "edit": {
       "title": {
-        "placeholder": "Titel eingeben...",
+        "placeholder": "Titel eingeben …",
         "emptyState": "Tippen, um einen Titel hinzuzufügen"
       },
       "delete": {
@@ -143,11 +144,11 @@
       "backTitle": "Startseite"
     },
     "title": {
-      "placeholder": "Titel eingeben...",
+      "placeholder": "Titel eingeben …",
       "emptyState": "Tippen, um einen Titel hinzuzufügen"
     },
     "favorites": {
-      "add": "Zu Favoriten",
+      "add": "Zu Favoriten hinzufügen",
       "added": "Favorit"
     },
     "alert": {
@@ -165,7 +166,7 @@
   "createLog": {
     "header": {
       "title": "Neuer Eintrag",
-      "explainer": "Erfahre, wie du die besten KI-Schätzungen erhältst"
+      "explainer": "So erhältst du die besten KI-Schätzungen"
     },
     "input": {
       "placeholder": "z. B. 100 g Hähnchenbrust",
@@ -197,7 +198,7 @@
     "toasts": {
       "imageProcessing": {
         "title": "Fehler bei der Bildverarbeitung",
-        "message": "Versuch es bitte erneut."
+        "message": "Bitte versuche es erneut."
       }
     }
   },
@@ -215,7 +216,7 @@
     },
     "features": {
       "aiLogging": {
-        "title": "KI-gestütztes Logging",
+        "title": "KI-gestütztes Protokollieren",
         "description": "Protokolliere Mahlzeiten sofort per Text, Stimme oder Foto. Kein Suchen nach Zutaten mehr."
       },
       "instantRecalculation": {
@@ -233,12 +234,12 @@
         "cancelAnytime": "Jederzeit kündbar.",
         "oneTime": "Einmalkauf",
         "recurring": "Abgerechnet {{period}}",
-        "annual": "pro Jahr",
-        "monthly": "pro Monat",
-        "sixMonths": "alle 6 Monate",
-        "threeMonths": "alle 3 Monate",
-        "twoMonths": "alle 2 Monate",
-        "weekly": "pro Woche"
+        "annual": "jährlich",
+        "monthly": "monatlich",
+        "sixMonths": "halbjährlich",
+        "threeMonths": "vierteljährlich",
+        "twoMonths": "zweimonatlich",
+        "weekly": "wöchentlich"
       },
       "labels": {
         "annual": "Jahresplan",
@@ -252,14 +253,14 @@
     },
     "buttons": {
       "primary": "Pro freischalten",
-      "processing": "Wird verarbeitet…",
+      "processing": "Wird verarbeitet …",
       "retry": "Erneut versuchen"
     },
     "links": {
       "terms": "Nutzungsbedingungen",
       "privacy": "Datenschutzerklärung",
       "restore": "Käufe wiederherstellen",
-      "restoring": "Wird wiederhergestellt…"
+      "restoring": "Wird wiederhergestellt …"
     },
     "alerts": {
       "purchaseFailed": {
@@ -287,7 +288,7 @@
       "ofTarget": "von {{target}}"
     },
     "aiEstimation": {
-      "title": "Profi-Tipps für die besten Ergebnisse",
+      "title": "Profi-Tipps für optimale Ergebnisse",
       "sections": {
         "textInput": {
           "title": "Texteingabe",
@@ -320,17 +321,17 @@
         "primary": {
           "label": "Kalorien & Protein",
           "title": "Priorität",
-          "description": "Triff diese Werte, um beim Zu- oder Abnehmziel zu bleiben und Muskulatur aufzubauen."
+          "description": "Halte dich an diese Werte, um bei deinem Zu-/Abnahmeziel auf Kurs zu bleiben und Muskulatur aufzubauen."
         },
         "secondary": {
           "label": "Fett",
           "title": "Basis",
-          "description": "Halte diese Basis für ein gesundes Hormonsystem und eine gute Nährstoffaufnahme."
+          "description": "Diese Basis unterstützt Hormone und die Nährstoffaufnahme."
         },
         "filler": {
           "label": "Kohlenhydrate",
           "title": "Flexibel",
-          "description": "Deine Energie für Training. Iss Kohlenhydrate frei, sobald Kalorien, Protein und Fett passen."
+          "description": "Dein Treibstoff fürs Training. Wenn Kalorien, Protein und Fett passen, kannst du Kohlenhydrate flexibel essen."
         }
       },
       "calories": {
@@ -360,7 +361,7 @@
             "ring": "Der Ring füllt sich, sobald du Protein protokollierst.",
             "iconPrefix": "Das ",
             "iconSuffix": "-Symbol zeigt deine aktuelle Position.",
-            "close": "Schließe den Ring, um dein tägliches Minimum zu erreichen."
+            "close": "Schließe den Ring, um dein heutiges Minimum zu erreichen."
           }
         },
         "quickTips": {
@@ -386,9 +387,9 @@
           "sources": {
             "title": "Gute Quellen",
             "bullets": {
-              "cook": "Koche mit Oliven- oder Avocadoöl und bau Nüsse, Samen, ganze Eier sowie Lachs ein.",
+              "cook": "Koche mit Oliven- oder Avocadoöl; integriere Nüsse, Samen, ganze Eier und Lachs.",
               "unsaturated": "Bevorzuge überwiegend ungesättigte Fette.",
-              "balance": "Gesättigte Fette sind in Maßen okay – verteile sie über den Tag."
+              "balance": "Gesättigte Fette sind in Maßen in Ordnung – verteile sie über den Tag."
             }
           }
         }
@@ -404,14 +405,14 @@
             "title": "Deine Energiequelle",
             "bullets": {
               "adjust": "Erhöhe an harten Trainingstagen, reduziere an Ruhetagen.",
-              "timing": "Wähle meist langsam verdauliche Quellen und nutze schnelle Kohlenhydrate rund um das Workout."
+              "timing": "Wähle meist langsam verdauliche Quellen und nutze schnelle Kohlenhydrate rund um das Training."
             }
           },
           "sources": {
             "title": "Gute Quellen",
             "bullets": {
               "whole": "Reis, Kartoffeln, Hafer, Bohnen, Obst, Vollkornbrote oder -wraps.",
-              "limit": "Begrenze zuckerhaltige Getränke und stark verarbeitete Süßigkeiten."
+              "limit": "Begrenze zuckerhaltige Getränke und hochverarbeitete Süßigkeiten."
             }
           }
         }
@@ -429,7 +430,7 @@
       "continue": "Weiter",
       "goBack": "Zurück",
       "confirm": "Bestätigen & Tracking starten",
-      "starting": "Starte...",
+      "starting": "Wird gestartet …",
       "edit": "Ziele bearbeiten",
       "adjust": "Ziele anpassen",
       "dailyTarget": "Tagesziel",
@@ -443,7 +444,7 @@
       "options": {
         "calculate": {
           "title": "Für mich berechnen",
-          "description": "Beantworte ein paar Fragen zu Körper und Zielen, um persönliche Zielwerte zu erhalten",
+          "description": "Beantworte ein paar Fragen zu Körper und Zielen, um persönliche Zielwerte zu erhalten.",
           "accessibilityLabel": "Ernährungsziele automatisch berechnen lassen",
           "accessibilityHint": "Beantworte Fragen zu deinen Daten und Zielen, um tägliche Zielwerte zu erhalten"
         },
@@ -480,12 +481,10 @@
     },
     "weight": {
       "title": "Wie viel wiegst du aktuell?",
-      "subtitle": "Das ist der Ausgangspunkt für deine Ziele.",
       "unit": "kg"
     },
     "activityLevel": {
       "title": "Wie aktiv bist du?",
-      "subtitle": "Wähle deinen Ausgangswert. Er kalibriert deine TDEE.",
       "accessibility": {
         "label": "Aktivitätslevel {{title}}",
         "hint": "Wähle {{title}}. {{description}}"
@@ -554,7 +553,7 @@
           "factor": 1.2
         },
         "exerciser": {
-          "title": "Der Trainierende",
+          "title": "Der Sportliche",
           "description": "Fit & definiert. Unterstützt deine Trainingsresultate und den Muskelaufbau.",
           "factor": 1.6
         },
@@ -600,7 +599,7 @@
     "calorieControl": {
       "decrease": "Kalorien verringern",
       "increase": "Kalorien erhöhen",
-      "helper": "Die meisten Athleten konsumieren je nach Ziel 2.000–3.500 kcal pro Tag."
+      "helper": "Die meisten Sportler*innen konsumieren je nach Ziel 2.000–3.500 kcal pro Tag."
     },
     "budgetBar": {
       "remaining": "Noch {{value}} kcal für {{macro}}"
@@ -610,7 +609,7 @@
       "increase": "{{label}} erhöhen"
     },
     "calorieBreakdown": {
-      "title": "Kalorien am Tag gesamt",
+      "title": "Gesamtkalorien pro Tag",
       "notAllocated": "Noch nicht verteilt",
       "remaining": "{{value}} kcal übrig"
     }
@@ -623,7 +622,7 @@
     },
     "contextMenu": {
       "createLog": "Eintrag erstellen",
-      "logAgain": "Nochmals protokollieren",
+      "logAgain": "Erneut protokollieren",
       "saveToFavorites": "Zu Favoriten speichern",
       "removeFromFavorites": "Aus Favoriten entfernen"
     },
@@ -728,15 +727,15 @@
         "label": "ABO",
         "manageTitle": "Abo verwalten",
         "upgradeTitle": "Auf Pro upgraden",
-        "manageDescription": "Abrechnung & Plan.",
+        "manageDescription": "Abrechnung & Tarif.",
         "canceledWithDate": "Automatische Verlängerung beendet. Zugriff bis {{date}}.",
         "canceledWithoutDate": "Automatische Verlängerung beendet. Zugriff bis zum Ende des aktuellen Zeitraums.",
-        "upgradeDescription": "Zutatenerkennung, Nährwert-Schätzung, müheloses Tracking.",
+        "upgradeDescription": "Zutatenerkennung, Nährwertschätzung, müheloses Tracking.",
         "restore": {
           "title": "Bereits abonniert?",
           "subtitle": "Käufe nach Neuinstallation oder Gerätewechsel wiederherstellen.",
           "button": "Wiederherstellen",
-          "buttonLoading": "Wiederherstellen...",
+          "buttonLoading": "Wiederherstellen …",
           "alerts": {
             "restored": {
               "title": "Wiederhergestellt",
@@ -758,11 +757,11 @@
         "rows": {
           "darkMode": {
             "title": "Dunkelmodus",
-            "subtitle": "Wähle deine Theme-Vorliebe."
+            "subtitle": "Wähle deine Darstellung."
           },
           "language": {
             "title": "Sprache",
-            "subtitle": "Lege fest, in welcher Sprache die App angezeigt wird."
+            "subtitle": "Wähle, in welcher Sprache die App angezeigt wird."
           },
           "design": {
             "title": "Design",
@@ -775,7 +774,7 @@
         "rows": {
           "nutritionTargets": {
             "title": "Nährstoffziele",
-            "subtitle": "Setze tägliche Kalorien und Makros."
+            "subtitle": "Lege tägliche Kalorien und Makros fest."
           }
         }
       },
@@ -854,7 +853,7 @@
       "options": {
         "system": {
           "label": "System",
-          "subtitle": "Systemdarstellung folgen"
+          "subtitle": "Systemdarstellung übernehmen"
         },
         "light": {
           "label": "Hell",

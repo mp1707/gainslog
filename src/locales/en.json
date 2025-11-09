@@ -23,7 +23,7 @@
     "of": "of"
   },
   "common": {
-    "loading": "Loading...",
+    "loading": "Loading…",
     "error": "Something went wrong",
     "save": "Save",
     "cancel": "Cancel",
@@ -31,7 +31,8 @@
     "edit": "Edit",
     "done": "Done",
     "close": "Close",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "recommended": "Recommended"
   },
   "dates": {
     "labels": {
@@ -47,7 +48,7 @@
     }
   },
   "tabs": {
-    "logging": "Logging",
+    "logging": "Log",
     "calendar": "Calendar",
     "settings": "Settings",
     "new": "New"
@@ -74,20 +75,20 @@
   },
   "dailyFoodLogs": {
     "emptyState": {
-      "encouragement": "Let's log some food :)"
+      "encouragement": "Let’s log some food 🙂"
     },
     "setGoalsCTA": {
-      "title": "Set your goals to start tracking",
-      "ctaLabel": "Start 🚀"
+      "title": "Set your goals to get started",
+      "ctaLabel": "Let’s go 🚀"
     },
     "modalHeader": {
       "back": {
         "accessibilityLabel": "Go back",
-        "accessibilityHint": "Returns to previous screen"
+        "accessibilityHint": "Returns to the previous screen"
       },
       "close": {
         "accessibilityLabel": "Close setup",
-        "accessibilityHint": "Exits the setup and returns to the home screen"
+        "accessibilityHint": "Exits setup and returns to the Home screen"
       }
     },
     "nutritionList": {
@@ -101,19 +102,19 @@
       "searchPlaceholder": "Search"
     },
     "emptyState": {
-      "noMatchesTitle": "No matches found",
-      "noMatchesSubtitle": "Try another search term.",
+      "noMatchesTitle": "No results",
+      "noMatchesSubtitle": "Try a different search term.",
       "noFavoritesTitle": "No favorites yet",
       "noFavoritesSubtitle": "Save meals while logging to keep them handy here."
     },
     "hud": {
-      "added": "Favorited",
-      "removed": "Removed"
+      "added": "Added to Favorites",
+      "removed": "Removed from Favorites"
     },
     "edit": {
       "title": {
-        "placeholder": "Enter title...",
-        "emptyState": "Tap to add title"
+        "placeholder": "Enter title…",
+        "emptyState": "Tap to add a title"
       },
       "delete": {
         "label": "Delete Favorite",
@@ -122,19 +123,19 @@
       "alerts": {
         "delete": {
           "title": "Delete Favorite",
-          "message": "This will remove the favorite permanently."
+          "message": "This favorite will be permanently removed."
         },
         "unsaved": {
-          "title": "Unsaved Changes to Ingredients",
-          "message": "You've modified ingredients without recalculating macros. The nutrition values may be inaccurate.",
-          "recalculate": "Recalculate Macros",
-          "saveAnyway": "Save Anyway"
+          "title": "Unsaved ingredient changes",
+          "message": "You changed ingredients without recalculating macros. Nutrition may be inaccurate.",
+          "recalculate": "Recalculate macros",
+          "saveAnyway": "Save anyway"
         }
       },
       "paywall": {
         "title": "Recalculate with Pro",
-        "body": "Get updated macros when you adjust ingredients.",
-        "cta": "Unlock to Recalculate"
+        "body": "Get updated macros after changing ingredients.",
+        "cta": "Unlock recalculation"
       }
     }
   },
@@ -143,32 +144,32 @@
       "backTitle": "Home"
     },
     "title": {
-      "placeholder": "Enter title...",
-      "emptyState": "Tap to add title"
+      "placeholder": "Enter title…",
+      "emptyState": "Tap to add a title"
     },
     "favorites": {
-      "add": "Add Favorite",
+      "add": "Add to Favorites",
       "added": "Favorited"
     },
     "alert": {
-      "title": "Unsaved Changes to Ingredients",
-      "message": "You've modified ingredients without recalculating macros. The nutrition values may be inaccurate.",
-      "recalculate": "Recalculate Macros",
-      "saveAnyway": "Save Anyway"
+      "title": "Unsaved ingredient changes",
+      "message": "You changed ingredients without recalculating macros. Nutrition may be inaccurate.",
+      "recalculate": "Recalculate macros",
+      "saveAnyway": "Save anyway"
     },
     "paywall": {
       "title": "Recalculate with Pro",
-      "body": "Get updated macros when you adjust ingredients.",
-      "cta": "Unlock to Recalculate"
+      "body": "Get updated macros after changing ingredients.",
+      "cta": "Unlock recalculation"
     }
   },
   "createLog": {
     "header": {
       "title": "New Log",
-      "explainer": "Learn how to get the best AI estimates"
+      "explainer": "Get the best AI estimates"
     },
     "input": {
-      "placeholder": "e.g. 100g of chicken breast",
+      "placeholder": "e.g., 100 g chicken breast",
       "accessibilityLabel": "Describe your meal"
     },
     "favorites": {
@@ -177,26 +178,26 @@
       "accessibilityLabel": "Log favorite meal {{title}}"
     },
     "image": {
-      "title": "Your image"
+      "title": "Your photo"
     },
     "paywall": {
-      "title": "AI Logging is a Pro Feature",
-      "body": "Log meals effortlessly with a photo, text, or your voice.",
-      "cta": "Start Free Trial"
+      "title": "AI logging is a Pro feature",
+      "body": "Log meals effortlessly from a photo, text, or voice.",
+      "cta": "Try for free"
     },
     "permissions": {
       "cameraDenied": {
-        "title": "Camera permission denied",
-        "message": "Please allow camera access in settings to take photos."
+        "title": "Camera access denied",
+        "message": "Enable camera access in Settings to take photos."
       },
       "microphoneDenied": {
-        "title": "Microphone permission denied",
-        "message": "Please allow microphone access in settings to use voice input."
+        "title": "Microphone access denied",
+        "message": "Enable microphone access in Settings to use voice input."
       }
     },
     "toasts": {
       "imageProcessing": {
-        "title": "Error processing image",
+        "title": "Image processing failed",
         "message": "Please try again."
       }
     }
@@ -207,7 +208,7 @@
     },
     "header": {
       "title": "MacroLoop Pro",
-      "subtitle": "Save time and stay consistent with effortless AI powered tracking."
+      "subtitle": "Save time and stay consistent with effortless AI tracking."
     },
     "states": {
       "loading": "Loading Pro details…",
@@ -215,38 +216,38 @@
     },
     "features": {
       "aiLogging": {
-        "title": "AI-Powered Logging",
-        "description": "Log meals instantly from text, voice, or a photo. No more searching for ingredients."
+        "title": "AI-powered logging",
+        "description": "Log meals instantly by text, voice, or photo. No more ingredient searches."
       },
       "instantRecalculation": {
-        "title": "Instant Recalculation",
-        "description": "Adjust ingredients and get immediate macro updates to fine-tune your meals."
+        "title": "Instant recalculation",
+        "description": "Adjust ingredients and get updated macros right away."
       },
       "noAds": {
-        "title": "No Ads. Period.",
-        "description": "Support ad-free development"
+        "title": "No ads. Period.",
+        "description": "Support an ad‑free app experience."
       }
     },
     "options": {
-      "badge": "Best Value",
+      "badge": "Best value",
       "period": {
         "cancelAnytime": "Cancel anytime.",
-        "oneTime": "One-time purchase",
+        "oneTime": "One‑time purchase",
         "recurring": "Billed {{period}}",
-        "annual": "per year",
-        "monthly": "per month",
-        "sixMonths": "per 6 months",
-        "threeMonths": "per 3 months",
-        "twoMonths": "per 2 months",
-        "weekly": "per week"
+        "annual": "yearly",
+        "monthly": "monthly",
+        "sixMonths": "every 6 months",
+        "threeMonths": "every 3 months",
+        "twoMonths": "every 2 months",
+        "weekly": "weekly"
       },
       "labels": {
-        "annual": "Annual",
-        "monthly": "Monthly",
+        "annual": "Annual plan",
+        "monthly": "Monthly plan",
         "lifetime": "Lifetime",
-        "sixMonths": "6 Months",
-        "threeMonths": "3 Months",
-        "twoMonths": "2 Months",
+        "sixMonths": "6 months",
+        "threeMonths": "3 months",
+        "twoMonths": "2 months",
         "weekly": "Weekly"
       }
     },
@@ -292,7 +293,7 @@
         "textInput": {
           "title": "Text input",
           "bullets": {
-            "weights": "Add weights or volumes for precision (e.g., \"150g chicken breast\" vs. \"chicken breast\").",
+            "weights": "Add weights or volumes for precision (e.g., \"150 g chicken breast\" vs. \"chicken breast\").",
             "details": "Mention cooking methods or standout ingredients (e.g., \"grilled with olive oil\")."
           }
         },
@@ -300,8 +301,8 @@
           "title": "Photo scans",
           "bullets": {
             "light": "Use bright, even natural light.",
-            "angle": "Shoot from a top-down angle.",
-            "frame": "Keep every item in frame and uncovered."
+            "angle": "Shoot from a top‑down angle.",
+            "frame": "Keep every item fully in frame and uncovered."
           }
         },
         "audioLogging": {
@@ -312,42 +313,42 @@
           }
         }
       },
-      "footer": "For the most accurate results, use measured quantities whenever you can."
+      "footer": "For the most accurate results, use measured amounts whenever you can."
     },
     "macros": {
       "overview": {
         "title": "Your macro strategy",
         "primary": {
           "label": "Calories & Protein",
-          "title": "Primary",
-          "description": "Hit these to stay on track with your gain/loss target and build muscle."
+          "title": "Priority",
+          "description": "Hit these to stay on track with your goal and build muscle."
         },
         "secondary": {
           "label": "Fat",
-          "title": "Secondary",
-          "description": "Meet this baseline to support hormones and nutrient absorption."
+          "title": "Baseline",
+          "description": "This baseline supports hormones and nutrient absorption."
         },
         "filler": {
           "label": "Carbs",
-          "title": "Filler",
-          "description": "Your go-to workout fuel. Enjoy carbs freely once calories, protein, and fat are covered."
+          "title": "Flexible",
+          "description": "Your workout fuel. Once calories, protein, and fat are set, carbs are flexible."
         }
       },
       "calories": {
-        "subtitle": "Today's energy budget",
+        "subtitle": "Today’s energy budget",
         "howItWorks": {
           "title": "How it works",
           "bullets": {
             "ring": "The ring fills as you log meals.",
             "iconPrefix": "The ",
             "iconSuffix": " icon shows your current position.",
-            "close": "Close the ring to hit today's budget."
+            "close": "Close the ring to stay within today’s budget."
           }
         },
         "quickTips": {
           "title": "Quick tips",
           "bullets": {
-            "consistency": "Log every bite—consistency beats precision.",
+            "consistency": "Log every bite—consistency beats perfection.",
             "weekly": "Judge progress by your weekly average, not a single day."
           }
         }
@@ -360,7 +361,7 @@
             "ring": "The ring fills as you log protein.",
             "iconPrefix": "The ",
             "iconSuffix": " icon marks your current position.",
-            "close": "Close the ring to reach today's minimum protein target."
+            "close": "Close the ring to reach today’s minimum."
           }
         },
         "quickTips": {
@@ -368,7 +369,7 @@
           "bullets": {
             "eachMeal": "Include a protein source in every meal or snack.",
             "spread": "Spread intake throughout the day for better recovery.",
-            "over": "Going slightly over is fine—aim to meet or gently exceed the target."
+            "over": "A little over is okay—aim to meet or gently exceed the target."
           }
         }
       },
@@ -377,7 +378,7 @@
         "sections": {
           "hitTarget": {
             "title": "Hit your daily target",
-            "body": "Aim for a steady baseline each day to keep energy and meals satisfying."
+            "body": "Keep a steady baseline each day so energy and meals stay satisfying."
           },
           "why": {
             "title": "Why it matters",
@@ -398,20 +399,20 @@
         "sections": {
           "total": {
             "title": "A flexible total",
-            "body": "No fixed target—carbs fill remaining calories after protein and fat. Expect the number to vary day to day."
+            "body": "No fixed target—carbs fill remaining calories after protein and fat. Expect day‑to‑day changes."
           },
           "fuel": {
             "title": "Your fuel source",
             "bullets": {
               "adjust": "Increase on hard training days; scale down on rest days.",
-              "timing": "Choose slower-digesting carbs most of the time; use faster carbs around workouts."
+              "timing": "Choose mostly slower‑digesting carbs; use faster carbs around workouts."
             }
           },
           "sources": {
             "title": "Smart sources",
             "bullets": {
-              "whole": "Rice, potatoes, oats, beans, fruit, whole-grain breads or wraps.",
-              "limit": "Limit sugary drinks and ultra-processed sweets."
+              "whole": "Rice, potatoes, oats, beans, fruit, whole‑grain breads or wraps.",
+              "limit": "Limit sugary drinks and ultra‑processed sweets."
             }
           }
         }
@@ -420,187 +421,187 @@
   },
   "onboarding": {
     "header": {
-      "backLabel": "Go back",
-      "backHint": "Navigate to previous step",
+      "backLabel": "Back",
+      "backHint": "Go to the previous step",
       "skipLabel": "Skip onboarding",
       "skipHint": "Skip the onboarding process"
     },
     "common": {
       "continue": "Continue",
-      "goBack": "Go Back",
+      "goBack": "Back",
       "confirm": "Confirm & Start Tracking",
-      "starting": "Starting...",
+      "starting": "Starting…",
       "edit": "Edit Targets",
       "adjust": "Adjust Targets",
       "dailyTarget": "Daily target",
       "remainder": "Remainder",
       "errorTitle": "Error",
-      "missingData": "Missing required data. Please go back and complete all fields."
+      "missingData": "Missing required information. Please go back and complete all fields."
     },
     "targetMethod": {
       "title": "How would you like to set your nutrition targets?",
       "subtitle": "Choose the approach that works best for you.",
       "options": {
         "calculate": {
-          "title": "Calculate for Me",
-          "description": "Answer a few questions about your body and goals to get personalized targets",
+          "title": "Calculate for me",
+          "description": "Answer a few questions about your body and goals to get personalized targets.",
           "accessibilityLabel": "Calculate nutrition targets automatically",
           "accessibilityHint": "Answer questions about your stats and goals to calculate personalized daily targets"
         },
         "manual": {
-          "title": "I Know My Targets",
-          "description": "Set custom macro goals manually if you already have your targets",
+          "title": "I know my targets",
+          "description": "Set custom macro goals manually if you already have targets.",
           "accessibilityLabel": "Set custom nutrition targets manually",
           "accessibilityHint": "Manually enter your daily calorie, protein, fat, and carb targets"
         }
       }
     },
     "age": {
-      "title": "What's your age?",
-      "subtitle": "To establish your metabolic baseline.",
+      "title": "How old are you?",
+      "subtitle": "This helps estimate your baseline.",
       "unit": "years"
     },
     "sex": {
       "title": "Biological Sex",
-      "subtitle": "To refine your metabolic calculation.",
+      "subtitle": "To refine your calculation.",
       "options": {
         "male": "Male",
         "female": "Female"
       },
       "accessibility": {
         "label": "Select {{option}} as biological sex",
-        "hint": "Helps calculate your calorie needs and moves to the next step"
+        "hint": "Helps calculate your calories and moves to the next step"
       }
     },
     "height": {
-      "title": "And your height?",
+      "title": "What’s your height?",
       "subtitle": "For an accurate TDEE calculation.",
-      "tooltip": "TDEE stands for Total Daily Energy Expenditure—the estimated calories you burn each day based on your stats and activity level.",
+      "tooltip": "TDEE stands for Total Daily Energy Expenditure—the estimated calories you burn each day based on your stats and activity.",
       "unit": "cm"
     },
     "weight": {
-      "title": "What's your current weight?",
+      "title": "What’s your current weight?",
       "subtitle": "This sets the starting point for your goals.",
       "unit": "kg"
     },
     "activityLevel": {
       "title": "How active are you?",
-      "subtitle": "Select your baseline. This is used to calibrate your TDEE.",
+      "subtitle": "Pick a starting point. We’ll use this to calibrate your TDEE.",
       "accessibility": {
-        "label": "{{title}} activity level",
-        "hint": "Select {{title}}. {{description}}"
+        "label": "Activity level {{title}}",
+        "hint": "Choose {{title}}. {{description}}"
       },
       "levels": {
         "sedentary": {
-          "title": "Sedentary",
-          "description": "Little to no exercise. Desk job with minimal physical activity throughout the day.",
-          "label": "Sedentary Lifestyle"
+          "title": "Mostly seated",
+          "description": "Little movement. Desk job with minimal activity.",
+          "label": "Sedentary"
         },
         "light": {
-          "title": "Light Activity",
-          "description": "Light exercise 1-3 days per week. Some walking or light recreational activities.",
-          "label": "Lightly Active"
+          "title": "Lightly active",
+          "description": "Light activity 1–3 days per week. Walks or easy recreation.",
+          "label": "Lightly active"
         },
         "moderate": {
-          "title": "Moderate Activity",
-          "description": "Moderate exercise 3-5 days per week. Regular gym sessions or sports activities.",
-          "label": "Moderately Active"
+          "title": "Moderately active",
+          "description": "Regular training 3–5 days per week.",
+          "label": "Moderately active"
         },
         "active": {
           "title": "Active",
-          "description": "Moderate exercise 6-7 days per week, or intense training 3-4 times weekly.",
+          "description": "Training 6–7 days per week or multiple intense sessions.",
           "label": "Active"
         },
         "veryactive": {
-          "title": "Very Active",
-          "description": "Very heavy physical work or 6-7 intense training sessions per week. Professional athlete level activity.",
-          "label": "Very Active"
+          "title": "Very active",
+          "description": "Heavy physical work or 6–7 very intense sessions per week.",
+          "label": "Very active"
         }
       }
     },
     "calorieGoal": {
-      "title": "What's the objective?",
-      "subtitle": "Based on your data, here are three starting points with daily calorie targets.",
-      "missingData": "Missing calculation data. Please start over.",
+      "title": "What’s your goal?",
+      "subtitle": "Based on your answers, we’ll suggest three calorie targets.",
+      "missingData": "Missing calculation data. Please start again.",
       "options": {
         "lose": {
-          "title": "Cut",
-          "description": "Create a calorie deficit to lose weight gradually",
-          "accessibilityLabel": "Cut goal",
+          "title": "Deficit",
+          "description": "Create a calorie deficit to lose weight gradually.",
+          "accessibilityLabel": "Deficit goal",
           "accessibilityHint": "Set {{calories}} calories per day to lose weight gradually"
         },
         "maintain": {
           "title": "Maintain",
-          "description": "Eat at maintenance calories to stay at current weight",
-          "accessibilityLabel": "Maintain goal",
-          "accessibilityHint": "Set {{calories}} calories per day to stay at current weight"
+          "description": "Eat at maintenance to keep your weight stable.",
+          "accessibilityLabel": "Maintenance goal",
+          "accessibilityHint": "Set {{calories}} calories per day to maintain your current weight"
         },
         "gain": {
-          "title": "Bulk",
-          "description": "Create a calorie surplus to gain weight gradually",
-          "accessibilityLabel": "Bulk goal",
+          "title": "Surplus",
+          "description": "Create a calorie surplus to gain weight gradually.",
+          "accessibilityLabel": "Surplus goal",
           "accessibilityHint": "Set {{calories}} calories per day to gain weight gradually"
         }
       }
     },
     "proteinGoal": {
-      "title": "Set Your Protein Target",
-      "subtitle": "Based on your weight of {{weight}}kg",
-      "subtitleFallback": "Choose the protein strategy that fits your training.",
+      "title": "Set your protein target",
+      "subtitle": "Based on your weight of {{weight}} kg",
+      "subtitleFallback": "Choose the protein approach that fits your training.",
       "methods": {
         "baseline": {
-          "title": "The Baseline",
-          "description": "Balanced & healthy. Ideal for an active lifestyle and maintaining general fitness.",
+          "title": "Baseline",
+          "description": "Balanced and healthy. Great for an active lifestyle and general fitness.",
           "factor": 1.2
         },
         "exerciser": {
-          "title": "The Exerciser",
-          "description": "Fit & toned. Supports training results and building muscle.",
+          "title": "Exerciser",
+          "description": "Lean & defined. Supports training results and muscle growth.",
           "factor": 1.6
         },
         "athlete": {
-          "title": "The Athlete",
-          "description": "Maximum muscle gain. Optimal with intense strength training.",
+          "title": "Athlete",
+          "description": "Max muscle gain. Best paired with intense strength training.",
           "factor": 2
         },
         "diet_phase": {
-          "title": "The Diet Phase",
-          "description": "Protection & satiety. Maximizes muscle retention during a calorie deficit.",
+          "title": "Cut phase",
+          "description": "Protection & fullness. Helps preserve muscle and keep you satisfied in a deficit.",
           "factor": 2.2
         }
       },
-      "accessibilityHint": "Select {{factor}} grams per kilogram protein goal. {{description}}"
+      "accessibilityHint": "Choose {{factor}} grams per kilogram of body weight. {{description}}"
     },
     "manualInput": {
-      "title": "Set Your Nutrition Targets",
-      "subtitle": "Allocate your daily calories across macronutrients.",
-      "macroDistribution": "Macro Distribution",
-      "carbsLabel": "Carbohydrates",
+      "title": "Set your nutrition targets",
+      "subtitle": "Distribute your daily calories across macros.",
+      "macroDistribution": "Macro distribution",
+      "carbsLabel": "Carbs",
       "auto": "Auto",
       "carbsHelper": "Calculated from remaining calories. Carbs provide 4 kcal per gram."
     },
     "manualSummary": {
-      "title": "Your Daily Blueprint",
+      "title": "Your daily plan",
       "subtitle": "Review your custom targets and start tracking.",
-      "helper": "Carbs are calculated from your remaining calories. Since carbs provide 4 kcal per gram, the remaining {{calories}} kcal are filled with {{carbs}}g of carbs."
+      "helper": "Carbs are calculated from remaining calories. Because carbs provide 4 kcal per gram, the remaining {{calories}} kcal equals {{carbs}} g carbs."
     },
     "calculatorSummary": {
-      "title": "Your Daily Blueprint",
-      "subtitle": "Here are your starting targets. You can adjust these anytime.",
-      "helper": "Note: Small variations may occur due to rounding.",
-      "proteinSubtitle": "{{factor}}g per kg bodyweight",
+      "title": "Your daily plan",
+      "subtitle": "Here are your starting values. You can adjust them anytime.",
+      "helper": "Note: Rounding may cause small differences.",
+      "proteinSubtitle": "{{factor}} g per kg body weight",
       "fatSubtitle": "{{percentage}}% of total calories",
       "rows": {
         "calories": "Calories",
-        "protein": "Protein - 4 kcal/g",
-        "fat": "Fat - 9 kcal/g",
-        "carbs": "Carbs - 4 kcal/g"
+        "protein": "Protein — 4 kcal/g",
+        "fat": "Fat — 9 kcal/g",
+        "carbs": "Carbs — 4 kcal/g"
       }
     },
     "calorieControl": {
       "decrease": "Decrease calories",
       "increase": "Increase calories",
-      "helper": "Most athletes consume 2000-3500 kcal/day depending on their goals and activity level."
+      "helper": "Most active people consume 2,000–3,500 kcal per day, depending on goals."
     },
     "budgetBar": {
       "remaining": "{{value}} kcal remaining for {{macro}}"
@@ -610,7 +611,7 @@
       "increase": "Increase {{label}}"
     },
     "calorieBreakdown": {
-      "title": "Total Daily Calories",
+      "title": "Total daily calories",
       "notAllocated": "Not yet allocated",
       "remaining": "{{value}} kcal remaining"
     }
@@ -682,8 +683,8 @@
     "alerts": {
       "discard": {
         "title": "Discard changes?",
-        "message": "You have unsaved changes. Are you sure you want to discard them?",
-        "keep": "Keep Editing",
+        "message": "You have unsaved changes. Discard them?",
+        "keep": "Keep editing",
         "discard": "Discard"
       },
       "delete": {
@@ -713,7 +714,7 @@
   "swipeActions": {
     "deleteTitle": "Delete item",
     "deleteMessage": "Are you sure you want to delete this item?",
-    "confirmTitle": "Confirm Action",
+    "confirmTitle": "Confirm action",
     "confirmMessage": "Are you sure you want to perform this action?",
     "deleteHint": "Deletes this item"
   },
@@ -729,14 +730,14 @@
         "manageTitle": "Manage Subscription",
         "upgradeTitle": "Upgrade to Pro",
         "manageDescription": "Billing & plan.",
-        "canceledWithDate": "Auto-renew canceled. Access through {{date}}.",
-        "canceledWithoutDate": "Auto-renew canceled. Access until current period ends.",
-        "upgradeDescription": "Ingredient detection, Nutrition estimation, effortless tracking.",
+        "canceledWithDate": "Auto‑renew canceled. Access through {{date}}.",
+        "canceledWithoutDate": "Auto‑renew canceled. Access until the current period ends.",
+        "upgradeDescription": "Ingredient recognition, nutrition estimates, effortless tracking.",
         "restore": {
           "title": "Already subscribed?",
-          "subtitle": "Restore purchases after reinstalling the app or switching devices.",
+          "subtitle": "Restore purchases after reinstalling or switching devices.",
           "button": "Restore",
-          "buttonLoading": "Restoring...",
+          "buttonLoading": "Restoring…",
           "alerts": {
             "restored": {
               "title": "Restored",
@@ -744,7 +745,7 @@
             },
             "notFound": {
               "title": "Nothing to restore",
-              "message": "We couldn't find past purchases for this Apple ID."
+              "message": "We couldn’t find past purchases for this Apple ID."
             },
             "error": {
               "title": "Restore failed",
@@ -757,16 +758,16 @@
         "label": "APPEARANCE",
         "rows": {
           "darkMode": {
-            "title": "Dark mode",
-            "subtitle": "Choose your theme preference."
+            "title": "Dark Mode",
+            "subtitle": "Choose your appearance."
           },
           "language": {
             "title": "Language",
-            "subtitle": "Pick how the app is translated."
+            "subtitle": "Choose the app language."
           },
           "design": {
             "title": "Design",
-            "subtitle": "Customize the app appearance."
+            "subtitle": "Customize the look and feel."
           }
         }
       },
@@ -774,7 +775,7 @@
         "label": "TRACKING",
         "rows": {
           "nutritionTargets": {
-            "title": "Nutrition Targets",
+            "title": "Nutrition targets",
             "subtitle": "Set daily calories and macros."
           }
         }
@@ -783,40 +784,40 @@
         "label": "LEGAL",
         "rows": {
           "privacy": "Privacy Policy",
-          "terms": "Terms of Service"
+          "terms": "Terms of Use"
         },
-        "linkError": "Unable to open link"
+        "linkError": "Couldn’t open link"
       },
       "developer": {
         "label": "DEVELOPER",
         "rows": {
           "seed": {
-            "title": "Seed Sample Logs",
-            "subtitle": "Add demo logs for QA flows.",
+            "title": "Seed sample logs",
+            "subtitle": "Adds demo logs for QA flows.",
             "action": "Run"
           },
           "deleteLogs": {
-            "title": "Delete All Logs...",
+            "title": "Delete all logs…",
             "action": "Delete",
             "alert": {
-              "title": "Delete All Logs",
-              "message": "This deletes all logs and any saved photos. This cannot be undone.",
-              "confirm": "Delete All"
+              "title": "Delete all logs",
+              "message": "This removes all logs and saved photos. This action can’t be undone.",
+              "confirm": "Delete everything"
             }
           },
           "clearGoals": {
-            "title": "Clear Nutrition Goals",
+            "title": "Reset nutrition targets",
             "subtitle": "Removes saved macro targets.",
             "action": "Reset",
             "alert": {
-              "title": "Clear Nutrition Goals",
-              "message": "Remove all saved macro targets? This cannot be undone.",
-              "confirm": "Clear Goals"
+              "title": "Reset nutrition targets",
+              "message": "Remove saved macro targets? This can’t be undone.",
+              "confirm": "Delete targets"
             }
           },
           "togglePro": {
             "title": "Toggle Pro",
-            "subtitle": "Helpful when testing paywall states.",
+            "subtitle": "Useful for testing paywall states.",
             "states": {
               "on": "ON",
               "off": "OFF"
@@ -834,15 +835,15 @@
       "options": {
         "device": {
           "label": "Device language",
-          "subtitle": "Match your phone's language."
+          "subtitle": "Follows your phone’s language."
         },
         "en": {
           "label": "English",
-          "subtitle": "Use English in the app."
+          "subtitle": "Use the app in English."
         },
         "de": {
           "label": "German",
-          "subtitle": "Use German in the app."
+          "subtitle": "Use the app in German."
         }
       },
       "accessibility": {
@@ -850,11 +851,11 @@
       }
     },
     "darkMode": {
-      "header": "Dark mode",
+      "header": "Dark Mode",
       "options": {
         "system": {
           "label": "System",
-          "subtitle": "Follow system appearance"
+          "subtitle": "Follow system setting"
         },
         "light": {
           "label": "Light",

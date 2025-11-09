@@ -58,6 +58,12 @@ const lightColors = {
     fat: { background: "rgba(255, 194, 51, 0.16)", text: "#E0A900" },
   },
 
+  // Solid callout badge for overlapping pills
+  recommendedBadge: {
+    background: "#0FAF9E",
+    text: "#FFFFFF",
+  },
+
   // State backgrounds
   errorBackground: "rgba(255, 78, 58, 0.10)",
   warningBackground: "rgba(255, 176, 32, 0.10)",
@@ -150,6 +156,11 @@ const darkColors = {
       background: "rgba(255, 215, 64, 0.15)",
       text: "#FFD740",
     },
+  },
+
+  recommendedBadge: {
+    background: "#2AD1BE",
+    text: "#002622",
   },
 
   // State background colors

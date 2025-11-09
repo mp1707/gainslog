@@ -13,6 +13,7 @@ import { Circle, CircleCheck, LucideIcon } from "lucide-react-native";
 import { Card } from "@/components/Card";
 import { AppText } from "@/components/shared/AppText";
 import { useTheme } from "@/theme";
+import { useTranslation } from "react-i18next";
 import { createStyles } from "./RadioCard.styles";
 
 interface RadioCardProps {
@@ -20,6 +21,7 @@ interface RadioCardProps {
   description: string;
   factor?: number;
   badge?: { label: string };
+  recommended?: boolean;
   titleIcon?: LucideIcon;
   titleIconColor?: string;
   isSelected: boolean;
@@ -33,6 +35,7 @@ export const RadioCard: React.FC<RadioCardProps> = ({
   description,
   factor,
   badge,
+  recommended,
   titleIcon,
   titleIconColor,
   isSelected,
@@ -41,6 +44,7 @@ export const RadioCard: React.FC<RadioCardProps> = ({
   accessibilityHint,
 }) => {
   const { colors, theme } = useTheme();
+  const { t } = useTranslation();
   const styles = createStyles(colors, theme);
 
   // Animation values
@@ -68,7 +72,11 @@ export const RadioCard: React.FC<RadioCardProps> = ({
 
   // Animated styles for radio indicator
   const animatedRadioStyle = useAnimatedStyle(() => {
-    const selectionScale = interpolate(selectedProgress.value, [0, 1], [1, 1.1]);
+    const selectionScale = interpolate(
+      selectedProgress.value,
+      [0, 1],
+      [1, 1.1]
+    );
     const currentPressScale = pressScale.value || 1;
 
     // Counter the card press scale so the SVG icon stays crisp during the press animation.
@@ -185,13 +193,15 @@ export const RadioCard: React.FC<RadioCardProps> = ({
                     )}
                   </View>
                   {(badge || factor !== undefined) && (
-                    <View style={styles.factorBadge}>
-                      <AppText
-                        role="Caption"
-                        color={isSelected ? "accent" : "primary"}
-                      >
-                        {badge?.label || `${factor} g Protein /kg`}
-                      </AppText>
+                    <View style={styles.trailingContent}>
+                      <View style={styles.factorBadge}>
+                        <AppText
+                          role="Caption"
+                          color={isSelected ? "accent" : "primary"}
+                        >
+                          {badge?.label || `${factor} g Protein /kg`}
+                        </AppText>
+                      </View>
                     </View>
                   )}
                 </View>
@@ -205,6 +215,15 @@ export const RadioCard: React.FC<RadioCardProps> = ({
                 </AppText>
               </View>
             </View>
+            {recommended && (
+              <View style={styles.recommendedPillContainer}>
+                <View style={styles.recommendedPill}>
+                  <AppText style={styles.recommendedPillText}>
+                    {t("common.recommended")}
+                  </AppText>
+                </View>
+              </View>
+            )}
           </Card>
         </Pressable>
       </Animated.View>

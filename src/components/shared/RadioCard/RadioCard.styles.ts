@@ -14,6 +14,7 @@ export const createStyles = (colors: Colors, theme: Theme) => {
     },
     card: {
       borderWidth: 0,
+      position: "relative",
     },
     container: {
       flexDirection: "row",
@@ -55,8 +56,38 @@ export const createStyles = (colors: Colors, theme: Theme) => {
       gap: spacing.xs,
       flex: 1,
     },
+    trailingContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.xs,
+      flexShrink: 0,
+    },
     factorBadge: {
       flexShrink: 0,
+    },
+    recommendedPillContainer: {
+      position: "absolute",
+      top: -12,
+      left: spacing.md,
+    },
+    recommendedPill: {
+      flexDirection: "row",
+      alignItems: "center",
+      height: 24,
+      paddingHorizontal: spacing.sm,
+      borderRadius: 12,
+      backgroundColor: colors.recommendedBadge.background,
+      shadowOpacity: 0.15,
+      shadowRadius: 6,
+      shadowOffset: { width: 0, height: 4 },
+      elevation: 3,
+    },
+    recommendedPillText: {
+      fontSize: 11,
+      fontWeight: "600",
+      color: colors.recommendedBadge.text,
+      textTransform: "uppercase",
+      letterSpacing: 0.4,
     },
     description: {
       lineHeight: 18,
