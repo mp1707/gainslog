@@ -681,6 +681,10 @@
             "title": "Dunkelmodus",
             "subtitle": "Wähle deine Theme-Vorliebe."
           },
+          "language": {
+            "title": "Sprache",
+            "subtitle": "Lege fest, in welcher Sprache die App angezeigt wird."
+          },
           "design": {
             "title": "Design",
             "subtitle": "Passe das Erscheinungsbild der App an."
@@ -744,6 +748,26 @@
             }
           }
         }
+      }
+    },
+    "language": {
+      "header": "Sprache",
+      "options": {
+        "device": {
+          "label": "Gerätesprache",
+          "subtitle": "Folgt der Sprache deines Telefons."
+        },
+        "en": {
+          "label": "Englisch",
+          "subtitle": "App auf Englisch verwenden."
+        },
+        "de": {
+          "label": "Deutsch",
+          "subtitle": "App auf Deutsch verwenden."
+        }
+      },
+      "accessibility": {
+        "optionLabel": "{{option}}-Sprache"
       }
     },
     "darkMode": {

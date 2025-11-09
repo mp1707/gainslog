@@ -681,6 +681,10 @@
             "title": "Dark mode",
             "subtitle": "Choose your theme preference."
           },
+          "language": {
+            "title": "Language",
+            "subtitle": "Pick how the app is translated."
+          },
           "design": {
             "title": "Design",
             "subtitle": "Customize the app appearance."
@@ -744,6 +748,26 @@
             }
           }
         }
+      }
+    },
+    "language": {
+      "header": "Language",
+      "options": {
+        "device": {
+          "label": "Device language",
+          "subtitle": "Match your phone's language."
+        },
+        "en": {
+          "label": "English",
+          "subtitle": "Use English in the app."
+        },
+        "de": {
+          "label": "German",
+          "subtitle": "Use German in the app."
+        }
+      },
+      "accessibility": {
+        "optionLabel": "{{option}} language"
       }
     },
     "darkMode": {

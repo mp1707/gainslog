@@ -317,10 +317,9 @@ export default function EditComponent() {
             style={styles.input}
             keyboardType="decimal-pad"
             fontSize="Body"
-            accessibilityLabel={t(
-              "editComponent.accessibility.quantityField",
-              { unit: unitLabels[unit] }
-            )}
+            accessibilityLabel={t("editComponent.accessibility.quantityField", {
+              unit: unitLabels[unit],
+            })}
           />
         </View>
 

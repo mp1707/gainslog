@@ -3,6 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 import { showErrorToast } from "./toast";
 import { FoodComponent } from "@/types/models";
 
+type Language = string;
+
 export type MacrosPerReferencePortion = {
   referencePortionAmount: string;
   caloriesForReferencePortion: number;
@@ -13,17 +15,20 @@ export type MacrosPerReferencePortion = {
 
 export interface TextEstimateRequest {
   description: string;
+  language: Language;
 }
 
 export interface RefineRequest {
   foodComponents: string;
   macrosPerReferencePortion?: MacrosPerReferencePortion;
+  language: Language;
 }
 
 export interface ImageEstimateRequest {
   imagePath: string;
   title?: string;
   description?: string;
+  language: Language;
 }
 
 export interface ImageRefineRequest {
@@ -66,7 +71,7 @@ export const estimateTextBased = async (
 ): Promise<FoodEstimateResponse> => {
   console.log("Text estimation request:", request);
 
-  const response = await fetch(`${supabaseUrl}/functions/v1/textEstimationV7`, {
+  const response = await fetch(`${supabaseUrl}/functions/v1/textEstimationDE`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -101,7 +106,7 @@ export const refineEstimation = async (
   console.log("Refine estimation request:", request);
 
   const response = await fetch(
-    `${supabaseUrl}/functions/v1/refineEstimationV7`,
+    `${supabaseUrl}/functions/v1/refineEstimationDE`,
     {
       method: "POST",
       headers: {
@@ -139,18 +144,15 @@ export const estimateNutritionImageBased = async (
 ): Promise<FoodEstimateResponse> => {
   console.log("Image estimation request:", request);
 
-  const response = await fetch(
-    `${supabaseUrl}/functions/v1/imageEstimationV7`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${supabaseAnonKey}`,
-        apikey: supabaseAnonKey,
-      },
-      body: JSON.stringify(request),
-    }
-  );
+  const response = await fetch(`${supabaseUrl}/functions/v1/imageEstimation`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${supabaseAnonKey}`,
+      apikey: supabaseAnonKey,
+    },
+    body: JSON.stringify(request),
+  });
 
   console.log("Image estimation response status:", response.status);
 

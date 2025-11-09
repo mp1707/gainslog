@@ -1,32 +1,29 @@
-// functions/refine-nutrition/index.ts
 // deno-lint-ignore-file
 // @ts-nocheck
+// Unified NUTRITION REFINEMENT (DE/EN) using OpenAI Responses + Zod Structured Outputs
 import OpenAI from "jsr:@openai/openai@6.5.0";
 import { z } from "npm:zod@3.25.1";
 import { zodTextFormat } from "jsr:@openai/openai@6.5.0/helpers/zod";
-import { Ratelimit } from "https://cdn.skypack.dev/@upstash/ratelimit@latest";
-import { Redis } from "https://deno.land/x/upstash_redis@v1.19.3/mod.ts";
+import { Ratelimit } from "npm:@upstash/ratelimit@2.0.7";
+import { Redis } from "npm:@upstash/redis@1.35.6";
+// Rate limiting
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(10, "60 s"),
   analytics: true,
   prefix: "@upstash/ratelimit",
 });
+// Helper: get client IP (behind proxy)
 function getClientIp(req) {
   const ipHeader = req.headers.get("x-forwarded-for");
   return ipHeader ? ipHeader.split(",")[0].trim() : "unknown";
 }
-const ERROR_RESPONSE = {
-  generatedTitle: "Refinement Error",
-  foodComponents: [],
-  estimationConfidence: 0,
-  calories: 0,
-  protein: 0,
-  carbs: 0,
-  fat: 0,
-};
-// Base prompt (NO label basis present)
-const SYSTEM_PROMPT_BASE = `You are a precision nutrition calculator AI. Your task is to take a list of food components and accurately calculate the total nutritional values of all components combined.
+// Locale bundles (strings + prompts)
+const LOCALE = {
+  en: {
+    errorTitle: "Refinement Error",
+    // Base prompt (NO label basis)
+    systemPromptBase: `You are a precision nutrition calculator AI. Your task is to take a list of food components and accurately calculate the total nutritional values of all components combined.
 
 ### JSON Output Structure
 You MUST return a JSON object with this exact structure:
@@ -43,9 +40,9 @@ You MUST return a JSON object with this exact structure:
 
 **METHOD:** Estimate per-component macros using common nutrition knowledge (typical values for the named foods and units) and sum them. Return integers. Keep kcal roughly consistent with macros (kcal ≈ 4*protein + 4*carbs + 9*fat; small deviation is acceptable).
 
-Do not include any explanation or extra fields in your response — only the JSON object.`;
-// Prompt WHEN exact label basis is present (macrosPerReferencePortion)
-const SYSTEM_PROMPT_WITH_LABEL = `You are a precision nutrition calculator AI. Your task is to take a list of food components and an exact nutrition label basis, then accurately calculate the total nutritional values of all components combined.
+Do not include any explanation or extra fields in your response — only the JSON object.`,
+    // Label-based prompt (macrosPerReferencePortion present)
+    systemPromptWithLabel: `You are a precision nutrition calculator AI. Your task is to take a list of food components and an exact nutrition label basis, then accurately calculate the total nutritional values of all components combined.
 
 ### JSON Output Structure
 You MUST return a JSON object with this exact structure:
@@ -62,7 +59,7 @@ You MUST return a JSON object with this exact structure:
 
 2) "macrosPerReferencePortion": exact label data:
    {
-     "referencePortionAmount": "string",            // e.g., "40 g", "100 ml", "8 oz" (number + unit)
+     "referencePortionAmount": "string",            // e.g., "40 g", "100 ml" (number + unit)
      "caloriesForReferencePortion": integer,
      "proteinForReferencePortion": integer,
      "carbsForReferencePortion": integer,
@@ -81,13 +78,97 @@ You MUST return a JSON object with this exact structure:
 
 **ALWAYS CALCULATE TOTALS:** Your primary task is to calculate totals ("calories", "protein", "carbs", "fat") as integers. Keep kcal roughly consistent with macros (kcal ≈ 4*protein + 4*carbs + 9*fat; small deviation acceptable).
 
-Do not include any explanation or extra fields in your response — only the JSON object.`;
-const openai = new OpenAI();
-function validateApiKey(request) {
-  const authHeader = request.headers.get("authorization");
-  const apiKeyHeader = request.headers.get("apikey");
-  return authHeader?.startsWith("Bearer ") || apiKeyHeader;
+Do not include any explanation or extra fields in your response — only the JSON object.`,
+    // User prompt builders
+    buildUserPromptBase: (
+      payload
+    ) => `Calculate the total nutrition using general nutrition knowledge for these components.
+
+Input (JSON):
+${JSON.stringify(payload)}`,
+    buildUserPromptWithLabel: (
+      payload
+    ) => `Use the exact label basis to scale compatible components precisely. Then add estimates for any remaining items.
+
+Input (JSON):
+${JSON.stringify(payload)}`,
+  },
+  de: {
+    errorTitle: "Verfeinerungsfehler",
+    // Basis-Prompt (ohne Etikettbasis)
+    systemPromptBase: `Du bist eine präzise Ernährungsrechner-KI. Deine Aufgabe besteht darin, eine Liste von Lebensmittelkomponenten zu übernehmen und die gesamten Nährwerte aller Komponenten zusammen exakt zu berechnen.
+
+### JSON-Ausgabestruktur
+Du MUSST ein JSON-Objekt in exakt dieser Struktur zurückgeben:
+{
+  "calories": "integer",
+  "protein": "integer",
+  "carbs": "integer",
+  "fat": "integer"
 }
+
+### KRITISCHE ANWEISUNGEN:
+
+**NÄHRWERTE BERECHNEN:** Deine Hauptaufgabe ist, die Gesamtsummen der Makros aller Komponenten zu berechnen ("calories", "protein", "carbs", "fat"). Auch wenn Eingaben unrealistisch wirken, berechne die Summen trotzdem.
+
+**METHODE:** Schätze die Makros pro Komponente mithilfe allgemeiner Ernährungskenntnisse (typische Werte für die genannten Lebensmittel und Einheiten) und summiere sie. Gib Ganzzahlen zurück. Halte kcal grob konsistent mit den Makros (kcal ≈ 4*protein + 4*carbs + 9*fat; geringe Abweichung ist akzeptabel).
+
+Liefere keinerlei Erklärungen oder zusätzliche Felder — nur das JSON-Objekt.`,
+    // Prompt mit exakter Etikettbasis
+    systemPromptWithLabel: `Du bist eine präzise Ernährungsrechner-KI. Deine Aufgabe besteht darin, eine Liste von Lebensmittelkomponenten sowie eine exakte Nährwert-Etikettbasis zu verwenden und die gesamten Nährwerte aller Komponenten zusammen exakt zu berechnen.
+
+### JSON-Ausgabestruktur
+Du MUSST ein JSON-Objekt in exakt dieser Struktur zurückgeben:
+{
+  "calories": "integer",
+  "protein": "integer",
+  "carbs": "integer",
+  "fat": "integer"
+}
+
+### Du erhältst
+1) "foodComponents": ein Array von Einträgen:
+   { "name": "string", "amount": number, "unit": "string" }
+
+2) "macrosPerReferencePortion": exakte Etikett-Daten:
+   {
+     "referencePortionAmount": "string",            // z. B. "40 g", "100 ml" (Zahl + Einheit)
+     "caloriesForReferencePortion": integer,
+     "proteinForReferencePortion": integer,
+     "carbsForReferencePortion": integer,
+     "fatForReferencePortion": integer
+   }
+
+### KRITISCHE ANWEISUNGEN:
+
+**ETIKETTBASIS ZUR SKALIERUNG NUTZEN (BEVORZUGT):**
+- Interpretiere "referencePortionAmount" als "<Zahl> <Einheit>" (Einheiten wie g oder ml).
+- Berechne pro-Einheit-Makros, indem du die Etikett-Makros durch die Zahl teilst.
+  Beispiel: "40 g" und 190 kcal → kcal pro Gramm ≈ 190/40.
+- Für Komponenten mit kompatibler Einheit zur Etikettbasis (z. B. Gramm mit Gramm oder Milliliter mit Milliliter), skaliere linear anhand der pro-Einheit-Makros.
+- Wenn mehrere Komponenten zum gleichen verpackten Produkt gehören, skaliere jede nach ihrer eigenen Menge und summiere.
+- Komponenten, die nicht zur Etikettbasis passen oder inkompatible Einheiten haben, werden mithilfe allgemeiner Ernährungskenntnisse geschätzt. Summe alles auf.
+
+**GESAMTSUMMEN IMMER BERECHNEN:** Deine Hauptaufgabe ist, die Totals ("calories", "protein", "carbs", "fat") als Ganzzahlen zu liefern. Halte kcal grob konsistent mit den Makros (kcal ≈ 4*protein + 4*carbs + 9*fat; geringe Abweichung akzeptabel).
+
+Liefere keinerlei Erklärungen oder zusätzliche Felder — nur das JSON-Objekt.`,
+    // User prompt builders
+    buildUserPromptBase: (
+      payload
+    ) => `Berechne die Gesamtnährwerte mithilfe allgemeiner Ernährungskenntnisse für diese Komponenten.
+
+Eingabe (JSON):
+${JSON.stringify(payload)}`,
+    buildUserPromptWithLabel: (
+      payload
+    ) => `Nutze die exakte Etikettbasis, um kompatible Komponenten präzise zu skalieren. Ergänze anschließend Schätzungen für verbleibende Positionen.
+
+Eingabe (JSON):
+${JSON.stringify(payload)}`,
+  },
+};
+// OpenAI client
+const openai = new OpenAI();
 // ---------- Zod schema for Structured Outputs (all fields required) ----------
 const NutritionTotals = z.object({
   calories: z.number().int().nonnegative(),
@@ -95,6 +176,19 @@ const NutritionTotals = z.object({
   carbs: z.number().int().nonnegative(),
   fat: z.number().int().nonnegative(),
 });
+// Simple API key validation
+function validateApiKey(request) {
+  const authHeader = request.headers.get("authorization");
+  const apiKeyHeader = request.headers.get("apikey");
+  return !!(authHeader?.startsWith("Bearer ") || apiKeyHeader);
+}
+// Build locale-specific user prompt (single template per branch)
+function buildUserPrompt(lang, hasLabel, payload) {
+  const L = LOCALE[lang];
+  return hasLabel
+    ? L.buildUserPromptWithLabel(payload)
+    : L.buildUserPromptBase(payload);
+}
 Deno.serve(async (req) => {
   const identifier = getClientIp(req);
   const { success } = await ratelimit.limit(identifier);
@@ -152,8 +246,9 @@ Deno.serve(async (req) => {
     );
   }
   try {
-    // Accept optional macrosPerReferencePortion; decide prompt BEFORE calling the model
-    const { foodComponents, macrosPerReferencePortion } = await req.json();
+    // Accept optional macrosPerReferencePortion; choose prompt BEFORE calling the model
+    const { foodComponents, macrosPerReferencePortion, language } =
+      await req.json();
     if (!foodComponents) {
       return new Response(
         JSON.stringify({
@@ -168,6 +263,15 @@ Deno.serve(async (req) => {
         }
       );
     }
+    // Locale selection (fallback to EN)
+    let lang = "en";
+    if (
+      typeof language === "string" &&
+      language.trim().toLowerCase() === "de"
+    ) {
+      lang = "de";
+    }
+    const L = LOCALE[lang];
     // Decide which system prompt & payload to use, based on presence of macrosPerReferencePortion
     const hasLabel =
       macrosPerReferencePortion &&
@@ -175,9 +279,8 @@ Deno.serve(async (req) => {
       typeof macrosPerReferencePortion.referencePortionAmount === "string" &&
       macrosPerReferencePortion.referencePortionAmount.trim() !== "";
     const systemPrompt = hasLabel
-      ? SYSTEM_PROMPT_WITH_LABEL
-      : SYSTEM_PROMPT_BASE;
-    // Build user content accordingly
+      ? L.systemPromptWithLabel
+      : L.systemPromptBase;
     const payload = hasLabel
       ? {
           foodComponents,
@@ -186,15 +289,15 @@ Deno.serve(async (req) => {
       : {
           foodComponents,
         };
-    const userPrompt = hasLabel
-      ? "Use the exact label basis to scale compatible components precisely. Then add estimates for any remaining items. Input: " +
-        JSON.stringify(payload)
-      : "Calculate the total nutrition using general nutrition knowledge for these components: " +
-        JSON.stringify(payload);
+    // Build locale-specific user prompt (single, readable template)
+    const userPrompt = buildUserPrompt(lang, hasLabel, payload);
     // ▶️ Responses API + Zod Structured Outputs
     const response = await openai.responses.create({
-      model: "gpt-4.1-mini",
+      model: "gpt-5-mini",
       instructions: systemPrompt,
+      reasoning: {
+        effort: "minimal",
+      },
       input: [
         {
           role: "user",
@@ -228,7 +331,30 @@ Deno.serve(async (req) => {
       },
     });
   } catch (error) {
-    console.error("Error in nutrition refinement:", error);
+    console.error("Error in unified nutrition refinement:", error);
+    // Localize fallback error object using the request body (if available)
+    let L = LOCALE.en;
+    try {
+      const clone = req.clone();
+      const body = await clone.json();
+      if (
+        typeof body?.language === "string" &&
+        body.language.trim().toLowerCase() === "de"
+      ) {
+        L = LOCALE.de;
+      }
+    } catch {
+      // ignore parse errors
+    }
+    const ERROR_RESPONSE = {
+      generatedTitle: L.errorTitle,
+      foodComponents: [],
+      estimationConfidence: 0,
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+    };
     return new Response(JSON.stringify(ERROR_RESPONSE), {
       status: 500,
       headers: {

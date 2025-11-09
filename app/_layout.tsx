@@ -13,6 +13,7 @@ import {
 } from "@/context/NavigationTransitionContext";
 import { useRevenueCat } from "@/hooks/useRevenueCat";
 import "@/lib/i18n";
+import { LocalizationProvider } from "@/context/LocalizationContext";
 
 function ThemedStack() {
   const { colors, isThemeLoaded } = useTheme();
@@ -138,8 +139,10 @@ function RootLayoutContent() {
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <RootLayoutContent />
-    </ThemeProvider>
+    <LocalizationProvider>
+      <ThemeProvider>
+        <RootLayoutContent />
+      </ThemeProvider>
+    </LocalizationProvider>
   );
 }

@@ -6,6 +6,9 @@ import { getLocales } from "expo-localization";
 import en from "../locales/en.json";
 import de from "../locales/de.json";
 
+export const SUPPORTED_LANGUAGE_CODES = ["en", "de"] as const;
+export type SupportedLanguageCode = (typeof SUPPORTED_LANGUAGE_CODES)[number];
+
 // Get device locale (e.g., "en", "de", "es")
 const deviceLocale = getLocales()[0]?.languageCode ?? "en";
 
@@ -22,6 +25,7 @@ i18next
     // Language settings
     lng: deviceLocale, // Current language based on device
     fallbackLng: "en", // Fallback to English if translation missing
+    supportedLngs: [...SUPPORTED_LANGUAGE_CODES],
 
     // Namespace settings (using single default namespace)
     defaultNS: "translation",

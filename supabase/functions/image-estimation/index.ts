@@ -1,13 +1,13 @@
 // deno-lint-ignore-file
 // @ts-nocheck
-// Image-based nutrition estimation using OpenAI Vision API (New API Key System)
+// Unified image-based nutrition estimation (DE/EN) using OpenAI Responses + Zod Structured Outputs
 import OpenAI from "jsr:@openai/openai@6.5.0";
 import { z } from "npm:zod@3.25.1";
 import { zodTextFormat } from "jsr:@openai/openai@6.5.0/helpers/zod";
-import { Ratelimit } from "https://cdn.skypack.dev/@upstash/ratelimit@latest";
-import { Redis } from "https://deno.land/x/upstash_redis@v1.19.3/mod.ts";
+import { Ratelimit } from "npm:@upstash/ratelimit@2.0.7";
+import { Redis } from "npm:@upstash/redis@1.35.6";
 import { createClient } from "npm:@supabase/supabase-js@2.39.4";
-// Initialize Supabase client with service role key for privileged operations
+// Supabase client with Service Role key for privileged operations
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL") ?? "",
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
@@ -17,27 +17,25 @@ const supabase = createClient(
     },
   }
 );
-// Fallback response for non-food images or API failures
-const INVALID_IMAGE_RESPONSE = {
-  generatedTitle: "Invalid Image",
-  foodComponents: [],
-  calories: 0,
-  protein: 0,
-  carbs: 0,
-  fat: 0,
-};
+// Rate limiting
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(2, "60 s"),
   analytics: true,
   prefix: "@upstash/ratelimit",
 });
+// Helper: get client IP (behind proxy)
 function getClientIp(req) {
   const ipHeader = req.headers.get("x-forwarded-for");
-  if (ipHeader) return ipHeader.split(",")[0].trim();
-  return "unknown";
+  return ipHeader ? ipHeader.split(",")[0].trim() : "unknown";
 }
-const SYSTEM_PROMPT = `You are a meticulous nutrition expert for FOOD IMAGE analysis. Given one image (+ optional user text), return exactly ONE JSON object that matches the Zod schema "NutritionEstimation". No prose, no markdown.
+// Locale bundles (strings + prompts)
+const LOCALE = {
+  en: {
+    invalidImageTitle: "Invalid Image",
+    defaultGeneratedTitle: "Food Image Analysis",
+    pieceCanonical: "piece",
+    systemPrompt: `You are a meticulous nutrition expert for FOOD IMAGE analysis. Given one image (+ optional user text), return exactly ONE JSON object that matches the Zod schema "NutritionEstimation". No prose, no markdown.
 
 RULES
 - Follow the schema exactly (no extra keys). Integers only; round half up.
@@ -60,9 +58,44 @@ ESTIMATION GUIDANCE
 - Keep outputs concise and realistic.
 
 OUTPUT
-- Return only the JSON object, no trailing text.`;
+- Return only the JSON object, no trailing text.`,
+  },
+  de: {
+    invalidImageTitle: "Ungültiges Bild",
+    defaultGeneratedTitle: "Lebensmittelbild-Analyse",
+    pieceCanonical: "stück",
+    systemPrompt: `Du bist eine akribische Ernährungsexpertin für die ANALYSE VON ESSENSBILDERN. Erhalte ein Bild (+ optionalen Nutzertext) und gib exakt EIN JSON-Objekt zurück, das dem Zod-Schema "NutritionEstimation" entspricht. Keine Prosa, kein Markdown.
+
+REGELN
+- Schema strikt einhalten (keine zusätzlichen Schlüssel). Nur ganze Zahlen; kaufmännisch runden (0,5 aufrunden).
+- Einheiten: "g", "ml", "stück" (klein, Singular). Synonyme normalisieren: "pcs" → "stück", "stk" → "stück", "st." → "stück".
+- Summen (calories, protein, carbs, fat) müssen konsistent sein: kcal ≈ 4*protein + 4*carbs + 9*fat.
+- Keine versteckten Zutaten (Öl, Butter, etc.) erfinden, es sei denn eindeutig sichtbar.
+- Bevorzuge spezifische Namen: "gegrillte Hähnchenbrust", "gekochter weißer Reis", etc.
+- Falls das Bild KEIN Essen zeigt: foodComponents leer und alle Summen 0 mit klarem Titel "🚫 kein Essen".
+
+DEUTSCHLAND-PRIORITÄT
+- Priorisiere Zutaten, Produkte und Gerichte, die in Deutschland üblich/verfügbar sind, und referenziere nach Möglichkeit Nährwertangaben/Portionen, wie sie in Deutschland/EU gängig sind. Vermeide US-spezifische Produkte, die hier typischerweise nicht erhältlich sind.
+
+NULLBARE FELDER (müssen immer vorhanden sein, dürfen aber null sein)
+- Für jede Komponente:
+  - Wenn unit === "stück", setze "recommendedMeasurement" auf eine exakt messbare Alternative (z. B. { "amount": 180, "unit": "g" }).
+  - Andernfalls "recommendedMeasurement": null.
+- "macrosPerReferencePortion": NUR aufnehmen, wenn ein exaktes Nährwertetikett mit numerischen Makros und klarer Bezugsgröße eindeutig sichtbar ist; sonst null.
+  - Wenn vorhanden, muss "referencePortionAmount" nur die Zahl + Einheit enthalten (z. B. "40 g", "100 ml").
+
+SCHÄTZLEITFADEN
+- Komponenten: 1–10 sichtbare Schlüsselelemente identifizieren. Mengen anhand Tellergröße, gängiger Besteckgrößen, sichtbarer Etiketten im Bild etc. abschätzen.
+- Titel: ein passendes Emoji + 1–3 knappe Wörter (keine Interpunktion).
+- Ausgaben knapp und realistisch halten.
+
+AUSGABE
+- Gib ausschließlich das JSON-Objekt zurück, ohne nachfolgenden Text.`,
+  },
+};
+// OpenAI client
 const openai = new OpenAI();
-// ---------- Zod schema (all fields required; “optional” fields are nullable) ----------
+// ---------- Zod schema (use a superset for units; we canonicalize later) ----------
 const RecommendedMeasurement = z.object({
   amount: z.number().int().nonnegative(),
   unit: z.enum(["g", "ml"]),
@@ -70,8 +103,8 @@ const RecommendedMeasurement = z.object({
 const FoodComponent = z.object({
   name: z.string(),
   amount: z.number().int().nonnegative(),
-  unit: z.enum(["g", "ml", "piece"]),
-  // REQUIRED but nullable for Structured Outputs
+  unit: z.enum(["g", "ml", "piece", "stück"]),
+  // REQUIRED by schema but nullable in model output; we keep it optional in the final sanitized payload
   recommendedMeasurement: RecommendedMeasurement.nullable(),
 });
 const MacrosPerReferencePortion = z.object({
@@ -88,15 +121,63 @@ const NutritionEstimation = z.object({
   protein: z.number().int().nonnegative(),
   carbs: z.number().int().nonnegative(),
   fat: z.number().int().nonnegative(),
-  // REQUIRED but nullable for Structured Outputs
+  // REQUIRED but nullable in model output; we include it only if present after sanitization
   macrosPerReferencePortion: MacrosPerReferencePortion.nullable(),
 });
 // Simple API key validation
 function validateApiKey(request) {
   const authHeader = request.headers.get("authorization");
   const apiKeyHeader = request.headers.get("apikey");
-  if (authHeader?.startsWith("Bearer ") || apiKeyHeader) return true;
-  return false;
+  return !!(authHeader?.startsWith("Bearer ") || apiKeyHeader);
+}
+// Normalize arbitrary unit strings into canonical per-locale units
+function normalizeUnit(raw, locale) {
+  const u = (raw || "").trim().toLowerCase();
+  // grams
+  if (u === "g" || u === "gram" || u === "grams") return "g";
+  // milliliters
+  if (u === "ml" || u === "milliliter" || u === "milliliters") return "ml";
+  // handle piece synonyms (both languages)
+  const pieceSynonyms = new Set([
+    "piece",
+    "pieces",
+    "pc",
+    "pcs",
+    "stk",
+    "st.",
+    "st",
+    "stück",
+    "stueck",
+    "stuck",
+  ]);
+  if (pieceSynonyms.has(u)) return locale.pieceCanonical;
+  // fall back to canonical piece for the selected locale
+  return locale.pieceCanonical;
+}
+// Build locale-specific user prompt (single template per locale)
+function buildUserPrompt(lang, title, description) {
+  const t =
+    (title && title.trim()) || (lang === "de" ? "(kein Titel)" : "(no title)");
+  const d =
+    (description && description.trim()) ||
+    (lang === "de" ? "(keine Beschreibung)" : "(no description)");
+  if (lang === "de") {
+    return `Analysiere dieses Essensbild und schätze den Nährwert ab.
+- Wenn du die Einheit 'stück' verwendest, füge ZUSÄTZLICH 'recommendedMeasurement' mit exakter Menge+Einheit hinzu (z. B. g oder ml).
+- Wenn ein klares, exaktes Nährwertetikett sichtbar ist, füge 'macrosPerReferencePortion' mit einer exakten 'referencePortionAmount' wie '40 g' oder '100 ml' und ganzzahligen Makros für diese Portion hinzu.
+
+Benutzerkontext:
+Titel: ${t}
+Beschreibung: ${d}`;
+  }
+  // EN default
+  return `Analyze this food image and estimate its nutritional content.
+- If you use 'piece' as a unit, ALSO include recommendedMeasurement with an exact amount+unit (e.g., g or ml).
+- If a clear, exact nutrition label is visible, include macrosPerReferencePortion with an exact referencePortionAmount like '40 g' or '100 ml' and integer macros for that portion.
+
+User context:
+Title: ${t}
+Description: ${d}`;
 }
 Deno.serve(async (req) => {
   const identifier = getClientIp(req);
@@ -155,7 +236,17 @@ Deno.serve(async (req) => {
     );
   }
   try {
-    const { imagePath, title, description } = await req.json();
+    const { imagePath, title, description, language } = await req.json();
+    // Locale selection (fallback to EN)
+    let lang = "en";
+    let L = LOCALE.en;
+    if (
+      typeof language === "string" &&
+      language.trim().toLowerCase() === "de"
+    ) {
+      lang = "de";
+      L = LOCALE.de;
+    }
     const bucket = "food-images";
     const expiresIn = 60;
     if (!imagePath?.trim()) {
@@ -172,6 +263,7 @@ Deno.serve(async (req) => {
         }
       );
     }
+    // Create a signed URL for the provided image
     const { data, error } = await supabase.storage
       .from(bucket)
       .createSignedUrl(imagePath, expiresIn);
@@ -188,18 +280,15 @@ Deno.serve(async (req) => {
       );
     }
     const imageUrl = data.signedUrl;
-    let userPrompt =
-      "Analyze this food image and estimate its nutritional content. If you use 'piece' as a unit for a component, ALSO include recommendedMeasurement with an exact amount+unit (e.g., grams or milliliters). If a clear, exact nutrition label is visible, include macrosPerReferencePortion with an exact referencePortionAmount like '40 g' or '100 ml' and integer macros for that portion. ";
-    if (title?.trim() || description?.trim()) {
-      userPrompt += " Additional context:";
-      if (title?.trim()) userPrompt += ` Title: ${title.trim()}.`;
-      if (description?.trim())
-        userPrompt += ` Description: ${description.trim()}.`;
-    }
-    // Responses API + Zod Structured Outputs
+    // Build locale-specific user prompt (single, readable template)
+    const userPrompt = buildUserPrompt(lang, title, description);
+    // Call OpenAI Responses API with locale-appropriate system prompt
     const response = await openai.responses.create({
-      model: "gpt-4.1-mini",
-      instructions: SYSTEM_PROMPT,
+      model: "gpt-5-mini",
+      instructions: L.systemPrompt,
+      reasoning: {
+        effort: "minimal",
+      },
       input: [
         {
           role: "user",
@@ -221,26 +310,28 @@ Deno.serve(async (req) => {
       },
       top_p: 1,
     });
-    // SDK-parsed output when using zodTextFormat
+    // Parse structured output
     const nutrition =
       response.output_parsed ?? JSON.parse(response.output_text || "{}");
-    const ALLOWED_UNITS = ["g", "ml", "piece"];
-    const EXACT_UNITS = ["g", "ml"];
-    // Sanitize components (no limit on number of components)
+    // Allowed units (accept superset; canonicalize per locale)
+    const allowedUnits = ["g", "ml", "piece", "stück"];
+    const exactUnits = ["g", "ml"];
+    // Sanitize components into our final payload (canonicalize units per locale)
     const sanitizedComponents = Array.isArray(nutrition.foodComponents)
       ? nutrition.foodComponents
           .map((comp) => {
-            const lowerCaseUnit = String(comp.unit || "").toLowerCase();
+            const baseUnit = normalizeUnit(String(comp.unit || ""), L);
             const base = {
               name: String(comp.name || "Unknown Item"),
               amount: Math.max(0, Number(comp.amount) || 0),
-              unit: ALLOWED_UNITS.includes(lowerCaseUnit)
-                ? lowerCaseUnit
-                : "piece",
+              unit: allowedUnits.includes(baseUnit)
+                ? baseUnit
+                : L.pieceCanonical,
             };
-            // recommendedMeasurement will be null unless unit === "piece"
+            // Only pass through recommendedMeasurement if unit is piece-like
+            const isPieceLike = base.unit === "piece" || base.unit === "stück";
             if (
-              base.unit === "piece" &&
+              isPieceLike &&
               comp.recommendedMeasurement &&
               typeof comp.recommendedMeasurement === "object"
             ) {
@@ -251,7 +342,7 @@ Deno.serve(async (req) => {
               const rmUnitRaw = String(
                 comp.recommendedMeasurement.unit || ""
               ).toLowerCase();
-              if (rmAmount > 0 && EXACT_UNITS.includes(rmUnitRaw)) {
+              if (rmAmount > 0 && exactUnits.includes(rmUnitRaw)) {
                 base.recommendedMeasurement = {
                   amount: rmAmount,
                   unit: rmUnitRaw,
@@ -262,7 +353,7 @@ Deno.serve(async (req) => {
           })
           .filter((c) => c.name && c.name !== "Unknown Item")
       : [];
-    // Optional macrosPerReferencePortion passthrough (will be null when not present)
+    // Optional macrosPerReferencePortion passthrough (include only if valid)
     let sanitizedReferenceMacros;
     if (
       nutrition.macrosPerReferencePortion &&
@@ -296,8 +387,9 @@ Deno.serve(async (req) => {
         };
       }
     }
+    // Final result payload with localized default title
     const result = {
-      generatedTitle: nutrition.generatedTitle || "Food Image Analysis",
+      generatedTitle: nutrition.generatedTitle || L.defaultGeneratedTitle,
       foodComponents: sanitizedComponents,
       calories: Math.max(0, Math.round(nutrition.calories || 0)),
       protein: Math.max(0, Math.round(nutrition.protein || 0)),
@@ -315,7 +407,30 @@ Deno.serve(async (req) => {
       },
     });
   } catch (error) {
+    // In case of any error, fall back to a localized "invalid image" response
     console.warn("Error validating AI response, using fallback:", error);
+    // Attempt to detect locale again from body if readable; otherwise default EN
+    let L = LOCALE.en;
+    try {
+      const clone = req.clone();
+      const body = await clone.json();
+      if (
+        typeof body?.language === "string" &&
+        body.language.trim().toLowerCase() === "de"
+      ) {
+        L = LOCALE.de;
+      }
+    } catch (_) {
+      // ignore
+    }
+    const INVALID_IMAGE_RESPONSE = {
+      generatedTitle: L.invalidImageTitle,
+      foodComponents: [],
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+    };
     return new Response(JSON.stringify(INVALID_IMAGE_RESPONSE), {
       status: 200,
       headers: {

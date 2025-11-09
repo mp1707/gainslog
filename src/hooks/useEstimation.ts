@@ -3,6 +3,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { useHudStore } from "@/store/useHudStore";
 import { EstimationInput, createEstimationLog } from "@/utils/estimation";
 import type { FoodComponent, FoodLog } from "@/types/models";
+import { useLocalization } from "@/context/LocalizationContext";
 import {
   estimateNutritionImageBased,
   estimateTextBased,
@@ -66,6 +67,8 @@ export const useEstimation = () => {
   const { addFoodLog, updateFoodLog, deleteFoodLog } = useAppStore();
   const isPro = useAppStore((state) => state.isPro);
   const [isEditEstimating, setIsEditEstimating] = useState(false);
+  const { currentLanguage } = useLocalization();
+  const language = currentLanguage || "en";
 
   // Create page flow: add incomplete log, run initial estimation, update store
   const runCreateEstimation = useCallback(
@@ -81,14 +84,22 @@ export const useEstimation = () => {
       const isImageEstimation = hasImage(logData);
       const estimationFunction = async () => {
         if (__DEV__) {
-          console.log(isImageEstimation ? "🖼️ Image initial estimation" : "📝 Text initial estimation");
+          console.log(
+            isImageEstimation
+              ? "🖼️ Image initial estimation"
+              : "📝 Text initial estimation"
+          );
         }
         return isImageEstimation
           ? estimateNutritionImageBased({
               imagePath: logData.supabaseImagePath || "",
               description: logData.description || "",
+              language,
             })
-          : estimateTextBased({ description: logData.description || "" });
+          : estimateTextBased({
+              description: logData.description || "",
+              language,
+            });
       };
 
       try {
@@ -102,7 +113,7 @@ export const useEstimation = () => {
         deleteFoodLog(incompleteLog.id);
       }
     },
-    [addFoodLog, updateFoodLog, deleteFoodLog, isPro]
+    [addFoodLog, updateFoodLog, deleteFoodLog, isPro, language]
   );
 
   // Edit page flow: refinement based solely on provided components
@@ -138,15 +149,19 @@ export const useEstimation = () => {
         const refined: RefinedFoodEstimateResponse = await refineEstimation({
           foodComponents: foodComponentsString,
           macrosPerReferencePortion: editedEntry.macrosPerReferencePortion,
+          language,
         });
-        const completedEntry = makeCompletedFromRefinement(editedEntry, refined);
+        const completedEntry = makeCompletedFromRefinement(
+          editedEntry,
+          refined
+        );
         onComplete(completedEntry);
         return completedEntry;
       } finally {
         setIsEditEstimating(false);
       }
     },
-    [isPro]
+    [isPro, language]
   );
 
   return { runCreateEstimation, runEditEstimation, isEditEstimating };
