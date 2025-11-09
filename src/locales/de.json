@@ -30,7 +30,8 @@
     "delete": "Löschen",
     "edit": "Bearbeiten",
     "done": "Fertig",
-    "close": "Schließen"
+    "close": "Schließen",
+    "confirm": "Bestätigen"
   },
   "dates": {
     "labels": {
@@ -69,6 +70,23 @@
         "fri": "Fr",
         "sat": "Sa"
       }
+    }
+  },
+  "favorites": {
+    "navigation": {
+      "title": "Favoriten",
+      "editTitle": "Favorit bearbeiten",
+      "searchPlaceholder": "Suchen"
+    },
+    "emptyState": {
+      "noMatchesTitle": "Keine Treffer gefunden",
+      "noMatchesSubtitle": "Versuch es mit einem anderen Suchbegriff.",
+      "noFavoritesTitle": "Noch keine Favoriten",
+      "noFavoritesSubtitle": "Speichere Mahlzeiten beim Protokollieren, um sie hier griffbereit zu haben."
+    },
+    "hud": {
+      "added": "Favorisiert",
+      "removed": "Entfernt"
     }
   },
   "editLog": {
@@ -132,6 +150,25 @@
         "title": "Fehler bei der Bildverarbeitung",
         "message": "Versuch es bitte erneut."
       }
+    }
+  },
+  "logCard": {
+    "fallbackTitle": "Neuer Eintrag",
+    "refinement": {
+      "reviewAndConfirm": "Prüfen & bestätigen",
+      "accessibilityLabel": "Schätzung verfeinern"
+    },
+    "contextMenu": {
+      "createLog": "Eintrag erstellen",
+      "logAgain": "Nochmals protokollieren",
+      "saveToFavorites": "Zu Favoriten speichern",
+      "removeFromFavorites": "Aus Favoriten entfernen"
+    },
+    "nutrition": {
+      "calories": "{{unit}}",
+      "protein": "{{unit}} {{label}}",
+      "carbs": "{{unit}} {{label}}",
+      "fat": "{{unit}} {{label}}"
     }
   },
   "macrosCard": {
@@ -203,6 +240,13 @@
       "estimateSuffix": ".",
       "setButton": "{{amount}} {{unit}} übernehmen"
     }
+  },
+  "swipeActions": {
+    "deleteTitle": "Element löschen",
+    "deleteMessage": "Möchtest du dieses Element wirklich löschen?",
+    "confirmTitle": "Aktion bestätigen",
+    "confirmMessage": "Möchtest du diese Aktion wirklich ausführen?",
+    "deleteHint": "Löscht dieses Element"
   },
   "settings": {
     "title": "Einstellungen",

@@ -27,6 +27,7 @@ import { createStyles as createNutritionStyles } from "./NutritionList/Nutrition
 import { FoodComponentList } from "./FoodComponentList";
 import { LogCardTitle } from "./LogCardTitle";
 import { RefinementInfo } from "./RefinementInfo";
+import { useTranslation } from "react-i18next";
 
 interface LogCardProps {
   foodLog: FoodLog | Favorite;
@@ -50,6 +51,7 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
   onLongPress,
 }) => {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   // Note: press scale is handled by SwipeToFunctions to avoid double-scaling
@@ -62,8 +64,9 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
   const nutritionOpacity = useSharedValue(isLoading ? 0 : 1);
   const refinementOpacity = useSharedValue(isLoading ? 0 : 1);
 
-  const displayTitle = foodLog.title || "New Log";
+  const displayTitle = foodLog.title || t("logCard.fallbackTitle");
   const needsReview = "needsUserReview" in foodLog && foodLog.needsUserReview;
+  const refinementText = t("logCard.refinement.reviewAndConfirm");
 
   useEffect(() => {
     const wasLoading = previousLoadingRef.current;
@@ -147,7 +150,7 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
             />
             {needsReview && !isLoading && (
               <RefinementInfo
-                refinementText="Review & confirm"
+                refinementText={refinementText}
                 animated={true}
                 animatedStyle={refinementAnimatedStyle}
                 style={styles.refinementInfo}
@@ -189,6 +192,7 @@ type StaticNutritionListProps = {
 const StaticNutritionList: React.FC<StaticNutritionListProps> = memo(
   ({ nutrition }) => {
     const { colors } = useTheme();
+    const { t } = useTranslation();
     const nutritionStyles = useMemo(
       () => createNutritionStyles(colors),
       [colors]
@@ -198,26 +202,38 @@ const StaticNutritionList: React.FC<StaticNutritionListProps> = memo(
       {
         key: "calories",
         value: Math.round(nutrition.calories),
-        label: "kcal",
+        label: t("logCard.nutrition.calories", {
+          unit: t("nutrients.calories.unitShort"),
+          label: t("nutrients.calories.label"),
+        }),
         color: colors.semantic.calories,
         large: true,
       },
       {
         key: "protein",
         value: Math.round(nutrition.protein),
-        label: "g Protein",
+        label: t("logCard.nutrition.protein", {
+          unit: t("nutrients.protein.unitShort"),
+          label: t("nutrients.protein.label"),
+        }),
         color: colors.semantic.protein,
       },
       {
         key: "carbs",
         value: Math.round(nutrition.carbs),
-        label: "g Carbs",
+        label: t("logCard.nutrition.carbs", {
+          unit: t("nutrients.carbs.unitShort"),
+          label: t("nutrients.carbs.label"),
+        }),
         color: colors.semantic.carbs,
       },
       {
         key: "fat",
         value: Math.round(nutrition.fat),
-        label: "g Fat",
+        label: t("logCard.nutrition.fat", {
+          unit: t("nutrients.fat.unitShort"),
+          label: t("nutrients.fat.label"),
+        }),
         color: colors.semantic.fat,
       },
     ];
@@ -248,12 +264,14 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
   onLongPress,
 }) => {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   // Note: press scale is handled by SwipeToFunctions to avoid double-scaling
 
-  const displayTitle = foodLog.title || "New Log";
+  const displayTitle = foodLog.title || t("logCard.fallbackTitle");
   const needsReview = "needsUserReview" in foodLog && foodLog.needsUserReview;
+  const refinementText = t("logCard.refinement.reviewAndConfirm");
 
   return (
     <Pressable
@@ -276,7 +294,7 @@ const StaticLogCard: React.FC<LogCardProps & WithLongPress> = ({
             />
             {needsReview && (
               <RefinementInfo
-                refinementText="Review & confirm"
+                refinementText={refinementText}
                 style={styles.refinementInfo}
               />
             )}
@@ -309,6 +327,7 @@ const LogCardInner: React.FC<LogCardProps> = ({
   onDelete,
   contextMenuPreset = "default",
 }) => {
+  const { t } = useTranslation();
   const hasEverBeenLoadingRef = useRef<boolean>(isLoading === true);
   const [useAnimatedVariant, setUseAnimatedVariant] = useState<boolean>(
     isLoading === true
@@ -340,9 +359,12 @@ const LogCardInner: React.FC<LogCardProps> = ({
   const items: ContextMenuItem[] = useMemo(() => {
     if (contextMenuPreset === "favorites") {
       const arr: ContextMenuItem[] = [];
-      arr.push({ label: "Create Log", onPress: () => onLogAgain?.(foodLog) });
       arr.push({
-        label: "Remove from Favorites",
+        label: t("logCard.contextMenu.createLog"),
+        onPress: () => onLogAgain?.(foodLog),
+      });
+      arr.push({
+        label: t("logCard.contextMenu.removeFromFavorites"),
         destructive: true,
         onPress: () => onRemoveFromFavorites?.(foodLog),
       });
@@ -350,19 +372,24 @@ const LogCardInner: React.FC<LogCardProps> = ({
     }
 
     const arr: ContextMenuItem[] = [];
-    arr.push({ label: "Log Again", onPress: () => onLogAgain?.(foodLog) });
+    arr.push({
+      label: t("logCard.contextMenu.logAgain"),
+      onPress: () => onLogAgain?.(foodLog),
+    });
     if (onSaveToFavorites || onRemoveFromFavorites) {
       arr.push({
-        label: isFavorite ? "Remove from Favorites" : "Save to Favorites",
+        label: isFavorite
+          ? t("logCard.contextMenu.removeFromFavorites")
+          : t("logCard.contextMenu.saveToFavorites"),
         onPress: () =>
           isFavorite
             ? onRemoveFromFavorites?.(foodLog)
             : onSaveToFavorites?.(foodLog),
       });
     }
-    arr.push({ label: "Edit", onPress: () => onEdit?.(foodLog) });
+    arr.push({ label: t("common.edit"), onPress: () => onEdit?.(foodLog) });
     arr.push({
-      label: "Delete",
+      label: t("common.delete"),
       destructive: true,
       onPress: () => onDelete?.(foodLog),
     });
@@ -376,6 +403,7 @@ const LogCardInner: React.FC<LogCardProps> = ({
     onEdit,
     onDelete,
     isFavorite,
+    t,
   ]);
 
   const lastOpenRef = useRef<number>(0);

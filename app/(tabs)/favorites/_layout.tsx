@@ -5,9 +5,11 @@ import { useTheme } from "@/theme";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import type { SearchBarProps } from "react-native-screens";
 import { useAppStore } from "@/store/useAppStore";
+import { useTranslation } from "react-i18next";
 
 export default function FavoritesLayout() {
   const { colors, theme } = useTheme();
+  const { t } = useTranslation();
   const isIOS = Platform.OS === "ios";
   const hasLiquidGlass = isLiquidGlassAvailable();
   const setFavoritesSearchQuery = useAppStore(
@@ -34,7 +36,7 @@ export default function FavoritesLayout() {
         name="index"
         options={{
           headerShown: true,
-          headerTitle: "Favorites",
+          headerTitle: t("favorites.navigation.title"),
           headerTintColor: colors.accent,
           headerLargeTitle: isIOS,
           headerTransparent: hasLiquidGlass && isIOS,
@@ -51,7 +53,7 @@ export default function FavoritesLayout() {
           },
           headerSearchBarOptions: {
             placement: "automatic",
-            placeholder: "Search",
+            placeholder: t("favorites.navigation.searchPlaceholder"),
             onChangeText: handleSearchChange,
             inputType: "text",
             autoCapitalize: "none",
@@ -74,7 +76,7 @@ export default function FavoritesLayout() {
           headerStyle: !hasLiquidGlass && {
             backgroundColor: colors.primaryBackground,
           },
-          headerTitle: "Edit Favorite",
+          headerTitle: t("favorites.navigation.editTitle"),
           gestureEnabled: true,
           navigationBarHidden: true,
         }}

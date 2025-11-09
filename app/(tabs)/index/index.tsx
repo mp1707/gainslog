@@ -20,12 +20,14 @@ import {
   createToggleFavoriteHandler,
 } from "@/utils/foodLogHandlers";
 import { useSegments } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 export default function TodayTab() {
   const { safeNavigate } = useNavigationGuard();
   const { dynamicBottomPadding } = useTabBarSpacing();
   const { colors, colorScheme, theme } = useTheme();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   const foodLogs = useAppStore((state) => state.foodLogs);
   const selectedDate = useAppStore((state) => state.selectedDate);
@@ -77,13 +79,13 @@ export default function TodayTab() {
   );
 
   const handleSaveToFavorites = useMemo(
-    () => createSaveToFavoritesHandler(addFavorite, favorites),
-    [addFavorite, favorites]
+    () => createSaveToFavoritesHandler(addFavorite, favorites, t),
+    [addFavorite, favorites, t]
   );
 
   const handleRemoveFromFavorites = useMemo(
-    () => createRemoveFromFavoritesHandler(deleteFavorite, favorites),
-    [deleteFavorite, favorites]
+    () => createRemoveFromFavoritesHandler(deleteFavorite, favorites, t),
+    [deleteFavorite, favorites, t]
   );
 
   const handleEdit = useMemo(
@@ -97,8 +99,9 @@ export default function TodayTab() {
   );
 
   const handleToggleFavorite = useMemo(
-    () => createToggleFavoriteHandler(addFavorite, deleteFavorite, favorites),
-    [addFavorite, deleteFavorite, favorites]
+    () =>
+      createToggleFavoriteHandler(addFavorite, deleteFavorite, favorites, t),
+    [addFavorite, deleteFavorite, favorites, t]
   );
 
   return (

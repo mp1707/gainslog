@@ -1,6 +1,7 @@
-import { FoodLog, Favorite, FoodComponent } from "@/types/models";
+import { FoodLog, Favorite } from "@/types/models";
 import { generateFoodLogId } from "@/utils/idGenerator";
 import { useHudStore } from "@/store/useHudStore";
+import type { TFunction } from "i18next";
 
 export const createLogAgainHandler = (
   addFoodLog: (log: FoodLog) => void,
@@ -29,7 +30,8 @@ export const createLogAgainHandler = (
 
 export const createSaveToFavoritesHandler = (
   addFavorite: (fav: Favorite) => void,
-  favorites: Favorite[]
+  favorites: Favorite[],
+  t: TFunction,
 ) => {
   return (log: FoodLog | Favorite) => {
     const already = favorites.some((f) => f.id === log.id);
@@ -55,7 +57,7 @@ export const createSaveToFavoritesHandler = (
     // Use HUD instead of toast
     useHudStore.getState().show({
       type: "success",
-      title: "Favorited",
+      title: t("favorites.hud.added"),
       subtitle: log.title,
     });
   };
@@ -63,7 +65,8 @@ export const createSaveToFavoritesHandler = (
 
 export const createRemoveFromFavoritesHandler = (
   deleteFavorite: (id: string) => void,
-  favorites: Favorite[]
+  favorites: Favorite[],
+  t: TFunction,
 ) => {
   return (log: FoodLog | Favorite) => {
     const exists = favorites.some((f) => f.id === log.id);
@@ -73,7 +76,7 @@ export const createRemoveFromFavoritesHandler = (
     // Use HUD instead of toast
     useHudStore.getState().show({
       type: "info",
-      title: "Removed",
+      title: t("favorites.hud.removed"),
       subtitle: log.title,
     });
   };
@@ -94,7 +97,8 @@ export const createDeleteHandler = (deleteFoodLog: (id: string) => void) => {
 export const createToggleFavoriteHandler = (
   addFavorite: (fav: Favorite) => void,
   deleteFavorite: (id: string) => void,
-  favorites: Favorite[]
+  favorites: Favorite[],
+  t: TFunction,
 ) => {
   return (foodLog: FoodLog) => {
     const isFavorite = favorites.some((favorite) => favorite.id === foodLog.id);
@@ -105,7 +109,7 @@ export const createToggleFavoriteHandler = (
       // Use HUD instead of toast
       useHudStore.getState().show({
         type: "info",
-        title: "Removed",
+        title: t("favorites.hud.removed"),
         subtitle: foodLog.title,
       });
     } else {
@@ -119,7 +123,7 @@ export const createToggleFavoriteHandler = (
       // Use HUD instead of toast
       useHudStore.getState().show({
         type: "success",
-        title: "Favorited",
+        title: t("favorites.hud.added"),
         subtitle: foodLog.title,
       });
     }

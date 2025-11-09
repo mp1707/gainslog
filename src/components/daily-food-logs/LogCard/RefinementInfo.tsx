@@ -4,6 +4,7 @@ import Animated, { useAnimatedStyle } from "react-native-reanimated";
 import { Sparkles } from "lucide-react-native";
 import { useTheme } from "@/theme";
 import { AppText } from "@/components";
+import { useTranslation } from "react-i18next";
 
 interface RefinementInfoProps {
   refinementText: string;
@@ -19,12 +20,14 @@ export const RefinementInfo: React.FC<RefinementInfoProps> = ({
   style,
 }) => {
   const { colors } = useTheme();
+  const { t } = useTranslation();
+  const accessibilityLabel = t("logCard.refinement.accessibilityLabel");
 
   const content = (
     <View
       style={style}
       accessibilityRole="text"
-      accessibilityLabel="Refine estimate"
+      accessibilityLabel={accessibilityLabel}
     >
       <Sparkles
         size={16}

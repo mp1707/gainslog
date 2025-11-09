@@ -15,6 +15,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { lockNav, isNavLocked } from "@/utils/navigationLock";
 import { theme } from "@/theme";
 import { useIsFocused } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
 interface SwipeToFunctionsProps {
   children: ReactNode;
   onDelete?: () => void;
@@ -53,6 +54,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
 }) => {
   // Screen focus awareness to prevent tap-through when regaining focus
   const isFocused = useIsFocused();
+  const { t } = useTranslation();
   const focusAtTsRef = useRef<number>(0);
   const focusAtMs = useSharedValue(0);
   const tapStartMs = useSharedValue(0);
@@ -87,6 +89,14 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
   const isPressing = useSharedValue(false);
 
   const colors = theme.getColors();
+  const deleteAlertTitle = t("swipeActions.deleteTitle");
+  const deleteAlertMessage = t("swipeActions.deleteMessage");
+  const confirmAlertTitle = t("swipeActions.confirmTitle");
+  const confirmAlertMessage = t("swipeActions.confirmMessage");
+  const cancelLabel = t("common.cancel");
+  const deleteLabel = t("common.delete");
+  const confirmLabel = t("common.confirm");
+  const deleteHint = t("swipeActions.deleteHint");
 
   // Helper functions for JS thread actions - defined early for worklet access
   const triggerTap = () => {
@@ -145,11 +155,11 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
   const handleDelete = () => {
     if (confirmDelete) {
       Alert.alert(
-        "Delete Food Log",
-        "Are you sure you want to delete this food log?",
+        deleteAlertTitle,
+        deleteAlertMessage,
         [
           {
-            text: "Cancel",
+            text: cancelLabel,
             style: "cancel",
             onPress: () => {
               // Reset position and swipe state
@@ -158,7 +168,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
             },
           },
           {
-            text: "Delete",
+            text: deleteLabel,
             style: "destructive",
             onPress: () => {
               Haptics.notificationAsync(
@@ -177,9 +187,9 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
 
   const handleLeftFunction = () => {
     if (confirmLeftFunction) {
-      Alert.alert("Confirm Action", "Are you sure you want to perform this action?", [
+      Alert.alert(confirmAlertTitle, confirmAlertMessage, [
         {
-          text: "Cancel",
+          text: cancelLabel,
           style: "cancel",
           onPress: () => {
             // Reset position and swipe state
@@ -188,7 +198,7 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
           },
         },
         {
-          text: "Confirm",
+          text: confirmLabel,
           onPress: () => {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             executeLeftFunction();
@@ -652,8 +662,8 @@ export const SwipeToFunctions: React.FC<SwipeToFunctionsProps> = ({
                     name="trash"
                     size={24}
                     color="white"
-                    accessibilityLabel="Delete"
-                    accessibilityHint="Deletes this item"
+                    accessibilityLabel={deleteLabel}
+                    accessibilityHint={deleteHint}
                     accessible
                   />
                 </Animated.View>

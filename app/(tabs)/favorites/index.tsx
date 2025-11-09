@@ -12,6 +12,7 @@ import {
 import { FavoriteItem } from "@/components/favorites/FavoriteItem";
 import { AppText } from "@/components/index";
 import { Colors, Theme, useTheme } from "@/theme";
+import { useTranslation } from "react-i18next";
 
 export default function FavoritesScreen() {
   const favorites = useAppStore((state) => state.favorites);
@@ -25,6 +26,7 @@ export default function FavoritesScreen() {
   const { safeNavigate } = useNavigationGuard();
   const { dynamicBottomPadding } = useTabBarSpacing();
   const { colors, theme } = useTheme();
+  const { t } = useTranslation();
 
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
@@ -53,14 +55,21 @@ export default function FavoritesScreen() {
   const isSearching = favoritesSearchQuery.trim().length > 0;
   const hasFavorites = favorites.length > 0;
 
+  const emptyStateTitle = isSearching && hasFavorites
+    ? t("favorites.emptyState.noMatchesTitle")
+    : t("favorites.emptyState.noFavoritesTitle");
+  const emptyStateSubtitle = isSearching && hasFavorites
+    ? t("favorites.emptyState.noMatchesSubtitle")
+    : t("favorites.emptyState.noFavoritesSubtitle");
+
   const handleLogAgain = useMemo(
     () => createLogAgainHandler(addFoodLog, selectedDate),
     [addFoodLog, selectedDate]
   );
 
   const handleRemoveFromFavorites = useMemo(
-    () => createRemoveFromFavoritesHandler(deleteFavorite, favorites),
-    [deleteFavorite, favorites]
+    () => createRemoveFromFavoritesHandler(deleteFavorite, favorites, t),
+    [deleteFavorite, favorites, t]
   );
 
   const handleDelete = useMemo(
@@ -104,14 +113,10 @@ export default function FavoritesScreen() {
       ListEmptyComponent={() => (
         <View style={styles.emptyState}>
           <AppText role="Body" style={styles.emptyTitle}>
-            {isSearching && hasFavorites
-              ? "No matches found"
-              : "No favorites yet"}
+            {emptyStateTitle}
           </AppText>
           <AppText role="Caption" style={styles.emptySubtitle}>
-            {isSearching && hasFavorites
-              ? "Try another search term."
-              : "Save meals while logging to keep them handy here."}
+            {emptyStateSubtitle}
           </AppText>
         </View>
       )}

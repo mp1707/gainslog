@@ -30,7 +30,8 @@
     "delete": "Delete",
     "edit": "Edit",
     "done": "Done",
-    "close": "Close"
+    "close": "Close",
+    "confirm": "Confirm"
   },
   "dates": {
     "labels": {
@@ -69,6 +70,23 @@
         "fri": "Fr",
         "sat": "Sa"
       }
+    }
+  },
+  "favorites": {
+    "navigation": {
+      "title": "Favorites",
+      "editTitle": "Edit Favorite",
+      "searchPlaceholder": "Search"
+    },
+    "emptyState": {
+      "noMatchesTitle": "No matches found",
+      "noMatchesSubtitle": "Try another search term.",
+      "noFavoritesTitle": "No favorites yet",
+      "noFavoritesSubtitle": "Save meals while logging to keep them handy here."
+    },
+    "hud": {
+      "added": "Favorited",
+      "removed": "Removed"
     }
   },
   "editLog": {
@@ -132,6 +150,25 @@
         "title": "Error processing image",
         "message": "Please try again."
       }
+    }
+  },
+  "logCard": {
+    "fallbackTitle": "New Log",
+    "refinement": {
+      "reviewAndConfirm": "Review & confirm",
+      "accessibilityLabel": "Refine estimate"
+    },
+    "contextMenu": {
+      "createLog": "Create Log",
+      "logAgain": "Log Again",
+      "saveToFavorites": "Save to Favorites",
+      "removeFromFavorites": "Remove from Favorites"
+    },
+    "nutrition": {
+      "calories": "{{unit}}",
+      "protein": "{{unit}} {{label}}",
+      "carbs": "{{unit}} {{label}}",
+      "fat": "{{unit}} {{label}}"
     }
   },
   "macrosCard": {
@@ -203,6 +240,13 @@
       "estimateSuffix": ".",
       "setButton": "Set {{amount}} {{unit}}"
     }
+  },
+  "swipeActions": {
+    "deleteTitle": "Delete item",
+    "deleteMessage": "Are you sure you want to delete this item?",
+    "confirmTitle": "Confirm Action",
+    "confirmMessage": "Are you sure you want to perform this action?",
+    "deleteHint": "Deletes this item"
   },
   "settings": {
     "title": "Settings",

@@ -3,6 +3,7 @@ import { ActionSheetIOS, Modal, Platform, Pressable, View } from "react-native";
 import { AppText } from "@/components/shared/AppText";
 import { useTheme } from "@/theme";
 import { createStyles } from "./ContextMenu.styles";
+import { useTranslation } from "react-i18next";
 
 export type ContextMenuItem = {
   label: string;
@@ -20,17 +21,19 @@ type ContextMenuProps = {
 export const ContextMenu: React.FC<ContextMenuProps> = ({
   visible,
   items,
-  cancelText = "Cancel",
+  cancelText,
   onClose,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors);
+  const { t } = useTranslation();
+  const resolvedCancelText = cancelText ?? t("common.cancel");
 
   useEffect(() => {
     if (!visible) return;
 
     if (Platform.OS === "ios") {
-      const options = [...items.map((i) => i.label), cancelText];
+      const options = [...items.map((i) => i.label), resolvedCancelText];
       const destructiveButtonIndex = items.findIndex((i) => i.destructive);
       const cancelButtonIndex = options.length - 1;
 
@@ -94,7 +97,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
           <View style={styles.cancelBlock}>
             <Pressable style={styles.cancelItem} onPress={onClose}>
               <AppText style={[theme.typography.Button, styles.cancelText]}>
-                {cancelText}
+                {resolvedCancelText}
               </AppText>
             </Pressable>
           </View>
