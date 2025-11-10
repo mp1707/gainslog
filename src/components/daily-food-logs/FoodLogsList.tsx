@@ -139,7 +139,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
       }}
       contentContainerStyle={contentContainerStyle}
       ListHeaderComponent={ListHeaderComponent}
-      ListEmptyComponent={EmptyComponent}
+      // ListEmptyComponent={EmptyComponent}
       showsVerticalScrollIndicator={false}
       removeClippedSubviews
       initialNumToRender={6}
