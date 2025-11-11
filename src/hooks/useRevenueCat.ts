@@ -9,6 +9,12 @@ import {
 import { applyCustomerInfoToStore } from "@/lib/revenuecat/subscription";
 import { useAppStore } from "@/store/useAppStore";
 
+/**
+ * Initializes RevenueCat and manages subscription state.
+ * - Loads customer info on mount and when app becomes active
+ * - Listens for real-time subscription updates
+ * - Updates store with subscription status
+ */
 export const useRevenueCat = () => {
   const setVerifyingSubscription = useAppStore(
     (state) => state.setVerifyingSubscription
