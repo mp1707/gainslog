@@ -268,7 +268,7 @@ export default function PaywallScreen() {
             <TouchableOpacity
               onPress={() =>
                 handleOpenLink(
-                  'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
+                  'https://mp1707.github.io/macroloopinfo/',
                 )
               }
               activeOpacity={0.6}
@@ -279,7 +279,7 @@ export default function PaywallScreen() {
             </TouchableOpacity>
             <View style={styles.linkDivider} />
             <TouchableOpacity
-              onPress={() => handleOpenLink('https://macroloop.app/privacy')}
+              onPress={() => handleOpenLink('https://mp1707.github.io/macroloopinfo/privacy-policy.html')}
               activeOpacity={0.6}
             >
               <AppText role="Caption" style={styles.link}>
