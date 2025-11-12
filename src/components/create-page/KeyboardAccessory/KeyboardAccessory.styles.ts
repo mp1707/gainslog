@@ -19,7 +19,7 @@ export const createStyles = (
     actionsRow: {
       flexDirection: "row",
       alignItems: "center",
-      gap: theme.spacing.sm,
+      gap: theme.spacing.md,
       marginLeft: "auto",
     },
     waveformContainer: {
@@ -33,7 +33,7 @@ export const createStyles = (
       paddingVertical: theme.spacing.xs,
     },
     waveformBar: {
-      width: 3,
+      width: 2,
       borderRadius: theme.spacing.xs,
       marginHorizontal: 2,
       backgroundColor:

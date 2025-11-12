@@ -48,9 +48,11 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
     !canContinue || isEstimating || isRecording || isTransitioning;
   const cameraDisabled = isRecording || isTransitioning;
   const micDisabled = isTransitioning;
+  const stopDisabled = isTransitioning;
   const iconColor = colorScheme === "dark" ? colors.white : colors.primaryText;
 
   const handleCameraPress = useCallback(async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     textInputRef?.current?.blur();
 
     if (!cameraPermission?.granted) {
@@ -74,21 +76,27 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
     t,
   ]);
 
-  const handleMicPress = useCallback(async () => {
-    if (requestMicPermission) {
-      const granted = await requestMicPermission();
-      if (!granted) {
-        showErrorToast(
-          t("createLog.permissions.microphoneDenied.title"),
-          t("createLog.permissions.microphoneDenied.message")
-        );
-        return;
-      }
-    }
-
-    // Call recording without awaiting for instant UI response
-    onRecording?.();
+  const handleMicPress = useCallback(() => {
+    // Focus immediately (synchronous) to keep keyboard open
     textInputRef?.current?.focus();
+
+    // Then handle async operations
+    (async () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      if (requestMicPermission) {
+        const granted = await requestMicPermission();
+        if (!granted) {
+          showErrorToast(
+            t("createLog.permissions.microphoneDenied.title"),
+            t("createLog.permissions.microphoneDenied.message")
+          );
+          return;
+        }
+      }
+
+      // Call recording without awaiting for instant UI response
+      onRecording?.();
+    })();
   }, [textInputRef, requestMicPermission, onRecording, t]);
 
   const handleConfirmPress = useCallback(() => {
@@ -97,9 +105,13 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
   }, [onEstimate]);
 
   const handleStopPress = useCallback(() => {
-    // Call without awaiting for instant UI response
+    // Keep keyboard open (focus immediately)
+    textInputRef?.current?.focus();
+
+    // Then handle stop recording and haptics
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onStopRecording?.();
-  }, [onStopRecording]);
+  }, [textInputRef, onStopRecording]);
 
   return (
     <View style={styles.container}>
@@ -111,6 +123,7 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
             styles.waveformContainer,
             { transform: [{ translateY: isFocused ? 0 : 44 }] },
             { position: "absolute", top: isFocused ? -4 : -24 },
+            { pointerEvents: "none" },
           ]}
           barStyle={styles.waveformBar}
         />
@@ -121,11 +134,12 @@ export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
             variant="regular"
             buttonProps={{
               onPress: handleStopPress,
+              disabled: stopDisabled,
               color: colors.secondaryBackground,
             }}
             imageProps={{
               systemName: "stop.fill",
-              color: colors.white,
+              color: stopDisabled ? colors.disabledText : colors.white,
             }}
           />
         ) : (
