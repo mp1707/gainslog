@@ -50,6 +50,14 @@ export default function SettingsLayout() {
           headerLargeTitleShadowVisible: false,
         }}
       />
+      <Stack.Screen
+        name="language"
+        options={{
+          title: t("settings.language.header"),
+          headerLargeTitle: isIOS,
+          headerLargeTitleShadowVisible: false,
+        }}
+      />
     </Stack>
   );
 }
