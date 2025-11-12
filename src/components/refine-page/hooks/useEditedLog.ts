@@ -31,12 +31,7 @@ export const useEditedLog = ({
     }
 
     if (!isDirty) {
-      if (originalLog.needsUserReview) {
-        setEditedLogState({ ...originalLog, needsUserReview: false });
-        setIsDirty(true);
-      } else {
-        setEditedLogState(originalLog);
-      }
+      setEditedLogState(originalLog);
     }
   }, [originalLog, isDirty]);
 

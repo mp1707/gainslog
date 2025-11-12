@@ -654,10 +654,6 @@
   },
   "logCard": {
     "fallbackTitle": "New Log",
-    "refinement": {
-      "reviewAndConfirm": "Review & confirm",
-      "accessibilityLabel": "Refine estimate"
-    },
     "contextMenu": {
       "createLog": "Create Log",
       "logAgain": "Log Again",

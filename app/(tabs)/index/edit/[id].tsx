@@ -183,7 +183,6 @@ export default function Edit() {
       fat: editedLog.fat,
       foodComponents: editedLog.foodComponents || [],
       macrosPerReferencePortion: editedLog.macrosPerReferencePortion,
-      needsUserReview: editedLog.needsUserReview,
     });
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     router.back();

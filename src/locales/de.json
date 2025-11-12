@@ -652,10 +652,6 @@
   },
   "logCard": {
     "fallbackTitle": "Neuer Eintrag",
-    "refinement": {
-      "reviewAndConfirm": "Prüfen & bestätigen",
-      "accessibilityLabel": "Schätzung verfeinern"
-    },
     "contextMenu": {
       "createLog": "Eintrag erstellen",
       "logAgain": "Erneut protokollieren",

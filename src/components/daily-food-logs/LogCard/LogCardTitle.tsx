@@ -10,7 +10,6 @@ interface LogCardTitleProps {
   animatedStyle?: any;
   style?: any;
   numberOfLines?: number;
-  needsUserReview?: boolean;
 }
 
 export const LogCardTitle: React.FC<LogCardTitleProps> = ({
@@ -20,7 +19,6 @@ export const LogCardTitle: React.FC<LogCardTitleProps> = ({
   animatedStyle,
   style,
   numberOfLines = 2,
-  needsUserReview = false,
 }) => {
   if (isLoading) {
     return <SkeletonPill width="80%" height={22} />;

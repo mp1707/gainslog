@@ -42,11 +42,6 @@ export const createStyles = (colors: Colors) =>
       flexDirection: "column",
       flex: 1,
     },
-    refinementInfo: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: theme.spacing.xs,
-    },
     title: {},
     description: {
       fontStyle: "italic",
@@ -103,9 +98,5 @@ export const createStyles = (colors: Colors) =>
       width: "100%",
       backgroundColor: colors.border,
       borderRadius: theme.spacing.md,
-    },
-    cardWithReviewBorder: {
-      borderWidth: 1,
-      borderColor: colors.highlightBorder,
     },
   });
