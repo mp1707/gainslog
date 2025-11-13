@@ -20,7 +20,7 @@ import {
 } from "@/utils/dateHelpers";
 
 const WEEKDAY_LETTERS = ["M", "T", "W", "T", "F", "S", "S"];
-const WEEKS_TO_LOAD_AT_ONCE = 5;
+const WEEKS_TO_LOAD_AT_ONCE = 2;
 
 // Calculate dynamic item width to fit exactly 7 days on screen
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -34,12 +34,13 @@ export const DateSlider = () => {
     [colors, theme]
   );
   const flatListRef = useRef<FlatList>(null);
+  const scrollDebounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   const { foodLogs, selectedDate, setSelectedDate, dailyTargets } =
     useAppStore();
 
-  const [pastWeeksLoaded, setPastWeeksLoaded] = useState(WEEKS_TO_LOAD_AT_ONCE);
-  const [futureWeeksLoaded, setFutureWeeksLoaded] = useState(2);
+  const [pastWeeksLoaded, setPastWeeksLoaded] = useState(2);
+  const [futureWeeksLoaded, setFutureWeeksLoaded] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
   const getMondayOfWeek = useCallback((date: Date): Date => {
@@ -49,51 +50,32 @@ export const DateSlider = () => {
     return monday;
   }, []);
 
+  // Pre-index food logs by date for O(1) lookups (Phase 2 optimization)
+  const foodLogsByDate = useMemo(() => {
+    const index = new Map<
+      string,
+      { calories: number; protein: number; carbs: number }
+    >();
+    foodLogs.forEach((log) => {
+      const existing = index.get(log.logDate) || {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+      };
+      existing.calories += log.calories;
+      existing.protein += log.protein;
+      existing.carbs += log.carbs;
+      index.set(log.logDate, existing);
+    });
+    return index;
+  }, [foodLogs]);
+
   const dateRange = useMemo(() => {
     const today = new Date();
     const currentWeekMonday = getMondayOfWeek(today);
     const dates: DayData[] = [];
 
-    // First pass: generate all date strings we need for the visible range
-    const neededDates = new Set<string>();
-    for (
-      let weekOffset = -pastWeeksLoaded;
-      weekOffset <= futureWeeksLoaded;
-      weekOffset++
-    ) {
-      const weekStartDate = new Date(currentWeekMonday);
-      weekStartDate.setDate(currentWeekMonday.getDate() + weekOffset * 7);
-
-      for (let i = 0; i < 7; i++) {
-        const currentDate = new Date(weekStartDate);
-        currentDate.setDate(weekStartDate.getDate() + i);
-        const dateString = formatDateToLocalString(currentDate);
-        neededDates.add(dateString);
-      }
-    }
-
-    // Second pass: compute totals ONLY for dates in visible range
-    const dailyTotalsByDate = new Map<
-      string,
-      { calories: number; protein: number; carbs: number }
-    >();
-
-    foodLogs.forEach((log) => {
-      // Skip logs that aren't in the visible range
-      if (!neededDates.has(log.logDate)) return;
-
-      const currentTotals = dailyTotalsByDate.get(log.logDate) || {
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-      };
-      currentTotals.calories += log.calories;
-      currentTotals.protein += log.protein;
-      currentTotals.carbs += log.carbs;
-      dailyTotalsByDate.set(log.logDate, currentTotals);
-    });
-
-    // Third pass: generate DayData with computed totals
+    // Single pass: generate DayData using pre-indexed food logs (Phase 2 optimization)
     for (
       let weekOffset = -pastWeeksLoaded;
       weekOffset <= futureWeeksLoaded;
@@ -110,7 +92,8 @@ export const DateSlider = () => {
         const dateString = formatDateToLocalString(currentDate);
         const weekdayIndex = (currentDate.getDay() + 6) % 7;
 
-        const dailyTotals = dailyTotalsByDate.get(dateString) || {
+        // O(1) lookup from pre-indexed map
+        const dailyTotals = foodLogsByDate.get(dateString) || {
           calories: 0,
           protein: 0,
           carbs: 0,
@@ -139,7 +122,7 @@ export const DateSlider = () => {
   }, [
     pastWeeksLoaded,
     futureWeeksLoaded,
-    foodLogs,
+    foodLogsByDate,
     dailyTargets,
     getMondayOfWeek,
   ]);
@@ -179,40 +162,48 @@ export const DateSlider = () => {
     (event: any) => {
       if (isLoading) return;
 
+      // Extract values before setTimeout to avoid event nullification
       const contentOffset = event.nativeEvent.contentOffset.x;
       const contentWidth = event.nativeEvent.contentSize.width;
       const layoutWidth = event.nativeEvent.layoutMeasurement.width;
 
-      // Load more past weeks when scrolling backward
-      if (contentOffset < ITEM_WIDTH * 7) {
-        setIsLoading(true);
-        const listRef = flatListRef.current;
-        setPastWeeksLoaded((prev) => {
-          const newWeeks = prev + WEEKS_TO_LOAD_AT_ONCE;
-          setTimeout(() => {
-            const newContentOffset =
-              contentOffset + WEEKS_TO_LOAD_AT_ONCE * 7 * ITEM_WIDTH;
-            listRef?.scrollToOffset({
-              offset: newContentOffset,
-              animated: false,
-            });
-            setIsLoading(false);
-          }, 100);
-          return newWeeks;
-        });
+      // Phase 3: Debounce scroll handler to prevent rapid state updates
+      if (scrollDebounceTimer.current) {
+        clearTimeout(scrollDebounceTimer.current);
       }
 
-      // Load more future weeks when scrolling forward
-      if (contentOffset + layoutWidth > contentWidth - ITEM_WIDTH * 7) {
-        setIsLoading(true);
-        setFutureWeeksLoaded((prev) => {
-          const newWeeks = prev + WEEKS_TO_LOAD_AT_ONCE;
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 100);
-          return newWeeks;
-        });
-      }
+      scrollDebounceTimer.current = setTimeout(() => {
+        // Load more past weeks when scrolling backward
+        if (contentOffset < ITEM_WIDTH * 7) {
+          setIsLoading(true);
+          const listRef = flatListRef.current;
+          setPastWeeksLoaded((prev) => {
+            const newWeeks = prev + WEEKS_TO_LOAD_AT_ONCE;
+            setTimeout(() => {
+              const newContentOffset =
+                contentOffset + WEEKS_TO_LOAD_AT_ONCE * 7 * ITEM_WIDTH;
+              listRef?.scrollToOffset({
+                offset: newContentOffset,
+                animated: false,
+              });
+              setIsLoading(false);
+            }, 100);
+            return newWeeks;
+          });
+        }
+
+        // Load more future weeks when scrolling forward
+        if (contentOffset + layoutWidth > contentWidth - ITEM_WIDTH * 7) {
+          setIsLoading(true);
+          setFutureWeeksLoaded((prev) => {
+            const newWeeks = prev + WEEKS_TO_LOAD_AT_ONCE;
+            setTimeout(() => {
+              setIsLoading(false);
+            }, 100);
+            return newWeeks;
+          });
+        }
+      }, 150); // Debounce delay: 150ms
     },
     [isLoading]
   );
@@ -297,8 +288,10 @@ export const DateSlider = () => {
           snapToInterval={ITEM_WIDTH * 7}
           decelerationRate="fast"
           getItemLayout={getItemLayout}
-          initialNumToRender={42} // Initial 6 weeks
-          windowSize={5}
+          initialNumToRender={21} // Initial 3 weeks (optimized)
+          maxToRenderPerBatch={7} // One week at a time
+          windowSize={2} // Reduced buffer for better performance
+          updateCellsBatchingPeriod={100} // Batch updates for smoother scrolling
           removeClippedSubviews={true}
           onMomentumScrollEnd={handleScrollEnd}
           contentContainerStyle={{ paddingRight: SCREEN_WIDTH }}
