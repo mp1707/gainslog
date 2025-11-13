@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -7,34 +7,34 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-} from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
-import { BrainCircuit, Calculator, Check, Heart, X } from 'lucide-react-native';
-import { useTranslation } from 'react-i18next';
-import type { TFunction } from 'i18next';
+} from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
+import { BrainCircuit, Calculator, Check, Heart, X } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
-import { AppText } from '@/components/shared/AppText';
-import { Button } from '@/components/shared/Button';
-import { RoundButton } from '@/components/shared/RoundButton';
-import { usePaywall } from '@/hooks/usePaywall';
-import { useSafeRouter } from '@/hooks/useSafeRouter';
-import { Colors, Theme, useTheme } from '@/theme';
+import { AppText } from "@/components/shared/AppText";
+import { Button } from "@/components/shared/Button";
+import { RoundButton } from "@/components/shared/RoundButton";
+import { usePaywall } from "@/hooks/usePaywall";
+import { useSafeRouter } from "@/hooks/useSafeRouter";
+import { Colors, Theme, useTheme } from "@/theme";
 
 const getPaywallFeatures = (t: TFunction) => [
   {
-    title: t('paywall.features.aiLogging.title'),
-    description: t('paywall.features.aiLogging.description'),
+    title: t("paywall.features.aiLogging.title"),
+    description: t("paywall.features.aiLogging.description"),
     Icon: BrainCircuit,
   },
   {
-    title: t('paywall.features.instantRecalculation.title'),
-    description: t('paywall.features.instantRecalculation.description'),
+    title: t("paywall.features.instantRecalculation.title"),
+    description: t("paywall.features.instantRecalculation.description"),
     Icon: Calculator,
   },
   {
-    title: t('paywall.features.noAds.title'),
-    description: t('paywall.features.noAds.description'),
+    title: t("paywall.features.noAds.title"),
+    description: t("paywall.features.noAds.description"),
     Icon: Heart,
   },
 ];
@@ -73,13 +73,13 @@ export default function PaywallScreen() {
     Haptics.impactAsync(theme.interactions.haptics.light).catch(() => {});
     const result = await purchase();
 
-    if (result.status === 'ok') {
+    if (result.status === "ok") {
       handleClose();
       return;
     }
 
-    if (result.status === 'error') {
-      Alert.alert(t('paywall.alerts.purchaseFailed.title'), result.message);
+    if (result.status === "error") {
+      Alert.alert(t("paywall.alerts.purchaseFailed.title"), result.message);
     }
   };
 
@@ -87,17 +87,17 @@ export default function PaywallScreen() {
     Haptics.impactAsync(theme.interactions.haptics.light).catch(() => {});
     const result = await restore();
 
-    if (result.status === 'ok') {
+    if (result.status === "ok") {
       Alert.alert(
-        t('paywall.alerts.restoreSuccess.title'),
-        t('paywall.alerts.restoreSuccess.message'),
+        t("paywall.alerts.restoreSuccess.title"),
+        t("paywall.alerts.restoreSuccess.message")
       );
       handleClose();
       return;
     }
 
-    if (result.status === 'error') {
-      Alert.alert(t('paywall.alerts.restoreFailed.title'), result.message);
+    if (result.status === "error") {
+      Alert.alert(t("paywall.alerts.restoreFailed.title"), result.message);
     }
   };
 
@@ -117,13 +117,13 @@ export default function PaywallScreen() {
           onPress={handleClose}
           Icon={X}
           variant="tertiary"
-          accessibilityLabel={t('paywall.a11y.close')}
+          accessibilityLabel={t("paywall.a11y.close")}
           style={styles.closeButton}
         />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color={colors.accent} />
           <AppText role="Caption" color="secondary">
-            {t('paywall.states.loading')}
+            {t("paywall.states.loading")}
           </AppText>
         </View>
       </View>
@@ -137,19 +137,19 @@ export default function PaywallScreen() {
           onPress={handleClose}
           Icon={X}
           variant="tertiary"
-          accessibilityLabel={t('paywall.a11y.close')}
+          accessibilityLabel={t("paywall.a11y.close")}
           style={styles.closeButton}
         />
         <View style={styles.errorContainer}>
           <AppText role="Headline" style={styles.errorTitle}>
-            {t('common.error')}
+            {t("common.error")}
           </AppText>
           <AppText role="Body" color="secondary" style={styles.errorMessage}>
             {loadError}
           </AppText>
           <Button
             variant="primary"
-            label={t('paywall.buttons.retry')}
+            label={t("paywall.buttons.retry")}
             onPress={handleRetry}
             style={styles.retryButton}
           />
@@ -165,12 +165,12 @@ export default function PaywallScreen() {
           onPress={handleClose}
           Icon={X}
           variant="tertiary"
-          accessibilityLabel={t('paywall.a11y.close')}
+          accessibilityLabel={t("paywall.a11y.close")}
           style={styles.closeButton}
         />
         <View style={styles.errorContainer}>
           <AppText role="Subhead" color="secondary">
-            {t('paywall.states.unavailable')}
+            {t("paywall.states.unavailable")}
           </AppText>
         </View>
       </View>
@@ -185,7 +185,7 @@ export default function PaywallScreen() {
         onPress={handleClose}
         Icon={X}
         variant="tertiary"
-        accessibilityLabel={t('paywall.a11y.close')}
+        accessibilityLabel={t("paywall.a11y.close")}
         style={styles.closeButton}
       />
 
@@ -198,10 +198,10 @@ export default function PaywallScreen() {
       >
         <View style={styles.header}>
           <AppText role="Title1" style={styles.title}>
-            {t('paywall.header.title')}
+            {t("paywall.header.title")}
           </AppText>
           <AppText role="Body" color="secondary" style={styles.subtitle}>
-            {t('paywall.header.subtitle')}
+            {t("paywall.header.subtitle")}
           </AppText>
         </View>
 
@@ -224,8 +224,11 @@ export default function PaywallScreen() {
         <View style={styles.packages}>
           {options.map((option) => {
             const isSelected = option.id === selectedId;
-            const badge = option.id === highlightedId ? t('paywall.options.badge') : undefined;
-            const isMonthly = !option.title && !option.periodDescription;
+            const badge =
+              option.id === highlightedId
+                ? t("paywall.options.badge")
+                : undefined;
+            const isMonthly = option.package.packageType === 'MONTHLY';
 
             return (
               <TouchableOpacity
@@ -249,31 +252,43 @@ export default function PaywallScreen() {
                         </View>
                       </View>
                     )}
-                    <View style={styles.monthlyPriceContainer}>
+                    <View style={styles.monthlyPriceRow}>
                       <AppText role="Title2" style={styles.monthlyPrice}>
                         {option.price}
                       </AppText>
-                      <AppText role="Caption" style={styles.perMonthText}>
-                        {t('paywall.options.period.perMonth')}
+                      <AppText role="Caption" style={styles.perMonthLabel}>
+                        {t("paywall.options.period.perMonth")}
                       </AppText>
                     </View>
                     <View style={styles.bulletList}>
                       <View style={styles.bulletItem}>
-                        <Check size={14} color={colors.accent} style={styles.bulletIcon} />
+                        <Check
+                          size={14}
+                          color={colors.accent}
+                          style={styles.bulletIcon}
+                        />
                         <AppText role="Caption" style={styles.bulletText}>
-                          {t('paywall.options.period.bullets.autoRenew')}
+                          {t("paywall.options.period.bullets.cancelAnytime")}
                         </AppText>
                       </View>
                       <View style={styles.bulletItem}>
-                        <Check size={14} color={colors.accent} style={styles.bulletIcon} />
+                        <Check
+                          size={14}
+                          color={colors.accent}
+                          style={styles.bulletIcon}
+                        />
                         <AppText role="Caption" style={styles.bulletText}>
-                          {t('paywall.options.period.bullets.billing')}
+                          {t("paywall.options.period.bullets.appleAccount")}
                         </AppText>
                       </View>
                       <View style={styles.bulletItem}>
-                        <Check size={14} color={colors.accent} style={styles.bulletIcon} />
+                        <Check
+                          size={14}
+                          color={colors.accent}
+                          style={styles.bulletIcon}
+                        />
                         <AppText role="Caption" style={styles.bulletText}>
-                          {t('paywall.options.period.bullets.cancel')}
+                          {t("paywall.options.period.bullets.autoRenew")}
                         </AppText>
                       </View>
                     </View>
@@ -317,7 +332,11 @@ export default function PaywallScreen() {
 
         <Button
           variant="primary"
-          label={isPurchasing ? t('paywall.buttons.processing') : t('paywall.buttons.primary')}
+          label={
+            isPurchasing
+              ? t("paywall.buttons.processing")
+              : t("paywall.buttons.primary")
+          }
           onPress={handlePurchase}
           disabled={isPurchasing || !selectedId}
           isLoading={isPurchasing}
@@ -328,22 +347,26 @@ export default function PaywallScreen() {
             <TouchableOpacity
               onPress={() =>
                 handleOpenLink(
-                  'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
+                  "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
                 )
               }
               activeOpacity={0.6}
             >
               <AppText role="Caption" style={styles.link}>
-                {t('paywall.links.terms')}
+                {t("paywall.links.terms")}
               </AppText>
             </TouchableOpacity>
             <View style={styles.linkDivider} />
             <TouchableOpacity
-              onPress={() => handleOpenLink('https://mp1707.github.io/macroloopinfo/privacy-policy.html')}
+              onPress={() =>
+                handleOpenLink(
+                  "https://mp1707.github.io/macroloopinfo/privacy-policy.html"
+                )
+              }
               activeOpacity={0.6}
             >
               <AppText role="Caption" style={styles.link}>
-                {t('paywall.links.privacy')}
+                {t("paywall.links.privacy")}
               </AppText>
             </TouchableOpacity>
             <View style={styles.linkDivider} />
@@ -357,8 +380,8 @@ export default function PaywallScreen() {
                 style={[styles.link, isRestoring && styles.linkDisabled]}
               >
                 {isRestoring
-                  ? t('paywall.links.restoring')
-                  : t('paywall.links.restore')}
+                  ? t("paywall.links.restoring")
+                  : t("paywall.links.restore")}
               </AppText>
             </TouchableOpacity>
           </View>
@@ -376,7 +399,7 @@ const createStyles = (theme: Theme, colors: Colors) =>
       paddingTop: theme.spacing.xxl + theme.spacing.lg,
     },
     closeButton: {
-      position: 'absolute',
+      position: "absolute",
       top: theme.spacing.md,
       right: theme.spacing.md,
       zIndex: 10,
@@ -391,51 +414,51 @@ const createStyles = (theme: Theme, colors: Colors) =>
     },
     loadingContainer: {
       flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
       gap: theme.spacing.sm,
     },
     errorContainer: {
       flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
       paddingHorizontal: theme.spacing.lg,
       gap: theme.spacing.md,
     },
     errorTitle: {
-      textAlign: 'center',
+      textAlign: "center",
     },
     errorMessage: {
-      textAlign: 'center',
+      textAlign: "center",
     },
     retryButton: {
-      alignSelf: 'center',
+      alignSelf: "center",
     },
     header: {
-      alignItems: 'center',
+      alignItems: "center",
       gap: theme.spacing.sm,
     },
     title: {
-      textAlign: 'center',
+      textAlign: "center",
     },
     subtitle: {
-      textAlign: 'center',
+      textAlign: "center",
     },
     features: {
       gap: theme.spacing.lg,
     },
     feature: {
-      flexDirection: 'row',
+      flexDirection: "row",
       gap: theme.spacing.md,
-      alignItems: 'flex-start',
+      alignItems: "flex-start",
     },
     featureIcon: {
       width: 36,
       height: 36,
       borderRadius: 18,
       backgroundColor: colors.tertiaryBackground,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
     },
     featureText: {
       flex: 1,
@@ -454,15 +477,16 @@ const createStyles = (theme: Theme, colors: Colors) =>
     },
     packageSelected: {
       borderColor: colors.accent,
-      backgroundColor: 'rgba(68, 235, 212, 0.05)',
+      backgroundColor: "rgba(68, 235, 212, 0.05)",
     },
     packageHighlighted: {
       borderColor: colors.accent,
+      backgroundColor: `rgba(68, 235, 212, 0.05)`,
     },
     packageHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
     },
     badge: {
       backgroundColor: colors.accent,
@@ -473,28 +497,30 @@ const createStyles = (theme: Theme, colors: Colors) =>
     badgeText: {
       color: colors.black,
     },
-    monthlyPriceContainer: {
-      flexDirection: 'row',
-      alignItems: 'baseline',
-      gap: theme.spacing.sm,
+    monthlyPriceRow: {
+      flexDirection: "row",
+      alignItems: "baseline",
+      gap: theme.spacing.xs,
     },
     monthlyPrice: {
       color: colors.primaryText,
     },
-    perMonthText: {
+    perMonthLabel: {
       color: colors.primaryText,
+      opacity: 0.7,
     },
     bulletList: {
-      gap: 10,
-      marginTop: theme.spacing.xs,
+      gap: theme.spacing.sm,
+      marginTop: theme.spacing.sm,
     },
     bulletItem: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
+      flexDirection: "row",
+      alignItems: "flex-start",
       gap: theme.spacing.sm,
     },
     bulletIcon: {
       marginTop: 2,
+      flexShrink: 0,
     },
     bulletText: {
       flex: 1,
@@ -503,17 +529,17 @@ const createStyles = (theme: Theme, colors: Colors) =>
     },
     legal: {
       gap: theme.spacing.sm,
-      alignItems: 'center',
+      alignItems: "center",
       marginTop: theme.spacing.md,
     },
     legalText: {
-      textAlign: 'center',
+      textAlign: "center",
     },
     links: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexWrap: 'wrap',
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      flexWrap: "wrap",
       gap: theme.spacing.sm,
     },
     linkDivider: {

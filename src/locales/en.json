@@ -273,9 +273,9 @@
         "monthlyDetails": "Auto-renewing monthly subscription. Billing through your Apple Account. Cancel anytime in iOS Settings.",
         "perMonth": "per month",
         "bullets": {
-          "autoRenew": "Auto-renewing monthly subscription",
-          "billing": "Billing through your Apple Account",
-          "cancel": "Cancel anytime in iOS Settings"
+          "cancelAnytime": "Cancel anytime",
+          "appleAccount": "Billed through Apple Account",
+          "autoRenew": "Auto-renews monthly"
         },
         "annual": "yearly",
         "sixMonths": "every 6 months",

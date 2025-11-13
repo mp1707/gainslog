@@ -273,9 +273,9 @@
         "monthlyDetails": "Monatliches Abo mit automatischer Verlängerung. Abrechnung über deinen Apple-Account. Kündbar jederzeit in den iOS-Einstellungen.",
         "perMonth": "pro Monat",
         "bullets": {
-          "autoRenew": "Automatische Verlängerung",
-          "billing": "Abrechnung über Apple-Account",
-          "cancel": "Jederzeit kündbar"
+          "cancelAnytime": "Jederzeit kündbar",
+          "appleAccount": "Abrechnung über Apple-Account",
+          "autoRenew": "Automatische Verlängerung"
         },
         "annual": "jährlich",
         "sixMonths": "halbjährlich",
