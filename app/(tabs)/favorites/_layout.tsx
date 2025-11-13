@@ -8,56 +8,34 @@ import { useAppStore } from "@/store/useAppStore";
 import { useTranslation } from "react-i18next";
 
 export default function FavoritesLayout() {
-  const { colors, theme } = useTheme();
+  const { colors, theme, colorScheme } = useTheme();
   const { t } = useTranslation();
   const isIOS = Platform.OS === "ios";
   const hasLiquidGlass = isLiquidGlassAvailable();
-  const setFavoritesSearchQuery = useAppStore(
-    (state) => state.setFavoritesSearchQuery
-  );
-
-  const handleSearchChange = useCallback<
-    NonNullable<SearchBarProps["onChangeText"]>
-  >(
-    (event) => {
-      setFavoritesSearchQuery(event.nativeEvent.text ?? "");
-    },
-    [setFavoritesSearchQuery]
-  );
 
   return (
     <Stack
-      initialRouteName="index"
       screenOptions={{
+        headerTransparent: isIOS,
+        headerBlurEffect: !hasLiquidGlass ? colorScheme : undefined,
+        headerShadowVisible: true,
+        headerTitleStyle: {
+          color: colors.primaryText,
+          fontFamily: theme.typography.Title1.fontFamily,
+        },
+        headerLargeTitleStyle: {
+          color: colors.primaryText,
+          fontFamily: theme.typography.Title1.fontFamily,
+        },
         contentStyle: { backgroundColor: colors.primaryBackground },
       }}
     >
       <Stack.Screen
         name="index"
         options={{
-          headerShown: true,
-          headerTitle: t("favorites.navigation.title"),
-          headerTintColor: colors.accent,
+          title: t("favorites.navigation.title"),
           headerLargeTitle: isIOS,
-          headerTransparent: hasLiquidGlass && isIOS,
-          headerStyle: !hasLiquidGlass && {
-            backgroundColor: colors.primaryBackground,
-          },
-          headerTitleStyle: {
-            color: colors.primaryText,
-            fontFamily: theme.typography.Title1.fontFamily,
-          },
-          headerLargeTitleStyle: {
-            color: colors.primaryText,
-            fontFamily: theme.typography.Title1.fontFamily,
-          },
-          headerSearchBarOptions: {
-            placement: "automatic",
-            placeholder: t("favorites.navigation.searchPlaceholder"),
-            onChangeText: handleSearchChange,
-            inputType: "text",
-            autoCapitalize: "none",
-          },
+          headerLargeTitleShadowVisible: false,
         }}
       />
       <Stack.Screen

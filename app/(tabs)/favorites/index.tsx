@@ -10,6 +10,7 @@ import {
   createDeleteHandler,
 } from "@/utils/foodLogHandlers";
 import { FavoriteItem } from "@/components/favorites/FavoriteItem";
+import { SearchBar } from "@/components/shared/SearchBar/SearchBar";
 import { AppText } from "@/components/index";
 import { Colors, Theme, useTheme } from "@/theme";
 import { useTranslation } from "react-i18next";
@@ -22,10 +23,13 @@ export default function FavoritesScreen() {
   const favoritesSearchQuery = useAppStore(
     (state) => state.favoritesSearchQuery
   );
+  const setFavoritesSearchQuery = useAppStore(
+    (state) => state.setFavoritesSearchQuery
+  );
 
   const { safeNavigate } = useNavigationGuard();
   const { dynamicBottomPadding } = useTabBarSpacing();
-  const { colors, theme } = useTheme();
+  const { colors, theme, colorScheme } = useTheme();
   const { t } = useTranslation();
 
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
@@ -55,12 +59,14 @@ export default function FavoritesScreen() {
   const isSearching = favoritesSearchQuery.trim().length > 0;
   const hasFavorites = favorites.length > 0;
 
-  const emptyStateTitle = isSearching && hasFavorites
-    ? t("favorites.emptyState.noMatchesTitle")
-    : t("favorites.emptyState.noFavoritesTitle");
-  const emptyStateSubtitle = isSearching && hasFavorites
-    ? t("favorites.emptyState.noMatchesSubtitle")
-    : t("favorites.emptyState.noFavoritesSubtitle");
+  const emptyStateTitle =
+    isSearching && hasFavorites
+      ? t("favorites.emptyState.noMatchesTitle")
+      : t("favorites.emptyState.noFavoritesTitle");
+  const emptyStateSubtitle =
+    isSearching && hasFavorites
+      ? t("favorites.emptyState.noMatchesSubtitle")
+      : t("favorites.emptyState.noFavoritesSubtitle");
 
   const handleLogAgain = useMemo(
     () => createLogAgainHandler(addFoodLog, selectedDate),
@@ -99,6 +105,25 @@ export default function FavoritesScreen() {
 
   const keyExtractor = useCallback((item: Favorite) => item.id, []);
 
+  const listHeaderComponent = useMemo(
+    () =>
+      hasFavorites ? (
+        <View
+          style={{
+            paddingHorizontal: theme.spacing.md,
+            marginBottom: theme.spacing.md,
+          }}
+        >
+          <SearchBar
+            value={favoritesSearchQuery}
+            onChange={setFavoritesSearchQuery}
+            placeholder={t("favorites.navigation.searchPlaceholder")}
+          />
+        </View>
+      ) : null,
+    [favoritesSearchQuery, setFavoritesSearchQuery, hasFavorites, theme.spacing.md, t]
+  );
+
   return (
     <FlatList
       data={filteredFavorites}
@@ -107,17 +132,25 @@ export default function FavoritesScreen() {
       style={styles.list}
       contentContainerStyle={[
         styles.listContent,
-        filteredFavorites.length === 0 && styles.emptyContent,
         { paddingBottom: dynamicBottomPadding },
+        {
+          backgroundColor:
+            colorScheme === "dark"
+              ? colors.primaryBackground
+              : colors.tertiaryBackground,
+        },
       ]}
+      ListHeaderComponent={listHeaderComponent}
       ListEmptyComponent={() => (
-        <View style={styles.emptyState}>
-          <AppText role="Body" style={styles.emptyTitle}>
-            {emptyStateTitle}
-          </AppText>
-          <AppText role="Caption" style={styles.emptySubtitle}>
-            {emptyStateSubtitle}
-          </AppText>
+        <View style={styles.emptyContentContainer}>
+          <View style={styles.emptyState}>
+            <AppText role="Body" style={styles.emptyTitle}>
+              {emptyStateTitle}
+            </AppText>
+            <AppText role="Caption" style={styles.emptySubtitle}>
+              {emptyStateSubtitle}
+            </AppText>
+          </View>
         </View>
       )}
       showsVerticalScrollIndicator={false}
@@ -139,10 +172,11 @@ const createStyles = (colors: Colors, theme: Theme) =>
       paddingTop: theme.spacing.xl,
       gap: theme.spacing.md,
     },
-    emptyContent: {
+    emptyContentContainer: {
       flexGrow: 1,
       justifyContent: "center",
       paddingHorizontal: theme.spacing.lg,
+      minHeight: 400,
     },
     emptyState: {
       alignItems: "center",

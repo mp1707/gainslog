@@ -10,7 +10,7 @@ import { selectDailyData } from "@/store/selectors";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { FoodLogsList } from "@/components/daily-food-logs/FoodLogsList";
 import { DateSlider } from "@/components/shared/DateSlider";
-import { useTheme, Colors } from "@/theme";
+import { useTheme, Colors, Theme } from "@/theme";
 import {
   createLogAgainHandler,
   createSaveToFavoritesHandler,
@@ -23,6 +23,9 @@ import { useSegments } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { WelcomeScreen } from "@/components/welcome";
 import { hasNoDailyTargets } from "@/utils/dailyTargets";
+import { HeaderButton } from "@/components/shared/HeaderButton";
+import * as Haptics from "expo-haptics";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
 
 export default function TodayTab() {
   const { safeNavigate } = useNavigationGuard();
@@ -30,6 +33,7 @@ export default function TodayTab() {
   const { colors, colorScheme, theme } = useTheme();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+  const hasLiquidGlass = isLiquidGlassAvailable();
 
   const foodLogs = useAppStore((state) => state.foodLogs);
   const selectedDate = useAppStore((state) => state.selectedDate);
@@ -47,8 +51,8 @@ export default function TodayTab() {
   );
 
   const styles = useMemo(
-    () => createStyles(colors, headerHeight),
-    [colors, headerHeight]
+    () => createStyles(colors, headerHeight, theme),
+    [colors, headerHeight, theme]
   );
 
   const transparentBackground = colors.primaryBackground + "00";
@@ -105,7 +109,10 @@ export default function TodayTab() {
       createToggleFavoriteHandler(addFavorite, deleteFavorite, favorites, t),
     [addFavorite, deleteFavorite, favorites, t]
   );
-
+  const handleNewPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    safeNavigate("/new");
+  };
   // Show welcome screen for first-time users without daily targets
   if (hasNoDailyTargets(dailyTargets)) {
     return <WelcomeScreen />;
@@ -170,11 +177,27 @@ export default function TodayTab() {
           <DateSlider />
         </View>
       </View>
+      {hasLiquidGlass && (
+        <View style={styles.primaryButtonContainer}>
+          <HeaderButton
+            variant="colored"
+            size="large"
+            buttonProps={{
+              onPress: handleNewPress,
+              color: colorScheme === "dark" ? "44EBD499" : colors.accent,
+            }}
+            imageProps={{
+              systemName: "plus",
+              color: colors.primaryText,
+            }}
+          />
+        </View>
+      )}
     </View>
   );
 }
 
-const createStyles = (colors: Colors, _headerHeight: number) => {
+const createStyles = (colors: Colors, _headerHeight: number, theme: Theme) => {
   return StyleSheet.create({
     container: {
       flex: 1,
@@ -204,6 +227,13 @@ const createStyles = (colors: Colors, _headerHeight: number) => {
       left: 0,
       right: 0,
       zIndex: 3,
+    },
+    primaryButtonContainer: {
+      position: "absolute",
+      bottom: 120,
+      right: theme.spacing.xxl + 10,
+      // left: theme.spacing.xl,
+      alignItems: "center",
     },
   });
 };

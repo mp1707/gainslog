@@ -10,6 +10,7 @@ import { formatDate } from "@/utils/dateHelpers";
 import { hasDailyTargetsSet } from "@/utils";
 import { HeaderButton } from "../../HeaderButton/HeaderButton.ios";
 import * as Haptics from "expo-haptics";
+import { isLiquidGlassAvailable } from "expo-glass-effect";
 
 export const DateSliderHeader: React.FC = () => {
   const { colors, theme } = useTheme();
@@ -18,6 +19,7 @@ export const DateSliderHeader: React.FC = () => {
   const { safeNavigate } = useNavigationGuard();
   const selectedDate = useAppStore((state) => state.selectedDate);
   const dailyTargets = useAppStore((state) => state.dailyTargets);
+  const hasLiquidGlass = isLiquidGlassAvailable();
 
   const hasGoals = hasDailyTargetsSet(dailyTargets);
 
@@ -31,22 +33,24 @@ export const DateSliderHeader: React.FC = () => {
       <AppText role="Title1" style={styles.headerTitle}>
         {formatDate(selectedDate, { t, locale: i18n.language })}
       </AppText>
-      <View style={styles.headerButtonContainer}>
-        {hasGoals && (
-          <HeaderButton
-            variant="colored"
-            size="large"
-            buttonProps={{
-              onPress: handleNewPress,
-              color: colors.accent,
-            }}
-            imageProps={{
-              systemName: "plus",
-              color: colors.black,
-            }}
-          />
-        )}
-      </View>
+      {!hasLiquidGlass && (
+        <View style={styles.headerButtonContainer}>
+          {hasGoals && (
+            <HeaderButton
+              variant="colored"
+              size="large"
+              buttonProps={{
+                onPress: handleNewPress,
+                color: colors.accent,
+              }}
+              imageProps={{
+                systemName: "plus",
+                color: colors.black,
+              }}
+            />
+          )}
+        </View>
+      )}
     </View>
   );
 };

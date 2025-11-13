@@ -51,7 +51,7 @@
     "logging": "Protokoll",
     "calendar": "Kalender",
     "settings": "Einstellungen",
-    "new": "Neu"
+    "favorites": "Favoriten"
   },
   "calendar": {
     "title": "Kalender",

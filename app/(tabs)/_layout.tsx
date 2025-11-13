@@ -96,12 +96,19 @@ export default function TabsLayout() {
           {t("tabs.settings")}
         </Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger
-        name="favorites"
-        role={hasLiquidGlass ? "search" : undefined}
-      >
-        <Label>{t("tabs.new")}</Label>
-        <Icon sf="star" selectedColor={colors.accent} />
+      <NativeTabs.Trigger name="favorites">
+        <Icon
+          src={{
+            default: (
+              <VectorIcon family={MaterialCommunityIcons} name="star-outline" />
+            ),
+            selected: (
+              <VectorIcon family={MaterialCommunityIcons} name="star" />
+            ),
+          }}
+          selectedColor={colors.accent}
+        />
+        <Label>{t("tabs.favorites")}</Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );

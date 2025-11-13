@@ -51,7 +51,7 @@
     "logging": "Log",
     "calendar": "Calendar",
     "settings": "Settings",
-    "new": "New"
+    "favorites": "Favorites"
   },
   "calendar": {
     "title": "Calendar",
