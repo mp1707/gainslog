@@ -270,8 +270,14 @@
         "cancelAnytime": "Cancel anytime.",
         "oneTime": "One‑time purchase",
         "recurring": "Billed {{period}}",
+        "monthlyDetails": "Auto-renewing monthly subscription. Billing through your Apple Account. Cancel anytime in iOS Settings.",
+        "perMonth": "per month",
+        "bullets": {
+          "autoRenew": "Auto-renewing monthly subscription",
+          "billing": "Billing through your Apple Account",
+          "cancel": "Cancel anytime in iOS Settings"
+        },
         "annual": "yearly",
-        "monthly": "monthly",
         "sixMonths": "every 6 months",
         "threeMonths": "every 3 months",
         "twoMonths": "every 2 months",
@@ -279,7 +285,6 @@
       },
       "labels": {
         "annual": "Annual plan",
-        "monthly": "Monthly plan",
         "lifetime": "Lifetime",
         "sixMonths": "6 months",
         "threeMonths": "3 months",

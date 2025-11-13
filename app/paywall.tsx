@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { BrainCircuit, Calculator, Heart, X } from 'lucide-react-native';
+import { BrainCircuit, Calculator, Check, Heart, X } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 
@@ -225,6 +225,8 @@ export default function PaywallScreen() {
           {options.map((option) => {
             const isSelected = option.id === selectedId;
             const badge = option.id === highlightedId ? t('paywall.options.badge') : undefined;
+            const isMonthly = !option.title && !option.periodDescription;
+
             return (
               <TouchableOpacity
                 key={option.id}
@@ -236,20 +238,78 @@ export default function PaywallScreen() {
                   badge && styles.packageHighlighted,
                 ]}
               >
-                <View style={styles.packageHeader}>
-                  <AppText role="Headline">{option.title}</AppText>
-                  {badge && (
-                    <View style={styles.badge}>
-                      <AppText role="Caption" style={styles.badgeText}>
-                        {badge}
+                {isMonthly ? (
+                  <>
+                    {badge && (
+                      <View style={styles.packageHeader}>
+                        <View style={styles.badge}>
+                          <AppText role="Caption" style={styles.badgeText}>
+                            {badge}
+                          </AppText>
+                        </View>
+                      </View>
+                    )}
+                    <View style={styles.monthlyPriceContainer}>
+                      <AppText role="Title2" style={styles.monthlyPrice}>
+                        {option.price}
+                      </AppText>
+                      <AppText role="Caption" style={styles.perMonthText}>
+                        {t('paywall.options.period.perMonth')}
                       </AppText>
                     </View>
-                  )}
-                </View>
-                <AppText role="Title2">{option.price}</AppText>
-                <AppText role="Caption" color="secondary">
-                  {option.periodDescription}
-                </AppText>
+                    <View style={styles.bulletList}>
+                      <View style={styles.bulletItem}>
+                        <Check size={14} color={colors.accent} style={styles.bulletIcon} />
+                        <AppText role="Caption" style={styles.bulletText}>
+                          {t('paywall.options.period.bullets.autoRenew')}
+                        </AppText>
+                      </View>
+                      <View style={styles.bulletItem}>
+                        <Check size={14} color={colors.accent} style={styles.bulletIcon} />
+                        <AppText role="Caption" style={styles.bulletText}>
+                          {t('paywall.options.period.bullets.billing')}
+                        </AppText>
+                      </View>
+                      <View style={styles.bulletItem}>
+                        <Check size={14} color={colors.accent} style={styles.bulletIcon} />
+                        <AppText role="Caption" style={styles.bulletText}>
+                          {t('paywall.options.period.bullets.cancel')}
+                        </AppText>
+                      </View>
+                    </View>
+                  </>
+                ) : (
+                  <>
+                    {option.title ? (
+                      <>
+                        <View style={styles.packageHeader}>
+                          <AppText role="Headline">{option.title}</AppText>
+                          {badge && (
+                            <View style={styles.badge}>
+                              <AppText role="Caption" style={styles.badgeText}>
+                                {badge}
+                              </AppText>
+                            </View>
+                          )}
+                        </View>
+                        <AppText role="Title2">{option.price}</AppText>
+                      </>
+                    ) : (
+                      badge && (
+                        <View style={styles.packageHeader}>
+                          <View style={styles.badge}>
+                            <AppText role="Caption" style={styles.badgeText}>
+                              {badge}
+                            </AppText>
+                          </View>
+                        </View>
+                      )
+                    )}
+                    <AppText role="Caption" color="secondary">
+                      {option.periodDescription}
+                    </AppText>
+                  </>
+                )}
               </TouchableOpacity>
             );
           })}
@@ -268,7 +328,7 @@ export default function PaywallScreen() {
             <TouchableOpacity
               onPress={() =>
                 handleOpenLink(
-                  'https://mp1707.github.io/macroloopinfo/',
+                  'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
                 )
               }
               activeOpacity={0.6}
@@ -394,10 +454,10 @@ const createStyles = (theme: Theme, colors: Colors) =>
     },
     packageSelected: {
       borderColor: colors.accent,
-      backgroundColor: 'rgba(68, 235, 212, 0.08)',
+      backgroundColor: 'rgba(68, 235, 212, 0.05)',
     },
     packageHighlighted: {
-      borderColor: colors.highlightBorder,
+      borderColor: colors.accent,
     },
     packageHeader: {
       flexDirection: 'row',
@@ -412,6 +472,34 @@ const createStyles = (theme: Theme, colors: Colors) =>
     },
     badgeText: {
       color: colors.black,
+    },
+    monthlyPriceContainer: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      gap: theme.spacing.sm,
+    },
+    monthlyPrice: {
+      color: colors.primaryText,
+    },
+    perMonthText: {
+      color: colors.primaryText,
+    },
+    bulletList: {
+      gap: 10,
+      marginTop: theme.spacing.xs,
+    },
+    bulletItem: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: theme.spacing.sm,
+    },
+    bulletIcon: {
+      marginTop: 2,
+    },
+    bulletText: {
+      flex: 1,
+      opacity: 0.8,
+      lineHeight: 18,
     },
     legal: {
       gap: theme.spacing.sm,

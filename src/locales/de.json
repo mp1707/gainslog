@@ -16,7 +16,7 @@
       "unitShort": "g"
     },
     "carbs": {
-      "label": "Kohlenhydrate",
+      "label": "Kh",
       "unit": "Gramm",
       "unitShort": "g"
     },
@@ -270,8 +270,14 @@
         "cancelAnytime": "Jederzeit kündbar.",
         "oneTime": "Einmalkauf",
         "recurring": "Abgerechnet {{period}}",
+        "monthlyDetails": "Monatliches Abo mit automatischer Verlängerung. Abrechnung über deinen Apple-Account. Kündbar jederzeit in den iOS-Einstellungen.",
+        "perMonth": "pro Monat",
+        "bullets": {
+          "autoRenew": "Automatische Verlängerung",
+          "billing": "Abrechnung über Apple-Account",
+          "cancel": "Jederzeit kündbar"
+        },
         "annual": "jährlich",
-        "monthly": "monatlich",
         "sixMonths": "halbjährlich",
         "threeMonths": "vierteljährlich",
         "twoMonths": "zweimonatlich",
@@ -279,7 +285,6 @@
       },
       "labels": {
         "annual": "Jahresplan",
-        "monthly": "Monatsplan",
         "lifetime": "Lebenslang",
         "sixMonths": "6 Monate",
         "threeMonths": "3 Monate",
