@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
 import { useAppStore } from "@/store/useAppStore";
@@ -19,6 +19,7 @@ import { useSegments } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { WelcomeScreen } from "@/components/welcome";
 import { hasNoDailyTargets } from "@/utils/dailyTargets";
+import { Image } from "expo-image";
 
 export default function TodayTab() {
   const { safeNavigate } = useNavigationGuard();
@@ -90,6 +91,19 @@ export default function TodayTab() {
       createToggleFavoriteHandler(addFavorite, deleteFavorite, favorites, t),
     [addFavorite, deleteFavorite, favorites, t]
   );
+
+  // Periodic memory cache cleanup to prevent buildup during extended use
+  useEffect(() => {
+    if (!isOnHomeTab) return;
+
+    const interval = setInterval(() => {
+      // Clear memory cache every 2 minutes when on home tab
+      Image.clearMemoryCache();
+    }, 120000); // 2 minutes
+
+    return () => clearInterval(interval);
+  }, [isOnHomeTab]);
+
   // Show welcome screen for first-time users without daily targets
   if (hasNoDailyTargets(dailyTargets)) {
     return <WelcomeScreen />;

@@ -60,8 +60,15 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
 
     return () => {
       subscription.remove();
+      // Cancel all animations on unmount to free resources
+      cancelAnimation(skeletonOpacity);
+      cancelAnimation(imageOpacity);
+      cancelAnimation(imageScale);
+      cancelAnimation(pressScale);
+      cancelAnimation(containerHeight);
+      cancelAnimation(imageWrapperWidth);
     };
-  }, []);
+  }, [skeletonOpacity, imageOpacity, imageScale, pressScale, containerHeight, imageWrapperWidth]);
 
   // Shared values for animations
   const skeletonOpacity = useSharedValue(0.3);
@@ -197,7 +204,7 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
               contentFit="cover"
               cachePolicy="memory-disk"
               recyclingKey={imageUrl}
-              priority="normal"
+              priority="low"
               transition={200}
             />
           </Animated.View>

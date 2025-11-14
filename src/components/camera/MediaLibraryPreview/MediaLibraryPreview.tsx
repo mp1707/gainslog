@@ -72,7 +72,7 @@ export const MediaLibraryPreview: React.FC<MediaLibraryPreviewProps> = ({
         return;
       }
       const { assets } = await MediaLibrary.getAssetsAsync({
-        first: 3,
+        first: 1,
         sortBy: ["creationTime"],
         mediaType: MediaLibrary.MediaType.photo,
       });
@@ -136,101 +136,16 @@ export const MediaLibraryPreview: React.FC<MediaLibraryPreviewProps> = ({
     }
   }, [onImageSelected, fetchRecentImages]);
 
-  // Create animated styles for each of the 3 possible images
-  const animatedStyle0 = useAnimatedStyle(() => {
-    const index = 0;
-    const baseRotation = (index - 1) * 10;
-    const baseTranslateX = index * 4;
-    const baseTranslateY = index * -4;
-    
-    // Staggered animation timing for arc effect
-    const staggerDelay = index * 0.15;
-    const animProgress = Math.max(0, Math.min(1, animationProgress.value - staggerDelay));
-    
-    // Calculate arc motion - images start stacked and fan out
-    const rotation = baseRotation * animProgress;
-    const translateX = baseTranslateX * animProgress;
-    const translateY = baseTranslateY * animProgress;
-    
-    // Press feedback - collapse back to center and scale down
-    const pressedRotation = rotation * (1 - pressProgress.value);
-    const pressedTranslateX = translateX * (1 - pressProgress.value);
-    const pressedTranslateY = translateY * (1 - pressProgress.value);
-    const scale = 1 - pressProgress.value * 0.15; // 15% smaller when pressed
-    
+  // Simplified animated style for single image (memory optimized)
+  const animatedStyle = useAnimatedStyle(() => {
+    const scale = 1 - pressProgress.value * 0.1; // 10% smaller when pressed
+    const opacity = animationProgress.value;
+
     return {
-      transform: [
-        { rotate: `${pressedRotation}deg` },
-        { translateX: pressedTranslateX },
-        { translateY: pressedTranslateY },
-        { scale },
-      ],
+      transform: [{ scale }],
+      opacity,
     };
   });
-
-  const animatedStyle1 = useAnimatedStyle(() => {
-    const index = 1;
-    const baseRotation = (index - 1) * 10;
-    const baseTranslateX = index * 4;
-    const baseTranslateY = index * -4;
-    
-    // Staggered animation timing for arc effect
-    const staggerDelay = index * 0.15;
-    const animProgress = Math.max(0, Math.min(1, animationProgress.value - staggerDelay));
-    
-    // Calculate arc motion - images start stacked and fan out
-    const rotation = baseRotation * animProgress;
-    const translateX = baseTranslateX * animProgress;
-    const translateY = baseTranslateY * animProgress;
-    
-    // Press feedback - collapse back to center and scale down
-    const pressedRotation = rotation * (1 - pressProgress.value);
-    const pressedTranslateX = translateX * (1 - pressProgress.value);
-    const pressedTranslateY = translateY * (1 - pressProgress.value);
-    const scale = 1 - pressProgress.value * 0.15; // 15% smaller when pressed
-    
-    return {
-      transform: [
-        { rotate: `${pressedRotation}deg` },
-        { translateX: pressedTranslateX },
-        { translateY: pressedTranslateY },
-        { scale },
-      ],
-    };
-  });
-
-  const animatedStyle2 = useAnimatedStyle(() => {
-    const index = 2;
-    const baseRotation = (index - 1) * 10;
-    const baseTranslateX = index * 4;
-    const baseTranslateY = index * -4;
-    
-    // Staggered animation timing for arc effect
-    const staggerDelay = index * 0.15;
-    const animProgress = Math.max(0, Math.min(1, animationProgress.value - staggerDelay));
-    
-    // Calculate arc motion - images start stacked and fan out
-    const rotation = baseRotation * animProgress;
-    const translateX = baseTranslateX * animProgress;
-    const translateY = baseTranslateY * animProgress;
-    
-    // Press feedback - collapse back to center and scale down
-    const pressedRotation = rotation * (1 - pressProgress.value);
-    const pressedTranslateX = translateX * (1 - pressProgress.value);
-    const pressedTranslateY = translateY * (1 - pressProgress.value);
-    const scale = 1 - pressProgress.value * 0.15; // 15% smaller when pressed
-    
-    return {
-      transform: [
-        { rotate: `${pressedRotation}deg` },
-        { translateX: pressedTranslateX },
-        { translateY: pressedTranslateY },
-        { scale },
-      ],
-    };
-  });
-
-  const animatedStyles = [animatedStyle0, animatedStyle1, animatedStyle2];
 
   useEffect(() => {
     fetchRecentImages();
@@ -247,24 +162,16 @@ export const MediaLibraryPreview: React.FC<MediaLibraryPreviewProps> = ({
       accessibilityLabel="Open photo library"
     >
       {recentImages.length > 0 ? (
-        recentImages.map((asset, index) => (
-          <AnimatedImage
-            key={asset.id}
-            source={{ uri: asset.localUri || asset.uri }}
-            style={[
-              styles.stackedImage,
-              animatedStyles[index],
-              {
-                zIndex: 3 - index,
-              },
-            ]}
-            contentFit="cover"
-            cachePolicy="memory-disk"
-            recyclingKey={asset.id}
-            priority="low"
-            transition={150}
-          />
-        ))
+        <AnimatedImage
+          key={recentImages[0].id}
+          source={{ uri: recentImages[0].localUri || recentImages[0].uri }}
+          style={[styles.stackedImage, animatedStyle]}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          recyclingKey={recentImages[0].id}
+          priority="low"
+          transition={150}
+        />
       ) : (
         <Animated.View style={styles.placeholder} />
       )}

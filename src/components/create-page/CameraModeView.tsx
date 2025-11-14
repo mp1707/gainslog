@@ -3,6 +3,7 @@ import { View } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { CameraIcon } from "lucide-react-native";
+import { Image } from "expo-image";
 
 import { useTheme } from "@/theme/ThemeProvider";
 import { RoundButton } from "@/components/shared/RoundButton";
@@ -36,6 +37,14 @@ export const CameraModeView = ({ onImageSelected }: CameraModeViewProps) => {
       onImageSelected(image.uri);
     }
   }, [isCameraReady, onImageSelected]);
+
+  // Cleanup camera memory on unmount
+  useEffect(() => {
+    return () => {
+      // Clear image memory cache when leaving camera to free up memory
+      Image.clearMemoryCache();
+    };
+  }, []);
 
   return (
     <Animated.View

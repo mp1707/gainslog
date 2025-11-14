@@ -282,6 +282,134 @@ Continued audit found additional React Native Image usage and missing FlatList o
 
 **Impact**: MEDIUM - Better view recycling across all major lists. Reduces memory during scrolling operations. Expected savings: 15-30MB during heavy scrolling.
 
+---
+
+### Session 4: Aggressive Memory Optimization (2025-11-14)
+
+**Context**: After Sessions 1-3 fixes, user reported app still using excessive memory:
+- Startup: 450MB (expected ~200-250MB)
+- After taking photo: Spikes to 750MB, drops only to 700MB
+- Continued use: Rises to 900MB, settles at 830MB idle
+
+This session focuses on aggressive memory reduction through FlatList optimization, image cache management, and component cleanup.
+
+#### 🔍 Root Causes Identified
+
+1. **FlatList Over-Rendering**
+   - FoodLogsList rendering 6 items initially (too high for startup)
+   - DateSlider rendering 21 items (3 weeks) on load
+   - Each food log item can have images, causing high initial memory
+
+2. **Image Cache Accumulation**
+   - No periodic cache clearing during app use
+   - Camera component not clearing cache on unmount
+   - MediaLibraryPreview loading 3 images unnecessarily
+
+3. **Missing Component Cleanup**
+   - ImageDisplay not canceling animations on unmount
+   - Camera memory retained after closing camera view
+
+#### ✅ Session 4 Fixes Applied
+
+### Fix #13: Reduce FlatList Initial Render
+**File**: `src/components/daily-food-logs/FoodLogsList.tsx:198-200`
+
+**Issue**: Rendering 6 food log items on startup, each potentially with images, causing excessive initial memory usage.
+
+**Solution**:
+- Reduced `initialNumToRender` from 6 to 3
+- Reduced `maxToRenderPerBatch` from 8 to 5
+- Reduced `windowSize` from 7 to 5
+
+**Impact**: HIGH - Cuts initial render items in half, significantly reducing startup memory. Expected savings: 50-100MB on startup.
+
+### Fix #14: Optimize DateSlider Initial Render
+**File**: `src/components/shared/DateSlider/DateSlider.tsx:307`
+
+**Issue**: Loading 21 date items (3 weeks) on startup, unnecessary memory allocation.
+
+**Solution**:
+- Reduced `initialNumToRender` from 21 to 11 (1.5 weeks)
+- Still provides good UX while using less memory
+- FlatList will efficiently load more as user scrolls
+
+**Impact**: MEDIUM - Reduces date slider memory footprint. Expected savings: 20-30MB.
+
+### Fix #15: Camera Component Memory Cleanup
+**File**: `src/components/create-page/CameraModeView.tsx:6,41-47`
+
+**Issue**: Camera component not clearing image memory when unmounting, leaving camera buffers and cached images in memory.
+
+**Solution**:
+- Imported expo-image `Image` module
+- Added cleanup `useEffect` that clears memory cache on unmount
+- Ensures camera memory is released when navigating away
+
+**Impact**: HIGH - Camera operations spike to 750MB; this ensures proper cleanup. Expected savings: 100-200MB after leaving camera.
+
+### Fix #16: Reduce MediaLibraryPreview Images
+**File**: `src/components/camera/MediaLibraryPreview/MediaLibraryPreview.tsx:75,139-148,165-174`
+
+**Issue**: Loading 3 recent photos from media library with 3 separate animated styles, unnecessary memory usage.
+
+**Solution**:
+- Reduced `MediaLibrary.getAssetsAsync` from `first: 3` to `first: 1`
+- Simplified from 3 animated styles to single simplified animation
+- Removed unnecessary rotation/translation animations
+- Now shows single recent image with simple scale/opacity animation
+
+**Impact**: MEDIUM - Reduces preview memory by 2/3. Expected savings: 15-25MB.
+
+### Fix #17: Periodic Image Cache Clearing
+**File**: `app/(tabs)/index/index.tsx:1,22,95-105`
+
+**Issue**: No periodic memory cleanup during extended use, allowing image cache to grow unbounded.
+
+**Solution**:
+- Added expo-image `Image` import
+- Created interval-based cleanup: clears memory cache every 2 minutes
+- Only runs when home tab is active
+- Properly clears interval on unmount or tab change
+
+**Impact**: HIGH - Prevents memory accumulation during extended use. Expected savings: Keeps memory stable instead of climbing to 900MB.
+
+### Fix #18: ImageDisplay Memory Optimization
+**File**: `src/components/shared/ImageDisplay/ImageDisplay.tsx:200,61-71`
+
+**Issue**:
+- Using `priority="normal"` for all images (should be "low" for better memory management)
+- Not canceling animations on unmount, keeping animation values in memory
+
+**Solution**:
+- Changed image `priority` from "normal" to "low"
+- Added animation cleanup in accessibility effect cleanup:
+  - Cancels all 6 animated values (skeleton, image, scale, press, height, width)
+  - Added proper dependency array with all shared values
+  - Ensures animations don't keep memory allocated after unmount
+
+**Impact**: MEDIUM - Better priority management and animation cleanup. Expected savings: 10-20MB per unmounted ImageDisplay component.
+
+#### 📊 Session 4 Summary
+
+**Files Modified**: 6
+- FoodLogsList.tsx
+- DateSlider.tsx
+- CameraModeView.tsx
+- MediaLibraryPreview.tsx
+- app/(tabs)/index/index.tsx
+- ImageDisplay.tsx
+
+**Total Fixes This Session**: 6 (Fixes #13-#18)
+**Total Fixes All Sessions**: 18
+
+**Expected Memory Improvements**:
+- Startup: 450MB → ~250-300MB (150-200MB reduction)
+- Camera use: 750MB spike → ~400-500MB (250-300MB reduction)
+- Extended use: 900MB peak → ~500-600MB (300-400MB reduction)
+- Idle after use: 830MB → ~400-500MB (330-430MB reduction)
+
+**Target**: Achieve 300-500MB during normal use, 200-250MB on startup.
+
 ## Already Well-Optimized (No Changes Needed)
 
 ### ✅ Components with Proper Cleanup

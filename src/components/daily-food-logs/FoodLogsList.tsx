@@ -195,9 +195,9 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
       ListHeaderComponent={ListHeaderComponent}
       showsVerticalScrollIndicator={false}
       removeClippedSubviews
-      initialNumToRender={6}
-      maxToRenderPerBatch={8}
-      windowSize={7}
+      initialNumToRender={3}
+      maxToRenderPerBatch={5}
+      windowSize={5}
       updateCellsBatchingPeriod={50}
       recyclingKey="food-logs-list"
       // contentInsetAdjustmentBehavior="automatic"

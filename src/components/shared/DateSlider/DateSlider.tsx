@@ -304,7 +304,7 @@ export const DateSlider = () => {
           snapToInterval={ITEM_WIDTH * 7}
           decelerationRate="fast"
           getItemLayout={getItemLayout}
-          initialNumToRender={21} // Initial 3 weeks (optimized)
+          initialNumToRender={11} // Initial 1.5 weeks (memory optimized)
           maxToRenderPerBatch={7} // One week at a time
           windowSize={2} // Reduced buffer for better performance
           updateCellsBatchingPeriod={100} // Batch updates for smoother scrolling
