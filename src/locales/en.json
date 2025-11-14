@@ -215,6 +215,9 @@
     "image": {
       "title": "Your photo"
     },
+    "recording": {
+      "title": "Recording"
+    },
     "paywall": {
       "title": "AI logging is a Pro feature",
       "body": "Log meals effortlessly from a photo, text, or voice.",

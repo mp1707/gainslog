@@ -9,7 +9,6 @@ export const createStyles = (
   StyleSheet.create({
     container: {
       paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.md,
     },
     actionsRow: {
       flexDirection: "row",

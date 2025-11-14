@@ -120,7 +120,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
       <View
         style={{
           gap: theme.spacing.xs,
-          paddingBottom: theme.spacing.md,
+          paddingBottom: theme.spacing.lg,
         }}
       >
         <NutrientDashboard

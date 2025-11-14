@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import type { ColorScheme, Colors, Theme } from "@/theme";
+import { CREATE_ACCESSORY_HEIGHT } from "@/constants/create";
 
 export const createStyles = (
   theme: Theme,
@@ -14,4 +15,36 @@ export const createStyles = (
       paddingHorizontal: theme.spacing.lg,
     },
     textInputField: {},
+    sectionHeading: {
+      textTransform: "uppercase",
+      letterSpacing: 0.6,
+      paddingHorizontal: theme.spacing.lg,
+      color: colors.secondaryText,
+    },
+    accessorySection: {
+      gap: theme.spacing.xs,
+    },
+    accessorySlot: {
+      minHeight: CREATE_ACCESSORY_HEIGHT,
+      justifyContent: "center",
+    },
+    recordingContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.md,
+      paddingHorizontal: theme.spacing.lg,
+    },
+    waveform: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      flex: 1,
+      height: CREATE_ACCESSORY_HEIGHT,
+    },
+    waveformBar: {
+      width: 3,
+      borderRadius: theme.spacing.xs,
+      marginHorizontal: 2,
+      backgroundColor: colors.accent,
+    },
   });

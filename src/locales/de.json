@@ -215,6 +215,9 @@
     "image": {
       "title": "Dein Bild"
     },
+    "recording": {
+      "title": "Aufnahme"
+    },
     "paywall": {
       "title": "KI-Logging ist eine Pro-Funktion",
       "body": "Logge Mahlzeiten mühelos per Foto, Text oder Stimme.",

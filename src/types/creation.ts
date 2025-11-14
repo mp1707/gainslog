@@ -1,1 +1,1 @@
-export type CreationMode = "typing" | "camera" | "recording";
+export type CreationMode = "typing" | "camera";

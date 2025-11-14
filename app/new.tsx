@@ -18,7 +18,6 @@ import { CreateHeader } from "@/components/create-page/CreateHeader";
 import { CreatePaywallView } from "@/components/create-page/CreatePaywallView";
 import { TypingModeView } from "@/components/create-page/TypingModeView";
 import { CameraModeView } from "@/components/create-page/CameraModeView";
-import { RecordingModeView } from "@/components/create-page/RecordingModeView";
 import type { CreationMode } from "@/types/creation";
 import { createStyles } from "./new.styles";
 
@@ -33,8 +32,9 @@ export default function Create() {
   const isIOS = Platform.OS === "ios";
 
   // Get initial mode from query params
-  const params = useLocalSearchParams<{ mode?: CreationMode }>();
-  const [mode, setMode] = useState<CreationMode>(params.mode || "typing");
+  const params = useLocalSearchParams<{ mode?: string }>();
+  const initialMode: CreationMode = params.mode === "camera" ? "camera" : "typing";
+  const [mode, setMode] = useState<CreationMode>(initialMode);
 
   const { startNewDraft, clearDraft, updateDraft } = useCreationStore();
   const [draftId, setDraftId] = useState<string | null>(null);
@@ -52,7 +52,6 @@ export default function Create() {
   const {
     requestPermission,
     isRecording,
-    isTransitioning,
     liveTranscription,
     volumeLevel,
     stopRecording,
@@ -132,10 +131,6 @@ export default function Create() {
     setMode("typing");
   };
 
-  const handleStopRecording = () => {
-    handleStopRecordingBase();
-  };
-
   const canContinue =
     (draft?.description?.trim() !== "" || !!draft?.localImagePath) &&
     !isEstimating;
@@ -188,22 +183,15 @@ export default function Create() {
                 onEstimate={handleEstimation}
                 canContinue={canContinue}
                 isEstimating={isEstimating}
+                isRecording={isRecording}
+                volumeLevel={volumeLevel}
+                onStopRecording={handleStopRecordingBase}
               />
             </ScrollView>
           )}
 
           {mode === "camera" && (
             <CameraModeView onImageSelected={handleImageProcessed} />
-          )}
-
-          {mode === "recording" && (
-            <RecordingModeView
-              volumeLevel={volumeLevel}
-              isRecording={isRecording}
-              isTransitioning={isTransitioning}
-              liveTranscription={liveTranscription}
-              onStopRecording={handleStopRecording}
-            />
           )}
         </>
       )}

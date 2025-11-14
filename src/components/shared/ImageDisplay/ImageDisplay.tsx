@@ -19,6 +19,7 @@ interface ImageDisplayProps {
   isUploading: boolean;
   deleteImage?: () => void;
   onExpand?: (isExpanded: boolean) => void;
+  collapsedHeight?: number;
 }
 
 export const ImageDisplay: React.FC<ImageDisplayProps> = ({
@@ -26,6 +27,7 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
   isUploading,
   deleteImage,
   onExpand,
+  collapsedHeight: collapsedHeightOverride,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = useMemo(
@@ -65,8 +67,8 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
   const imageOpacity = useSharedValue(0);
   const imageScale = useSharedValue(0.95);
   const pressScale = useSharedValue(1);
-  const collapsedHeight = 100;
-  const expandedHeight = 260;
+  const collapsedHeight = collapsedHeightOverride ?? 100;
+  const expandedHeight = Math.max(collapsedHeight * 2.4, collapsedHeight + 120);
   const containerHeight = useSharedValue(collapsedHeight);
   const imageWrapperWidth = useSharedValue(50);
 

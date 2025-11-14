@@ -116,19 +116,15 @@ export const useCreateHandlers = ({
       return;
     }
 
-    setMode("recording");
-
-    // Wait for mode transition to start before initiating recording
-    // Prevents race condition on first permission grant
+    // Give the permission sheet a moment to dismiss before starting
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     await startRecording();
-  }, [requestPermission, setMode, startRecording]);
+  }, [requestPermission, startRecording]);
 
   const handleStopRecording = useCallback(async () => {
     await stopRecording();
-    setMode("typing");
-  }, [stopRecording, setMode]);
+  }, [stopRecording]);
 
   return {
     handleCancel,

@@ -1,11 +1,9 @@
 import { useCallback, useMemo } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import type { ListRenderItem } from "react-native";
-import { useTranslation } from "react-i18next";
 import { useTheme } from "@/theme/ThemeProvider";
 import type { Theme } from "@/theme";
 import type { Favorite } from "@/types/models";
-import { AppText } from "@/components/shared/AppText";
 import { FavoritePreviewCard } from "@/components/create-page/FavoritePreviewCard/FavoritePreviewCard";
 import { CARD_WIDTH } from "@/constants/create";
 
@@ -13,15 +11,16 @@ interface FavoritesSectionProps {
   favorites: Favorite[];
   onSelectFavorite: (favorite: Favorite) => void;
   isVisible: boolean;
+  minHeight?: number;
 }
 
 export const FavoritesSection = ({
   favorites,
   onSelectFavorite,
   isVisible,
+  minHeight,
 }: FavoritesSectionProps) => {
-  const { theme, colors } = useTheme();
-  const { t } = useTranslation();
+  const { theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   const noFavsFound = favorites.length === 0;
@@ -40,28 +39,20 @@ export const FavoritesSection = ({
   if (!isVisible || noFavsFound) return null;
 
   return (
-    <View style={styles.favoritesSection}>
-      <AppText
-        role="Caption"
-        style={[styles.heading, { color: colors.secondaryText }]}
-      >
-        {t("createLog.favorites.title")}
-      </AppText>
+    <View style={[styles.favoritesSection, { minHeight }]}>
       {favorites.length > 0 && (
-        <View style={styles.favoritesListOffsetFix}>
-          <FlatList
-            horizontal
-            data={favorites}
-            renderItem={renderFavoriteCard}
-            keyExtractor={(item) => item.id}
-            ItemSeparatorComponent={() => (
-              <View style={styles.favoriteSeparator} />
-            )}
-            showsHorizontalScrollIndicator={false}
-            contentInset={{ left: theme.spacing.sm }}
-            contentContainerStyle={styles.favoritesListContent}
-          />
-        </View>
+        <FlatList
+          horizontal
+          data={favorites}
+          renderItem={renderFavoriteCard}
+          keyExtractor={(item) => item.id}
+          ItemSeparatorComponent={() => (
+            <View style={styles.favoriteSeparator} />
+          )}
+          showsHorizontalScrollIndicator={false}
+          contentInset={{ left: theme.spacing.sm }}
+          contentContainerStyle={styles.favoritesListContent}
+        />
       )}
     </View>
   );
@@ -70,18 +61,9 @@ export const FavoritesSection = ({
 const createStyles = (theme: Theme) =>
   StyleSheet.create({
     favoritesSection: {
-      gap: theme.spacing.sm,
-    },
-    favoritesListOffsetFix: {
-      marginTop: -theme.spacing.xl,
-    },
-    heading: {
-      textTransform: "uppercase",
-      letterSpacing: 0.6,
-      paddingHorizontal: theme.spacing.lg,
+      justifyContent: "center",
     },
     favoritesListContent: {
-      paddingTop: theme.spacing.xl,
       paddingRight: theme.spacing.xl,
       paddingLeft: theme.spacing.sm,
     },
