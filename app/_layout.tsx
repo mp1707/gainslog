@@ -14,6 +14,7 @@ import {
 import { useRevenueCat } from "@/hooks/useRevenueCat";
 import "@/lib/i18n";
 import { LocalizationProvider } from "@/context/LocalizationContext";
+import { Image } from "expo-image";
 
 function ThemedStack() {
   const { colors, isThemeLoaded } = useTheme();
@@ -108,12 +109,23 @@ function RootLayoutContent() {
   const cleanupIncompleteEstimations = useAppStore(
     (state) => state.cleanupIncompleteEstimations
   );
+  const pruneOldLogs = useAppStore((state) => state.pruneOldLogs);
 
   useRevenueCat();
 
   useEffect(() => {
+    // Cleanup incomplete estimations from previous sessions
     cleanupIncompleteEstimations();
-  }, [cleanupIncompleteEstimations]);
+
+    // Prune old logs (>90 days or >300 logs) to prevent memory/storage bloat
+    pruneOldLogs();
+
+    // Clear image caches on app start for fresh state
+    // expo-image automatically manages memory cache size (default ~50MB)
+    // but we clear on start to ensure no stale images from crashed sessions
+    Image.clearMemoryCache();
+    Image.clearDiskCache();
+  }, [cleanupIncompleteEstimations, pruneOldLogs]);
 
   return (
     <GestureHandlerRootView

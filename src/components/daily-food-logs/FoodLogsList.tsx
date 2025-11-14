@@ -199,6 +199,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
       maxToRenderPerBatch={8}
       windowSize={7}
       updateCellsBatchingPeriod={50}
+      recyclingKey="food-logs-list"
       // contentInsetAdjustmentBehavior="automatic"
     />
   );

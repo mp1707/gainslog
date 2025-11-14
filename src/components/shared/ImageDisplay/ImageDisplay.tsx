@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { AccessibilityInfo, Image, TouchableOpacity } from "react-native";
+import { AccessibilityInfo, TouchableOpacity } from "react-native";
+import { Image } from "expo-image";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -193,7 +194,11 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
             <Image
               source={{ uri: imageUrl }}
               style={styles.image}
-              resizeMode="cover"
+              contentFit="cover"
+              cachePolicy="memory-disk"
+              recyclingKey={imageUrl}
+              priority="normal"
+              transition={200}
             />
           </Animated.View>
         )}

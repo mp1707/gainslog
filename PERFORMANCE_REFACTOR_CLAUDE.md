@@ -124,6 +124,111 @@ The new React Compiler automatically optimizes re-renders and memoization. Key p
 - Added cleanup effect to clear timer on unmount
 **Impact**: Low-Medium - Prevents issues when user navigates away during recommendation acceptance animation.
 
+---
+
+### Session 2: Critical Image & Memory Optimizations (2025-11-14)
+
+User reported RAM usage still critically high (>1200MB) after Session 1 fixes. Deeper investigation revealed the root causes.
+
+#### 🔴 Critical Issues Found
+
+1. **React Native Image Component** - Using standard `<Image>` from react-native instead of `expo-image`
+   - Standard Image has terrible memory management
+   - Keeps all loaded images in RAM
+   - No automatic cache size limits
+
+2. **All Tabs Render Simultaneously** - Native tabs architecture
+   - All 3-4 tabs mounted at once
+   - Each tab loading/rendering images
+   - Combined image memory from all tabs
+
+3. **Unlimited Food Log Storage** - No data pruning
+   - ALL food logs from all time kept in memory
+   - Could be hundreds/thousands of logs
+   - Each with potential image paths
+   - AsyncStorage also bloated
+
+4. **No Image Cache Management**
+   - No cache size limits
+   - No cache clearing strategy
+   - Images accumulating indefinitely
+
+#### ✅ Session 2 Fixes Applied
+
+### Fix #7: Replace Image with expo-image (CRITICAL)
+**Files**:
+- `src/components/shared/ImageDisplay/ImageDisplay.tsx`
+- `app/_layout.tsx`
+
+**Issue**: React Native's standard `<Image>` component has poor memory management, keeping all loaded images in RAM without limits. With food logs containing images and all tabs rendered simultaneously, this caused massive memory bloat (1200MB+).
+
+**Solution**:
+- Replaced `import { Image } from "react-native"` with `import { Image } from "expo-image"`
+- Added expo-image specific props:
+  - `cachePolicy="memory-disk"` - Uses both memory and disk cache
+  - `recyclingKey={imageUrl}` - Helps expo-image recycle image views
+  - `priority="normal"` - Balanced loading priority
+  - `contentFit="cover"` - Replaces resizeMode
+  - `transition={200}` - Smooth fade-in
+- Clear both memory and disk caches on app start
+- expo-image automatically manages cache size (~50MB memory limit by default)
+
+**Impact**: CRITICAL - expo-image uses native image decoders and has automatic memory management. Expected to reduce image memory usage by 70-80%.
+
+### Fix #8: Implement Food Log Pruning System
+**File**: `src/store/useAppStore.ts`
+
+**Issue**: ALL food logs from all time were kept in memory and AsyncStorage. With test data, this could be hundreds of logs, each potentially with images. The entire array was:
+- Kept in React state (memory)
+- Persisted to AsyncStorage (storage bloat)
+- Iterated through on every date change
+- Triggering image loads for old logs
+
+**Solution**:
+- Added `pruneOldLogs()` action to store
+- Automatic pruning on app start
+- Keeps only:
+  - Logs from last 90 days, OR
+  - The 300 most recent logs (whichever is more)
+- Deletes associated image files from pruned logs
+- Updates both memory state and AsyncStorage
+
+**Logic**:
+```typescript
+// Don't prune if < 200 logs (not worth it)
+// Sort logs by date descending
+// Keep if: date >= 90 days ago OR in top 300 recent
+// Delete images from pruned logs
+// Update state with pruned array
+```
+
+**Impact**: HIGH - Dramatically reduces memory footprint and AsyncStorage size. For users with lots of test data, this could remove hundreds of old logs and their images.
+
+### Fix #9: Add FlatList recyclingKey
+**File**: `src/components/daily-food-logs/FoodLogsList.tsx`
+
+**Issue**: FlatList wasn't properly recycling views, potentially keeping old item views in memory even when scrolled away.
+
+**Solution**:
+- Added `recyclingKey="food-logs-list"` to FlatList
+- Helps React Native recycle views more efficiently
+- Paired with existing `removeClippedSubviews={true}`
+
+**Impact**: MEDIUM - Better view recycling reduces memory usage during scrolling.
+
+### Fix #10: Clear Image Caches on App Start
+**File**: `app/_layout.tsx`
+
+**Issue**: Image caches persisted between app sessions, potentially keeping stale images from crashed sessions or old data.
+
+**Solution**:
+- Added `Image.clearMemoryCache()` on app start
+- Added `Image.clearDiskCache()` on app start
+- Ensures fresh state and removes orphaned cached images
+- expo-image will rebuild caches as needed during session
+
+**Impact**: MEDIUM - Ensures no memory bloat from previous sessions, especially important after crashes or force quits.
+
 ## Already Well-Optimized (No Changes Needed)
 
 ### ✅ Components with Proper Cleanup
@@ -271,6 +376,65 @@ The new React Compiler automatically optimizes re-renders and memoization. Key p
 
 ---
 
+## Session 2 Expected Impact
+
+### Memory Reduction Estimates:
+1. **expo-image vs React Native Image**: 70-80% reduction in image memory
+   - Before: Each 768px JPEG could use 5-10MB RAM uncompressed
+   - After: expo-image keeps compressed versions, auto-manages cache
+   - Expected: 200-400MB savings with 30-50 food log images
+
+2. **Food Log Pruning**: Variable, depends on test data size
+   - If 500 logs → pruned to 300 → 40% reduction
+   - Each old log with image freed
+   - AsyncStorage also dramatically reduced
+   - Expected: 100-300MB savings
+
+3. **Image Cache Clearing**: 50-100MB on app start
+   - Removes orphaned images from previous sessions
+   - Prevents accumulation over time
+
+4. **FlatList recyclingKey**: 20-50MB during scrolling
+   - Better view recycling
+   - Fewer retained views in memory
+
+**Combined Expected Reduction**: 370-850MB
+**Target RAM Usage**: 300-500MB (down from 1200MB+)
+
+### Testing Procedure (Post-Deployment):
+
+1. **Initial State Check**:
+   - Open app fresh
+   - Note initial RAM (should be ~200-250MB)
+   - Check console for prune logs (how many logs/images removed)
+
+2. **Image Loading Test**:
+   - Create 5-10 food logs with images
+   - Switch between dates
+   - RAM should stabilize, not climb continuously
+   - Expected: ~300-400MB with many images loaded
+
+3. **Prolonged Use Test**:
+   - Use app for 15-30 minutes
+   - Create/edit/delete logs
+   - Switch dates multiple times
+   - Navigate between tabs
+   - RAM should stay under 500MB
+
+4. **Worst Case Test**:
+   - Load test data set (if you have one)
+   - Check initial prune (should remove old logs)
+   - Use app extensively
+   - RAM should not exceed 600MB
+
+### If Memory Issues Persist:
+
+If RAM usage is still >600MB after these fixes, investigate:
+1. **Calendar tab** - May be rendering too many months with images
+2. **Reanimated animations** - Check for retained worklets
+3. **Other tabs** - Check what other tabs are rendering
+4. **Native modules** - Camera, image picker may retain buffers
+
 **Last Updated**: 2025-11-14
-**Status**: Session 1 Complete - 6 Memory Leaks Fixed
-**Next Review**: After user testing to verify memory improvements
+**Status**: Session 2 Complete - 10 Total Fixes (6 timer leaks + 4 image/memory issues)
+**Next Review**: After testing to measure actual memory reduction

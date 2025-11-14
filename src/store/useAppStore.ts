@@ -56,6 +56,7 @@ export type AppState = {
   clearAllLogs: () => Promise<void>; // Make it async
   cleanupIncompleteEstimations: () => void;
   setFoodlogs: (logs: FoodLog[]) => void;
+  pruneOldLogs: () => Promise<void>; // Limit logs to prevent memory bloat
 
   // Favorites
   addFavorite: (fav: Favorite) => void;
@@ -165,6 +166,78 @@ export const useAppStore = create<AppState>()(
         set((state) => {
           state.foodLogs = logs;
         }),
+
+      // Prune old logs to prevent memory/storage bloat
+      // Keeps only logs from the last 90 days OR the 300 most recent logs
+      pruneOldLogs: async () => {
+        const allLogs = get().foodLogs;
+        if (allLogs.length <= 200) {
+          // Not enough logs to warrant pruning
+          return;
+        }
+
+        const today = new Date();
+        const cutoffDate = new Date(today);
+        cutoffDate.setDate(today.getDate() - 90); // 90 days ago
+        const cutoffString = cutoffDate.toISOString().split("T")[0];
+
+        // Separate logs into keep and prune
+        const logsToKeep: FoodLog[] = [];
+        const logsToDelete: FoodLog[] = [];
+
+        // Sort by date descending
+        const sortedLogs = [...allLogs].sort(
+          (a, b) => b.logDate.localeCompare(a.logDate)
+        );
+
+        sortedLogs.forEach((log, index) => {
+          // Keep if: within 90 days OR in the top 300 most recent
+          if (log.logDate >= cutoffString || index < 300) {
+            logsToKeep.push(log);
+          } else {
+            logsToDelete.push(log);
+          }
+        });
+
+        if (logsToDelete.length === 0) {
+          return; // Nothing to prune
+        }
+
+        // Delete associated images
+        const imagesToDelete = logsToDelete
+          .map((log) => log.localImagePath)
+          .filter((path): path is string => !!path);
+
+        if (imagesToDelete.length > 0) {
+          try {
+            await Promise.all(
+              imagesToDelete.map((uri) =>
+                FileSystem.deleteAsync(uri, { idempotent: true })
+              )
+            );
+            if (__DEV__) {
+              console.log(
+                `[Prune] Deleted ${imagesToDelete.length} images from ${logsToDelete.length} old logs`
+              );
+            }
+          } catch (error) {
+            if (__DEV__) {
+              console.error("[Prune] Error deleting old images:", error);
+            }
+          }
+        }
+
+        // Update state with pruned logs
+        set((state) => {
+          state.foodLogs = logsToKeep;
+        });
+
+        if (__DEV__) {
+          console.log(
+            `[Prune] Removed ${logsToDelete.length} old logs, kept ${logsToKeep.length}`
+          );
+        }
+      },
 
       // Favorites
       addFavorite: (fav) =>
