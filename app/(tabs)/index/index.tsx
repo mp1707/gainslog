@@ -177,7 +177,7 @@ export default function TodayTab() {
           <DateSlider />
         </View>
       </View>
-      {hasLiquidGlass && (
+      {/* {hasLiquidGlass && (
         <View style={styles.primaryButtonContainer}>
           <HeaderButton
             variant="colored"
@@ -192,7 +192,7 @@ export default function TodayTab() {
             }}
           />
         </View>
-      )}
+      )} */}
     </View>
   );
 }
