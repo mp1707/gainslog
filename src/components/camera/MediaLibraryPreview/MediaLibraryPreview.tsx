@@ -6,11 +6,15 @@ import Animated, {
   withSpring,
   withDelay,
 } from "react-native-reanimated";
+import { Image } from "expo-image";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
 import { useTheme } from "@/theme";
 import { createStyles } from "./MediaLibraryPreview.styles";
+
+// Create animated version of expo-image Image component
+const AnimatedImage = Animated.createAnimatedComponent(Image);
 
 interface MediaLibraryPreviewProps {
   onImageSelected: (uri: string) => void;
@@ -244,7 +248,7 @@ export const MediaLibraryPreview: React.FC<MediaLibraryPreviewProps> = ({
     >
       {recentImages.length > 0 ? (
         recentImages.map((asset, index) => (
-          <Animated.Image
+          <AnimatedImage
             key={asset.id}
             source={{ uri: asset.localUri || asset.uri }}
             style={[
@@ -254,6 +258,11 @@ export const MediaLibraryPreview: React.FC<MediaLibraryPreviewProps> = ({
                 zIndex: 3 - index,
               },
             ]}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            recyclingKey={asset.id}
+            priority="low"
+            transition={150}
           />
         ))
       ) : (

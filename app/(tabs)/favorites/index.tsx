@@ -141,6 +141,8 @@ export default function FavoritesScreen() {
         },
       ]}
       ListHeaderComponent={listHeaderComponent}
+      recyclingKey="favorites-list"
+      removeClippedSubviews
       ListEmptyComponent={() => (
         <View style={styles.emptyContentContainer}>
           <View style={styles.emptyState}>

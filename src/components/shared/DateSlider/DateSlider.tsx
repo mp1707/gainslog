@@ -309,6 +309,7 @@ export const DateSlider = () => {
           windowSize={2} // Reduced buffer for better performance
           updateCellsBatchingPeriod={100} // Batch updates for smoother scrolling
           removeClippedSubviews={true}
+          recyclingKey="date-slider"
           onMomentumScrollEnd={handleScrollEnd}
           contentContainerStyle={{ paddingRight: SCREEN_WIDTH }}
         />

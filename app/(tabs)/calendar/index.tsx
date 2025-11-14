@@ -347,6 +347,8 @@ export default function CalendarTabScreen() {
             offset: screenWidth * index,
             index,
           })}
+          recyclingKey="calendar-months"
+          removeClippedSubviews
         />
       </View>
       {selectedDate !== getTodayKey() && (
