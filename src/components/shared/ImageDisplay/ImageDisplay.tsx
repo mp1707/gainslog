@@ -42,6 +42,16 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
   // Reduced motion preference
   const [isReducedMotionEnabled, setIsReducedMotionEnabled] = useState(false);
 
+  // Shared values for animations
+  const skeletonOpacity = useSharedValue(0.3);
+  const imageOpacity = useSharedValue(0);
+  const imageScale = useSharedValue(0.95);
+  const pressScale = useSharedValue(1);
+  const collapsedHeight = collapsedHeightOverride ?? 100;
+  const expandedHeight = Math.max(collapsedHeight * 2.4, collapsedHeight + 120);
+  const containerHeight = useSharedValue(collapsedHeight);
+  const imageWrapperWidth = useSharedValue(50);
+
   // Check for reduced motion preference
   useEffect(() => {
     const checkReducedMotion = async () => {
@@ -68,17 +78,14 @@ export const ImageDisplay: React.FC<ImageDisplayProps> = ({
       cancelAnimation(containerHeight);
       cancelAnimation(imageWrapperWidth);
     };
-  }, [skeletonOpacity, imageOpacity, imageScale, pressScale, containerHeight, imageWrapperWidth]);
-
-  // Shared values for animations
-  const skeletonOpacity = useSharedValue(0.3);
-  const imageOpacity = useSharedValue(0);
-  const imageScale = useSharedValue(0.95);
-  const pressScale = useSharedValue(1);
-  const collapsedHeight = collapsedHeightOverride ?? 100;
-  const expandedHeight = Math.max(collapsedHeight * 2.4, collapsedHeight + 120);
-  const containerHeight = useSharedValue(collapsedHeight);
-  const imageWrapperWidth = useSharedValue(50);
+  }, [
+    skeletonOpacity,
+    imageOpacity,
+    imageScale,
+    pressScale,
+    containerHeight,
+    imageWrapperWidth,
+  ]);
 
   // Skeleton pulsing animation
   useEffect(() => {

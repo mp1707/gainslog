@@ -22,6 +22,7 @@ import { ComponentsList } from "@/components/refine-page/ComponentsList/Componen
 import { MacrosCard } from "@/components/refine-page/MacrosCard/MacrosCard";
 import { RecalculateButton } from "@/components/refine-page/RecalculateButton";
 import { InlinePaywallCard } from "@/components/paywall/InlinePaywallCard";
+import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { TextInput } from "@/components/shared/TextInput";
 import { useEstimation } from "@/hooks/useEstimation";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
@@ -193,30 +194,26 @@ export default function Edit() {
 
     if (hasUnsavedChanges && !hasReestimated) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-      Alert.alert(
-        t("editLog.alert.title"),
-        t("editLog.alert.message"),
-        [
-          {
-            text: t("editLog.alert.recalculate"),
-            style: "default",
-            onPress: async () => {
-              await handleReestimate();
-            },
+      Alert.alert(t("editLog.alert.title"), t("editLog.alert.message"), [
+        {
+          text: t("editLog.alert.recalculate"),
+          style: "default",
+          onPress: async () => {
+            await handleReestimate();
           },
-          {
-            text: t("editLog.alert.saveAnyway"),
-            style: "default",
-            onPress: () => {
-              saveFoodLog();
-            },
+        },
+        {
+          text: t("editLog.alert.saveAnyway"),
+          style: "default",
+          onPress: () => {
+            saveFoodLog();
           },
-          {
-            text: t("common.cancel"),
-            style: "cancel",
-          },
-        ]
-      );
+        },
+        {
+          text: t("common.cancel"),
+          style: "cancel",
+        },
+      ]);
       return;
     }
     saveFoodLog();
@@ -395,6 +392,18 @@ export default function Edit() {
                 foodComponentsCount={editedLog.foodComponents?.length || 0}
               />
             </Animated.View>
+
+            {editedLog.localImagePath && (
+              <Animated.View layout={easeLayout} style={styles.imageSection}>
+                <AppText role="Caption" style={styles.sectionHeader}>
+                  {t("createLog.image.title")}
+                </AppText>
+                <ImageDisplay
+                  imageUrl={editedLog.localImagePath}
+                  isUploading={false}
+                />
+              </Animated.View>
+            )}
           </>
         )}
       </RNScrollView>
@@ -440,5 +449,13 @@ const createStyles = (colors: Colors, theme: Theme) =>
     favoriteToggleLabel: {
       fontSize: theme.typography.Body.fontSize,
       fontWeight: "600",
+    },
+    imageSection: {
+      gap: theme.spacing.sm,
+    },
+    sectionHeader: {
+      letterSpacing: 0.6,
+      color: colors.secondaryText,
+      textTransform: "uppercase",
     },
   });
