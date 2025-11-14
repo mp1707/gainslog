@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 import { View } from "react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
 import { createStyles } from "./CreateActions.styles";
@@ -11,6 +12,7 @@ interface CreateActionsProps {
   onEstimate: () => void;
   canContinue: boolean;
   isEstimating?: boolean;
+  isRecordingActive: boolean;
 }
 
 export const CreateActions: React.FC<CreateActionsProps> = ({
@@ -19,6 +21,7 @@ export const CreateActions: React.FC<CreateActionsProps> = ({
   onEstimate,
   canContinue,
   isEstimating = false,
+  isRecordingActive = false,
 }) => {
   const { colors, theme, colorScheme } = useTheme();
   const styles = createStyles(colors, theme, colorScheme);
@@ -44,28 +47,36 @@ export const CreateActions: React.FC<CreateActionsProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.actionsRow}>
-        <HeaderButton
-          variant="regular"
-          buttonProps={{
-            onPress: handleCameraPress,
-            color: colors.secondaryBackground,
-          }}
-          imageProps={{
-            systemName: "camera",
-            color: iconColor,
-          }}
-        />
-        <HeaderButton
-          variant="regular"
-          buttonProps={{
-            onPress: handleMicPress,
-            color: colors.secondaryBackground,
-          }}
-          imageProps={{
-            systemName: "mic.fill",
-            color: iconColor,
-          }}
-        />
+        {!isRecordingActive && (
+          <Animated.View
+            entering={FadeIn.duration(180)}
+            exiting={FadeOut.duration(120)}
+            style={styles.secondaryActions}
+          >
+            <HeaderButton
+              variant="regular"
+              buttonProps={{
+                onPress: handleCameraPress,
+                color: colors.secondaryBackground,
+              }}
+              imageProps={{
+                systemName: "camera",
+                color: iconColor,
+              }}
+            />
+            <HeaderButton
+              variant="regular"
+              buttonProps={{
+                onPress: handleMicPress,
+                color: colors.secondaryBackground,
+              }}
+              imageProps={{
+                systemName: isRecordingActive ? "square" : "mic.fill",
+                color: iconColor,
+              }}
+            />
+          </Animated.View>
+        )}
         <HeaderButton
           variant="colored"
           buttonProps={{

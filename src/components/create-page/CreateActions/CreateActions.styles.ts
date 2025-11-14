@@ -16,4 +16,9 @@ export const createStyles = (
       justifyContent: "flex-end",
       gap: theme.spacing.md,
     },
+    secondaryActions: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.md,
+    },
   });

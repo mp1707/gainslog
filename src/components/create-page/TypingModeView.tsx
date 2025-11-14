@@ -1,6 +1,11 @@
 import { useRef, useMemo } from "react";
 import { View, TextInput as RNTextInput } from "react-native";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import Animated, {
+  Easing,
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+} from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 
 import { FoodLog, Favorite } from "@/types/models";
@@ -55,6 +60,11 @@ export const TypingModeView = ({
     () => createStyles(theme, colors, colorScheme),
     [theme, colors, colorScheme]
   );
+  const slidingLayout = useMemo(
+    () =>
+      LinearTransition.duration(200).easing(Easing.bezier(0.2, 0.8, 0.2, 1)),
+    []
+  );
 
   const textInputRef = useRef<RNTextInput>(null);
   useDelayedAutofocus(textInputRef);
@@ -62,6 +72,7 @@ export const TypingModeView = ({
   const isRecordingActive = isRecording;
   const hasImage = !!(draft.localImagePath || isProcessingImage);
   const showImageSection = !isRecordingActive && hasImage;
+  const showRecordingSection = isRecordingActive;
   const showFavoritesSection =
     !isRecordingActive && !hasImage && filteredFavorites.length > 0;
 
@@ -93,13 +104,22 @@ export const TypingModeView = ({
       />
 
       {sectionTitle && (
-        <View style={styles.accessorySection}>
+        <Animated.View
+          layout={slidingLayout}
+          entering={FadeIn.duration(150)}
+          exiting={FadeOut.duration(150)}
+          style={styles.accessorySection}
+        >
           <AppText role="Caption" style={styles.sectionHeading}>
             {sectionTitle}
           </AppText>
           <View style={styles.accessorySlot}>
-            {isRecordingActive && (
-              <View style={styles.recordingContent}>
+            {showRecordingSection && (
+              <Animated.View
+                entering={FadeIn.duration(180)}
+                exiting={FadeOut.duration(120)}
+                style={styles.recordingContent}
+              >
                 <Waveform
                   volumeLevel={volumeLevel}
                   isActive={isRecordingActive}
@@ -118,7 +138,7 @@ export const TypingModeView = ({
                     color: colors.error,
                   }}
                 />
-              </View>
+              </Animated.View>
             )}
             {showImageSection && (
               <ImageSection
@@ -138,17 +158,19 @@ export const TypingModeView = ({
               />
             )}
           </View>
-        </View>
+        </Animated.View>
       )}
-      {!isRecordingActive && (
+
+      <Animated.View layout={slidingLayout}>
         <CreateActions
           onSwitchToCamera={onSwitchToCamera}
           onSwitchToRecording={onSwitchToRecording}
+          isRecordingActive={isRecordingActive}
           onEstimate={onEstimate}
           canContinue={canContinue}
           isEstimating={isEstimating}
         />
-      )}
+      </Animated.View>
     </Animated.View>
   );
 };

@@ -29,8 +29,10 @@ export const createStyles = (
       justifyContent: "center",
     },
     recordingContent: {
+      flex: 1,
       flexDirection: "row",
       alignItems: "center",
+      justifyContent: "space-between",
       gap: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
     },

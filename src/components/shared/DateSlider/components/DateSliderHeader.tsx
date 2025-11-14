@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import { View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { AppText } from "@/components";
@@ -23,33 +23,26 @@ export const DateSliderHeader: React.FC = () => {
 
   const hasGoals = hasDailyTargetsSet(dailyTargets);
 
-  const handleNewPress = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    safeNavigate("/new");
-  };
+  const handleLogPress = useCallback(
+    (mode: "camera" | "recording" | "typing") => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      safeNavigate(`/new?mode=${mode}`);
+    },
+    [safeNavigate]
+  );
 
   return (
     <View style={styles.header}>
       <AppText role="Title1" style={styles.headerTitle}>
         {formatDate(selectedDate, { t, locale: i18n.language })}
       </AppText>
-      {!hasLiquidGlass && (
-        <View style={styles.headerButtonContainer}>
-          {hasGoals && (
-            <HeaderButton
-              variant="colored"
-              size="large"
-              buttonProps={{
-                onPress: handleNewPress,
-                color: colors.accent,
-              }}
-              imageProps={{
-                systemName: "plus",
-                color: colors.black,
-              }}
-            />
-          )}
-        </View>
+      {hasGoals && (
+        <HeaderButton
+          variant="regular"
+          size="regular"
+          buttonProps={{ onPress: () => handleLogPress("typing") }}
+          imageProps={{ systemName: "plus" }}
+        />
       )}
     </View>
   );

@@ -11,11 +11,6 @@ export const createStyles = (colors: Colors, theme: Theme) =>
       paddingHorizontal: theme.spacing.md,
       paddingTop: theme.spacing.md,
     },
-    headerButtonContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: theme.spacing.sm,
-    },
     headerTitle: {
       color: colors.primaryText,
     },
