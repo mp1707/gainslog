@@ -821,6 +821,15 @@
           }
         }
       },
+      "dataManagement": {
+        "label": "DATENVERWALTUNG",
+        "rows": {
+          "deleteOldLogs": {
+            "title": "Alte Logs löschen",
+            "subtitle": "Entferne Logs und Fotos älter als ein bestimmter Zeitraum."
+          }
+        }
+      },
       "legal": {
         "label": "RECHTLICHES",
         "rows": {
@@ -914,6 +923,24 @@
     "design": {
       "header": "Design",
       "placeholder": "Kommt bald"
+    },
+    "dataCleanup": {
+      "header": "Alte Logs löschen",
+      "description": "Eine große Anzahl von Logs kann die App verlangsamen. Wähle einen Zeitraum, um ältere Logs und ihre Fotos zu entfernen.",
+      "buttonDelete": "Löschen",
+      "preview": "{{count}} Logs werden gelöscht",
+      "alert": {
+        "title": "Alte Logs löschen?",
+        "message": "Dies wird {{count}} Logs und ihre Fotos dauerhaft entfernen. Dies kann nicht rückgängig gemacht werden.",
+        "confirm": "Logs löschen"
+      },
+      "success": "{{count}} Logs gelöscht",
+      "options": {
+        "30days": "Älter als 30 Tage löschen",
+        "90days": "Älter als 90 Tage löschen",
+        "180days": "Älter als 180 Tage löschen",
+        "all": "Alle Logs löschen"
+      }
     }
   }
 }

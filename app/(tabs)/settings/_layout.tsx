@@ -58,6 +58,14 @@ export default function SettingsLayout() {
           headerLargeTitleShadowVisible: false,
         }}
       />
+      <Stack.Screen
+        name="data-cleanup"
+        options={{
+          title: t("settings.dataCleanup.header"),
+          headerLargeTitle: isIOS,
+          headerLargeTitleShadowVisible: false,
+        }}
+      />
     </Stack>
   );
 }

@@ -10,7 +10,7 @@ import {
   FoodComponent,
 } from "../types/models";
 import { getTodayKey } from "@/utils/dateHelpers";
-import * as FileSystem from "expo-file-system"; // --- 1. IMPORT EXPO-FILE-SYSTEM ---
+import { File } from "expo-file-system";
 
 export type AppState = {
   foodLogs: FoodLog[];
@@ -56,7 +56,7 @@ export type AppState = {
   clearAllLogs: () => Promise<void>; // Make it async
   cleanupIncompleteEstimations: () => void;
   setFoodlogs: (logs: FoodLog[]) => void;
-  pruneOldLogs: () => Promise<void>; // Limit logs to prevent memory bloat
+  pruneOldLogs: (retentionDays: number | null) => Promise<number>; // Returns count of deleted logs
 
   // Favorites
   addFavorite: (fav: Favorite) => void;
@@ -112,10 +112,11 @@ export const useAppStore = create<AppState>()(
         // If the log has a local image, delete it from the file system
         if (logToDelete && logToDelete.localImagePath) {
           try {
-            await FileSystem.deleteAsync(logToDelete.localImagePath, {
-              idempotent: true, // This is crucial, it won't throw an error if the file doesn't exist
-            });
-          } catch (error) {}
+            const file = new File(logToDelete.localImagePath);
+            await file.delete();
+          } catch (error) {
+            // File doesn't exist or can't be deleted - safe to ignore
+          }
         }
         set((state) => {
           state.foodLogs = state.foodLogs.filter((log) => log.id !== id);
@@ -133,9 +134,10 @@ export const useAppStore = create<AppState>()(
           try {
             // Use Promise.all to delete all files concurrently for better performance
             await Promise.all(
-              imagePathsToDelete.map((uri) =>
-                FileSystem.deleteAsync(uri, { idempotent: true })
-              )
+              imagePathsToDelete.map((uri) => {
+                const file = new File(uri);
+                return file.delete();
+              })
             );
             if (__DEV__) {
               console.log(`Deleted ${imagePathsToDelete.length} images.`);
@@ -167,32 +169,27 @@ export const useAppStore = create<AppState>()(
           state.foodLogs = logs;
         }),
 
-      // Prune old logs to prevent memory/storage bloat
-      // Keeps only logs from the last 90 days OR the 300 most recent logs
-      pruneOldLogs: async () => {
+      // Prune logs older than a specified number of days
+      // Returns the count of deleted logs
+      pruneOldLogs: async (retentionDays: number | null) => {
         const allLogs = get().foodLogs;
-        if (allLogs.length <= 200) {
-          // Not enough logs to warrant pruning
-          return;
+
+        // If retentionDays is null, keep all logs (no pruning)
+        if (retentionDays === null) {
+          return 0;
         }
 
         const today = new Date();
         const cutoffDate = new Date(today);
-        cutoffDate.setDate(today.getDate() - 90); // 90 days ago
+        cutoffDate.setDate(today.getDate() - retentionDays);
         const cutoffString = cutoffDate.toISOString().split("T")[0];
 
-        // Separate logs into keep and prune
+        // Separate logs into keep and prune based on cutoff date
         const logsToKeep: FoodLog[] = [];
         const logsToDelete: FoodLog[] = [];
 
-        // Sort by date descending
-        const sortedLogs = [...allLogs].sort(
-          (a, b) => b.logDate.localeCompare(a.logDate)
-        );
-
-        sortedLogs.forEach((log, index) => {
-          // Keep if: within 90 days OR in the top 300 most recent
-          if (log.logDate >= cutoffString || index < 300) {
+        allLogs.forEach((log) => {
+          if (log.logDate >= cutoffString) {
             logsToKeep.push(log);
           } else {
             logsToDelete.push(log);
@@ -200,7 +197,7 @@ export const useAppStore = create<AppState>()(
         });
 
         if (logsToDelete.length === 0) {
-          return; // Nothing to prune
+          return 0; // Nothing to prune
         }
 
         // Delete associated images
@@ -211,9 +208,10 @@ export const useAppStore = create<AppState>()(
         if (imagesToDelete.length > 0) {
           try {
             await Promise.all(
-              imagesToDelete.map((uri) =>
-                FileSystem.deleteAsync(uri, { idempotent: true })
-              )
+              imagesToDelete.map((uri) => {
+                const file = new File(uri);
+                return file.delete();
+              })
             );
             if (__DEV__) {
               console.log(
@@ -237,6 +235,8 @@ export const useAppStore = create<AppState>()(
             `[Prune] Removed ${logsToDelete.length} old logs, kept ${logsToKeep.length}`
           );
         }
+
+        return logsToDelete.length;
       },
 
       // Favorites

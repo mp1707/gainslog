@@ -109,7 +109,6 @@ function RootLayoutContent() {
   const cleanupIncompleteEstimations = useAppStore(
     (state) => state.cleanupIncompleteEstimations
   );
-  const pruneOldLogs = useAppStore((state) => state.pruneOldLogs);
 
   useRevenueCat();
 
@@ -117,15 +116,12 @@ function RootLayoutContent() {
     // Cleanup incomplete estimations from previous sessions
     cleanupIncompleteEstimations();
 
-    // Prune old logs (>90 days or >300 logs) to prevent memory/storage bloat
-    pruneOldLogs();
-
     // Clear image caches on app start for fresh state
     // expo-image automatically manages memory cache size (default ~50MB)
     // but we clear on start to ensure no stale images from crashed sessions
     Image.clearMemoryCache();
     Image.clearDiskCache();
-  }, [cleanupIncompleteEstimations, pruneOldLogs]);
+  }, [cleanupIncompleteEstimations]);
 
   return (
     <GestureHandlerRootView

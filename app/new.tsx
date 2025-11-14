@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Platform, ScrollView, View } from "react-native";
-import { useTranslation } from "react-i18next";
 import { useLocalSearchParams } from "expo-router";
 
 import { useAppStore } from "@/store/useAppStore";
@@ -22,7 +21,6 @@ import type { CreationMode } from "@/types/creation";
 import { createStyles } from "./new.styles";
 
 export default function Create() {
-  const { t } = useTranslation();
   const router = useSafeRouter();
   const { theme, colors, colorScheme } = useTheme();
   const styles = useMemo(
@@ -33,7 +31,8 @@ export default function Create() {
 
   // Get initial mode from query params
   const params = useLocalSearchParams<{ mode?: string }>();
-  const initialMode: CreationMode = params.mode === "camera" ? "camera" : "typing";
+  const initialMode: CreationMode =
+    params.mode === "camera" ? "camera" : "typing";
   const [mode, setMode] = useState<CreationMode>(initialMode);
 
   const { startNewDraft, clearDraft, updateDraft } = useCreationStore();
@@ -118,7 +117,6 @@ export default function Create() {
       // Handle camera mode if needed
       handleSwitchToCamera();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.mode, draftId]); // Only run when params.mode or draftId changes on mount
 
   const handleEstimation = () => {

@@ -7,7 +7,6 @@ import { NutrientDashboard } from "./NutrientSummary/NutrientDashboard";
 import { HeaderButton } from "@/components/shared/HeaderButton/HeaderButton.ios";
 import { useTheme } from "@/theme/ThemeProvider";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
-import { hasDailyTargetsSet } from "@/utils";
 
 const DEFAULT_TARGETS = { calories: 0, protein: 0, carbs: 0, fat: 0 };
 
@@ -18,7 +17,6 @@ interface FoodLogsListProps {
   dailyTotals: any;
   dynamicBottomPadding: number;
   headerOffset?: number;
-  shouldRenderFoodLogs: boolean;
   onDelete: (log: FoodLog | Favorite) => void;
   onToggleFavorite: (log: FoodLog) => void;
   onEdit: (log: FoodLog | Favorite) => void;
@@ -40,7 +38,6 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
   onLogAgain,
   onSaveToFavorites,
   onRemoveFromFavorites,
-  shouldRenderFoodLogs,
 }) => {
   const { colors, theme } = useTheme();
   const router = useSafeRouter();
@@ -182,7 +179,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
   return (
     <FlatList
       ref={flatListRef}
-      data={shouldRenderFoodLogs ? foodLogs : undefined}
+      data={foodLogs}
       keyExtractor={keyExtractor}
       renderItem={renderItem}
       getItemLayout={getItemLayout}
@@ -199,7 +196,6 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
       maxToRenderPerBatch={5}
       windowSize={5}
       updateCellsBatchingPeriod={50}
-      recyclingKey="food-logs-list"
       // contentInsetAdjustmentBehavior="automatic"
     />
   );

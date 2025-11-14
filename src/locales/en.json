@@ -823,6 +823,15 @@
           }
         }
       },
+      "dataManagement": {
+        "label": "DATA MANAGEMENT",
+        "rows": {
+          "deleteOldLogs": {
+            "title": "Delete old logs",
+            "subtitle": "Remove logs and photos older than a selected period."
+          }
+        }
+      },
       "legal": {
         "label": "LEGAL",
         "rows": {
@@ -916,6 +925,24 @@
     "design": {
       "header": "Design",
       "placeholder": "Coming soon"
+    },
+    "dataCleanup": {
+      "header": "Delete old logs",
+      "description": "Extreme amounts of logs may slow down the app. Select a time period to remove older logs and their photos.",
+      "buttonDelete": "Delete",
+      "preview": "{{count}} logs will be deleted",
+      "alert": {
+        "title": "Delete old logs?",
+        "message": "This will permanently remove {{count}} logs and their photos. This can't be undone.",
+        "confirm": "Delete logs"
+      },
+      "success": "Deleted {{count}} logs",
+      "options": {
+        "30days": "Delete older than 30 days",
+        "90days": "Delete older than 90 days",
+        "180days": "Delete older than 180 days",
+        "all": "Delete all logs"
+      }
     }
   }
 }

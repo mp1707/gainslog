@@ -8,6 +8,7 @@ import { useTheme, Colors, Theme, ColorScheme } from "@/theme";
 import { ProSection } from "./components/ProSection";
 import { AppearanceSection } from "./components/AppearanceSection";
 import { GoalsSection } from "./components/GoalsSection";
+import { DataManagementSection } from "./components/DataManagementSection";
 import { DeveloperSection } from "./components/DeveloperSection";
 import { AboutSection } from "./components/AboutSection";
 import { useAppStore } from "@/store/useAppStore";
@@ -43,6 +44,7 @@ export default function SettingsScreen() {
         {!isPro && <ProSection />}
         <AppearanceSection />
         <GoalsSection />
+        <DataManagementSection />
         <AboutSection />
         <DeveloperSection />
         <View style={styles.footer}>
