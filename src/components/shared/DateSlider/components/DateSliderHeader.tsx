@@ -33,23 +33,24 @@ export const DateSliderHeader: React.FC = () => {
       <AppText role="Title1" style={styles.headerTitle}>
         {formatDate(selectedDate, { t, locale: i18n.language })}
       </AppText>
-
-      <View style={styles.headerButtonContainer}>
-        {hasGoals && (
-          <HeaderButton
-            variant="colored"
-            size="large"
-            buttonProps={{
-              onPress: handleNewPress,
-              color: colors.accent,
-            }}
-            imageProps={{
-              systemName: "plus",
-              color: colors.black,
-            }}
-          />
-        )}
-      </View>
+      {!hasLiquidGlass && (
+        <View style={styles.headerButtonContainer}>
+          {hasGoals && (
+            <HeaderButton
+              variant="colored"
+              size="large"
+              buttonProps={{
+                onPress: handleNewPress,
+                color: colors.accent,
+              }}
+              imageProps={{
+                systemName: "plus",
+                color: colors.black,
+              }}
+            />
+          )}
+        </View>
+      )}
     </View>
   );
 };

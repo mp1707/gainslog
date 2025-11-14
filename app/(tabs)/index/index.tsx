@@ -1,16 +1,12 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { StyleSheet, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
-import MaskedView from "@react-native-masked-view/masked-view";
+import React, { useMemo } from "react";
+import { StyleSheet } from "react-native";
 import { useTabBarSpacing } from "@/hooks/useTabBarSpacing";
 import { useAppStore } from "@/store/useAppStore";
 import { selectDailyData } from "@/store/selectors";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { FoodLogsList } from "@/components/daily-food-logs/FoodLogsList";
-import { DateSlider } from "@/components/shared/DateSlider";
-import { useTheme, Colors, Theme } from "@/theme";
+import { useTheme, Colors } from "@/theme";
+import { useHeaderHeight } from "@react-navigation/elements";
 import {
   createLogAgainHandler,
   createSaveToFavoritesHandler,
@@ -23,17 +19,13 @@ import { useSegments } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { WelcomeScreen } from "@/components/welcome";
 import { hasNoDailyTargets } from "@/utils/dailyTargets";
-import { HeaderButton } from "@/components/shared/HeaderButton";
-import * as Haptics from "expo-haptics";
-import { isLiquidGlassAvailable } from "expo-glass-effect";
 
 export default function TodayTab() {
   const { safeNavigate } = useNavigationGuard();
   const { dynamicBottomPadding } = useTabBarSpacing();
-  const { colors, colorScheme, theme } = useTheme();
-  const insets = useSafeAreaInsets();
+  const { colors, theme } = useTheme();
   const { t } = useTranslation();
-  const hasLiquidGlass = isLiquidGlassAvailable();
+  const headerHeight = useHeaderHeight();
 
   const foodLogs = useAppStore((state) => state.foodLogs);
   const selectedDate = useAppStore((state) => state.selectedDate);
@@ -44,18 +36,7 @@ export default function TodayTab() {
   const deleteFavorite = useAppStore((state) => state.deleteFavorite);
   const addFoodLog = useAppStore((state) => state.addFoodLog);
 
-  // Dynamic header height calculation
-  const headerHeight = useMemo(
-    () => theme.layout.calculateHeaderHeight(insets.top),
-    [theme.layout, insets.top]
-  );
-
-  const styles = useMemo(
-    () => createStyles(colors, headerHeight, theme),
-    [colors, headerHeight, theme]
-  );
-
-  const transparentBackground = colors.primaryBackground + "00";
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   // render food logs only if main tab is focused
   const segment = useSegments();
@@ -109,131 +90,35 @@ export default function TodayTab() {
       createToggleFavoriteHandler(addFavorite, deleteFavorite, favorites, t),
     [addFavorite, deleteFavorite, favorites, t]
   );
-  const handleNewPress = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    safeNavigate("/new");
-  };
   // Show welcome screen for first-time users without daily targets
   if (hasNoDailyTargets(dailyTargets)) {
     return <WelcomeScreen />;
   }
 
   return (
-    <View style={styles.container}>
-      <FoodLogsList
-        foodLogs={todayFoodLogs}
-        dailyPercentages={dailyPercentages}
-        dailyTargets={state.dailyTargets}
-        dailyTotals={dailyTotals}
-        dynamicBottomPadding={dynamicBottomPadding}
-        headerOffset={headerHeight}
-        onDelete={handleDelete}
-        onToggleFavorite={handleToggleFavorite}
-        onEdit={handleEdit}
-        onLogAgain={handleLogAgain}
-        onSaveToFavorites={handleSaveToFavorites}
-        onRemoveFromFavorites={handleRemoveFromFavorites}
-        shouldRenderFoodLogs={isOnHomeTab}
-      />
-
-      {/* Gradient overlay */}
-      <LinearGradient
-        colors={[colors.primaryBackground, transparentBackground]}
-        locations={[0.75, 1]}
-        style={[styles.gradientOverlay, { height: headerHeight + 16 }]}
-        pointerEvents="none"
-      />
-
-      {/* Blur background with fade mask - WITHOUT DateSlider */}
-      <MaskedView
-        style={[styles.blurWrapper, { height: headerHeight + 16 }]}
-        pointerEvents="none"
-        maskElement={
-          <LinearGradient
-            colors={[
-              colors.primaryBackground,
-              colors.primaryBackground,
-              "transparent",
-            ]}
-            locations={[0, 0.7, 1]}
-            style={{ flex: 1 }}
-          />
-        }
-      >
-        <BlurView
-          intensity={20}
-          tint={colorScheme}
-          style={styles.blurContainer}
-          pointerEvents="none"
-        />
-      </MaskedView>
-
-      {/* DateSlider on top - NOT masked */}
-      <View
-        style={[styles.dateSliderWrapper, { height: headerHeight }]}
-        pointerEvents="box-none"
-      >
-        <View style={{ paddingTop: insets.top }}>
-          <DateSlider />
-        </View>
-      </View>
-      {/* {hasLiquidGlass && (
-        <View style={styles.primaryButtonContainer}>
-          <HeaderButton
-            variant="colored"
-            size="large"
-            buttonProps={{
-              onPress: handleNewPress,
-              color: colorScheme === "dark" ? "44EBD499" : colors.accent,
-            }}
-            imageProps={{
-              systemName: "plus",
-              color: colors.primaryText,
-            }}
-          />
-        </View>
-      )} */}
-    </View>
+    <FoodLogsList
+      foodLogs={todayFoodLogs}
+      dailyPercentages={dailyPercentages}
+      dailyTargets={state.dailyTargets}
+      dailyTotals={dailyTotals}
+      dynamicBottomPadding={dynamicBottomPadding}
+      headerOffset={headerHeight}
+      onDelete={handleDelete}
+      onToggleFavorite={handleToggleFavorite}
+      onEdit={handleEdit}
+      onLogAgain={handleLogAgain}
+      onSaveToFavorites={handleSaveToFavorites}
+      onRemoveFromFavorites={handleRemoveFromFavorites}
+      shouldRenderFoodLogs={isOnHomeTab}
+    />
   );
 }
 
-const createStyles = (colors: Colors, _headerHeight: number, theme: Theme) => {
+const createStyles = (colors: Colors) => {
   return StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: colors.primaryBackground,
-    },
-    blurWrapper: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 2,
-    },
-    gradientOverlay: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      opacity: 0.8,
-      zIndex: 1,
-    },
-    blurContainer: {
-      flex: 1,
-    },
-    dateSliderWrapper: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 3,
-    },
-    primaryButtonContainer: {
-      position: "absolute",
-      bottom: 120,
-      right: theme.spacing.xxl + 10,
-      // left: theme.spacing.xl,
-      alignItems: "center",
     },
   });
 };

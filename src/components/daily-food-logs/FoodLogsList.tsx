@@ -1,9 +1,9 @@
 import React, { useRef, useEffect, useMemo, useCallback } from "react";
-import { FlatList, ListRenderItem, ScrollView, View } from "react-native";
+import { FlatList, ListRenderItem, View } from "react-native";
 import { FoodLog, Favorite } from "@/types/models";
 import { FoodLogItem } from "./FoodLogItem";
 import { NutrientDashboard } from "./NutrientSummary/NutrientDashboard";
-import { EmptyFoodLogsState } from "./EmptyFoodLogsState";
+import { HeaderButton } from "@/components/shared/HeaderButton/HeaderButton.ios";
 import { useTheme } from "@/theme/ThemeProvider";
 import { hasDailyTargetsSet } from "@/utils";
 
@@ -15,7 +15,7 @@ interface FoodLogsListProps {
   dailyTargets: any;
   dailyTotals: any;
   dynamicBottomPadding: number;
-  headerOffset: number;
+  headerOffset?: number;
   shouldRenderFoodLogs: boolean;
   onDelete: (log: FoodLog | Favorite) => void;
   onToggleFavorite: (log: FoodLog) => void;
@@ -31,7 +31,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
   dailyTargets,
   dailyTotals,
   dynamicBottomPadding,
-  headerOffset,
+  headerOffset = 0,
   onDelete,
   onToggleFavorite,
   onEdit,
@@ -97,22 +97,50 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
     [dailyTargets]
   );
 
-  const shouldShowEmptyState = hasDailyTargetsSet(dailyTargets);
-
   const ListHeaderComponent = useMemo(
     () => (
-      <NutrientDashboard
-        percentages={dailyPercentages}
-        targets={normalizedTargets}
-        totals={dailyTotals}
-      />
+      <View
+        style={{
+          gap: theme.spacing.xs,
+          paddingBottom: theme.spacing.md,
+        }}
+      >
+        <NutrientDashboard
+          percentages={dailyPercentages}
+          targets={normalizedTargets}
+          totals={dailyTotals}
+        />
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: theme.spacing.lg,
+            // paddingTop: theme.spacing.lg,
+          }}
+        >
+          <HeaderButton
+            imageProps={{ systemName: "camera.fill" }}
+            buttonProps={{ onPress: () => {} }}
+            variant="regular"
+            size="regular"
+          />
+          <HeaderButton
+            imageProps={{ systemName: "mic.fill" }}
+            buttonProps={{ onPress: () => {} }}
+            variant="regular"
+            size="regular"
+          />
+          <HeaderButton
+            imageProps={{ systemName: "text.cursor" }}
+            buttonProps={{ onPress: () => {} }}
+            variant="regular"
+            size="regular"
+          />
+        </View>
+      </View>
     ),
-    [dailyPercentages, normalizedTargets, dailyTotals]
-  );
-
-  const EmptyComponent = useMemo(
-    () => (shouldShowEmptyState ? <EmptyFoodLogsState /> : null),
-    [shouldShowEmptyState]
+    [dailyPercentages, normalizedTargets, dailyTotals, theme.spacing]
   );
 
   const contentContainerStyle = useMemo(
@@ -133,20 +161,20 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
       keyExtractor={keyExtractor}
       renderItem={renderItem}
       getItemLayout={getItemLayout}
+      scrollEventThrottle={16}
       style={{
         flex: 1,
         backgroundColor: colors.primaryBackground,
       }}
       contentContainerStyle={contentContainerStyle}
       ListHeaderComponent={ListHeaderComponent}
-      // ListEmptyComponent={EmptyComponent}
       showsVerticalScrollIndicator={false}
       removeClippedSubviews
       initialNumToRender={6}
       maxToRenderPerBatch={8}
       windowSize={7}
       updateCellsBatchingPeriod={50}
-      // contentInsetAdjustmentBehavior="automatic"
+      contentInsetAdjustmentBehavior="automatic"
     />
   );
 };

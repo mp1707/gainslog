@@ -17,8 +17,6 @@ export const createStyles = (colors: Colors, colorScheme: ColorScheme) => {
 
     // Selected state
     selectedCard: {
-      borderColor: colors.highlightBorder,
-      borderWidth: 2, // Stronger border for light mode clarity
       backgroundColor:
         colorScheme === "dark"
           ? `${colors.accent}0D` // ~5% opacity for dark mode
