@@ -57,6 +57,7 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
 
   // Track previous loading state to detect completion
   const previousLoadingRef = useRef(isLoading);
+  const hapticTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Animation values for staggered reveal
   const titleOpacity = useSharedValue(isLoading ? 0 : 1);
@@ -70,8 +71,9 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
     if (!isLoading && wasLoading) {
       // Only animate when transitioning from loading to loaded state
       // Trigger haptic feedback when loading completes
-      setTimeout(() => {
+      hapticTimerRef.current = setTimeout(() => {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        hapticTimerRef.current = null;
       }, 300);
 
       // Staggered reveal animation sequence
@@ -95,6 +97,14 @@ const AnimatedLogCard: React.FC<LogCardProps & WithLongPress> = ({
 
     // Update the previous loading state
     previousLoadingRef.current = isLoading;
+
+    // Cleanup haptic timer on unmount or when isLoading changes
+    return () => {
+      if (hapticTimerRef.current) {
+        clearTimeout(hapticTimerRef.current);
+        hapticTimerRef.current = null;
+      }
+    };
   }, [isLoading]);
 
   const titleAnimatedStyle = useAnimatedStyle(() => ({

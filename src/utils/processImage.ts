@@ -18,25 +18,42 @@ export interface ProcessedImageResult {
 export const processImage = async (
   uri: string
 ): Promise<ProcessedImageResult> => {
-  // Resize the image to a max width of 1000px, maintaining aspect ratio.
-  const resizedImage = await ImageManipulator.manipulateAsync(
-    uri,
-    [{ resize: { width: 768 } }],
-    { compress: 0.65, format: ImageManipulator.SaveFormat.JPEG }
-  );
+  let localFile: File | null = null;
 
-  const uniqueFilename = `${uuidv4()}.jpg`;
+  try {
+    // Resize the image to a max width of 768px, maintaining aspect ratio.
+    const resizedImage = await ImageManipulator.manipulateAsync(
+      uri,
+      [{ resize: { width: 768 } }],
+      { compress: 0.65, format: ImageManipulator.SaveFormat.JPEG }
+    );
 
-  // Move the resized image from its temporary cache location to the permanent path.
-  const sourceFile = new File(resizedImage.uri);
-  const targetFile = new File(Paths.document, uniqueFilename);
-  await sourceFile.move(targetFile);
+    const uniqueFilename = `${uuidv4()}.jpg`;
 
-  // After moving, sourceFile.uri is automatically updated to the new location
-  const supabaseImagePath = await uploadToSupabaseStorage(sourceFile.uri);
+    // Move the resized image from its temporary cache location to the permanent path.
+    const sourceFile = new File(resizedImage.uri);
+    const targetFile = new File(Paths.document, uniqueFilename);
+    await sourceFile.move(targetFile);
+    localFile = sourceFile; // Track the file for cleanup if upload fails
 
-  return {
-    localImagePath: sourceFile.uri,
-    supabaseImagePath,
-  };
+    // After moving, sourceFile.uri is automatically updated to the new location
+    const supabaseImagePath = await uploadToSupabaseStorage(sourceFile.uri);
+
+    return {
+      localImagePath: sourceFile.uri,
+      supabaseImagePath,
+    };
+  } catch (error) {
+    // Clean up the local file if upload failed
+    if (localFile) {
+      try {
+        await localFile.delete();
+      } catch (deleteError) {
+        // Log but don't throw - we want to propagate the original error
+        console.warn("Failed to clean up orphaned image file:", deleteError);
+      }
+    }
+    // Re-throw the original error
+    throw error;
+  }
 };

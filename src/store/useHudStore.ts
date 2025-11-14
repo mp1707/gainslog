@@ -21,7 +21,9 @@ interface HudActions {
   hide: () => void;
 }
 
-type HudStore = HudState & HudActions;
+type HudStore = HudState & HudActions & {
+  _activeTimerId: NodeJS.Timeout | null;
+};
 
 const DEFAULT_DURATIONS = {
   success: 2000,
@@ -60,38 +62,51 @@ export const useHudStore = create<HudStore>((set, get) => ({
   title: "",
   subtitle: undefined,
   duration: DEFAULT_DURATIONS.info,
+  _activeTimerId: null,
 
   // Actions
   show: (config) => {
     const duration = config.duration ?? DEFAULT_DURATIONS[config.type];
 
+    // Clear any existing timer to prevent memory leaks
+    const currentState = get();
+    if (currentState._activeTimerId) {
+      clearTimeout(currentState._activeTimerId);
+    }
+
     // Trigger haptic feedback
     HAPTIC_FEEDBACK[config.type]();
 
-    // Update state to show HUD
+    // Auto-dismiss after duration
+    const timerId = setTimeout(() => {
+      const state = get();
+      // Only hide if this is still the current HUD (prevents race conditions)
+      if (
+        state.isVisible &&
+        state.type === config.type &&
+        state.title === config.title
+      ) {
+        set({ isVisible: false, _activeTimerId: null });
+      }
+    }, duration);
+
+    // Update state to show HUD and store timer reference
     set({
       isVisible: true,
       type: config.type,
       title: config.title,
       subtitle: config.subtitle,
       duration,
+      _activeTimerId: timerId,
     });
-
-    // Auto-dismiss after duration
-    setTimeout(() => {
-      const currentState = get();
-      // Only hide if this is still the current HUD (prevents race conditions)
-      if (
-        currentState.isVisible &&
-        currentState.type === config.type &&
-        currentState.title === config.title
-      ) {
-        set({ isVisible: false });
-      }
-    }, duration);
   },
 
   hide: () => {
-    set({ isVisible: false });
+    const currentState = get();
+    // Clear timer when manually hiding
+    if (currentState._activeTimerId) {
+      clearTimeout(currentState._activeTimerId);
+    }
+    set({ isVisible: false, _activeTimerId: null });
   },
 }));

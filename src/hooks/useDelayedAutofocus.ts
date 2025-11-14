@@ -1,4 +1,4 @@
-import { useCallback, RefObject } from "react";
+import { useCallback, RefObject, useRef } from "react";
 import { TextInput, InteractionManager } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -6,16 +6,25 @@ export const useDelayedAutofocus = (
   inputRef: RefObject<TextInput | null>,
   delay: number = 600
 ): void => {
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
         requestAnimationFrame(() => {
-          setTimeout(() => {
+          timeoutRef.current = setTimeout(() => {
             inputRef.current?.focus();
+            timeoutRef.current = null;
           }, delay);
         });
       });
-      return () => task.cancel();
+      return () => {
+        task.cancel();
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+      };
     }, [inputRef, delay])
   );
 };

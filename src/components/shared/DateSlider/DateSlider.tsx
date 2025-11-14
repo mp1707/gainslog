@@ -35,6 +35,7 @@ export const DateSlider = () => {
   );
   const flatListRef = useRef<FlatList>(null);
   const scrollDebounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const loadMoreTimersRef = useRef<Set<NodeJS.Timeout>>(new Set());
 
   const { foodLogs, selectedDate, setSelectedDate, dailyTargets } =
     useAppStore();
@@ -179,7 +180,7 @@ export const DateSlider = () => {
           const listRef = flatListRef.current;
           setPastWeeksLoaded((prev) => {
             const newWeeks = prev + WEEKS_TO_LOAD_AT_ONCE;
-            setTimeout(() => {
+            const timer = setTimeout(() => {
               const newContentOffset =
                 contentOffset + WEEKS_TO_LOAD_AT_ONCE * 7 * ITEM_WIDTH;
               listRef?.scrollToOffset({
@@ -187,7 +188,9 @@ export const DateSlider = () => {
                 animated: false,
               });
               setIsLoading(false);
+              loadMoreTimersRef.current.delete(timer);
             }, 100);
+            loadMoreTimersRef.current.add(timer);
             return newWeeks;
           });
         }
@@ -197,9 +200,11 @@ export const DateSlider = () => {
           setIsLoading(true);
           setFutureWeeksLoaded((prev) => {
             const newWeeks = prev + WEEKS_TO_LOAD_AT_ONCE;
-            setTimeout(() => {
+            const timer = setTimeout(() => {
               setIsLoading(false);
+              loadMoreTimersRef.current.delete(timer);
             }, 100);
+            loadMoreTimersRef.current.add(timer);
             return newWeeks;
           });
         }
@@ -267,6 +272,17 @@ export const DateSlider = () => {
     futureWeeksLoaded,
     getMondayOfWeek,
   ]);
+
+  // Cleanup all timers on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollDebounceTimer.current) {
+        clearTimeout(scrollDebounceTimer.current);
+      }
+      loadMoreTimersRef.current.forEach((timer) => clearTimeout(timer));
+      loadMoreTimersRef.current.clear();
+    };
+  }, []);
 
   return (
     <View style={styles.container}>

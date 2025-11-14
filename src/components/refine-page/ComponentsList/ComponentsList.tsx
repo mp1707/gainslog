@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState, useRef, useEffect } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Plus } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
@@ -35,6 +35,7 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
   const { t } = useTranslation();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const acceptTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Simplified: handleRowTap now only opens the edit modal
   const handleRowTap = useCallback(
@@ -56,13 +57,28 @@ export const ComponentsList: React.FC<ComponentsListProps> = ({
       // First collapse the expansion to trigger animation
       setExpandedIndex(null);
 
+      // Clear any existing timer
+      if (acceptTimerRef.current) {
+        clearTimeout(acceptTimerRef.current);
+      }
+
       // Then update data after animation completes
-      setTimeout(() => {
+      acceptTimerRef.current = setTimeout(() => {
         onAcceptRecommendation(index, comp);
+        acceptTimerRef.current = null;
       }, 300); // Allow smooth collapse animation (250ms + buffer)
     },
     [onAcceptRecommendation]
   );
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (acceptTimerRef.current) {
+        clearTimeout(acceptTimerRef.current);
+      }
+    };
+  }, []);
 
   return (
     <Animated.View layout={easeLayout} style={styles.container}>
