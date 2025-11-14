@@ -1,1 +1,1 @@
-export { DatePicker } from "./DatePicker";
+export { CalendarGrid } from "./components/CalendarGrid";
