@@ -2,10 +2,10 @@ import React, { useCallback } from "react";
 import { View } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "@/theme";
-import { createStyles } from "./KeyboardAccessory.styles";
+import { createStyles } from "./CreateActions.styles";
 import { HeaderButton } from "@/components/shared/HeaderButton/HeaderButton.ios";
 
-interface KeyboardAccessoryProps {
+interface CreateActionsProps {
   onSwitchToCamera: () => void;
   onSwitchToRecording: () => void;
   onEstimate: () => void;
@@ -13,7 +13,7 @@ interface KeyboardAccessoryProps {
   isEstimating?: boolean;
 }
 
-export const KeyboardAccessory: React.FC<KeyboardAccessoryProps> = ({
+export const CreateActions: React.FC<CreateActionsProps> = ({
   onSwitchToCamera,
   onSwitchToRecording,
   onEstimate,

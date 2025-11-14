@@ -210,7 +210,6 @@
     },
     "favorites": {
       "title": "Favoriten",
-      "empty": "Keine Favoriten gefunden",
       "accessibilityLabel": "Favoriten-Mahlzeit {{title}} protokollieren"
     },
     "image": {

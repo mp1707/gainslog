@@ -9,7 +9,7 @@ import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { TextInput } from "@/components/shared/TextInput";
 import { FavoritesSection } from "@/components/create-page/FavoritesSection";
 import { ImageSection } from "@/components/create-page/ImageSection";
-import { INPUT_ACCESSORY_VIEW_ID } from "@/constants/create";
+import { CreateActions } from "@/components/create-page/CreateActions";
 import { createStyles } from "./TypingModeView.styles";
 
 interface TypingModeViewProps {
@@ -19,6 +19,11 @@ interface TypingModeViewProps {
   onDescriptionChange: (text: string) => void;
   onSelectFavorite: (favorite: Favorite) => void;
   onRemoveImage: () => void;
+  onSwitchToCamera: () => void;
+  onSwitchToRecording: () => void;
+  onEstimate: () => void;
+  canContinue: boolean;
+  isEstimating: boolean;
 }
 
 export const TypingModeView = ({
@@ -28,6 +33,11 @@ export const TypingModeView = ({
   onDescriptionChange,
   onSelectFavorite,
   onRemoveImage,
+  onSwitchToCamera,
+  onSwitchToRecording,
+  onEstimate,
+  canContinue,
+  isEstimating,
 }: TypingModeViewProps) => {
   const { t } = useTranslation();
   const { theme, colors, colorScheme } = useTheme();
@@ -41,8 +51,8 @@ export const TypingModeView = ({
 
   return (
     <Animated.View
-      entering={FadeIn.springify().damping(30).stiffness(400)}
-      exiting={FadeOut.springify().damping(30).stiffness(400)}
+      entering={FadeIn.duration(250)}
+      exiting={FadeOut.duration(200)}
       style={styles.container}
     >
       <TextInput
@@ -51,7 +61,6 @@ export const TypingModeView = ({
         onChangeText={onDescriptionChange}
         placeholder={t("createLog.input.placeholder")}
         multiline
-        inputAccessoryViewID={INPUT_ACCESSORY_VIEW_ID}
         fontSize="Headline"
         style={styles.textInputField}
         containerStyle={styles.textInputContainer}
@@ -68,6 +77,13 @@ export const TypingModeView = ({
         isProcessing={isProcessingImage}
         onRemoveImage={onRemoveImage}
         isVisible={!!(draft.localImagePath || isProcessingImage)}
+      />
+      <CreateActions
+        onSwitchToCamera={onSwitchToCamera}
+        onSwitchToRecording={onSwitchToRecording}
+        onEstimate={onEstimate}
+        canContinue={canContinue}
+        isEstimating={isEstimating}
       />
     </Animated.View>
   );

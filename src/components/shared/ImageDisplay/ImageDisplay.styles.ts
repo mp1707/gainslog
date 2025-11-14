@@ -12,7 +12,6 @@ export const createStyles = (
   return StyleSheet.create({
     container: {
       borderRadius: componentStyles.cards.cornerRadius,
-      flex: 1,
     },
     rowContainer: {
       flex: 1,

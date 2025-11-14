@@ -5,11 +5,26 @@ export const createStyles = (colors: Colors, theme: Theme) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      justifyContent: "center",
+      justifyContent: "flex-start",
       alignItems: "center",
       paddingHorizontal: theme.spacing.lg,
+      paddingTop: theme.spacing.xxl,
     },
     content: {
+      flexDirection: "column",
+      alignItems: "center",
+      gap: theme.spacing.lg,
+      width: "100%",
+    },
+    transcriptionContainer: {
+      width: "100%",
+      paddingVertical: theme.spacing.md,
+      minHeight: 60,
+    },
+    transcriptionText: {
+      textAlign: "center",
+    },
+    waveformRow: {
       flexDirection: "row",
       alignItems: "center",
       gap: theme.spacing.lg,

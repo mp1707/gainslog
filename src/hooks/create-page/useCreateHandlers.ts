@@ -117,6 +117,11 @@ export const useCreateHandlers = ({
     }
 
     setMode("recording");
+
+    // Wait for mode transition to start before initiating recording
+    // Prevents race condition on first permission grant
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     await startRecording();
   }, [requestPermission, setMode, startRecording]);
 

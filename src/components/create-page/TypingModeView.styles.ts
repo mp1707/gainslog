@@ -9,7 +9,6 @@ export const createStyles = (
   StyleSheet.create({
     container: {
       gap: theme.spacing.lg,
-      flex: 1,
     },
     textInputContainer: {
       paddingHorizontal: theme.spacing.lg,

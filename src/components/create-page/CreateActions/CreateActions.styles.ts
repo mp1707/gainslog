@@ -8,18 +8,13 @@ export const createStyles = (
 ) =>
   StyleSheet.create({
     container: {
-      marginHorizontal: theme.spacing.sm,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.sm,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: theme.spacing.md,
-      borderRadius: theme.spacing.xl,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.md,
     },
     actionsRow: {
       flexDirection: "row",
       alignItems: "center",
+      justifyContent: "flex-end",
       gap: theme.spacing.md,
     },
   });

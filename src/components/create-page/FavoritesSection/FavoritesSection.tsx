@@ -24,6 +24,8 @@ export const FavoritesSection = ({
   const { t } = useTranslation();
   const styles = useMemo(() => createStyles(theme), [theme]);
 
+  const noFavsFound = favorites.length === 0;
+
   const renderFavoriteCard = useCallback<ListRenderItem<Favorite>>(
     ({ item }) => (
       <FavoritePreviewCard
@@ -35,17 +37,15 @@ export const FavoritesSection = ({
     [onSelectFavorite]
   );
 
-  if (!isVisible) return null;
-
-  const headingText =
-    favorites.length > 0
-      ? t("createLog.favorites.title")
-      : t("createLog.favorites.empty");
+  if (!isVisible || noFavsFound) return null;
 
   return (
     <View style={styles.favoritesSection}>
-      <AppText role="Caption" style={[styles.heading, { color: colors.secondaryText }]}>
-        {headingText}
+      <AppText
+        role="Caption"
+        style={[styles.heading, { color: colors.secondaryText }]}
+      >
+        {t("createLog.favorites.title")}
       </AppText>
       {favorites.length > 0 && (
         <View style={styles.favoritesListOffsetFix}>
@@ -81,7 +81,7 @@ const createStyles = (theme: Theme) =>
       paddingHorizontal: theme.spacing.lg,
     },
     favoritesListContent: {
-      paddingVertical: theme.spacing.xl,
+      paddingTop: theme.spacing.xl,
       paddingRight: theme.spacing.xl,
       paddingLeft: theme.spacing.sm,
     },

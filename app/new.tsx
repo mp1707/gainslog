@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Platform, ScrollView, View } from "react-native";
-import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { useTranslation } from "react-i18next";
 import { useLocalSearchParams } from "expo-router";
 
@@ -15,7 +14,6 @@ import { useTranscriptionSync } from "@/hooks/create-page/useTranscriptionSync";
 import { useFavoritesFilter } from "@/hooks/create-page/useFavoritesFilter";
 import { useImageProcessor } from "@/hooks/create-page/useImageProcessor";
 import { useCreateHandlers } from "@/hooks/create-page/useCreateHandlers";
-import { KeyboardAccessory } from "@/components/create-page/KeyboardAccessory/KeyboardAccessory";
 import { CreateHeader } from "@/components/create-page/CreateHeader";
 import { CreatePaywallView } from "@/components/create-page/CreatePaywallView";
 import { TypingModeView } from "@/components/create-page/TypingModeView";
@@ -110,6 +108,20 @@ export default function Create() {
     };
   }, [startNewDraft, clearDraft, selectedDate]);
 
+  useEffect(() => {
+    // Handle initial mode from query params
+    if (!draftId) return; // Wait for draft to exist
+
+    if (params.mode === "recording") {
+      // Start recording when opened directly with mode=recording
+      handleSwitchToRecording();
+    } else if (params.mode === "camera") {
+      // Handle camera mode if needed
+      handleSwitchToCamera();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.mode, draftId]); // Only run when params.mode or draftId changes on mount
+
   const handleEstimation = () => {
     setIsEstimating(true);
     handleEstimationBase();
@@ -171,6 +183,11 @@ export default function Create() {
                 onDescriptionChange={handleDescriptionChange}
                 onSelectFavorite={handleCreateLogFromFavorite}
                 onRemoveImage={handleRemoveImage}
+                onSwitchToCamera={handleSwitchToCamera}
+                onSwitchToRecording={handleSwitchToRecording}
+                onEstimate={handleEstimation}
+                canContinue={canContinue}
+                isEstimating={isEstimating}
               />
             </ScrollView>
           )}
@@ -184,20 +201,9 @@ export default function Create() {
               volumeLevel={volumeLevel}
               isRecording={isRecording}
               isTransitioning={isTransitioning}
+              liveTranscription={liveTranscription}
               onStopRecording={handleStopRecording}
             />
-          )}
-
-          {mode === "typing" && (
-            <KeyboardStickyView offset={{ closed: -30, opened: 20 }}>
-              <KeyboardAccessory
-                onSwitchToCamera={handleSwitchToCamera}
-                onSwitchToRecording={handleSwitchToRecording}
-                onEstimate={handleEstimation}
-                canContinue={canContinue}
-                isEstimating={isEstimating}
-              />
-            </KeyboardStickyView>
           )}
         </>
       )}

@@ -210,7 +210,6 @@
     },
     "favorites": {
       "title": "Favorites",
-      "empty": "No favorites found",
       "accessibilityLabel": "Log favorite meal {{title}}"
     },
     "image": {

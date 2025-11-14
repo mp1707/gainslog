@@ -39,8 +39,8 @@ export const CameraModeView = ({ onImageSelected }: CameraModeViewProps) => {
 
   return (
     <Animated.View
-      entering={FadeIn.springify().damping(30).stiffness(400)}
-      exiting={FadeOut.springify().damping(30).stiffness(400)}
+      entering={FadeIn.duration(250)}
+      exiting={FadeOut.duration(200)}
       style={styles.container}
     >
       <CameraView
