@@ -1,10 +1,12 @@
 import React, { useRef, useEffect, useMemo, useCallback } from "react";
 import { FlatList, ListRenderItem, View } from "react-native";
+import * as Haptics from "expo-haptics";
 import { FoodLog, Favorite } from "@/types/models";
 import { FoodLogItem } from "./FoodLogItem";
 import { NutrientDashboard } from "./NutrientSummary/NutrientDashboard";
 import { HeaderButton } from "@/components/shared/HeaderButton/HeaderButton.ios";
 import { useTheme } from "@/theme/ThemeProvider";
+import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { hasDailyTargetsSet } from "@/utils";
 
 const DEFAULT_TARGETS = { calories: 0, protein: 0, carbs: 0, fat: 0 };
@@ -41,6 +43,7 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
   shouldRenderFoodLogs,
 }) => {
   const { colors, theme } = useTheme();
+  const router = useSafeRouter();
   const flatListRef = useRef<FlatList>(null);
   const prevDataRef = useRef({ length: foodLogs.length });
 
@@ -97,6 +100,21 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
     [dailyTargets]
   );
 
+  const handleCameraPress = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    router.push("/new?mode=camera");
+  }, [router]);
+
+  const handleMicPress = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    router.push("/new?mode=recording");
+  }, [router]);
+
+  const handleTypingPress = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    router.push("/new?mode=typing");
+  }, [router]);
+
   const ListHeaderComponent = useMemo(
     () => (
       <View
@@ -116,31 +134,38 @@ export const FoodLogsList: React.FC<FoodLogsListProps> = ({
             justifyContent: "center",
             alignItems: "center",
             gap: theme.spacing.lg,
-            // paddingTop: theme.spacing.lg,
           }}
         >
           <HeaderButton
             imageProps={{ systemName: "camera.fill" }}
-            buttonProps={{ onPress: () => {} }}
+            buttonProps={{ onPress: handleCameraPress }}
             variant="regular"
             size="regular"
           />
           <HeaderButton
             imageProps={{ systemName: "mic.fill" }}
-            buttonProps={{ onPress: () => {} }}
+            buttonProps={{ onPress: handleMicPress }}
             variant="regular"
             size="regular"
           />
           <HeaderButton
             imageProps={{ systemName: "text.cursor" }}
-            buttonProps={{ onPress: () => {} }}
+            buttonProps={{ onPress: handleTypingPress }}
             variant="regular"
             size="regular"
           />
         </View>
       </View>
     ),
-    [dailyPercentages, normalizedTargets, dailyTotals, theme.spacing]
+    [
+      dailyPercentages,
+      normalizedTargets,
+      dailyTotals,
+      theme.spacing,
+      handleCameraPress,
+      handleMicPress,
+      handleTypingPress,
+    ]
   );
 
   const contentContainerStyle = useMemo(

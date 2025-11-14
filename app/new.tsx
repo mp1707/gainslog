@@ -1,19 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Platform,
-  ScrollView,
-  TextInput as RNTextInput,
-  View,
-} from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, Platform, ScrollView, View } from "react-native";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { useTranslation } from "react-i18next";
+import { useLocalSearchParams } from "expo-router";
 
 import { useAppStore } from "@/store/useAppStore";
 import { useTheme } from "@/theme/ThemeProvider";
 import { useTranscription } from "@/hooks/useTranscription";
 import { useEstimation } from "@/hooks/useEstimation";
-import { useDelayedAutofocus } from "@/hooks/useDelayedAutofocus";
 import { useCreationStore } from "@/store/useCreationStore";
 import { useDraft } from "@/hooks/useDraft";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
@@ -21,13 +15,13 @@ import { useTranscriptionSync } from "@/hooks/create-page/useTranscriptionSync";
 import { useFavoritesFilter } from "@/hooks/create-page/useFavoritesFilter";
 import { useImageProcessor } from "@/hooks/create-page/useImageProcessor";
 import { useCreateHandlers } from "@/hooks/create-page/useCreateHandlers";
-import { TextInput } from "@/components/shared/TextInput";
 import { KeyboardAccessory } from "@/components/create-page/KeyboardAccessory/KeyboardAccessory";
 import { CreateHeader } from "@/components/create-page/CreateHeader";
 import { CreatePaywallView } from "@/components/create-page/CreatePaywallView";
-import { FavoritesSection } from "@/components/create-page/FavoritesSection";
-import { ImageSection } from "@/components/create-page/ImageSection";
-import { INPUT_ACCESSORY_VIEW_ID } from "@/constants/create";
+import { TypingModeView } from "@/components/create-page/TypingModeView";
+import { CameraModeView } from "@/components/create-page/CameraModeView";
+import { RecordingModeView } from "@/components/create-page/RecordingModeView";
+import type { CreationMode } from "@/types/creation";
 import { createStyles } from "./new.styles";
 
 export default function Create() {
@@ -39,6 +33,10 @@ export default function Create() {
     [theme, colors, colorScheme]
   );
   const isIOS = Platform.OS === "ios";
+
+  // Get initial mode from query params
+  const params = useLocalSearchParams<{ mode?: CreationMode }>();
+  const [mode, setMode] = useState<CreationMode>(params.mode || "typing");
 
   const { startNewDraft, clearDraft, updateDraft } = useCreationStore();
   const [draftId, setDraftId] = useState<string | null>(null);
@@ -63,9 +61,6 @@ export default function Create() {
     startRecording,
   } = useTranscription();
 
-  const textInputRef = useRef<RNTextInput>(null);
-  useDelayedAutofocus(textInputRef);
-
   const {
     handleCancel,
     handleOpenExplainer,
@@ -73,6 +68,9 @@ export default function Create() {
     handleEstimation: handleEstimationBase,
     handleDescriptionChange,
     handleCreateLogFromFavorite,
+    handleSwitchToCamera,
+    handleSwitchToRecording,
+    handleStopRecording: handleStopRecordingBase,
   } = useCreateHandlers({
     router,
     draft,
@@ -83,14 +81,14 @@ export default function Create() {
     updateDraft,
     addFoodLog,
     runCreateEstimation,
+    setMode,
+    requestPermission,
+    startRecording,
+    stopRecording,
   });
 
-  const { handleRemoveImage, isProcessingImage } = useImageProcessor({
-    draftId,
-    pendingImageUri: draft?.pendingImageUri,
-    updateDraft,
-    textInputRef,
-  });
+  const { handleImageSelected, handleRemoveImage, isProcessingImage } =
+    useImageProcessor(draftId, updateDraft);
 
   const filteredFavorites = useFavoritesFilter(
     favorites,
@@ -117,6 +115,15 @@ export default function Create() {
     handleEstimationBase();
   };
 
+  const handleImageProcessed = (uri: string) => {
+    handleImageSelected(uri);
+    setMode("typing");
+  };
+
+  const handleStopRecording = () => {
+    handleStopRecordingBase();
+  };
+
   const canContinue =
     (draft?.description?.trim() !== "" || !!draft?.localImagePath) &&
     !isEstimating;
@@ -131,64 +138,69 @@ export default function Create() {
 
   return (
     <View style={styles.container}>
-      <CreateHeader onCancel={handleCancel} onOpenExplainer={handleOpenExplainer} />
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        contentInsetAdjustmentBehavior="automatic"
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode={isIOS ? "interactive" : "on-drag"}
-      >
-        {isVerifyingSubscription ? (
-          <View style={styles.centerContent}>
-            <ActivityIndicator />
-          </View>
-        ) : !isPro ? (
+      <CreateHeader
+        onCancel={handleCancel}
+        onOpenExplainer={handleOpenExplainer}
+      />
+      {isVerifyingSubscription ? (
+        <View style={styles.centerContent}>
+          <ActivityIndicator />
+        </View>
+      ) : !isPro ? (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          contentInsetAdjustmentBehavior="automatic"
+        >
           <CreatePaywallView onShowPaywall={handleShowPaywall} />
-        ) : (
-          <View style={styles.content}>
-            <TextInput
-              ref={textInputRef}
-              value={draft.description || ""}
-              onChangeText={handleDescriptionChange}
-              placeholder={t("createLog.input.placeholder")}
-              multiline
-              inputAccessoryViewID={INPUT_ACCESSORY_VIEW_ID}
-              fontSize="Headline"
-              style={styles.textInputField}
-              containerStyle={styles.textInputContainer}
-              focusBorder={false}
-              accessibilityLabel={t("createLog.input.accessibilityLabel")}
+        </ScrollView>
+      ) : (
+        <>
+          {mode === "typing" && (
+            <ScrollView
+              style={styles.scrollView}
+              contentContainerStyle={styles.scrollContent}
+              contentInsetAdjustmentBehavior="automatic"
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode={isIOS ? "interactive" : "on-drag"}
+            >
+              <TypingModeView
+                draft={draft}
+                filteredFavorites={filteredFavorites}
+                isProcessingImage={isProcessingImage}
+                onDescriptionChange={handleDescriptionChange}
+                onSelectFavorite={handleCreateLogFromFavorite}
+                onRemoveImage={handleRemoveImage}
+              />
+            </ScrollView>
+          )}
+
+          {mode === "camera" && (
+            <CameraModeView onImageSelected={handleImageProcessed} />
+          )}
+
+          {mode === "recording" && (
+            <RecordingModeView
+              volumeLevel={volumeLevel}
+              isRecording={isRecording}
+              isTransitioning={isTransitioning}
+              onStopRecording={handleStopRecording}
             />
-            <FavoritesSection
-              favorites={filteredFavorites}
-              onSelectFavorite={handleCreateLogFromFavorite}
-              isVisible={!(draft.localImagePath || isProcessingImage)}
-            />
-            <ImageSection
-              imageUrl={draft.localImagePath}
-              isProcessing={isProcessingImage}
-              onRemoveImage={handleRemoveImage}
-              isVisible={!!(draft.localImagePath || isProcessingImage)}
-            />
-          </View>
-        )}
-      </ScrollView>
-      <KeyboardStickyView offset={{ closed: -30, opened: 20 }}>
-        <KeyboardAccessory
-          textInputRef={textInputRef}
-          requestMicPermission={requestPermission}
-          onRecording={startRecording}
-          onStopRecording={stopRecording}
-          onEstimate={handleEstimation}
-          canContinue={canContinue}
-          isEstimating={isEstimating}
-          isRecording={isRecording}
-          isTransitioning={isTransitioning}
-          volumeLevel={volumeLevel}
-          logId={draft.id}
-        />
-      </KeyboardStickyView>
+          )}
+
+          {mode === "typing" && (
+            <KeyboardStickyView offset={{ closed: -30, opened: 20 }}>
+              <KeyboardAccessory
+                onSwitchToCamera={handleSwitchToCamera}
+                onSwitchToRecording={handleSwitchToRecording}
+                onEstimate={handleEstimation}
+                canContinue={canContinue}
+                isEstimating={isEstimating}
+              />
+            </KeyboardStickyView>
+          )}
+        </>
+      )}
     </View>
   );
 }

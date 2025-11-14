@@ -1,28 +1,18 @@
-import { useCallback, useEffect, useState } from "react";
-import type { TextInput as RNTextInput } from "react-native";
+import { useCallback, useState } from "react";
 import * as Haptics from "expo-haptics";
 import { useTranslation } from "react-i18next";
 import { processImage } from "@/utils/processImage";
 import { showErrorToast } from "@/lib/toast";
 import type { FoodLog } from "@/types/models";
 
-interface UseImageProcessorParams {
-  draftId: string | null;
-  pendingImageUri: string | undefined;
-  updateDraft: (id: string, updates: Partial<FoodLog>) => void;
-  textInputRef: React.RefObject<RNTextInput | null>;
-}
-
-export const useImageProcessor = ({
-  draftId,
-  pendingImageUri,
-  updateDraft,
-  textInputRef,
-}: UseImageProcessorParams) => {
+export const useImageProcessor = (
+  draftId: string | null,
+  updateDraft: (id: string, updates: Partial<FoodLog>) => void
+) => {
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const { t } = useTranslation();
 
-  const handleNewImageSelected = useCallback(
+  const handleImageSelected = useCallback(
     async (uri: string) => {
       if (!draftId) return;
 
@@ -49,16 +39,14 @@ export const useImageProcessor = ({
         updateDraft(draftId, {
           localImagePath,
           supabaseImagePath,
-          pendingImageUri: undefined,
           calories: 0,
           protein: 0,
           carbs: 0,
           fat: 0,
         });
-        textInputRef.current?.focus();
       }
     },
-    [draftId, updateDraft, textInputRef, t]
+    [draftId, updateDraft, t]
   );
 
   const handleRemoveImage = useCallback(() => {
@@ -66,19 +54,11 @@ export const useImageProcessor = ({
     updateDraft(draftId, {
       localImagePath: undefined,
       supabaseImagePath: undefined,
-      pendingImageUri: undefined,
     });
-    textInputRef.current?.focus();
-  }, [draftId, updateDraft, textInputRef]);
-
-  useEffect(() => {
-    if (pendingImageUri) {
-      handleNewImageSelected(pendingImageUri);
-    }
-  }, [pendingImageUri, handleNewImageSelected]);
+  }, [draftId, updateDraft]);
 
   return {
-    handleNewImageSelected,
+    handleImageSelected,
     handleRemoveImage,
     isProcessingImage,
   };

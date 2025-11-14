@@ -13,6 +13,7 @@ export const createStyles = (
       paddingVertical: theme.spacing.sm,
       flexDirection: "row",
       alignItems: "center",
+      justifyContent: "center",
       gap: theme.spacing.md,
       borderRadius: theme.spacing.xl,
     },
@@ -20,23 +21,5 @@ export const createStyles = (
       flexDirection: "row",
       alignItems: "center",
       gap: theme.spacing.md,
-      marginLeft: "auto",
-    },
-    waveformContainer: {
-      flex: 1,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "flex-start",
-      height: 28,
-      overflow: "hidden",
-      borderRadius: theme.spacing.sm,
-      paddingVertical: theme.spacing.xs,
-    },
-    waveformBar: {
-      width: 2,
-      borderRadius: theme.spacing.xs,
-      marginHorizontal: 2,
-      backgroundColor:
-        colorScheme === "dark" ? colors.accent : colors.primaryText,
     },
   });

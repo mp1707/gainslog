@@ -1,7 +1,10 @@
 import { useCallback } from "react";
 import * as Haptics from "expo-haptics";
+import { useCameraPermissions } from "expo-camera";
 import type { FoodLog, Favorite } from "@/types/models";
+import type { CreationMode } from "@/types/creation";
 import { generateFoodLogId } from "@/utils/idGenerator";
+import { showErrorToast } from "@/lib/toast";
 
 interface UseCreateHandlersParams {
   router: ReturnType<typeof import("@/hooks/useSafeRouter").useSafeRouter>;
@@ -13,6 +16,10 @@ interface UseCreateHandlersParams {
   updateDraft: (id: string, updates: Partial<FoodLog>) => void;
   addFoodLog: (log: any) => void;
   runCreateEstimation: (draft: FoodLog) => void;
+  setMode: (mode: CreationMode) => void;
+  requestPermission: () => Promise<boolean>;
+  startRecording: () => Promise<void>;
+  stopRecording: () => Promise<void>;
 }
 
 export const useCreateHandlers = ({
@@ -25,7 +32,12 @@ export const useCreateHandlers = ({
   updateDraft,
   addFoodLog,
   runCreateEstimation,
+  setMode,
+  requestPermission,
+  startRecording,
+  stopRecording,
 }: UseCreateHandlersParams) => {
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const handleCancel = useCallback(() => {
     router.back();
   }, [router]);
@@ -48,7 +60,14 @@ export const useCreateHandlers = ({
     }
     runCreateEstimation(draft);
     router.back();
-  }, [draft, isPro, isEstimating, runCreateEstimation, router, handleShowPaywall]);
+  }, [
+    draft,
+    isPro,
+    isEstimating,
+    runCreateEstimation,
+    router,
+    handleShowPaywall,
+  ]);
 
   const handleDescriptionChange = useCallback(
     (description: string) => {
@@ -72,6 +91,40 @@ export const useCreateHandlers = ({
     [addFoodLog, selectedDate, router]
   );
 
+  const handleSwitchToCamera = useCallback(async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    if (!cameraPermission?.granted) {
+      const result = await requestCameraPermission();
+      if (!result.granted) {
+        showErrorToast(
+          "Camera Permission Required",
+          "Please enable camera access in settings"
+        );
+        return;
+      }
+    }
+
+    setMode("camera");
+  }, [cameraPermission, requestCameraPermission, setMode]);
+
+  const handleSwitchToRecording = useCallback(async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    const hasPermission = await requestPermission();
+    if (!hasPermission) {
+      return;
+    }
+
+    setMode("recording");
+    await startRecording();
+  }, [requestPermission, setMode, startRecording]);
+
+  const handleStopRecording = useCallback(async () => {
+    await stopRecording();
+    setMode("typing");
+  }, [stopRecording, setMode]);
+
   return {
     handleCancel,
     handleOpenExplainer,
@@ -79,5 +132,8 @@ export const useCreateHandlers = ({
     handleEstimation,
     handleDescriptionChange,
     handleCreateLogFromFavorite,
+    handleSwitchToCamera,
+    handleSwitchToRecording,
+    handleStopRecording,
   };
 };

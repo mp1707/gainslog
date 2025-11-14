@@ -23,7 +23,7 @@ import { hasNoDailyTargets } from "@/utils/dailyTargets";
 export default function TodayTab() {
   const { safeNavigate } = useNavigationGuard();
   const { dynamicBottomPadding } = useTabBarSpacing();
-  const { colors, theme } = useTheme();
+  const { colors } = useTheme();
   const { t } = useTranslation();
   const headerHeight = useHeaderHeight();
 

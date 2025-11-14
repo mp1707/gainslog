@@ -68,14 +68,6 @@ function ThemedStack() {
         }}
       />
       <Stack.Screen
-        name="camera"
-        options={{
-          presentation: "modal",
-          headerShown: false,
-          gestureEnabled: true,
-        }}
-      />
-      <Stack.Screen
         name="onboarding"
         options={{
           presentation: "modal",
