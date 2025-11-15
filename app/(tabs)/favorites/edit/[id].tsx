@@ -34,7 +34,6 @@ import { useEditableTitle } from "@/components/refine-page/hooks/useEditableTitl
 import { useEditChangeTracker } from "@/components/refine-page/hooks/useEditChangeTracker";
 import { useEditedFavorite } from "@/components/refine-page/hooks/useEditedFavorite";
 import { Host, Image } from "@expo/ui/swift-ui";
-import { isLiquidGlassAvailable } from "expo-glass-effect";
 
 const easeLayout = Layout.duration(220).easing(Easing.inOut(Easing.quad));
 
@@ -44,7 +43,6 @@ export default function EditFavorite() {
   const updateFavorite = useAppStore((state) => state.updateFavorite);
   const deleteFavorite = useAppStore((state) => state.deleteFavorite);
   const isPro = useAppStore((state) => state.isPro);
-  const hasLiquidGlass = isLiquidGlassAvailable();
   const isVerifyingSubscription = useAppStore(
     (state) => state.isVerifyingSubscription
   );
@@ -277,7 +275,6 @@ export default function EditFavorite() {
     navigation,
     handleDone,
     doneDisabled,
-    colors.secondaryBackground,
     colors.disabledText,
     colors.accent,
     t,

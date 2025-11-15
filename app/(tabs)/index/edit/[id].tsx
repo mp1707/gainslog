@@ -259,7 +259,6 @@ export default function Edit() {
     navigation,
     handleDone,
     doneDisabled,
-    colors.secondaryText,
     colors.accent,
     colors.disabledText,
     t,
