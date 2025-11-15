@@ -12,7 +12,6 @@ import { TextInput } from "@/components/shared/TextInput";
 import { Host, Picker } from "@expo/ui/swift-ui";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
-import { clipShape } from "@expo/ui/swift-ui/modifiers";
 import { useTranslation } from "react-i18next";
 
 export default function EditComponent() {

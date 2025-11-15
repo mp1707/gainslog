@@ -25,59 +25,14 @@ import { AppText } from "@/components";
 import { AnimatedText } from "@/components/shared/AnimatedText";
 import { Theme, useTheme } from "@/theme";
 import { Flame } from "lucide-react-native";
+import { hexToRgb, rgbToHex, adjustColor, interpolateColor } from "@/utils/colorUtils";
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 const TWO_PI = Math.PI * 2;
 
-const hexToRgb = (hexColor: string) => {
-  const hex = hexColor.replace("#", "");
-  const normalized =
-    hex.length === 3
-      ? hex
-          .split("")
-          .map((char) => char + char)
-          .join("")
-      : hex;
-  const intVal = parseInt(normalized, 16);
-  const r = (intVal >> 16) & 255;
-  const g = (intVal >> 8) & 255;
-  const b = intVal & 255;
-  return { r, g, b };
-};
-
-const rgbToHex = (r: number, g: number, b: number) => {
-  const toHex = (value: number) => {
-    const safe = Math.round(Math.max(0, Math.min(255, value)));
-    return safe.toString(16).padStart(2, "0");
-  };
-  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-};
-
-const adjustColor = (hexColor: string, amount: number) => {
-  const { r, g, b } = hexToRgb(hexColor);
-  const scaleChannel = (value: number) => {
-    if (amount >= 0) {
-      return value + (255 - value) * amount;
-    }
-    return value * (1 + amount);
-  };
-  return rgbToHex(scaleChannel(r), scaleChannel(g), scaleChannel(b));
-};
-
 const hexToRgba = (hex: string, alpha: number): string => {
   const { r, g, b } = hexToRgb(hex);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-};
-
-const interpolateColor = (from: string, to: string, t: number) => {
-  const fromRgb = hexToRgb(from);
-  const toRgb = hexToRgb(to);
-  const mix = (a: number, b: number) => a + (b - a) * t;
-  return rgbToHex(
-    mix(fromRgb.r, toRgb.r),
-    mix(fromRgb.g, toRgb.g),
-    mix(fromRgb.b, toRgb.b)
-  );
 };
 
 type GradientStop = { position: number; color: string };

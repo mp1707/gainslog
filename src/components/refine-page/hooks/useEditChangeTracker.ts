@@ -17,18 +17,11 @@ export const useEditChangeTracker = () => {
     setHasReestimated(true);
   }, []);
 
-  const reset = useCallback(() => {
-    setHasUnsavedChanges(false);
-    setChangesCount(0);
-    setHasReestimated(false);
-  }, []);
-
   return {
     hasUnsavedChanges,
     changesCount,
     hasReestimated,
     markComponentChange,
     markReestimated,
-    reset,
   };
 };

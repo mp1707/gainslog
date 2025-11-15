@@ -10,12 +10,6 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@/app-providers/*": ["src/app-providers/*"],
-      "@/app-providers": ["src/app-providers/index"],
-      "@/features/*": ["src/features/*"],
-      "@/features": ["src/features/index"],
-      "@/shared/*": ["src/shared/*"],
-      "@/shared": ["src/shared/index"],
       "@/theme/*": ["src/theme/*"],
       "@/theme": ["src/theme/index"],
       "@/types/*": ["src/types/*"],
@@ -30,26 +24,17 @@
       "@/utils": ["src/utils/index"],
       "@/context/*": ["src/context/*"],
       "@/context": ["src/context/index"],
-      "@/providers/*": ["src/providers/*"],
-      "@/providers": ["src/providers/index"],
       "@/hooks/*": ["src/hooks/*"],
       "@/hooks": ["src/hooks/index"],
       "@/constants/*": ["src/constants/*"],
       "@/constants": ["src/constants/index"],
-      "@/assets": ["assets"],
-
-      "@/hooks-new/*": ["src/hooks-new/*"],
-      "@/hooks-new": ["src/hooks-new/index"]
+      "@/assets": ["assets"]
     }
   },
   "include": ["src/**/*", "app/**/*", "App.tsx", "index.ts"],
   "exclude": [
     "node_modules",
     "dist",
-    "build",
-    "src/store-legacy/**",
-    "src/hooks-legacy/**",
-    "src/utils-legacy/**",
-    "src/types-legacy/**"
+    "build"
   ]
 }
