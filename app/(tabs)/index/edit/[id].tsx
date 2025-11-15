@@ -25,6 +25,7 @@ import { InlinePaywallCard } from "@/components/paywall/InlinePaywallCard";
 import { ImageDisplay } from "@/components/shared/ImageDisplay";
 import { TextInput } from "@/components/shared/TextInput";
 import { useEstimation } from "@/hooks/useEstimation";
+import { usePaywall } from "@/hooks/usePaywall";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { makeSelectLogById } from "@/store/selectors";
 import { useAppStore } from "@/store/useAppStore";
@@ -62,6 +63,10 @@ export default function Edit() {
   const { colors, theme } = useTheme();
   const { t } = useTranslation();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+
+  // Get trial info for paywall
+  const { options } = usePaywall();
+  const trialDays = options[0]?.trialInfo?.days;
 
   const {
     hasUnsavedChanges,
@@ -371,6 +376,7 @@ export default function Edit() {
                     body={t("editLog.paywall.body")}
                     ctaLabel={t("editLog.paywall.cta")}
                     onPress={handleShowPaywall}
+                    trialDays={trialDays}
                     testID="edit-inline-paywall"
                   />
                 )

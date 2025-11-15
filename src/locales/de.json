@@ -171,7 +171,9 @@
       "paywall": {
         "title": "Mit Pro neu berechnen",
         "body": "Erhalte aktualisierte Makros, wenn du Zutaten anpasst.",
-        "cta": "Zum Neuberechnen freischalten"
+        "bodyWithTrial": "Erhalte aktualisierte Makros, wenn du Zutaten anpasst. {{days}} Tage kostenlos testen.",
+        "cta": "Zum Neuberechnen freischalten",
+        "ctaWithTrial": "Kostenlos testen"
       }
     }
   },
@@ -196,7 +198,9 @@
     "paywall": {
       "title": "Mit Pro neu berechnen",
       "body": "Erhalte aktualisierte Makros, wenn du Zutaten anpasst.",
-      "cta": "Zum Neuberechnen freischalten"
+      "bodyWithTrial": "Erhalte aktualisierte Makros, wenn du Zutaten anpasst. {{days}} Tage kostenlos testen.",
+      "cta": "Zum Neuberechnen freischalten",
+      "ctaWithTrial": "Kostenlos testen"
     }
   },
   "createLog": {
@@ -221,7 +225,9 @@
     "paywall": {
       "title": "KI-Logging ist eine Pro-Funktion",
       "body": "Logge Mahlzeiten mühelos per Foto, Text oder Stimme.",
-      "cta": "Kostenlos testen"
+      "bodyWithTrial": "Logge Mahlzeiten mühelos per Foto, Text oder Stimme. {{days}} Tage kostenlos testen.",
+      "cta": "Kostenlos testen",
+      "ctaWithTrial": "{{days}} Tage kostenlos testen"
     },
     "permissions": {
       "cameraDenied": {
@@ -246,7 +252,16 @@
     },
     "header": {
       "title": "MacroLoop Pro",
-      "subtitle": "Spare Zeit und bleib konsequent mit mühelosem KI-Tracking."
+      "subtitle": "Spare Zeit und bleib konsequent mit mühelosem KI-Tracking.",
+      "subtitleWithTrial": "Teste Pro {{days}} Tage kostenlos. Jederzeit kündbar."
+    },
+    "trial": {
+      "badge": "{{days}} Tage kostenlos",
+      "eligible": {
+        "duration": "{{days}} Tage kostenlos",
+        "then": "Danach {{price}}/Monat"
+      },
+      "loading": "Berechtigung wird geprüft…"
     },
     "states": {
       "loading": "Pro-Details werden geladen…",
@@ -296,6 +311,7 @@
     },
     "buttons": {
       "primary": "Pro freischalten",
+      "primaryWithTrial": "{{days}} Tage kostenlos testen",
       "processing": "Wird verarbeitet …",
       "retry": "Erneut versuchen"
     },
@@ -770,6 +786,7 @@
         "canceledWithDate": "Automatische Verlängerung beendet. Zugriff bis {{date}}.",
         "canceledWithoutDate": "Automatische Verlängerung beendet. Zugriff bis zum Ende des aktuellen Zeitraums.",
         "upgradeDescription": "Zutatenerkennung, Nährwertschätzung, müheloses Tracking.",
+        "upgradeDescriptionWithTrial": "Zutatenerkennung, Nährwertschätzung, müheloses Tracking. Kostenloser Test verfügbar.",
         "restore": {
           "title": "Bereits abonniert?",
           "subtitle": "Käufe nach Neuinstallation oder Gerätewechsel wiederherstellen.",

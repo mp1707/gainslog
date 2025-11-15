@@ -5,6 +5,7 @@ import { useTheme } from "@/theme/ThemeProvider";
 import type { Theme } from "@/theme";
 import { InlinePaywallCard } from "@/components/paywall/InlinePaywallCard";
 import { useTranslation } from "react-i18next";
+import { usePaywall } from "@/hooks/usePaywall";
 
 interface CreatePaywallViewProps {
   onShowPaywall: () => void;
@@ -16,14 +17,25 @@ export const CreatePaywallView = ({
   const { theme } = useTheme();
   const { t } = useTranslation();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const { options } = usePaywall();
+  const trialDays = options[0]?.trialInfo?.days;
+  const hasTrial = typeof trialDays === "number";
+
+  const body = hasTrial
+    ? t("createLog.paywall.bodyWithTrial", { days: trialDays })
+    : t("createLog.paywall.body");
+
+  const ctaLabel = hasTrial
+    ? t("createLog.paywall.ctaWithTrial", { days: trialDays })
+    : t("createLog.paywall.cta");
 
   return (
     <View style={styles.paywallContainer}>
       <InlinePaywallCard
         Icon={BrainCircuit}
         title={t("createLog.paywall.title")}
-        body={t("createLog.paywall.body")}
-        ctaLabel={t("createLog.paywall.cta")}
+        body={body}
+        ctaLabel={ctaLabel}
         onPress={onShowPaywall}
         testID="create-inline-paywall"
       />

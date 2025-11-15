@@ -171,7 +171,9 @@
       "paywall": {
         "title": "Recalculate with Pro",
         "body": "Get updated macros after changing ingredients.",
-        "cta": "Unlock recalculation"
+        "bodyWithTrial": "Get updated macros after changing ingredients. Free for {{days}} days.",
+        "cta": "Unlock recalculation",
+        "ctaWithTrial": "Start free trial"
       }
     }
   },
@@ -196,7 +198,9 @@
     "paywall": {
       "title": "Recalculate with Pro",
       "body": "Get updated macros after changing ingredients.",
-      "cta": "Unlock recalculation"
+      "bodyWithTrial": "Get updated macros after changing ingredients. Free for {{days}} days.",
+      "cta": "Unlock recalculation",
+      "ctaWithTrial": "Start free trial"
     }
   },
   "createLog": {
@@ -221,7 +225,9 @@
     "paywall": {
       "title": "AI logging is a Pro feature",
       "body": "Log meals effortlessly from a photo, text, or voice.",
-      "cta": "Try for free"
+      "bodyWithTrial": "Log meals effortlessly from a photo, text, or voice. Free for {{days}} days.",
+      "cta": "Try for free",
+      "ctaWithTrial": "Start {{days}}-day free trial"
     },
     "permissions": {
       "cameraDenied": {
@@ -246,7 +252,16 @@
     },
     "header": {
       "title": "MacroLoop Pro",
-      "subtitle": "Save time and stay consistent with effortless AI tracking."
+      "subtitle": "Save time and stay consistent with effortless AI tracking.",
+      "subtitleWithTrial": "Try Pro free for {{days}} days. Cancel anytime."
+    },
+    "trial": {
+      "badge": "{{days}} days free",
+      "eligible": {
+        "duration": "Free for {{days}} days",
+        "then": "Then {{price}}/month"
+      },
+      "loading": "Checking eligibility…"
     },
     "states": {
       "loading": "Loading Pro details…",
@@ -296,6 +311,7 @@
     },
     "buttons": {
       "primary": "Unlock Pro",
+      "primaryWithTrial": "Start {{days}}-day free trial",
       "processing": "Processing…",
       "retry": "Try again"
     },
@@ -772,6 +788,7 @@
         "canceledWithDate": "Auto‑renew canceled. Access through {{date}}.",
         "canceledWithoutDate": "Auto‑renew canceled. Access until the current period ends.",
         "upgradeDescription": "Ingredient recognition, nutrition estimates, effortless tracking.",
+        "upgradeDescriptionWithTrial": "Ingredient recognition, nutrition estimates, effortless tracking. Free trial available.",
         "restore": {
           "title": "Already subscribed?",
           "subtitle": "Restore purchases after reinstalling or switching devices.",

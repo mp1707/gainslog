@@ -4,10 +4,11 @@ import { Crown, BadgeCheck, RotateCcw } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { restorePurchases } from "@/lib/revenuecat/client";
 
-import { AppText } from "@/components";
+import { AppText, Card } from "@/components";
 import { SettingRow } from "../SettingRow";
 import { useTheme, Colors, Theme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
+import { usePaywall } from "@/hooks/usePaywall";
 import { applyCustomerInfoToStore } from "@/lib/revenuecat/subscription";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 
@@ -21,6 +22,17 @@ export const ProSection = () => {
   const { isPro, isProCanceled, proExpirationDate, isVerifyingSubscription } =
     useAppStore();
   const [isRestoringPurchases, setRestoringPurchases] = useState(false);
+
+  // Get trial info for paywall
+  const { options } = usePaywall();
+  const trialDays = options[0]?.trialInfo?.days;
+  const hasTrial = typeof trialDays === "number";
+  const trialPillLabel = useMemo(() => {
+    if (!hasTrial) {
+      return null;
+    }
+    return t("paywall.trial.badge", { days: trialDays });
+  }, [hasTrial, t, trialDays]);
 
   const language = i18n.language ?? undefined;
 
@@ -105,7 +117,16 @@ export const ProSection = () => {
       <AppText role="Caption" color="secondary" style={styles.sectionHeader}>
         {t("settings.sections.subscription.label")}
       </AppText>
-      <View style={styles.sectionGroup}>
+      <Card padding={0} style={styles.sectionCard}>
+        {!isPro && trialPillLabel && (
+          <View style={styles.trialPillWrapper}>
+            <View style={styles.trialPill}>
+              <AppText role="Caption" style={styles.trialPillText}>
+                {trialPillLabel}
+              </AppText>
+            </View>
+          </View>
+        )}
         <SettingRow
           icon={isPro ? BadgeCheck : Crown}
           title={
@@ -116,11 +137,12 @@ export const ProSection = () => {
           subtitle={
             isPro
               ? cancellationDescription
+              : hasTrial
+              ? t("settings.sections.subscription.upgradeDescriptionWithTrial")
               : t("settings.sections.subscription.upgradeDescription")
           }
           accessory="chevron"
           onPress={isPro ? handleManageSubscription : handleShowPaywall}
-          backgroundColor={colors.secondaryBackground}
           hapticIntensity="light"
         />
         {!isPro && (
@@ -138,11 +160,10 @@ export const ProSection = () => {
                 loading: isRestoringPurchases,
               }}
               accessory="none"
-              backgroundColor={colors.secondaryBackground}
             />
           </>
         )}
-      </View>
+      </Card>
     </View>
   );
 };
@@ -157,15 +178,28 @@ const createStyles = (colors: Colors, theme: Theme) =>
       marginLeft: theme.spacing.lg,
       letterSpacing: 0.5,
     },
-    sectionGroup: {
-      borderRadius: theme.components.cards.cornerRadius,
-      overflow: "hidden",
-      backgroundColor: colors.secondaryBackground,
+    sectionCard: {
+      position: "relative",
     },
     separator: {
       height: StyleSheet.hairlineWidth,
       backgroundColor: colors.subtleBorder,
       marginLeft: theme.spacing.lg + 24 + theme.spacing.md,
       marginRight: theme.spacing.lg,
+    },
+    trialPillWrapper: {
+      position: "absolute",
+      top: -theme.spacing.sm,
+      right: theme.spacing.sm,
+      zIndex: 1,
+    },
+    trialPill: {
+      backgroundColor: colors.accent,
+      borderRadius: theme.components.buttons.cornerRadius,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 4,
+    },
+    trialPillText: {
+      color: colors.black,
     },
   });

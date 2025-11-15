@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native";
 import { Moon, Palette, Languages } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 
-import { AppText } from "@/components";
+import { AppText, Card } from "@/components";
 import { useTheme, Colors, Theme } from "@/theme";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { SettingRow } from "../SettingRow";
@@ -31,14 +31,13 @@ export const AppearanceSection = () => {
       <AppText role="Caption" color="secondary" style={styles.sectionHeader}>
         {t("settings.sections.appearance.label")}
       </AppText>
-      <View style={styles.sectionGroup}>
+      <Card padding={0}>
         <SettingRow
           icon={Moon}
           title={t("settings.sections.appearance.rows.darkMode.title")}
           subtitle={t("settings.sections.appearance.rows.darkMode.subtitle")}
           accessory="chevron"
           onPress={() => router.push("/settings/dark-mode")}
-          backgroundColor={colors.secondaryBackground}
         />
         <View style={styles.separator} />
         <SettingRow
@@ -49,7 +48,6 @@ export const AppearanceSection = () => {
           onPress={() => router.push("/settings/language")}
           value={languageValue}
           valueTone="secondary"
-          backgroundColor={colors.secondaryBackground}
         />
         <View style={styles.separator} />
         <SettingRow
@@ -58,9 +56,8 @@ export const AppearanceSection = () => {
           subtitle={t("settings.sections.appearance.rows.design.subtitle")}
           accessory="chevron"
           onPress={() => router.push("/settings/design")}
-          backgroundColor={colors.secondaryBackground}
         />
-      </View>
+      </Card>
     </View>
   );
 };
@@ -74,11 +71,6 @@ const createStyles = (colors: Colors, theme: Theme) =>
       marginBottom: theme.spacing.sm,
       marginLeft: theme.spacing.lg,
       letterSpacing: 0.5,
-    },
-    sectionGroup: {
-      borderRadius: theme.components.cards.cornerRadius,
-      overflow: "hidden",
-      backgroundColor: colors.secondaryBackground,
     },
     separator: {
       height: StyleSheet.hairlineWidth,

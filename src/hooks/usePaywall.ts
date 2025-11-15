@@ -13,6 +13,7 @@ import {
   restorePurchases,
 } from '@/lib/revenuecat/client';
 import { applyCustomerInfoToStore } from '@/lib/revenuecat/subscription';
+import { useTrialEligibility, type TrialInfo } from './useTrialEligibility';
 
 export type PaywallOption = {
   id: string;
@@ -20,6 +21,7 @@ export type PaywallOption = {
   price: string;
   periodDescription: string;
   package: PurchasesPackage;
+  trialInfo?: TrialInfo;
 };
 
 type ActionResult =
@@ -88,13 +90,18 @@ const getPeriodDescription = (pkg: PurchasesPackage, t: TFunction) => {
   return t('paywall.options.period.recurring', { period: periodLabel });
 };
 
-const toOption = (pkg: PurchasesPackage, t: TFunction): PaywallOption => {
+const toOption = (
+  pkg: PurchasesPackage,
+  t: TFunction,
+  trialInfo?: TrialInfo
+): PaywallOption => {
   return {
     id: pkg.identifier,
     title: getPackageTitle(pkg, t),
     price: pkg.product.priceString,
     periodDescription: getPeriodDescription(pkg, t),
     package: pkg,
+    trialInfo,
   };
 };
 
@@ -116,6 +123,7 @@ const toErrorMessage = (error: unknown, t: TFunction): string => {
 
 export const usePaywall = () => {
   const { t } = useTranslation();
+  const [packages, setPackages] = useState<PurchasesPackage[]>([]);
   const [options, setOptions] = useState<PaywallOption[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -123,28 +131,46 @@ export const usePaywall = () => {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
 
+  // Check trial eligibility for all packages
+  const trialEligibilityMap = useTrialEligibility(packages);
+
   const loadOptions = useCallback(async () => {
     setIsLoading(true);
     setLoadError(null);
 
     try {
-      const packages = await fetchCurrentPackages();
-      const mapped = packages.map((pkg) => toOption(pkg, t));
-
-      setOptions(mapped);
-      setSelectedId((current) => (
-        current && mapped.some((option) => option.id === current)
-          ? current
-          : mapped[0]?.id ?? null
-      ));
+      const fetchedPackages = await fetchCurrentPackages();
+      setPackages(fetchedPackages);
     } catch (error) {
       setLoadError(toErrorMessage(error, t));
-      setOptions([]);
+      setPackages([]);
       setSelectedId(null);
-    } finally {
       setIsLoading(false);
     }
   }, [t]);
+
+  // Update options when packages or trial eligibility changes
+  useEffect(() => {
+    if (packages.length === 0) {
+      setOptions([]);
+      setIsLoading(false);
+      return;
+    }
+
+    const mapped = packages.map((pkg) => {
+      const productId = pkg.product.identifier;
+      const trialInfo = trialEligibilityMap[productId] ?? undefined;
+      return toOption(pkg, t, trialInfo);
+    });
+
+    setOptions(mapped);
+    setSelectedId((current) =>
+      current && mapped.some((option) => option.id === current)
+        ? current
+        : mapped[0]?.id ?? null
+    );
+    setIsLoading(false);
+  }, [packages, trialEligibilityMap, t]);
 
   useEffect(() => {
     void loadOptions();

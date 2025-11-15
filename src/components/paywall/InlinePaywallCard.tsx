@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { LucideIcon } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 
 import { Card } from "@/components/Card";
 import { AppText } from "@/components/shared/AppText";
@@ -14,6 +15,7 @@ interface InlinePaywallCardProps {
   ctaLabel: string;
   onPress: () => void;
   testID?: string;
+  trialDays?: number;
 }
 
 export const InlinePaywallCard: React.FC<InlinePaywallCardProps> = ({
@@ -23,8 +25,25 @@ export const InlinePaywallCard: React.FC<InlinePaywallCardProps> = ({
   ctaLabel,
   onPress,
   testID,
+  trialDays,
 }) => {
   const { colors, theme } = useTheme();
+  const { t } = useTranslation();
+
+  // Enhance body and CTA when trial is available
+  const displayBody = useMemo(() => {
+    if (trialDays) {
+      return `${body} ${t("paywall.trial.eligible.duration", { days: trialDays })}`;
+    }
+    return body;
+  }, [body, trialDays, t]);
+
+  const displayCta = useMemo(() => {
+    if (trialDays) {
+      return t("paywall.buttons.primaryWithTrial", { days: trialDays });
+    }
+    return ctaLabel;
+  }, [ctaLabel, trialDays, t]);
 
   const styles = useMemo(
     () =>
@@ -65,13 +84,13 @@ export const InlinePaywallCard: React.FC<InlinePaywallCardProps> = ({
         <View style={styles.textStack}>
           <AppText role="Headline">{title}</AppText>
           <AppText role="Body" color="secondary">
-            {body}
+            {displayBody}
           </AppText>
         </View>
       </View>
       <Button
         variant="primary"
-        label={ctaLabel}
+        label={displayCta}
         onPress={onPress}
         style={styles.button}
       />

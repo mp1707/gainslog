@@ -224,30 +224,29 @@ export default function PaywallScreen() {
         <View style={styles.packages}>
           {options.map((option) => {
             const isSelected = option.id === selectedId;
-            const badge =
-              option.id === highlightedId
-                ? t("paywall.options.badge")
-                : undefined;
-            const isMonthly = option.package.packageType === 'MONTHLY';
+            const isMonthly = option.package.packageType === "MONTHLY";
+            const hasTrial = Boolean(option.trialInfo);
+            const trialDays = option.trialInfo?.days ?? 0;
 
             return (
               <TouchableOpacity
                 key={option.id}
                 activeOpacity={0.7}
                 onPress={() => handleSelectOption(option.id)}
-                style={[
-                  styles.package,
-                  isSelected && styles.packageSelected,
-                  badge && styles.packageHighlighted,
-                ]}
+                style={[styles.package, isSelected && styles.packageSelected]}
               >
                 {isMonthly ? (
                   <>
-                    {badge && (
-                      <View style={styles.packageHeader}>
-                        <View style={styles.badge}>
-                          <AppText role="Caption" style={styles.badgeText}>
-                            {badge}
+                    {hasTrial && (
+                      <View style={styles.trialBadgeContainer}>
+                        <View style={styles.trialBadge}>
+                          <AppText
+                            role="Caption"
+                            style={styles.trialBadgeTitle}
+                          >
+                            {t("paywall.trial.badge", {
+                              days: trialDays,
+                            })}
                           </AppText>
                         </View>
                       </View>
@@ -256,9 +255,19 @@ export default function PaywallScreen() {
                       <AppText role="Title2" style={styles.monthlyPrice}>
                         {option.price}
                       </AppText>
-                      <AppText role="Caption" style={styles.perMonthLabel}>
+                      <AppText role="Caption" style={styles.priceMetaLabel}>
                         {t("paywall.options.period.perMonth")}
                       </AppText>
+                      {hasTrial && (
+                        <>
+                          <View style={styles.priceMetaDivider} />
+                          <AppText role="Caption" style={styles.priceMetaLabel}>
+                            {t("paywall.trial.eligible.then", {
+                              price: option.price,
+                            })}
+                          </AppText>
+                        </>
+                      )}
                     </View>
                     <View style={styles.bulletList}>
                       <View style={styles.bulletItem}>
@@ -295,30 +304,13 @@ export default function PaywallScreen() {
                   </>
                 ) : (
                   <>
-                    {option.title ? (
+                    {option.title && (
                       <>
                         <View style={styles.packageHeader}>
                           <AppText role="Headline">{option.title}</AppText>
-                          {badge && (
-                            <View style={styles.badge}>
-                              <AppText role="Caption" style={styles.badgeText}>
-                                {badge}
-                              </AppText>
-                            </View>
-                          )}
                         </View>
                         <AppText role="Title2">{option.price}</AppText>
                       </>
-                    ) : (
-                      badge && (
-                        <View style={styles.packageHeader}>
-                          <View style={styles.badge}>
-                            <AppText role="Caption" style={styles.badgeText}>
-                              {badge}
-                            </AppText>
-                          </View>
-                        </View>
-                      )
                     )}
                     <AppText role="Caption" color="secondary">
                       {option.periodDescription}
@@ -335,6 +327,12 @@ export default function PaywallScreen() {
           label={
             isPurchasing
               ? t("paywall.buttons.processing")
+              : selectedId &&
+                options.find((opt) => opt.id === selectedId)?.trialInfo
+              ? t("paywall.buttons.primaryWithTrial", {
+                  days: options.find((opt) => opt.id === selectedId)!.trialInfo!
+                    .days,
+                })
               : t("paywall.buttons.primary")
           }
           onPress={handlePurchase}
@@ -497,17 +495,40 @@ const createStyles = (theme: Theme, colors: Colors) =>
     badgeText: {
       color: colors.black,
     },
+    trialBadgeContainer: {
+      alignItems: "flex-start",
+    },
+    trialBadge: {
+      backgroundColor: colors.accent,
+      borderRadius: theme.components.buttons.cornerRadius,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: 6,
+      alignSelf: "baseline",
+    },
+    trialBadgeTitle: {
+      color: colors.black,
+      fontWeight: "600",
+    },
+
     monthlyPriceRow: {
       flexDirection: "row",
-      alignItems: "baseline",
-      gap: theme.spacing.xs,
+      alignItems: "center",
+      flexWrap: "wrap",
+      gap: theme.spacing.sm,
     },
     monthlyPrice: {
       color: colors.primaryText,
     },
-    perMonthLabel: {
+    priceMetaLabel: {
       color: colors.primaryText,
       opacity: 0.7,
+    },
+    priceMetaDivider: {
+      width: 4,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: colors.subtleBorder,
+      marginHorizontal: theme.spacing.xs,
     },
     bulletList: {
       gap: theme.spacing.sm,

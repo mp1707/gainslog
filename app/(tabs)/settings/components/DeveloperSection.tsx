@@ -3,7 +3,7 @@ import { View, StyleSheet, Alert } from "react-native";
 import { Wrench, AlertTriangle, BadgeCheck } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 
-import { AppText } from "@/components";
+import { AppText, Card } from "@/components";
 import { useTheme, Colors, Theme } from "@/theme";
 import { useAppStore } from "@/store/useAppStore";
 import { seedFoodLogs } from "@/utils/seed";
@@ -63,7 +63,7 @@ export const DeveloperSection = () => {
       <AppText role="Caption" color="secondary" style={styles.sectionHeader}>
         {t("settings.sections.developer.label")}
       </AppText>
-      <View style={styles.sectionGroup}>
+      <Card padding={0}>
         <SettingRow
           icon={Wrench}
           title={t("settings.sections.developer.rows.seed.title")}
@@ -73,7 +73,6 @@ export const DeveloperSection = () => {
             onPress: handleSeedData,
           }}
           accessory="none"
-          backgroundColor={colors.secondaryBackground}
         />
         <View style={styles.separator} />
         <SettingRow
@@ -85,7 +84,6 @@ export const DeveloperSection = () => {
             tone: "error",
           }}
           accessory="none"
-          backgroundColor={colors.secondaryBackground}
         />
         <View style={styles.separator} />
         <SettingRow
@@ -98,7 +96,6 @@ export const DeveloperSection = () => {
             tone: "error",
           }}
           accessory="none"
-          backgroundColor={colors.secondaryBackground}
         />
         <View style={styles.separator} />
         <SettingRow
@@ -116,9 +113,8 @@ export const DeveloperSection = () => {
             onPress: handleTogglePro,
           }}
           accessory="none"
-          backgroundColor={colors.secondaryBackground}
         />
-      </View>
+      </Card>
     </View>
   );
 };
@@ -132,11 +128,6 @@ const createStyles = (colors: Colors, theme: Theme) =>
       marginBottom: theme.spacing.sm,
       marginLeft: theme.spacing.lg,
       letterSpacing: 0.5,
-    },
-    sectionGroup: {
-      borderRadius: theme.components.cards.cornerRadius,
-      overflow: "hidden",
-      backgroundColor: colors.secondaryBackground,
     },
     separator: {
       height: StyleSheet.hairlineWidth,

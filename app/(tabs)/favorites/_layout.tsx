@@ -27,7 +27,12 @@ export default function FavoritesLayout() {
           color: colors.primaryText,
           fontFamily: theme.typography.Title1.fontFamily,
         },
-        contentStyle: { backgroundColor: colors.primaryBackground },
+        contentStyle: {
+          backgroundColor:
+            colorScheme === "dark"
+              ? colors.primaryBackground
+              : colors.tertiaryBackground,
+        },
       }}
     >
       <Stack.Screen

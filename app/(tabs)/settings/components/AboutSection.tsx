@@ -3,11 +3,12 @@ import { View, StyleSheet, Alert, Linking } from "react-native";
 import { Shield, FileText } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 
-import { AppText } from "@/components";
+import { AppText, Card } from "@/components";
 import { useTheme, Colors, Theme } from "@/theme";
 import { SettingRow } from "../SettingRow";
 
-const PRIVACY_URL = "https://mp1707.github.io/macroloopinfo/privacy-policy.html";
+const PRIVACY_URL =
+  "https://mp1707.github.io/macroloopinfo/privacy-policy.html";
 const TERMS_URL = "https://mp1707.github.io/macroloopinfo/";
 
 export const AboutSection = () => {
@@ -15,24 +16,26 @@ export const AboutSection = () => {
   const { colors, theme } = useTheme();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
 
-  const handleOpenLink = useCallback((url: string) => {
-    Linking.openURL(url).catch(() => {
-      Alert.alert(t("settings.sections.legal.linkError"));
-    });
-  }, [t]);
+  const handleOpenLink = useCallback(
+    (url: string) => {
+      Linking.openURL(url).catch(() => {
+        Alert.alert(t("settings.sections.legal.linkError"));
+      });
+    },
+    [t]
+  );
 
   return (
     <View style={styles.section}>
       <AppText role="Caption" color="secondary" style={styles.sectionHeader}>
         {t("settings.sections.legal.label")}
       </AppText>
-      <View style={styles.sectionGroup}>
+      <Card padding={0}>
         <SettingRow
           icon={Shield}
           title={t("settings.sections.legal.rows.privacy")}
           onPress={() => handleOpenLink(PRIVACY_URL)}
           accessory="none"
-          backgroundColor={colors.secondaryBackground}
         />
         <View style={styles.separator} />
         <SettingRow
@@ -40,9 +43,8 @@ export const AboutSection = () => {
           title={t("settings.sections.legal.rows.terms")}
           onPress={() => handleOpenLink(TERMS_URL)}
           accessory="none"
-          backgroundColor={colors.secondaryBackground}
         />
-      </View>
+      </Card>
     </View>
   );
 };
@@ -57,15 +59,10 @@ const createStyles = (colors: Colors, theme: Theme) =>
       marginLeft: theme.spacing.lg,
       letterSpacing: 0.5,
     },
-    sectionGroup: {
-      borderRadius: theme.components.cards.cornerRadius,
-      overflow: "hidden",
-      backgroundColor: colors.secondaryBackground,
-    },
     separator: {
       height: StyleSheet.hairlineWidth,
       backgroundColor: colors.subtleBorder,
       marginLeft: theme.spacing.lg + 24 + theme.spacing.md,
-      marginRight: theme.spacing.lg
+      marginRight: theme.spacing.lg,
     },
   });

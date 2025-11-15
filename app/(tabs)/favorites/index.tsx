@@ -12,7 +12,7 @@ import {
 import { FavoriteItem } from "@/components/favorites/FavoriteItem";
 import { SearchBar } from "@/components/shared/SearchBar/SearchBar";
 import { AppText } from "@/components/index";
-import { Colors, Theme, useTheme } from "@/theme";
+import { Colors, ColorScheme, Theme, useTheme } from "@/theme";
 import { useTranslation } from "react-i18next";
 
 export default function FavoritesScreen() {
@@ -32,7 +32,10 @@ export default function FavoritesScreen() {
   const { colors, theme, colorScheme } = useTheme();
   const { t } = useTranslation();
 
-  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+  const styles = useMemo(
+    () => createStyles(colors, theme, colorScheme),
+    [colors, theme, colorScheme]
+  );
 
   const filteredFavorites = useMemo(() => {
     const trimmedQuery = favoritesSearchQuery.trim().toLowerCase();
@@ -121,7 +124,13 @@ export default function FavoritesScreen() {
           />
         </View>
       ) : null,
-    [favoritesSearchQuery, setFavoritesSearchQuery, hasFavorites, theme.spacing.md, t]
+    [
+      favoritesSearchQuery,
+      setFavoritesSearchQuery,
+      hasFavorites,
+      theme.spacing.md,
+      t,
+    ]
   );
 
   return (
@@ -141,7 +150,6 @@ export default function FavoritesScreen() {
         },
       ]}
       ListHeaderComponent={listHeaderComponent}
-      recyclingKey="favorites-list"
       removeClippedSubviews
       ListEmptyComponent={() => (
         <View style={styles.emptyContentContainer}>
@@ -161,11 +169,14 @@ export default function FavoritesScreen() {
   );
 }
 
-const createStyles = (colors: Colors, theme: Theme) =>
+const createStyles = (colors: Colors, theme: Theme, colorScheme: ColorScheme) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.primaryBackground,
+      backgroundColor:
+        colorScheme === "dark"
+          ? colors.primaryBackground
+          : colors.tertiaryBackground,
     },
     list: {
       flex: 1,

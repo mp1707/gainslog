@@ -25,6 +25,7 @@ import { RecalculateButton } from "@/components/refine-page/RecalculateButton";
 import { InlinePaywallCard } from "@/components/paywall/InlinePaywallCard";
 import { TextInput } from "@/components/shared/TextInput";
 import { useEstimation } from "@/hooks/useEstimation";
+import { usePaywall } from "@/hooks/usePaywall";
 import { useSafeRouter } from "@/hooks/useSafeRouter";
 import { makeSelectFavoriteById } from "@/store/selectors";
 import { useAppStore } from "@/store/useAppStore";
@@ -58,6 +59,10 @@ export default function EditFavorite() {
   const { colors, theme } = useTheme();
   const { t } = useTranslation();
   const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+
+  // Get trial info for paywall
+  const { options } = usePaywall();
+  const trialDays = options[0]?.trialInfo?.days;
 
   const {
     hasUnsavedChanges,
@@ -371,6 +376,7 @@ export default function EditFavorite() {
                     body={t("favorites.edit.paywall.body")}
                     ctaLabel={t("favorites.edit.paywall.cta")}
                     onPress={handleShowPaywall}
+                    trialDays={trialDays}
                     testID="edit-inline-paywall"
                   />
                 )
